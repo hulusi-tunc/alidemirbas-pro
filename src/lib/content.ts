@@ -2,7 +2,7 @@ export type Lang = "en" | "tr";
 
 export const copy = {
   en: {
-    nav: { expertise: "Expertise", experience: "Experience", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
+    nav: { expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
@@ -43,6 +43,39 @@ export const copy = {
         { years: "2019 - 20", role: "Digital Marketing", co: "Doğuş Oto", logo: "/logos/dogus-oto.svg" },
       ],
     },
+    lab: {
+      label: "Lab",
+      title: "Where I test what I preach",
+      intro: "Side projects that turn lifecycle practice into public, reusable work.",
+      viewAll: "Explore the archive",
+      projects: [
+        {
+          name: "claude-lifecycle",
+          desc: "An open-source Claude plugin that drafts CRM journeys from proven patterns - 26 journey blueprints across 9 industries.",
+          meta: "Open source - Claude plugin",
+          links: [
+            { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+            { label: "Live demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+          ],
+        },
+        {
+          name: "CRM Journey Archive",
+          desc: "70 lifecycle journey teardowns: how each flow is built, what to test, which KPI to track, which classic mistake to avoid.",
+          meta: "70 teardowns - 5 channels",
+          links: [{ label: "Browse the archive", href: "/lab" }],
+        },
+      ],
+      page: {
+        title: "CRM Journey Archive",
+        intro: "70 lifecycle journey teardowns across sectors and channels. Filter by sector or channel, or search - each entry is a flow I have researched and documented.",
+        searchPlaceholder: "Search journeys...",
+        allSectors: "All sectors",
+        allChannels: "All channels",
+        results: "journeys",
+        empty: "Nothing matches those filters.",
+        back: "Back to home",
+      },
+    },
     finalCta: {
       title: "Let's talk growth.",
       body: "Whether it's a role, a project or a question about lifecycle marketing - my inbox is open.",
@@ -52,7 +85,7 @@ export const copy = {
     footer: { left: "Ali Demirbaş, 2026", right: "Istanbul" },
   },
   tr: {
-    nav: { expertise: "Uzmanlık", experience: "Deneyim", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
@@ -92,6 +125,39 @@ export const copy = {
         { years: "2020 - 21", role: "Dijital Pazarlama", co: "Albayrak Grubu", logo: "/logos/albayrak.svg" },
         { years: "2019 - 20", role: "Dijital Pazarlama", co: "Doğuş Oto", logo: "/logos/dogus-oto.svg" },
       ],
+    },
+    lab: {
+      label: "Lab",
+      title: "Anlattığımı test ettiğim yer",
+      intro: "Lifecycle pratiğini herkese açık, yeniden kullanılabilir işe dönüştüren yan projeler.",
+      viewAll: "Arşivi keşfet",
+      projects: [
+        {
+          name: "claude-lifecycle",
+          desc: "Kanıtlanmış kalıplardan CRM journey'leri taslaklayan açık kaynak Claude eklentisi - 9 sektörde 26 journey şablonu.",
+          meta: "Açık kaynak - Claude eklentisi",
+          links: [
+            { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+            { label: "Canlı demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+          ],
+        },
+        {
+          name: "CRM Journey Arşivi",
+          desc: "70 lifecycle journey incelemesi: her akış nasıl kurulur, ne test edilir, hangi KPI izlenir, hangi klasik hatadan kaçınılır.",
+          meta: "70 inceleme - 5 kanal",
+          links: [{ label: "Arşive göz at", href: "/tr/lab" }],
+        },
+      ],
+      page: {
+        title: "CRM Journey Arşivi",
+        intro: "Sektörler ve kanallar genelinde 70 lifecycle journey incelemesi. Sektöre veya kanala göre filtrele ya da ara - her kayıt araştırıp belgelediğim bir akış.",
+        searchPlaceholder: "Journey ara...",
+        allSectors: "Tüm sektörler",
+        allChannels: "Tüm kanallar",
+        results: "journey",
+        empty: "Bu filtrelerle eşleşen kayıt yok.",
+        back: "Ana sayfaya dön",
+      },
     },
     finalCta: {
       title: "Büyümeyi konuşalım.",

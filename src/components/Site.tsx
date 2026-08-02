@@ -9,7 +9,7 @@ import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 /* Corporate one-pager for Ali Demirbaş in the Altor design language:
    white-first editorial, Altor Blue, dark hero, full-bleed blue stats band. */
 
-function SiteHeader({ t }: { t: (typeof copy)[Lang] }) {
+export function SiteHeader({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <header className="absolute inset-x-0 top-0 z-40">
       <div className="altor-container flex h-[4.5rem] items-center justify-between">
@@ -19,6 +19,7 @@ function SiteHeader({ t }: { t: (typeof copy)[Lang] }) {
         <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
           <a className="transition-colors hover:text-white" href="#expertise">{t.nav.expertise}</a>
           <a className="transition-colors hover:text-white" href="#experience">{t.nav.experience}</a>
+          <Link className="transition-colors hover:text-white" href={t.nav.labHref}>{t.nav.lab}</Link>
           <a className="transition-colors hover:text-white" href="#contact">{t.nav.contact}</a>
         </nav>
         <div className="flex items-center gap-6">
@@ -219,6 +220,40 @@ function Experience({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
+function Lab({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section id="lab" className="bg-paper py-24 md:py-32">
+      <div className="altor-container">
+        <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
+        <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {t.lab.projects.map((project, i) => (
+            <Reveal key={project.name} delay={i * 80}>
+              <article className="group flex h-full flex-col border border-line p-8 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]">
+                <p className="text-sm text-neutral-500">{project.meta}</p>
+                <h3 className="mt-5 text-xl font-semibold tracking-tight text-ink-950">{project.name}</h3>
+                <p className="mt-3 flex-1 text-base leading-relaxed text-ink-600">{project.desc}</p>
+                <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+                  {project.links.map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      {...(link.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+                      className="flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+                    >
+                      {link.label}
+                      <ArrowUpRight aria-hidden className="size-3.5" />
+                    </a>
+                  ))}
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="contact" data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
@@ -251,7 +286,7 @@ function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-function SiteFooter({ t }: { t: (typeof copy)[Lang] }) {
+export function SiteFooter({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <footer className="border-t border-white/10 bg-ink-950 py-8 text-sm text-white/50">
       <div className="altor-container flex items-center justify-between">
@@ -272,6 +307,7 @@ export default function Site({ lang }: { lang: Lang }) {
         <Expertise t={t} />
         <StatsBand t={t} />
         <Experience t={t} />
+        <Lab t={t} />
         <FinalCta t={t} />
       </main>
       <SiteFooter t={t} />
