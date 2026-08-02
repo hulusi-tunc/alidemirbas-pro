@@ -1,81 +1,149 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Database, FlaskConical, Lock } from "lucide-react";
 
 import JourneyBrowser from "@/components/JourneyBrowser";
-import { SiteFooter, SiteHeader } from "@/components/Site";
-import { Reveal } from "@/components/ui/Reveal";
-import { copy, type Lang } from "@/lib/content";
+import { copy, EMAIL, type Lang } from "@/lib/content";
+
+/* The lab as an app shell rather than a marketing page: slim top bar,
+   library sidebar on the left (live tools + a visible roadmap of
+   coming-soon entries), and the archive as the main workspace panel. */
 
 export default function LabPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
+  const shell = t.lab.shell;
   const home = lang === "en" ? "/" : "/tr";
+  const otherLab = lang === "en" ? "/tr/lab" : "/lab";
 
   return (
-    <>
-      <SiteHeader t={t} />
-      <main>
-        {/* compact dark hero so the light-on-dark header keeps working */}
-        <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-32 pb-16 lg:pt-36">
-          <div
-            aria-hidden
-            className="absolute inset-x-0 top-[-18rem] -z-10 h-[32rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-35"
-          />
-          <div className="altor-container">
-            <Reveal>
-              <Link
-                href={home}
-                className="mb-8 inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white"
-              >
-                <ArrowLeft aria-hidden className="size-3.5" />
-                {t.lab.page.back}
-              </Link>
-              <p className="text-sm font-medium text-primary-300">{t.lab.label}</p>
-              <h1 className="mt-4 max-w-3xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-[clamp(2rem,1.3rem+2.8vw,3.25rem)] leading-[1.06] text-transparent">
-                {t.lab.page.title}
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/75">{t.lab.page.intro}</p>
-            </Reveal>
+    <div className="flex min-h-svh flex-col bg-paper">
+      {/* top bar */}
+      <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
+        <div className="flex h-14 items-center justify-between px-4 md:px-6">
+          <div className="flex items-center gap-3">
+            <Link
+              href={home}
+              className="flex items-center gap-1.5 text-sm text-neutral-600 transition-colors hover:text-ink-900"
+            >
+              <ArrowLeft aria-hidden className="size-3.5" />
+              <span className="hidden sm:inline">{shell.backToSite}</span>
+            </Link>
+            <span aria-hidden className="h-4 w-px bg-line" />
+            <span className="flex items-center gap-2 text-sm font-semibold tracking-tight text-ink-950">
+              <FlaskConical aria-hidden className="size-4 text-blue-600" />
+              Ali Demirbaş - Lab
+            </span>
           </div>
-        </section>
+          <div className="flex items-center gap-4">
+            <Link href={otherLab} className="text-sm text-neutral-600 transition-colors hover:text-ink-900">
+              {t.nav.lang}
+            </Link>
+            <a
+              href={`mailto:${EMAIL}`}
+              className="inline-flex h-8 items-center bg-blue-600 px-3 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            >
+              {t.nav.cta}
+            </a>
+          </div>
+        </div>
+      </header>
 
-        <section className="bg-paper py-16 md:py-20">
-          <div className="altor-container">
-            <Reveal>
-              <JourneyBrowser lang={lang} t={t.lab.page} />
-            </Reveal>
-          </div>
-        </section>
+      <div className="flex flex-1">
+        {/* library sidebar */}
+        <aside className="hidden w-64 shrink-0 border-r border-line bg-paper-soft md:block">
+          <div className="sticky top-14 flex max-h-[calc(100svh-3.5rem)] flex-col gap-8 overflow-y-auto p-4 pt-6">
+            <nav aria-label={shell.tools}>
+              <p className="px-2 text-xs font-medium text-neutral-500">{shell.tools}</p>
+              <ul className="mt-2 space-y-0.5">
+                {shell.library.map((item) => {
+                  const external = item.href.startsWith("http");
+                  const Cmp = external ? "a" : Link;
+                  return (
+                    <li key={item.name}>
+                      <Cmp
+                        href={item.href}
+                        {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+                        aria-current={"active" in item && item.active ? "page" : undefined}
+                        className={
+                          "active" in item && item.active
+                            ? "flex items-start gap-2.5 border-l-2 border-blue-600 bg-paper px-2.5 py-2"
+                            : "flex items-start gap-2.5 border-l-2 border-transparent px-2.5 py-2 transition-colors hover:bg-paper"
+                        }
+                      >
+                        <Database aria-hidden className="mt-0.5 size-4 shrink-0 text-neutral-500" />
+                        <span className="min-w-0">
+                          <span className="flex items-center gap-1.5 text-sm font-medium text-ink-900">
+                            <span className="truncate">{item.name}</span>
+                            {external ? <ArrowUpRight aria-hidden className="size-3 shrink-0 text-neutral-400" /> : null}
+                          </span>
+                          <span className="mt-0.5 block truncate text-xs text-neutral-500">{item.desc}</span>
+                        </span>
+                      </Cmp>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
 
-        {/* the other lab project, so the page carries both */}
-        <section className="border-t border-line bg-paper-soft py-16">
-          <div className="altor-container">
-            <Reveal>
-              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="text-sm text-neutral-500">{t.lab.projects[0].meta}</p>
-                  <h2 className="mt-2 text-xl font-semibold tracking-tight text-ink-950">{t.lab.projects[0].name}</h2>
-                  <p className="mt-2 max-w-xl text-base leading-relaxed text-ink-600">{t.lab.projects[0].desc}</p>
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-x-6 gap-y-2">
-                  {t.lab.projects[0].links.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-                    >
-                      {link.label}
-                      <ArrowUpRight aria-hidden className="size-3.5" />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
+            <div>
+              <p className="px-2 text-xs font-medium text-neutral-500">{shell.comingSoon}</p>
+              <ul className="mt-2 space-y-0.5">
+                {shell.planned.map((item) => (
+                  <li
+                    key={item.name}
+                    className="flex items-start gap-2.5 border-l-2 border-transparent px-2.5 py-2 opacity-70"
+                  >
+                    <Lock aria-hidden className="mt-0.5 size-4 shrink-0 text-neutral-400" />
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2 text-sm font-medium text-ink-700">
+                        <span className="truncate">{item.name}</span>
+                        <span className="shrink-0 border border-line bg-paper px-1.5 py-px text-[10px] font-medium text-neutral-500">
+                          {shell.soon}
+                        </span>
+                      </span>
+                      <span className="mt-0.5 block text-xs leading-snug text-neutral-500">{item.desc}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <p className="mt-auto px-2 pb-2 text-xs text-neutral-400">{t.footer.left}</p>
           </div>
-        </section>
-      </main>
-      <SiteFooter t={t} />
-    </>
+        </aside>
+
+        {/* workspace */}
+        <main className="min-w-0 flex-1">
+          <div className="border-b border-line px-4 py-6 md:px-8">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-xl font-semibold tracking-tight text-ink-950">{t.lab.page.title}</h1>
+              <span className="border border-line bg-paper-soft px-2 py-0.5 text-xs font-medium text-neutral-600">
+                70 {t.lab.page.results}
+              </span>
+            </div>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">{t.lab.page.intro}</p>
+            {/* mobile: the sidebar's tools collapse into links here */}
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 md:hidden">
+              {shell.library
+                .filter((item) => item.href.startsWith("http"))
+                .map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 text-sm font-medium text-blue-600"
+                  >
+                    {item.name}
+                    <ArrowUpRight aria-hidden className="size-3" />
+                  </a>
+                ))}
+            </div>
+          </div>
+          <div className="px-4 py-6 md:px-8">
+            <JourneyBrowser lang={lang} t={t.lab.page} />
+          </div>
+        </main>
+      </div>
+    </div>
   );
 }

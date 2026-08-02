@@ -65,6 +65,22 @@ export const copy = {
           links: [{ label: "Browse the archive", href: "/lab" }],
         },
       ],
+      shell: {
+        backToSite: "Back to site",
+        tools: "Tools",
+        comingSoon: "Coming soon",
+        soon: "Soon",
+        library: [
+          { name: "CRM Journey Archive", desc: "70 lifecycle teardowns", href: "/lab", active: true },
+          { name: "claude-lifecycle", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+          { name: "Journey Canvas", desc: "Live demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+        ],
+        planned: [
+          { name: "Push benchmarks", desc: "Send-time and CTR data by vertical" },
+          { name: "Subject line lab", desc: "Test archive with uplift notes" },
+          { name: "RFM playground", desc: "Interactive segmentation sandbox" },
+        ],
+      },
       page: {
         title: "CRM Journey Archive",
         intro: "70 lifecycle journey teardowns across sectors and channels. Filter by sector or channel, or search - each entry is a flow I have researched and documented.",
@@ -148,6 +164,22 @@ export const copy = {
           links: [{ label: "Arşive göz at", href: "/tr/lab" }],
         },
       ],
+      shell: {
+        backToSite: "Siteye dön",
+        tools: "Araçlar",
+        comingSoon: "Yakında",
+        soon: "Yakında",
+        library: [
+          { name: "CRM Journey Arşivi", desc: "70 lifecycle incelemesi", href: "/tr/lab", active: true },
+          { name: "claude-lifecycle", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+          { name: "Journey Canvas", desc: "Canlı demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+        ],
+        planned: [
+          { name: "Push benchmark'ları", desc: "Sektöre göre gönderim saati ve CTR verisi" },
+          { name: "Konu satırı lab'ı", desc: "Uplift notlarıyla test arşivi" },
+          { name: "RFM playground", desc: "İnteraktif segmentasyon sahası" },
+        ],
+      },
       page: {
         title: "CRM Journey Arşivi",
         intro: "Sektörler ve kanallar genelinde 70 lifecycle journey incelemesi. Sektöre veya kanala göre filtrele ya da ara - her kayıt araştırıp belgelediğim bir akış.",
