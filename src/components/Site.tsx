@@ -1,0 +1,280 @@
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, Sparkle } from "lucide-react";
+
+import { ButtonLink } from "@/components/ui/Button";
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/Section";
+import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
+
+/* Corporate one-pager for Ali Demirbaş in the Altor design language:
+   white-first editorial, Altor Blue, dark hero, full-bleed blue stats band. */
+
+function SiteHeader({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <header className="absolute inset-x-0 top-0 z-40">
+      <div className="altor-container flex h-[4.5rem] items-center justify-between">
+        <a href="#top" className="text-[15px] font-semibold tracking-tight text-white">
+          Ali Demirbaş
+        </a>
+        <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
+          <a className="transition-colors hover:text-white" href="#expertise">{t.nav.expertise}</a>
+          <a className="transition-colors hover:text-white" href="#experience">{t.nav.experience}</a>
+          <a className="transition-colors hover:text-white" href="#contact">{t.nav.contact}</a>
+        </nav>
+        <div className="flex items-center gap-6">
+          <Link href={t.nav.langHref} className="text-sm text-white/70 transition-colors hover:text-white">
+            {t.nav.lang}
+          </Link>
+          <a
+            href={`mailto:${EMAIL}`}
+            className="hidden h-10 items-center bg-white px-4 text-sm font-medium text-ink-900 transition-colors hover:bg-neutral-100 sm:inline-flex"
+          >
+            {t.nav.cta}
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Hero({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section
+      id="top"
+      data-tone="dark"
+      className="relative isolate flex min-h-[92svh] flex-col overflow-hidden bg-ink-950 pt-32 pb-12 lg:pt-36"
+    >
+      {/* quiet blue wash + vertical rules, the reference hero's ground */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
+      />
+
+      <div className="relative flex flex-1 flex-col justify-center">
+        <div className="altor-container">
+          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+            <div>
+              <Reveal>
+                <h1 className="max-w-3xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-display-xl text-transparent">
+                  {t.hero.line1}
+                  <br />
+                  {t.hero.line2}
+                </h1>
+              </Reveal>
+              <Reveal delay={90} className="mt-6">
+                <p className="max-w-lg text-xl leading-relaxed text-white">{t.hero.lead}</p>
+                <p className="mt-4 max-w-lg text-base leading-relaxed text-white/75">{t.hero.sub}</p>
+              </Reveal>
+              <Reveal delay={170} className="mt-8">
+                <div className="flex flex-col gap-3 sm:flex-row sm:gap-0">
+                  <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="sm" className="btn-col-1 max-w-full">
+                    <span className="flex w-full items-center justify-between gap-4">
+                      {t.hero.ctaPrimary}
+                      <ArrowRight aria-hidden className="size-4" />
+                    </span>
+                  </ButtonLink>
+                  <ButtonLink href={LINKEDIN} variant="ghost" size="sm" className="btn-col-1 max-w-full">
+                    <span className="flex w-full items-center justify-between gap-4">
+                      {t.hero.ctaSecondary}
+                      <ArrowUpRight aria-hidden className="size-4" />
+                    </span>
+                  </ButtonLink>
+                </div>
+              </Reveal>
+              <Reveal delay={240} className="mt-8">
+                <ul className="flex flex-wrap items-center gap-x-7 gap-y-3">
+                  {t.hero.reassurance.map((item) => (
+                    <li key={item} className="flex items-center gap-2 text-base">
+                      <Sparkle aria-hidden className="size-3.5 text-white" />
+                      <span className="bg-gradient-to-r from-primary-300 to-white bg-clip-text text-transparent">
+                        {item}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
+            </div>
+
+            {/* portrait plate: the photograph on a blue field, framed by rules */}
+            <Reveal delay={120} className="hidden lg:block">
+              <div className="relative mx-auto w-full max-w-sm">
+                <div aria-hidden className="absolute -inset-3 border border-white/15" />
+                <div className="relative overflow-hidden bg-blue-600">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/portrait.jpg"
+                    alt="Ali Demirbaş"
+                    className="aspect-4/5 w-full object-cover opacity-95 grayscale"
+                  />
+                  <div aria-hidden className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </div>
+
+      {/* trust rail pinned to the section's bottom edge */}
+      <Reveal delay={300}>
+        <div className="altor-container mt-16 lg:mt-20">
+          <p className="text-sm text-white/50">{t.trust}</p>
+          <div className="mt-5 flex flex-wrap items-center gap-x-12 gap-y-6 border-t border-white/10 pt-6">
+            {t.xp.rows.map((row) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={row.co}
+                src={row.logo}
+                alt={row.co}
+                className="h-5 w-auto max-w-28 object-contain brightness-0 invert opacity-55 transition-opacity hover:opacity-90"
+              />
+            ))}
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function Expertise({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section id="expertise" className="bg-paper py-24 md:py-32">
+      <div className="altor-container">
+        <SectionHeading eyebrow={t.expertise.label} title={t.expertise.title} />
+        <div className="mt-14 grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-3">
+          {t.expertise.cards.map((card, i) => (
+            <Reveal key={card.title} delay={i * 80} className="bg-paper">
+              <div className="flex h-full flex-col p-8">
+                <span className="text-sm font-medium text-neutral-500">0{i + 1}</span>
+                <h3 className="mt-6 text-xl font-semibold tracking-tight text-ink-950">{card.title}</h3>
+                <p className="mt-3 text-base leading-relaxed text-ink-600">{card.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function StatsBand({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section aria-labelledby="stats-title" className="altor-grain relative isolate overflow-hidden bg-blue-600 py-16 text-white md:py-20">
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-[-16rem] -z-10 h-[30rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-400)_0%,transparent_70%)] opacity-60"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
+      />
+      <div className="altor-container">
+        <h2 id="stats-title" className="sr-only">{t.stats.title}</h2>
+        <dl className="grid grid-cols-2 gap-x-8 gap-y-10 lg:grid-cols-4 lg:gap-x-10">
+          {t.stats.items.map((stat, i) => (
+            <Reveal key={stat.label} delay={i * 70}>
+              <dt className="sr-only">{stat.label}</dt>
+              <dd>
+                <span className="block text-[clamp(2.25rem,1.4rem+2.6vw,3.5rem)] leading-none font-medium tracking-[-0.04em] text-white">
+                  {stat.value}
+                </span>
+                <span className="mt-4 block max-w-64 text-sm leading-snug text-white/65">{stat.label}</span>
+              </dd>
+            </Reveal>
+          ))}
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+function Experience({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section id="experience" className="bg-paper-soft py-24 md:py-32">
+      <div className="altor-container">
+        <SectionHeading eyebrow={t.xp.label} title={t.xp.title} />
+        <div className="mt-14">
+          {t.xp.rows.map((row, i) => (
+            <Reveal key={row.co + row.years} delay={i * 50}>
+              <div className="group grid grid-cols-[7rem_1fr_auto] items-center gap-6 border-t border-line py-6 last:border-b">
+                <span className="text-sm text-neutral-500 tabular-nums">{row.years}</span>
+                <div>
+                  <h3 className="text-lg font-medium tracking-tight text-ink-950">{row.role}</h3>
+                  <p className="mt-0.5 text-sm text-ink-500 md:hidden">{row.co}</p>
+                </div>
+                <div className="hidden items-center gap-3 md:flex">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={row.logo} alt="" className="h-4.5 w-auto max-w-24 object-contain opacity-55 grayscale transition-[filter,opacity] duration-200 group-hover:opacity-100 group-hover:grayscale-0" />
+                  <span className="text-base text-ink-600">{row.co}</span>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section id="contact" data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-[-18rem] -z-10 h-[32rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
+      />
+      <div className="altor-container text-center">
+        <Reveal>
+          <h2 className="mx-auto max-w-2xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] text-transparent">
+            {t.finalCta.title}
+          </h2>
+          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-white/75">{t.finalCta.body}</p>
+        </Reveal>
+        <Reveal delay={120} className="mt-9">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+              {t.finalCta.button}
+            </ButtonLink>
+            <ButtonLink href={LINKEDIN} variant="ghost" size="md">
+              <span className="flex items-center gap-2">
+                {t.finalCta.linkedin}
+                <ArrowUpRight aria-hidden className="size-4" />
+              </span>
+            </ButtonLink>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function SiteFooter({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <footer className="border-t border-white/10 bg-ink-950 py-8 text-sm text-white/50">
+      <div className="altor-container flex items-center justify-between">
+        <span>{t.footer.left}</span>
+        <span>{t.footer.right}</span>
+      </div>
+    </footer>
+  );
+}
+
+export default function Site({ lang }: { lang: Lang }) {
+  const t = copy[lang];
+  return (
+    <>
+      <SiteHeader t={t} />
+      <main>
+        <Hero t={t} />
+        <Expertise t={t} />
+        <StatsBand t={t} />
+        <Experience t={t} />
+        <FinalCta t={t} />
+      </main>
+      <SiteFooter t={t} />
+    </>
+  );
+}

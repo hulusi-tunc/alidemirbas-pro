@@ -1,26 +1,1209 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Altor — Design tokens
+   Premium B2B, white-first, editorial. Primary: Altor Blue #154CE4.
+
+   This layer was reworked to carry the reference design system's vocabulary
+   (see the port note in AGENTS/PR): the neutral ramp, the primary ramp stops
+   the hero and the buttons need, the surface/line/ink aliases the ported
+   components consume, the pixel-fill mask, the duration scale and the easing
+   set.
+
+   NOTHING WAS RENAMED. The ~50 routes already written against `ink-*`,
+   `blue-*`, `paper`, `paper-soft` and `line` keep working: every new name is
+   introduced as an ALIAS, and each alias says below which token it points at.
+   ========================================================================== */
+
+@theme {
+  /* --- Typography ------------------------------------------------------- */
+  /* Sans only. `--font-serif` (Newsreader) was removed with the serif: the
+     reference is sans-only, and every pull quote is now re-set in the sans at
+     a larger size with tighter tracking rather than dropped to body copy. */
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  /* CLAMPED, not deleted. Tailwind ships its own `--font-serif`, so simply
+     removing ours does not remove the `font-serif` utility — it falls back to
+     the framework's Georgia stack, and a serif returns the first time anyone
+     types the class. Pointing it at the sans is the same guardrail the radius
+     ceiling below uses: the utility still compiles, it just cannot produce a
+     serif. */
+  --font-serif: var(--font-sans);
+
+  /* --- Neutral ramp (reference) ----------------------------------------
+     TRUE grey — chroma exactly zero at every step, so there is no undertone to
+     drift with the brand and nothing to fight a photograph or a client logo.
+     Spaced by lightness: the surface band (0→300) is deliberately tight
+     because those steps stack as planes and must separate by a hair; from 300
+     the scale opens into two flat plateaus so every text step is an
+     unmistakable weight apart.
+
+     This ramp is used for GROUNDS AND FILLS ONLY in this codebase — the button
+     fill, the hero ground, the scrim. Body text keeps the `ink-*` ramp below,
+     which is navy-tinted; mixing a grey and a navy ink on the same page reads
+     as a bug, so the ink aliases point at `ink-*`, not at these. */
+  --color-neutral-0: #ffffff; /* L* 100.0 */
+  --color-neutral-25: #fbfbfb; /* L*  98.6 */
+  --color-neutral-50: #f6f6f6; /* L*  96.9 */
+  --color-neutral-100: #eeeeee; /* L*  94.1 */
+  --color-neutral-200: #e4e4e4; /* L*  90.6 */
+  --color-neutral-300: #d4d4d4; /* L*  84.9 */
+  --color-neutral-400: #b3b3b3; /* L*  72.9 */
+  --color-neutral-500: #939393; /* L*  60.9 */
+  --color-neutral-600: #747474; /* L*  48.8 — 4.5:1 on canvas, the AA pin */
+  --color-neutral-700: #5a5a5a; /* L*  38.2 */
+  --color-neutral-800: #414141; /* L*  27.5 */
+  --color-neutral-900: #2a2a2a; /* L*  17.1 — the button's hover plate */
+  --color-neutral-1000: #141414; /* L*   6.3 — floor; scrim and shadow tint */
+
+  /* --- Ink (text / near-black navy) -------------------------------------
+     Unchanged: this is the app's text ramp and 50 routes are written against
+     it. The reference's flat ink aliases sit under § Semantic aliases and
+     point back into it. */
+  --color-ink-950: #05080f;
+  --color-ink-900: #0a1020;
+  --color-ink-800: #141c2f;
+  --color-ink-700: #232c42;
+  --color-ink-600: #3a445c;
+  --color-ink-500: #566078;
+  --color-ink-400: #7a8398;
+  --color-ink-300: #a6adbd;
+  --color-ink-200: #cdd2dd;
+  --color-ink-100: #e4e7ee;
+
+  /* --- Paper (surfaces) ------------------------------------------------- */
+  --color-paper: #ffffff;
+  /* One light surface for the whole system. Anything that needs to read
+     as "not white" uses this; a second, darker grey only ever produced
+     near-identical tones sitting next to each other. */
+  --color-paper-soft: #f7f8fb;
+
+  /* --- Primary ramp (reference) -----------------------------------------
+     Generated in OKLCH from the brand anchor #154CE4, hue held at 264° across
+     every step, chroma peaking at 600 and easing off toward both ends so the
+     light tints stay in gamut and the darks stay readable. Do not hand-tune a
+     step — regenerate the ramp.
+
+     This REPLACES the previous hand-picked blue ramp (anchor #164CE4). The two
+     anchors differ by one unit of red; the intermediate stops did not agree,
+     which is what made a `blue-700` hover read slightly off-hue from its
+     `blue-600` rest state. `--color-blue-*` below is now an alias of this
+     ramp, so every existing `bg-blue-600` / `text-blue-700` call site moves to
+     the reference blue with no edit. */
+  --color-primary-50: #f3f7ff;
+  --color-primary-100: #e4edff;
+  --color-primary-200: #c9dbff;
+  --color-primary-300: #a4c2ff;
+  --color-primary-400: #6c9aff;
+  --color-primary-500: #3b72f7;
+  --color-primary-600: #154ce4; /* primary-600 IS the brand */
+  --color-primary-700: #0a37b7;
+  --color-primary-800: #082a8c;
+  --color-primary-900: #051e63;
+  --color-primary-950: #03113f; /* deepest ground — hero, not a UI surface */
+
+  /* --- Altor Blue — ALIASES of the primary ramp above -------------------- */
+  --color-blue-50: var(--color-primary-50);
+  --color-blue-100: var(--color-primary-100);
+  --color-blue-200: var(--color-primary-200);
+  --color-blue-300: var(--color-primary-300);
+  --color-blue-400: var(--color-primary-400);
+  --color-blue-500: var(--color-primary-500);
+  --color-blue-600: var(--color-primary-600);
+  --color-blue-700: var(--color-primary-700);
+  --color-blue-800: var(--color-primary-800);
+  --color-blue-900: var(--color-primary-900);
+  --color-blue-950: var(--color-primary-950);
+
+  /* --- Sand (warm editorial neutral, used sparingly) -------------------- */
+  --color-sand-50: #faf7f3;
+  --color-sand-100: #f3ece3;
+  --color-sand-200: #e6dacb;
+
+  /* --- Semantic ---------------------------------------------------------
+     Everything below this line is an alias. Components ported from the
+     reference are written against these names; re-theming means re-pointing
+     this block only. */
+
+  /* Borders. `--color-line` / `--color-line-strong` are the originals. */
+  --color-line: #e4e7ee;
+  --color-line-strong: #cdd2dd;
+  --color-line-brand: var(--color-primary-600);
+  --color-line-brand-subtle: var(--color-primary-200);
+  --color-line-inverse: var(--color-ink-800); /* rules on a dark plate */
+
+  /* Surfaces. */
+  --color-surface: var(--color-paper); /* = paper */
+  --color-surface-sunken: var(--color-paper-soft); /* = paper-soft */
+  --color-surface-inverse: var(--color-ink-950); /* = ink-950 */
+  --color-surface-brand-subtle: var(--color-primary-50);
+  --color-surface-brand-tint: var(--color-primary-100);
+
+  /* Ink aliases. These point into the app's NAVY ink ramp, not the true-grey
+     neutral ramp the reference uses, so a ported card and the screen around it
+     read as one page.
+       ink        = ink-900   primary text
+       ink-muted  = ink-500   secondary text, ~6.5:1 on white
+       ink-subtle = ink-500   micro-labels and captions
+     ink-subtle and ink-muted deliberately COINCIDE. The reference pins
+     ink-subtle at exactly 4.5:1 (its neutral-600); this ramp has no step
+     there — ink-400 measures ~3.9:1 and would fail AA at caption sizes, and AA
+     is the harder constraint than a third grey. The ported components use
+     ink-subtle where the reference does; it simply lands on the muted step. */
+  --color-ink: var(--color-ink-900);
+  --color-ink-muted: var(--color-ink-500);
+  --color-ink-subtle: var(--color-ink-500);
+  --color-ink-disabled: var(--color-ink-300);
+  --color-ink-inverse: #ffffff;
+  --color-ink-brand: var(--color-primary-600); /* links, text accents */
+  --color-ink-brand-hover: var(--color-primary-700);
+
+  /* Interactive — the full state set the buttons consume. */
+  --color-primary: var(--color-primary-600);
+  --color-primary-hover: var(--color-primary-700);
+  --color-primary-active: var(--color-primary-800); /* pressed */
+  --color-primary-subtle: var(--color-primary-50);
+  --color-primary-subtle-hover: var(--color-primary-100);
+  --color-on-primary: #ffffff; /* 6.6:1 on the brand fill */
+
+  /* --- Radii ------------------------------------------------------------
+     THE SCALE IS THE REFERENCE'S, and squareness is a PER-COMPONENT decision
+     rather than a global policy. There is no site-wide "everything is a right
+     angle" rule: the reference is not uniformly square and never was.
+
+       4px  xs   The smallest treatment: chips, tags, inline code, checkboxes.
+       6px  sm   Controls and small surfaces: inputs, selects, skill chips,
+                 small tiles.
+       8px  md   Larger reusable components that need a little softness:
+                 toasts, banners, workflow cards, monogram tiles, the section
+                 badge.
+      10px  lg   Top-level containers only — information cards, dashboard
+                 widgets, modals, drawers, large content panels. THE MAXIMUM.
+
+     These override Tailwind's built-in rounded-xs/sm/md/lg. The larger
+     built-ins above lg are clamped to the ceiling rather than left at their
+     framework defaults, so a stray larger utility cannot reintroduce a 16px
+     corner — it silently lands on 10px instead. The clamps are guardrails, not
+     design steps.
+
+     THE ONE DELIBERATE SQUARE CASE IS THE BUTTON. `Button` opts out of this
+     scale entirely and is `rounded-none` at every variant and size, so its
+     edges can sit flush on the editorial grid and a pair of CTAs reads as one
+     segmented bar. That is the reference's own decision and its reasoning is
+     recorded in `src/components/ui/Button.tsx`; it is not an instance of a
+     general rule.
+
+     CIRCLES REMAIN A SHAPE, NOT A RADIUS. Status dots, radio controls,
+     spinners, pill-shaped rating badges and the avatar keep `rounded-full` and
+     sit outside the 10px ceiling. A square radio reads as a checkbox, which is
+     a functional regression rather than a sharper corner.
+
+     Where a comp specifies a corner this scale has no step for — the hero
+     artwork's 16px and 20px panels — the call site writes it literally and says
+     so. Those are artwork geometry, not UI surfaces. */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+
+  /* Ceiling clamp — not design steps, guardrails. */
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-3xl: 10px;
+  --radius-4xl: 10px;
+
+  /* --- Elevation (restrained, never “floaty SaaS”) ---------------------- */
+  --shadow-hairline: 0 0 0 1px rgb(10 16 32 / 0.06);
+  --shadow-card:
+    0 1px 2px rgb(10 16 32 / 0.04), 0 8px 24px -12px rgb(10 16 32 / 0.12);
+  /* One step above `--shadow-card`, for a card lifting under the cursor.
+     `--shadow-lift` is a panel shadow: on a hover it reads as a jump. */
+  --shadow-card-hover:
+    0 1px 2px rgb(10 16 32 / 0.04), 0 12px 28px -16px rgb(10 16 32 / 0.16);
+  --shadow-lift:
+    0 2px 4px rgb(10 16 32 / 0.04), 0 24px 48px -24px rgb(10 16 32 / 0.22);
+  --shadow-blue: 0 18px 40px -20px rgb(21 76 228 / 0.55);
+  /* Reference names, for the ported card tones. `sm` is the resting card
+     shadow, `lg` the lifted one — aliases of the two above. */
+  --shadow-sm: var(--shadow-card);
+  --shadow-lg: var(--shadow-lift);
+
+  /* --- Motion -----------------------------------------------------------
+     `--ease-out-soft` and `--ease-out-quint` are the same curve under two
+     names; the reference's components are written against the second, the
+     app's against the first. Both stay. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1); /* = ease-out-soft */
+  --ease-in-out-quad: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* overshoot — sparingly */
+  /* Travel, not state change. Quint puts 80% of the distance in the first 40%
+     of the time, which is right for a panel settling into place and wrong for
+     something crossing a fixed span — it rushes in, then appears to stall. The
+     button's pixel fill uses this gentler cubic instead. */
+  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* --- Hero port: type steps ------------------------------------------
+     Brought over from the reference so the hero's `text-display-xl` and the
+     artwork's reading steps render at the reference's own metrics rather than
+     at Tailwind's defaults.
+
+     BLAST RADIUS, checked before adding: `text-xl`, `text-2xl` and `text-5xl`
+     had ZERO call sites in `src/` before this pass, so re-pointing them cannot
+     move anything already shipped. Their sizes and line-heights already agreed
+     with Tailwind's defaults to the pixel; what the reference adds is the
+     display cut — tracking that tightens as the step grows. `text-sm` and
+     `text-base` are NOT restated: the reference's values are identical to the
+     framework's, so declaring them would be noise. */
+  --text-display-xl: clamp(2.5rem, 6.4vw, 4rem); /* 40 → 64 */
+  --text-display-xl--line-height: 1.05;
+  --text-display-xl--letter-spacing: -0.032em;
+  --text-display-xl--font-weight: 600; /* the title tier is Semibold */
+
+  --text-xl: 1.25rem; /* 20 */
+  --text-xl--line-height: 1.4; /* 28 */
+  --text-xl--letter-spacing: -0.011em;
+  --text-2xl: 1.5rem; /* 24 */
+  --text-2xl--line-height: 1.3333; /* 32 */
+  --text-2xl--letter-spacing: -0.016em;
+  --text-5xl: 3rem; /* 48 */
+  --text-5xl--line-height: 1.0833;
+  --text-5xl--letter-spacing: -0.03em;
+
+  /* --- Hero port: colours ----------------------------------------------
+     All new names, so nothing already written can shift under them.
+
+     `success` is the artwork's green: the comp's #379a44 / #e6fae7 pair is the
+     reference's `success` / `success-subtle` to within Δ3, so the artwork uses
+     the tokens rather than two more hexes. It is a THIRD hue in a two-hue
+     system (brand blue + ink) and exists only because the comp's budget widget
+     and rating stars are green; nothing else in the product may reach for it
+     without a decision. */
+  --color-success: #399a43; /* 3.6:1 on white — never text-on-white */
+  --color-success-subtle: #e8f9e7;
+
+  /* The editorial grid's two rules — see § EDITORIAL GRID. Alpha, not a solid:
+     the rule has to survive whatever ground it is drawn over. */
+  --color-grid-rule: rgb(20 20 20 / 0.07);
+  --color-grid-rule-inverse: rgb(255 255 255 / 0.08);
+
+  /* The section badge's two colourways — see § SECTION BADGE. */
+  --color-badge-surface: var(--color-neutral-200);
+  --color-badge-border: var(--color-neutral-300);
+  --color-badge-ink: var(--color-neutral-700);
+  --color-badge-dark-base: rgb(3 17 63 / 0.5);
+  --color-badge-dark-wash: rgb(255 255 255 / 0.2);
+  --color-badge-dark-border: rgb(255 255 255 / 0.2);
+  --color-badge-dark-ink: rgb(255 255 255 / 0.9);
+}
+
+/* Non-utility tokens: consumed via var(), not as Tailwind classes. Durations
+   live here rather than in @theme — Tailwind has no `--duration-*` namespace,
+   so declaring them there generates no utilities at all. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Durations are capped at 400ms — anything slower reads as lag, not polish.
+     Every value below is now inside the cap; `--duration-reveal` is the one
+     exception, and it is scroll furniture rather than a response to a pointer. */
+  --duration-instant: 80ms; /* state flips: checkbox, radio, switch */
+  --duration-fast: 140ms; /* hover, focus, colour changes */
+  --duration-base: 220ms; /* dropdowns, tooltips, tabs, toasts */
+  --duration-slow: 320ms; /* modals, drawers, bar growth */
+  /* Client direction, 30 July 2026: the dissolve was right but too slow.
+     360ms still shows individual pixels resolving from the centre outward —
+     below ~300 the rings collapse into one flash and the effect is lost.
+     THESE TWO NUMBERS ARE THE WHOLE TIMING SPEC. `PixelFill` reads them and
+     divides them into frames — delay ramp, growth, shimmer, settle — so this is
+     the only place the interaction is retuned; nothing downstream restates it.
+     The frame accounting at these values is written out in that file. */
+  --duration-fill: 360ms; /* the button pixel fill — hover enter only */
+  --duration-fill-exit: 200ms; /* the retreat; exits are always faster */
+  --duration-reveal: 700ms; /* scroll reveal only */
+
+  /* --- Hero port: the reference's page measure --------------------------
+     DELIBERATELY NOT `--altor-container`. The two measures are different and
+     the difference is load-bearing: `.altor-container` is 78rem/1248px with
+     20/32/40px gutters, the reference's `Container` is 87.5rem/1400px with
+     20/32/48px. The hero artwork's scale ladder (`.hero-art` below) was
+     computed against the 1400px measure — at ≥90rem the ceiling is 652px of
+     column over an 870px stage, i.e. 0.749 — so putting the hero on the
+     narrower container would leave the artwork short of its column at every
+     step. The reference's measure is ported with it.
+
+     Declared here rather than in `@theme` on purpose: `--container-max` in the
+     theme would generate a `max-w-max` utility and collide with Tailwind's own
+     `max-w-max` (max-content). Nothing consumes these as classes — only
+     `container-page` and `--grid-column` read them. */
+  --container-max: 87.5rem; /* 1400 */
+  --gutter: 1.25rem; /* matches Container's px-5 sm:px-8 lg:px-12 */
+
+  /* One editorial-grid column — the container measure divided in four, the same
+     division `EditorialGrid` draws its rules on. Derived from the VIEWPORT, not
+     from a percentage: a CTA is never a direct child of `Container` — it sits
+     in a grid cell or a flex row, where `100%` means the width of that box. A
+     viewport expression resolves to the same length everywhere on the page, so
+     a button nested four levels deep still measures exactly one rule-to-rule
+     gap. Accepted caveat: `100vw` includes a classic scrollbar where
+     `Container` excludes it, so below 1400px the column can run ~4px wide on
+     platforms that reserve gutter for it. */
+  --grid-column: calc((min(100vw, var(--container-max)) - 2 * var(--gutter)) / 4);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@media (min-width: 40rem) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --gutter: 2rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 3rem;
+  }
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --altor-gutter: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --altor-gutter: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    :root {
+      --altor-gutter: 2.5rem;
+    }
+  }
+
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Never let the browser fake a weight we didn't ship — with the serif gone
+       there is only one family left, and a synthesised oblique would be the
+       browser reinventing the italic the design just removed. */
+    font-synthesis-weight: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* The blanket `border-radius: 0` reset that used to sit here is GONE. It was
+     the enforcement layer for a site-wide right-angle policy that has been
+     withdrawn: corners are now a per-component decision following the
+     reference, and a base rule that flattens every element is exactly the kind
+     of thing that hides which components meant to be square. The radius scale
+     in @theme is the only global statement about corners.
+
+     The focus ring keeps a radius of its own — it traces the control it is on,
+     and `Button` restates `focus-visible:rounded-none` locally because it is
+     square by design. */
+  :focus-visible {
+    outline: 2px solid var(--color-blue-600);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background-color: var(--color-blue-600);
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+@layer utilities {
+  /* Page container — generous, editorial gutters. */
+  .altor-container {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: var(--altor-gutter);
+  }
+
+  .altor-container-wide {
+    width: 100%;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: var(--altor-gutter);
+  }
+
+  /* Fine architectural column rules used behind hero / CTA blocks. */
+  .altor-rules {
+    background-image: linear-gradient(
+      to right,
+      var(--color-line) 1px,
+      transparent 1px
+    );
+    background-size: calc(100% / 6) 100%;
+  }
+
+  /* Very low-key paper grain — adds depth without “glassmorphism”. */
+  .altor-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .altor-hairline {
+    box-shadow: var(--shadow-hairline);
+  }
+
+  /* Section kicker. Sentence case — the wide tracking that made small caps
+     readable is dropped with them. Colour is set per usage: baking it in here
+     would compete with a `text-*` override at equal specificity. */
+  .altor-eyebrow {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  /* Scroll reveal — progressive enhancement, content is in the HTML. */
+  .altor-reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.7s var(--ease-out-soft),
+      transform 0.7s var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .altor-reveal[data-revealed="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .altor-reveal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Marquee (client types band). */
+  .altor-marquee {
+    animation: altor-marquee 52s linear infinite;
+  }
+
+  .altor-marquee-group:hover .altor-marquee {
+    animation-play-state: paused;
+  }
+
+  @keyframes altor-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .altor-mask-x {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+  }
+}
+
+/* ============================================================================
+   HERO PORT · LAYOUT UTILITIES
+   Ported from the reference so the hero section, its grid and its CTA pair
+   measure exactly as they do there.
+   ========================================================================== */
+
+/** Tabular figures. Rates, budgets, percentages — anything that must not jitter. */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/** The reference's page container as a class, for the grid to position off. */
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-max);
+  padding-inline: var(--gutter);
+}
+
+/* ============================================================================
+   EDITORIAL GRID
+   ----------------------------------------------------------------------------
+   Five vertical rules on the container measure. Not decoration and not
+   per-section: it is the layout system made visible, so it must read as one
+   continuous set of lines at exactly the same x positions on every screen.
+
+   GEOMETRY. The rules are real 1px boxes positioned off the container's own
+   width — never a repeating background. A background-repeat would tile from
+   whatever box it was painted on, so two sections of different width would
+   disagree; positioning off `container-page` means every rule lands on the same
+   gutter maths `Container` uses, at any viewport. The outer two sit on the
+   container's edges (never the viewport's), the inner three divide the measure
+   in four: five rules, evenly spaced, at all widths.
+
+   ONLY `band` SCOPE IS PORTED. The reference also mounts a document-wide
+   `page`-scope layer from its root layout, at a negative z-index under every
+   in-flow element. That is a whole-site decision and this pass is the hero, so
+   the grid is drawn by the hero band alone — a `scope="band"` layer sitting
+   above the backdrop and below the content, which is exactly what the reference
+   does for its own dark sections. Adding the page layer later needs this file
+   unchanged: `EditorialGrid` already takes the prop.
+   ========================================================================== */
+
+@utility editorial-grid {
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/** One rule. `--rule` is its index, 0…4. */
+@utility editorial-grid-rule {
+  position: absolute;
+  inset-block: 0;
+  width: 1px;
+  /* `- 1px` keeps rule 4 inside the measure rather than half out of it. */
+  left: calc((100% - 1px) * var(--rule) / 4);
+}
+
+/* Snap every rule to a whole pixel. Without this, two of the five land on a
+   half pixel at most widths and antialias into a soft 2px line, so the grid
+   reads as five rules of two different weights. */
+@supports (left: round(down, calc(100% - 1px), 1px)) {
+  .editorial-grid-rule {
+    left: round(down, calc((100% - 1px) * var(--rule) / 4), 1px);
+  }
+}
+
+/* ============================================================================
+   BUTTONS ON THE GRID
+   ----------------------------------------------------------------------------
+   A CTA is measured in whole grid columns, so its left and right edges land on
+   the rules rather than stopping somewhere between them. `btn-col-2` is the solo
+   CTA (half the measure); `btn-col-1` is for CTAs that pair up, and steps down to
+   a single column once a column is wide enough to hold a French label.
+
+   Below `md` there is nothing to snap to: those layouts are single-column, so the
+   button fills its parent — which there *is* the container measure, edges on the
+   outer two rules.
+
+   Both utilities set an exact width and `flex-shrink: 0`, because a flex parent
+   would otherwise squeeze the button off the rule it was sized to.
+   ========================================================================== */
+
+@utility btn-col-1 {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@utility btn-col-2 {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@media (min-width: 48rem) {
+  .btn-col-1,
+  .btn-col-2 {
+    width: calc(var(--grid-column) * 2);
+  }
+}
+
+/* A single column only from `xl`. At `lg` it measures 232px, which will not hold
+   "Trouver un talent" beside a 20px arrow without wrapping. */
+@media (min-width: 80rem) {
+  .btn-col-1 {
+    width: var(--grid-column);
+  }
+}
+
+/* ============================================================================
+   SECTION BADGE
+   ----------------------------------------------------------------------------
+   The label that names a section, and the only thing that plays that role. One
+   geometry everywhere — 6px top and bottom, 10px each side, and Medium 14px
+   uppercase at 0.1em — in two colourways, light and dark.
+
+   IT SWITCHES ON CONTEXT, NOT ON A PROP. The three colours are read from
+   inherited custom properties, and `[data-tone="dark"]` on a section re-points
+   them for everything inside it. A badge nested at any depth under a dark
+   section flips by itself; the component takes no argument and the call sites
+   are identical on both grounds.
+
+   THE HEIGHT IS BUILT, NOT SET. 6 + a 14px line box at line-height 1 + 6 + 2px
+   of border comes to 28px. Padding is the only vertical statement, so there is
+   no second number to keep in sync with it.
+   ========================================================================== */
+
+:root {
+  --badge-base: var(--color-badge-surface);
+  --badge-wash: transparent;
+  --badge-border: var(--color-badge-border);
+  --badge-ink: var(--color-badge-ink);
+}
+
+[data-tone="dark"] {
+  --badge-base: var(--color-badge-dark-base);
+  --badge-wash: var(--color-badge-dark-wash);
+  --badge-border: var(--color-badge-dark-border);
+  --badge-ink: var(--color-badge-dark-ink);
+}
+
+@utility section-badge {
+  /* Block-level flex sized to its content rather than `inline-flex`: an inline
+     box would sit in a line box and carry the parent's leading below it, which
+     on a 28px plate shows up as a few px of stray space above the heading. */
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  padding-block: 0.375rem; /* 6px */
+  padding-inline: 0.625rem; /* 10px */
+  border: 1px solid var(--badge-border);
+  border-radius: var(--radius-md); /* 8px */
+  background-color: var(--badge-base);
+  background-image: linear-gradient(var(--badge-wash), var(--badge-wash));
+  color: var(--badge-ink);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  text-transform: uppercase;
+  /* The label is a fixed short string; wrapping it inside the plate would break
+     the plate rather than the line. */
+  white-space: nowrap;
+}
+
+/* ============================================================================
+   THE BUTTON PLATE
+   ----------------------------------------------------------------------------
+   What is left of the button's hover interaction after the dissolve moved to a
+   canvas: the plate, the ring, the delayed label flip, and the fallback for
+   every case where there is no canvas.
+
+   § THE PIXEL FILL IS GONE FROM THIS FILE. It was a `::after` masked by three
+   composited layers — a solid radial ramp, a static 3px dither
+   (`--btn-pixel-mask`), and a wide travel ring that `intersect`ed the dither —
+   and it was rejected twice for a reason no amount of retuning could fix: a
+   mask reveals a CONTINUOUS SHAPE. Whatever texture you dither into it, what
+   grows is a disc, and a disc is what the eye reports. A dissolve needs every
+   pixel to arrive on its own clock, which means addressing pixels
+   individually, which means a canvas. That now lives in
+   `src/components/ui/PixelFill.tsx`, rendered as the control's first child by
+   `Button` and `ButtonLink`.
+
+   WHAT THE CANVAS NEEDS FROM HERE, and why each line survives:
+
+     · `position: relative` + `overflow: hidden` — the canvas is `inset: 0` and
+       must be clipped to the control.
+     · `isolation: isolate` — the canvas sits at a NEGATIVE z-index so it paints
+       above the plate and the inset ring but below the label, without wrapping
+       the label in anything. Isolating keeps that negative index inside the
+       control instead of dropping it behind the page.
+     · `--btn-fill` — read off this element by `getComputedStyle` at the start of
+       every arrival. It stays the single source of truth for the fill colour;
+       the seven variants, the dark-ground block below and the `:active` shifts
+       all keep working with nothing restated in JavaScript.
+     · the ring and the label flip — colour transitions, which belong in CSS.
+
+   THE RING IS AN INSET SHADOW, NOT A BORDER. A border is part of the box: a
+   ringed control and a plain one can only agree on height, padding and
+   alignment if both carry one, and any variant that later drops it silently
+   grows 2px. An inset shadow is outside layout entirely, so every variant is
+   the same box whether it is ringed or not — and the canvas covers it as the
+   fill advances, so the finished control is one flat plate with no ring flip
+   needed.
+
+   THE LABEL FLIP. Text and icon are children inheriting `color` from the
+   control, so one delayed transition on the control flips them. The field opens
+   from the centre, which is where the label sits, so the front reaches it almost
+   at once; the 150ms delay is what stops the colour changing before there is any
+   fill under it to justify the change.
+
+   FOCUS. `:focus-visible` triggers the same fill as hover — the canvas watches
+   both pseudo-classes — so keyboard users get the acknowledgement pointer users
+   do. The focus RING itself is the global `:focus-visible` outline in § Base and
+   is untouched by any of this: it is an outline, outside the box, and stays
+   visible over the fill.
+
+   NO CANVAS → PLAIN COLOUR SWAP. One rule at the foot of this section, keyed on
+   the canvas's own absence, covers every such case at once: reduced motion
+   (where `PixelFill` renders nothing at all, so no loop is ever started),
+   JavaScript off, the frame before hydration, and the three controls that are
+   neither a `<button>` nor an internal `<Link>` and so still take their shape
+   from `buttonStyles()` — the external `<a>` in `Step5AltorCv`, the two in
+   `ContactActions`, and the `<label>` wrapping the file input in
+   `DocumentsManager`. The label flip is NOT gated on the canvas: it fires for
+   all of them, and it must, because a flipped label with no fill under it is
+   unreadable on the light variants. Flip and plate arrive together or not at
+   all.
+
+   Plain selectors, not @layer: these rules must out-cascade the utility-layer
+   transitions in the button base, and unlayered CSS beats anything in @layer
+   regardless of order.
+   ========================================================================== */
+
+.btn-fill {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: inset 0 0 0 1px var(--btn-ring, transparent);
+  transition:
+    color 240ms var(--ease-out-cubic) 40ms,
+    box-shadow 240ms var(--ease-out-cubic);
+}
+
+/* The filled state has no ring of its own: it takes the fill colour, so the
+   finished control is one flat plate edge to edge. Both flips are delayed under
+   the advancing front. */
+.btn-fill:hover,
+.btn-fill:focus-visible {
+  color: var(--btn-fill-ink);
+  box-shadow: inset 0 0 0 1px var(--btn-fill);
+  transition-delay: 150ms, 150ms;
+}
+
+/* ----------------------------------------------------------------------------
+   DARK GROUND
+   The reference flips its two variants on `[data-tone="dark"]`, inherited from
+   the section. That mechanism is reproduced here — and EXTENDED with a
+   self-matching `.btn-tone-dark` class, because this codebase's dark-ground
+   variants (`inverted`, `outlineInverted`) are chosen at the CALL SITE rather
+   than inherited from the section — a marketing CTA declares itself inverted
+   because it knows it sits on a dark band, and it says so in a prop. Both
+   selectors drive exactly the same custom properties, so a button inside a
+   `data-tone="dark"` section and a button that declares itself inverted resolve
+   identically.
+
+   BOTH SELECTORS ARE STILL LOAD-BEARING and neither is a leftover of the mask:
+   `inverted` and `outlineInverted` set NO resting colours of their own in
+   `Button.tsx` — their plate, ring, label and `--btn-fill` are defined here and
+   only here — and `.btn-keep-tone` is how `danger` opts out of the flip.
+   -------------------------------------------------------------------------- */
+
+/* Ghost is the one variant whose colours depend on the ground under it. The
+   `background-color: transparent` is the one addition to the reference rule:
+   here the light-ground ringed variant (`outline`) carries a white plate, and
+   a white plate under a white/70 label would be unreadable. */
+[data-tone="dark"] .btn-ghost,
+.btn-ghost.btn-tone-dark {
+  --btn-ring: rgb(255 255 255 / 0.2);
+  background-color: transparent;
+  color: rgb(255 255 255 / 0.7);
+  --btn-fill: #ffffff;
+  --btn-fill-ink: var(--color-ink);
+}
+
+[data-tone="dark"] .btn-ghost > svg,
+.btn-ghost.btn-tone-dark > svg {
+  color: var(--color-ink-inverse);
+  transition: color 240ms var(--ease-out-cubic) 40ms;
+}
+
+/* The label and border flips must be restated here: the resting values above
+   tie on specificity with `.btn-fill:hover` and sit later in the file, so
+   without this the label would stay white over the white fill and the border
+   would hold at white/20. */
+[data-tone="dark"] .btn-ghost:hover,
+[data-tone="dark"] .btn-ghost:focus-visible,
+.btn-ghost.btn-tone-dark:hover,
+.btn-ghost.btn-tone-dark:focus-visible {
+  color: var(--btn-fill-ink);
+}
+
+[data-tone="dark"] .btn-ghost:hover > svg,
+[data-tone="dark"] .btn-ghost:focus-visible > svg,
+.btn-ghost.btn-tone-dark:hover > svg,
+.btn-ghost.btn-tone-dark:focus-visible > svg {
+  color: var(--btn-fill-ink);
+  transition-delay: 150ms;
+}
+
+/* THE SOLID PLATE IS GROUND-AWARE. On light ground `primary` is the brand-blue
+   plate dissolving to neutral-900. On a dark ground that would put brand blue
+   on navy, so it flips to the white plate the hero is built on and fills brand
+   blue — the contrast the dark bands are built on. Ring is transparent on
+   both: a solid plate needs no edge, and with the ring outside layout,
+   dropping it costs nothing dimensionally.
+
+   `danger` opts out (`.btn-keep-tone`): a destructive confirmation must not
+   silently become a white button because it happens to sit in a dark panel. */
+[data-tone="dark"] .btn-fill:not(.btn-ghost):not(.btn-keep-tone),
+.btn-fill.btn-tone-dark:not(.btn-ghost):not(.btn-keep-tone) {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  --btn-ring: transparent;
+  --btn-fill: var(--color-primary);
+  --btn-fill-ink: var(--color-on-primary);
+}
+
+/* Restated because the selector above out-ranks `.btn-fill:hover`, so its
+   resting `color` would otherwise hold through the fill. */
+[data-tone="dark"] .btn-fill:not(.btn-ghost):not(.btn-keep-tone):hover,
+[data-tone="dark"] .btn-fill:not(.btn-ghost):not(.btn-keep-tone):focus-visible,
+.btn-fill.btn-tone-dark:not(.btn-ghost):not(.btn-keep-tone):hover,
+.btn-fill.btn-tone-dark:not(.btn-ghost):not(.btn-keep-tone):focus-visible {
+  color: var(--btn-fill-ink);
+}
+
+/* THE 40px EXCEPTION. An icon-only control takes a quiet tint rather than the
+   fill: 40px of dissolve is a twitch, not a field — ~180 cells, most of them
+   under the glyph. `Button` renders no canvas for it, and this re-points the
+   same two custom properties rather than inventing a second pair, so the
+   no-canvas rule below lands on the quiet tint with nothing to keep in sync.
+   Declared here rather than as utilities on the control because these have to
+   beat the variant's own `--btn-fill`, and which of two equal-specificity
+   utilities wins is decided by Tailwind's output order. */
+.btn-quiet {
+  --btn-fill: var(--color-primary-subtle);
+  --btn-fill-ink: var(--color-ink);
+  --btn-ring: transparent;
+}
+
+.btn-quiet:hover,
+.btn-quiet:focus-visible {
+  background-color: var(--btn-fill);
+}
+
+.btn-quiet:active {
+  background-color: var(--color-primary-subtle-hover);
+}
+
+/* ============================================================================
+   NO CANVAS → PLAIN COLOUR SWAP.
+
+   `PixelFill` renders a `<canvas data-pixel-fill>`, and only ever when it has a
+   loop to run. So the ABSENCE of that element is the exact, single condition
+   under which the plate has to arrive as a colour instead of a dissolve:
+
+     · prefers-reduced-motion — the component returns null; nothing mounts, no
+       `requestAnimationFrame` is ever scheduled. Tier-1 removal, not softening:
+       the dissolve is decorative travel across the whole control and goes
+       entirely, while the colour change is Tier 3, the affordance itself, and
+       stays. This replaces the `::after { display: none }` tier the mask had.
+     · JavaScript off, and the frame between first paint and hydration.
+     · the three controls that are neither a `<button>` nor an internal `<Link>`
+       and still take their shape from `buttonStyles()` — see the section header.
+
+   `:not(.btn-quiet)` because the quiet tier already declares this swap above,
+   at a lower specificity; excluding it here keeps one rule per state. The four
+   classes give (0,4,0), which is what it takes to out-rank the dark-ground
+   resting `background-color` at (0,4,0) — hence also the position, after that
+   block rather than before it.
+   ========================================================================== */
+
+.btn-fill:not(.btn-quiet):not(:has(> [data-pixel-fill])):hover,
+.btn-fill:not(.btn-quiet):not(:has(> [data-pixel-fill])):focus-visible {
+  background-color: var(--btn-fill);
+}
+
+/* ============================================================================
+   REDUCED MOTION — what is left of it for buttons.
+   The dissolve's own tier is the rule above: with no canvas mounted the fill is
+   already a plain colour swap, so nothing needs suppressing here. What is left
+   is undoing the § Base blanket reset, which would otherwise take the colour
+   change with it.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Tier 3 survives the blanket reset. Reduced motion is a request to remove
+     *vestibular* motion — things that imply self-motion or move a large part of
+     the screen. Colour, border and focus-ring transitions imply no motion at
+     all. Nulling them along with everything else is the standard
+     over-correction: hover and focus stop acknowledging the pointer, and the
+     interface reads as broken rather than calm. Restored at 140ms. */
+  a,
+  button,
+  summary,
+  input,
+  select,
+  textarea,
+  label,
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  [role="checkbox"] {
+    transition-duration: var(--duration-fast) !important;
+  }
+}
+
+/* ============================================================================
+   FORCED COLORS — keep meaning when the OS overrides our palette.
+   A card is a plane, and in forced-colors mode its background is repainted to
+   Canvas along with the page behind it. The border is then the only thing left
+   saying where the card is, so it is restated in a system colour.
+   ========================================================================== */
+
+@media (forced-colors: active) {
+  [data-elevated] {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* ============================================================================
+   HERO PORT · MOTION PRIMITIVES AND THE ARTWORK STAGE
+   Every animation here is defined once and neutralised in one place at the
+   foot of this section.
+   ========================================================================== */
+
+@layer components {
+  /* -------------------------------------------------------------- the rail
+     The trust bar's marquee. The track is duplicated and translated by exactly
+     -50%, so at the end of a cycle the second half is pixel-for-pixel where the
+     first began and the reset is invisible. One linear `translate3d` on one
+     promoted layer: no easing to betray the loop point, nothing animating that
+     could reflow. */
+  @keyframes rail-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  .rail-track {
+    animation: rail-scroll var(--rail-duration, 46s) linear infinite;
+  }
+
+  /* Pause on hover only where hover is real. On touch, :hover latches after a
+     tap and the rail would sit frozen with no way to release it. */
+  @media (hover: hover) {
+    .rail:hover .rail-track {
+      animation-play-state: paused;
+    }
+  }
+
+  .rail:focus-within .rail-track {
+    animation-play-state: paused;
+  }
+
+  /* Hero trust bar. The ground behind it is animated, so the edges are cut with
+     a mask — a from-colour gradient overlay would need a colour to fade to and
+     the hero has no single one. Mask, not overlay, also keeps the fade honest
+     when the light behind it brightens.
+
+     The ramp is long (12% a side) and starts at the very edge: marks should be
+     most of the way faded before they reach the rail's boundary, so nothing
+     ever reads as clipped. */
+  .trust-rail {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 12%,
+      #000 88%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
+  }
+
+  /* This track never stops, so the layer promotion is permanent rather than a
+     hint to withdraw — the mask on the parent would otherwise invite a repaint
+     of the whole strip each frame. */
+  .trust-rail .rail-track {
+    will-change: transform;
+  }
+
+  /* ------------------------------------------------------- the artwork stage
+     `HeroMatch` is laid out at the comp's own pixel geometry: an 870×791 stage
+     with every child at its measured offset, so the composition is the Figma
+     frame rather than being re-derived onto the site's grid.
+
+     It is then scaled to fit the hero's right column, which is 424px at `lg`
+     and 652px at the widest. `transform: scale` rather than `zoom`: zoom would
+     re-lay-out at the target size and keep text crisp, but where it is not
+     supported the composition renders at its full 870px and blows the hero
+     apart. A transform fails safe — worst case the type is a touch soft.
+
+     The wrapper carries the scaled box so the surrounding layout still measures
+     correctly; the stage inside stays at natural size and is scaled from its
+     top-left corner.
+
+     THIS LADDER IS THE ANSWER TO "the artwork is wider than the column". It is
+     not decoration — it is the sizing mechanism, and it is why the artwork does
+     not need to be swapped for something narrower. */
+  .hero-art {
+    --art-scale: 0.38;
+    width: calc(870px * var(--art-scale));
+    height: calc(791px * var(--art-scale));
+  }
+
+  @media (min-width: 40rem) {
+    .hero-art {
+      --art-scale: 0.52;
+    }
+  }
+
+  /* The layout splits into two columns here, so the column gets narrower even
+     as the viewport grows — the scale steps back down with it, then climbs to
+     the width-fit ceiling. From ~90rem the ceiling is 0.749 (652px column /
+     870px stage) and the artwork's height (593px) exceeds the left column's
+     compressed floor, so the ART sets the grid row and the left column's
+     justify-between distributes the surplus — that is what keeps the two
+     columns' top and bottom edges coincident. Below ~90rem the width cap wins
+     and the artwork runs top-aligned with a shortfall at the bottom that
+     shrinks as the viewport grows. */
+  @media (min-width: 64rem) {
+    .hero-art {
+      --art-scale: 0.5;
+    }
+  }
+
+  @media (min-width: 72rem) {
+    .hero-art {
+      --art-scale: 0.58;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .hero-art {
+      --art-scale: 0.68;
+    }
+  }
+
+  @media (min-width: 85.5rem) {
+    .hero-art {
+      --art-scale: 0.72;
+    }
+  }
+
+  @media (min-width: 90rem) {
+    .hero-art {
+      --art-scale: 0.749;
+    }
+  }
+
+  .hero-art-stage {
+    width: 870px;
+    height: 791px;
+    transform: scale(var(--art-scale));
+    transform-origin: top left;
+  }
+
+  /* ------------------------------------------------------------ hero drift
+     The composition's cards and widgets breathe on a long, shallow cycle.
+     Parallax comes from each element carrying its own distance and duration, so
+     they drift out of phase and the stack separates in depth — not from a
+     scroll handler, and not from anything that reads position.
+
+     Distance is capped at 4px: enough to read as alive at a glance, small enough
+     that nothing appears to move while you are looking at the copy beside it.
+     `translate3d` keeps each element on its own compositor layer for the whole
+     cycle, and transform is the only property here — no `top`, no margin, so the
+     drift can never reflow the hero's other column.
+
+     The static offset of a stacked card lives on a wrapper, never on the animated
+     element: a keyframe writing `transform` would otherwise overwrite it. */
+  @keyframes hero-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    50% {
+      transform: translate3d(0, calc(var(--float-distance, 3px) * -1), 0);
+    }
+  }
+
+  .hero-float {
+    animation: hero-float var(--float-duration, 7s) var(--ease-in-out-quad) infinite;
+    animation-delay: var(--float-delay, 0s);
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   REDUCED MOTION — removal, not softening.
+   The blanket reset in § Base compresses every animation to 0.01ms, which is a
+   backstop rather than a statement of intent. These are stated: the drift is
+   Tier 1 (decorative movement across a large part of the screen) and it goes,
+   with the cards left exactly where they settled; the marquee stops and the
+   rail becomes a plain scroller, with the duplicated track removed rather than
+   read twice.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .rail-track,
+  .hero-float {
+    animation: none;
+  }
+
+  .rail {
+    overflow-x: auto;
+  }
+
+  [data-rail-clone] {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   REDUCED TRANSPARENCY — the artwork's frosted panel.
+   It drops to an opaque plate rather than to a flat translucent film, which is
+   the failure the policy exists to prevent: a 30% white wash with no blur under
+   it over a dark hero is a grey smear, not a panel.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  .hero-art-glass {
+    background-color: color-mix(in srgb, var(--color-primary-950) 82%, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .hero-art-glass {
+    background-color: Canvas;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
