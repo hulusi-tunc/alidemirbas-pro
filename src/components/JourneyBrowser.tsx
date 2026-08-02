@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 
 import { journeys } from "@/lib/journeys";
+import { flows } from "@/lib/flows";
 import type { copy, Lang } from "@/lib/content";
 
 const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp"] as const;
@@ -25,6 +26,7 @@ export default function JourneyBrowser({
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("");
   const [channel, setChannel] = useState("");
+  const [open, setOpen] = useState<string | null>(null);
 
   const sectors = useMemo(
     () => Array.from(new Set(journeys.map((j) => j.sector[lang]))).sort(),
@@ -115,28 +117,83 @@ export default function JourneyBrowser({
       ) : (
         <div>
           {rows.map((j) => (
-            <div
-              key={j.slug}
-              className="group grid grid-cols-[5.5rem_1fr] items-baseline gap-x-6 gap-y-2 border-t border-line py-5 transition-colors hover:bg-paper-soft md:grid-cols-[5.5rem_1.4fr_1fr_auto] md:items-center"
-            >
-              <span className="text-sm text-neutral-500 tabular-nums">{j.idx}</span>
-              <h3 className="text-base font-medium tracking-tight text-ink-950">{j.title[lang]}</h3>
-              <span className="col-start-2 text-sm text-ink-500 md:col-start-3">{j.sector[lang]}</span>
-              <div className="col-start-2 flex flex-wrap gap-1.5 md:col-start-4">
-                {j.channels.map((c) => (
-                  <span
-                    key={c}
-                    className="border border-line px-2 py-0.5 text-xs text-neutral-600 group-hover:border-neutral-300"
-                  >
-                    {CHANNEL_LABELS[c] ?? c}
-                  </span>
-                ))}
-              </div>
+            <div key={j.slug} className="border-t border-line">
+              <button
+                type="button"
+                onClick={() => setOpen(open === j.slug ? null : j.slug)}
+                aria-expanded={open === j.slug}
+                className="group grid w-full grid-cols-[5.5rem_1fr_auto] items-baseline gap-x-6 gap-y-2 py-5 text-left transition-colors hover:bg-paper-soft md:grid-cols-[5.5rem_1.4fr_1fr_auto_auto] md:items-center"
+              >
+                <span className="text-sm text-neutral-500 tabular-nums">{j.idx}</span>
+                <h3 className="text-base font-medium tracking-tight text-ink-950">{j.title[lang]}</h3>
+                <span className="col-start-2 hidden text-sm text-ink-500 md:col-start-3 md:block">{j.sector[lang]}</span>
+                <div className="col-start-2 flex flex-wrap gap-1.5 md:col-start-4">
+                  {j.channels.map((c) => (
+                    <span key={c} className="border border-line px-2 py-0.5 text-xs text-neutral-600 group-hover:border-neutral-300">
+                      {CHANNEL_LABELS[c] ?? c}
+                    </span>
+                  ))}
+                </div>
+                <ChevronDown
+                  aria-hidden
+                  className={`col-start-3 size-4 text-neutral-400 transition-transform md:col-start-5 ${open === j.slug ? "rotate-180" : ""}`}
+                />
+              </button>
+              {open === j.slug && flows[j.slug] ? <Flow steps={flows[j.slug][lang]} /> : null}
             </div>
           ))}
           <div className="border-t border-line" />
         </div>
       )}
+    </div>
+  );
+}
+
+const STEP_STYLE: Record<string, { bar: string; label: string }> = {
+  email: { bar: "border-t-2 border-t-blue-600", label: "text-blue-600" },
+  push: { bar: "border-t-2 border-t-amber-500", label: "text-amber-600" },
+  sms: { bar: "border-t-2 border-t-neutral-500", label: "text-neutral-600" },
+  inapp: { bar: "border-t-2 border-t-violet-500", label: "text-violet-600" },
+  whatsapp: { bar: "border-t-2 border-t-green-600", label: "text-green-700" },
+  sales: { bar: "border-t-2 border-t-ink-700", label: "text-ink-700" },
+};
+
+function Flow({ steps }: { steps: { t: string; a: string; b: string }[] }) {
+  return (
+    <div className="border-t border-dashed border-line bg-paper-soft/60 px-4 py-8">
+      <div className="mx-auto flex max-w-md flex-col items-stretch">
+        {steps.map((s, i) => (
+          <div key={i} className="flex flex-col items-center">
+            {i > 0 ? (
+              <span aria-hidden className="flex h-8 w-px items-center justify-center bg-neutral-300">
+                <span className="grid size-4 shrink-0 place-items-center border border-line bg-paper text-[10px] leading-none text-neutral-500">+</span>
+              </span>
+            ) : null}
+            {s.t === "entry" ? (
+              <div className="w-full bg-ink-950 p-5 text-white">
+                <p className="text-xs font-medium tracking-wide text-white/60">⚑ Entry - Trigger</p>
+                <p className="mt-2 text-sm leading-relaxed font-medium">{s.a}</p>
+                {s.b ? <p className="mt-2 text-xs leading-relaxed text-white/65">{s.b}</p> : null}
+              </div>
+            ) : s.t === "wait" ? (
+              <div className="w-full border border-line bg-paper px-4 py-2.5">
+                <p className="text-xs text-neutral-500">Wait</p>
+                <p className="text-sm font-medium text-ink-900">{s.a}</p>
+              </div>
+            ) : s.t === "condition" ? (
+              <div className="w-full border border-dashed border-neutral-400 bg-paper px-4 py-2.5">
+                <p className="text-xs text-neutral-500">Condition</p>
+                <p className="text-sm font-medium text-ink-900">{s.a}</p>
+              </div>
+            ) : (
+              <div className={`w-full border border-line bg-paper p-4 ${STEP_STYLE[s.t]?.bar ?? ""}`}>
+                <p className={`text-xs font-semibold ${STEP_STYLE[s.t]?.label ?? "text-ink-700"}`}>{s.a}</p>
+                {s.b ? <p className="mt-1.5 text-sm leading-relaxed text-ink-600">{s.b}</p> : null}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
