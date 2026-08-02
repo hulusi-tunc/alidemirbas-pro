@@ -129,6 +129,7 @@ export default function JourneyBrowser({
                   <span className="mt-1.5 text-[15px] leading-snug font-medium tracking-tight text-ink-950">
                     {j.title[lang]}
                   </span>
+                  <MiniFlow slug={j.slug} />
                   <span className="mt-auto flex items-center gap-1.5 pt-3">
                     {j.channels.map((c) => (
                       <span key={c} title={CHANNEL_LABELS[c]} className={`size-1.5 rounded-full ${DOT[c] ?? "bg-neutral-400"}`} />
@@ -149,7 +150,7 @@ export default function JourneyBrowser({
             onClick={() => setOpen(null)}
             className="absolute inset-0 bg-ink-950/30"
           />
-          <aside className="absolute inset-y-0 right-0 flex w-full max-w-lg flex-col border-l border-line bg-paper shadow-2xl">
+          <aside className="absolute inset-4 mx-auto flex max-w-4xl flex-col border border-line bg-paper shadow-2xl md:inset-y-10 md:inset-x-8">
             <header className="border-b border-line px-6 py-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -172,7 +173,7 @@ export default function JourneyBrowser({
                 ))}
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto [background-image:radial-gradient(circle,var(--color-neutral-300)_1px,transparent_1px)] [background-size:18px_18px]">
               {flows[open.slug] ? <Flow steps={flows[open.slug][lang]} /> : null}
             </div>
           </aside>
@@ -193,7 +194,7 @@ const STEP_STYLE: Record<string, { bar: string; label: string }> = {
 
 function Flow({ steps }: { steps: { t: string; a: string; b: string }[] }) {
   return (
-    <div className="bg-paper-soft/60 px-4 py-8">
+    <div className="px-4 py-10">
       <div className="mx-auto flex max-w-md flex-col items-stretch">
         {steps.map((s, i) => (
           <div key={i} className="flex flex-col items-center">
@@ -228,5 +229,25 @@ function Flow({ steps }: { steps: { t: string; a: string; b: string }[] }) {
         ))}
       </div>
     </div>
+  );
+}
+
+const MINI: Record<string, string> = {
+  entry: "bg-ink-950", wait: "bg-neutral-300", condition: "border border-dashed border-neutral-400 bg-transparent",
+  email: "bg-blue-600", push: "bg-amber-500", sms: "bg-neutral-500", inapp: "bg-violet-500", whatsapp: "bg-green-600", sales: "bg-ink-700",
+};
+
+function MiniFlow({ slug }: { slug: string }) {
+  const steps = flows[slug]?.en;
+  if (!steps) return null;
+  return (
+    <span aria-hidden className="mt-3 flex items-center">
+      {steps.map((st, i) => (
+        <span key={i} className="flex items-center">
+          {i > 0 ? <span className="h-px w-1.5 bg-neutral-300" /> : null}
+          <span className={`size-2 shrink-0 ${MINI[st.t] ?? "bg-neutral-400"}`} />
+        </span>
+      ))}
+    </span>
   );
 }
