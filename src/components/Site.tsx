@@ -31,6 +31,7 @@ export function SiteHeader({
           <Link className="transition-colors hover:text-white" href={t.nav.aboutHref}>{t.nav.about}</Link>
           <a className="transition-colors hover:text-white" href={`${anchorBase}#expertise`}>{t.nav.expertise}</a>
           <a className="transition-colors hover:text-white" href={`${anchorBase}#experience`}>{t.nav.experience}</a>
+          <Link className="transition-colors hover:text-white" href={t.nav.insightsHref}>{t.nav.insights}</Link>
           <Link className="transition-colors hover:text-white" href={t.nav.labHref}>{t.nav.lab}</Link>
           <a className="transition-colors hover:text-white" href="#contact">{t.nav.contact}</a>
         </nav>

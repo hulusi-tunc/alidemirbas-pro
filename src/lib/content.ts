@@ -2,7 +2,7 @@ export type Lang = "en" | "tr";
 
 export const copy = {
   en: {
-    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
+    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", insights: "Insights", insightsHref: "/content", lab: "Lab", labHref: "/lab", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
@@ -179,7 +179,7 @@ export const copy = {
     footer: { left: "Ali Demirbaş, 2026", right: "Istanbul" },
   },
   tr: {
-    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", insights: "İçgörüler", insightsHref: "/tr/content", lab: "Lab", labHref: "/tr/lab", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
