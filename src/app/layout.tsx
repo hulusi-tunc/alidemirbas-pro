@@ -19,8 +19,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geist.variable} bg-paper font-sans text-ink-900 antialiased`}>
+    /* THE FONT VARIABLE BELONGS ON <html>, NOT ON <body>. globals.css declares
+       `--font-sans: var(--font-geist), …` inside `@theme`, which Tailwind emits
+       on `:root` — i.e. on <html>. A var() that resolves to nothing makes the
+       whole declaration invalid at computed-value time, so with `--font-geist`
+       defined one level down on <body>, `--font-sans` computed to empty
+       everywhere, every `font-sans` utility fell back to the browser's default
+       sans, and Geist was never requested at all. */
+    <html lang="en" className={geist.variable}>
+      <body className="bg-paper font-sans text-ink-900 antialiased">
         {children}
       </body>
     </html>
