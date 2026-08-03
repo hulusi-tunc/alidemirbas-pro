@@ -2,7 +2,7 @@ export type Lang = "en" | "tr";
 
 export const copy = {
   en: {
-    nav: { expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
+    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
@@ -92,6 +92,84 @@ export const copy = {
         back: "Back to home",
       },
     },
+    about: {
+      metaTitle: "About - Ali Demirbaş",
+      metaDesc: "Digital Marketing · Analytics · Growth Strategy",
+      eyebrow: "About",
+      title: "Professional Profile",
+      sub: "Digital Marketing · Analytics · Growth Strategy",
+      lead:
+        "With over eight years of experience in digital marketing and growth, I have worked on strategies designed to support the growth objectives of different products and business models.",
+      body:
+        "My experience spans analytics, user acquisition, product, and growth strategy. I use data to evaluate digital marketing performance, understand user behavior, and identify opportunities for growth. Across campaign management, measurement, and optimization, I focus on keeping marketing initiatives aligned with business goals and delivering measurable outcomes.",
+      experience: "Experience",
+      timeline: [
+        {
+          kind: "single",
+          year: "2026",
+          co: "Aksigorta",
+          logo: "/logos/aksigorta.svg",
+          role: "Mobile App Growth Lead",
+          period: "Apr 2026 – Present",
+          desc: "Leading mobile app growth strategy, driving user acquisition and engagement for one of Turkey's largest insurers.",
+        },
+        {
+          kind: "single",
+          year: "2024",
+          co: "Vodafone",
+          logo: "/logos/vodafone.svg",
+          role: "Growth Marketing Lead",
+          period: "Aug 2024 – Apr 2026",
+          desc: "Led growth marketing across digital channels, combining data-driven acquisition with lifecycle programs.",
+        },
+        {
+          kind: "single",
+          year: "2023",
+          co: "Getir",
+          logo: "/logos/getir.svg",
+          role: "Growth – CRM Analytics Executive",
+          period: "Sep 2023 – Aug 2024",
+          desc: "Managed CRM analytics and growth initiatives for rapid commerce, optimizing retention and LTV.",
+        },
+        {
+          kind: "group",
+          year: "2021",
+          co: "Wingie Enuygun Group",
+          logo: "/logos/enuygun.png",
+          span: "Full-time · 2 yrs",
+          roles: [
+            {
+              role: "Experienced Lifecycle Marketing Specialist (Growth)",
+              period: "Jan 2023 – Aug 2023",
+              desc: "Owned lifecycle and CRM programs end-to-end across the group's travel brands.",
+            },
+            {
+              role: "Lifecycle Marketing Specialist (Growth)",
+              period: "Sep 2021 – Jan 2023",
+              desc: "Built and ran lifecycle marketing programs for a leading online travel platform.",
+            },
+          ],
+        },
+        {
+          kind: "single",
+          year: "2020",
+          co: "Albayrak Grubu",
+          logo: "/logos/albayrak.svg",
+          role: "Digital Marketing Specialist",
+          period: "Oct 2020 – Aug 2021",
+          desc: "Managed digital marketing campaigns across group companies.",
+        },
+        {
+          kind: "single",
+          year: "2019",
+          co: "Doğuş Oto",
+          logo: "/logos/dogus-oto.svg",
+          role: "Jr. Digital Marketing Specialist",
+          period: "Sep 2019 – Aug 2020",
+          desc: "Digital marketing execution for one of Turkey's leading automotive dealer groups.",
+        },
+      ],
+    },
     finalCta: {
       title: "Let's talk growth.",
       body: "Whether it's a role, a project or a question about lifecycle marketing - my inbox is open.",
@@ -101,7 +179,7 @@ export const copy = {
     footer: { left: "Ali Demirbaş, 2026", right: "Istanbul" },
   },
   tr: {
-    nav: { expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
@@ -190,6 +268,84 @@ export const copy = {
         empty: "Bu filtrelerle eşleşen kayıt yok.",
         back: "Ana sayfaya dön",
       },
+    },
+    about: {
+      metaTitle: "Hakkımda - Ali Demirbaş",
+      metaDesc: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
+      eyebrow: "Hakkımda",
+      title: "Profesyonel Profil",
+      sub: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
+      lead:
+        "Dijital pazarlama ve büyüme alanında sekiz yılı aşkın deneyimimle, farklı ürünlerin ve iş modellerinin büyüme hedeflerini destekleyecek stratejiler üzerinde çalıştım.",
+      body:
+        "Deneyimim analitik, kullanıcı kazanımı, ürün ve büyüme stratejisini kapsıyor. Dijital pazarlama performansını değerlendirmek, kullanıcı davranışını anlamak ve büyüme fırsatlarını belirlemek için veriyi kullanıyorum. Kampanya yönetimi, ölçümleme ve optimizasyon boyunca, pazarlama girişimlerini iş hedefleriyle uyumlu tutmaya ve ölçülebilir sonuçlar üretmeye odaklanıyorum.",
+      experience: "Deneyim",
+      timeline: [
+        {
+          kind: "single",
+          year: "2026",
+          co: "Aksigorta",
+          logo: "/logos/aksigorta.svg",
+          role: "Mobil Uygulama Büyüme Lideri",
+          period: "Nis 2026 – Günümüz",
+          desc: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyüme stratejisini yönetiyor, kullanıcı kazanımı ve etkileşimi yürütüyorum.",
+        },
+        {
+          kind: "single",
+          year: "2024",
+          co: "Vodafone",
+          logo: "/logos/vodafone.svg",
+          role: "Büyüme Pazarlaması Lideri",
+          period: "Ağu 2024 – Nis 2026",
+          desc: "Dijital kanallarda büyüme pazarlamasını yönettim; veriye dayalı kullanıcı kazanımını yaşam döngüsü programlarıyla birleştirdim.",
+        },
+        {
+          kind: "single",
+          year: "2023",
+          co: "Getir",
+          logo: "/logos/getir.svg",
+          role: "Büyüme – CRM Analitiği Uzmanı",
+          period: "Eyl 2023 – Ağu 2024",
+          desc: "Hızlı ticaret için CRM analitiği ve büyüme girişimlerini yönettim; elde tutma ve yaşam boyu değeri optimize ettim.",
+        },
+        {
+          kind: "group",
+          year: "2021",
+          co: "Wingie Enuygun Group",
+          logo: "/logos/enuygun.png",
+          span: "Tam zamanlı · 2 yıl",
+          roles: [
+            {
+              role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
+              period: "Oca 2023 – Ağu 2023",
+              desc: "Grubun seyahat markaları genelinde yaşam döngüsü ve CRM programlarını uçtan uca yürüttüm.",
+            },
+            {
+              role: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
+              period: "Eyl 2021 – Oca 2023",
+              desc: "Önde gelen bir çevrimiçi seyahat platformu için yaşam döngüsü pazarlama programları kurdum ve yürüttüm.",
+            },
+          ],
+        },
+        {
+          kind: "single",
+          year: "2020",
+          co: "Albayrak Grubu",
+          logo: "/logos/albayrak.svg",
+          role: "Dijital Pazarlama Uzmanı",
+          period: "Eki 2020 – Ağu 2021",
+          desc: "Grup şirketleri genelinde dijital pazarlama kampanyalarını yönettim.",
+        },
+        {
+          kind: "single",
+          year: "2019",
+          co: "Doğuş Oto",
+          logo: "/logos/dogus-oto.svg",
+          role: "Jr. Dijital Pazarlama Uzmanı",
+          period: "Eyl 2019 – Ağu 2020",
+          desc: "Türkiye'nin önde gelen otomotiv bayi gruplarından biri için dijital pazarlama uygulamaları yürüttüm.",
+        },
+      ],
     },
     finalCta: {
       title: "Büyümeyi konuşalım.",

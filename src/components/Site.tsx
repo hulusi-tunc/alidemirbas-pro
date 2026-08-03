@@ -9,21 +9,33 @@ import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 /* Corporate one-pager for Ali Demirbaş in the Altor design language:
    white-first editorial, Altor Blue, dark hero, full-bleed blue stats band. */
 
-export function SiteHeader({ t }: { t: (typeof copy)[Lang] }) {
+export function SiteHeader({
+  t,
+  anchorBase = "",
+  langHref,
+}: {
+  t: (typeof copy)[Lang];
+  /** Prefix for the home page's section anchors — "" on the home page itself,
+      the home path ("/" or "/tr") on subpages so #expertise still resolves. */
+  anchorBase?: string;
+  /** Language-switch target when the counterpart page isn't the home page. */
+  langHref?: string;
+}) {
   return (
     <header className="absolute inset-x-0 top-0 z-40">
       <div className="altor-container flex h-[4.5rem] items-center justify-between">
-        <a href="#top" className="text-[15px] font-semibold tracking-tight text-white">
+        <a href={anchorBase || "#top"} className="text-[15px] font-semibold tracking-tight text-white">
           Ali Demirbaş
         </a>
         <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
-          <a className="transition-colors hover:text-white" href="#expertise">{t.nav.expertise}</a>
-          <a className="transition-colors hover:text-white" href="#experience">{t.nav.experience}</a>
+          <Link className="transition-colors hover:text-white" href={t.nav.aboutHref}>{t.nav.about}</Link>
+          <a className="transition-colors hover:text-white" href={`${anchorBase}#expertise`}>{t.nav.expertise}</a>
+          <a className="transition-colors hover:text-white" href={`${anchorBase}#experience`}>{t.nav.experience}</a>
           <Link className="transition-colors hover:text-white" href={t.nav.labHref}>{t.nav.lab}</Link>
           <a className="transition-colors hover:text-white" href="#contact">{t.nav.contact}</a>
         </nav>
         <div className="flex items-center gap-6">
-          <Link href={t.nav.langHref} className="text-sm text-white/70 transition-colors hover:text-white">
+          <Link href={langHref ?? t.nav.langHref} className="text-sm text-white/70 transition-colors hover:text-white">
             {t.nav.lang}
           </Link>
           <a
@@ -254,7 +266,7 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
+export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="contact" data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
       <div
