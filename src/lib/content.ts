@@ -2,7 +2,7 @@ export type Lang = "en" | "tr";
 
 export const copy = {
   en: {
-    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
+    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", stack: "Stack", stackHref: "/stack", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
@@ -172,6 +172,13 @@ export const copy = {
         },
       ],
     },
+    stack: {
+      metaTitle: "Stack - Ali Demirbaş",
+      metaDesc: "The tools Ali Demirbaş instruments, queries and optimizes growth with every day.",
+      eyebrow: "Stack",
+      title: "Stack.",
+      sub: "Software I use to craft something valuable.",
+    },
     finalCta: {
       title: "Let's talk growth.",
       body: "Whether it's a role, a project or a question about lifecycle marketing - my inbox is open.",
@@ -181,7 +188,7 @@ export const copy = {
     footer: { left: "Ali Demirbaş, 2026", right: "Istanbul" },
   },
   tr: {
-    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
@@ -350,6 +357,13 @@ export const copy = {
           desc: "Türkiye'nin önde gelen otomotiv bayi gruplarından biri için dijital pazarlama uygulamaları yürüttüm.",
         },
       ],
+    },
+    stack: {
+      metaTitle: "Yığın - Ali Demirbaş",
+      metaDesc: "Her gün büyümeyi ölçmek, sorgulamak ve optimize etmek için kullandığım araçlar.",
+      eyebrow: "Yığın",
+      title: "Yığın.",
+      sub: "Değerli bir şey üretmek için kullandığım yazılımlar.",
     },
     finalCta: {
       title: "Büyümeyi konuşalım.",
