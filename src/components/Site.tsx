@@ -25,8 +25,6 @@ export function SiteHeader({
 }) {
   const navItems = [
     { label: t.nav.about, href: t.nav.aboutHref },
-    { label: t.nav.expertise, href: `${anchorBase}#expertise` },
-    { label: t.nav.experience, href: `${anchorBase}#experience` },
     { label: t.nav.lab, href: t.nav.labHref },
     { label: t.nav.stack, href: t.nav.stackHref },
     { label: t.nav.contact, href: t.nav.contactHref },
@@ -40,8 +38,6 @@ export function SiteHeader({
         </a>
         <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
           <Link className="transition-colors hover:text-white" href={t.nav.aboutHref}>{t.nav.about}</Link>
-          <a className="transition-colors hover:text-white" href={`${anchorBase}#expertise`}>{t.nav.expertise}</a>
-          <a className="transition-colors hover:text-white" href={`${anchorBase}#experience`}>{t.nav.experience}</a>
           <Link className="transition-colors hover:text-white" href={t.nav.labHref}>{t.nav.lab}</Link>
           <Link className="transition-colors hover:text-white" href={t.nav.stackHref}>{t.nav.stack}</Link>
           <Link className="transition-colors hover:text-white" href={t.nav.contactHref}>{t.nav.contact}</Link>
@@ -175,6 +171,29 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
+/** Short teaser between the hero and the rest of the page - eyebrow, one
+    real paragraph from the About page's own lead copy (not new writing),
+    and a link out to the full page. */
+function AboutTeaser({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section className="bg-paper py-24 md:py-32">
+      <div className="altor-container">
+        <Reveal>
+          <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
+          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-relaxed text-ink-600">{t.about.lead}</p>
+          <Link
+            href={t.nav.aboutHref}
+            className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+          >
+            {t.about.moreLink}
+            <ArrowRight aria-hidden className="size-3.5" />
+          </Link>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 function Expertise({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="expertise" className="bg-paper py-24 md:py-32">
@@ -264,14 +283,21 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
     <section id="lab" className="bg-paper py-24 md:py-32">
       <div className="altor-container">
         <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
-        <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="mt-14 flex flex-col gap-6">
           {t.lab.projects.map((project, i) => (
-            <Reveal key={project.name} delay={i * 80}>
-              <article className="group flex h-full flex-col border border-line p-8 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]">
-                <p className="text-sm text-neutral-500">{project.meta}</p>
-                <h3 className="mt-5 text-xl font-semibold tracking-tight text-ink-950">{project.name}</h3>
-                <p className="mt-3 flex-1 text-base leading-relaxed text-ink-600">{project.desc}</p>
-                <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+            <Reveal key={project.slug} delay={i * 80}>
+              <article className="group flex flex-col border border-line p-8 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]">
+                <h3 className="text-xl font-semibold tracking-tight text-ink-950">{project.name}</h3>
+                <p className="mt-1 font-mono text-sm text-neutral-500">{project.slug}</p>
+                <p className="mt-4 max-w-3xl text-base leading-relaxed text-ink-600">{project.desc}</p>
+                <div className="mt-5 flex flex-wrap gap-1.5">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="border border-line px-2.5 py-1 text-xs text-ink-600">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
                   {project.links.map((link) => (
                     <a
                       key={link.label}
@@ -343,9 +369,11 @@ export default function Site({ lang }: { lang: Lang }) {
       <SiteHeader t={t} />
       <main>
         <Hero t={t} />
-        <Expertise t={t} />
-        <StatsBand t={t} />
-        <Experience t={t} />
+        <AboutTeaser t={t} />
+        {/* Expertise, StatsBand and Experience pulled off the home page for
+            now - components kept below, just not rendered. Re-add
+            <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
+            t={t} /> here to bring any of them back. */}
         <Lab t={t} />
         <FinalCta t={t} />
       </main>

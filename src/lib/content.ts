@@ -50,19 +50,28 @@ export const copy = {
       viewAll: "Explore the archive",
       projects: [
         {
-          name: "claude-lifecycle",
-          desc: "An open-source Claude plugin that drafts CRM journeys from proven patterns - 26 journey blueprints across 9 industries.",
-          meta: "Open source - Claude plugin",
+          name: "Data-Sized Lifecycle Marketing Generator",
+          slug: "claude-lifecycle",
+          desc: "A Claude Code plugin that scores what a company's tracked data actually supports, then generates a right-sized portfolio of customer lifecycle journeys, plus rule-checked, sector-aware CRM copy for every step. No template flows: a startup with 3 tracked events gets a 3-step journey, not the same branching flow as a mature e-commerce store.",
+          tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"],
           links: [
-            { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+            { label: "View on GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
             { label: "Live demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
           ],
         },
         {
-          name: "CRM Journey Archive",
-          desc: "70 lifecycle journey teardowns: how each flow is built, what to test, which KPI to track, which classic mistake to avoid.",
-          meta: "70 teardowns - 5 channels",
-          links: [{ label: "Browse the archive", href: "/lab" }],
+          name: "CRM Journey Teardown Archive",
+          slug: "lifecycle-card-archive",
+          desc: "70 lifecycle journey teardowns, generated from the claude-lifecycle engine's own pattern blueprints: how each flow is built, what to test, which KPI to track, which classic mistake to avoid. Bilingual (TR/EN), filterable by sector and lifecycle stage, with a full orchestration canvas and channel-accurate message mockups for every step.",
+          tags: ["CRM", "Lifecycle Marketing", "70 teardowns", "10 industries", "TR/EN"],
+          links: [{ label: "Explore the archive", href: "/lab" }],
+        },
+        {
+          name: "A/B Test Scenario Engine",
+          slug: "ab-test-playbook",
+          desc: "A Claude Code plugin that suggests, designs and audits A/B test scenarios from an archive of 179 real e-commerce, mobile app and SaaS growth tests. Every scenario follows the same three-box discipline - what to test, which KPI to track, what not to do - and renders straight to a shareable HTML card, with a real two-proportion z-test for reading results.",
+          tags: ["Claude Code Plugin", "A/B Testing", "CRO", "179 scenarios"],
+          links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" }],
         },
       ],
       shell: {
@@ -100,6 +109,7 @@ export const copy = {
       eyebrow: "About",
       title: "Professional Profile",
       sub: "Digital Marketing · Analytics · Growth Strategy",
+      moreLink: "More about me",
       lead:
         "With over eight years of experience in digital marketing and growth, I have worked on strategies designed to support the growth objectives of different products and business models.",
       body:
@@ -247,19 +257,28 @@ export const copy = {
       viewAll: "Arşivi keşfet",
       projects: [
         {
-          name: "claude-lifecycle",
-          desc: "Kanıtlanmış kalıplardan CRM journey'leri taslaklayan açık kaynak Claude eklentisi - 9 sektörde 26 journey şablonu.",
-          meta: "Açık kaynak - Claude eklentisi",
+          name: "Veriye Göre Ölçeklenen Lifecycle Pazarlama Üretici",
+          slug: "claude-lifecycle",
+          desc: "Bir şirketin gerçekte takip ettiği veriyi puanlayan, sonra buna göre doğru ölçekte müşteri lifecycle journey portföyü ve her adım için kural denetimli, sektöre özel CRM metni üreten bir Claude Code eklentisi. Şablon akış yok: 3 event takip eden bir startup 3 adımlık bir journey alır, olgun bir e-ticaret mağazasıyla aynı dallanan akışı değil.",
+          tags: ["Claude Code Eklentisi", "CRM", "Lifecycle Pazarlama", "26 journey deseni", "9 sektör"],
           links: [
-            { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+            { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/claude-lifecycle" },
             { label: "Canlı demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
           ],
         },
         {
-          name: "CRM Journey Arşivi",
-          desc: "70 lifecycle journey incelemesi: her akış nasıl kurulur, ne test edilir, hangi KPI izlenir, hangi klasik hatadan kaçınılır.",
-          meta: "70 inceleme - 5 kanal",
-          links: [{ label: "Arşive göz at", href: "/tr/lab" }],
+          name: "CRM Journey İnceleme Arşivi",
+          slug: "lifecycle-card-archive",
+          desc: "claude-lifecycle motorunun kendi desen şablonlarından üretilen 70 lifecycle journey incelemesi: her akış nasıl kurulu, ne test edilir, hangi KPI izlenir, hangi klasik hatadan kaçınılır. İki dilli (TR/EN), sektöre ve lifecycle aşamasına göre filtrelenebilir, her adım için tam orkestrasyon canvas'ı ve kanala uygun mesaj mockup'larıyla.",
+          tags: ["CRM", "Lifecycle Pazarlama", "70 inceleme", "10 sektör", "TR/EN"],
+          links: [{ label: "Arşivi keşfet", href: "/tr/lab" }],
+        },
+        {
+          name: "A/B Test Senaryo Motoru",
+          slug: "ab-test-playbook",
+          desc: "Gerçek e-ticaret, mobil uygulama ve SaaS büyüme testlerinden oluşan 179 senaryoluk bir arşivden A/B test senaryosu öneren, tasarlayan ve denetleyen bir Claude Code eklentisi. Her senaryo aynı üç kutu disiplinini izler - ne test edilir, hangi KPI izlenir, ne yapılmamalı - ve doğrudan paylaşılabilir bir HTML karta dönüşür; sonuçları okumak için gerçek bir iki-oranlı z-test içerir.",
+          tags: ["Claude Code Eklentisi", "A/B Test", "CRO", "179 senaryo"],
+          links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" }],
         },
       ],
       shell: {
@@ -297,6 +316,7 @@ export const copy = {
       eyebrow: "Hakkımda",
       title: "Profesyonel Profil",
       sub: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
+      moreLink: "Hakkımda daha fazlası",
       lead:
         "Dijital pazarlama ve büyüme alanında sekiz yılı aşkın deneyimimle, farklı ürünlerin ve iş modellerinin büyüme hedeflerini destekleyecek stratejiler üzerinde çalıştım.",
       body:

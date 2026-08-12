@@ -1,0 +1,27 @@
+# Ali Demirbaş
+
+> Growth marketer for mobile products. Mobile App Growth Lead at Aksigorta in Istanbul, building acquisition, CRM and lifecycle programs on data - not guesswork. Previously Vodafone, Getir and Wingie Enuygun Group. Published in English (default) and Turkish (/tr).
+
+## Pages
+
+- [Home](https://alidemirbas.com.tr/): Overview - expertise, experience timeline, and featured Lab projects.
+- [About](https://alidemirbas.com.tr/about): Biography and full career timeline (Aksigorta, Vodafone, Getir, Wingie Enuygun Group, Albayrak Grubu, Doğuş Oto).
+- [Lab](https://alidemirbas.com.tr/lab): CRM Journey Archive - 70 lifecycle journey teardowns across 10 sectors and 5 channels, filterable by sector and channel.
+- [Stack](https://alidemirbas.com.tr/stack): The tools used day to day, grouped by category - design, web/product analytics, mobile attribution, BI, CRM & engagement, SEO, CRO, work management.
+- [Contact](https://alidemirbas.com.tr/contact): Email and LinkedIn.
+
+## Turkish
+
+- [Ana Sayfa](https://alidemirbas.com.tr/tr/)
+- [Hakkımda](https://alidemirbas.com.tr/tr/about)
+- [Lab](https://alidemirbas.com.tr/tr/lab)
+- [Yığın](https://alidemirbas.com.tr/tr/stack)
+- [İletişim](https://alidemirbas.com.tr/tr/contact)
+
+## Key facts
+
+- 7+ years building growth, CRM and lifecycle programs, across 6 brands from telco to insurance to q-commerce.
+- Currently Mobile App Growth Lead at Aksigorta (2026-present).
+- Builds [claude-lifecycle](https://github.com/ali-demirbas/claude-lifecycle), an open-source Claude plugin that drafts CRM journeys from proven patterns - 26 journey blueprints across 9 industries. Live demo: https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html
+- Maintains a CRM Journey Archive of 70 lifecycle journey teardowns - how each flow is built, what to test, which KPI to track, which classic mistake to avoid.
+- Contact: mehmetalidemirbas@gmail.com - https://www.linkedin.com/in/ali-demirbas/
