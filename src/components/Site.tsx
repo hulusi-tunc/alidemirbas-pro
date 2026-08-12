@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Sparkle } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
+import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
@@ -21,6 +23,15 @@ export function SiteHeader({
   /** Language-switch target when the counterpart page isn't the home page. */
   langHref?: string;
 }) {
+  const navItems = [
+    { label: t.nav.about, href: t.nav.aboutHref },
+    { label: t.nav.expertise, href: `${anchorBase}#expertise` },
+    { label: t.nav.experience, href: `${anchorBase}#experience` },
+    { label: t.nav.lab, href: t.nav.labHref },
+    { label: t.nav.stack, href: t.nav.stackHref },
+    { label: t.nav.contact, href: t.nav.contactHref },
+  ];
+
   return (
     <header className="absolute inset-x-0 top-0 z-40">
       <div className="altor-container flex h-[4.5rem] items-center justify-between">
@@ -45,6 +56,13 @@ export function SiteHeader({
           >
             {t.nav.cta}
           </a>
+          <MobileNav
+            items={navItems}
+            langHref={langHref ?? t.nav.langHref}
+            langLabel={t.nav.lang}
+            ctaHref={`mailto:${EMAIL}`}
+            ctaLabel={t.nav.cta}
+          />
         </div>
       </div>
     </header>
@@ -117,12 +135,14 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
             <Reveal delay={120} className="hidden lg:block">
               <div className="relative mx-auto w-full max-w-sm">
                 <div aria-hidden className="absolute -inset-3 border border-white/15" />
-                <div className="relative overflow-hidden bg-blue-600">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                <div className="relative aspect-4/5 overflow-hidden bg-blue-600">
+                  <Image
                     src="/portrait.jpg"
                     alt="Ali Demirbaş"
-                    className="aspect-4/5 w-full object-cover opacity-95 grayscale"
+                    fill
+                    sizes="(min-width: 1024px) 24rem, 0px"
+                    priority
+                    className="object-cover opacity-95 grayscale"
                   />
                   <div aria-hidden className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
                 </div>
@@ -138,13 +158,15 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
           <p className="text-sm text-white/50">{t.trust}</p>
           <div className="mt-5 flex flex-wrap items-center gap-x-12 gap-y-6 border-t border-white/10 pt-6">
             {t.xp.rows.map((row) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={row.co}
-                src={row.logo}
-                alt={row.co}
-                className="h-5 w-auto max-w-28 object-contain brightness-0 invert opacity-55 transition-opacity hover:opacity-90"
-              />
+              <span key={row.co} className="relative h-5 w-28">
+                <Image
+                  src={row.logo}
+                  alt={row.co}
+                  fill
+                  sizes="7rem"
+                  className="object-contain object-left brightness-0 invert opacity-55 transition-opacity hover:opacity-90"
+                />
+              </span>
             ))}
           </div>
         </div>
@@ -219,9 +241,14 @@ function Experience({ t }: { t: (typeof copy)[Lang] }) {
                   <h3 className="text-lg font-medium tracking-tight text-ink-950">{row.role}</h3>
                   <p className="mt-0.5 text-sm text-ink-500 md:hidden">{row.co}</p>
                 </div>
-                <div className="hidden items-center md:flex">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={row.logo} alt={row.co} className="h-5 w-auto max-w-32 object-contain opacity-55 grayscale transition-[filter,opacity] duration-200 group-hover:opacity-100 group-hover:grayscale-0" />
+                <div className="relative hidden h-5 w-32 md:block">
+                  <Image
+                    src={row.logo}
+                    alt={row.co}
+                    fill
+                    sizes="8rem"
+                    className="object-contain object-right opacity-55 grayscale transition-[filter,opacity] duration-200 group-hover:opacity-100 group-hover:grayscale-0"
+                  />
                 </div>
               </div>
             </Reveal>

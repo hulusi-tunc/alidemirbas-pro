@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { Reveal } from "@/components/ui/Reveal";
 import { copy, type Lang } from "@/lib/content";
@@ -41,9 +43,8 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
 function ToolTile({ name, domain, tag }: { name: string; domain: string; tag: string }) {
   return (
     <div className="group flex items-center gap-3 border border-line bg-paper p-3.5 transition-colors hover:border-neutral-400">
-      <span className="grid size-11 shrink-0 place-items-center border border-line bg-paper-soft p-2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoSrc(domain)} alt="" loading="lazy" className="size-full object-contain" />
+      <span className="relative size-11 shrink-0 border border-line bg-paper-soft p-2">
+        <Image src={logoSrc(domain)} alt="" fill sizes="2.75rem" className="object-contain" />
       </span>
       <span className="min-w-0">
         <span className="block truncate text-[15px] font-medium tracking-tight text-ink-950">{name}</span>

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { Reveal } from "@/components/ui/Reveal";
 import { copy, type Lang } from "@/lib/content";
@@ -63,12 +65,13 @@ function Biography({ t }: { t: (typeof copy)[Lang] }) {
           <Reveal delay={140}>
             <div className="relative mx-auto w-full max-w-sm">
               <div aria-hidden className="absolute -inset-3 border border-line" />
-              <div className="relative overflow-hidden bg-blue-600">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="relative aspect-4/5 overflow-hidden bg-blue-600">
+                <Image
                   src="/portrait.jpg"
                   alt="Ali Demirbaş"
-                  className="aspect-4/5 w-full object-cover opacity-95 grayscale"
+                  fill
+                  sizes="(min-width: 1024px) 24rem, (min-width: 640px) 20rem, 90vw"
+                  className="object-cover opacity-95 grayscale"
                 />
                 <div aria-hidden className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
               </div>
@@ -83,12 +86,13 @@ function Biography({ t }: { t: (typeof copy)[Lang] }) {
 /** Company logo — same treatment as the home page's Experience rows. */
 function Logo({ src }: { src: string }) {
   return (
-    <div className="hidden pt-1 md:block">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+    <div className="relative hidden h-4.5 w-24 pt-1 md:block">
+      <Image
         src={src}
         alt=""
-        className="h-4.5 w-auto max-w-24 object-contain opacity-55 grayscale transition-[filter,opacity] duration-200 group-hover:opacity-100 group-hover:grayscale-0"
+        fill
+        sizes="6rem"
+        className="object-contain object-left-top opacity-55 grayscale transition-[filter,opacity] duration-200 group-hover:opacity-100 group-hover:grayscale-0"
       />
     </div>
   );
