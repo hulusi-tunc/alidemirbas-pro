@@ -84,3 +84,22 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
 ];
+
+// A curated cross-section of the full stack, surfaced on the home page -
+// ported from the cv site's own stack-data.ts (same 8 names, same order).
+export const stackPreviewNames = [
+  "Figma",
+  "Google Analytics 4",
+  "Google Tag Manager",
+  "Adjust",
+  "Mixpanel",
+  "Looker Studio",
+  "Insider",
+  "Braze",
+];
+
+export function stackPreview(): Tool[] {
+  const byName = new Map<string, Tool>();
+  stackGroups.forEach((g) => g.tools.forEach((tool) => byName.set(tool.name, tool)));
+  return stackPreviewNames.map((name) => byName.get(name)).filter((t): t is Tool => Boolean(t));
+}

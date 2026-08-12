@@ -1,6 +1,7 @@
 import { ArrowRight, ArrowUpRight, Mail } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
+import { LinkedInMark } from "@/components/ui/BrandIcons";
 import { Reveal } from "@/components/ui/Reveal";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 
@@ -8,18 +9,7 @@ import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
    channels are styled as the Lab archive's project cards (icon badge, title,
    sub, a "go" link) rather than the cv's cblock treatment. No FinalCta here -
    the whole page already is the contact CTA - but SiteFooter still closes it
-   out like every other page. lucide-react ships no LinkedIn mark in this
-   version, so it's a small inline SVG at the same 24x24 scale as the rest. */
-
-function LinkedInMark({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
-      <path d="M6.94 8.5H3.56V20.5H6.94V8.5Z" />
-      <path d="M5.25 7.03A1.97 1.97 0 1 0 5.25 3.09a1.97 1.97 0 0 0 0 3.94Z" />
-      <path d="M20.5 13.63c0-3.16-1.69-4.63-3.94-4.63-1.82 0-2.63 1-3.08 1.7V8.5H10.1c.05 1 0 12 0 12h3.38v-6.7c0-.36.03-.72.13-.98.29-.72.94-1.47 2.05-1.47 1.45 0 2.03 1.1 2.03 2.72V20.5h3.38l-.57-6.87Z" />
-    </svg>
-  );
-}
+   out like every other page. */
 
 function Intro({ t }: { t: (typeof copy)[Lang] }) {
   return (
@@ -107,7 +97,7 @@ export default function ContactPage({ lang }: { lang: Lang }) {
         <Intro t={t} />
         <Channels t={t} />
       </main>
-      <SiteFooter t={t} />
+      <SiteFooter t={t} lang={lang} />
     </>
   );
 }

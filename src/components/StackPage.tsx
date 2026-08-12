@@ -87,7 +87,7 @@ export default function StackPage({ lang }: { lang: Lang }) {
         <Groups lang={lang} />
         <FinalCta t={t} />
       </main>
-      <SiteFooter t={t} />
+      <SiteFooter t={t} lang={lang} />
     </>
   );
 }

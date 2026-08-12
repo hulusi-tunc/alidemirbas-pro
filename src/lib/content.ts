@@ -52,7 +52,7 @@ export const copy = {
         {
           name: "Data-Sized Lifecycle Marketing Generator",
           slug: "claude-lifecycle",
-          desc: "A Claude Code plugin that scores what a company's tracked data actually supports, then generates a right-sized portfolio of customer lifecycle journeys, plus rule-checked, sector-aware CRM copy for every step. No template flows: a startup with 3 tracked events gets a 3-step journey, not the same branching flow as a mature e-commerce store.",
+          desc: "Scores a company's tracked data, then generates a right-sized lifecycle journey portfolio - no template flows.",
           tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"],
           links: [
             { label: "View on GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
@@ -62,14 +62,14 @@ export const copy = {
         {
           name: "CRM Journey Teardown Archive",
           slug: "lifecycle-card-archive",
-          desc: "70 lifecycle journey teardowns, generated from the claude-lifecycle engine's own pattern blueprints: how each flow is built, what to test, which KPI to track, which classic mistake to avoid. Bilingual (TR/EN), filterable by sector and lifecycle stage, with a full orchestration canvas and channel-accurate message mockups for every step.",
+          desc: "70 lifecycle journey teardowns: how each flow is built, what to test, which KPI to track, which mistake to avoid.",
           tags: ["CRM", "Lifecycle Marketing", "70 teardowns", "10 industries", "TR/EN"],
           links: [{ label: "Explore the archive", href: "/lab" }],
         },
         {
           name: "A/B Test Scenario Engine",
           slug: "ab-test-playbook",
-          desc: "A Claude Code plugin that suggests, designs and audits A/B test scenarios from an archive of 179 real e-commerce, mobile app and SaaS growth tests. Every scenario follows the same three-box discipline - what to test, which KPI to track, what not to do - and renders straight to a shareable HTML card, with a real two-proportion z-test for reading results.",
+          desc: "Suggests, designs and audits A/B test scenarios from an archive of 179 real growth tests.",
           tags: ["Claude Code Plugin", "A/B Testing", "CRO", "179 scenarios"],
           links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" }],
         },
@@ -110,6 +110,12 @@ export const copy = {
       title: "Professional Profile",
       sub: "Digital Marketing · Analytics · Growth Strategy",
       moreLink: "More about me",
+      // Home page teaser only - kept separate from `lead` below (the
+      // /about page's own opening line) so editing one doesn't change
+      // the other; the two pages make different first impressions on
+      // purpose.
+      teaserLead:
+        "I build reliable measurement frameworks that help digital products grow sustainably. My work includes implementing GA4 and GTM tracking systems, optimizing Adjust MMP setups, and designing evidence-based CRO programs that turn user insights into measurable business growth. I approach marketing as an iterative process built on accurate data, structured experimentation, and continuous optimization.",
       lead:
         "With over eight years of experience in digital marketing and growth, I have worked on strategies designed to support the growth objectives of different products and business models.",
       body:
@@ -188,6 +194,10 @@ export const copy = {
       eyebrow: "Stack",
       title: "Stack.",
       sub: "Software I use to craft something valuable.",
+      // Home page teaser only - the /stack page keeps its own title/sub above.
+      homeTitle: "Tools I use",
+      homeIntro: "The tools I use to design experiments, build reliable measurement, analyze user behavior, and optimize growth.",
+      homeMore: "Explore my toolkit",
     },
     contact: {
       metaTitle: "Contact - Ali Demirbaş",
@@ -206,7 +216,14 @@ export const copy = {
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "Connect on LinkedIn",
     },
-    footer: { left: "Ali Demirbaş, 2026", right: "Istanbul" },
+    footer: {
+      left: "Ali Demirbaş, 2026",
+      right: "Istanbul",
+      quickLinks: "Quick links",
+      projects: "Lab projects",
+      connect: "Connect",
+      home: "Home",
+    },
   },
   tr: {
     nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
@@ -259,7 +276,7 @@ export const copy = {
         {
           name: "Veriye Göre Ölçeklenen Lifecycle Pazarlama Üretici",
           slug: "claude-lifecycle",
-          desc: "Bir şirketin gerçekte takip ettiği veriyi puanlayan, sonra buna göre doğru ölçekte müşteri lifecycle journey portföyü ve her adım için kural denetimli, sektöre özel CRM metni üreten bir Claude Code eklentisi. Şablon akış yok: 3 event takip eden bir startup 3 adımlık bir journey alır, olgun bir e-ticaret mağazasıyla aynı dallanan akışı değil.",
+          desc: "Bir şirketin takip ettiği veriyi puanlar, sonra doğru ölçekte lifecycle journey portföyü üretir - şablon akış yok.",
           tags: ["Claude Code Eklentisi", "CRM", "Lifecycle Pazarlama", "26 journey deseni", "9 sektör"],
           links: [
             { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/claude-lifecycle" },
@@ -269,14 +286,14 @@ export const copy = {
         {
           name: "CRM Journey İnceleme Arşivi",
           slug: "lifecycle-card-archive",
-          desc: "claude-lifecycle motorunun kendi desen şablonlarından üretilen 70 lifecycle journey incelemesi: her akış nasıl kurulu, ne test edilir, hangi KPI izlenir, hangi klasik hatadan kaçınılır. İki dilli (TR/EN), sektöre ve lifecycle aşamasına göre filtrelenebilir, her adım için tam orkestrasyon canvas'ı ve kanala uygun mesaj mockup'larıyla.",
+          desc: "70 lifecycle journey incelemesi: her akış nasıl kurulu, ne test edilir, hangi KPI izlenir, hangi hatadan kaçınılır.",
           tags: ["CRM", "Lifecycle Pazarlama", "70 inceleme", "10 sektör", "TR/EN"],
           links: [{ label: "Arşivi keşfet", href: "/tr/lab" }],
         },
         {
           name: "A/B Test Senaryo Motoru",
           slug: "ab-test-playbook",
-          desc: "Gerçek e-ticaret, mobil uygulama ve SaaS büyüme testlerinden oluşan 179 senaryoluk bir arşivden A/B test senaryosu öneren, tasarlayan ve denetleyen bir Claude Code eklentisi. Her senaryo aynı üç kutu disiplinini izler - ne test edilir, hangi KPI izlenir, ne yapılmamalı - ve doğrudan paylaşılabilir bir HTML karta dönüşür; sonuçları okumak için gerçek bir iki-oranlı z-test içerir.",
+          desc: "179 gerçek büyüme testinden oluşan bir arşivden A/B test senaryosu öneren, tasarlayan ve denetleyen bir eklenti.",
           tags: ["Claude Code Eklentisi", "A/B Test", "CRO", "179 senaryo"],
           links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" }],
         },
@@ -317,6 +334,8 @@ export const copy = {
       title: "Profesyonel Profil",
       sub: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
       moreLink: "Hakkımda daha fazlası",
+      teaserLead:
+        "Dijital ürünlerin sürdürülebilir şekilde büyümesine yardımcı olan güvenilir ölçümleme sistemleri kuruyorum. Çalışmalarım; GA4 ve GTM izleme sistemleri kurmayı, Adjust MMP kurulumlarını optimize etmeyi ve kullanıcı içgörülerini ölçülebilir iş büyümesine dönüştüren kanıta dayalı CRO programları tasarlamayı kapsıyor. Pazarlamaya; doğru veriye, yapılandırılmış deneylere ve sürekli optimizasyona dayanan yinelemeli bir süreç olarak yaklaşıyorum.",
       lead:
         "Dijital pazarlama ve büyüme alanında sekiz yılı aşkın deneyimimle, farklı ürünlerin ve iş modellerinin büyüme hedeflerini destekleyecek stratejiler üzerinde çalıştım.",
       body:
@@ -395,6 +414,9 @@ export const copy = {
       eyebrow: "Yığın",
       title: "Yığın.",
       sub: "Değerli bir şey üretmek için kullandığım yazılımlar.",
+      homeTitle: "Kullandığım araçlar",
+      homeIntro: "Deney tasarlamak, güvenilir ölçümleme kurmak, kullanıcı davranışını analiz etmek ve büyümeyi optimize etmek için kullandığım araçlar.",
+      homeMore: "Araç setimi keşfet",
     },
     contact: {
       metaTitle: "İletişim - Ali Demirbaş",
@@ -413,7 +435,14 @@ export const copy = {
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "LinkedIn'de bağlan",
     },
-    footer: { left: "Ali Demirbaş, 2026", right: "İstanbul" },
+    footer: {
+      left: "Ali Demirbaş, 2026",
+      right: "İstanbul",
+      quickLinks: "Hızlı bağlantılar",
+      projects: "Lab projeleri",
+      connect: "Bağlan",
+      home: "Ana sayfa",
+    },
   },
 } as const;
 

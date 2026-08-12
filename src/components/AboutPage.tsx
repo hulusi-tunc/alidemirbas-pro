@@ -175,7 +175,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
         <Experience t={t} />
         <FinalCta t={t} />
       </main>
-      <SiteFooter t={t} />
+      <SiteFooter t={t} lang={lang} />
     </>
   );
 }

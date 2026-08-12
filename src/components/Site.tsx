@@ -3,10 +3,14 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Sparkle } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
+import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
+import { logoSrc, stackPreview } from "@/lib/stack";
+
+const GITHUB = "https://github.com/ali-demirbas";
 
 /* Corporate one-pager for Ali Demirbaş in the Altor design language:
    white-first editorial, Altor Blue, dark hero, full-bleed blue stats band. */
@@ -147,26 +151,9 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
           </div>
         </div>
       </div>
-
-      {/* trust rail pinned to the section's bottom edge */}
-      <Reveal delay={300}>
-        <div className="altor-container mt-16 lg:mt-20">
-          <p className="text-sm text-white/50">{t.trust}</p>
-          <div className="mt-5 flex flex-wrap items-center gap-x-12 gap-y-6 border-t border-white/10 pt-6">
-            {t.xp.rows.map((row) => (
-              <span key={row.co} className="relative h-5 w-28">
-                <Image
-                  src={row.logo}
-                  alt={row.co}
-                  fill
-                  sizes="7rem"
-                  className="object-contain object-left brightness-0 invert opacity-55 transition-opacity hover:opacity-90"
-                />
-              </span>
-            ))}
-          </div>
-        </div>
-      </Reveal>
+      {/* Trust rail (logo strip) removed for now, per feedback. t.trust and
+          the row.logo image data are still used by the Experience section's
+          own logos, untouched. */}
     </section>
   );
 }
@@ -180,7 +167,7 @@ function AboutTeaser({ t }: { t: (typeof copy)[Lang] }) {
       <div className="altor-container">
         <Reveal>
           <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
-          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-relaxed text-ink-600">{t.about.lead}</p>
+          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-relaxed text-ink-600">{t.about.teaserLead}</p>
           <Link
             href={t.nav.aboutHref}
             className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
@@ -283,21 +270,14 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
     <section id="lab" className="bg-paper py-24 md:py-32">
       <div className="altor-container">
         <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
-        <div className="mt-14 flex flex-col gap-6">
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
           {t.lab.projects.map((project, i) => (
             <Reveal key={project.slug} delay={i * 80}>
-              <article className="group flex flex-col border border-line p-8 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]">
-                <h3 className="text-xl font-semibold tracking-tight text-ink-950">{project.name}</h3>
-                <p className="mt-1 font-mono text-sm text-neutral-500">{project.slug}</p>
-                <p className="mt-4 max-w-3xl text-base leading-relaxed text-ink-600">{project.desc}</p>
-                <div className="mt-5 flex flex-wrap gap-1.5">
-                  {project.tags.map((tag) => (
-                    <span key={tag} className="border border-line px-2.5 py-1 text-xs text-ink-600">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+              <article className="group flex h-full flex-col border border-line p-6 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]">
+                <h3 className="text-lg font-semibold tracking-tight text-ink-950">{project.name}</h3>
+                <p className="mt-1 font-mono text-xs text-neutral-500">{project.slug}</p>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-600">{project.desc}</p>
+                <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5">
                   {project.links.map((link) => (
                     <a
                       key={link.label}
@@ -314,6 +294,40 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
             </Reveal>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/** Short teaser for the Stack page - eyebrow, a curated 8-tool subset of
+    the full stack (same names as the cv site's own home-page preview),
+    a link to the full /stack page. */
+function StackTeaser({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const tools = stackPreview();
+  return (
+    <section className="bg-paper-soft py-24 md:py-32">
+      <div className="altor-container">
+        <SectionHeading eyebrow={t.stack.eyebrow} title={t.stack.homeTitle} intro={t.stack.homeIntro} />
+        <div className="mt-14 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {tools.map((tool) => (
+            <div key={tool.name} className="flex items-center gap-3 border border-line bg-paper p-3.5">
+              <span className="relative size-11 shrink-0 border border-line bg-paper-soft p-2">
+                <Image src={logoSrc(tool.domain)} alt="" fill sizes="2.75rem" className="object-contain" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[15px] font-medium tracking-tight text-ink-950">{tool.name}</span>
+                <span className="block truncate text-xs text-neutral-500">{tool.tag[lang]}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <Link
+          href={t.nav.stackHref}
+          className="mt-8 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+        >
+          {t.stack.homeMore}
+          <ArrowRight aria-hidden className="size-3.5" />
+        </Link>
       </div>
     </section>
   );
@@ -351,12 +365,90 @@ export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-export function SiteFooter({ t }: { t: (typeof copy)[Lang] }) {
+export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const home = lang === "en" ? "/" : "/tr";
+  const quickLinks = [
+    { label: t.footer.home, href: home },
+    { label: t.nav.about, href: t.nav.aboutHref },
+    { label: t.nav.lab, href: t.nav.labHref },
+    { label: t.nav.stack, href: t.nav.stackHref },
+    { label: t.nav.contact, href: t.nav.contactHref },
+  ];
+
   return (
-    <footer className="border-t border-white/10 bg-ink-950 py-8 text-sm text-white/50">
-      <div className="altor-container flex items-center justify-between">
-        <span>{t.footer.left}</span>
-        <span>{t.footer.right}</span>
+    <footer className="border-t border-white/10 bg-ink-950 pt-16 pb-8 text-white">
+      <div className="altor-container">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+          <div>
+            <p className="altor-eyebrow text-white/40">{t.footer.quickLinks}</p>
+            <ul className="mt-4 flex flex-col gap-3">
+              {quickLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="text-sm text-white/70 transition-colors hover:text-white">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="altor-eyebrow text-white/40">{t.footer.projects}</p>
+            <ul className="mt-4 flex flex-col gap-3">
+              {t.lab.projects.map((project) => (
+                <li key={project.slug}>
+                  <a
+                    href={project.links[0].href}
+                    {...(project.links[0].href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+                    className="text-sm text-white/70 transition-colors hover:text-white"
+                  >
+                    {project.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="altor-eyebrow text-white/40">{t.footer.connect}</p>
+            <ul className="mt-4 flex flex-col gap-3">
+              <li>
+                <a href={`mailto:${EMAIL}`} className="text-sm text-white/70 transition-colors hover:text-white">
+                  {EMAIL}
+                </a>
+              </li>
+              <li>
+                <a href={LINKEDIN} target="_blank" rel="noreferrer" className="text-sm text-white/70 transition-colors hover:text-white">
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a href={GITHUB} target="_blank" rel="noreferrer" className="text-sm text-white/70 transition-colors hover:text-white">
+                  GitHub
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-white/50 sm:flex-row">
+          <div className="flex items-center gap-3">
+            <span>{t.footer.left}</span>
+            <span aria-hidden>·</span>
+            <span>{t.footer.right}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <a
+              href={LINKEDIN} target="_blank" rel="noreferrer" aria-label="LinkedIn"
+              className="text-white/50 transition-colors hover:text-white"
+            >
+              <LinkedInMark className="size-4" />
+            </a>
+            <a
+              href={GITHUB} target="_blank" rel="noreferrer" aria-label="GitHub"
+              className="text-white/50 transition-colors hover:text-white"
+            >
+              <GitHubMark className="size-4" />
+            </a>
+          </div>
+        </div>
       </div>
     </footer>
   );
@@ -375,9 +467,10 @@ export default function Site({ lang }: { lang: Lang }) {
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
         <Lab t={t} />
+        <StackTeaser t={t} lang={lang} />
         <FinalCta t={t} />
       </main>
-      <SiteFooter t={t} />
+      <SiteFooter t={t} lang={lang} />
     </>
   );
 }
