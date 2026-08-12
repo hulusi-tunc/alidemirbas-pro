@@ -2,7 +2,7 @@ export type Lang = "en" | "tr";
 
 export const copy = {
   en: {
-    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", stack: "Stack", stackHref: "/stack", contact: "Contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
+    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", stack: "Stack", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
@@ -179,6 +179,17 @@ export const copy = {
       title: "Stack.",
       sub: "Software I use to craft something valuable.",
     },
+    contact: {
+      metaTitle: "Contact - Ali Demirbaş",
+      metaDesc: "Reach Ali Demirbaş by email or connect on LinkedIn.",
+      eyebrow: "Contact",
+      title: "Let's connect.",
+      sub: "Have a question, an idea, or just want to say hello? Feel free to reach out through any of the channels below.",
+      linkedinLabel: "Connect on LinkedIn",
+      linkedinGo: "View profile",
+      emailLabel: "Send an email",
+      emailGo: "Email me",
+    },
     finalCta: {
       title: "Let's talk growth.",
       body: "Whether it's a role, a project or a question about lifecycle marketing - my inbox is open.",
@@ -188,7 +199,7 @@ export const copy = {
     footer: { left: "Ali Demirbaş, 2026", right: "Istanbul" },
   },
   tr: {
-    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
@@ -364,6 +375,17 @@ export const copy = {
       eyebrow: "Yığın",
       title: "Yığın.",
       sub: "Değerli bir şey üretmek için kullandığım yazılımlar.",
+    },
+    contact: {
+      metaTitle: "İletişim - Ali Demirbaş",
+      metaDesc: "Ali Demirbaş'a e-posta ile veya LinkedIn üzerinden ulaşın.",
+      eyebrow: "İletişim",
+      title: "Hadi bağlantı kuralım.",
+      sub: "Bir sorunuz, bir fikriniz mi var ya da sadece merhaba mı demek istiyorsunuz? Aşağıdaki kanallardan çekinmeden ulaşabilirsiniz.",
+      linkedinLabel: "LinkedIn'de bağlantı kur",
+      linkedinGo: "Profili görüntüle",
+      emailLabel: "E-posta gönder",
+      emailGo: "Bana e-posta at",
     },
     finalCta: {
       title: "Büyümeyi konuşalım.",

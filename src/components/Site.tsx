@@ -33,7 +33,7 @@ export function SiteHeader({
           <a className="transition-colors hover:text-white" href={`${anchorBase}#experience`}>{t.nav.experience}</a>
           <Link className="transition-colors hover:text-white" href={t.nav.labHref}>{t.nav.lab}</Link>
           <Link className="transition-colors hover:text-white" href={t.nav.stackHref}>{t.nav.stack}</Link>
-          <a className="transition-colors hover:text-white" href="#contact">{t.nav.contact}</a>
+          <Link className="transition-colors hover:text-white" href={t.nav.contactHref}>{t.nav.contact}</Link>
         </nav>
         <div className="flex items-center gap-6">
           <Link href={langHref ?? t.nav.langHref} className="text-sm text-white/70 transition-colors hover:text-white">
