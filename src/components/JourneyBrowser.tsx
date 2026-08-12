@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Search, X } from "lucide-react";
 
 import { journeys, type Journey } from "@/lib/journeys";
@@ -46,23 +46,13 @@ export default function JourneyBrowser({
     });
   }, [query, sector, channel, lang]);
 
-  const groups = useMemo(() => {
-    const m = new Map<string, Journey[]>();
-    for (const j of rows) {
-      const key = j.sector[lang];
-      if (!m.has(key)) m.set(key, []);
-      m.get(key)!.push(j);
-    }
-    return [...m.entries()];
-  }, [rows, lang]);
-
   const active = query || sector || channel;
 
   return (
     <div>
       {/* filter bar */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 items-center gap-3 border border-line bg-paper px-4 py-2.5 focus-within:border-blue-600 lg:max-w-sm">
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-3 border border-line bg-paper px-4 py-2.5 focus-within:border-blue-600 sm:max-w-sm">
           <Search aria-hidden className="size-4 shrink-0 text-neutral-500" />
           <input
             value={query}
@@ -71,75 +61,78 @@ export default function JourneyBrowser({
             className="w-full bg-transparent text-sm text-ink-900 outline-none placeholder:text-neutral-500"
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={sector}
-            onChange={(e) => setSector(e.target.value)}
-            className="h-10 border border-line bg-paper px-3 text-sm text-ink-700 outline-none focus:border-blue-600"
-          >
-            <option value="">{t.allSectors}</option>
-            {sectors.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          {CHANNELS.map((c) => (
-            <button
-              key={c} type="button"
-              onClick={() => setChannel(channel === c ? "" : c)}
-              aria-pressed={channel === c}
-              className={
-                channel === c
-                  ? "flex h-10 items-center gap-2 border border-blue-600 bg-blue-600 px-3 text-sm text-white"
-                  : "flex h-10 items-center gap-2 border border-line bg-paper px-3 text-sm text-ink-600 transition-colors hover:border-neutral-400"
-              }
-            >
-              <span aria-hidden className={`size-1.5 rounded-full ${channel === c ? "bg-white" : DOT[c]}`} />
-              {CHANNEL_LABELS[c]}
-            </button>
-          ))}
-          {active ? (
-            <button
-              type="button"
-              onClick={() => { setQuery(""); setSector(""); setChannel(""); }}
-              className="flex h-10 items-center gap-1.5 px-2 text-sm text-blue-600 transition-colors hover:text-blue-700"
-            >
-              <X aria-hidden className="size-3.5" />
-              {rows.length} / {journeys.length}
-            </button>
-          ) : null}
+
+        <div>
+          <p className="altor-eyebrow text-ink-400">{t.sectorLabel}</p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <FilterChip active={!sector} onClick={() => setSector("")}>{t.allSectors}</FilterChip>
+            {sectors.map((s) => (
+              <FilterChip key={s} active={sector === s} onClick={() => setSector(sector === s ? "" : s)}>
+                {s}
+              </FilterChip>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="altor-eyebrow text-ink-400">{t.channelsLabel}</p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
+            {CHANNELS.map((c) => (
+              <button
+                key={c} type="button"
+                onClick={() => setChannel(channel === c ? "" : c)}
+                aria-pressed={channel === c}
+                className={
+                  channel === c
+                    ? "flex h-9 items-center gap-2 border border-blue-600 bg-blue-600 px-3 text-sm text-white"
+                    : "flex h-9 items-center gap-2 border border-line bg-paper px-3 text-sm text-ink-600 transition-colors hover:border-neutral-400"
+                }
+              >
+                <span aria-hidden className={`size-1.5 rounded-full ${channel === c ? "bg-white" : DOT[c]}`} />
+                {CHANNEL_LABELS[c]}
+              </button>
+            ))}
+            {active ? (
+              <button
+                type="button"
+                onClick={() => { setQuery(""); setSector(""); setChannel(""); }}
+                className="flex h-9 items-center gap-1.5 px-2 text-sm text-blue-600 transition-colors hover:text-blue-700"
+              >
+                <X aria-hidden className="size-3.5" />
+                {rows.length} / {journeys.length}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
 
-      {/* sector groups of cards */}
-      {groups.length === 0 ? (
+      {/* flat, filterable list of journeys */}
+      {rows.length === 0 ? (
         <p className="py-16 text-center text-sm text-neutral-500">{t.empty}</p>
       ) : (
-        groups.map(([name, items]) => (
-          <section key={name} className="mt-10">
-            <h2 className="flex items-baseline gap-2 text-sm font-semibold text-ink-950">
-              {name}
-              <span className="text-xs font-normal text-neutral-500">{items.length}</span>
-            </h2>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {items.map((j) => (
-                <button
-                  key={j.slug} type="button"
-                  onClick={() => setOpen(j)}
-                  className="group flex flex-col border border-line bg-paper p-4 text-left transition-[border-color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_10px_24px_-14px_rgba(10,16,32,0.2)]"
-                >
-                  <span className="text-xs text-neutral-500 tabular-nums">{j.idx}</span>
-                  <span className="mt-1.5 text-[15px] leading-snug font-medium tracking-tight text-ink-950">
-                    {j.title[lang]}
+        <div className="mt-10">
+          {rows.map((j) => (
+            <button
+              key={j.slug} type="button"
+              onClick={() => setOpen(j)}
+              className="group grid w-full grid-cols-1 items-start gap-3 border-t border-line py-6 text-left transition-colors last:border-b hover:bg-paper-soft sm:grid-cols-[5rem_1fr_auto] sm:items-center sm:gap-6"
+            >
+              <span className="text-xs text-neutral-500 tabular-nums">{j.idx}</span>
+              <div className="min-w-0">
+                <p className="text-[15px] leading-snug font-medium tracking-tight text-ink-950">{j.title[lang]}</p>
+                <p className="mt-0.5 text-sm text-ink-500">{j.sector[lang]} · {j.journey[lang]}</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 sm:justify-end">
+                {j.channels.map((c) => (
+                  <span key={c} className="flex items-center gap-1.5 border border-line px-2 py-1 text-xs text-ink-600">
+                    <span aria-hidden className={`size-1.5 rounded-full ${DOT[c] ?? "bg-neutral-400"}`} />
+                    {CHANNEL_LABELS[c] ?? c}
                   </span>
-                  <MiniFlow slug={j.slug} />
-                  <span className="mt-auto flex items-center gap-1.5 pt-3">
-                    {j.channels.map((c) => (
-                      <span key={c} title={CHANNEL_LABELS[c]} className={`size-1.5 rounded-full ${DOT[c] ?? "bg-neutral-400"}`} />
-                    ))}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-        ))
+                ))}
+              </div>
+            </button>
+          ))}
+        </div>
       )}
 
       {/* slide-over flow panel */}
@@ -232,22 +225,21 @@ function Flow({ steps }: { steps: { t: string; a: string; b: string }[] }) {
   );
 }
 
-const MINI: Record<string, string> = {
-  entry: "bg-ink-950", wait: "bg-neutral-300", condition: "border border-dashed border-neutral-400 bg-transparent",
-  email: "bg-blue-600", push: "bg-amber-500", sms: "bg-neutral-500", inapp: "bg-violet-500", whatsapp: "bg-green-600", sales: "bg-ink-700",
-};
-
-function MiniFlow({ slug }: { slug: string }) {
-  const steps = flows[slug]?.en;
-  if (!steps) return null;
+function FilterChip({
+  active, onClick, children,
+}: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <span aria-hidden className="mt-3 flex items-center">
-      {steps.map((st, i) => (
-        <span key={i} className="flex items-center">
-          {i > 0 ? <span className="h-px w-1.5 bg-neutral-300" /> : null}
-          <span className={`size-2 shrink-0 ${MINI[st.t] ?? "bg-neutral-400"}`} />
-        </span>
-      ))}
-    </span>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={
+        active
+          ? "h-9 border border-blue-600 bg-blue-600 px-3 text-sm text-white"
+          : "h-9 border border-line bg-paper px-3 text-sm text-ink-600 transition-colors hover:border-neutral-400"
+      }
+    >
+      {children}
+    </button>
   );
 }
