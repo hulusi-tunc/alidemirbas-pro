@@ -1,21 +1,25 @@
-import { ArrowRight, ArrowUpRight, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 
+import { CalEmbed } from "@/components/CalEmbed";
+import { ContactForm } from "@/components/ContactForm";
 import { SiteFooter, SiteHeader } from "@/components/Site";
-import { LinkedInMark } from "@/components/ui/BrandIcons";
+import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
 import { Reveal } from "@/components/ui/Reveal";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 
-/* Contact page. Same dark title band as About and Stack; the two reach-out
-   channels are styled as the Lab archive's project cards (icon badge, title,
-   sub, a "go" link) rather than the cv's cblock treatment. No FinalCta here -
-   the whole page already is the contact CTA - but SiteFooter still closes it
-   out like every other page. */
+const GITHUB = "https://github.com/ali-demirbas";
+
+/* Contact page. Same dark title band as About and Stack; below it, three
+   things a visitor might want, in likely order of intent: reach out
+   directly (social pills, right in the dark band), book time on the
+   calendar, or write a longer message. No FinalCta - the whole page
+   already is the contact CTA. */
 
 function Intro({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section
       data-tone="dark"
-      className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-20 md:pb-28"
+      className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-16 md:pb-20"
     >
       <div
         aria-hidden
@@ -35,52 +39,68 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
         <Reveal delay={90} className="mt-6">
           <p className="max-w-xl text-xl leading-relaxed text-white/75">{t.contact.sub}</p>
         </Reveal>
+        <Reveal delay={140} className="mt-8">
+          <div className="flex flex-wrap gap-2.5">
+            <a
+              href={`mailto:${EMAIL}`}
+              className="flex items-center gap-2 border border-white/20 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/40 hover:text-white"
+            >
+              <Mail aria-hidden className="size-4" />
+              {t.contact.emailPill}
+            </a>
+            <a
+              href={LINKEDIN} target="_blank" rel="noreferrer"
+              className="flex items-center gap-2 border border-white/20 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/40 hover:text-white"
+            >
+              <LinkedInMark className="size-4" />
+              LinkedIn
+            </a>
+            <a
+              href={GITHUB} target="_blank" rel="noreferrer"
+              className="flex items-center gap-2 border border-white/20 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/40 hover:text-white"
+            >
+              <GitHubMark className="size-4" />
+              GitHub
+            </a>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 
-function Channels({ t }: { t: (typeof copy)[Lang] }) {
+function Schedule({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section className="bg-paper py-24 md:py-32">
       <div className="altor-container">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Reveal>
-            <a
-              href={LINKEDIN}
-              target="_blank"
-              rel="noreferrer"
-              className="group flex h-full flex-col border border-line p-8 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]"
-            >
-              <span className="flex size-11 items-center justify-center border border-line bg-paper-soft text-ink-700">
-                <LinkedInMark className="size-5" />
-              </span>
-              <h3 className="mt-6 text-xl font-semibold tracking-tight text-ink-950">{t.contact.linkedinLabel}</h3>
-              <p className="mt-2 flex-1 text-base leading-relaxed text-ink-500">linkedin.com/in/ali-demirbas</p>
-              <span className="mt-8 flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors group-hover:text-blue-700">
-                {t.contact.linkedinGo}
-                <ArrowUpRight aria-hidden className="size-3.5" />
-              </span>
-            </a>
-          </Reveal>
+        <Reveal>
+          <h2 className="text-[clamp(1.5rem,1.1rem+1.6vw,2.25rem)] leading-[1.1] text-ink-900">
+            {t.contact.scheduleTitle}
+          </h2>
+          <p className="mt-2 text-base text-ink-500">{t.contact.scheduleSub}</p>
+        </Reveal>
+        <Reveal delay={90} className="mt-8">
+          <div className="border border-line" style={{ minHeight: 600 }}>
+            <CalEmbed />
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
 
-          <Reveal delay={80}>
-            <a
-              href={`mailto:${EMAIL}`}
-              className="group flex h-full flex-col border border-line p-8 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]"
-            >
-              <span className="flex size-11 items-center justify-center border border-line bg-paper-soft text-ink-700">
-                <Mail aria-hidden className="size-5" />
-              </span>
-              <h3 className="mt-6 text-xl font-semibold tracking-tight text-ink-950">{t.contact.emailLabel}</h3>
-              <p className="mt-2 flex-1 text-base leading-relaxed text-ink-500">{EMAIL}</p>
-              <span className="mt-8 flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors group-hover:text-blue-700">
-                {t.contact.emailGo}
-                <ArrowRight aria-hidden className="size-3.5" />
-              </span>
-            </a>
-          </Reveal>
-        </div>
+function Form({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section className="bg-paper-soft py-24 md:py-32">
+      <div className="altor-container">
+        <Reveal>
+          <div className="mx-auto max-w-xl border border-line bg-paper p-8">
+            <h2 className="text-xl font-semibold tracking-tight text-ink-950">{t.contact.formTitle}</h2>
+            <div className="mt-6">
+              <ContactForm t={t.contact} />
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -95,7 +115,8 @@ export default function ContactPage({ lang }: { lang: Lang }) {
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <Intro t={t} />
-        <Channels t={t} />
+        <Schedule t={t} />
+        <Form t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </>
