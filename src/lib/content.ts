@@ -71,7 +71,10 @@ export const copy = {
           slug: "ab-test-playbook",
           desc: "Suggests, designs and audits A/B test scenarios from an archive of 179 real growth tests.",
           tags: ["Claude Code Plugin", "A/B Testing", "CRO", "179 scenarios"],
-          links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" }],
+          links: [
+            { label: "Explore the playbook", href: "/lab/ab-testing" },
+            { label: "View on GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
+          ],
         },
       ],
       shell: {
@@ -220,6 +223,112 @@ export const copy = {
       formSubmit: "Open in email",
       formNote: "Opens a pre-filled draft in your email app - this site has no backend to send it for you.",
     },
+    abTesting: {
+      metaTitle: "A/B Test Scenario Engine - Ali Demirbaş",
+      metaDesc: "179 real growth-test scenarios for Claude Code: what to test, which KPI to track, what not to do.",
+      eyebrow: "Lab / A/B Testing",
+      title: "An A/B test engine that won't let you skip the guardrail.",
+      sub: "ab-test-playbook is an open-source Claude Code plugin built from 179 real e-commerce, mobile app and SaaS growth-test scenarios. It suggests proven tests by journey stage, designs new ones in a disciplined single-variable framework, audits existing test plans for confounds, and runs the real statistics - no eyeballing.",
+      install: {
+        title: "Install",
+        options: [
+          {
+            label: "Plugin marketplace",
+            code: "/plugin marketplace add ali-demirbas/ab-test-playbook\n/plugin install ab-test-playbook@ab-test-playbook",
+          },
+          {
+            label: "Local clone",
+            code: "git clone https://github.com/ali-demirbas/ab-test-playbook.git\nclaude --plugin-dir ./ab-test-playbook",
+          },
+          {
+            label: "skills.sh",
+            code: "npx skills add ali-demirbas/ab-test-playbook --all",
+          },
+        ],
+      },
+      framework: {
+        title: "Every scenario follows the same three-box discipline",
+        boxes: [
+          { title: "What to test", desc: "The specific questions the experiment has to answer - not \"test the button\", but every hypothesis the result needs to settle." },
+          { title: "KPIs to track", desc: "One primary metric that decides the winner, plus at least one guardrail that must not get worse while it improves." },
+          { title: "What not to do", desc: "The mistakes that quietly invalidate the test - the ones a rushed setup makes without anyone noticing until the results are unreadable." },
+        ],
+      },
+      principlesTitle: "Five rules the plugin won't bend on",
+      principles: [
+        { title: "One variable, always", desc: "Every variant pair changes exactly one thing. Ask for a multivariate test and it gets split into separate ones - insist, and the output says plainly that no one will know which change produced the result." },
+        { title: "One primary metric", desc: "The first KPI in the list decides the winner. Presenting five metrics as equally important is exactly how a losing test gets called a win." },
+        { title: "No guardrail, no scenario", desc: "Every scenario ships with at least one metric that must not degrade - margin, refund rate, speed, support tickets. If a change could affect accessibility, that's a guardrail candidate too." },
+        { title: "Protection isn't a growth lever", desc: "CAPTCHA, identity or age verification, two-factor login, legal consent steps - never proposed as friction to remove, even if asked. Those exist for protection, not conversion; the plugin says so and generates nothing." },
+        { title: "Confidence is stated, not implied", desc: "Every suggestion says how strong the evidence behind it is - the user's own data, an archive precedent, an industry pattern, or a hunch. A weak-evidence idea can still be offered, but never dressed up as certain." },
+      ],
+      exampleTitle: "One real scenario from the archive",
+      example: {
+        idx: "ECOM-CART",
+        title: "Does a visible coupon-code field increase cart abandonment?",
+        intro: "A visible coupon box can send a user with no code off-site to \"go find a discount.\" Moving the code behind a link can close that leak - but it can also reduce campaign usage.",
+        testBox: {
+          label: "What to test",
+          items: [
+            "Leak: does moving the coupon field behind a link reduce abandonment?",
+            "Segment: do new and returning users search for coupons differently?",
+            "Copy: does \"I have a discount code\" perform differently from \"Apply coupon\"?",
+            "Campaign: does the effect reverse during active campaign periods?",
+            "Error: what's the abandonment rate for users whose code fails?",
+          ],
+        },
+        kpiBox: {
+          label: "KPIs to track",
+          items: [
+            "Revenue Per Visitor (RPV) - the primary metric",
+            "Order Completion Rate",
+            "Coupon Usage Rate (guardrail)",
+            "Checkout Step Abandonment",
+            "Campaign Participation (guardrail)",
+          ],
+        },
+        dontBox: {
+          label: "What not to do",
+          items: [
+            "Don't remove the coupon field entirely - users with a code will be frustrated.",
+            "Don't leave an invalid-code error ambiguous.",
+            "Don't launch or end an active campaign during the test.",
+            "Don't hide the coupon field so far it becomes unfindable.",
+            "Don't change both the position and the copy in the same test.",
+          ],
+        },
+      },
+      faqTitle: "FAQ",
+      faqIntro: "Answers drawn from the plugin's own methodology docs, not external citations.",
+      faq: [
+        {
+          q: "What should I A/B test first?",
+          a: "Rank candidates with ICE (Impact x Confidence x Ease), not gut feeling. A low-effort test on a high-traffic page beats an ambitious test on a low-traffic one.",
+        },
+        {
+          q: "How many visitors do I need for an A/B test?",
+          a: "Not a rule-of-thumb number - it's computed from your actual baseline conversion rate and the minimum effect size you care about detecting. Without real traffic data, no duration or sample-size promise is made.",
+        },
+        {
+          q: "Can I peek at results early and stop when they look significant?",
+          a: "No - repeatedly checking a test and stopping the moment it looks significant inflates the false-positive rate well above 5%, even with no real difference. Decide sample size or duration up front, look once. The one exception: a guardrail metric visibly breaking mid-test.",
+        },
+        {
+          q: "Why run a test for at least two full weeks?",
+          a: "Not a statistical-power requirement - a coverage requirement. Weekday/weekend behavior and payday effects need to be represented in the data, even if the sample-size target is hit in three days.",
+        },
+        {
+          q: "What are common A/B testing mistakes that invalidate a result?",
+          a: "Changing more than one variable at once; declaring a winner from the first days of data; reading conversion rate alone on a price test (revenue per visitor can drop even as CR rises); redesigning \"Variant A\" instead of testing the real page as-is; running overlapping tests on the same page.",
+        },
+        {
+          q: "Is this playbook the right tool for every product?",
+          a: "No, and it says so. It fits B2C e-commerce, consumer mobile apps and self-serve SaaS with real weekly traffic. It fits poorly for low-traffic enterprise sales pages, long sales cycles, or heavily regulated flows - for those, it points to qualitative methods instead of forcing a split test where it doesn't belong.",
+        },
+      ],
+      repoLink: "View on GitHub",
+      demoLink: "Live demo",
+    },
     finalCta: {
       title: "Let's talk growth.",
       body: "Whether it's a role, a project or a question about lifecycle marketing - my inbox is open.",
@@ -305,7 +414,10 @@ export const copy = {
           slug: "ab-test-playbook",
           desc: "179 gerçek büyüme testinden oluşan bir arşivden A/B test senaryosu öneren, tasarlayan ve denetleyen bir eklenti.",
           tags: ["Claude Code Eklentisi", "A/B Test", "CRO", "179 senaryo"],
-          links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" }],
+          links: [
+            { label: "Playbook'u incele", href: "/tr/lab/ab-testing" },
+            { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" },
+          ],
         },
       ],
       shell: {
@@ -448,6 +560,112 @@ export const copy = {
       formMessage: "Mesajınız",
       formSubmit: "E-postada aç",
       formNote: "E-posta uygulamanızda hazır doldurulmuş bir taslak açar - bu sitede bunu sizin yerinize gönderecek bir sunucu yok.",
+    },
+    abTesting: {
+      metaTitle: "A/B Test Senaryo Motoru - Ali Demirbaş",
+      metaDesc: "Claude Code için 179 gerçek büyüme testi senaryosu: ne test edilir, hangi KPI izlenir, ne yapılmamalı.",
+      eyebrow: "Lab / A/B Test",
+      title: "Guardrail'i atlamana izin vermeyen bir A/B test motoru.",
+      sub: "ab-test-playbook, 179 gerçek e-ticaret, mobil uygulama ve SaaS büyüme testi senaryosundan kurulu, açık kaynak bir Claude Code eklentisi. Journey aşamasına göre kanıtlanmış testler önerir, disiplinli tek-değişkenli bir çerçevede yenilerini tasarlar, mevcut test planlarını karıştırıcılara karşı denetler ve gerçek istatistiği çalıştırır - göz kararı yok.",
+      install: {
+        title: "Kurulum",
+        options: [
+          {
+            label: "Plugin marketplace",
+            code: "/plugin marketplace add ali-demirbas/ab-test-playbook\n/plugin install ab-test-playbook@ab-test-playbook",
+          },
+          {
+            label: "Yerel klon",
+            code: "git clone https://github.com/ali-demirbas/ab-test-playbook.git\nclaude --plugin-dir ./ab-test-playbook",
+          },
+          {
+            label: "skills.sh",
+            code: "npx skills add ali-demirbas/ab-test-playbook --all",
+          },
+        ],
+      },
+      framework: {
+        title: "Her senaryo aynı üç kutu disiplinini izler",
+        boxes: [
+          { title: "Test edilmesi gerekenler", desc: "Deneyin cevaplaması gereken somut sorular - \"butonu test et\" değil, sonucun çözmesi gereken her hipotez." },
+          { title: "Takip edilecek KPI'lar", desc: "Kazananı belirleyen tek bir birincil metrik, artı iyileşirken bozulmaması gereken en az bir guardrail." },
+          { title: "Yapılmaması gerekenler", desc: "Testi sessizce geçersiz kılan hatalar - sonuçlar okunamaz hâle gelene kadar kimsenin fark etmediği türden." },
+        ],
+      },
+      principlesTitle: "Eklentinin eğmediği beş kural",
+      principles: [
+        { title: "Her zaman tek değişken", desc: "Her varyant çifti tam olarak bir şeyi değiştirir. Çok değişkenli bir test istenirse ayrı testlere bölünür - ısrar edilirse çıktı açıkça 'sonuç hangi değişiklikten geldi bilinemeyecek' der." },
+        { title: "Tek birincil metrik", desc: "Listedeki ilk KPI kazananı belirler. Beş metriği eşit önemde sunmak, tam olarak kaybeden bir testin kazanan ilan edilme yoludur." },
+        { title: "Guardrail'siz senaryo yok", desc: "Her senaryo, bozulmaması gereken en az bir metrikle gelir - marj, iade oranı, hız, destek talebi. Bir değişiklik erişilebilirliği etkileyebilecekse, o da bir guardrail adayıdır." },
+        { title: "Koruma bir büyüme kolu değildir", desc: "CAPTCHA, kimlik veya yaş doğrulama, iki adımlı giriş, yasal onay adımları - istense bile hiçbir zaman kaldırılacak sürtünme olarak önerilmez. Bunlar koruma içindir, dönüşüm için değil; eklenti bunu söyler ve senaryo üretmez." },
+        { title: "Güven söylenir, ima edilmez", desc: "Her öneri, arkasındaki kanıtın ne kadar güçlü olduğunu söyler - kullanıcının kendi verisi, arşiv emsali, sektör örüntüsü ya da sezgi. Zayıf kanıtlı bir fikir yine sunulabilir ama asla kesinmiş gibi giydirilmez." },
+      ],
+      exampleTitle: "Arşivden gerçek bir senaryo",
+      example: {
+        idx: "ECOM-CART",
+        title: "Açık kupon kodu alanı sepet terkini artırır mı?",
+        intro: "Görünür bir kupon kutusu, kodu olmayan kullanıcıyı 'indirim arayayım' diye siteden çıkarabilir. Kodu bağlantı arkasına almak bu kaçağı kapatabilir ama kampanya kullanımını düşürebilir.",
+        testBox: {
+          label: "Test edilmesi gerekenler",
+          items: [
+            "Kaçak: Kupon alanını bağlantı arkasına almak terk oranını düşürüyor mu?",
+            "Segment: Yeni ve dönen kullanıcıda kupon arama davranışı farklı mı?",
+            "Metin: 'İndirim kodum var' ile 'Kupon kullan' farklı sonuç veriyor mu?",
+            "Kampanya: Kampanya dönemlerinde etki tersine dönüyor mu?",
+            "Hata: Kod girip başarısız olan kullanıcının terk oranı ne kadar?",
+          ],
+        },
+        kpiBox: {
+          label: "Takip edilecek KPI'lar",
+          items: [
+            "Ziyaretçi Başına Gelir (RPV) - birincil metrik",
+            "Sipariş Tamamlama Oranı",
+            "Kupon Kullanım Oranı (guardrail)",
+            "Ödeme Adımı Terk Oranı",
+            "Kampanya Katılımı (guardrail)",
+          ],
+        },
+        dontBox: {
+          label: "Yapılmaması gerekenler",
+          items: [
+            "Kupon alanını tamamen kaldırmayın; kodu olan kullanıcı öfkelenir.",
+            "Geçersiz kod hatasını belirsiz bırakmayın.",
+            "Test sırasında aktif kampanya kurmayın veya kaldırmayın.",
+            "Kupon alanını fark edilmez hâle getirecek kadar gizlemeyin.",
+            "Aynı testte hem konumu hem metni değiştirmeyin.",
+          ],
+        },
+      },
+      faqTitle: "SSS",
+      faqIntro: "Cevaplar eklentinin kendi metodoloji dokümanlarından, dış kaynaklardan değil.",
+      faq: [
+        {
+          q: "İlk olarak neyi A/B test etmeliyim?",
+          a: "Adayları içgüdüyle değil ICE (Etki × Güven × Kolaylık) ile sıralayın. Yüksek trafikli bir sayfada düşük efor gerektiren bir test, düşük trafikli bir sayfadaki iddialı bir testten daha iyidir.",
+        },
+        {
+          q: "Bir A/B test için kaç ziyaretçiye ihtiyacım var?",
+          a: "Bu bir kestirme kural değil - gerçek baz dönüşüm oranınızdan ve önemsediğiniz minimum etki büyüklüğünden hesaplanır. Gerçek trafik verisi olmadan hiçbir süre veya örneklem vaadi verilmez.",
+        },
+        {
+          q: "Sonuçlara erken bakıp anlamlı göründüğünde durabilir miyim?",
+          a: "Hayır - bir testi tekrar tekrar kontrol edip anlamlı göründüğü an durmak, gerçek bir fark olmasa bile yanlış-pozitif oranını %5'in çok üzerine çıkarır. Örneklem büyüklüğünü veya süreyi baştan belirleyin, bir kez bakın. Tek istisna: bir guardrail metriğinin test ortasında gözle görülür şekilde bozulması.",
+        },
+        {
+          q: "Neden en az iki tam hafta test çalıştırmalıyım?",
+          a: "İstatistiksel güç gereksinimi değil - kapsama gereksinimi. Hafta içi/hafta sonu davranışı ve maaş günü etkilerinin veride temsil edilmesi gerekir, örneklem hedefine üç günde ulaşılsa bile.",
+        },
+        {
+          q: "Bir sonucu geçersiz kılan yaygın A/B test hataları nelerdir?",
+          a: "Aynı testte birden fazla değişkeni değiştirmek; ilk günlerin verisinden kazanan ilan etmek; bir fiyat testinde yalnızca dönüşüm oranına bakmak (CR artarken ziyaretçi başına gelir düşebilir); gerçek sayfa test edilirken 'Variant A'yı yeniden tasarlamak; aynı sayfaya çakışan trafikte iki test çalıştırmak.",
+        },
+        {
+          q: "Bu playbook her ürün için doğru araç mı?",
+          a: "Hayır, ve bunu açıkça söylüyor. B2C e-ticaret, tüketici mobil uygulamaları ve gerçek haftalık trafiği olan self-serve SaaS için uyar. Düşük trafikli kurumsal satış sayfaları, uzun satış döngüleri veya ağır regüle akışlar için daha az uyar - onlar için niteliksel yöntemlere işaret eder.",
+        },
+      ],
+      repoLink: "GitHub'da görüntüle",
+      demoLink: "Canlı demo",
     },
     finalCta: {
       title: "Büyümeyi konuşalım.",

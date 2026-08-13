@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, Database, FlaskConical, Lock } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Database, FlaskConical } from "lucide-react";
 
 import JourneyBrowser from "@/components/JourneyBrowser";
 import { copy, EMAIL, type Lang } from "@/lib/content";
@@ -84,28 +84,10 @@ export default function LabPage({ lang }: { lang: Lang }) {
               </ul>
             </nav>
 
-            <div>
-              <p className="px-2 text-xs font-medium text-neutral-500">{shell.comingSoon}</p>
-              <ul className="mt-2 space-y-0.5">
-                {shell.planned.map((item) => (
-                  <li
-                    key={item.name}
-                    className="flex items-start gap-2.5 border-l-2 border-transparent px-2.5 py-2 opacity-70"
-                  >
-                    <Lock aria-hidden className="mt-0.5 size-4 shrink-0 text-neutral-400" />
-                    <span className="min-w-0">
-                      <span className="flex items-center gap-2 text-sm font-medium text-ink-700">
-                        <span className="truncate">{item.name}</span>
-                        <span className="shrink-0 border border-line bg-paper px-1.5 py-px text-[10px] font-medium text-neutral-500">
-                          {shell.soon}
-                        </span>
-                      </span>
-                      <span className="mt-0.5 block text-xs leading-snug text-neutral-500">{item.desc}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* "Coming soon" (Push benchmarks / Subject line lab / RFM
+                playground) removed from the sidebar per feedback. shell.
+                planned/comingSoon/soon copy is untouched in content.ts -
+                re-add the block above (see git history) to bring it back. */}
 
             <p className="mt-auto px-2 pb-2 text-xs text-neutral-400">{t.footer.left}</p>
           </div>

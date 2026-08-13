@@ -4,7 +4,7 @@ import { SITE_URL } from "@/lib/seo";
 // Ported from the cv site's sitemap.ts. "/content" (Insights, the LinkedIn
 // post archive) is deliberately not in this list - it was decided the new
 // site won't carry that section at all.
-const routes = ["", "/about", "/lab", "/stack", "/contact"];
+const routes = ["", "/about", "/lab", "/lab/ab-testing", "/stack", "/contact"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
