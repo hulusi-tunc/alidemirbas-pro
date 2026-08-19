@@ -13,7 +13,7 @@ import { logoSrc, stackPreview } from "@/lib/stack";
 const GITHUB = "https://github.com/ali-demirbas";
 
 /* Corporate one-pager for Ali Demirbaş in the Altor design language:
-   white-first editorial, Altor Blue, dark hero, full-bleed blue stats band. */
+   white-first editorial, Altor Blue, dark hero. */
 
 export function SiteHeader({
   t,
@@ -21,8 +21,8 @@ export function SiteHeader({
   langHref,
 }: {
   t: (typeof copy)[Lang];
-  /** Prefix for the home page's section anchors — "" on the home page itself,
-      the home path ("/" or "/tr") on subpages so #expertise still resolves. */
+  /** Target for the logo link — "" (i.e. "#top") on the home page itself,
+      the home path ("/" or "/tr") when the header is reused on a subpage. */
   anchorBase?: string;
   /** Language-switch target when the counterpart page isn't the home page. */
   langHref?: string;
@@ -151,9 +151,6 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
           </div>
         </div>
       </div>
-      {/* Trust rail (logo strip) removed for now, per feedback. t.trust and
-          the row.logo image data are still used by the Experience section's
-          own logos, untouched. */}
     </section>
   );
 }
@@ -176,90 +173,6 @@ function AboutTeaser({ t }: { t: (typeof copy)[Lang] }) {
             <ArrowRight aria-hidden className="size-3.5" />
           </Link>
         </Reveal>
-      </div>
-    </section>
-  );
-}
-
-function Expertise({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    <section id="expertise" className="bg-paper py-24 md:py-32">
-      <div className="altor-container">
-        <SectionHeading eyebrow={t.expertise.label} title={t.expertise.title} />
-        <div className="mt-14 grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-3">
-          {t.expertise.cards.map((card, i) => (
-            <Reveal key={card.title} delay={i * 80} className="bg-paper">
-              <div className="flex h-full flex-col p-8">
-                <span className="text-sm font-medium text-neutral-500">0{i + 1}</span>
-                <h3 className="mt-6 text-xl font-semibold tracking-tight text-ink-950">{card.title}</h3>
-                <p className="mt-3 text-base leading-relaxed text-ink-600">{card.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function StatsBand({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    <section aria-labelledby="stats-title" className="altor-grain relative isolate overflow-hidden bg-blue-600 py-16 text-white md:py-20">
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-[-16rem] -z-10 h-[30rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-400)_0%,transparent_70%)] opacity-60"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
-      />
-      <div className="altor-container">
-        <h2 id="stats-title" className="sr-only">{t.stats.title}</h2>
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-10 lg:grid-cols-4 lg:gap-x-10">
-          {t.stats.items.map((stat, i) => (
-            <Reveal key={stat.label} delay={i * 70}>
-              <dt className="sr-only">{stat.label}</dt>
-              <dd>
-                <span className="block text-[clamp(2.25rem,1.4rem+2.6vw,3.5rem)] leading-none font-medium tracking-[-0.04em] text-white">
-                  {stat.value}
-                </span>
-                <span className="mt-4 block max-w-64 text-sm leading-snug text-white/65">{stat.label}</span>
-              </dd>
-            </Reveal>
-          ))}
-        </dl>
-      </div>
-    </section>
-  );
-}
-
-function Experience({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    <section id="experience" className="bg-paper-soft py-24 md:py-32">
-      <div className="altor-container">
-        <SectionHeading eyebrow={t.xp.label} title={t.xp.title} />
-        <div className="mt-14">
-          {t.xp.rows.map((row, i) => (
-            <Reveal key={row.co + row.years} delay={i * 50}>
-              <div className="group grid grid-cols-[7rem_1fr_auto] items-center gap-6 border-t border-line py-6 last:border-b">
-                <span className="text-sm text-neutral-500 tabular-nums">{row.years}</span>
-                <div>
-                  <h3 className="text-lg font-medium tracking-tight text-ink-950">{row.role}</h3>
-                  <p className="mt-0.5 text-sm text-ink-500 md:hidden">{row.co}</p>
-                </div>
-                <div className="relative hidden h-5 w-32 md:block">
-                  <Image
-                    src={row.logo}
-                    alt={row.co}
-                    fill
-                    sizes="8rem"
-                    className="object-contain object-right opacity-55 grayscale transition-[filter,opacity] duration-200 group-hover:opacity-100 group-hover:grayscale-0"
-                  />
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
       </div>
     </section>
   );

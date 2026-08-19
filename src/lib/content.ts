@@ -2,7 +2,7 @@ export type Lang = "en" | "tr";
 
 export const copy = {
   en: {
-    nav: { about: "About", aboutHref: "/about", expertise: "Expertise", experience: "Experience", lab: "Lab", labHref: "/lab", stack: "Stack", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
+    nav: { about: "About", aboutHref: "/about", lab: "Lab", labHref: "/lab", stack: "Stack", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
@@ -11,37 +11,6 @@ export const copy = {
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
       reassurance: ["Mobile App Growth Lead, Aksigorta", "7+ years in growth", "Istanbul"],
-    },
-    trust: "Growth experience across",
-    stats: {
-      title: "Track record",
-      items: [
-        { value: "7+", label: "years building growth, CRM and lifecycle programs" },
-        { value: "6", label: "brands, from telco to insurance to q-commerce" },
-        { value: "70+", label: "CRM journey teardowns researched and documented" },
-        { value: "5", label: "industries: insurance, telco, delivery, travel, automotive" },
-      ],
-    },
-    expertise: {
-      label: "Expertise",
-      title: "Three disciplines, one goal: retention that compounds.",
-      cards: [
-        { title: "Mobile app growth", body: "Acquisition and activation for iOS and Android products: store funnels, paid and organic loops, onboarding experiments that move retention." },
-        { title: "CRM & lifecycle", body: "Journey design across push, email and in-app. Segmentation, triggers and campaigns that meet users at the right moment of their lifecycle." },
-        { title: "Analytics & experimentation", body: "Measurement plans, cohort and funnel analysis, A/B testing discipline. Decisions argued with data, and reported so leadership can act on them." },
-      ],
-    },
-    xp: {
-      label: "Experience",
-      title: "Where I've built it",
-      rows: [
-        { years: "2026 -", role: "Mobile App Growth Lead", co: "Aksigorta", logo: "/logos/aksigorta.svg" },
-        { years: "2024 - 26", role: "Growth Marketing Lead", co: "Vodafone", logo: "/logos/vodafone.svg" },
-        { years: "2023 - 24", role: "Growth, CRM Analytics", co: "Getir", logo: "/logos/getir.svg" },
-        { years: "2021 - 23", role: "Lifecycle Marketing", co: "Wingie Enuygun Group", logo: "/logos/enuygun.png" },
-        { years: "2020 - 21", role: "Digital Marketing", co: "Albayrak Grubu", logo: "/logos/albayrak.svg" },
-        { years: "2019 - 20", role: "Digital Marketing", co: "Doğuş Oto", logo: "/logos/dogus-oto.svg" },
-      ],
     },
     lab: {
       label: "Lab",
@@ -80,17 +49,10 @@ export const copy = {
       shell: {
         backToSite: "Back to site",
         tools: "Tools",
-        comingSoon: "Coming soon",
-        soon: "Soon",
         library: [
           { name: "CRM Journey Archive", desc: "70 lifecycle teardowns", href: "/lab", active: true },
           { name: "claude-lifecycle", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
           { name: "Journey Canvas", desc: "Live demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
-        ],
-        planned: [
-          { name: "Push benchmarks", desc: "Send-time and CTR data by vertical" },
-          { name: "Subject line lab", desc: "Test archive with uplift notes" },
-          { name: "RFM playground", desc: "Interactive segmentation sandbox" },
         ],
       },
       page: {
@@ -345,7 +307,7 @@ export const copy = {
     },
   },
   tr: {
-    nav: { about: "Hakkımda", aboutHref: "/tr/about", expertise: "Uzmanlık", experience: "Deneyim", lab: "Lab", labHref: "/tr/lab", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
@@ -354,37 +316,6 @@ export const copy = {
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
       reassurance: ["Mobile App Growth Lead, Aksigorta", "Growth'ta 7+ yıl", "İstanbul"],
-    },
-    trust: "Growth deneyimi",
-    stats: {
-      title: "Deneyim",
-      items: [
-        { value: "7+", label: "yıl growth, CRM ve lifecycle programları" },
-        { value: "6", label: "marka; telekomdan sigortaya, q-commerce'e" },
-        { value: "70+", label: "CRM journey incelemesi araştırıldı ve belgelendi" },
-        { value: "5", label: "sektör: sigorta, telekom, teslimat, seyahat, otomotiv" },
-      ],
-    },
-    expertise: {
-      label: "Uzmanlık",
-      title: "Üç disiplin, tek hedef: birikerek büyüyen retention.",
-      cards: [
-        { title: "Mobil uygulama büyümesi", body: "iOS ve Android ürünlerinde edinim ve aktivasyon: mağaza hunileri, ücretli ve organik döngüler, retention'ı hareket ettiren onboarding deneyleri." },
-        { title: "CRM & lifecycle", body: "Push, e-posta ve in-app kanallarında journey tasarımı. Kullanıcıyı yaşam döngüsünün doğru anında yakalayan segmentasyon, tetikleyici ve kampanyalar." },
-        { title: "Analitik & deney", body: "Ölçüm planları, kohort ve huni analizi, A/B test disiplini. Veriyle savunulan ve yönetimin aksiyon alabileceği şekilde raporlanan kararlar." },
-      ],
-    },
-    xp: {
-      label: "Deneyim",
-      title: "Nerelerde kurdum",
-      rows: [
-        { years: "2026 -", role: "Mobile App Growth Lead", co: "Aksigorta", logo: "/logos/aksigorta.svg" },
-        { years: "2024 - 26", role: "Growth Marketing Lead", co: "Vodafone", logo: "/logos/vodafone.svg" },
-        { years: "2023 - 24", role: "Growth, CRM Analytics", co: "Getir", logo: "/logos/getir.svg" },
-        { years: "2021 - 23", role: "Lifecycle Marketing", co: "Wingie Enuygun Group", logo: "/logos/enuygun.png" },
-        { years: "2020 - 21", role: "Dijital Pazarlama", co: "Albayrak Grubu", logo: "/logos/albayrak.svg" },
-        { years: "2019 - 20", role: "Dijital Pazarlama", co: "Doğuş Oto", logo: "/logos/dogus-oto.svg" },
-      ],
     },
     lab: {
       label: "Lab",
@@ -423,17 +354,10 @@ export const copy = {
       shell: {
         backToSite: "Siteye dön",
         tools: "Araçlar",
-        comingSoon: "Yakında",
-        soon: "Yakında",
         library: [
           { name: "CRM Journey Arşivi", desc: "70 lifecycle incelemesi", href: "/tr/lab", active: true },
           { name: "claude-lifecycle", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
           { name: "Journey Canvas", desc: "Canlı demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
-        ],
-        planned: [
-          { name: "Push benchmark'ları", desc: "Sektöre göre gönderim saati ve CTR verisi" },
-          { name: "Konu satırı lab'ı", desc: "Uplift notlarıyla test arşivi" },
-          { name: "RFM playground", desc: "İnteraktif segmentasyon sahası" },
         ],
       },
       page: {

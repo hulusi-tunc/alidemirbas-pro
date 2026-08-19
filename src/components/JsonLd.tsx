@@ -19,8 +19,8 @@ export function JsonLd() {
         jobTitle: "Mobile App Growth Lead",
         worksFor: { "@type": "Organization", name: "Aksigorta" },
         email: `mailto:${EMAIL}`,
-        // Matches the three Expertise cards on the home page - real topics
-        // the site substantiates, not a speculative keyword list.
+        // Real topics the site substantiates (About's bio, the Lab and Stack
+        // pages), not a speculative keyword list.
         knowsAbout: ["Mobile App Growth", "CRM & Lifecycle Marketing", "Growth Analytics & Experimentation"],
         sameAs: [LINKEDIN, "https://github.com/ali-demirbas"],
       },
