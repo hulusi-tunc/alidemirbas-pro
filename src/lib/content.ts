@@ -45,6 +45,20 @@ export const copy = {
             { label: "View on GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
         },
+        {
+          name: "Marketing Dashboard Builder",
+          slug: "dashboard-builder",
+          desc: "Turns fragmented marketing data into KPI dashboards - catches metrics that only look comparable before it draws a single chart.",
+          tags: ["Claude Code Plugin", "Marketing Analytics", "11 dashboard templates", "17 tests"],
+          links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" }],
+        },
+        {
+          name: "Google Ads Change History Dashboard",
+          slug: "google-ads-change-history-dashboard",
+          desc: "Turns a Google Ads change-history export into a filterable offline dashboard - states what changed, never judges if it was good.",
+          tags: ["Python", "Google Ads", "Offline Dashboard", "57 self-tests"],
+          links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
+        },
       ],
       shell: {
         backToSite: "Back to site",
@@ -349,6 +363,20 @@ export const copy = {
             { label: "Playbook'u incele", href: "/tr/lab/ab-testing" },
             { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
+        },
+        {
+          name: "Pazarlama Dashboard Üretici",
+          slug: "dashboard-builder",
+          desc: "Dağınık pazarlama verisini KPI dashboard'una çevirir - tek bir grafik çizmeden önce sadece karşılaştırılabilir görünen metrikleri yakalar.",
+          tags: ["Claude Code Eklentisi", "Pazarlama Analitiği", "11 dashboard şablonu", "17 test"],
+          links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/dashboard-builder" }],
+        },
+        {
+          name: "Google Ads Değişiklik Geçmişi Dashboard'u",
+          slug: "google-ads-change-history-dashboard",
+          desc: "Google Ads değişiklik geçmişi export'unu filtrelenebilir, çevrimdışı bir dashboard'a çevirir - ne değiştiğini söyler, iyi mi kötü mü olduğuna hiç karar vermez.",
+          tags: ["Python", "Google Ads", "Çevrimdışı Dashboard", "57 self-test"],
+          links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
         },
       ],
       shell: {
