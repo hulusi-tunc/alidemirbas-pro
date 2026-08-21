@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  Bell, ChevronDown, Clock, Flag, GitBranch, Mail, MessageCircle,
-  MessageSquare, MonitorSmartphone, Search, Users, X,
-} from "lucide-react";
+import { Search, X } from "lucide-react";
 
+import JourneyFlow from "@/components/JourneyFlow";
 import { journeys, type Journey } from "@/lib/journeys";
-import { flows, type FlowStep } from "@/lib/flows";
+import { flows } from "@/lib/flows";
 import type { copy, Lang } from "@/lib/content";
 
 const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp"] as const;
@@ -168,129 +166,20 @@ export default function JourneyBrowser({
                   </span>
                 ))}
               </div>
+              <p className="mt-2 font-mono text-[11px]" style={{ color: "#a6adbd" }}>
+                {t.clickToExplore}
+              </p>
             </header>
-            <div className="flex-1 overflow-y-auto bg-paper-soft">
-              {flows[open.slug] ? <Flow steps={flows[open.slug][lang]} /> : null}
+            <div className="flex-1 overflow-y-auto bg-paper-soft px-5 py-6">
+              {flows[open.slug] ? (
+                <div className="mx-auto flex justify-center">
+                  <JourneyFlow steps={flows[open.slug][lang]} t={t.flow} />
+                </div>
+              ) : null}
             </div>
           </aside>
         </div>
       ) : null}
-    </div>
-  );
-}
-
-const STEP_STYLE: Record<string, { bar: string; label: string }> = {
-  email: { bar: "border-t-2 border-t-blue-600", label: "text-blue-600" },
-  push: { bar: "border-t-2 border-t-amber-500", label: "text-amber-600" },
-  sms: { bar: "border-t-2 border-t-neutral-500", label: "text-neutral-600" },
-  inapp: { bar: "border-t-2 border-t-violet-500", label: "text-violet-600" },
-  whatsapp: { bar: "border-t-2 border-t-green-600", label: "text-green-700" },
-  sales: { bar: "border-t-2 border-t-ink-700", label: "text-ink-700" },
-};
-
-const STEP_ICON: Record<string, typeof Mail> = {
-  email: Mail, push: Bell, sms: MessageSquare,
-  inapp: MonitorSmartphone, whatsapp: MessageCircle, sales: Users,
-};
-
-// Steps that are a real action in the journey - everything else (wait,
-// condition) is metadata ABOUT the gap between two actions, not an action
-// itself, so it renders on the connector rather than as its own card.
-const NODE_TYPES = new Set(["entry", "email", "push", "sms", "inapp", "whatsapp", "sales"]);
-
-function groupFlow(steps: FlowStep[]) {
-  const nodes: { step: FlowStep; before: FlowStep[] }[] = [];
-  let pending: FlowStep[] = [];
-  for (const s of steps) {
-    if (NODE_TYPES.has(s.t)) {
-      nodes.push({ step: s, before: pending });
-      pending = [];
-    } else {
-      pending.push(s);
-    }
-  }
-  return { nodes, trailing: pending };
-}
-
-/** The line between two action cards - wait/condition steps sit on it as
-    small labels rather than full-width cards, so they read as gaps in the
-    timeline instead of competing with the actions for visual weight. */
-function Connector({ items }: { items: FlowStep[] }) {
-  return (
-    <div className="relative flex flex-col items-center">
-      <span aria-hidden className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 bg-neutral-300" />
-      {items.length > 0 ? (
-        <div className="relative z-10 flex flex-col items-center gap-1 py-1.5">
-          {items.map((it, i) => (
-            <span
-              key={i}
-              className={
-                it.t === "condition"
-                  ? "flex items-center gap-1.5 border border-dashed border-neutral-400 bg-paper px-2.5 py-1"
-                  : "flex items-center gap-1.5 border border-line bg-paper px-2.5 py-1"
-              }
-            >
-              {it.t === "condition" ? (
-                <GitBranch aria-hidden className="size-3.5 shrink-0 text-neutral-500" />
-              ) : (
-                <Clock aria-hidden className="size-3.5 shrink-0 text-neutral-400" />
-              )}
-              <span className="flex flex-col leading-none">
-                <span className="text-[10px] font-medium tracking-wide text-neutral-400 uppercase">
-                  {it.t === "condition" ? "Condition" : "Wait"}
-                </span>
-                <span className="mt-0.5 text-xs font-medium text-ink-700">{it.a}</span>
-              </span>
-            </span>
-          ))}
-        </div>
-      ) : (
-        <div className="h-4" />
-      )}
-      <ChevronDown aria-hidden className="relative z-10 size-4 shrink-0 -mt-1 text-neutral-400" />
-    </div>
-  );
-}
-
-function NodeCard({ step }: { step: FlowStep }) {
-  if (step.t === "entry") {
-    return (
-      <div className="w-full bg-ink-950 px-4 pt-3 pb-3.5 text-white">
-        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-white/60">
-          <Flag aria-hidden className="size-3.5" />
-          Entry - Trigger
-        </p>
-        <p className="mt-1.5 text-sm leading-snug font-medium">{step.a}</p>
-        {step.b ? <p className="mt-1.5 text-xs leading-snug text-white/65">{step.b}</p> : null}
-      </div>
-    );
-  }
-  const style = STEP_STYLE[step.t];
-  const Icon = STEP_ICON[step.t] ?? Mail;
-  return (
-    <div className={`w-full border border-line bg-paper ${style?.bar ?? ""}`}>
-      <p className={`flex items-center gap-1.5 px-3.5 pt-2.5 pb-1 text-xs font-semibold ${style?.label ?? "text-ink-700"}`}>
-        <Icon aria-hidden className="size-3.5 shrink-0" />
-        {step.a}
-      </p>
-      {step.b ? <p className="px-3.5 pb-2.5 text-sm leading-snug text-ink-600">{step.b}</p> : null}
-    </div>
-  );
-}
-
-function Flow({ steps }: { steps: FlowStep[] }) {
-  const { nodes, trailing } = groupFlow(steps);
-  return (
-    <div className="px-5 py-6">
-      <div className="mx-auto flex max-w-sm flex-col items-stretch">
-        {nodes.map((n, i) => (
-          <div key={i} className="flex flex-col items-stretch">
-            {i > 0 ? <Connector items={n.before} /> : null}
-            <NodeCard step={n.step} />
-          </div>
-        ))}
-        {trailing.length > 0 ? <Connector items={trailing} /> : null}
-      </div>
     </div>
   );
 }
