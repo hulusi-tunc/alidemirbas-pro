@@ -15,7 +15,7 @@ export const copy = {
     lab: {
       label: "Lab",
       title: "Problems I turned into projects",
-      intro: "Open-source tools built from real marketing, growth and lifecycle work.",
+      intro: "Products and open-source tools built to solve real problems - mostly in marketing and growth, some beyond it.",
       viewAll: "Explore the archive",
       projects: [
         {
@@ -58,6 +58,13 @@ export const copy = {
           desc: "Turns a Google Ads change-history export into a searchable dashboard - what changed, who changed it, when, and how significant it was.",
           tags: ["Python", "Google Ads", "Offline Dashboard", "57 self-tests"],
           links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
+        },
+        {
+          name: "Numerspace",
+          slug: "numerspace",
+          desc: "75+ free calculator tools spanning finance, health, career, marketing and daily life - built for a fast, accurate answer, no account or paywall.",
+          tags: ["Web App", "Calculator Tools", "75+ tools", "EN/TR"],
+          links: [{ label: "Visit numerspace.com", href: "https://www.numerspace.com" }],
         },
       ],
       shell: {
@@ -328,7 +335,7 @@ export const copy = {
     lab: {
       label: "Lab",
       title: "Sorunları projeye çevirdiğim yer",
-      intro: "Gerçek pazarlama, growth ve lifecycle işinden çıkan açık kaynak araçlar.",
+      intro: "Gerçek sorunları çözmek için kurduğum ürünler ve açık kaynak araçlar - çoğu pazarlama ve growth'ta, bir kısmı ötesinde.",
       viewAll: "Arşivi keşfet",
       projects: [
         {
@@ -371,6 +378,13 @@ export const copy = {
           desc: "Google Ads değişiklik geçmişi export'unu aranabilir bir dashboard'a çevirir - ne değişti, kim değiştirdi, ne zaman ve ne kadar büyük bir değişiklikti.",
           tags: ["Python", "Google Ads", "Çevrimdışı Dashboard", "57 self-test"],
           links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
+        },
+        {
+          name: "Numerspace",
+          slug: "numerspace",
+          desc: "Finans, sağlık, kariyer, pazarlama ve günlük hayatı kapsayan 75+ ücretsiz hesaplama aracı - üyelik ya da ücret duvarı olmadan hızlı, doğru sonuç için kuruldu.",
+          tags: ["Web Uygulaması", "Hesaplama Araçları", "75+ araç", "EN/TR"],
+          links: [{ label: "numerspace.com'u ziyaret et", href: "https://www.numerspace.com" }],
         },
       ],
       shell: {
