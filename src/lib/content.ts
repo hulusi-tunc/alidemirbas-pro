@@ -67,6 +67,9 @@ export const copy = {
           { name: "CRM Journey Archive", desc: "70 lifecycle teardowns", href: "/lab", active: true },
           { name: "claude-lifecycle", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
           { name: "Journey Canvas", desc: "Live demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+          { name: "ab-test-playbook", desc: "179 test scenarios", href: "/lab/ab-testing" },
+          { name: "dashboard-builder", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
+          { name: "google-ads-change-history-dashboard", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
         ],
       },
       page: {
@@ -386,6 +389,9 @@ export const copy = {
           { name: "CRM Journey Arşivi", desc: "70 lifecycle incelemesi", href: "/tr/lab", active: true },
           { name: "claude-lifecycle", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
           { name: "Journey Canvas", desc: "Canlı demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+          { name: "ab-test-playbook", desc: "179 test senaryosu", href: "/tr/lab/ab-testing" },
+          { name: "dashboard-builder", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
+          { name: "google-ads-change-history-dashboard", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
         ],
       },
       page: {
