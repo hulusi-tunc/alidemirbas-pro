@@ -220,14 +220,14 @@ function Connector({ items }: { items: FlowStep[] }) {
     <div className="relative flex flex-col items-center">
       <span aria-hidden className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 bg-neutral-300" />
       {items.length > 0 ? (
-        <div className="relative z-10 flex flex-col items-center gap-1 py-2">
+        <div className="relative z-10 flex flex-col items-center gap-1 py-1.5">
           {items.map((it, i) => (
             <span
               key={i}
               className={
                 it.t === "condition"
-                  ? "flex items-center gap-2 border border-dashed border-neutral-400 bg-paper px-2.5 py-1.5"
-                  : "flex items-center gap-2 border border-line bg-paper px-2.5 py-1.5"
+                  ? "flex items-center gap-1.5 border border-dashed border-neutral-400 bg-paper px-2.5 py-1"
+                  : "flex items-center gap-1.5 border border-line bg-paper px-2.5 py-1"
               }
             >
               {it.t === "condition" ? (
@@ -239,13 +239,13 @@ function Connector({ items }: { items: FlowStep[] }) {
                 <span className="text-[10px] font-medium tracking-wide text-neutral-400 uppercase">
                   {it.t === "condition" ? "Condition" : "Wait"}
                 </span>
-                <span className="mt-1 text-xs font-medium text-ink-700">{it.a}</span>
+                <span className="mt-0.5 text-xs font-medium text-ink-700">{it.a}</span>
               </span>
             </span>
           ))}
         </div>
       ) : (
-        <div className="h-5" />
+        <div className="h-4" />
       )}
       <ChevronDown aria-hidden className="relative z-10 size-4 shrink-0 -mt-1 text-neutral-400" />
     </div>
@@ -255,25 +255,25 @@ function Connector({ items }: { items: FlowStep[] }) {
 function NodeCard({ step }: { step: FlowStep }) {
   if (step.t === "entry") {
     return (
-      <div className="w-full bg-ink-950 p-5 text-white">
+      <div className="w-full bg-ink-950 px-4 pt-3 pb-3.5 text-white">
         <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-white/60">
           <Flag aria-hidden className="size-3.5" />
           Entry - Trigger
         </p>
-        <p className="mt-2 text-sm leading-relaxed font-medium">{step.a}</p>
-        {step.b ? <p className="mt-2 text-xs leading-relaxed text-white/65">{step.b}</p> : null}
+        <p className="mt-1.5 text-sm leading-snug font-medium">{step.a}</p>
+        {step.b ? <p className="mt-1.5 text-xs leading-snug text-white/65">{step.b}</p> : null}
       </div>
     );
   }
   const style = STEP_STYLE[step.t];
   const Icon = STEP_ICON[step.t] ?? Mail;
   return (
-    <div className={`w-full border border-line bg-paper p-3.5 ${style?.bar ?? ""}`}>
-      <p className={`flex items-center gap-1.5 text-xs font-semibold ${style?.label ?? "text-ink-700"}`}>
+    <div className={`w-full border border-line bg-paper ${style?.bar ?? ""}`}>
+      <p className={`flex items-center gap-1.5 px-3.5 pt-2.5 pb-1 text-xs font-semibold ${style?.label ?? "text-ink-700"}`}>
         <Icon aria-hidden className="size-3.5 shrink-0" />
         {step.a}
       </p>
-      {step.b ? <p className="mt-1.5 text-sm leading-snug text-ink-600">{step.b}</p> : null}
+      {step.b ? <p className="px-3.5 pb-2.5 text-sm leading-snug text-ink-600">{step.b}</p> : null}
     </div>
   );
 }
