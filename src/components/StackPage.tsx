@@ -15,7 +15,7 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section
       data-tone="dark"
-      className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-20 md:pb-28"
+      className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-16 md:pb-20"
     >
       <div
         aria-hidden
@@ -61,8 +61,10 @@ function Groups({ lang }: { lang: Lang }) {
         <div className="flex flex-col gap-12">
           {stackGroups.map((group, gi) => (
             <Reveal key={group.title.en} delay={gi * 40}>
-              <h2 className="text-sm font-semibold tracking-tight text-ink-950">{group.title[lang]}</h2>
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <h2 className="border-b border-line pb-2 text-base font-semibold tracking-tight text-ink-950">
+                {group.title[lang]}
+              </h2>
+              <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {group.tools.map((tool) => (
                   <ToolTile key={tool.name} name={tool.name} domain={tool.domain} tag={tool.tag[lang]} />
                 ))}

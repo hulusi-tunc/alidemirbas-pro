@@ -19,9 +19,9 @@ export const copy = {
       viewAll: "Explore the archive",
       projects: [
         {
-          name: "Data-Sized Lifecycle Marketing Generator",
+          name: "Lifecycle Marketing Journey Builder",
           slug: "claude-lifecycle",
-          desc: "Scores what you're already tracking, then builds a lifecycle journey portfolio sized to fit it - no generic templates.",
+          desc: "Looks at the customer data you already track and builds lifecycle journeys around what you can actually measure, segment and act on.",
           tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"],
           links: [
             { label: "View on GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
@@ -31,14 +31,14 @@ export const copy = {
         {
           name: "CRM Journey Teardown Archive",
           slug: "lifecycle-card-archive",
-          desc: "70 lifecycle journeys, broken down into how each flow works, what to test and what to avoid.",
+          desc: "A collection of 70 lifecycle journeys, each broken down into how the flow works, what to test, which metrics to watch and what to avoid.",
           tags: ["CRM", "Lifecycle Marketing", "70 teardowns", "10 industries", "TR/EN"],
           links: [{ label: "Explore the archive", href: "/lab/journeys" }],
         },
         {
-          name: "A/B Test Scenario Engine",
+          name: "A/B Test Playbook",
           slug: "ab-test-playbook",
-          desc: "A library of 211 real A/B test scenarios, built to help you find and design better experiments to run.",
+          desc: "211 A/B test scenarios across real product journeys, with guidance on what to test, what to measure and what can invalidate the result.",
           tags: ["Claude Code Plugin", "A/B Testing", "CRO", "211 scenarios"],
           links: [
             { label: "Explore the playbook", href: "/lab/ab-testing" },
@@ -48,28 +48,20 @@ export const copy = {
         {
           name: "Marketing Dashboard Builder",
           slug: "dashboard-builder",
-          desc: "Turns messy marketing exports into decision-ready dashboards - without pretending every metric belongs on the same chart.",
+          desc: "Takes messy exports from different marketing platforms, checks what can actually be compared, and turns the data into a decision-ready dashboard.",
           tags: ["Claude Code Plugin", "Marketing Analytics", "11 dashboard templates", "17 tests"],
           links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" }],
         },
         {
-          name: "Google Ads Change History Dashboard",
+          name: "Google Ads Change History Explorer",
           slug: "google-ads-change-history-dashboard",
-          desc: "Makes Google Ads change history easy to investigate - who changed what, when, and how large it was. Never judges if it was a good change.",
+          desc: "Turns a Google Ads change-history export into a searchable dashboard - what changed, who changed it, when, and how significant it was.",
           tags: ["Python", "Google Ads", "Offline Dashboard", "57 self-tests"],
           links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
         },
       ],
       shell: {
         backToSite: "Back to site",
-        tools: "Tools",
-        library: [
-          { name: "CRM Journey Archive", desc: "70 lifecycle teardowns", href: "/lab/journeys", active: true },
-          { name: "claude-lifecycle", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
-          { name: "ab-test-playbook", desc: "211 test scenarios", href: "/lab/ab-testing" },
-          { name: "dashboard-builder", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
-          { name: "google-ads-change-history-dashboard", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
-        ],
       },
       page: {
         title: "CRM Journey Archive",
@@ -173,8 +165,8 @@ export const copy = {
       metaTitle: "Stack - Ali Demirbaş",
       metaDesc: "The tools Ali Demirbaş instruments, queries and optimizes growth with every day.",
       eyebrow: "Stack",
-      title: "Stack.",
-      sub: "Software I use to craft something valuable.",
+      title: "Stack",
+      sub: "Tools I use to design, build, measure and grow.",
       // Home page teaser only - the /stack page keeps its own title/sub above.
       homeTitle: "Tools I use",
       homeIntro: "The tools I use to design experiments, build reliable measurement, analyze user behavior, and optimize growth.",
@@ -202,7 +194,7 @@ export const copy = {
       formNote: "Opens a pre-filled draft in your email app - this site has no backend to send it for you.",
     },
     abTesting: {
-      metaTitle: "A/B Test Scenario Engine - Ali Demirbaş",
+      metaTitle: "A/B Test Playbook - Ali Demirbaş",
       metaDesc: "211 real growth-test scenarios for Claude Code: what to test, which KPI to track, what not to do.",
       eyebrow: "Lab / A/B Testing",
       title: "An A/B test engine that won't let you skip the guardrail.",
@@ -340,9 +332,9 @@ export const copy = {
       viewAll: "Arşivi keşfet",
       projects: [
         {
-          name: "Veriye Göre Ölçeklenen Lifecycle Pazarlama Üretici",
+          name: "Lifecycle Pazarlama Journey Üretici",
           slug: "claude-lifecycle",
-          desc: "Zaten takip ettiğin veriyi puanlar, sonra ona uygun ölçekte bir lifecycle journey portföyü kurar - şablon akış yok.",
+          desc: "Zaten takip ettiğin müşteri verisine bakar, ölçebildiğin, segmentleyebildiğin ve aksiyon alabildiğin şeyler üzerine lifecycle journey'ler kurar.",
           tags: ["Claude Code Eklentisi", "CRM", "Lifecycle Pazarlama", "26 journey deseni", "9 sektör"],
           links: [
             { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/claude-lifecycle" },
@@ -352,14 +344,14 @@ export const copy = {
         {
           name: "CRM Journey İnceleme Arşivi",
           slug: "lifecycle-card-archive",
-          desc: "70 lifecycle journey'si; her akışın nasıl kurulduğu, ne test edileceği ve nelerden kaçınılacağı üzerinden inceleniyor.",
+          desc: "70 lifecycle journey'den oluşan bir koleksiyon; her biri akışın nasıl işlediği, ne test edileceği, hangi metriklerin izleneceği ve nelerden kaçınılacağı üzerinden inceleniyor.",
           tags: ["CRM", "Lifecycle Pazarlama", "70 inceleme", "10 sektör", "TR/EN"],
           links: [{ label: "Arşivi keşfet", href: "/tr/lab/journeys" }],
         },
         {
-          name: "A/B Test Senaryo Motoru",
+          name: "A/B Test Playbook",
           slug: "ab-test-playbook",
-          desc: "211 gerçek A/B test senaryosundan oluşan bir kütüphane - daha iyi deneyler bulmana ve tasarlamana yardım eder.",
+          desc: "Gerçek ürün journey'leri üzerinden 211 A/B test senaryosu - ne test edileceği, ne ölçüleceği ve sonucu geçersiz kılabilecek şeyler konusunda rehberlikle birlikte.",
           tags: ["Claude Code Eklentisi", "A/B Test", "CRO", "211 senaryo"],
           links: [
             { label: "Playbook'u incele", href: "/tr/lab/ab-testing" },
@@ -369,28 +361,20 @@ export const copy = {
         {
           name: "Pazarlama Dashboard Üretici",
           slug: "dashboard-builder",
-          desc: "Dağınık pazarlama exportlarını karar-hazır dashboard'lara çevirir - her metriğin aynı grafiğe ait olduğunu iddia etmeden.",
+          desc: "Farklı pazarlama platformlarından gelen dağınık exportları alır, gerçekten karşılaştırılabilir olanı kontrol eder ve veriyi karar-hazır bir dashboard'a çevirir.",
           tags: ["Claude Code Eklentisi", "Pazarlama Analitiği", "11 dashboard şablonu", "17 test"],
           links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/dashboard-builder" }],
         },
         {
-          name: "Google Ads Değişiklik Geçmişi Dashboard'u",
+          name: "Google Ads Değişiklik Geçmişi Gezgini",
           slug: "google-ads-change-history-dashboard",
-          desc: "Google Ads değişiklik geçmişini incelemeyi kolaylaştırır - kim neyi ne zaman değiştirdi, değişiklik ne büyüklükteydi. İyi bir değişiklik miydi diye hiç karar vermez.",
+          desc: "Google Ads değişiklik geçmişi export'unu aranabilir bir dashboard'a çevirir - ne değişti, kim değiştirdi, ne zaman ve ne kadar büyük bir değişiklikti.",
           tags: ["Python", "Google Ads", "Çevrimdışı Dashboard", "57 self-test"],
           links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
         },
       ],
       shell: {
         backToSite: "Siteye dön",
-        tools: "Araçlar",
-        library: [
-          { name: "CRM Journey Arşivi", desc: "70 lifecycle incelemesi", href: "/tr/lab/journeys", active: true },
-          { name: "claude-lifecycle", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
-          { name: "ab-test-playbook", desc: "211 test senaryosu", href: "/tr/lab/ab-testing" },
-          { name: "dashboard-builder", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
-          { name: "google-ads-change-history-dashboard", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
-        ],
       },
       page: {
         title: "CRM Journey Arşivi",
@@ -490,8 +474,8 @@ export const copy = {
       metaTitle: "Yığın - Ali Demirbaş",
       metaDesc: "Her gün büyümeyi ölçmek, sorgulamak ve optimize etmek için kullandığım araçlar.",
       eyebrow: "Yığın",
-      title: "Yığın.",
-      sub: "Değerli bir şey üretmek için kullandığım yazılımlar.",
+      title: "Yığın",
+      sub: "Tasarlamak, üretmek, ölçmek ve büyümek için kullandığım araçlar.",
       homeTitle: "Kullandığım araçlar",
       homeIntro: "Deney tasarlamak, güvenilir ölçümleme kurmak, kullanıcı davranışını analiz etmek ve büyümeyi optimize etmek için kullandığım araçlar.",
       homeMore: "Araç setimi keşfet",
@@ -518,7 +502,7 @@ export const copy = {
       formNote: "E-posta uygulamanızda hazır doldurulmuş bir taslak açar - bu sitede bunu sizin yerinize gönderecek bir sunucu yok.",
     },
     abTesting: {
-      metaTitle: "A/B Test Senaryo Motoru - Ali Demirbaş",
+      metaTitle: "A/B Test Playbook - Ali Demirbaş",
       metaDesc: "Claude Code için 211 gerçek büyüme testi senaryosu: ne test edilir, hangi KPI izlenir, ne yapılmamalı.",
       eyebrow: "Lab / A/B Test",
       title: "Guardrail'i atlamana izin vermeyen bir A/B test motoru.",
