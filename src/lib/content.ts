@@ -31,8 +31,8 @@ export const copy = {
         {
           name: "CRM Journey Teardown Archive",
           slug: "lifecycle-card-archive",
-          desc: "A collection of 70 lifecycle journeys, each broken down into how the flow works, what to test, which metrics to watch and what to avoid.",
-          tags: ["CRM", "Lifecycle Marketing", "70 teardowns", "10 industries", "TR/EN"],
+          desc: "A collection of 72 lifecycle journeys, each broken down into how the flow works, what to test, which metrics to watch and what to avoid.",
+          tags: ["CRM", "Lifecycle Marketing", "72 teardowns", "10 industries", "TR/EN"],
           links: [{ label: "Explore the archive", href: "/lab/journeys" }],
         },
         {
@@ -72,7 +72,7 @@ export const copy = {
       },
       page: {
         title: "CRM Journey Archive",
-        intro: "70 lifecycle journey teardowns across sectors and channels. Filter by sector or channel, or search - each entry is a flow I have researched and documented.",
+        intro: "72 lifecycle journey teardowns across sectors and channels. Filter by sector or channel, or search - each entry is a flow I have researched and documented.",
         searchPlaceholder: "Search journeys...",
         sectorLabel: "Sector",
         channelsLabel: "Channels",
@@ -82,11 +82,16 @@ export const copy = {
         empty: "Nothing matches those filters.",
         back: "Back to home",
         clickToExplore: "Click a step to explore",
+        supportedChannels: "Supported channels",
+        supportedChannelsHint:
+          "Channels this journey can run on. The example sequence below shows one way to build it, not every channel it supports.",
         flow: {
           trigger: "TRIGGER",
           exit: "EXIT",
           wait: "WAIT",
           condition: "CONDITION",
+          conditionHint:
+            "Single-branch gate. The step below it runs only when this is true; when it is false that step is skipped and the journey continues to the next one, unless an exit rule ends it here.",
           details: "Details +",
           back: "← Back",
           path: "PATH",
@@ -370,8 +375,8 @@ export const copy = {
         {
           name: "CRM Journey İnceleme Arşivi",
           slug: "lifecycle-card-archive",
-          desc: "70 lifecycle journey'den oluşan bir koleksiyon; her biri akışın nasıl işlediği, ne test edileceği, hangi metriklerin izleneceği ve nelerden kaçınılacağı üzerinden inceleniyor.",
-          tags: ["CRM", "Lifecycle Pazarlama", "70 inceleme", "10 sektör", "TR/EN"],
+          desc: "72 lifecycle journey'den oluşan bir koleksiyon; her biri akışın nasıl işlediği, ne test edileceği, hangi metriklerin izleneceği ve nelerden kaçınılacağı üzerinden inceleniyor.",
+          tags: ["CRM", "Lifecycle Pazarlama", "72 inceleme", "10 sektör", "TR/EN"],
           links: [{ label: "Arşivi keşfet", href: "/tr/lab/journeys" }],
         },
         {
@@ -411,7 +416,7 @@ export const copy = {
       },
       page: {
         title: "CRM Journey Arşivi",
-        intro: "Sektörler ve kanallar genelinde 70 lifecycle journey incelemesi. Sektöre veya kanala göre filtrele ya da ara - her kayıt araştırıp belgelediğim bir akış.",
+        intro: "Sektörler ve kanallar genelinde 72 lifecycle journey incelemesi. Sektöre veya kanala göre filtrele ya da ara - her kayıt araştırıp belgelediğim bir akış.",
         searchPlaceholder: "Journey ara...",
         sectorLabel: "Sektör",
         channelsLabel: "Kanallar",
@@ -421,11 +426,16 @@ export const copy = {
         empty: "Bu filtrelerle eşleşen kayıt yok.",
         back: "Ana sayfaya dön",
         clickToExplore: "İncelemek için bir adıma tıkla",
+        supportedChannels: "Desteklenen kanallar",
+        supportedChannelsHint:
+          "Bu journey'nin çalışabileceği kanallar. Aşağıdaki örnek dizi kurmanın bir yolunu gösterir, desteklenen her kanalı değil.",
         flow: {
           trigger: "TETİKLEYİCİ",
           exit: "ÇIKIŞ",
           wait: "BEKLE",
           condition: "KOŞUL",
+          conditionHint:
+            "Tek kollu koşul. Altındaki adım yalnızca bu doğruyken çalışır; yanlışsa o adım atlanır ve journey bir sonrakine devam eder, bir çıkış kuralı burada bitirmediği sürece.",
           details: "Detaylar +",
           back: "← Geri",
           path: "YOL",

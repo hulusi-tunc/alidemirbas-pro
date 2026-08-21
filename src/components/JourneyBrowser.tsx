@@ -6,9 +6,12 @@ import { Search, X } from "lucide-react";
 import JourneyFlow from "@/components/JourneyFlow";
 import { journeys, type Journey } from "@/lib/journeys";
 import { flows } from "@/lib/flows";
+import type { Channel } from "@/lib/orchestration";
 import type { copy, Lang } from "@/lib/content";
 
-const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp"] as const;
+/* Filterable channels - `sales` is a human handoff rather than a send, so it
+   is not offered as a filter even though a journey can declare it. */
+const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp"] as const satisfies readonly Channel[];
 const CHANNEL_LABELS: Record<string, string> = {
   email: "Email", push: "Push", sms: "SMS", inapp: "In-app", whatsapp: "WhatsApp",
 };
@@ -22,7 +25,7 @@ export default function JourneyBrowser({
 }: { lang: Lang; t: (typeof copy)[Lang]["lab"]["page"] }) {
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("");
-  const [channel, setChannel] = useState("");
+  const [channel, setChannel] = useState<Channel | "">("");
   const [open, setOpen] = useState<Journey | null>(null);
 
   useEffect(() => {
@@ -123,7 +126,11 @@ export default function JourneyBrowser({
                 <p className="text-[15px] leading-snug font-medium tracking-tight text-ink-950">{j.title[lang]}</p>
                 <p className="mt-0.5 text-sm text-ink-500">{j.sector[lang]} · {j.journey[lang]}</p>
               </div>
-              <div className="flex flex-wrap gap-1.5 sm:justify-end">
+              <div
+                className="flex flex-wrap gap-1.5 sm:justify-end"
+                title={t.supportedChannelsHint}
+                aria-label={t.supportedChannels}
+              >
                 {j.channels.map((c) => (
                   <span key={c} className="flex items-center gap-1.5 border border-line px-2 py-1 text-xs text-ink-600">
                     <span aria-hidden className={`size-1.5 rounded-full ${DOT[c] ?? "bg-neutral-400"}`} />
@@ -158,7 +165,12 @@ export default function JourneyBrowser({
                   <X aria-hidden className="size-4" />
                 </button>
               </div>
-              <div className="mt-3 flex flex-wrap gap-1.5">
+              {/* Supported channels, not "the channels used below". The example
+                  sequence deliberately shows one build of the journey; the badge
+                  says what it can run on. Labelled so that difference is legible
+                  rather than looking like a mismatch. */}
+              <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5" title={t.supportedChannelsHint}>
+                <span className="altor-eyebrow text-ink-400">{t.supportedChannels}</span>
                 {open.channels.map((c) => (
                   <span key={c} className="flex items-center gap-1.5 border border-line px-2 py-0.5 text-xs text-neutral-600">
                     <span aria-hidden className={`size-1.5 rounded-full ${DOT[c] ?? "bg-neutral-400"}`} />

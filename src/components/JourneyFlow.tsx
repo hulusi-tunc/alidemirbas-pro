@@ -125,7 +125,16 @@ function parseFlow(steps: FlowStep[]) {
 
 /** The line between two nodes. Wait/condition sit on it as small labelled
     rows rather than cards of their own - they describe the gap, they aren't
-    a touchpoint. */
+    a touchpoint.
+
+    Condition semantics, since the design draws a single arm and the false
+    arm has to mean something definite: a condition is a single-branch gate.
+    The node directly below it runs only when the condition is true. When it
+    is false that one node is skipped and the journey continues to the next
+    applicable step - it does not end there. A journey that should stop on
+    the false arm says so with an explicit `exit` node, and one that should
+    move the person to a different journey says so with a handoff in
+    `journeys.ts`. Nothing is left implied. */
 function Connector({ items }: { items: FlowStep[] }) {
   const t = useFlowT();
   return (
@@ -139,7 +148,7 @@ function Connector({ items }: { items: FlowStep[] }) {
               key={i}
               className="flex items-center gap-1.5 py-px font-mono text-[11px]"
               style={{ color: it.t === "condition" ? "#1a7f37" : "#566078" }}
-              title={it.t === "condition" ? t.condition : t.wait}
+              title={it.t === "condition" ? t.conditionHint : t.wait}
             >
               {it.t === "condition" ? <ConditionIcon className="size-3.5 shrink-0" /> : <WaitIcon className="size-3.5 shrink-0" />}
               {it.a}

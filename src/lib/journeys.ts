@@ -1,12 +1,24 @@
-// Generated from the live archive at alidemirbas.com.tr/lab/crm-journeys
+// Generated from the live archive at alidemirbas.com.tr/lab/crm-journeys, then
+// extended with the orchestration facts each journey declares about itself.
+// The descriptive half says what the journey is. The orchestration half is what
+// lets a send engine answer, for one person at one moment, which journey wins
+// and whether it may send at all - see orchestration.ts, which is the only
+// place those rules live now.
+import type { Channel, JourneyOrchestration } from "@/lib/orchestration";
+
 export type Journey = {
   slug: string;
   idx: string;
-  channels: string[];
+  /** Channels this journey CAN run on - not the ones its example sequence
+      happens to use. A sequence showing only email and push under a badge that
+      also lists SMS is correct: it is one build of the journey, not the only
+      one. The reverse is a genuine error and the validator treats it as one -
+      a step may not send on a channel the journey does not declare. */
+  channels: Channel[];
   sector: { en: string; tr: string };
   journey: { en: string; tr: string };
   title: { en: string; tr: string };
-};
+} & JourneyOrchestration;
 
 export const journeys: Journey[] = [
   {
@@ -29,6 +41,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Abandoned cart recovery",
       "tr": "Sepet terk kurtarma"
+    },
+    "priority": "cart-intent",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "high-intent-triggered",
+    "exitEvents": [
+      "cart_emptied",
+      "product_out_of_stock"
+    ],
+    "handoffEvents": {
+      "purchase_completed": "ecom-second-01"
     }
   },
   {
@@ -50,6 +74,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Viewed the product, didn't add to cart",
       "tr": "Ürüne baktı, sepete atmadı"
+    },
+    "priority": "browse-discovery",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "added_to_cart": "ecom-cart-01",
+      "purchase_completed": "ecom-second-01"
     }
   },
   {
@@ -72,6 +106,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Back in stock (a sold-out item returns)",
       "tr": "Yeniden stokta (tükenen ürün geldi)"
+    },
+    "priority": "triggered-info",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "high-intent-triggered",
+    "exitEvents": [
+      "target_product_purchased",
+      "product_out_of_stock"
+    ],
+    "handoffEvents": {
+      "added_to_cart": "ecom-cart-01"
     }
   },
   {
@@ -93,7 +139,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Price drop on a tracked item",
       "tr": "Takip edilen üründe fiyat düştü"
-    }
+    },
+    "priority": "triggered-info",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "high-intent-triggered",
+    "exitEvents": [
+      "target_product_purchased",
+      "price_returned_to_normal",
+      "product_out_of_stock"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "ecom-replen-01",
@@ -114,7 +171,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Replenishment (reorder before running out)",
       "tr": "Ürün yenileme (tükenmeden tekrar sipariş)"
-    }
+    },
+    "priority": "expansion",
+    "family": "post-purchase",
+    "exclusionGroup": "post-purchase-followup",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "reorder_completed",
+      "auto_replenishment_activated"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "ecom-second-01",
@@ -135,6 +202,19 @@ export const journeys: Journey[] = [
     "title": {
       "en": "First-to-second-order bridge",
       "tr": "İlk → ikinci sipariş köprüsü"
+    },
+    "priority": "expansion",
+    "family": "post-purchase",
+    "exclusionGroup": "post-purchase-followup",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "reorder_completed",
+      "order_cancelled"
+    ],
+    "handoffEvents": {
+      "order_returned": "ecom-recovery-01",
+      "guest_order_delivered": "ecom-guest-01"
     }
   },
   {
@@ -156,7 +236,78 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Winning back a lapsing customer",
       "tr": "Uzaklaşan müşteriyi geri kazanma"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "purchase_completed"
+    ],
+    "handoffEvents": {
+      "added_to_cart": "ecom-cart-01"
     }
+  },
+  {
+    "slug": "ecom-guest-01",
+    "idx": "ECOM-08",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "E-commerce",
+      "tr": "E-ticaret"
+    },
+    "journey": {
+      "en": "Account Activation",
+      "tr": "Hesap oluşturma"
+    },
+    "title": {
+      "en": "Guest buyer to account holder",
+      "tr": "Misafir alıcıdan hesap sahibine"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "account_created",
+      "support_ticket_opened"
+    ],
+    "handoffEvents": {}
+  },
+  {
+    "slug": "ecom-recovery-01",
+    "idx": "ECOM-09",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "E-commerce",
+      "tr": "E-ticaret"
+    },
+    "journey": {
+      "en": "Service Recovery",
+      "tr": "Hizmet telafisi"
+    },
+    "title": {
+      "en": "Winning back confidence after a return",
+      "tr": "İade sonrası güveni geri kazanma"
+    },
+    "priority": "risk-service",
+    "family": "retention-risk",
+    "exclusionGroup": null,
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "purchase_completed",
+      "support_ticket_opened"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "ota-aband-01",
@@ -177,6 +328,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Searched for a flight, didn't book",
       "tr": "Uçuş aradı, rezerve etmedi"
+    },
+    "priority": "browse-discovery",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "booking_completed": "ota-pretrip-01",
+      "checkout_started": "ota-checkout-01"
     }
   },
   {
@@ -199,6 +360,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Abandoned at checkout",
       "tr": "Ödeme adımında bıraktı"
+    },
+    "priority": "checkout-abandonment",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "high-intent-triggered",
+    "exitEvents": [
+      "departure_date_passed"
+    ],
+    "handoffEvents": {
+      "booking_completed": "ota-pretrip-01"
     }
   },
   {
@@ -221,6 +393,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Route price alert",
       "tr": "Rota fiyat alarmı"
+    },
+    "priority": "triggered-info",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "high-intent-triggered",
+    "exitEvents": [
+      "price_returned_to_normal"
+    ],
+    "handoffEvents": {
+      "booking_completed": "ota-pretrip-01",
+      "checkout_started": "ota-checkout-01"
     }
   },
   {
@@ -244,6 +428,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Pre-trip series",
       "tr": "Seyahat öncesi seri"
+    },
+    "priority": "risk-service",
+    "family": "post-purchase",
+    "exclusionGroup": null,
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "booking_cancelled"
+    ],
+    "handoffEvents": {
+      "trip_completed": "ota-review-01"
     }
   },
   {
@@ -265,7 +460,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Hotel or car suggestion for a flight",
       "tr": "Uçuşa otel ya da araç önerisi"
-    }
+    },
+    "priority": "expansion",
+    "family": "revenue-growth",
+    "exclusionGroup": "post-purchase-followup",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "accommodation_booked",
+      "flight_departed",
+      "booking_cancelled"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "ota-review-01",
@@ -286,6 +492,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Post-trip review and rebooking",
       "tr": "Seyahat sonrası değerlendirme ve yeniden rezervasyon"
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "support_ticket_opened"
+    ],
+    "handoffEvents": {
+      "rebooking_completed": "ota-pretrip-01"
     }
   },
   {
@@ -307,6 +524,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Seasonal win-back",
       "tr": "Sezonluk geri kazanım"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "booking_completed": "ota-pretrip-01",
+      "flight_searched": "ota-aband-01"
     }
   },
   {
@@ -330,7 +557,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Trial ending: move to a paid plan",
       "tr": "Deneme bitiyor, ücretli plana geçiş"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "trial_converted",
+      "cancellation_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "saas-activate-01",
@@ -351,6 +588,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Trial activation rescue (no first result yet)",
       "tr": "Deneme aktivasyon kurtarma (ilk sonuç yok)"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "trial_converted"
+    ],
+    "handoffEvents": {
+      "activation_completed": "saas-trial-01"
     }
   },
   {
@@ -373,7 +621,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Feature adoption (undiscovered value)",
       "tr": "Özellik benimsetme (keşfedilmemiş değer)"
-    }
+    },
+    "priority": "activation",
+    "family": "engagement",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "feature_adopted"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "saas-churn-01",
@@ -395,7 +652,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Usage decline, churn risk",
       "tr": "Kullanım düşüşü, kayıp riski"
-    }
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "usage_recovered",
+      "plan_upgraded"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "saas-dunning-01",
@@ -417,7 +684,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Payment failed (dunning)",
       "tr": "Ödeme başarısız (ödeme takibi)"
-    }
+    },
+    "priority": "risk-service",
+    "family": "retention-risk",
+    "exclusionGroup": null,
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "payment_recovered",
+      "cancellation_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "saas-onboard-01",
@@ -439,6 +716,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "B2B account onboarding (by role)",
       "tr": "B2B hesap kurulumu (role göre)"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "account_activated"
+    ],
+    "handoffEvents": {
+      "onboarding_completed": "saas-activate-01"
     }
   },
   {
@@ -462,6 +750,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Seat and usage-limit expansion",
       "tr": "Koltuk ve limit genişletme"
+    },
+    "priority": "expansion",
+    "family": "revenue-growth",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "plan_upgraded",
+      "seat_purchased"
+    ],
+    "handoffEvents": {
+      "value_tier_dropped": "saas-churn-01"
     }
   },
   {
@@ -484,6 +784,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "New account welcome",
       "tr": "Yeni hesap karşılama"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "account_activated"
+    ],
+    "handoffEvents": {
+      "onboarding_completed": "fin-card-activate-01"
     }
   },
   {
@@ -506,7 +817,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Card arrived, not activated",
       "tr": "Kart geldi, aktive edilmedi"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "card_activated"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "fin-dormant-01",
@@ -527,7 +847,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Winning back a dormant account",
       "tr": "Uykuya geçmiş hesabı geri kazanma"
-    }
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "session_resumed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "fin-autopay-01",
@@ -549,7 +878,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Driving adoption of autopay",
       "tr": "Otomatik ödeme talimatını benimsetme"
-    }
+    },
+    "priority": "activation",
+    "family": "engagement",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "feature_adopted"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "fin-crosssell-01",
@@ -571,6 +909,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Cross-selling an additional product (loan / card)",
       "tr": "Ek ürün çapraz satışı (kredi / kart)"
+    },
+    "priority": "expansion",
+    "family": "revenue-growth",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "target_product_purchased"
+    ],
+    "handoffEvents": {
+      "value_tier_dropped": "fin-churn-01"
     }
   },
   {
@@ -593,7 +942,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Collecting missing profile data",
       "tr": "Eksik profil verisi toplama"
-    }
+    },
+    "priority": "activation",
+    "family": "engagement",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "profile_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "fin-churn-01",
@@ -615,7 +973,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Value drift / usage decline",
       "tr": "Değer kayması / kullanım düşüşü"
-    }
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "usage_recovered"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "mkt-activate-01",
@@ -637,6 +1004,15 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Signed up, no first order yet",
       "tr": "Kayıt oldu, ilk siparişi vermedi"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "purchase_completed": "mkt-second-01"
     }
   },
   {
@@ -658,6 +1034,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Bridge from first order to second",
       "tr": "İlk siparişten ikinciye köprü"
+    },
+    "priority": "expansion",
+    "family": "post-purchase",
+    "exclusionGroup": "post-purchase-followup",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "order_returned",
+      "support_ticket_opened"
+    ],
+    "handoffEvents": {
+      "reorder_completed": "mkt-category-01"
     }
   },
   {
@@ -680,7 +1068,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Order frequency drop",
       "tr": "Sipariş sıklığı düşüşü"
-    }
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "purchase_completed",
+      "user_became_dormant"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "mkt-category-01",
@@ -702,7 +1100,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Category expansion",
       "tr": "Kategori genişletme"
-    }
+    },
+    "priority": "expansion",
+    "family": "revenue-growth",
+    "exclusionGroup": "post-purchase-followup",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "target_product_purchased"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "mkt-reactivate-01",
@@ -723,6 +1130,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Bringing back a dormant user",
       "tr": "Uykuya dalmış kullanıcıyı geri getirme"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "session_resumed": "mkt-activate-01",
+      "purchase_completed": "mkt-second-01"
     }
   },
   {
@@ -744,7 +1161,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Membership or first-order anniversary",
       "tr": "Üyelik ya da ilk sipariş yıldönümü"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "reward_redeemed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "mkt-gamified-01",
@@ -766,7 +1192,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Seasonal spin-the-wheel campaign",
       "tr": "Sezonluk çarkıfelek kampanyası"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "reward_redeemed",
+      "campaign_ended"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "game-d1-01",
@@ -787,7 +1223,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Day-one return (first 24 hours)",
       "tr": "İlk gün dönüşü (ilk 24 saat)"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "tutorial_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "game-reactivate-01",
@@ -808,7 +1253,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Winning back the silent player (7+ days)",
       "tr": "Sessizleşen oyuncuyu geri getirme (7+ gün)"
-    }
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "session_resumed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "game-iap-01",
@@ -830,7 +1284,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "First in-app purchase (free to paid)",
       "tr": "İlk uygulama içi satın alma (ücretsizden ücretliye)"
-    }
+    },
+    "priority": "activation",
+    "family": "revenue-growth",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "purchase_completed",
+      "subscription_activated"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "game-optin-01",
@@ -852,7 +1316,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Notification opt-in (at the right moment)",
       "tr": "Bildirim izni (doğru anda)"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "notifications_opted_in"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "game-referral-01",
@@ -874,7 +1347,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Friend invite (referral loop)",
       "tr": "Arkadaş daveti (davet döngüsü)"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "referral_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "game-milestone-01",
@@ -896,6 +1378,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Achievement and streak celebration",
       "tr": "Başarı ve seri kutlaması"
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "next_milestone_reached"
+    ],
+    "handoffEvents": {
+      "tier_changed": "game-loyalty-01"
     }
   },
   {
@@ -917,7 +1410,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Season pass / points program",
       "tr": "Sezon bileti / puan programı"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "reward_redeemed",
+      "tier_retained"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "media-trial-01",
@@ -939,7 +1442,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Free to premium conversion",
       "tr": "Ücretsizden premium'a dönüşüm"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "subscription_activated",
+      "trial_converted"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "media-reactivate-01",
@@ -960,6 +1473,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Finished the show, drifting viewer",
       "tr": "Diziyi bitirdi, uzaklaşan izleyici"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "subscription_activated"
+    ],
+    "handoffEvents": {
+      "session_resumed": "media-trial-01"
     }
   },
   {
@@ -982,6 +1506,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Save at the moment of cancellation",
       "tr": "İptal anında kurtarma"
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "cancellation_aborted",
+      "subscription_reactivated"
+    ],
+    "handoffEvents": {
+      "cancellation_completed": "media-winback-01"
     }
   },
   {
@@ -1003,7 +1539,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Win back a subscriber who left",
       "tr": "Ayrılan aboneyi geri kazan"
-    }
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "subscription_reactivated"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "media-upgrade-01",
@@ -1025,7 +1570,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Monthly to annual upgrade",
       "tr": "Aylıktan yıllığa geçiş"
-    }
+    },
+    "priority": "expansion",
+    "family": "revenue-growth",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "plan_upgraded",
+      "cancellation_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "media-adopt-01",
@@ -1047,7 +1602,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Drive adoption of profiles and offline viewing",
       "tr": "Profil ve çevrimdışı izleme özelliğini benimset"
-    }
+    },
+    "priority": "activation",
+    "family": "engagement",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "feature_adopted"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "media-milestone-01",
@@ -1069,7 +1633,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Watch streaks and year in review",
       "tr": "İzleme serisi ve yılın özeti"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "next_milestone_reached",
+      "streak_broken"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "edu-activate-01",
@@ -1091,6 +1665,15 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Signed up, never finished the first lesson",
       "tr": "Kayıt oldu, ilk dersini bitirmedi"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "first_lesson_completed": "edu-premium-01"
     }
   },
   {
@@ -1113,7 +1696,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Learning streaks and motivation",
       "tr": "Öğrenme serisi ve motivasyon"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "next_milestone_reached",
+      "streak_broken"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "edu-reactivate-01",
@@ -1134,6 +1727,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Coming back to an unfinished course",
       "tr": "Yarım kalan kursa geri dönüş"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "subscription_activated"
+    ],
+    "handoffEvents": {
+      "session_resumed": "edu-activate-01"
     }
   },
   {
@@ -1156,7 +1760,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Free to paid (certificate / premium)",
       "tr": "Ücretsizden ücretliye (sertifika / premium)"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "subscription_activated",
+      "trial_converted"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "edu-lead-01",
@@ -1177,6 +1791,15 @@ export const journeys: Journey[] = [
     "title": {
       "en": "From guide / webinar lead to signup",
       "tr": "Rehber / webinar adayından kayda"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "account_created": "edu-activate-01"
     }
   },
   {
@@ -1199,7 +1822,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Course finished, on to the next one",
       "tr": "Kurs bitti, sıradaki kursa"
-    }
+    },
+    "priority": "expansion",
+    "family": "revenue-growth",
+    "exclusionGroup": "post-purchase-followup",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "target_product_purchased"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "edu-referral-01",
@@ -1221,7 +1853,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "From certificate sharing to referral",
       "tr": "Sertifika paylaşımından davete"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "reward_redeemed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "tel-onboard-01",
@@ -1243,7 +1884,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "New subscription welcome (preventing first-bill shock)",
       "tr": "Yeni abonelik karşılaması (ilk fatura şokunu önleme)"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "feature_adopted",
+      "cancellation_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "tel-upsell-01",
@@ -1265,7 +1916,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Plan and add-on recommendation at usage overage",
       "tr": "Kullanım aşımında paket ve ek hizmet önerisi"
-    }
+    },
+    "priority": "expansion",
+    "family": "revenue-growth",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "plan_upgraded",
+      "add_on_purchased",
+      "payment_failed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "tel-churn-01",
@@ -1287,6 +1949,19 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Contract end (critical churn window)",
       "tr": "Taahhüt bitişi (kritik kayıp penceresi)"
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "contract_renewed",
+      "plan_upgraded"
+    ],
+    "handoffEvents": {
+      "cancellation_completed": "tel-winback-01",
+      "number_ported_out": "tel-winback-01"
     }
   },
   {
@@ -1310,7 +1985,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Overdue bill (payment follow-up)",
       "tr": "Fatura gecikti (ödeme takibi)"
-    }
+    },
+    "priority": "risk-service",
+    "family": "retention-risk",
+    "exclusionGroup": null,
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "payment_recovered",
+      "payment_plan_arranged"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "tel-adopt-01",
@@ -1332,7 +2017,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Self-service app adoption",
       "tr": "Self servis uygulama kullanımı"
-    }
+    },
+    "priority": "activation",
+    "family": "engagement",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "feature_adopted"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "tel-winback-01",
@@ -1353,6 +2047,15 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Win-back for canceled or ported-out subscribers",
       "tr": "Numara taşıyan veya iptal eden geri kazanımı"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "subscription_reactivated": "tel-onboard-01"
     }
   },
   {
@@ -1375,7 +2078,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Post-service satisfaction and follow-through",
       "tr": "Hizmet sonrası memnuniyet ve aksiyon"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "issue_resolved",
+      "referral_completed",
+      "support_ticket_opened"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "hea-continuity-01",
@@ -1397,6 +2111,18 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Drop in program consistency",
       "tr": "Program devamlılığında düşüş"
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "session_resumed",
+      "cancellation_completed"
+    ],
+    "handoffEvents": {
+      "inactivity_threshold_reached": "hea-reactivate-01"
     }
   },
   {
@@ -1418,6 +2144,15 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Reactivating a member who's drifting away",
       "tr": "Uzaklaşan üyeyi yeniden aktive etme"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [],
+    "handoffEvents": {
+      "session_resumed": "hea-premium-01"
     }
   },
   {
@@ -1440,7 +2175,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Goal and streak celebration",
       "tr": "Hedef ve seri kutlaması"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "next_goal_started"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "hea-premium-01",
@@ -1462,7 +2206,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Converting free users to premium coaching",
       "tr": "Ücretsizden premium koçluğa geçiş"
-    }
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "trial_converted"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "hea-referral-01",
@@ -1484,7 +2237,16 @@ export const journeys: Journey[] = [
     "title": {
       "en": "From success to referral",
       "tr": "Başarıdan davete"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "referral_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "hea-checkup-01",
@@ -1506,7 +2268,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Periodic checkup reminder",
       "tr": "Periyodik kontrol hatırlatması"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "appointment_booked",
+      "checkup_completed"
+    ],
+    "handoffEvents": {}
   },
   {
     "slug": "hea-nps-01",
@@ -1528,6 +2300,17 @@ export const journeys: Journey[] = [
     "title": {
       "en": "Post-program satisfaction and follow-up action",
       "tr": "Program sonrası memnuniyet ve aksiyon"
-    }
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "issue_resolved",
+      "referral_completed",
+      "support_ticket_opened"
+    ],
+    "handoffEvents": {}
   }
 ];
