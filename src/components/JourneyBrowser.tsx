@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ChevronDown, Clock, Flag, GitBranch, Search, X } from "lucide-react";
+import {
+  Bell, ChevronDown, Clock, Flag, GitBranch, Mail, MessageCircle,
+  MessageSquare, MonitorSmartphone, Search, Users, X,
+} from "lucide-react";
 
 import { journeys, type Journey } from "@/lib/journeys";
 import { flows, type FlowStep } from "@/lib/flows";
@@ -185,6 +188,11 @@ const STEP_STYLE: Record<string, { bar: string; label: string }> = {
   sales: { bar: "border-t-2 border-t-ink-700", label: "text-ink-700" },
 };
 
+const STEP_ICON: Record<string, typeof Mail> = {
+  email: Mail, push: Bell, sms: MessageSquare,
+  inapp: MonitorSmartphone, whatsapp: MessageCircle, sales: Users,
+};
+
 // Steps that are a real action in the journey - everything else (wait,
 // condition) is metadata ABOUT the gap between two actions, not an action
 // itself, so it renders on the connector rather than as its own card.
@@ -212,27 +220,32 @@ function Connector({ items }: { items: FlowStep[] }) {
     <div className="relative flex flex-col items-center">
       <span aria-hidden className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 bg-neutral-300" />
       {items.length > 0 ? (
-        <div className="relative z-10 flex flex-col items-center gap-1.5 py-3">
+        <div className="relative z-10 flex flex-col items-center gap-1 py-2">
           {items.map((it, i) => (
             <span
               key={i}
               className={
                 it.t === "condition"
-                  ? "flex items-center gap-1.5 border border-dashed border-neutral-400 bg-paper px-2.5 py-1 text-xs text-ink-700"
-                  : "flex items-center gap-1.5 border border-line bg-paper px-2.5 py-1 text-xs text-neutral-600"
+                  ? "flex items-center gap-2 border border-dashed border-neutral-400 bg-paper px-2.5 py-1.5"
+                  : "flex items-center gap-2 border border-line bg-paper px-2.5 py-1.5"
               }
             >
               {it.t === "condition" ? (
-                <GitBranch aria-hidden className="size-3 shrink-0 text-neutral-500" />
+                <GitBranch aria-hidden className="size-3.5 shrink-0 text-neutral-500" />
               ) : (
-                <Clock aria-hidden className="size-3 shrink-0 text-neutral-400" />
+                <Clock aria-hidden className="size-3.5 shrink-0 text-neutral-400" />
               )}
-              {it.a}
+              <span className="flex flex-col leading-none">
+                <span className="text-[10px] font-medium tracking-wide text-neutral-400 uppercase">
+                  {it.t === "condition" ? "Condition" : "Wait"}
+                </span>
+                <span className="mt-1 text-xs font-medium text-ink-700">{it.a}</span>
+              </span>
             </span>
           ))}
         </div>
       ) : (
-        <div className="h-6" />
+        <div className="h-5" />
       )}
       <ChevronDown aria-hidden className="relative z-10 size-4 shrink-0 -mt-1 text-neutral-400" />
     </div>
@@ -253,13 +266,14 @@ function NodeCard({ step }: { step: FlowStep }) {
     );
   }
   const style = STEP_STYLE[step.t];
+  const Icon = STEP_ICON[step.t] ?? Mail;
   return (
-    <div className={`w-full border border-line bg-paper p-4 ${style?.bar ?? ""}`}>
+    <div className={`w-full border border-line bg-paper p-3.5 ${style?.bar ?? ""}`}>
       <p className={`flex items-center gap-1.5 text-xs font-semibold ${style?.label ?? "text-ink-700"}`}>
-        <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${DOT[step.t] ?? "bg-ink-700"}`} />
+        <Icon aria-hidden className="size-3.5 shrink-0" />
         {step.a}
       </p>
-      {step.b ? <p className="mt-1.5 text-sm leading-relaxed text-ink-600">{step.b}</p> : null}
+      {step.b ? <p className="mt-1.5 text-sm leading-snug text-ink-600">{step.b}</p> : null}
     </div>
   );
 }
@@ -267,8 +281,8 @@ function NodeCard({ step }: { step: FlowStep }) {
 function Flow({ steps }: { steps: FlowStep[] }) {
   const { nodes, trailing } = groupFlow(steps);
   return (
-    <div className="px-6 py-10">
-      <div className="mx-auto flex max-w-md flex-col items-stretch">
+    <div className="px-5 py-6">
+      <div className="mx-auto flex max-w-sm flex-col items-stretch">
         {nodes.map((n, i) => (
           <div key={i} className="flex flex-col items-stretch">
             {i > 0 ? <Connector items={n.before} /> : null}
