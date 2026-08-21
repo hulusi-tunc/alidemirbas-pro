@@ -14,8 +14,8 @@ export const copy = {
     },
     lab: {
       label: "Lab",
-      title: "Problems I turned into projects",
-      intro: "Products and open-source tools built to solve real problems - mostly in marketing and growth, some beyond it.",
+      title: "Things I've been building",
+      intro: "A collection of open-source tools, experiments and side projects. Mostly marketing and growth, sometimes not.",
       viewAll: "Explore the archive",
       projects: [
         {
@@ -334,8 +334,8 @@ export const copy = {
     },
     lab: {
       label: "Lab",
-      title: "Sorunları projeye çevirdiğim yer",
-      intro: "Gerçek sorunları çözmek için kurduğum ürünler ve açık kaynak araçlar - çoğu pazarlama ve growth'ta, bir kısmı ötesinde.",
+      title: "Yaptığım şeyler",
+      intro: "Açık kaynak araçlar, deneyler ve yan projelerden oluşan bir koleksiyon. Çoğunlukla pazarlama ve growth, bazen değil.",
       viewAll: "Arşivi keşfet",
       projects: [
         {
