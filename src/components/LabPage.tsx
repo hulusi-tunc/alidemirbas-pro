@@ -12,7 +12,7 @@ export default function LabPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const shell = t.lab.shell;
   const home = lang === "en" ? "/" : "/tr";
-  const otherLab = lang === "en" ? "/tr/lab" : "/lab";
+  const otherLab = lang === "en" ? "/tr/lab/journeys" : "/lab/journeys";
 
   return (
     <div className="flex min-h-svh flex-col bg-paper">

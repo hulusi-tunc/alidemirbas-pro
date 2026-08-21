@@ -33,7 +33,7 @@ export const copy = {
           slug: "lifecycle-card-archive",
           desc: "70 lifecycle journeys, broken down into how each flow works, what to test and what to avoid.",
           tags: ["CRM", "Lifecycle Marketing", "70 teardowns", "10 industries", "TR/EN"],
-          links: [{ label: "Explore the archive", href: "/lab" }],
+          links: [{ label: "Explore the archive", href: "/lab/journeys" }],
         },
         {
           name: "A/B Test Scenario Engine",
@@ -64,7 +64,7 @@ export const copy = {
         backToSite: "Back to site",
         tools: "Tools",
         library: [
-          { name: "CRM Journey Archive", desc: "70 lifecycle teardowns", href: "/lab", active: true },
+          { name: "CRM Journey Archive", desc: "70 lifecycle teardowns", href: "/lab/journeys", active: true },
           { name: "claude-lifecycle", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
           { name: "ab-test-playbook", desc: "211 test scenarios", href: "/lab/ab-testing" },
           { name: "dashboard-builder", desc: "Claude plugin - GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
@@ -354,7 +354,7 @@ export const copy = {
           slug: "lifecycle-card-archive",
           desc: "70 lifecycle journey'si; her akışın nasıl kurulduğu, ne test edileceği ve nelerden kaçınılacağı üzerinden inceleniyor.",
           tags: ["CRM", "Lifecycle Pazarlama", "70 inceleme", "10 sektör", "TR/EN"],
-          links: [{ label: "Arşivi keşfet", href: "/tr/lab" }],
+          links: [{ label: "Arşivi keşfet", href: "/tr/lab/journeys" }],
         },
         {
           name: "A/B Test Senaryo Motoru",
@@ -385,7 +385,7 @@ export const copy = {
         backToSite: "Siteye dön",
         tools: "Araçlar",
         library: [
-          { name: "CRM Journey Arşivi", desc: "70 lifecycle incelemesi", href: "/tr/lab", active: true },
+          { name: "CRM Journey Arşivi", desc: "70 lifecycle incelemesi", href: "/tr/lab/journeys", active: true },
           { name: "claude-lifecycle", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
           { name: "ab-test-playbook", desc: "211 test senaryosu", href: "/tr/lab/ab-testing" },
           { name: "dashboard-builder", desc: "Claude eklentisi - GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },

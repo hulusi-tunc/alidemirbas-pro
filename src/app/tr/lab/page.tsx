@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import LabPage from "@/components/LabPage";
+import LabIndexPage from "@/components/LabIndexPage";
 import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Lab - Ali Demirbaş",
-  description: "CRM Journey Arşivi: sektöre ve kanala göre filtrelenebilir 70 lifecycle journey incelemesi.",
+  description:
+    "Gerçek pazarlama, growth ve lifecycle işinden çıkan açık kaynak projeler: bir lifecycle journey üretici, bir CRM journey arşivi, bir A/B test playbook'u ve pazarlama dashboard araçları.",
   alternates: pageAlternates("/lab", "tr"),
 };
 
 export default function LabTr() {
-  return <LabPage lang="tr" />;
+  return <LabIndexPage lang="tr" />;
 }
