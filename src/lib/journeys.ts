@@ -52,8 +52,10 @@ export const journeys: Journey[] = [
       "product_out_of_stock"
     ],
     "handoffEvents": {
-      "purchase_completed": "ecom-second-01"
-    }
+      "purchase_completed": "ecom-second-01",
+      "checkout_started": "ecom-checkout-01"
+    },
+    "exclusionScope": "cart"
   },
   {
     "slug": "ecom-browse-01",
@@ -84,7 +86,8 @@ export const journeys: Journey[] = [
     "handoffEvents": {
       "added_to_cart": "ecom-cart-01",
       "purchase_completed": "ecom-second-01"
-    }
+    },
+    "exclusionScope": "product"
   },
   {
     "slug": "ecom-restock-01",
@@ -118,7 +121,8 @@ export const journeys: Journey[] = [
     ],
     "handoffEvents": {
       "added_to_cart": "ecom-cart-01"
-    }
+    },
+    "exclusionScope": "product"
   },
   {
     "slug": "ecom-pricedrop-01",
@@ -150,7 +154,8 @@ export const journeys: Journey[] = [
       "price_returned_to_normal",
       "product_out_of_stock"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "exclusionScope": "product"
   },
   {
     "slug": "ecom-replen-01",
@@ -181,7 +186,8 @@ export const journeys: Journey[] = [
       "reorder_completed",
       "auto_replenishment_activated"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "exclusionScope": "product"
   },
   {
     "slug": "ecom-second-01",
@@ -215,7 +221,8 @@ export const journeys: Journey[] = [
     "handoffEvents": {
       "order_returned": "ecom-recovery-01",
       "guest_order_delivered": "ecom-guest-01"
-    }
+    },
+    "exclusionScope": "order"
   },
   {
     "slug": "ecom-winback-01",
@@ -272,7 +279,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "account_created",
       "support_ticket_opened"
@@ -338,7 +345,8 @@ export const journeys: Journey[] = [
     "handoffEvents": {
       "booking_completed": "ota-pretrip-01",
       "checkout_started": "ota-checkout-01"
-    }
+    },
+    "exclusionScope": "route"
   },
   {
     "slug": "ota-checkout-01",
@@ -371,7 +379,8 @@ export const journeys: Journey[] = [
     ],
     "handoffEvents": {
       "booking_completed": "ota-pretrip-01"
-    }
+    },
+    "exclusionScope": "route"
   },
   {
     "slug": "ota-pricealert-01",
@@ -405,7 +414,8 @@ export const journeys: Journey[] = [
     "handoffEvents": {
       "booking_completed": "ota-pretrip-01",
       "checkout_started": "ota-checkout-01"
-    }
+    },
+    "exclusionScope": "route"
   },
   {
     "slug": "ota-pretrip-01",
@@ -471,7 +481,8 @@ export const journeys: Journey[] = [
       "flight_departed",
       "booking_cancelled"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "exclusionScope": "route"
   },
   {
     "slug": "ota-review-01",
@@ -593,7 +604,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": "conversion-window",
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "trial_converted"
     ],
@@ -662,7 +673,9 @@ export const journeys: Journey[] = [
       "usage_recovered",
       "plan_upgraded"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {
+      "subscription_lapsed": "saas-winback-01"
+    }
   },
   {
     "slug": "saas-dunning-01",
@@ -721,7 +734,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "account_activated"
     ],
@@ -789,7 +802,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "account_activated"
     ],
@@ -822,7 +835,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "card_activated"
     ],
@@ -947,7 +960,7 @@ export const journeys: Journey[] = [
     "family": "engagement",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "profile_completed"
     ],
@@ -1046,7 +1059,8 @@ export const journeys: Journey[] = [
     ],
     "handoffEvents": {
       "reorder_completed": "mkt-category-01"
-    }
+    },
+    "exclusionScope": "order"
   },
   {
     "slug": "mkt-frequency-01",
@@ -1075,10 +1089,11 @@ export const journeys: Journey[] = [
     "communicationClass": "marketing",
     "frequencyClass": "standard-promotional",
     "exitEvents": [
-      "purchase_completed",
-      "user_became_dormant"
+      "purchase_completed"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {
+      "user_became_dormant": "mkt-winback-01"
+    }
   },
   {
     "slug": "mkt-category-01",
@@ -1109,7 +1124,8 @@ export const journeys: Journey[] = [
     "exitEvents": [
       "target_product_purchased"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "exclusionScope": "product"
   },
   {
     "slug": "mkt-reactivate-01",
@@ -1228,7 +1244,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": "conversion-window",
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "tutorial_completed"
     ],
@@ -1321,7 +1337,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "notifications_opted_in"
     ],
@@ -1670,7 +1686,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": "conversion-window",
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [],
     "handoffEvents": {
       "first_lesson_completed": "edu-premium-01"
@@ -1831,7 +1847,8 @@ export const journeys: Journey[] = [
     "exitEvents": [
       "target_product_purchased"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "exclusionScope": "course"
   },
   {
     "slug": "edu-referral-01",
@@ -1889,7 +1906,7 @@ export const journeys: Journey[] = [
     "family": "lifecycle-start",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "feature_adopted",
       "cancellation_completed"
@@ -2085,11 +2102,11 @@ export const journeys: Journey[] = [
     "communicationClass": "marketing",
     "frequencyClass": "standard-promotional",
     "exitEvents": [
-      "issue_resolved",
-      "referral_completed",
-      "support_ticket_opened"
+      "referral_completed"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {
+      "low_score_reported": "tel-recovery-01"
+    }
   },
   {
     "slug": "hea-continuity-01",
@@ -2184,7 +2201,8 @@ export const journeys: Journey[] = [
     "exitEvents": [
       "next_goal_started"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "requiresSensitiveDataPolicy": true
   },
   {
     "slug": "hea-premium-01",
@@ -2278,7 +2296,8 @@ export const journeys: Journey[] = [
       "appointment_booked",
       "checkup_completed"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "requiresSensitiveDataPolicy": true
   },
   {
     "slug": "hea-nps-01",
@@ -2310,6 +2329,127 @@ export const journeys: Journey[] = [
       "issue_resolved",
       "referral_completed",
       "support_ticket_opened"
+    ],
+    "handoffEvents": {},
+    "requiresSensitiveDataPolicy": true
+  },
+  {
+    "slug": "ecom-checkout-01",
+    "idx": "ECOM-10",
+    "channels": [
+      "email",
+      "push",
+      "sms"
+    ],
+    "sector": {
+      "en": "E-commerce",
+      "tr": "E-ticaret"
+    },
+    "journey": {
+      "en": "Checkout Abandonment",
+      "tr": "Ödeme adımı terk"
+    },
+    "title": {
+      "en": "Started checkout, didn't finish",
+      "tr": "Ödemeye başladı, tamamlamadı"
+    },
+    "priority": "checkout-abandonment",
+    "family": "commerce-intent",
+    "exclusionGroup": "purchase-intent-ladder",
+    "exclusionScope": "cart",
+    "communicationClass": "marketing",
+    "frequencyClass": "high-intent-triggered",
+    "exitEvents": [
+      "cart_emptied"
+    ],
+    "handoffEvents": {
+      "purchase_completed": "ecom-second-01"
+    }
+  },
+  {
+    "slug": "saas-winback-01",
+    "idx": "SAAS-08",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "SaaS",
+      "tr": "SaaS"
+    },
+    "journey": {
+      "en": "Winback",
+      "tr": "Geri kazanım"
+    },
+    "title": {
+      "en": "Winning back a lapsed subscriber",
+      "tr": "Kaybedilmiş bir aboneyi geri kazanma"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "subscription_reactivated"
+    ],
+    "handoffEvents": {}
+  },
+  {
+    "slug": "mkt-winback-01",
+    "idx": "MKT-08",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "Marketplace",
+      "tr": "Marketplace"
+    },
+    "journey": {
+      "en": "Winback",
+      "tr": "Geri kazanım"
+    },
+    "title": {
+      "en": "Bringing back a lapsed buyer",
+      "tr": "Kaybedilmiş alıcıyı geri kazanma"
+    },
+    "priority": "winback",
+    "family": "win-back",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "purchase_completed"
+    ],
+    "handoffEvents": {}
+  },
+  {
+    "slug": "tel-recovery-01",
+    "idx": "TEL-08",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "Telecom",
+      "tr": "Telekom"
+    },
+    "journey": {
+      "en": "Service Recovery",
+      "tr": "Hizmet telafisi"
+    },
+    "title": {
+      "en": "Recovering trust after a low satisfaction score",
+      "tr": "Düşük memnuniyet puanı sonrası güven onarımı"
+    },
+    "priority": "risk-service",
+    "family": "retention-risk",
+    "exclusionGroup": null,
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "issue_resolved"
     ],
     "handoffEvents": {}
   }

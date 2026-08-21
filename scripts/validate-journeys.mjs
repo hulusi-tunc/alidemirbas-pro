@@ -34,11 +34,22 @@ const EXCLUSION_GROUPS = [
   "purchase-intent-ladder", "retention-ladder", "conversion-window",
   "post-purchase-followup", "soft-engagement",
 ];
+const EXCLUSION_SCOPES = ["user", "product", "cart", "order", "route", "subscription", "course", "account"];
 const COMM_CLASSES = ["marketing", "operational"];
-const FREQ_CLASSES = ["high-intent-triggered", "standard-promotional", "service-critical"];
+const FREQ_CLASSES = ["high-intent-triggered", "lifecycle-activation", "standard-promotional", "service-critical"];
 const GLOBAL_HARD_EXITS = ["marketing_consent_revoked", "account_closed", "user_ineligible"];
 const ACTION_TYPES = ["email", "push", "sms", "inapp", "sales"];
 const STEP_TYPES = ["entry", "exit", "wait", "condition", ...ACTION_TYPES];
+// Loose signal, not a parser: a journey whose own entry text promises a
+// split should actually branch. Matches the phrasing the archive itself
+// uses when it means it ("branches based on...", "splits based on...").
+const BRANCH_CLAIM_RE = /\bbranch(es|ing)?\b|\bsplit(s)?\b|different path|dallan/i;
+// Copy that reads as a specific, potentially sensitive health detail rather
+// than a generic milestone - a loose heuristic to catch an unflagged
+// journey drifting toward this, not a compliance check. Deliberately not
+// "condition" or "therapy" alone - both are common non-health CRM words
+// ("conditional offer", "in-app...") and would just be noise here.
+const HEALTH_SENSITIVE_RE = /diagnos|medical condition|therapy session|medication|depression|anxiety disorder|\billness\b|patient\b/i;
 
 /** The data is a single JSON literal after a fixed marker. Fail loudly rather
     than silently validating nothing if that ever stops being true. */
@@ -86,6 +97,10 @@ for (const j of journeys) {
   }
   if (!COMM_CLASSES.includes(j.communicationClass)) err("invalid_comm_class", j.slug, `${j.communicationClass}`);
   if (!FREQ_CLASSES.includes(j.frequencyClass)) err("invalid_freq_class", j.slug, `${j.frequencyClass}`);
+  if (j.exclusionScope != null) {
+    if (!EXCLUSION_SCOPES.includes(j.exclusionScope)) err("invalid_exclusion_scope", j.slug, `${j.exclusionScope}`);
+    if (!j.exclusionGroup) err("exclusion_scope_without_group", j.slug, `scope "${j.exclusionScope}" set but exclusionGroup is null - scope only means something inside a group`);
+  }
 
   for (const c of j.channels) {
     if (!CHANNELS.includes(c)) err("unknown_channel", j.slug, `declares "${c}"`);
@@ -155,18 +170,36 @@ for (const j of journeys) {
     warn("no_exit_node", j.slug, "journey does not end in an explicit exit node");
   }
 
+  // Branch claim vs. reality - this caught the exact bug fixed this pass:
+  // four journeys' entry text promised a split by activation depth while
+  // the sequence was fully linear.
+  const branchNums = new Set(en.filter((s) => s.branch != null).map((s) => s.branch));
+  const entryText = `${en[0]?.a ?? ""} ${en[0]?.b ?? ""}`;
+  if (BRANCH_CLAIM_RE.test(entryText) && branchNums.size < 2) {
+    warn("branch_claim_without_branch", j.slug, "entry text claims a split/branch but the step data has fewer than 2 branch columns");
+  }
+  if (branchNums.size === 1) {
+    err("branch_no_divergence", j.slug, "exactly one branch number used - a branch run needs at least 2 columns to mean anything");
+  }
+
   const usedChannels = new Set();
   for (const [lang, steps] of [["en", en], ["tr", tr]]) {
     for (let i = 0; i < steps.length; i++) {
       const s = steps[i];
       if (!STEP_TYPES.includes(s.t)) err("unknown_step_type", j.slug, `${lang} step ${i}: "${s.t}"`);
       if (!s.a || !s.a.trim()) err("empty_text", j.slug, `${lang} step ${i} (${s.t}) has an empty label`);
+      if (s.commClass != null && !COMM_CLASSES.includes(s.commClass)) {
+        err("invalid_step_comm_class", j.slug, `${lang} step ${i}: commClass "${s.commClass}"`);
+      }
       if (ACTION_TYPES.includes(s.t)) {
         if (!s.b || !s.b.trim()) err("empty_text", j.slug, `${lang} step ${i} (${s.t}) has an empty description`);
         if (!s.title || !s.title.trim()) warn("missing_title", j.slug, `${lang} step ${i} (${s.t}) has no scan-mode title`);
         if (lang === "en") {
           usedChannels.add(s.t);
           if (/whatsapp/i.test(s.a)) usedChannels.add("whatsapp");
+          if (!j.requiresSensitiveDataPolicy && HEALTH_SENSITIVE_RE.test(`${s.title ?? ""} ${s.b}`)) {
+            warn("possible_sensitive_health_content", j.slug, `step ${i} ("${s.title ?? s.b.slice(0, 40)}") reads as health-specific and requiresSensitiveDataPolicy isn't set`);
+          }
         }
       }
       if (s.t === "wait") {

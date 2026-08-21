@@ -66,20 +66,11 @@ export type JourneyFamily =
   | "win-back"
   | "engagement";
 
-/** Journeys in the same group must never run simultaneously for one person.
-    As someone moves down the funnel the lower-intent journey stops: browse
-    yields to cart, cart yields to checkout. Churn prevention yields to
-    win-back only after the observation buffer, never at the same time.
-
-    KNOWN LIMITATION - this scopes exclusion to the whole PERSON, not to the
-    subject of each journey. Someone deep in cart abandonment for a pair of
-    shoes and a genuine price drop on an unrelated item they wishlisted would
-    have the price drop suppressed here, even though the two don't compete
-    for attention the way two cart reminders would. The correct fix is an
-    entity-aware key - `purchase-intent:{product_id}` rather than a bare
-    group name - scoped per product/order/route, not just per person. Doing
-    that needs real entity IDs flowing through eligibility, which this static
-    archive doesn't carry; noted rather than half-built. */
+/** Journeys in the same group must never run simultaneously for one person -
+    at the granularity `ExclusionScope` says. As someone moves down the funnel
+    the lower-intent journey stops: browse yields to cart, cart yields to
+    checkout. Churn prevention yields to win-back only after the observation
+    buffer, never at the same time. */
 export type ExclusionGroup =
   | "purchase-intent-ladder"
   | "retention-ladder"
@@ -87,11 +78,35 @@ export type ExclusionGroup =
   | "post-purchase-followup"
   | "soft-engagement";
 
+/** What unit of "thing" two journeys in the same ExclusionGroup actually
+    compete over. `"user"` (the default when a journey declares none) is the
+    whole-person conflict this module started with: cart abandonment and
+    price drop would suppress each other outright. That is too coarse for
+    journeys whose subject is a specific product, cart, order or route -
+    cart abandonment for a pair of shoes has nothing to do with a genuine
+    price drop on an unrelated wishlist item, and treating them as the same
+    competition costs a real message. A non-"user" scope says the conflict
+    only applies to the SAME entity: two `"product"`-scoped journeys only
+    exclude each other when `exclusionKey` resolves to the same product id.
+
+    This is deliberately assigned per journey, not blanket-applied to every
+    grouped journey - most of retention-ladder, soft-engagement and
+    conversion-window are correctly person-wide (a churn-prevention flow
+    should hold off ALL other retention-tier messaging for that person, not
+    just messaging about one subscription), so they are left at the "user"
+    default on purpose. See journeys.ts for which journeys declare which
+    scope and why. */
+export type ExclusionScope = "user" | "product" | "cart" | "order" | "route" | "subscription" | "course" | "account";
+
 /** Marketing obeys the cap and quiet hours; operational does not. A delayed
     flight or a suspension date is not promotional pressure. */
 export type CommunicationClass = "marketing" | "operational";
 
-export type FrequencyClass = "high-intent-triggered" | "standard-promotional" | "service-critical";
+export type FrequencyClass =
+  | "high-intent-triggered"
+  | "lifecycle-activation"
+  | "standard-promotional"
+  | "service-critical";
 
 /** The orchestration facts a journey declares about itself. `Journey` in
     journeys.ts is its descriptive fields intersected with this. */
@@ -100,6 +115,9 @@ export type JourneyOrchestration = {
   family: JourneyFamily;
   /** null when the journey genuinely competes with nothing. */
   exclusionGroup: ExclusionGroup | null;
+  /** Only meaningful when exclusionGroup is set. null/omitted behaves as
+      "user" - see ExclusionScope above. */
+  exclusionScope?: ExclusionScope | null;
   communicationClass: CommunicationClass;
   frequencyClass: FrequencyClass;
   /** Events that make continuing this journey unnecessary, wrong or annoying,
@@ -113,19 +131,54 @@ export type JourneyOrchestration = {
       journey is implicit in a handoff; do not also list the event in
       `exitEvents`. */
   handoffEvents: Readonly<Record<string, string>>;
+  /** True when messaging in this journey can touch sensitive personal data
+      (health status, a medical program, a diagnosis-adjacent detail) closely
+      enough that using it in personalization is a policy call, not an
+      engineering one - who may see what, on which surface, under which
+      consent. The journey still runs; this just means its copy has to stay
+      generic ("a new goal is underway") rather than specific ("30 days into
+      your recovery program") until that policy exists. Not a suppression
+      flag - orchestration does not read this field. */
+  requiresSensitiveDataPolicy?: boolean;
 };
 
 /** The minimum an orchestration decision needs to know about a journey.
     `triggeredAt` and `active` are optional - when omitted, ties break on
-    array order alone, which is still deterministic but caller-defined. */
+    array order alone, which is still deterministic but caller-defined.
+    `entityId` is the runtime value `exclusionScope` names - the product id,
+    cart id, route key, etc. for THIS eligibility check. The static archive
+    carries none of these; a real caller resolves one per candidate when it
+    builds this list. */
 type Candidate = JourneyOrchestration & {
   slug: string;
   channels: readonly Channel[];
-  /** Epoch ms the event that made this journey eligible actually fired. */
   triggeredAt?: number;
-  /** Whether this person is already partway through this journey. */
   active?: boolean;
+  entityId?: string;
 };
+
+/** The key two candidates must share to actually be in competition. Same
+    group and same scope is not enough by itself - at any scope narrower than
+    "user" they also need the same entityId, which the caller supplies (see
+    Candidate.entityId above); no entityId falls back to the group+scope pair
+    alone, which is equivalent to "user" scoping until a real id is wired
+    in - conservative, not silently permissive. */
+export function exclusionKey(c: Candidate): string | null {
+  if (!c.exclusionGroup) return null;
+  const scope = c.exclusionScope ?? "user";
+  if (scope === "user") return `${c.exclusionGroup}:user`;
+  return `${c.exclusionGroup}:${scope}:${c.entityId ?? ""}`;
+}
+
+/** Do these two genuinely compete for the same send? Same group, same scope,
+    and - once scope narrows past "user" - the same entity. A `"product"`
+    journey about shoe A and one about jacket B never conflict even though
+    both sit in purchase-intent-ladder. */
+export function conflicts(a: Candidate, b: Candidate): boolean {
+  const ka = exclusionKey(a);
+  const kb = exclusionKey(b);
+  return ka != null && ka === kb;
+}
 
 /* ------------------------------------------------- global hard suppression */
 
@@ -186,6 +239,10 @@ export type FrequencyPolicy = {
 export const DEFAULT_FREQUENCY_POLICY: FrequencyPolicy = {
   byClass: {
     "high-intent-triggered": { maxPer24h: 2, maxPer7d: 5 },
+    // Procedural setup nudges (activate a card, finish onboarding), not a
+    // sales cadence - a slightly looser cap than standard-promotional, since
+    // missing a real setup step costs more than the extra send does.
+    "lifecycle-activation": { maxPer24h: 2, maxPer7d: 4 },
     "standard-promotional": { maxPer24h: 1, maxPer7d: 3 },
     "service-critical": null, // excluded from the marketing cap by design
   },
@@ -274,15 +331,20 @@ export type Resolution = {
   suppressed: { slug: string; reason: "hard_suppression" | "lower_priority" | "excluded_by" ; by?: string }[];
 };
 
-/** Two candidates at the same priority tier - who wins. Recency of the
-    triggering event first (the whole point of priority is that a fresher,
-    higher-intent signal should be able to interrupt a stale one); then
-    whichever journey the person is already partway through, since restarting
-    one they are mid-flow in is worse than not sending the other; below that
-    there is no more real signal to break the tie on, so array order decides
-    - `Array#sort` is stable, so this is deterministic, just caller-defined
-    rather than policy-defined. */
+/** Two candidates at the same priority tier - who wins. An exact triggered
+    event outranks a standing lifecycle state first (the whole reason
+    high-intent-triggered exists as its own frequency class is that it is a
+    sharper signal than "this account has been eligible for a while"); then
+    recency of the triggering event, so a fresher signal can interrupt a
+    stale one; then whichever journey the person is already partway through,
+    since restarting one they are mid-flow in is worse than not sending the
+    other; below that there is no more real signal to break the tie on, so
+    array order decides - `Array#sort` is stable, so this is deterministic,
+    just caller-defined rather than policy-defined. */
 function compareTies(a: Candidate, b: Candidate): number {
+  const aTriggered = a.frequencyClass === "high-intent-triggered";
+  const bTriggered = b.frequencyClass === "high-intent-triggered";
+  if (aTriggered !== bTriggered) return aTriggered ? -1 : 1;
   if (a.triggeredAt != null && b.triggeredAt != null && a.triggeredAt !== b.triggeredAt) {
     return b.triggeredAt - a.triggeredAt;
   }
@@ -292,7 +354,7 @@ function compareTies(a: Candidate, b: Candidate): number {
 
 /** Which single journey gets this person right now. Hard suppression first,
     then priority (ties broken by `compareTies`), then mutual exclusion
-    inside the winner's group. */
+    inside the winner's group and scope (see `conflicts`). */
 export function resolveJourney(
   candidates: readonly Candidate[],
   user: UserState,
@@ -313,18 +375,13 @@ export function resolveJourney(
   const winner = ranked[0];
 
   for (const c of ranked.slice(1)) {
-    if (c.exclusionGroup && c.exclusionGroup === winner.exclusionGroup) {
+    if (conflicts(c, winner)) {
       suppressed.push({ slug: c.slug, reason: "excluded_by", by: winner.slug });
     } else {
       suppressed.push({ slug: c.slug, reason: "lower_priority", by: winner.slug });
     }
   }
   return { winner, suppressed };
-}
-
-/** Do these two journeys conflict for one person? */
-export function conflicts(a: Candidate, b: Candidate): boolean {
-  return a.exclusionGroup != null && a.exclusionGroup === b.exclusionGroup;
 }
 
 /* ----------------------------------------------------------------- 5. send */
@@ -350,14 +407,27 @@ function countSince(sends: readonly SendRecord[], since: number, match: (s: Send
 }
 
 /** Can we send this journey on this channel to this user right now? Every gate
-    in the send path, in order, with the first failure named. */
+    in the send path, in order, with the first failure named.
+
+    `stepClass` is a per-step override of `journey.communicationClass` - most
+    steps don't need one (the journey default is correct for them), but a
+    journey can genuinely mix classes: ecom-recovery-01 opens with a real
+    service-critical question and closes with an ordinary marketing nudge
+    back to the catalogue, and ota-pretrip-01 is operational end to end
+    except for its one upsell step. Passing the step's own class here, not
+    the journey's, is what keeps that ordinary closing nudge inside the
+    marketing cap and quiet hours instead of inheriting the service-critical
+    exemption meant for the question that opened the journey. */
 export function canSend(
   journey: Candidate,
   channel: Channel,
   user: UserState,
   ctx: SendContext,
+  stepClass?: CommunicationClass,
 ): SendDecision {
-  const hard = hardSuppressions(user, journey, ctx.now);
+  const effectiveClass = stepClass ?? journey.communicationClass;
+
+  const hard = hardSuppressions(user, { ...journey, communicationClass: effectiveClass }, ctx.now);
   if (hard.length > 0) return { ok: false, reason: hard[0] };
 
   if (!journey.channels.includes(channel)) return { ok: false, reason: "channel_not_supported" };
@@ -365,7 +435,7 @@ export function canSend(
   if (!user.reachableOn[channel]) return { ok: false, reason: "not_reachable" };
 
   const quiet = (ctx.quietHours ?? DEFAULT_QUIET_HOURS)[channel];
-  if (quiet && journey.communicationClass === "marketing" && inQuietHours(quiet, ctx.localHour, ctx.localDay)) {
+  if (quiet && effectiveClass === "marketing" && inQuietHours(quiet, ctx.localHour, ctx.localDay)) {
     return { ok: false, reason: "quiet_hours", retryAfterQuietHours: quiet.queue };
   }
 
@@ -385,7 +455,7 @@ export function canSend(
   }
 
   const channelCap = policy.byChannel[channel];
-  if (channelCap && journey.communicationClass === "marketing") {
+  if (channelCap && effectiveClass === "marketing") {
     const sameChannel = (s: SendRecord) => s.channel === channel;
     if (
       countSince(user.recentSends, day, sameChannel) >= channelCap.maxPer24h ||

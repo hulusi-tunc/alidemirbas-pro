@@ -31,8 +31,8 @@ export const copy = {
         {
           name: "CRM Journey Teardown Archive",
           slug: "lifecycle-card-archive",
-          desc: "A collection of 72 lifecycle journeys, each broken down into how the flow works, what to test, which metrics to watch and what to avoid.",
-          tags: ["CRM", "Lifecycle Marketing", "72 teardowns", "10 industries", "TR/EN"],
+          desc: "A collection of 76 lifecycle journeys, each broken down into how the flow works, what to test, which metrics to watch and what to avoid.",
+          tags: ["CRM", "Lifecycle Marketing", "76 teardowns", "10 industries", "TR/EN"],
           links: [{ label: "Explore the archive", href: "/lab/journeys" }],
         },
         {
@@ -72,7 +72,7 @@ export const copy = {
       },
       page: {
         title: "CRM Journey Archive",
-        intro: "72 lifecycle journey teardowns across sectors and channels. Filter by sector or channel, or search - each entry is a flow I have researched and documented.",
+        intro: "76 lifecycle journey teardowns across sectors and channels. Filter by sector or channel, or search - each entry is a flow I have researched and documented.",
         searchPlaceholder: "Search journeys...",
         sectorLabel: "Sector",
         channelsLabel: "Channels",
@@ -375,8 +375,8 @@ export const copy = {
         {
           name: "CRM Journey İnceleme Arşivi",
           slug: "lifecycle-card-archive",
-          desc: "72 lifecycle journey'den oluşan bir koleksiyon; her biri akışın nasıl işlediği, ne test edileceği, hangi metriklerin izleneceği ve nelerden kaçınılacağı üzerinden inceleniyor.",
-          tags: ["CRM", "Lifecycle Pazarlama", "72 inceleme", "10 sektör", "TR/EN"],
+          desc: "76 lifecycle journey'den oluşan bir koleksiyon; her biri akışın nasıl işlediği, ne test edileceği, hangi metriklerin izleneceği ve nelerden kaçınılacağı üzerinden inceleniyor.",
+          tags: ["CRM", "Lifecycle Pazarlama", "76 inceleme", "10 sektör", "TR/EN"],
           links: [{ label: "Arşivi keşfet", href: "/tr/lab/journeys" }],
         },
         {
@@ -416,7 +416,7 @@ export const copy = {
       },
       page: {
         title: "CRM Journey Arşivi",
-        intro: "Sektörler ve kanallar genelinde 72 lifecycle journey incelemesi. Sektöre veya kanala göre filtrele ya da ara - her kayıt araştırıp belgelediğim bir akış.",
+        intro: "Sektörler ve kanallar genelinde 76 lifecycle journey incelemesi. Sektöre veya kanala göre filtrele ya da ara - her kayıt araştırıp belgelediğim bir akış.",
         searchPlaceholder: "Journey ara...",
         sectorLabel: "Sektör",
         channelsLabel: "Kanallar",
