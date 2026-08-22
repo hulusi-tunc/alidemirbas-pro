@@ -66,7 +66,9 @@ export default function LabPage({ lang }: { lang: Lang }) {
           </div>
         </div>
         <div className="px-4 py-6 md:px-8">
-          <div className="mx-auto max-w-5xl">
+          {/* wider than the header block: the facet sidebar takes 15rem out of
+              the row, and the list still needs room for title plus badges */}
+          <div className="mx-auto max-w-6xl">
             <JourneyBrowser lang={lang} t={t.lab.page} />
           </div>
         </div>

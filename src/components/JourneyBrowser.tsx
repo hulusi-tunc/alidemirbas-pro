@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Search, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 
 import JourneyFlow from "@/components/JourneyFlow";
+import { FacetCheckbox, FacetGroup, FacetRadio } from "@/components/ui/Facets";
 import { journeys, type Journey } from "@/lib/journeys";
 import { flows } from "@/lib/flows";
 import type { Channel } from "@/lib/orchestration";
 import type { copy, Lang } from "@/lib/content";
 
-/* Filterable channels - `sales` is a human handoff rather than a send, so it
-   is not offered as a filter even though a journey can declare it. */
-const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp"] as const satisfies readonly Channel[];
+/* Every channel a journey can declare is filterable, internal ones included -
+   "which journeys need a person or a team in them" is a real question to ask
+   of this archive. */
+const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp", "sales", "task"] as const satisfies readonly Channel[];
 /* Every channel a journey can declare needs a label here, including the ones
    that are not filter chips - `sales` is a supported channel on four journeys
    and was rendering as the raw slug on their badges. */
@@ -29,7 +31,8 @@ export default function JourneyBrowser({
 }: { lang: Lang; t: (typeof copy)[Lang]["lab"]["page"] }) {
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("");
-  const [channel, setChannel] = useState<Channel | "">("");
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [open, setOpen] = useState<Journey | null>(null);
 
   useEffect(() => {
@@ -43,82 +46,139 @@ export default function JourneyBrowser({
     [lang],
   );
 
-  const rows = useMemo(() => {
+  /* Each facet is a separate predicate so the counts can leave one out. A
+     sector's count is "how many would I get if I picked this", which means
+     every other filter applies but the sector itself does not - otherwise
+     every unselected option would read zero. */
+  const { rows, sectorCounts, allSectorsCount, channelCounts } = useMemo(() => {
     const q = query.trim().toLocaleLowerCase(lang);
-    return journeys.filter((j) => {
-      if (sector && j.sector[lang] !== sector) return false;
-      if (channel && !j.channels.includes(channel)) return false;
-      if (!q) return true;
-      return [j.idx, j.title[lang], j.journey[lang], j.sector[lang]]
+    const byQuery = (j: Journey) =>
+      !q ||
+      [j.idx, j.title[lang], j.journey[lang], j.sector[lang]]
         .join(" ").toLocaleLowerCase(lang).includes(q);
-    });
-  }, [query, sector, channel, lang]);
+    const bySector = (j: Journey) => !sector || j.sector[lang] === sector;
+    // Several channels read as "any of these", not "all of them" - nobody
+    // wants only the journeys that happen to use every channel they ticked.
+    const byChannels = (j: Journey) =>
+      channels.length === 0 || channels.some((c) => j.channels.includes(c));
 
-  const active = query || sector || channel;
+    const forSectorFacet = journeys.filter((j) => byQuery(j) && byChannels(j));
+    const forChannelFacet = journeys.filter((j) => byQuery(j) && bySector(j));
+
+    return {
+      rows: journeys.filter((j) => byQuery(j) && bySector(j) && byChannels(j)),
+      allSectorsCount: forSectorFacet.length,
+      sectorCounts: Object.fromEntries(
+        sectors.map((s) => [s, forSectorFacet.filter((j) => j.sector[lang] === s).length]),
+      ) as Record<string, number>,
+      channelCounts: Object.fromEntries(
+        CHANNELS.map((c) => [c, forChannelFacet.filter((j) => j.channels.includes(c)).length]),
+      ) as Record<Channel, number>,
+    };
+  }, [query, sector, channels, lang, sectors]);
+
+  const activeCount = (sector ? 1 : 0) + channels.length + (query.trim() ? 1 : 0);
+  const toggleChannel = (c: Channel) =>
+    setChannels((cs) => (cs.includes(c) ? cs.filter((x) => x !== c) : [...cs, c]));
+  const clearAll = () => { setQuery(""); setSector(""); setChannels([]); };
+
+  const facetPanel = (
+    <div className="flex flex-col gap-7">
+      <FacetGroup
+        title={t.sectorLabel}
+        initialVisible={8}
+        moreLabel={t.showMore}
+        lessLabel={t.showLess}
+      >
+        {[
+          <FacetRadio
+            key="__all"
+            label={t.allSectors}
+            count={allSectorsCount}
+            selected={!sector}
+            onSelect={() => setSector("")}
+          />,
+          ...sectors.map((s) => (
+            <FacetRadio
+              key={s}
+              label={s}
+              count={sectorCounts[s] ?? 0}
+              selected={sector === s}
+              onSelect={() => setSector(sector === s ? "" : s)}
+            />
+          )),
+        ]}
+      </FacetGroup>
+
+      <FacetGroup title={t.channelsLabel} moreLabel={t.showMore} lessLabel={t.showLess}>
+        {CHANNELS.map((c) => (
+          <FacetCheckbox
+            key={c}
+            label={CHANNEL_LABELS[c]}
+            dot={DOT[c]}
+            count={channelCounts[c] ?? 0}
+            selected={channels.includes(c)}
+            onSelect={() => toggleChannel(c)}
+          />
+        ))}
+      </FacetGroup>
+    </div>
+  );
 
   return (
     <div>
-      {/* filter bar */}
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center gap-3 border border-line bg-paper px-4 py-2.5 focus-within:border-blue-600 sm:max-w-sm">
-          <Search aria-hidden className="size-4 shrink-0 text-neutral-500" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.searchPlaceholder}
-            className="w-full bg-transparent text-sm text-ink-900 outline-none placeholder:text-neutral-500"
-          />
-        </div>
+      <div className="grid gap-8 lg:grid-cols-[15rem_1fr] lg:gap-12">
+        {/* facets - a sidebar from lg up, a disclosure below it, where a
+            twenty-row filter list above the results would bury them */}
+        <aside className="lg:sticky lg:top-20 lg:self-start">
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((o) => !o)}
+            aria-expanded={filtersOpen}
+            className="flex w-full items-center justify-between border border-line bg-paper px-4 py-2.5 text-sm font-medium text-ink-900 transition-colors hover:border-neutral-400 lg:hidden"
+          >
+            <span className="flex items-center gap-2">
+              <SlidersHorizontal aria-hidden className="size-4 text-neutral-500" />
+              {t.filtersLabel}
+              {activeCount > 0 ? <span className="text-blue-600">({activeCount})</span> : null}
+            </span>
+            <ChevronDown aria-hidden className={`size-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+          </button>
+          <div className={`${filtersOpen ? "mt-6 block" : "hidden"} lg:mt-0 lg:block`}>{facetPanel}</div>
+        </aside>
 
-        <div>
-          <p className="altor-eyebrow text-ink-400">{t.sectorLabel}</p>
-          <div className="mt-2.5 flex flex-wrap gap-2">
-            <FilterChip active={!sector} onClick={() => setSector("")}>{t.allSectors}</FilterChip>
-            {sectors.map((s) => (
-              <FilterChip key={s} active={sector === s} onClick={() => setSector(sector === s ? "" : s)}>
-                {s}
-              </FilterChip>
-            ))}
+        <div className="min-w-0">
+          <div className="flex items-center gap-3 border border-line bg-paper px-4 py-2.5 focus-within:border-blue-600">
+            <Search aria-hidden className="size-4 shrink-0 text-neutral-500" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t.searchPlaceholder}
+              className="w-full bg-transparent text-sm text-ink-900 outline-none placeholder:text-neutral-500"
+            />
           </div>
-        </div>
 
-        <div>
-          <p className="altor-eyebrow text-ink-400">{t.channelsLabel}</p>
-          <div className="mt-2.5 flex flex-wrap items-center gap-2">
-            {CHANNELS.map((c) => (
-              <button
-                key={c} type="button"
-                onClick={() => setChannel(channel === c ? "" : c)}
-                aria-pressed={channel === c}
-                className={
-                  channel === c
-                    ? "flex h-9 items-center gap-2 border border-blue-600 bg-blue-600 px-3 text-sm text-white"
-                    : "flex h-9 items-center gap-2 border border-line bg-paper px-3 text-sm text-ink-600 transition-colors hover:border-neutral-400"
-                }
-              >
-                <span aria-hidden className={`size-1.5 rounded-full ${channel === c ? "bg-white" : DOT[c]}`} />
-                {CHANNEL_LABELS[c]}
-              </button>
-            ))}
-            {active ? (
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="text-sm text-ink-500 tabular-nums">
+              {rows.length} / {journeys.length} {t.results}
+            </p>
+            {activeCount > 0 ? (
               <button
                 type="button"
-                onClick={() => { setQuery(""); setSector(""); setChannel(""); }}
-                className="flex h-9 items-center gap-1.5 px-2 text-sm text-blue-600 transition-colors hover:text-blue-700"
+                onClick={clearAll}
+                className="flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
               >
                 <X aria-hidden className="size-3.5" />
-                {rows.length} / {journeys.length}
+                {t.clearAll}
               </button>
             ) : null}
           </div>
-        </div>
-      </div>
 
-      {/* flat, filterable list of journeys */}
-      {rows.length === 0 ? (
-        <p className="py-16 text-center text-sm text-neutral-500">{t.empty}</p>
-      ) : (
-        <div className="mt-10">
+          {/* flat, filterable list of journeys */}
+          {rows.length === 0 ? (
+            <p className="py-16 text-center text-sm text-neutral-500">{t.empty}</p>
+          ) : (
+            <div className="mt-4">
           {rows.map((j) => (
             <button
               key={j.slug} type="button"
@@ -144,8 +204,10 @@ export default function JourneyBrowser({
               </div>
             </button>
           ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* slide-over flow panel */}
       {open ? (
@@ -200,21 +262,3 @@ export default function JourneyBrowser({
   );
 }
 
-function FilterChip({
-  active, onClick, children,
-}: { active: boolean; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={
-        active
-          ? "h-9 border border-blue-600 bg-blue-600 px-3 text-sm text-white"
-          : "h-9 border border-line bg-paper px-3 text-sm text-ink-600 transition-colors hover:border-neutral-400"
-      }
-    >
-      {children}
-    </button>
-  );
-}
