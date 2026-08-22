@@ -62,7 +62,15 @@ function isNode(t: string): boolean {
 /* ---------------------------------------------------------------- parsing */
 
 type Node = { step: FlowStep; before: FlowStep[]; num?: string };
-type BranchColumn = { label?: string; nodes: Node[] };
+type BranchColumn = {
+  label?: string;
+  nodes: Node[];
+  /** Wait/condition steps after the column's last card. They describe what
+      happens between that card and the merge, so they render at the foot of
+      the column - dropping them, which is what an earlier version did, threw
+      away real steps whenever a branch ended on a wait. */
+  trailing: FlowStep[];
+};
 type FlowItem =
   | { kind: "node"; node: Node }
   | { kind: "branch"; before: FlowStep[]; columns: BranchColumn[] };
@@ -75,7 +83,7 @@ function parseFlow(steps: FlowStep[]) {
   let actionCount = 0;
   const nextNum = () => String(++actionCount).padStart(2, "0");
 
-  const groupColumn = (colSteps: FlowStep[], suffix: string): Node[] => {
+  const groupColumn = (colSteps: FlowStep[], suffix: string): { nodes: Node[]; trailing: FlowStep[] } => {
     const nodes: Node[] = [];
     let colPending: FlowStep[] = [];
     for (const s of colSteps) {
@@ -87,7 +95,7 @@ function parseFlow(steps: FlowStep[]) {
         colPending.push(s);
       }
     }
-    return nodes;
+    return { nodes, trailing: colPending };
   };
 
   let i = 0;
@@ -101,7 +109,7 @@ function parseFlow(steps: FlowStep[]) {
       const columns: BranchColumn[] = nums.map((num, ci) => {
         const colSteps = run.filter((r) => r.branch === num);
         const label = colSteps.find((r) => r.branchLabel)?.branchLabel;
-        return { label, nodes: groupColumn(colSteps, LETTERS[ci] ?? String(ci + 1)) };
+        return { label, ...groupColumn(colSteps, LETTERS[ci] ?? String(ci + 1)) };
       });
       items.push({ kind: "branch", before: pending, columns });
       pending = [];
@@ -259,8 +267,16 @@ function ActionCard({ step, num, dense }: { step: FlowStep; num?: string; dense?
   };
   if (!meta || !isAction(step.t)) return null;
   const label = t.channel[step.t];
-  const pad = dense ? "px-3 py-2.5" : "px-3.5 py-[11px]";
+  const pad = dense ? "px-2.5 py-2" : "px-3.5 py-[11px]";
 
+  /* Inside a branch the card is a column wide, not a flow wide - three columns
+     leaves about 130px. The full-width layout puts the icon, the title and the
+     "Details +" affordance on one row, which at that width squeezed the title
+     to literally zero and rendered a card with no name on it. Dense stacks
+     instead: icon and channel on the first line, the title on its own line
+     with the whole width to itself, and no "Details +" - the header already
+     says the steps are clickable, and the card keeps its hover and focus
+     states. */
   return (
     <div className="relative">
       <div
@@ -269,24 +285,47 @@ function ActionCard({ step, num, dense }: { step: FlowStep; num?: string; dense?
         aria-expanded={open}
         onClick={toggle}
         onKeyDown={onKeyDown}
-        className={`flex cursor-pointer items-center gap-3 border ${pad} transition-colors hover:border-[#a6adbd] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-600`}
+        className={`flex cursor-pointer border ${pad} transition-colors hover:border-[#a6adbd] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-600 ${
+          dense ? "flex-col gap-1" : "items-center gap-3"
+        }`}
         style={{ borderColor: "#e4e7ee", borderTopWidth: 2, borderTopColor: meta.accent }}
       >
-        <span
-          aria-hidden
-          className="flex size-7 shrink-0 items-center justify-center border"
-          style={{ borderColor: meta.iconBorder, background: meta.iconBg, color: meta.accent }}
-        >
-          <meta.Icon className="size-3.5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="font-mono text-[11px] tracking-wide">
-            <span style={{ color: meta.accent, fontWeight: 500 }}>{label}</span>
-            {num ? <span style={{ color: "#a6adbd" }}> · {num}</span> : null}
-          </p>
-          <p className="mt-[3px] truncate text-[15px] font-semibold tracking-tight text-ink-950">{step.title ?? label}</p>
-        </div>
-        <span className="shrink-0 font-mono text-[11px] whitespace-nowrap text-blue-600">{t.details}</span>
+        {dense ? (
+          <>
+            <div className="flex items-center gap-1.5">
+              <span
+                aria-hidden
+                className="flex size-5 shrink-0 items-center justify-center border"
+                style={{ borderColor: meta.iconBorder, background: meta.iconBg, color: meta.accent }}
+              >
+                <meta.Icon className="size-3" />
+              </span>
+              <p className="truncate font-mono text-[10px] tracking-wide">
+                <span style={{ color: meta.accent, fontWeight: 500 }}>{label}</span>
+                {num ? <span style={{ color: "#a6adbd" }}> · {num}</span> : null}
+              </p>
+            </div>
+            <p className="text-[13px] leading-snug font-semibold tracking-tight text-ink-950">{step.title ?? label}</p>
+          </>
+        ) : (
+          <>
+            <span
+              aria-hidden
+              className="flex size-7 shrink-0 items-center justify-center border"
+              style={{ borderColor: meta.iconBorder, background: meta.iconBg, color: meta.accent }}
+            >
+              <meta.Icon className="size-3.5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-mono text-[11px] tracking-wide">
+                <span style={{ color: meta.accent, fontWeight: 500 }}>{label}</span>
+                {num ? <span style={{ color: "#a6adbd" }}> · {num}</span> : null}
+              </p>
+              <p className="mt-[3px] truncate text-[15px] font-semibold tracking-tight text-ink-950">{step.title ?? label}</p>
+            </div>
+            <span className="shrink-0 font-mono text-[11px] whitespace-nowrap text-blue-600">{t.details}</span>
+          </>
+        )}
       </div>
 
       {open ? (
@@ -342,6 +381,7 @@ function ColumnBody({ col }: { col: BranchColumn }) {
           {n.step.t === "exit" ? <ExitCard step={n.step} /> : <ActionCard step={n.step} num={n.num} dense />}
         </div>
       ))}
+      {col.trailing.length > 0 ? <Connector items={col.trailing} /> : null}
     </>
   );
 }

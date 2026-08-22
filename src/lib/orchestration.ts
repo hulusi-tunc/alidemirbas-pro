@@ -21,6 +21,53 @@
    the archive prescribes no number - the per-window send caps - the value is
    left as configuration instead of being presented as a rule. */
 
+/* ------------------------------------------------- reusable design rules
+
+   Patterns that came out of building the archive and now apply to every
+   journey in it, written down once here instead of being rediscovered per
+   flow. The validator enforces the ones that are mechanically checkable.
+
+   EVENT-OR-TIMEOUT. A wait that is really waiting for something - a demo to
+   be booked, an order to be reordered, a conversation to be assigned - must
+   name both arms: the event, and how long we wait before giving up. The
+   archive writes these as "Wait N days, or until X - whichever comes first".
+   A bare "wait until X" on an event that may never happen is a journey that
+   silently strands people.
+
+   SLA FALLBACK. The timeout arm needs somewhere to go. An assignment or
+   resolution deadline that passes is a state change (escalate, reassign,
+   close), not a reason to stop rendering.
+
+   RESOLUTION BEFORE SURVEY. Satisfaction is asked after a resolved or closed
+   event, never while the problem is open. Surveying an unresolved case
+   measures our own latency and reads as indifference.
+
+   ENGAGEMENT DIAGNOSIS, NOT REPETITION. A non-response is a diagnosis, and
+   the fix differs by where it failed: no open is an envelope problem
+   (subject, sender, timing), an open with no click is a message problem
+   (offer framing, hierarchy, creative), a click with no conversion is a
+   friction or offer problem. Resending the same thing treats all three as
+   the same. Note the deliberate asymmetry with the next rule: open is weak
+   enough that it may diagnose, but never decide.
+
+   OPEN IS NOT INTENT. Mail privacy protection fires opens the recipient
+   never made. Open may be a fallback signal for switching channel; a
+   decision that matters - suppression, escalation, a paid offer - waits for
+   a click, a visit, a purchase, an attendance, a resolution.
+
+   SUNSET IS NOT UNSUBSCRIBE. Pausing someone for inactivity is our decision
+   about our own sending; unsubscribing is theirs about their consent. They
+   are stored separately, and returning activity makes someone eligible for a
+   re-permission ask, never for automatic resubscription.
+
+   SUCCESS STOPS THE SEQUENCE. The event a journey exists to cause ends it -
+   see exitEvents and handoffEvents. A reorder prompt after the reorder is
+   the most expensive kind of message.
+
+   ENTITY, NOT PERSON. Where a journey is about a thing - an order, a product,
+   a help topic - both its exclusion and its success event are scoped to that
+   thing. An unrelated second order is not recovery of the cancelled first. */
+
 /* ------------------------------------------------------------------ shape */
 
 export type Channel = "email" | "push" | "sms" | "inapp" | "whatsapp" | "sales";
@@ -79,7 +126,11 @@ export type ExclusionGroup =
   | "retention-ladder"
   | "conversion-window"
   | "post-purchase-followup"
-  | "soft-engagement";
+  | "soft-engagement"
+  /** Everything chasing one unresolved problem: a help-centre follow-up, a
+      content-feedback recovery. Two of these about the same topic are one
+      conversation, not two. */
+  | "support-resolution";
 
 /** What unit of "thing" two journeys in the same ExclusionGroup actually
     compete over. `"user"` (the default when a journey declares none) is the
@@ -99,7 +150,12 @@ export type ExclusionGroup =
     just messaging about one subscription), so they are left at the "user"
     default on purpose. See journeys.ts for which journeys declare which
     scope and why. */
-export type ExclusionScope = "user" | "product" | "cart" | "order" | "route" | "subscription" | "course" | "account";
+export type ExclusionScope =
+  | "user" | "product" | "cart" | "order" | "route"
+  | "subscription" | "course" | "account"
+  /** A help-centre topic or article - two follow-ups about the same problem
+      compete, two about unrelated problems do not. */
+  | "topic";
 
 /** Marketing obeys the cap and quiet hours; operational does not. A delayed
     flight or a suspension date is not promotional pressure. */
@@ -109,6 +165,11 @@ export type FrequencyClass =
   | "high-intent-triggered"
   | "lifecycle-activation"
   | "standard-promotional"
+  /** Unprompted service follow-ups - "did that help?", "still stuck?". Not
+      promotional, so it does not belong on the promotional cadence, but not
+      exempt either: asking twice is worse than not asking, which is why this
+      is the one class with a monthly ceiling. */
+  | "support-follow-up"
   | "service-critical";
 
 /** The orchestration facts a journey declares about itself. `Journey` in
@@ -237,7 +298,7 @@ export const DEFAULT_QUIET_HOURS: Partial<Record<Channel, QuietHours>> = {
 export type FrequencyPolicy = {
   /** Caps per frequency class. The archive prescribes no numbers, so these are
       configuration, not doctrine - tune per brand and per market. */
-  byClass: Record<FrequencyClass, { maxPer24h: number; maxPer7d: number } | null>;
+  byClass: Record<FrequencyClass, { maxPer24h: number; maxPer7d: number; maxPer30d?: number } | null>;
   /** Caps that apply per channel regardless of which journey is sending. */
   byChannel: Partial<Record<Channel, { maxPer24h: number; maxPer7d: number }>>;
   /** How long marketing stays paused after an unresolved service complaint.
@@ -257,6 +318,10 @@ export const DEFAULT_FREQUENCY_POLICY: FrequencyPolicy = {
     // missing a real setup step costs more than the extra send does.
     "lifecycle-activation": { maxPer24h: 2, maxPer7d: 4 },
     "standard-promotional": { maxPer24h: 1, maxPer7d: 3 },
+    // One unprompted "can we help?" a month, per person. The 30-day ceiling
+    // is the point of the class: the 24h/7d numbers alone would still allow
+    // a steady drip of them.
+    "support-follow-up": { maxPer24h: 1, maxPer7d: 1, maxPer30d: 1 },
     "service-critical": null, // excluded from the marketing cap by design
   },
   byChannel: {
@@ -471,9 +536,11 @@ export function canSend(
   const classCap = policy.byClass[journey.frequencyClass];
   if (classCap) {
     const sameClass = (s: SendRecord) => s.frequencyClass === journey.frequencyClass;
+    const month = ctx.now - 30 * 86_400_000;
     if (
       countSince(user.recentSends, day, sameClass) >= classCap.maxPer24h ||
-      countSince(user.recentSends, week, sameClass) >= classCap.maxPer7d
+      countSince(user.recentSends, week, sameClass) >= classCap.maxPer7d ||
+      (classCap.maxPer30d != null && countSince(user.recentSends, month, sameClass) >= classCap.maxPer30d)
     ) {
       return { ok: false, reason: "frequency_cap_class" };
     }

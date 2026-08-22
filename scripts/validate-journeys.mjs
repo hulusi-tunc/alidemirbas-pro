@@ -32,11 +32,11 @@ const FAMILIES = [
 ];
 const EXCLUSION_GROUPS = [
   "purchase-intent-ladder", "retention-ladder", "conversion-window",
-  "post-purchase-followup", "soft-engagement",
+  "post-purchase-followup", "soft-engagement", "support-resolution",
 ];
-const EXCLUSION_SCOPES = ["user", "product", "cart", "order", "route", "subscription", "course", "account"];
+const EXCLUSION_SCOPES = ["user", "product", "cart", "order", "route", "subscription", "course", "account", "topic"];
 const COMM_CLASSES = ["marketing", "operational"];
-const FREQ_CLASSES = ["high-intent-triggered", "lifecycle-activation", "standard-promotional", "service-critical"];
+const FREQ_CLASSES = ["high-intent-triggered", "lifecycle-activation", "standard-promotional", "support-follow-up", "service-critical"];
 const GLOBAL_HARD_EXITS = ["marketing_consent_revoked", "account_closed", "user_ineligible"];
 const ACTION_TYPES = ["email", "push", "sms", "inapp", "sales"];
 const STEP_TYPES = ["entry", "exit", "wait", "condition", ...ACTION_TYPES];
@@ -49,7 +49,13 @@ const BRANCH_CLAIM_RE = /\bbranch(es|ing)?\b|\bsplit(s)?\b|different path|dallan
 // journey drifting toward this, not a compliance check. Deliberately not
 // "condition" or "therapy" alone - both are common non-health CRM words
 // ("conditional offer", "in-app...") and would just be noise here.
-const HEALTH_SENSITIVE_RE = /diagnos|medical condition|therapy session|medication|depression|anxiety disorder|\billness\b|patient\b/i;
+const HEALTH_SENSITIVE_RE = /\bdiagnos(is|ed|es|ing)\b|medical condition|therapy session|medication|depression|anxiety disorder|\billness\b|patient\b/i;
+/* Copy in this archive often states a rule by naming what it does NOT do
+   ("no satisfaction question", "not by an email open", "with no number or
+   program name"). Every content heuristic below reads the text with negated
+   clauses removed, or the sentence describing the rule trips the check meant
+   to enforce it. */
+const stripNegated = (text) => text.replace(/\b(?:no|without|never|not|zero)\b[^.]*/gi, " ");
 
 /** The data is a single JSON literal after a fixed marker. Fail loudly rather
     than silently validating nothing if that ever stops being true. */
@@ -292,10 +298,6 @@ for (const j of journeys) {
      concrete detail off those surfaces and behind authentication. */
   if (j.requiresSensitiveDataPolicy) {
     const CONCRETE_RE = /\bkg\b|\bkilogram|\bweight\b|\bkilometers?\b|-day streak|\bstreak\b|\bdiagnos|\bblood\b|\bBMI\b/i;
-    /* Copy that states the rule ("said with no number, metric or program
-       name") must not read as a breach of it, so negated clauses are dropped
-       before the test - otherwise the fix for this very check trips it. */
-    const stripNegated = (text) => text.replace(/\b(?:no|without|never|not|zero)\b[^.]*/gi, " ");
     en.forEach((s, i) => {
       if (s.t !== "push" && s.t !== "sms") return;
       if (CONCRETE_RE.test(stripNegated(`${s.title ?? ""} ${s.b}`))) {
@@ -303,6 +305,59 @@ for (const j of journeys) {
       }
     });
   }
+
+  /* EVENT-OR-TIMEOUT. A wait that is really waiting for something that may
+     never happen must name the timeout too. "Wait until 7 days before
+     departure" is fine - departure is a date. "Wait until the demo is
+     scheduled" is not: nothing says when we give up. The archive's convention
+     for the real thing is "Wait N days, or until X - whichever comes first". */
+  const EVENTISH = /\b(scheduled|assigned|closed|resolved|reorder|repurchas|purchas|booked|confirmed|submitted|answered|given|engag|activat|converted|opened|replied)/i;
+  en.forEach((s, i) => {
+    if (s.t !== "wait") return;
+    if (!/\buntil\b/i.test(s.a)) return;
+    if (/\bor until\b/i.test(s.a)) return;           // explicitly two-armed
+    if (!EVENTISH.test(s.a)) return;                  // date-anchored, not event-anchored
+    // "until the scheduled demo time" / "until the resolution deadline" name a
+    // timestamp that exists once the branch is entered - a deadline, not a
+    // wait on something that may never happen.
+    if (/\b(time|date|deadline|departure|launch)\b/i.test(s.a)) return;
+    err("event_wait_without_timeout", j.slug, `step ${i} waits on an event with no timeout arm ("${s.a}") - use "Wait N …, or until X - whichever comes first"`);
+  });
+
+  /* RESOLUTION BEFORE SURVEY. Asking how it went while the case is still open
+     measures our own latency and reads as indifference. */
+  const ASKS_SATISFACTION = /\bcsat\b|satisfaction|\brating\b|how (it |the )?(went|was)|score of|1-5|1 to 5/i;
+  const MEANS_RESOLVED = /resolv|closed|completed|complete\b|çözül|kapan|tamamlan/i;
+  en.forEach((s, i) => {
+    if (!ACTION_TYPES.includes(s.t)) return;
+    if (!ASKS_SATISFACTION.test(stripNegated(`${s.title ?? ""} ${s.b}`))) return;
+    const earlier = en.slice(0, i);
+    const gated = earlier.some((p) => (p.t === "condition" || p.t === "entry") && MEANS_RESOLVED.test(p.a));
+    if (!gated) err("survey_before_resolution", j.slug, `step ${i} asks for satisfaction with nothing earlier establishing the case is resolved or closed`);
+  });
+
+  /* A journey scoped to a thing must not treat a person-level event as its
+     own success - an unrelated later purchase is not recovery of the
+     cancelled order. Handoffs are exempt: those are ladder progression. */
+  const PERSON_LEVEL = ["purchase_completed", "booking_completed", "subscription_activated", "reorder_completed"];
+  if (j.exclusionScope && j.exclusionScope !== "user") {
+    for (const e of j.exitEvents ?? []) {
+      if (PERSON_LEVEL.includes(e)) {
+        err("entity_journey_person_level_success", j.slug, `is scoped to "${j.exclusionScope}" but exits on the person-level event "${e}" - an unrelated ${j.exclusionScope} would count as success`);
+      }
+    }
+  }
+
+  /* Open is not intent (mail privacy fires opens nobody made). A gate may use
+     it as a fallback alongside something stronger, never on its own. */
+  const OPEN_ONLY = /\bopen(ed|s)?\b|\baçıl|\baçtı\b/i;
+  const STRONGER = /click|tıkla|visit|ziyaret|purchas|satın|return|dönüş|activ|aktif|resolv|çözül|watch|izle|log|kaydet|book|rezerv|complete|tamamla|ticket|talep|app\b|uygulama|\bcase\b|\bissue\b|conversation/i;
+  en.forEach((s, i) => {
+    const gate = stripNegated(s.a);
+    if (s.t !== "condition" || !OPEN_ONLY.test(gate)) return;
+    if (STRONGER.test(gate)) return;
+    warn("open_only_gate", j.slug, `condition ${i} ("${s.a}") decides on an open alone - pair it with a click, visit or behavioural signal`);
+  });
 
   const branchNums = new Set(en.filter((s) => s.branch != null).map((s) => s.branch));
   const entryText = `${en[0]?.a ?? ""} ${en[0]?.b ?? ""}`;

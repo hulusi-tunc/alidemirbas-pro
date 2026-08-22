@@ -183,7 +183,7 @@ export const journeys: Journey[] = [
     "communicationClass": "marketing",
     "frequencyClass": "standard-promotional",
     "exitEvents": [
-      "reorder_completed",
+      "product_reordered",
       "auto_replenishment_activated"
     ],
     "handoffEvents": {},
@@ -215,12 +215,12 @@ export const journeys: Journey[] = [
     "communicationClass": "marketing",
     "frequencyClass": "standard-promotional",
     "exitEvents": [
-      "reorder_completed",
-      "order_cancelled"
+      "second_order_placed"
     ],
     "handoffEvents": {
       "order_returned": "ecom-recovery-01",
-      "guest_order_delivered": "ecom-guest-01"
+      "guest_order_delivered": "ecom-guest-01",
+      "order_cancelled": "ecom-cancel-01"
     },
     "exclusionScope": "order"
   },
@@ -314,7 +314,9 @@ export const journeys: Journey[] = [
       "purchase_completed",
       "support_ticket_opened"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {
+      "support_request_opened": "conversation-routing-01"
+    }
   },
   {
     "slug": "ota-aband-01",
@@ -609,7 +611,8 @@ export const journeys: Journey[] = [
       "trial_converted"
     ],
     "handoffEvents": {
-      "activation_completed": "saas-trial-01"
+      "activation_completed": "saas-trial-01",
+      "trial_started": "saas-trial-routing-01"
     }
   },
   {
@@ -1816,7 +1819,8 @@ export const journeys: Journey[] = [
     "frequencyClass": "standard-promotional",
     "exitEvents": [],
     "handoffEvents": {
-      "account_created": "edu-activate-01"
+      "account_created": "edu-activate-01",
+      "webinar_registration_completed": "saas-webinar-01"
     }
   },
   {
@@ -2368,6 +2372,73 @@ export const journeys: Journey[] = [
     }
   },
   {
+    "slug": "ecom-cancel-01",
+    "idx": "ECOM-11",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "E-commerce",
+      "tr": "E-ticaret"
+    },
+    "journey": {
+      "en": "Order Cancellation",
+      "tr": "Sipariş iptali"
+    },
+    "title": {
+      "en": "Order cancelled, recovery by reason",
+      "tr": "Sipariş iptal, sebebe göre telafi"
+    },
+    "priority": "risk-service",
+    "family": "retention-risk",
+    "exclusionGroup": "post-purchase-followup",
+    "exclusionScope": "order",
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "reorder_of_cancelled_order",
+      "fraud_review_opened"
+    ],
+    "handoffEvents": {
+      "back_in_stock_subscribed": "ecom-restock-01"
+    }
+  },
+  {
+    "slug": "ecom-launch-01",
+    "idx": "ECOM-12",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "E-commerce",
+      "tr": "E-ticaret"
+    },
+    "journey": {
+      "en": "Product Launch",
+      "tr": "Ürün lansmanı"
+    },
+    "title": {
+      "en": "Product launch, before and after",
+      "tr": "Ürün lansmanı, öncesi ve sonrası"
+    },
+    "priority": "promotional",
+    "family": "revenue-growth",
+    "exclusionGroup": "purchase-intent-ladder",
+    "exclusionScope": "product",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "launch_cancelled"
+    ],
+    "handoffEvents": {
+      "purchase_completed": "ecom-second-01",
+      "added_to_cart": "ecom-cart-01",
+      "checkout_started": "ecom-checkout-01"
+    }
+  },
+  {
     "slug": "saas-winback-01",
     "idx": "SAAS-08",
     "channels": [
@@ -2395,6 +2466,104 @@ export const journeys: Journey[] = [
       "subscription_reactivated"
     ],
     "handoffEvents": {}
+  },
+  {
+    "slug": "saas-webinar-01",
+    "idx": "SAAS-09",
+    "channels": [
+      "email",
+      "push"
+    ],
+    "sector": {
+      "en": "SaaS",
+      "tr": "SaaS"
+    },
+    "journey": {
+      "en": "Webinar",
+      "tr": "Webinar"
+    },
+    "title": {
+      "en": "Webinar registration to follow-through",
+      "tr": "Webinar kaydından takibe"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "marketing",
+    "frequencyClass": "lifecycle-activation",
+    "exitEvents": [
+      "registration_cancelled",
+      "webinar_cancelled"
+    ],
+    "handoffEvents": {
+      "demo_request_submitted": "saas-demo-01"
+    }
+  },
+  {
+    "slug": "saas-demo-01",
+    "idx": "SAAS-10",
+    "channels": [
+      "email",
+      "sales"
+    ],
+    "sector": {
+      "en": "SaaS",
+      "tr": "SaaS"
+    },
+    "journey": {
+      "en": "Demo Request",
+      "tr": "Demo talebi"
+    },
+    "title": {
+      "en": "Demo requested, not yet scheduled",
+      "tr": "Demo istendi, randevu yok"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "high-intent-triggered",
+    "exitEvents": [
+      "sales_contact_completed",
+      "request_withdrawn"
+    ],
+    "handoffEvents": {
+      "trial_started": "saas-trial-routing-01"
+    }
+  },
+  {
+    "slug": "saas-trial-routing-01",
+    "idx": "SAAS-11",
+    "channels": [
+      "email",
+      "inapp",
+      "sales"
+    ],
+    "sector": {
+      "en": "SaaS",
+      "tr": "SaaS"
+    },
+    "journey": {
+      "en": "Trial Onboarding",
+      "tr": "Deneme kurulumu"
+    },
+    "title": {
+      "en": "Trial onboarding, routed by need",
+      "tr": "İhtiyaca göre yönlendirilen deneme kurulumu"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "communicationClass": "marketing",
+    "frequencyClass": "lifecycle-activation",
+    "exitEvents": [
+      "trial_converted",
+      "trial_cancelled"
+    ],
+    "handoffEvents": {
+      "core_activation_completed": "saas-trial-01",
+      "activation_stalled": "saas-activate-01"
+    }
   },
   {
     "slug": "mkt-winback-01",
@@ -2451,6 +2620,164 @@ export const journeys: Journey[] = [
     "frequencyClass": "service-critical",
     "exitEvents": [
       "issue_resolved"
+    ],
+    "handoffEvents": {
+      "support_request_opened": "conversation-routing-01"
+    }
+  },
+  {
+    "slug": "kb-recovery-01",
+    "idx": "CROSS-01",
+    "channels": [
+      "email"
+    ],
+    "sector": {
+      "en": "Cross-sector",
+      "tr": "Sektör bağımsız"
+    },
+    "journey": {
+      "en": "Support Recovery",
+      "tr": "Destek takibi"
+    },
+    "title": {
+      "en": "Help centre visit that did not resolve",
+      "tr": "Çözüme ulaşmayan yardım merkezi ziyareti"
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "support-resolution",
+    "exclusionScope": "topic",
+    "communicationClass": "operational",
+    "frequencyClass": "support-follow-up",
+    "exitEvents": [
+      "issue_resolved",
+      "successful_feature_action"
+    ],
+    "handoffEvents": {
+      "support_request_opened": "conversation-routing-01"
+    }
+  },
+  {
+    "slug": "help-feedback-01",
+    "idx": "CROSS-02",
+    "channels": [
+      "inapp",
+      "email"
+    ],
+    "sector": {
+      "en": "Cross-sector",
+      "tr": "Sektör bağımsız"
+    },
+    "journey": {
+      "en": "Content Feedback",
+      "tr": "İçerik geri bildirimi"
+    },
+    "title": {
+      "en": "Was this help content any use?",
+      "tr": "Bu yardım içeriği işe yaradı mı?"
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "support-resolution",
+    "exclusionScope": "topic",
+    "communicationClass": "operational",
+    "frequencyClass": "support-follow-up",
+    "exitEvents": [
+      "issue_resolved",
+      "feedback_not_submitted"
+    ],
+    "handoffEvents": {
+      "support_request_opened": "conversation-routing-01"
+    }
+  },
+  {
+    "slug": "email-sunset-01",
+    "idx": "CROSS-03",
+    "channels": [
+      "email"
+    ],
+    "sector": {
+      "en": "Cross-sector",
+      "tr": "Sektör bağımsız"
+    },
+    "journey": {
+      "en": "Email Sunset",
+      "tr": "E-posta uykuya alma"
+    },
+    "title": {
+      "en": "Sunset an inactive subscriber, or win the permission back",
+      "tr": "Pasif aboneyi uykuya al ya da izni geri kazan"
+    },
+    "priority": "retention",
+    "family": "retention-risk",
+    "exclusionGroup": "retention-ladder",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "explicit_keep_subscribed",
+      "preferences_updated",
+      "marketing_email_suppressed"
+    ],
+    "handoffEvents": {}
+  },
+  {
+    "slug": "campaign-resend-01",
+    "idx": "CROSS-04",
+    "channels": [
+      "email"
+    ],
+    "sector": {
+      "en": "Cross-sector",
+      "tr": "Sektör bağımsız"
+    },
+    "journey": {
+      "en": "Campaign Resend",
+      "tr": "Kampanya yeniden gönderim"
+    },
+    "title": {
+      "en": "Resend that diagnoses instead of repeating",
+      "tr": "Tekrar etmeyen, teşhis koyan yeniden gönderim"
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "campaign_converted"
+    ],
+    "handoffEvents": {
+      "chronic_inactivity_confirmed": "email-sunset-01"
+    }
+  },
+  {
+    "slug": "conversation-routing-01",
+    "idx": "CROSS-05",
+    "channels": [
+      "inapp",
+      "email",
+      "sales"
+    ],
+    "sector": {
+      "en": "Cross-sector",
+      "tr": "Sektör bağımsız"
+    },
+    "journey": {
+      "en": "Conversation Routing",
+      "tr": "Talep yönlendirme"
+    },
+    "title": {
+      "en": "Conversation opened, assigned, resolved",
+      "tr": "Talep açıldı, atandı, çözüldü"
+    },
+    "priority": "risk-service",
+    "family": "retention-risk",
+    "exclusionGroup": null,
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "csat_submitted",
+      "conversation_merged"
     ],
     "handoffEvents": {}
   }

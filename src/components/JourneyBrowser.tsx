@@ -12,8 +12,12 @@ import type { copy, Lang } from "@/lib/content";
 /* Filterable channels - `sales` is a human handoff rather than a send, so it
    is not offered as a filter even though a journey can declare it. */
 const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp"] as const satisfies readonly Channel[];
+/* Every channel a journey can declare needs a label here, including the ones
+   that are not filter chips - `sales` is a supported channel on four journeys
+   and was rendering as the raw slug on their badges. */
 const CHANNEL_LABELS: Record<string, string> = {
   email: "Email", push: "Push", sms: "SMS", inapp: "In-app", whatsapp: "WhatsApp",
+  sales: "Sales rep",
 };
 const DOT: Record<string, string> = {
   email: "bg-blue-600", push: "bg-amber-500", sms: "bg-neutral-500",
