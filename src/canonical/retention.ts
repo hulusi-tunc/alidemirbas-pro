@@ -13,16 +13,19 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
      CHURN         it ended
 
    Every collapse between two of them produces a specific failure, and this
-   category is ten journeys drawing the nine lines. RET-21 keeps engagement a
-   changing state rather than a label. RET-22 refuses to read absence as
-   evidence without a pattern to read it against. RET-23 insists a health score
-   name what moved it before anyone is contacted. RET-24 makes intervention
-   scale with evidence instead of with account value. RET-25 holds a risk
-   signal as a question rather than a verdict. RET-26 stops compensation being
-   the default apology. RET-27 is the whole category in one journey: a good
-   sign is the start of recovery, not recovery. RET-28 and RET-29 are the two
-   sides of the intent/completion line, and RET-30 makes an intervention
-   finish only when its actual outcome is known.
+   category is nine journeys drawing the lines between them. RET-21 keeps
+   engagement a changing state rather than a label. RET-22 refuses to read
+   absence as evidence without a pattern to read it against. RET-23 insists a
+   health score name what moved it before anyone is contacted. RET-24 makes
+   intervention scale with evidence instead of with account value. RET-26 stops
+   compensation being the default apology. RET-27 is the whole category in one
+   journey: a good sign is the start of recovery, not recovery. RET-28 and
+   RET-29 are the two sides of the intent/completion line, and RET-30 makes an
+   intervention finish only when its actual outcome is known.
+
+   RET-25 is not here. Evaluating a risk signal is a risk and policy
+   responsibility rather than a retention one, and it opened on the same event
+   as RSK-192, which now owns it.
 
    Almost everything here can conclude that nothing should be sent. That is
    not a gap in the category, it is most of the point of it. */
@@ -756,208 +759,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
-  },
-
-  /* ------------------------------------------------------------ RET-25 */
-  {
-    id: "RET-25",
-    slug: "risk-signal-validation",
-    category: "retention",
-    name: "Risk signal → validate → observe or escalate",
-    purpose:
-      "Hold a risk, fraud or anomaly signal as a state that has to be evaluated, and keep the evaluation separate from any enforcement.",
-    entity: {
-      scope: "the person, account, transaction or entity the signal was raised against",
-      note: "The signal belongs to what it was observed on. A flagged transaction is a flagged transaction, and treating it as a flagged customer is how one anomaly becomes a permanent mark.",
-    },
-    distinctFrom: [
-      {
-        journey: "RET-24",
-        because:
-          "RET-24 weighs evidence about whether a relationship will end. This weighs whether a signal is true at all, and it deliberately stops short of the restriction a true one might justify.",
-      },
-    ],
-    entry: "t.signal",
-    nodes: [
-      {
-        id: "t.signal",
-        kind: "trigger",
-        event: "material_risk_signal_detected",
-        evidence: {
-          requires: [
-            "a signal material enough to be worth evaluating, from detection, monitoring, a model, or a report",
-          ],
-          insufficientAlone: [
-            "an anomaly with no severity or confidence attached",
-            "a threshold crossing produced by a change in the detection rule rather than in behaviour",
-          ],
-          source: "inferred",
-        },
-        next: "a.record",
-      },
-      {
-        id: "a.record",
-        kind: "action",
-        does: "Record the signal type, its source, the time, the entity it was raised against, and its confidence or severity where those exist. The record is appended, so a signal later cleared remains readable - what was suspected and when is itself a fact worth keeping",
-        writes: [{ field: "risk_signal_log", mode: "append" }],
-        next: "c.reliable",
-      },
-      {
-        id: "c.reliable",
-        kind: "condition",
-        asks: "Is the signal reliable enough to act on?",
-        branches: [
-          {
-            label: "Reliable",
-            when: "the source and confidence are strong enough that acting is defensible",
-            to: "c.severity",
-          },
-          {
-            label: "Not yet",
-            when: "the signal is real but too weak or too ambiguous to justify anything on its own",
-            to: "a.gather",
-          },
-        ],
-      },
-      {
-        id: "a.gather",
-        kind: "action",
-        does: "Seek corroborating or contradicting evidence. Nothing is restricted while this runs - the point of the state is that the question is open",
-        next: "w.evidence",
-      },
-      {
-        id: "w.evidence",
-        kind: "wait",
-        until: ["corroborating evidence arrives", "contradicting evidence arrives"],
-        onEvent: "c.evidence",
-        timeout: {
-          after: "a bounded evidence window",
-          reason:
-            "a signal that never reaches reliability is not held open forever against the entity it was raised on",
-        },
-        onTimeout: "x.insufficient",
-        windowExtendsOnEngagement: false,
-      },
-      {
-        id: "c.evidence",
-        kind: "condition",
-        asks: "What did the evidence show?",
-        branches: [
-          { label: "Corroborated", when: "the signal now stands up", to: "c.severity" },
-          { label: "Contradicted", when: "the evidence says it was benign", to: "a.clear" },
-        ],
-      },
-      {
-        id: "x.insufficient",
-        kind: "exit",
-        state: "signal never reached reliability; retained as history, no action taken",
-        terminal: false,
-        reEntry:
-          "a stronger signal on the same entity re-opens this, and the earlier one is part of what it is judged against",
-      },
-      {
-        id: "c.severity",
-        kind: "condition",
-        asks: "Does the severity warrant an immediate precautionary restriction?",
-        branches: [
-          {
-            label: "Restriction warranted",
-            when: "the potential harm of waiting exceeds the cost of restricting before the question is settled",
-            to: "h.hold",
-          },
-          {
-            label: "Monitoring is enough",
-            when: "the signal is credible but nothing needs to be prevented while it is verified",
-            to: "w.monitor",
-          },
-        ],
-      },
-      {
-        id: "h.hold",
-        kind: "handoff",
-        to: "RSK-193",
-        on: "severity warranting precautionary restriction",
-        carries: [
-          "the signal, its confidence and everything gathered",
-          "the explicit fact that no determination has been made - the restriction is precautionary and this journey has not judged anything",
-        ],
-      },
-      {
-        id: "w.monitor",
-        kind: "wait",
-        until: [
-          "the signal resolves as false or benign",
-          "the signal escalates in severity",
-          "verification completes",
-        ],
-        onEvent: "c.resolution",
-        timeout: {
-          after: "the monitoring horizon for this signal type",
-          reason: "an open risk state with no resolution is its own kind of harm to the entity carrying it",
-        },
-        onTimeout: "x.monitored-out",
-        windowExtendsOnEngagement: false,
-      },
-      {
-        id: "c.resolution",
-        kind: "condition",
-        asks: "How did it resolve?",
-        branches: [
-          { label: "False or benign", when: "the signal did not hold up", to: "a.clear" },
-          {
-            label: "Escalated",
-            when: "severity rose to where restriction is now warranted",
-            to: "h.hold",
-          },
-          {
-            label: "Genuine, no restriction warranted",
-            when: "verified as real but not requiring anything to be prevented",
-            to: "x.confirmed",
-          },
-        ],
-      },
-      {
-        id: "a.clear",
-        kind: "action",
-        does: "Clear the risk state and suppress the interventions that existed only because of it. The signal itself stays in the log - clearing a suspicion is not the same as never having had one, and the difference matters if it recurs",
-        writes: [
-          { field: "risk_signal_log", mode: "append" },
-          { field: "suppressed_sends", mode: "append" },
-        ],
-        next: "x.cleared",
-      },
-      {
-        id: "x.cleared",
-        kind: "exit",
-        state: "signal cleared; risk state removed, history retained",
-        terminal: false,
-        reEntry: "a new signal is evaluated on its own merits, with the cleared one as context rather than as a mark",
-      },
-      {
-        id: "x.confirmed",
-        kind: "exit",
-        state: "signal confirmed, no restriction warranted",
-        terminal: false,
-        reEntry: "escalation in severity re-opens this at the restriction question",
-      },
-      {
-        id: "x.monitored-out",
-        kind: "exit",
-        state: "monitoring horizon passed without resolution",
-        terminal: false,
-        reEntry:
-          "the state does not persist indefinitely on the entity; a recurrence is evaluated fresh, informed by the log",
-      },
-    ],
-    guardrails: [
-      "A risk signal is not guilt. The state it creates is a question, and the journey ends without answering it more often than not.",
-      "An anomaly is not fraud. Unusual and wrong are different findings with different evidence.",
-      "A model score is not an authoritative decision unless it has been explicitly governed as one, which is a decision made outside this journey.",
-      "A signal later cleared stays auditable. Erasing it removes the ability to tell a first occurrence from a fifth.",
-      "This journey does not restrict anything. Where restriction is warranted it hands to a journey whose job that is.",
-    ],
-    reusableRule:
-      "Risk detection establishes a state requiring evaluation; it does not itself establish the final business judgment.",
   },
 
   /* ------------------------------------------------------------ RET-26 */

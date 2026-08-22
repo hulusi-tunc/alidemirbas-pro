@@ -181,8 +181,15 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope:
         "the continuing relationship record - a subscription, contract, membership, policy, licence or service agreement",
-      note: "One record per relationship, carrying every term it has ever run under. Terms are versions inside it rather than replacements of it.",
+      note: "One record per relationship, carrying every term it has ever run under. Terms are versions inside it rather than replacements of it. This category owns continuing relationships governed by terms and effective periods, with the lifecycle semantics that follow from them. It does not own a structural link between entities merely because that link is long-lived - that is REL-91.",
     },
+    distinctFrom: [
+      {
+        journey: "REL-91",
+        because:
+          "REL-91 links two entities: a person to an organisation, a parent account to a child, a representative to the entity they act for. Such a link has no term, nothing to renew and nothing to lapse. What is created here has all three, and it is frequently attached to a link REL-91 created rather than replacing it.",
+      },
+    ],
     entry: "t.authorized",
     nodes: [
       {
@@ -196,6 +203,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           insufficientAlone: [
             "a payment succeeding, which funds a relationship without being what starts it - some contracts activate on signature, some on provisioning, some on a regulatory date",
             "a plan being selected in an interface",
+            "a structural link being created between two entities, which connects them without agreeing a term",
           ],
           source: "authoritative",
         },
@@ -338,6 +346,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     guardrails: [
       "A record created is not a relationship active.",
       "Payment success alone does not define every contract's activation.",
+      "A structural link is not an agreement. A person belonging to an organisation, or one account being the parent of another, is a relationship with no term to run, and it belongs to the entity-structure lifecycle rather than here.",
       "No entitlement is granted before the authoritative effective conditions are met.",
     ],
     reusableRule:
@@ -1184,13 +1193,18 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
     entity: {
       scope: "the continuing relationship and the change request raised against it",
-      note: "The request stores a delta and the relationship version it was authorized against. It never stores the resulting terms, because those depend on a relationship that will have moved.",
+      note: "The request stores a delta and the relationship version it was authorized against. It never stores the resulting terms, because those depend on a relationship that will have moved. What changes here is what a term-bearing continuing relationship is authorized to run under. It does not own a change to the structural link between the entities merely because the same two parties are involved - that is REL-92.",
     },
     distinctFrom: [
       {
         journey: "ACC-73",
         because:
           "This changes the commercial relationship - the plan, the tier, the scope, the contractual terms. ACC-73 applies whatever entitlement delta results. One is what was agreed; the other is what is switched on.",
+      },
+      {
+        journey: "REL-92",
+        because:
+          "This changes the authorized terms a continuing relationship runs under. REL-92 changes what the structural relationship between the entities means. A tier change leaves the person exactly as related to the organisation as they were, and a membership type changing leaves the plan exactly as it was priced.",
       },
     ],
     entry: "t.requested",
@@ -1200,9 +1214,12 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "trigger",
         event: "relationship_change_requested",
         evidence: {
-          requires: ["an authorized request to change a running relationship's plan, tier, scope or terms"],
+          requires: [
+            "an authorized request to change a running term-bearing relationship's plan, tier, scope or terms",
+          ],
           insufficientAlone: [
             "someone asking about a different plan, which is a question rather than an authorized change",
+            "a structural relationship between the entities changing type or state, which changes how they are related rather than what was agreed",
           ],
           source: "authoritative",
         },
@@ -1452,6 +1469,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     guardrails: [
       "A change requested is not a change applied.",
       "Historical terms are never rewritten.",
+      "A structural link changing type or state is not a plan or terms change merely because the same entities are involved.",
       "A scheduled upgrade or downgrade never executes against a relationship that has ended or materially changed without revalidation.",
     ],
     reusableRule:
@@ -1954,13 +1972,18 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
     entity: {
       scope: "the ended continuing relationship and the state that depended on it",
-      note: "The relationship record survives its own ending. The end is a state it reaches, not a deletion of what it was.",
+      note: "The relationship record survives its own ending. The end is a state it reaches, not a deletion of what it was. What ends here is a term. The structural links between the same parties are untouched by it, and removing one of those is a separate decision owned by REL-93.",
     },
     distinctFrom: [
       {
         journey: "TRM-106",
         because:
           "A subscription, contract or membership ends here. TRM-106 closes the account relationship entirely. Most people who leave a plan keep their account, and chaining the two treats cancelling a subscription as asking to be removed.",
+      },
+      {
+        journey: "REL-93",
+        because:
+          "REL-93 ends a structural link between two entities, and what stops is what depended on the link existing. This ends a term, and what stops is what the term was granting. Someone can leave an organisation while the subscription they paid for personally keeps running, and a policy can expire while the person stays exactly as related to the organisation as before.",
       },
     ],
     entry: "t.end",
@@ -1971,11 +1994,12 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "relationship_end_effective",
         evidence: {
           requires: [
-            "an authoritative relationship end taking effect, by cancellation, non-renewal, expiry, termination or lapse",
+            "an authoritative end of a term-bearing continuing relationship taking effect, by cancellation, non-renewal, expiry, termination or lapse",
           ],
           insufficientAlone: [
             "a cancellation requested, which sets a date rather than reaching one",
             "a payment failing, which may or may not ever become an ending",
+            "a structural relationship between the parties ending, which removes a link rather than a term",
           ],
           source: "authoritative",
         },
@@ -2092,6 +2116,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     guardrails: [
       "A relationship ending is not an account closure.",
       "A relationship ending is not data deletion.",
+      "A relationship ending is not the removal of a structural link. The parties can stay exactly as connected as they were, and unlinking them is a decision nobody made here.",
       "A relationship ending never erases historical entitlements, payments or fulfilled obligations.",
       "Commitments created while active are reconciled separately and can outlive the relationship.",
     ],

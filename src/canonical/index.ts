@@ -299,6 +299,10 @@ export const MERGED_INTO: Readonly<Record<MergedJourneyId, string>> = {
   "CMS-209": "CON-36",
   "CTL-239": "OWN-57",
   "CTL-240": "OWN-54",
+  // Risk signal evaluation opened on the same event in two categories. The
+  // risk category owns it; the retention copy is retired rather than kept as
+  // a second door onto the same lifecycle.
+  "RET-25": "RSK-192",
 };
 
 /** Follows a consolidation redirect, so a stored id from before the merge

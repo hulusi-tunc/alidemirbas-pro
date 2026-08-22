@@ -9,8 +9,8 @@ import {
 import { copy, type Lang } from "@/lib/content";
 
 /* The archive list. A server component: it reads the canonical library here
-   and hands the browser 256 rows, not 256 node graphs. The detail of any one
-   journey arrives on its own route.
+   and hands the browser rows, not node graphs. The detail of any one journey
+   arrives on its own route.
 
    Used to also carry a "Tools" sidebar linking to the other Lab projects, but
    that's redundant now that /lab is its own landing page people arrive from -

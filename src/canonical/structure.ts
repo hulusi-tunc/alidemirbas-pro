@@ -149,13 +149,18 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
       "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
     entity: {
       scope: "the relationship, plus the two entities it connects, in the direction it was created",
-      note: "Direction is part of the relationship where the semantics are directional. A dependent of a primary member is not the same relationship read the other way, and storing it as symmetric loses which is which.",
+      note: "Direction is part of the relationship where the semantics are directional. A dependent of a primary member is not the same relationship read the other way, and storing it as symmetric loses which is which. This category owns structural and entity relationships. It does not own a term-bearing continuing agreement whose lifecycle includes effective dates, renewal, cancellation or lapse - that is SUB-161, and a link created here may be the thing such an agreement is later attached to.",
     },
     distinctFrom: [
       {
         journey: "REL-98",
         because:
           "This establishes that a relationship exists. REL-98 defines what a link between two entities is allowed to share, which is a separate decision that many relationships answer with nothing.",
+      },
+      {
+        journey: "SUB-161",
+        because:
+          "SUB-161 creates a relationship that carries a term - an effective date, a renewal model and terms that can lapse. This creates a structural link between two entities, which can exist indefinitely without any of those. An employee belongs to an organisation here; the organisation's contract is created there, and the two end for different reasons on different days.",
       },
     ],
     entry: "t.requested",
@@ -172,6 +177,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
             "a shared email address or phone number",
             "a shared surname or address",
             "a shared device or network",
+            "an agreement being entered that carries a term, an effective period or a renewal model, which is a continuing relationship rather than a structural link",
           ],
           source: "authoritative",
         },
@@ -266,6 +272,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     guardrails: [
       "A shared attribute is not proof of a relationship. Two people can share an address, a surname and a device and be unrelated.",
       "Creating a relationship is not an identity merge.",
+      "A long-lived link is not an agreement. Where the relationship carries a term, an effective period, a renewal model or lapse semantics, it belongs to the continuing-relationship lifecycle and not here.",
       "Direction is preserved where the relationship's semantics are directional.",
     ],
     reusableRule:
@@ -282,8 +289,15 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
       "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
     entity: {
       scope: "the relationship that changed and the entities connected by it",
-      note: "Historical relationship periods are preserved. Who was related to whom, and when, is usually what a later question is actually about.",
+      note: "Historical relationship periods are preserved. Who was related to whom, and when, is usually what a later question is actually about. What changes here is what the structural relationship between the entities means. It does not own a change to the commercial or contractual terms a continuing relationship runs under - that is SUB-166, and the same two entities can be party to both.",
     },
+    distinctFrom: [
+      {
+        journey: "SUB-166",
+        because:
+          "This changes what the entities' structural relationship means - the type of membership, the direction of a parent-child link, the basis on which a representative acts. SUB-166 changes the authorized terms a continuing relationship runs under - the plan, the tier, the scope, the price. Someone can become a contractor instead of an employee with their subscription untouched, and move from Basic to Pro without their relationship to the organisation changing at all.",
+      },
+    ],
     entry: "t.changed",
     nodes: [
       {
@@ -291,7 +305,13 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "trigger",
         event: "relationship_state_or_type_changed",
         evidence: {
-          requires: ["an authoritative change to an existing relationship's state or type"],
+          requires: [
+            "an authoritative change to an existing structural relationship's state or type between two entities",
+          ],
+          insufficientAlone: [
+            "a change to the plan, tier, scope or contractual terms of a continuing relationship, which changes what was agreed rather than how the entities are related",
+            "a pricing or renewal-term modification, which belongs to the agreement rather than to the link",
+          ],
           source: "authoritative",
         },
         next: "a.record",
@@ -409,6 +429,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     guardrails: [
       "A relationship change is not an identity change.",
       "A relationship change is not an ownership transfer unless responsibility actually moves.",
+      "A structural relationship change is not a change to the commercial or contractual terms of a continuing relationship.",
       "Historical relationship periods are preserved.",
       "Actions queued under the superseded relationship do not execute.",
     ],
@@ -426,8 +447,15 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
       "Stop what a relationship was carrying forward without cancelling what it validly produced.",
     entity: {
       scope: "the relationship that ended and the entities it connected",
-      note: "Only this relationship ends. Other relationships between the same two entities are untouched, and so is the record that this one existed.",
+      note: "Only this relationship ends. Other relationships between the same two entities are untouched, and so is the record that this one existed. What ends here is a structural link. It does not own a term-bearing continuing agreement whose lifecycle includes effective dates, renewal, cancellation or lapse - an agreement that existed through this link reaches its own end on its own terms, in SUB-170.",
     },
+    distinctFrom: [
+      {
+        journey: "SUB-170",
+        because:
+          "SUB-170 ends a term: a subscription, contract, policy or membership reaches cancellation, non-renewal, expiry, termination or lapse, and what stops is what the term was granting. This ends a structural link between two entities, and what stops is what depended on the link. An employee leaving an organisation ends the link and not the organisation's contract; a contract expiring ends the term and leaves the employee where they were.",
+      },
+    ],
     entry: "t.ended",
     nodes: [
       {
@@ -435,7 +463,13 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "trigger",
         event: "relationship_ended",
         evidence: {
-          requires: ["an authoritative end to an active relationship, with an effective time"],
+          requires: [
+            "an authoritative end to an active structural relationship between two entities, with an effective time",
+          ],
+          insufficientAlone: [
+            "a subscription, contract, policy or membership reaching its end, which ends a term rather than a structural link",
+            "a party's rights under an agreement stopping, which the agreement's own lifecycle owns",
+          ],
           source: "authoritative",
         },
         next: "a.record-end",
@@ -518,6 +552,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
       "Ending a relationship does not delete the historical relationship.",
       "Ending a relationship does not automatically cancel commitments created while it existed.",
       "Unrelated relationships between the same entities remain unaffected.",
+      "Ending a structural link does not terminate an agreement that ran through it. A contract, subscription, policy or membership reaches its own end on its own terms, and inferring one from the other cancels things nobody cancelled.",
     ],
     reusableRule:
       "Ending a relationship removes future relationship-dependent behavior without erasing obligations legitimately created while the relationship existed.",

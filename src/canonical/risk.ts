@@ -340,16 +340,21 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     category: "risk",
     name: "Risk signal → correlate evidence → clear, monitor, restrict or review",
     purpose:
-      "Turn a measurement into a state change no larger than the evidence behind it supports.",
+      "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
     entity: {
       scope: "the risk case and the actor, account, transaction or resource it concerns",
-      note: "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together.",
+      note: "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together. The case is scoped to what the evidence is actually about - a flagged transaction is a flagged transaction, and reading it as a flagged customer is how one anomaly becomes a permanent mark.",
     },
     distinctFrom: [
       {
         journey: "IDN-90",
         because:
           "IDN-90 handles a specific suspicion - that an account is in someone else's hands - and runs a containment and recovery path for it. This is the general evidence lifecycle: most of what it sees clears, and its main job is not over-reacting.",
+      },
+      {
+        journey: "RSK-194",
+        because:
+          "This weighs uncertainty: how reliable the evidence is and what it supports, with no rule needing to have been broken for the question to be worth asking. RSK-194 starts only where an identifiable policy appears to have been breached, and tests that rule against the evidence and the version that governed it. A signal does not become a violation candidate by looking risky - without a governing rule to test, there is nothing for RSK-194 to decide.",
       },
     ],
     entry: "t.signal",
@@ -361,6 +366,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a meaningful risk signal - a behaviour or velocity anomaly, an identity inconsistency, a transaction anomaly, a device or context signal, an external risk signal, or repeated unusual activity",
+            "a recorded source for it - detection, monitoring, a model, an external party or a dispute outcome - which is context for weighing the signal and never corroboration of it",
           ],
           insufficientAlone: [
             "unusual behaviour, which is unusual and not therefore wrong",
@@ -436,15 +442,66 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record MONITOR and take no restrictive action. Watching is a state in its own right; restricting on one weak signal is a decision the evidence does not support, and the person it lands on did nothing to earn it",
         writes: [{ field: "risk_log", mode: "append" }],
-        next: "x.monitoring",
+        next: "w.monitor",
       },
       {
-        id: "x.monitoring",
+        id: "w.monitor",
+        kind: "wait",
+        until: [
+          "the evidence accumulating on this case reaches a defined threshold",
+          "the accumulated evidence explains the signal as benign",
+        ],
+        onEvent: "c.monitored",
+        timeout: {
+          after: "the monitoring horizon defined for this signal type",
+          reason:
+            "a signal that never reaches a threshold is not held open on the actor indefinitely - an unresolved risk state is its own cost to whoever carries it, and nothing was ever established to justify carrying it",
+        },
+        onTimeout: "x.monitored-out",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.monitored",
+        kind: "condition",
+        asks: "What did the accumulated evidence settle?",
+        branches: [
+          {
+            label: "Benign on the accumulated evidence",
+            when: "what arrived explains the signal rather than supporting it",
+            to: "a.clear-monitored",
+          },
+          {
+            label: "A material threshold is now reached",
+            when: "the accumulated evidence crosses what policy requires for intervention",
+            to: "a.case",
+          },
+        ],
+      },
+      {
+        id: "a.clear-monitored",
+        kind: "action",
+        does: "Record CLEAR with the reason and release the monitoring state, along with anything held or held back only because the case was open. The case and every signal on it stay readable - clearing a suspicion is not the same as never having had one, and that difference is what tells a first occurrence from a fifth",
+        writes: [
+          { field: "risk_log", mode: "append" },
+          { field: "suppressed_sends", mode: "append" },
+        ],
+        next: "x.cleared-monitored",
+      },
+      {
+        id: "x.cleared-monitored",
         kind: "exit",
-        state: "MONITOR; evidence accumulating, nothing restricted",
+        state: "CLEAR after monitoring; the monitoring state is released and nothing was restricted",
         terminal: false,
         reEntry:
-          "further signals accumulate onto this case and are assessed together, which is the point of holding it open rather than closing and reopening",
+          "a materially different signal opens its own assessment, judged with this case as context rather than as a finding against the actor",
+      },
+      {
+        id: "x.monitored-out",
+        kind: "exit",
+        state: "monitoring horizon passed without resolution; nothing was restricted",
+        terminal: false,
+        reEntry:
+          "the state does not persist on the actor once the horizon passes. A recurrence is assessed fresh, informed by this case rather than convicted by it",
       },
       {
         id: "a.rule-block",
@@ -499,9 +556,14 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       },
     ],
     guardrails: [
-      "A signal is not confirmed misconduct.",
+      "A signal is not confirmed misconduct. The state it opens is a question, and most of them close without an answer against anyone.",
+      "An anomaly is not fraud. Unusual and wrong are different findings resting on different evidence.",
       "A risk score is not a factual identity.",
-      "One weak signal never triggers maximum restriction.",
+      "A model score is not an authoritative decision unless it has been explicitly governed as one, which is a decision made outside this journey.",
+      "One weak signal never triggers maximum restriction. What gets restricted is proportionate to the evidence, and the evidence is what bounds its scope.",
+      "Monitoring is not restriction. Watching an open question is a state in its own right, and collapsing the two restricts people the evidence never reached.",
+      "This journey restricts nothing itself. Where a restriction is warranted it hands to the journey whose job that is, carrying the fact that nothing has been concluded.",
+      "A signal later cleared stays auditable. Erasing it removes the ability to tell a first occurrence from a fifth.",
       "Evidence and its provenance are preserved so the reasoning can be shown.",
     ],
     reusableRule:
@@ -703,6 +765,11 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "DEC-186",
         because:
           "DEC-186 handles what follows an authorized rejection. This determines whether a violation occurred at all and which consequence the policy defines - it may never reach a decision case, and most of its outcomes are corrections rather than refusals.",
+      },
+      {
+        journey: "RSK-192",
+        because:
+          "RSK-192 evaluates risk evidence without requiring any rule to have been broken, and most of what it sees clears. This starts from an identifiable governing rule and asks whether it was actually breached, judged against the version in force at the time. Risk evidence alone never opens a case here; it opens one there.",
       },
     ],
     entry: "t.detected",

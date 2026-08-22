@@ -14,8 +14,8 @@ import type {
 import type { copy, Lang } from "@/lib/content";
 
 /* The list. It takes rows as props and imports nothing from the canonical
-   library, so the browser downloads 256 one-line rows rather than 256 node
-   graphs; a journey's graph arrives on that journey's own route.
+   library, so the browser downloads one-line rows rather than node graphs;
+   a journey's graph arrives on that journey's own route.
 
    Two facets. Category is the obvious one. The second is the trigger's
    evidence source, because that is the property that decides what a journey

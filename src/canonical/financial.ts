@@ -1588,8 +1588,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "h.risk",
         kind: "handoff",
-        to: "RET-25",
-        on: "a dispute outcome raising a question about the relationship",
+        to: "RSK-192",
+        on: "a dispute outcome raising a risk question that has not been answered",
         carries: [
           "the dispute and its outcome",
           "the explicit fact that a dispute is not a finding of wrongdoing - it is a signal to be evaluated, and most of them are not what they look like",

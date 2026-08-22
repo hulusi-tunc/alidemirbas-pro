@@ -41,7 +41,7 @@ export default function JourneyModal({
     if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
 
     /* Everything the modal is not gets `inert`: no tab stops, no clicks, and
-       no screen-reader announcements from the 256-row list underneath. */
+       no screen-reader announcements from the list underneath. */
     const inerted = Array.from(document.querySelectorAll<HTMLElement>("[data-lab-root]"));
     for (const el of inerted) el.inert = true;
 

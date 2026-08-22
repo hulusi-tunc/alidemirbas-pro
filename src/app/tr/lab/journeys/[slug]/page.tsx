@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { JourneyFullPage, journeyMetadata } from "@/components/JourneyRoutes";
 import { ALL_DETAIL_SLUGS } from "@/lib/canonical-view";
 
-/* 256 journeys plus the 4 retired ids that resolve into them, prerendered.
+/* Every journey plus every retired id that resolves into one, prerendered.
    Nothing else is a journey, so nothing else gets a page. */
 export const dynamicParams = false;
 
