@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# legacy HTML exports kept locally as audit evidence, not published
+/reference/legacy/*.html

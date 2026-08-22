@@ -3,8 +3,9 @@ import LabPage from "@/components/LabPage";
 import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "CRM Journey Arşivi - Ali Demirbaş",
-  description: "Sektöre ve kanala göre filtrelenebilir 70 lifecycle journey incelemesi.",
+  title: "Canonical Journey Kütüphanesi - Ali Demirbaş",
+  description:
+    "26 kategoriye yayılmış, sektörden bağımsız 256 lifecycle state machine; kategoriye ve trigger kanıtına göre filtrelenebilir.",
   alternates: pageAlternates("/lab/journeys", "tr"),
 };
 
