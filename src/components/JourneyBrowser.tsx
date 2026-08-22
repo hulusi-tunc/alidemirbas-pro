@@ -17,11 +17,11 @@ const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp"] as const satisfie
    and was rendering as the raw slug on their badges. */
 const CHANNEL_LABELS: Record<string, string> = {
   email: "Email", push: "Push", sms: "SMS", inapp: "In-app", whatsapp: "WhatsApp",
-  sales: "Sales rep",
+  sales: "Sales rep", task: "Internal task",
 };
 const DOT: Record<string, string> = {
   email: "bg-blue-600", push: "bg-amber-500", sms: "bg-neutral-500",
-  inapp: "bg-violet-500", whatsapp: "bg-green-600", sales: "bg-ink-700",
+  inapp: "bg-violet-500", whatsapp: "bg-green-600", sales: "bg-ink-700", task: "bg-yellow-700",
 };
 
 export default function JourneyBrowser({

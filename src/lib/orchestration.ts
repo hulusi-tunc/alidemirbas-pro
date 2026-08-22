@@ -64,15 +64,36 @@
    see exitEvents and handoffEvents. A reorder prompt after the reorder is
    the most expensive kind of message.
 
+   STATE TRANSITION CHANGES OWNERSHIP. Moving forward a lifecycle stage
+   suppresses the journeys belonging to the stage just left, before priority
+   is considered - see `lifecycleStage` and `supersededByStage`. Once an
+   opportunity is won, "would you like a demo?" is not a mistimed message, it
+   is the wrong owner still talking.
+
+   AN INTERNAL TASK IS NOT A CUSTOMER OUTCOME. Where a decision needs a human,
+   the journey creates the internal task, waits for completion or the SLA, and
+   then reads the recorded outcome - it does not send a customer message in
+   place of the human step. Task completion only says the workflow may move
+   again; what it moves to depends on the outcome, and an expired SLA is an
+   operational exception rather than implied customer intent. The `task`
+   channel exists for exactly these steps and never reaches a customer.
+
    ENTITY, NOT PERSON. Where a journey is about a thing - an order, a product,
    a help topic - both its exclusion and its success event are scoped to that
    thing. An unrelated second order is not recovery of the cancelled first. */
 
 /* ------------------------------------------------------------------ shape */
 
-export type Channel = "email" | "push" | "sms" | "inapp" | "whatsapp" | "sales";
+/** `sales` and `task` are not sends. They are work handed to a person or a
+    team, and they are in this list because a journey step can legitimately be
+    one - but nothing routes a customer message through them, and they are
+    skipped when picking a channel to reach someone on. */
+export type Channel = "email" | "push" | "sms" | "inapp" | "whatsapp" | "sales" | "task";
 
-export const CHANNELS: readonly Channel[] = ["email", "push", "sms", "inapp", "whatsapp", "sales"];
+export const CHANNELS: readonly Channel[] = ["email", "push", "sms", "inapp", "whatsapp", "sales", "task"];
+
+/** Channels that reach the customer. The rest are internal work. */
+export const CUSTOMER_CHANNELS: readonly Channel[] = ["email", "push", "sms", "inapp", "whatsapp"];
 
 /** Lower number wins when two journeys want the same person at the same time. */
 export type PriorityTier =
@@ -157,6 +178,31 @@ export type ExclusionScope =
       compete, two about unrelated problems do not. */
   | "topic";
 
+/** Where in the relationship a journey belongs. A person occupies one stage
+    at a time, and moving forward changes who owns the conversation: once an
+    opportunity is won, "would you like a demo?" is not a slightly mistimed
+    message, it is the wrong owner still talking. Journeys that leave this
+    unset are stage-agnostic - a payment failure or a help-centre follow-up is
+    right at any stage - and are never suppressed by a transition. */
+export type LifecycleStage =
+  | "prospect"
+  | "trial"
+  | "onboarding"
+  | "adoption"
+  | "expansion"
+  | "advocacy";
+
+/** Order is the whole point: anything earlier than where the person actually
+    is has lost ownership. */
+export const STAGE_ORDER: Record<LifecycleStage, number> = {
+  prospect: 0,
+  trial: 1,
+  onboarding: 2,
+  adoption: 3,
+  expansion: 4,
+  advocacy: 5,
+};
+
 /** Marketing obeys the cap and quiet hours; operational does not. A delayed
     flight or a suspension date is not promotional pressure. */
 export type CommunicationClass = "marketing" | "operational";
@@ -182,6 +228,9 @@ export type JourneyOrchestration = {
   /** Only meaningful when exclusionGroup is set. null/omitted behaves as
       "user" - see ExclusionScope above. */
   exclusionScope?: ExclusionScope | null;
+  /** Optional. Set only where the journey genuinely belongs to one stage of
+      the relationship; see LifecycleStage and `supersededByStage`. */
+  lifecycleStage?: LifecycleStage | null;
   communicationClass: CommunicationClass;
   frequencyClass: FrequencyClass;
   /** Events that make continuing this journey unnecessary, wrong or annoying,
@@ -349,6 +398,9 @@ export type UserState = {
   openCriticalIssue: boolean;
   /** Epoch ms of an unresolved complaint that paused marketing, if any. */
   serviceRecoveryStartedAt?: number;
+  /** Where this person actually is in the relationship. Undefined means
+      unknown, which suppresses nothing - see `supersededByStage`. */
+  lifecycleStage?: LifecycleStage;
   channelConsent: Partial<Record<Channel, boolean>>;
   reachableOn: Partial<Record<Channel, boolean>>;
   recentSends: readonly SendRecord[];
@@ -389,6 +441,16 @@ export function isEligible(journey: Candidate, user: UserState, now = Date.now()
   return hardSuppressions(user, journey, now).length === 0;
 }
 
+/** Has this journey lost ownership? A journey pinned to a stage the person
+    has already moved past is not merely mistimed - it is the previous owner
+    still talking. Journeys with no stage are stage-agnostic and never fail
+    this. `currentStage` undefined means we do not know where they are, and an
+    unknown stage suppresses nothing. */
+export function supersededByStage(journey: Candidate, currentStage?: LifecycleStage): boolean {
+  if (!journey.lifecycleStage || !currentStage) return false;
+  return STAGE_ORDER[journey.lifecycleStage] < STAGE_ORDER[currentStage];
+}
+
 /* ---------------------------------------------------------------- 2. exit */
 
 /** Does this event end the journey? Global hard exits end every journey; a
@@ -406,7 +468,7 @@ export function exitsOn(journey: Candidate, event: string): boolean {
 
 export type Resolution = {
   winner: Candidate | null;
-  suppressed: { slug: string; reason: "hard_suppression" | "lower_priority" | "excluded_by" ; by?: string }[];
+  suppressed: { slug: string; reason: "hard_suppression" | "stage_superseded" | "lower_priority" | "excluded_by"; by?: string }[];
 };
 
 /** Two candidates at the same priority tier - who wins. An exact triggered
@@ -440,9 +502,18 @@ export function resolveJourney(
 ): Resolution {
   const suppressed: Resolution["suppressed"] = [];
   const live = candidates.filter((c) => {
-    if (isEligible(c, user, now)) return true;
-    suppressed.push({ slug: c.slug, reason: "hard_suppression" });
-    return false;
+    if (!isEligible(c, user, now)) {
+      suppressed.push({ slug: c.slug, reason: "hard_suppression" });
+      return false;
+    }
+    // A stage transition changes ownership before priority is even considered:
+    // the previous stage's journey does not get to compete, however urgent it
+    // thinks it is.
+    if (supersededByStage(c, user.lifecycleStage)) {
+      suppressed.push({ slug: c.slug, reason: "stage_superseded" });
+      return false;
+    }
+    return true;
   });
   if (live.length === 0) return { winner: null, suppressed };
 
@@ -570,7 +641,7 @@ export function firstSendableChannel(
   step?: { commClass?: CommunicationClass },
 ): Channel | null {
   for (const c of journey.channels) {
-    if (c === "sales") continue; // a human handoff, not a send
+    if (!CUSTOMER_CHANNELS.includes(c)) continue; // internal work, not a send
     if (canSend(journey, c, user, ctx, step).ok) return c;
   }
   return null;

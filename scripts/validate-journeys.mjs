@@ -21,7 +21,7 @@ const JOURNEYS = "src/lib/journeys.ts";
 const FLOWS_MARKER = "export const flows: Record<string, { en: FlowStep[]; tr: FlowStep[] }> = ";
 const JOURNEYS_MARKER = "export const journeys: Journey[] = ";
 
-const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp", "sales"];
+const CHANNELS = ["email", "push", "sms", "inapp", "whatsapp", "sales", "task"];
 const PRIORITIES = [
   "transactional", "risk-service", "checkout-abandonment", "cart-intent", "triggered-info",
   "activation", "retention", "winback", "expansion", "browse-discovery", "promotional",
@@ -35,10 +35,12 @@ const EXCLUSION_GROUPS = [
   "post-purchase-followup", "soft-engagement", "support-resolution",
 ];
 const EXCLUSION_SCOPES = ["user", "product", "cart", "order", "route", "subscription", "course", "account", "topic"];
+const LIFECYCLE_STAGES = ["prospect", "trial", "onboarding", "adoption", "expansion", "advocacy"];
+const STAGE_ORDER = Object.fromEntries(LIFECYCLE_STAGES.map((s, i) => [s, i]));
 const COMM_CLASSES = ["marketing", "operational"];
 const FREQ_CLASSES = ["high-intent-triggered", "lifecycle-activation", "standard-promotional", "support-follow-up", "service-critical"];
 const GLOBAL_HARD_EXITS = ["marketing_consent_revoked", "account_closed", "user_ineligible"];
-const ACTION_TYPES = ["email", "push", "sms", "inapp", "sales"];
+const ACTION_TYPES = ["email", "push", "sms", "inapp", "sales", "task"];
 const STEP_TYPES = ["entry", "exit", "wait", "condition", ...ACTION_TYPES];
 // Loose signal, not a parser: a journey whose own entry text promises a
 // split should actually branch. Matches the phrasing the archive itself
@@ -193,6 +195,29 @@ for (const j of journeys) {
     if (!CHANNELS.includes(c)) err("unknown_channel", j.slug, `declares "${c}"`);
   }
 
+  if (j.lifecycleStage != null && !LIFECYCLE_STAGES.includes(j.lifecycleStage)) {
+    err("invalid_lifecycle_stage", j.slug, `${j.lifecycleStage}`);
+  }
+  /* A journey pinned to a stage is suppressed the moment the person moves past
+     it, so anything that must survive a transition - a payment failure, a
+     churn risk, a support follow-up - has to stay stage-agnostic. Pinning one
+     of those is a silent way to stop it firing for exactly the customers who
+     have progressed. */
+  const MUST_STAY_AGNOSTIC = ["Payment Failure", "Churn Prevention", "Service Recovery", "Support Recovery", "Winback"];
+  if (j.lifecycleStage && MUST_STAY_AGNOSTIC.includes(j.journey?.en)) {
+    err("stage_pinned_risk_journey", j.slug, `${j.journey.en} is pinned to stage "${j.lifecycleStage}" - it would stop firing once the customer moves on`);
+  }
+  /* A handoff that moves someone forward should not point back at an earlier
+     stage: the target would be suppressed on arrival by the very transition
+     that triggered the handoff. */
+  for (const [event, target] of Object.entries(j.handoffEvents ?? {})) {
+    const t = bySlug.get(target);
+    if (!t || !j.lifecycleStage || !t.lifecycleStage) continue;
+    if (STAGE_ORDER[t.lifecycleStage] < STAGE_ORDER[j.lifecycleStage]) {
+      err("handoff_to_earlier_stage", j.slug, `${event} -> ${target} moves back from "${j.lifecycleStage}" to "${t.lifecycleStage}"; the target would be suppressed on arrival`);
+    }
+  }
+
   /* A P5 activation-tier journey that is really product setup - onboarding,
      account activation, feature adoption - is not on a promotional cadence.
      Trial conversion and lead nurture legitimately are: they sell. */
@@ -315,7 +340,7 @@ for (const j of journeys) {
   en.forEach((s, i) => {
     if (s.t !== "wait") return;
     if (!/\buntil\b/i.test(s.a)) return;
-    if (/\bor until\b/i.test(s.a)) return;           // explicitly two-armed
+    if (/whichever comes first/i.test(s.a)) return;   // explicitly two-armed, either ordering
     if (!EVENTISH.test(s.a)) return;                  // date-anchored, not event-anchored
     // "until the scheduled demo time" / "until the resolution deadline" name a
     // timestamp that exists once the branch is entered - a deadline, not a
@@ -408,14 +433,18 @@ for (const j of journeys) {
       err("undeclared_channel_in_step", j.slug, `a step sends on "${c}" but the journey does not declare it`);
     }
   }
-  unusedDeclaredChannels += j.channels.filter((c) => c !== "sales" && !usedChannels.has(c)).length;
+  unusedDeclaredChannels += j.channels.filter((c) => c !== "sales" && c !== "task" && !usedChannels.has(c)).length;
 
-  // A condition that gates nothing is either a leftover or a missing step.
+  /* A condition that gates nothing is either a leftover or a missing step.
+     Consecutive conditions are fine - that is an AND gate, and the archive
+     uses it - so what matters is whether the chain ever reaches an action. */
   for (let i = 0; i < en.length; i++) {
     if (en[i].t !== "condition") continue;
-    const next = en.slice(i + 1).find((s) => s.t !== "wait");
-    if (!next || next.t === "condition") {
-      warn("condition_gates_nothing", j.slug, `step ${i} "${en[i].a}" is followed by no action`);
+    // A condition immediately before the exit is fine and the archive uses it:
+    // it names the state under which the journey ends.
+    const next = en.slice(i + 1).find((s) => s.t !== "wait" && s.t !== "condition");
+    if (!next) {
+      warn("condition_gates_nothing", j.slug, `step ${i} "${en[i].a}" never reaches an action`);
     }
   }
 

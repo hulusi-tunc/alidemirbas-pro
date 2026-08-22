@@ -100,3 +100,16 @@ export function ExitIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+/** An internal task, not a customer send - a checklist with a tick. Used by
+    the operational journeys, where a step is work assigned to a team rather
+    than a message to a person. */
+export function TaskIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" className={className}>
+      <path d="M5.5 2.5h5a1 1 0 011 1v10a1 1 0 01-1 1h-5a1 1 0 01-1-1v-10a1 1 0 011-1z" />
+      <path d="M6.6 8.2l1.1 1.1 2.2-2.4" strokeLinecap="round" />
+      <path d="M6.4 2.5h3.2" strokeLinecap="round" />
+    </svg>
+  );
+}

@@ -11,6 +11,7 @@ import {
   PushIcon,
   SalesRepIcon,
   SmsIcon,
+  TaskIcon,
   TriggerIcon,
   WaitIcon,
   WhatsAppIcon,
@@ -50,6 +51,7 @@ const CHANNEL_META: Record<string, ChannelMeta> = {
   inapp: { Icon: InAppIcon, accent: "#6d28d9", iconBg: "#f5f1fc", iconBorder: "#c9b8f0" },
   whatsapp: { Icon: WhatsAppIcon, accent: "#0f766e", iconBg: "#ecfdf6", iconBorder: "#8fdcc4" },
   sales: { Icon: SalesRepIcon, accent: "#232c42", iconBg: "#eef0f4", iconBorder: "#cdd2dd" },
+  task: { Icon: TaskIcon, accent: "#7a5c18", iconBg: "#faf6ea", iconBorder: "#ddcb96" },
 };
 
 function isAction(t: string): t is keyof FlowT["channel"] {

@@ -580,7 +580,8 @@ export const journeys: Journey[] = [
       "trial_converted",
       "cancellation_completed"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "lifecycleStage": "trial"
   },
   {
     "slug": "saas-activate-01",
@@ -644,7 +645,8 @@ export const journeys: Journey[] = [
     "exitEvents": [
       "feature_adopted"
     ],
-    "handoffEvents": {}
+    "handoffEvents": {},
+    "lifecycleStage": "adoption"
   },
   {
     "slug": "saas-churn-01",
@@ -743,7 +745,8 @@ export const journeys: Journey[] = [
     ],
     "handoffEvents": {
       "onboarding_completed": "saas-activate-01"
-    }
+    },
+    "lifecycleStage": "onboarding"
   },
   {
     "slug": "saas-expansion-01",
@@ -778,7 +781,8 @@ export const journeys: Journey[] = [
     ],
     "handoffEvents": {
       "value_tier_dropped": "saas-churn-01"
-    }
+    },
+    "lifecycleStage": "expansion"
   },
   {
     "slug": "fin-onboard-01",
@@ -2497,7 +2501,8 @@ export const journeys: Journey[] = [
     ],
     "handoffEvents": {
       "demo_request_submitted": "saas-demo-01"
-    }
+    },
+    "lifecycleStage": "prospect"
   },
   {
     "slug": "saas-demo-01",
@@ -2528,8 +2533,10 @@ export const journeys: Journey[] = [
       "request_withdrawn"
     ],
     "handoffEvents": {
-      "trial_started": "saas-trial-routing-01"
-    }
+      "trial_started": "saas-trial-routing-01",
+      "sales_qualified": "human-task-01"
+    },
+    "lifecycleStage": "prospect"
   },
   {
     "slug": "saas-trial-routing-01",
@@ -2562,6 +2569,77 @@ export const journeys: Journey[] = [
     ],
     "handoffEvents": {
       "core_activation_completed": "saas-trial-01",
+      "activation_stalled": "saas-activate-01",
+      "assistance_needed_signal": "saas-rescue-01"
+    },
+    "lifecycleStage": "trial"
+  },
+  {
+    "slug": "saas-rescue-01",
+    "idx": "SAAS-12",
+    "channels": [
+      "email",
+      "task"
+    ],
+    "sector": {
+      "en": "SaaS",
+      "tr": "SaaS"
+    },
+    "journey": {
+      "en": "Trial Rescue",
+      "tr": "Deneme kurtarma"
+    },
+    "title": {
+      "en": "Trial user who is trying and stuck",
+      "tr": "Uğraşan ama takılan deneme kullanıcısı"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "lifecycleStage": "trial",
+    "communicationClass": "marketing",
+    "frequencyClass": "lifecycle-activation",
+    "exitEvents": [
+      "trial_converted",
+      "trial_cancelled",
+      "assistance_declined"
+    ],
+    "handoffEvents": {
+      "core_activation_completed": "saas-trial-01",
+      "support_request_opened": "conversation-routing-01"
+    }
+  },
+  {
+    "slug": "saas-handoff-01",
+    "idx": "SAAS-13",
+    "channels": [
+      "email",
+      "task"
+    ],
+    "sector": {
+      "en": "SaaS",
+      "tr": "SaaS"
+    },
+    "journey": {
+      "en": "Sales Handoff",
+      "tr": "Satıştan devir"
+    },
+    "title": {
+      "en": "Won or lost, the next owner takes over",
+      "tr": "Kazanıldı ya da kaybedildi, sıradaki sahip devralır"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": "conversion-window",
+    "lifecycleStage": "prospect",
+    "communicationClass": "marketing",
+    "frequencyClass": "lifecycle-activation",
+    "exitEvents": [
+      "opportunity_lost_not_fit"
+    ],
+    "handoffEvents": {
+      "opportunity_won": "saas-onboard-01",
+      "expansion_signal_detected": "saas-expansion-01",
       "activation_stalled": "saas-activate-01"
     }
   },
@@ -2747,7 +2825,8 @@ export const journeys: Journey[] = [
       "campaign_converted"
     ],
     "handoffEvents": {
-      "chronic_inactivity_confirmed": "email-sunset-01"
+      "chronic_inactivity_confirmed": "email-sunset-01",
+      "no_channel_engagement": "channel-fallback-01"
     }
   },
   {
@@ -2755,8 +2834,7 @@ export const journeys: Journey[] = [
     "idx": "CROSS-05",
     "channels": [
       "inapp",
-      "email",
-      "sales"
+      "task"
     ],
     "sector": {
       "en": "Cross-sector",
@@ -2780,5 +2858,71 @@ export const journeys: Journey[] = [
       "conversation_merged"
     ],
     "handoffEvents": {}
+  },
+  {
+    "slug": "channel-fallback-01",
+    "idx": "CROSS-06",
+    "channels": [
+      "email",
+      "sms",
+      "push"
+    ],
+    "sector": {
+      "en": "Cross-sector",
+      "tr": "Sektör bağımsız"
+    },
+    "journey": {
+      "en": "Channel Fallback",
+      "tr": "Kanal yedeklemesi"
+    },
+    "title": {
+      "en": "When email is not landing, before another email",
+      "tr": "E-posta ulaşmıyorsa, bir e-posta daha atmadan"
+    },
+    "priority": "promotional",
+    "family": "engagement",
+    "exclusionGroup": "soft-engagement",
+    "communicationClass": "marketing",
+    "frequencyClass": "standard-promotional",
+    "exitEvents": [
+      "campaign_converted",
+      "channel_consent_revoked"
+    ],
+    "handoffEvents": {
+      "chronic_inactivity_confirmed": "email-sunset-01"
+    }
+  },
+  {
+    "slug": "human-task-01",
+    "idx": "CROSS-07",
+    "channels": [
+      "email",
+      "task"
+    ],
+    "sector": {
+      "en": "Cross-sector",
+      "tr": "Sektör bağımsız"
+    },
+    "journey": {
+      "en": "Human In The Loop",
+      "tr": "İnsan onaylı akış"
+    },
+    "title": {
+      "en": "High intent, then a person, then automation again",
+      "tr": "Yüksek niyet, sonra bir insan, sonra yine otomasyon"
+    },
+    "priority": "activation",
+    "family": "lifecycle-start",
+    "exclusionGroup": null,
+    "communicationClass": "operational",
+    "frequencyClass": "service-critical",
+    "exitEvents": [
+      "not_interested",
+      "sla_escalation_exhausted"
+    ],
+    "handoffEvents": {
+      "opportunity_won": "saas-handoff-01",
+      "next_step_agreed": "saas-demo-01"
+    }
   }
 ];
