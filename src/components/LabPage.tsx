@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, FlaskConical } from "lucide-react";
 
 import JourneyBrowser from "@/components/JourneyBrowser";
-import { journeys } from "@/lib/journeys";
+import { JOURNEY_COUNT, withJourneyCount } from "@/lib/archive";
 import { copy, EMAIL, type Lang } from "@/lib/content";
 
 /* The archive as its own workspace: slim top bar, then the journey browser
@@ -57,10 +57,12 @@ export default function LabPage({ lang }: { lang: Lang }) {
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-xl font-semibold tracking-tight text-ink-950">{t.lab.page.title}</h1>
               <span className="border border-line bg-paper-soft px-2 py-0.5 text-xs font-medium text-neutral-600">
-                {journeys.length} {t.lab.page.results}
+                {JOURNEY_COUNT} {t.lab.page.results}
               </span>
             </div>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">{t.lab.page.intro}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">
+              {withJourneyCount(t.lab.page.intro)}
+            </p>
           </div>
         </div>
         <div className="px-4 py-6 md:px-8">

@@ -69,6 +69,87 @@ const flows = await readLiteral(FLOWS, FLOWS_MARKER);
 const journeys = await readLiteral(JOURNEYS, JOURNEYS_MARKER);
 const bySlug = new Map(journeys.map((j) => [j.slug, j]));
 
+/* ------------------------------------------- archive-wide / cross-file checks */
+
+/* The archive size used to be typed into copy strings by hand and drifted -
+   they said 72 after the archive had grown past it. They now carry a {count}
+   token filled from the data at render (src/lib/archive.ts). This catches
+   anyone re-hardcoding it. */
+{
+  const content = await readFile("src/lib/content.ts", "utf8");
+  const NUMBERED_COPY = /\b(\d{2,})\s+(?:lifecycle journey|teardown|inceleme)/gi;
+  for (const m of content.matchAll(NUMBERED_COPY)) {
+    const stated = Number(m[1]);
+    if (stated !== journeys.length) {
+      err("archive_count_mismatch", "content.ts", `copy says "${m[0]}" but the archive holds ${journeys.length} journeys - use the {count} token instead of a literal`);
+    } else {
+      warn("archive_count_hardcoded", "content.ts", `"${m[0]}" is a literal count; it happens to be right today but will drift - use the {count} token`);
+    }
+  }
+}
+
+/* Scoped exclusion is only real if the engine resolves the scope into the key
+   it compares. If any journey declares a non-user scope while resolveJourney
+   still compares bare group names, the metadata is decoration and every
+   product-scoped journey silently suppresses the others. */
+{
+  const scoped = journeys.filter((j) => j.exclusionScope && j.exclusionScope !== "user");
+  if (scoped.length > 0) {
+    const orch = await readFile("src/lib/orchestration.ts", "utf8");
+    const hasKeyFn = /export function exclusionKey\s*\(/.test(orch);
+    const conflictsUsesKey = /export function conflicts[\s\S]{0,400}exclusionKey\(/.test(orch);
+    const resolveUsesConflicts = /export function resolveJourney[\s\S]{0,1600}conflicts\(/.test(orch);
+    if (!hasKeyFn || !conflictsUsesKey || !resolveUsesConflicts) {
+      err(
+        "exclusion_scope_ignored_by_runtime",
+        "orchestration.ts",
+        `${scoped.length} journeys declare a non-user exclusionScope but the engine does not resolve it ` +
+          `(exclusionKey:${hasKeyFn} conflicts-uses-key:${conflictsUsesKey} resolveJourney-uses-conflicts:${resolveUsesConflicts})`,
+      );
+    }
+  }
+}
+
+/* An exclusion group must not mix person-wide and entity-scoped members. A
+   user-scoped journey resolves to `group:user` while an entity-scoped one with
+   a real id resolves to `group:<id>`, so the two could never suppress each
+   other - and the person-wide one is exactly the journey that should be able
+   to. Harmless while no entity ids exist (everything falls back to
+   `group:user`), a silent hole the moment they are wired in. */
+{
+  const byGroup = new Map();
+  for (const j of journeys) {
+    if (!j.exclusionGroup) continue;
+    if (!byGroup.has(j.exclusionGroup)) byGroup.set(j.exclusionGroup, new Set());
+    byGroup.get(j.exclusionGroup).add(j.exclusionScope ?? "user");
+  }
+  for (const [group, scopes] of byGroup) {
+    if (scopes.has("user") && scopes.size > 1) {
+      warn("exclusion_group_mixes_scopes", group, `mixes person-wide and entity-scoped members (${[...scopes].join(", ")}) - they can never suppress each other once entity ids are supplied`);
+    }
+  }
+}
+
+/* Same idea for the per-step communication class: the export renders a
+   [marketing]/[operational] tag from the data, so the tag can only ever be as
+   real as the engine's use of it. */
+{
+  const anyOverride = Object.values(flows).some((f) => f.en.some((s) => s.commClass));
+  if (anyOverride) {
+    const orch = await readFile("src/lib/orchestration.ts", "utf8");
+    const hasResolver = /export function effectiveCommunicationClass\s*\(/.test(orch);
+    const canSendUses = /export function canSend[\s\S]{0,700}effectiveCommunicationClass\(/.test(orch);
+    if (!hasResolver || !canSendUses) {
+      err(
+        "step_comm_class_ignored_by_runtime",
+        "orchestration.ts",
+        `steps declare commClass overrides but the send path does not resolve them ` +
+          `(effectiveCommunicationClass:${hasResolver} canSend-uses-it:${canSendUses})`,
+      );
+    }
+  }
+}
+
 /* -------------------------------------------------------------- identity */
 
 const seenSlug = new Set();
@@ -104,6 +185,26 @@ for (const j of journeys) {
 
   for (const c of j.channels) {
     if (!CHANNELS.includes(c)) err("unknown_channel", j.slug, `declares "${c}"`);
+  }
+
+  /* A P5 activation-tier journey that is really product setup - onboarding,
+     account activation, feature adoption - is not on a promotional cadence.
+     Trial conversion and lead nurture legitimately are: they sell. */
+  const SETUP_TYPES = ["Welcome Onboarding", "Account Onboarding", "Activation", "Account Activation", "Feature Adoption", "Progressive Profiling", "Channel Opt In"];
+  if (j.priority === "activation" && SETUP_TYPES.includes(j.journey?.en) && j.frequencyClass === "standard-promotional") {
+    warn("activation_on_promotional_cadence", j.slug, `${j.journey.en} at P5 uses standard-promotional - confirm it really carries a sales ask rather than being setup`);
+  }
+
+  /* An NPS/feedback journey's job is measuring an experience and routing the
+     response. Classing the whole thing P10 because its promoter arm asks for
+     a referral lets a cross-sell outrank the mechanism that finds an at-risk
+     customer. */
+  if (j.journey?.en === "Feedback Nps" && j.priority === "promotional") {
+    const entry = flows[j.slug]?.en?.[0];
+    const triggeredBySurvey = /survey response|nps|satisfaction score/i.test(`${entry?.a ?? ""}`);
+    if (triggeredBySurvey) {
+      warn("feedback_journey_as_promotional", j.slug, "triggers on a survey response (measurement + routing) but is classified P10 promotional - priority should follow the trigger, with the referral arm carrying a step-level class instead");
+    }
   }
 
   const endsOnlyViaHandoff = (!j.exitEvents || j.exitEvents.length === 0) && Object.keys(j.handoffEvents ?? {}).length > 0;
@@ -173,6 +274,36 @@ for (const j of journeys) {
   // Branch claim vs. reality - this caught the exact bug fixed this pass:
   // four journeys' entry text promised a split by activation depth while
   // the sequence was fully linear.
+  /* An observation buffer is a real span of silence, not a label. A condition
+     that says the journey is now "observing" must have an actual wait in
+     front of it, or the engine transitions through the buffer in zero time
+     and the retention ladder collapses into an instant winback. */
+  const OBS_RE = /observation|gözlem|buffer|tampon/i;
+  en.forEach((s, i) => {
+    if (s.t !== "condition" || !OBS_RE.test(s.a)) return;
+    const precededByWait = en.slice(0, i).reverse().find((p) => p.t === "wait" || p.t === "entry");
+    if (!precededByWait || precededByWait.t !== "wait" || !OBS_RE.test(precededByWait.a)) {
+      err("observation_buffer_without_wait", j.slug, `step ${i} declares an observation state ("${s.a}") with no observation wait in front of it`);
+    }
+  });
+
+  /* A push or SMS renders on a locked screen that anyone holding the phone can
+     read. A journey flagged as touching sensitive personal data must keep the
+     concrete detail off those surfaces and behind authentication. */
+  if (j.requiresSensitiveDataPolicy) {
+    const CONCRETE_RE = /\bkg\b|\bkilogram|\bweight\b|\bkilometers?\b|-day streak|\bstreak\b|\bdiagnos|\bblood\b|\bBMI\b/i;
+    /* Copy that states the rule ("said with no number, metric or program
+       name") must not read as a breach of it, so negated clauses are dropped
+       before the test - otherwise the fix for this very check trips it. */
+    const stripNegated = (text) => text.replace(/\b(?:no|without|never|not|zero)\b[^.]*/gi, " ");
+    en.forEach((s, i) => {
+      if (s.t !== "push" && s.t !== "sms") return;
+      if (CONCRETE_RE.test(stripNegated(`${s.title ?? ""} ${s.b}`))) {
+        err("sensitive_detail_on_public_surface", j.slug, `step ${i} (${s.t}) puts a concrete personal-health detail on a lock-screen-visible surface - keep it generic and move the specifics behind authentication`);
+      }
+    });
+  }
+
   const branchNums = new Set(en.filter((s) => s.branch != null).map((s) => s.branch));
   const entryText = `${en[0]?.a ?? ""} ${en[0]?.b ?? ""}`;
   if (BRANCH_CLAIM_RE.test(entryText) && branchNums.size < 2) {

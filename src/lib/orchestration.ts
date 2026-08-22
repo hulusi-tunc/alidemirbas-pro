@@ -66,8 +66,11 @@ export type JourneyFamily =
   | "win-back"
   | "engagement";
 
-/** Journeys in the same group must never run simultaneously for one person -
-    at the granularity `ExclusionScope` says. As someone moves down the funnel
+/** Journeys sharing the same exclusion group AND the same resolved exclusion
+    key cannot run together. Same group alone is NOT enough - the key is what
+    `ExclusionScope` resolves to, so two product-scoped journeys about
+    different products never conflict (see `exclusionKey` / `conflicts`, which
+    is what `resolveJourney` actually calls). As someone moves down the funnel
     the lower-intent journey stops: browse yields to cart, cart yields to
     checkout. Churn prevention yields to win-back only after the observation
     buffer, never at the same time. */
@@ -157,17 +160,27 @@ type Candidate = JourneyOrchestration & {
   entityId?: string;
 };
 
-/** The key two candidates must share to actually be in competition. Same
-    group and same scope is not enough by itself - at any scope narrower than
-    "user" they also need the same entityId, which the caller supplies (see
-    Candidate.entityId above); no entityId falls back to the group+scope pair
-    alone, which is equivalent to "user" scoping until a real id is wired
-    in - conservative, not silently permissive. */
+/** The key two candidates must share to actually be in competition: the
+    exclusion group plus the subject they are both about.
+
+    The scope name is deliberately NOT in the key. Scope says how to *resolve*
+    the subject, it is not part of that subject's identity - keying on it
+    would mean a cart-scoped journey and a product-scoped journey could never
+    conflict even when the caller resolves both to the same item, which is
+    structurally worse than the person-wide behaviour it replaced. Making the
+    conflict expressible is the caller's job: two journeys that should
+    compete over the same thing must resolve `entityId` to the same value.
+
+    No entityId falls back to the person-wide key. That is the conservative
+    direction - until a real id is wired in, everything in the group keeps
+    excluding everything else, exactly as before scopes existed - and it is
+    why this static archive, which carries no entity ids, behaves identically
+    to the pre-scope version rather than silently letting more sends through. */
 export function exclusionKey(c: Candidate): string | null {
   if (!c.exclusionGroup) return null;
   const scope = c.exclusionScope ?? "user";
-  if (scope === "user") return `${c.exclusionGroup}:user`;
-  return `${c.exclusionGroup}:${scope}:${c.entityId ?? ""}`;
+  if (scope === "user" || !c.entityId) return `${c.exclusionGroup}:user`;
+  return `${c.exclusionGroup}:${c.entityId}`;
 }
 
 /** Do these two genuinely compete for the same send? Same group, same scope,
@@ -406,26 +419,38 @@ function countSince(sends: readonly SendRecord[], since: number, match: (s: Send
   return sends.filter((s) => s.at >= since && match(s)).length;
 }
 
+/** The class that actually governs a send: the step's own override when it
+    declares one, otherwise the journey default. This is the whole resolution
+    order, and it is the only one - a step inherits from nowhere else. Every
+    gate that varies by class (quiet hours, the marketing frequency cap, the
+    service-critical exemption from both) reads what this returns rather than
+    `journey.communicationClass` directly, which is what stops a journey's
+    exemption leaking onto a step that shouldn't have it. */
+export function effectiveCommunicationClass(
+  journey: { communicationClass: CommunicationClass },
+  step?: { commClass?: CommunicationClass },
+): CommunicationClass {
+  return step?.commClass ?? journey.communicationClass;
+}
+
 /** Can we send this journey on this channel to this user right now? Every gate
     in the send path, in order, with the first failure named.
 
-    `stepClass` is a per-step override of `journey.communicationClass` - most
-    steps don't need one (the journey default is correct for them), but a
-    journey can genuinely mix classes: ecom-recovery-01 opens with a real
-    service-critical question and closes with an ordinary marketing nudge
-    back to the catalogue, and ota-pretrip-01 is operational end to end
-    except for its one upsell step. Passing the step's own class here, not
-    the journey's, is what keeps that ordinary closing nudge inside the
-    marketing cap and quiet hours instead of inheriting the service-critical
-    exemption meant for the question that opened the journey. */
+    Pass the actual step being sent, not just the journey: a journey can
+    genuinely mix classes. ecom-recovery-01 opens with a real service-critical
+    question and closes with an ordinary marketing nudge back to the
+    catalogue; ota-pretrip-01 is operational end to end except its one upsell
+    step. Resolving the class per step is what keeps that closing nudge inside
+    the marketing cap and quiet hours instead of inheriting the
+    service-critical exemption meant for the message that opened the journey. */
 export function canSend(
   journey: Candidate,
   channel: Channel,
   user: UserState,
   ctx: SendContext,
-  stepClass?: CommunicationClass,
+  step?: { commClass?: CommunicationClass },
 ): SendDecision {
-  const effectiveClass = stepClass ?? journey.communicationClass;
+  const effectiveClass = effectiveCommunicationClass(journey, step);
 
   const hard = hardSuppressions(user, { ...journey, communicationClass: effectiveClass }, ctx.now);
   if (hard.length > 0) return { ok: false, reason: hard[0] };
@@ -475,10 +500,11 @@ export function firstSendableChannel(
   journey: Candidate,
   user: UserState,
   ctx: SendContext,
+  step?: { commClass?: CommunicationClass },
 ): Channel | null {
   for (const c of journey.channels) {
     if (c === "sales") continue; // a human handoff, not a send
-    if (canSend(journey, c, user, ctx).ok) return c;
+    if (canSend(journey, c, user, ctx, step).ok) return c;
   }
   return null;
 }

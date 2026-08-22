@@ -637,7 +637,7 @@ export const journeys: Journey[] = [
     "family": "engagement",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "feature_adopted"
     ],
@@ -896,7 +896,7 @@ export const journeys: Journey[] = [
     "family": "engagement",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "feature_adopted"
     ],
@@ -993,7 +993,8 @@ export const journeys: Journey[] = [
     "communicationClass": "marketing",
     "frequencyClass": "standard-promotional",
     "exitEvents": [
-      "usage_recovered"
+      "usage_recovered",
+      "customer_lapsed"
     ],
     "handoffEvents": {}
   },
@@ -1623,7 +1624,7 @@ export const journeys: Journey[] = [
     "family": "engagement",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "feature_adopted"
     ],
@@ -2039,7 +2040,7 @@ export const journeys: Journey[] = [
     "family": "engagement",
     "exclusionGroup": null,
     "communicationClass": "marketing",
-    "frequencyClass": "standard-promotional",
+    "frequencyClass": "lifecycle-activation",
     "exitEvents": [
       "feature_adopted"
     ],
@@ -2096,7 +2097,7 @@ export const journeys: Journey[] = [
       "en": "Post-service satisfaction and follow-through",
       "tr": "Hizmet sonrası memnuniyet ve aksiyon"
     },
-    "priority": "promotional",
+    "priority": "retention",
     "family": "engagement",
     "exclusionGroup": "soft-engagement",
     "communicationClass": "marketing",
@@ -2320,7 +2321,7 @@ export const journeys: Journey[] = [
       "en": "Post-program satisfaction and follow-up action",
       "tr": "Program sonrası memnuniyet ve aksiyon"
     },
-    "priority": "promotional",
+    "priority": "retention",
     "family": "engagement",
     "exclusionGroup": "soft-engagement",
     "communicationClass": "marketing",
