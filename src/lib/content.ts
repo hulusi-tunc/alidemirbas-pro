@@ -2,7 +2,7 @@ export type Lang = "en" | "tr";
 
 export const copy = {
   en: {
-    nav: { about: "About", aboutHref: "/about", lab: "Lab", labHref: "/lab", stack: "Stack", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
+    nav: { about: "About", aboutHref: "/about", lab: "Lab", labHref: "/lab", calculators: "Calculators", calculatorsHref: "/calculators", stack: "Stack", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
@@ -44,13 +44,6 @@ export const copy = {
             { label: "Explore the playbook", href: "/lab/ab-testing" },
             { label: "View on GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
-        },
-        {
-          name: "Marketing Calculators",
-          slug: "marketing-calculators",
-          desc: "ROAS, CAC, LTV, CTR and 13 other marketing-metric calculators, plus a UTM builder and character counter - free, no account required.",
-          tags: ["Web Tool", "Marketing Analytics", "17 tools"],
-          links: [{ label: "Open the calculators", href: "/lab/calculators" }],
         },
         {
           name: "Marketing Dashboard Builder",
@@ -355,7 +348,7 @@ export const copy = {
     },
   },
   tr: {
-    nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", calculators: "Hesaplayıcılar", calculatorsHref: "/tr/calculators", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
@@ -397,13 +390,6 @@ export const copy = {
             { label: "Playbook'u incele", href: "/tr/lab/ab-testing" },
             { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
-        },
-        {
-          name: "Pazarlama Hesaplayıcıları",
-          slug: "marketing-calculators",
-          desc: "ROAS, CAC, LTV, CTR ve 13 pazarlama metriği hesaplayıcısı, ayrıca bir UTM oluşturucu ve karakter sayacı - ücretsiz, hesap gerektirmez.",
-          tags: ["Web Aracı", "Pazarlama Analitiği", "17 araç"],
-          links: [{ label: "Hesaplayıcıları aç", href: "/tr/lab/calculators" }],
         },
         {
           name: "Pazarlama Dashboard Üretici",

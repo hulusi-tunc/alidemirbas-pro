@@ -31,6 +31,7 @@ export function SiteHeader({
   const navItems = [
     { label: t.nav.about, href: t.nav.aboutHref },
     { label: t.nav.lab, href: t.nav.labHref },
+    { label: t.nav.calculators, href: t.nav.calculatorsHref },
     { label: t.nav.stack, href: t.nav.stackHref },
     { label: t.nav.contact, href: t.nav.contactHref },
   ];
@@ -44,6 +45,7 @@ export function SiteHeader({
         <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
           <Link className="transition-colors hover:text-white" href={t.nav.aboutHref}>{t.nav.about}</Link>
           <Link className="transition-colors hover:text-white" href={t.nav.labHref}>{t.nav.lab}</Link>
+          <Link className="transition-colors hover:text-white" href={t.nav.calculatorsHref}>{t.nav.calculators}</Link>
           <Link className="transition-colors hover:text-white" href={t.nav.stackHref}>{t.nav.stack}</Link>
           <Link className="transition-colors hover:text-white" href={t.nav.contactHref}>{t.nav.contact}</Link>
         </nav>
@@ -264,6 +266,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
     { label: t.footer.home, href: home },
     { label: t.nav.about, href: t.nav.aboutHref },
     { label: t.nav.lab, href: t.nav.labHref },
+    { label: t.nav.calculators, href: t.nav.calculatorsHref },
     { label: t.nav.stack, href: t.nav.stackHref },
     { label: t.nav.contact, href: t.nav.contactHref },
   ];
