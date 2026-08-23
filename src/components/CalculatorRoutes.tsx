@@ -1,27 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  Megaphone,
-  UserPlus,
-  ShoppingCart,
-  Repeat,
-  Mail,
-  Smartphone,
-  Layers,
-  Calculator as CalculatorIcon,
-  Filter,
-  FlaskConical,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import CalculatorTool from "@/components/CalculatorTool";
 import CalculatorContent from "@/components/CalculatorContent";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
 import { SiteFooter, SiteHeader } from "@/components/Site";
-import { CategoryCardGrid, type CategoryCard } from "@/components/ui/CategoryCardGrid";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { copy } from "@/lib/content";
@@ -56,25 +42,6 @@ const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
   experimentation: { en: "Experimentation", tr: "Deneysel Test" },
 };
 
-// One icon per existing catalog category - purely visual, the category
-// set itself still comes from CATEGORY_LABEL/spec.category, never from
-// this map. A category with no entry here falls back to CalculatorIcon
-// rather than being dropped, so a future catalog category never 404s the
-// grid silently.
-const CATEGORY_ICON: Record<string, LucideIcon> = {
-  advertising: Megaphone,
-  acquisition: UserPlus,
-  ecommerce: ShoppingCart,
-  "lifecycle-retention": Repeat,
-  "crm-email": Mail,
-  "mobile-growth": Smartphone,
-  saas: Layers,
-  "unit-economics": CalculatorIcon,
-  "cro-funnel": Filter,
-  experimentation: FlaskConical,
-};
-
-const CATEGORY_GRID_TITLE = { en: "Browse by category", tr: "Kategoriye göre göz at" };
 const RELATED_TITLE = { en: "Related calculators", tr: "İlgili hesaplayıcılar" };
 
 export function calculatorIndexMetadata(lang: Lang): Metadata {
@@ -181,22 +148,12 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   const desc = content ? content.intro : spec ? spec.formulaPlainEnglish : textTool!.desc[lang];
 
   // Section order below: Hero -> Calculator -> short desc/formula area ->
-  // related categories -> FAQ -> Related calculators. Text tools (UTM
-  // builder, character counter) have no CalcSpec, so the category/FAQ/
-  // related sections - all spec-driven - simply don't render for them.
+  // FAQ -> Related calculators. Text tools (UTM builder, character
+  // counter) have no CalcSpec, so the FAQ/related sections - both
+  // spec-driven - simply don't render for them. The "Browse by category"
+  // grid that used to sit here was removed by request - category
+  // browsing lives on the /calculators index page only.
   const runtime = spec ? toRuntimeSpec(spec) : null;
-
-  const categoryItems: CategoryCard[] = spec
-    ? [...new Set(getAllLiveSpecs().map((s) => s.category))]
-        .filter((cat) => cat !== spec.category)
-        .map((cat) => ({
-          slug: cat,
-          label: CATEGORY_LABEL[cat]?.[lang] ?? cat,
-          count: getAllLiveSpecs().filter((s) => s.category === cat).length,
-          href: `${base}#cat-${cat}`,
-          icon: CATEGORY_ICON[cat] ?? CalculatorIcon,
-        }))
-    : [];
 
   // Phase 4 content can author its own Related Calculators with a real
   // one-sentence relationship (see CalcContent.related) - preferred over
@@ -239,9 +196,7 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
                   just above (formula + plain-English, for every live
                   calculator, not only the 13 with Phase 4 content) - a
                   second one here would just repeat it, so this template
-                  starts at the category grid instead. */}
-              <CategoryCardGrid title={CATEGORY_GRID_TITLE[lang]} items={categoryItems} />
-
+                  starts at FAQ instead. */}
               <FaqAccordion title="FAQ" items={content?.faq ?? []} />
 
               <RelatedGrid title={RELATED_TITLE[lang]} items={relatedItems} />
