@@ -54,8 +54,11 @@ for (const slug of targetSlugs) {
   const warnings = [];
 
   // --- FAQ ---
+  // Count range is depth-aware: LIGHT pages (CTR) don't need to be padded
+  // to 4 questions just to hit the STANDARD/DEEP range.
   const faq = content.faq ?? [];
-  if (faq.length < 4 || faq.length > 6) errors.push(`FAQ count ${faq.length}, expected 4-6`);
+  const [faqMin, faqMax] = content.contentDepth === "light" ? [2, 4] : [4, 6];
+  if (faq.length < faqMin || faq.length > faqMax) errors.push(`FAQ count ${faq.length}, expected ${faqMin}-${faqMax} for ${content.contentDepth ?? "unknown"} depth`);
   const seenQ = new Set();
   for (const f of faq) {
     const wc = wordCount(f.a);

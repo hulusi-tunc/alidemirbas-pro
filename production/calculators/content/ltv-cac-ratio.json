@@ -7,20 +7,60 @@
     {
       "id": "formula",
       "type": "formula",
-      "heading": "What it measures",
-      "body": "LTV ÷ CAC, shown as a multiplier. An LTV of $720 against a CAC of $240 gives a ratio of 3.00x — the customer is worth three times what it cost to acquire them, before accounting for how long it takes to actually see that value."
+      "heading": "How the ratio is calculated",
+      "body": "LTV:CAC ratio is a customer's lifetime value divided by what it cost to acquire them, expressed as a multiplier. The result says how many times over the acquisition cost the customer is theoretically worth \u2014 nothing about how long that value takes to arrive, or what happens to cash flow in the meantime."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        {
+          "label": "LTV",
+          "value": "$720"
+        },
+        {
+          "label": "CAC",
+          "value": "$240"
+        }
+      ],
+      "output": {
+        "label": "LTV:CAC Ratio",
+        "value": "3.00x"
+      },
+      "body": "A ratio of 3.00x means the customer is worth three times what it cost to acquire them, based on the LTV and CAC figures entered. It says nothing on its own about how long it takes to realize that value or whether the timing works for the business's cash position."
     },
     {
       "id": "which-ltv-model",
       "type": "interpretation",
       "heading": "Which LTV number to use here",
-      "body": "This ratio is only as sound as the LTV figure you feed into it. The simple/historic LTV model (average order value × purchase frequency × lifespan) doesn't account for margin, and plugging it in here will overstate how much room you actually have to spend on acquisition — it's measuring revenue potential, not what the business actually keeps. The margin-adjusted LTV model is the one built for this comparison, since it already factors in gross margin before the ratio is taken."
+      "body": "This ratio is only as sound as the LTV figure feeding it. The [simple/historic LTV model](/calculators/ltv), average order value times purchase frequency times lifespan, doesn't account for margin, and using it here overstates how much room there actually is to spend on acquisition, since it measures revenue potential rather than what the business keeps. [Corporate Finance Institute's methodology for this calculation](https://corporatefinanceinstitute.com/resources/valuation/lifetime-value-calculation/) applies margin before the multiplication rather than after \u2014 the margin-adjusted LTV model is built the same way, and it's the one meant for this comparison."
     },
     {
       "id": "interpretation",
       "type": "interpretation",
-      "heading": "Reading the ratio",
-      "body": "A ratio above 1x means the customer is theoretically worth more than they cost — but the ratio alone doesn't say how long it takes to realize that value, which is what CAC payback period is for. A high LTV:CAC with a very long payback period can still strain cash flow even though the underlying economics look healthy on paper."
+      "heading": "What the ratio actually tells you",
+      "body": "A ratio above 1x means the customer is theoretically worth more than they cost, but the number alone doesn't say how long it takes to realize that value \u2014 [CAC Payback Period](/calculators/cac-payback-period) measures that instead. A high ratio with a very long payback can still strain cash flow even though the underlying economics look healthy on paper. How the ratio should be read also depends on growth strategy: a business investing to capture share ahead of a slower-growing market may accept a lower ratio deliberately, while one optimizing for near-term cash efficiency will weight the same ratio differently. The number is an input to that judgment, not the judgment itself."
+    },
+    {
+      "id": "trust-checks",
+      "type": "trust-checks",
+      "heading": "Before you trust this result",
+      "intro": "Three things worth checking before comparing or acting on an LTV:CAC ratio.",
+      "checks": [
+        {
+          "title": "Same LTV model",
+          "body": "The LTV figure needs to be the margin-adjusted model, not the simple/historic one \u2014 feeding a revenue-based LTV into this ratio overstates the result and can make acquisition spend look more affordable than it is."
+        },
+        {
+          "title": "Same time period and cohort",
+          "body": "LTV and CAC should describe the same group of customers over comparable time windows. Pairing a recent cohort's CAC with an LTV modeled from an older, different customer base produces a ratio that isn't really measuring today's economics."
+        },
+        {
+          "title": "Consistent CAC scope",
+          "body": "Check whether the CAC feeding this ratio is paid-only or fully loaded \u2014 the same LTV divided by a narrower CAC will always look more favorable than the same LTV divided by a fully loaded one."
+        }
+      ]
     },
     {
       "id": "common-mistakes",
@@ -28,11 +68,56 @@
       "heading": "Common mistakes",
       "items": [
         "Feeding the simple/historic LTV model into this ratio instead of the margin-adjusted one, which overstates how much the business can afford to spend on acquisition.",
-        "Treating the ratio as the whole picture without also checking CAC payback period - a healthy ratio can still come with a payback period too long for the business's cash position."
+        "Treating the ratio as the whole picture without also checking CAC payback period \u2014 a healthy ratio can still come with a payback period too long for the business's cash position.",
+        "Comparing LTV and CAC figures built on different acquisition scopes \u2014 a fully loaded CAC against a narrowly defined LTV, or the reverse, moves the ratio without changing anything real.",
+        "Treating a single published 'good' ratio as a target regardless of margin structure or growth strategy, when the right number depends on both."
       ]
     }
   ],
-  "faq": [],
+  "related": [
+    {
+      "slug": "ltv",
+      "name": "LTV Calculator",
+      "desc": "Computes the lifetime value figure this ratio depends on \u2014 with three models, since which one belongs here isn't arbitrary."
+    },
+    {
+      "slug": "cac",
+      "name": "CAC Calculator",
+      "desc": "Computes the acquisition cost side of the ratio, and the scope decision (paid-only vs. fully loaded) that changes the result."
+    },
+    {
+      "slug": "cac-payback-period",
+      "name": "CAC Payback Period Calculator",
+      "desc": "Answers the timing question this ratio doesn't \u2014 how many months it takes to actually recover the acquisition cost."
+    }
+  ],
+  "faq": [
+    {
+      "id": "what-is-ltv-cac-ratio",
+      "q": "What is the LTV:CAC ratio?",
+      "a": "The LTV:CAC ratio compares a customer's lifetime value against what it cost to acquire them, calculated as LTV divided by CAC and expressed as a multiplier. A ratio of 3.00x means the customer is worth three times what was spent to acquire them, based on whatever LTV and CAC figures were used. It's a single number meant to summarize whether acquisition spend is, in theory, buying something worth more than it costs \u2014 but it only answers that question as well as the LTV and CAC figures feeding it are defined. The ratio says nothing about how quickly that value is realized, which is a separate question this metric doesn't attempt to answer, and one that CAC payback period is built to cover instead."
+    },
+    {
+      "id": "how-to-calculate-ltv-cac-ratio",
+      "q": "How do you calculate the LTV:CAC ratio?",
+      "a": "Divide LTV by CAC: LTV:CAC = LTV \u00f7 CAC. An LTV of $720 divided by a CAC of $240 gives a ratio of 720 \u00f7 240 = 3.00x. Both inputs need to describe the same group of customers over a comparable period \u2014 an LTV modeled from one cohort divided by a CAC measured from an entirely different one won't produce a ratio that means anything about either group specifically. The LTV figure also needs to be the margin-adjusted model rather than the simple, revenue-based one, since the simple model doesn't subtract the cost of serving the customer and will make the ratio look stronger than the underlying economics actually support."
+    },
+    {
+      "id": "which-ltv-for-ratio",
+      "q": "Which LTV should I use for this ratio?",
+      "a": "The margin-adjusted LTV model, not the simple or historic one. The simple model, average order value times purchase frequency times customer lifespan, measures gross revenue potential and has no concept of cost, so dividing it by CAC produces a ratio that overstates how profitable the acquisition actually is. The margin-adjusted model factors in gross margin before the ratio is taken, which brings the comparison closer to what the business actually keeps rather than what it bills. Using the wrong model doesn't just shift the number slightly \u2014 it can make an acquisition channel that's actually marginal look comfortably healthy, which is exactly the kind of error this ratio exists to prevent, not cause."
+    },
+    {
+      "id": "good-ltv-cac-ratio",
+      "q": "What is a good LTV:CAC ratio?",
+      "a": "There's no single target that applies across businesses \u2014 the right ratio depends on how LTV and CAC are each defined, the business's margin structure, its growth strategy, and how fast it needs to recover acquisition costs in cash. A business intentionally investing ahead of growth may accept a lower ratio for a period; a business optimizing for near-term efficiency will want a higher one. Numbers commonly repeated online as a universal target don't account for any of that context, and a ratio computed with a revenue-based LTV isn't comparable to one computed with a margin-adjusted LTV in the first place. Reading the ratio alongside CAC payback period gives a fuller picture than the ratio alone."
+    },
+    {
+      "id": "ratio-vs-payback",
+      "q": "How is LTV:CAC ratio different from CAC payback period?",
+      "a": "LTV:CAC ratio asks whether a customer is worth more than they cost, over their entire relationship with the business. CAC payback period asks a narrower, faster question: how many months of gross margin it takes to recover just the acquisition cost, regardless of what happens after that point. A customer can score well on both, well on one and poorly on the other, or poorly on both \u2014 a high LTV:CAC ratio built on a long customer lifespan can still come with a payback period that strains cash flow in the near term, even though the long-run economics look strong. The two metrics answer different questions and are meant to be read together, not as substitutes for each other."
+    }
+  ],
   "seo": {
     "seoTitle": "LTV:CAC Ratio Calculator",
     "seoDescription": "Calculate the LTV to CAC ratio, and see which LTV model belongs in this comparison.",
@@ -41,5 +126,5 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "No universal 'good LTV:CAC ratio' number stated (Phase 4 §8) - reading is tied to CAC payback period instead. The margin-adjusted-vs-simple LTV model warning comes directly from the calculator's own validationRules, not invented for this content."
+  "qaNotes": "No universal 'good LTV:CAC ratio' number stated anywhere on the page, including the FAQ - the commonly-repeated 3:1 figure was found during research (even on otherwise-authoritative sources) but deliberately excluded per instruction 12's claim policy. The margin-adjusted-vs-simple LTV model warning comes from the calculator's own validationRules, not invented. External source: CFI's lifetime value calculation methodology (revenue-based vs. profit-adjusted), supporting the 'use margin-adjusted LTV here' claim. Related Calculators authored here, verified live: ltv, cac, cac-payback-period."
 }

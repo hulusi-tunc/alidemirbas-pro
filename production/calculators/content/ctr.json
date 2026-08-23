@@ -8,22 +8,75 @@
       "id": "formula",
       "type": "formula",
       "heading": "How CTR is calculated",
-      "body": "CTR is clicks divided by impressions, shown as a percentage. Impressions are how many times the ad was shown; clicks are how many of those views turned into a click. Nothing else feeds into it — no cost, no conversions, just the ratio of the two counts you already have in any ad platform's dashboard."
+      "body": "CTR is clicks divided by impressions, shown as a percentage. Impressions are how many times the ad was shown; clicks are how many of those views turned into a click. Nothing else feeds into it, no cost, no conversions, just the ratio of the two counts already in any ad platform's dashboard, matching the definition [Google Ads' own help documentation](https://support.google.com/google-ads/answer/2615875) uses."
     },
     {
-      "id": "example",
-      "type": "example",
-      "heading": "Example",
-      "body": "An ad that gets 240 clicks from 12,000 impressions has a CTR of 2.00%. Double the impressions with the same click count and CTR halves — it moves with the denominator just as much as the numerator, which is easy to forget when comparing two campaigns that ran at different scales."
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        {
+          "label": "Clicks",
+          "value": "240"
+        },
+        {
+          "label": "Impressions",
+          "value": "12,000"
+        }
+      ],
+      "output": {
+        "label": "CTR",
+        "value": "2.00%"
+      },
+      "body": "A CTR of 2.00% means 2 out of every 100 people who saw the ad clicked it. Double the impressions with the same click count and CTR halves \u2014 it moves with the denominator just as much as the numerator."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "What CTR tells you, and what it doesn't",
+      "body": "CTR tells you how often people who saw the ad clicked it \u2014 a direct read on how well the creative and targeting caught attention in that placement. It's most useful for comparing creative variants or placements against each other under similar conditions, not as a number to judge in isolation. It doesn't tell you what happened after the click. A high CTR next to a low [conversion rate](/calculators/cr) means the ad earns attention but the click isn't turning into anything, and CTR alone won't show that gap. It also says nothing about cost \u2014 the same CTR can come from a cheap or expensive [click](/calculators/cpc), and a lower CTR at a lower cost per click can still be the better trade."
     },
     {
       "id": "ctr-vs-ctor",
       "type": "comparison-note",
       "heading": "CTR and CTOR are not the same rate",
-      "body": "CTR divides clicks by impressions — everyone who was shown the ad, whether they noticed it or not. Click-to-Open Rate (CTOR) divides clicks by opens, and only applies to email, where 'opened' is a separate, earlier event than 'was delivered.' A campaign can have a low CTR but a healthy CTOR if the creative works once someone actually opens it — the two numbers are answering different questions, not two versions of the same one."
+      "body": "CTR divides clicks by impressions \u2014 everyone who was shown the ad, whether they noticed it or not. Click-to-Open Rate (CTOR) divides clicks by opens, and only applies to email, where 'opened' is a separate, earlier event than 'was delivered' or 'was shown.' A campaign can have a low CTR but a healthy CTOR if the creative works once someone actually opens it \u2014 the two numbers answer different questions, not two versions of the same one."
     }
   ],
-  "faq": [],
+  "related": [
+    {
+      "slug": "cpc",
+      "name": "CPC Calculator",
+      "desc": "What each of those clicks actually cost \u2014 the same click count means very different things at a low or high CPC."
+    },
+    {
+      "slug": "cr",
+      "name": "Conversion Rate Calculator",
+      "desc": "What happened after the click \u2014 the number that shows whether a strong CTR is actually producing anything."
+    },
+    {
+      "slug": "roas",
+      "name": "ROAS Calculator",
+      "desc": "Whether the revenue from those eventual conversions justified the spend behind the clicks in the first place."
+    }
+  ],
+  "faq": [
+    {
+      "id": "what-is-ctr",
+      "q": "What is CTR?",
+      "a": "CTR (click-through rate) is the share of people who saw an ad or listing that clicked it, calculated as clicks divided by impressions and shown as a percentage. A CTR of 2% means 2 out of every 100 people who saw the ad clicked through to it. CTR is a measure of how well an ad or listing catches attention in the specific placement it ran in, nothing more \u2014 it doesn't account for what happened after the click, what the click cost, or whether the person who clicked was ever likely to convert. It's most useful as a comparison tool: the same audience, placement and time window, judging one creative or headline against another, rather than as a standalone score of how a campaign performed overall."
+    },
+    {
+      "id": "how-to-calculate-ctr",
+      "q": "How do you calculate CTR?",
+      "a": "Divide clicks by impressions: CTR = Clicks \u00f7 Impressions. An ad shown 12,000 times that gets 240 clicks has a CTR of 240 \u00f7 12,000 = 2.00%. Both numbers need to come from the same placement and time window \u2014 impressions from a broader campaign divided by clicks from one specific ad within it will produce a CTR that doesn't describe either one accurately. Most ad platforms report both numbers directly, so CTR rarely needs to be calculated by hand, but the formula matters for understanding what moves the number: doubling impressions without a proportional rise in clicks pulls CTR down, even if the ad's actual performance with people who saw it didn't change at all."
+    },
+    {
+      "id": "good-ctr",
+      "q": "What is a good CTR?",
+      "a": "There's no single good CTR \u2014 it depends on the channel, the placement, the ad format, the audience being targeted, and the campaign's objective, and these vary enough that a number from one context says very little about another. A search ad responding to an explicit query typically clears a far higher CTR than a display banner shown to someone who wasn't looking for anything related, and neither number says the other campaign is underperforming. Rather than chasing a published average, CTR is most useful compared against your own past performance in the same placement and format \u2014 a meaningful drop or rise in that specific comparison is a real signal; an isolated number compared against an unrelated benchmark usually isn't."
+    }
+  ],
   "seo": {
     "seoTitle": "CTR Calculator",
     "seoDescription": "Calculate click-through rate from clicks and impressions, with a worked example and the distinction between CTR and CTOR.",
@@ -32,5 +85,5 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "No benchmark section - no Tier 1/2 source was available to cite for 'average CTR' in this pass, and CTR varies enough by placement/network that a single number would mislead more than it helps. Left out rather than fabricated (Phase 4 instruction 8)."
+  "qaNotes": "LIGHT depth, kept deliberately short - no forced Before You Trust or metric-specific section, per instruction 2's LIGHT rule. No benchmark section - CTR varies too much by placement/format/objective for a single number to be honest, stated explicitly in the good-ctr FAQ instead of a separate section. External source: Google Ads Help's own CTR definition. Related Calculators authored here (catalog's own relatedCalculators list for CTR is mostly non-live slugs) - verified live: cpc, cr, roas."
 }

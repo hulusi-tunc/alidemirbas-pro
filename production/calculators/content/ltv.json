@@ -25,7 +25,7 @@
         {
           "modeId": "margin-adjusted",
           "heading": "Margin-adjusted (predictive)",
-          "body": "(Average order value × purchase frequency × gross margin) ÷ annual churn rate. This model swaps a fixed lifespan assumption for an estimate derived from churn — 1 ÷ churn rate is the modeled average lifetime — and multiplies by gross margin instead of raw revenue, so the result is closer to what the business actually retains. This is the model to use when the LTV number is feeding a decision like acquisition spend or the LTV:CAC ratio, because it doesn't overstate what a customer is worth the way the simple model can.",
+          "body": "(Average order value × purchase frequency × gross margin) ÷ annual churn rate. This model swaps a fixed lifespan assumption for an estimate derived from churn, 1 ÷ churn rate is the modeled average lifetime, and multiplies by gross margin instead of raw revenue, so the result is closer to what the business actually retains. This is the model to use when the LTV number is feeding a decision like acquisition spend or the LTV:CAC ratio, because it doesn't overstate what a customer is worth the way the simple model can.",
           "example": "A $60 average order, four purchases a year, 60% gross margin and a 20% annual churn rate also gives $720 here — the two models can agree at a particular set of inputs, but they won't in general, since they're built on different assumptions about margin and lifespan."
         },
         {
@@ -37,10 +37,40 @@
       ]
     },
     {
+      "id": "ltv-vs-clv",
+      "type": "comparison-note",
+      "heading": "LTV and CLV are the same metric",
+      "body": "LTV (lifetime value) and CLV (customer lifetime value) are, in practice, the same measurement under two names — most teams and tools use them interchangeably, and neither term implies a different formula. The one distinction occasionally drawn: some sources use CLV for the value of one specific customer and LTV for an average across a customer base, but this is a loose convention rather than a standard, and plenty of legitimate sources use the two terms the other way around. Whichever label a platform or team uses, checking the formula and inputs behind it says more than the name does."
+    },
+    {
       "id": "interpretation",
       "type": "interpretation",
       "heading": "Reading the number",
-      "body": "LTV means the most next to what it costs to get there — pair it with CAC, either as a straight LTV:CAC ratio or a CAC payback period, rather than reading it in isolation. A rising LTV with a flat or rising CAC can still be a business getting less efficient overall, even though the top-line LTV number looks healthy on its own."
+      "body": "LTV means the most next to what it costs to get there — pair it with [CAC](/calculators/cac), either as a straight [LTV:CAC ratio](/calculators/ltv-cac-ratio) or a [CAC payback period](/calculators/cac-payback-period), rather than reading it in isolation. A rising LTV with a flat or rising CAC can still be a business getting less efficient overall, even though the top-line LTV number looks healthy on its own. Per [CFI's own breakdown of lifetime value calculation](https://corporatefinanceinstitute.com/resources/valuation/lifetime-value-calculation/), the version that applies profit margin, not the raw revenue version, is the one that reflects actual earnings — a distinction worth keeping in mind before treating any LTV figure as a proxy for profit."
+    },
+    {
+      "id": "trust-checks",
+      "type": "trust-checks",
+      "heading": "Before you trust this result",
+      "intro": "Four things worth checking before treating an LTV estimate as reliable.",
+      "checks": [
+        {
+          "title": "Cohort and time horizon",
+          "body": "The lifespan or churn figure feeding the model should reflect a real, defined cohort over a real time horizon. An assumed 3-year lifespan pulled from intuition rather than actual cohort data produces an LTV that's really an opinion with more decimal places."
+        },
+        {
+          "title": "Retention and churn assumptions",
+          "body": "The margin-adjusted model's implied lifetime (1 ÷ churn rate) assumes churn is roughly stable. A business whose churn is still moving significantly quarter to quarter will get a misleading implied lifetime from this shortcut, and should check it against actual [retention](/calculators/retention-rate) data before trusting the output."
+        },
+        {
+          "title": "Revenue vs. margin definition",
+          "body": "Check whether the number being entered is gross revenue or margin-adjusted revenue, and whether that matches what the chosen model expects. Mixing raw order value into a formula built for margin-adjusted figures, or the reverse, produces a number that isn't either model correctly."
+        },
+        {
+          "title": "Historical vs. predictive",
+          "body": "The simple model describes what customers have been worth in the past; the margin-adjusted and mobile models are closer to a forward-looking estimate. Treating a backward-looking figure as a forecast, or a forecast as settled history, is a common source of overconfidence in the resulting number."
+        }
+      ]
     },
     {
       "id": "assumptions",
@@ -61,15 +91,42 @@
       "items": [
         "Feeding the simple/historic LTV into an LTV:CAC ratio or acquisition-spend decision — it doesn't account for margin, so it overstates how much room there is to spend.",
         "Treating a higher-effort model as automatically more accurate, even when the inputs feeding it are rougher guesses than the simple model's inputs.",
-        "Comparing LTV figures computed with different models as if they were the same measurement."
+        "Comparing LTV figures computed with different models as if they were the same measurement.",
+        "Treating LTV and CLV as if a difference in label implies a difference in formula, when the two terms almost always describe the same calculation."
       ]
     }
   ],
+  "related": [
+    { "slug": "ltv-cac-ratio", "name": "LTV:CAC Ratio Calculator", "desc": "Puts this LTV figure against acquisition cost directly — the natural next step once an LTV model is chosen." },
+    { "slug": "cac", "name": "CAC Calculator", "desc": "The other half of the comparison LTV is almost always read against." },
+    { "slug": "cac-payback-period", "name": "CAC Payback Period Calculator", "desc": "Answers a faster-reacting question than LTV does — how soon acquisition cost is recovered, not what the customer is worth overall." },
+    { "slug": "retention-rate", "name": "Retention Rate Calculator", "desc": "The churn assumption behind the margin-adjusted LTV model, measured directly rather than estimated." }
+  ],
   "faq": [
+    {
+      "id": "what-is-ltv",
+      "q": "What is LTV?",
+      "a": "LTV (lifetime value) is an estimate of how much revenue, or margin-adjusted profit depending on the model, a customer generates over the entire time they remain a customer. It isn't measured directly the way a single transaction is; it's modeled from data like average order value, purchase frequency, customer lifespan, or churn rate, which is why more than one legitimate formula exists for it. A simple LTV model built from order history describes revenue potential; a margin-adjusted model describes something closer to what the business actually keeps. Neither version predicts what any individual customer will be worth — both describe an average across a cohort, and both are only as reliable as the assumptions and data feeding them."
+    },
     {
       "id": "which-model-should-i-use",
       "q": "Which LTV model should I use?",
-      "a": "If you're feeding the result into an acquisition-spend decision or LTV:CAC ratio, use the margin-adjusted model — it's built for that. If you just want a rough historical estimate from order data, the simple model is faster and needs less input data. If you're working with mobile app revenue measured per active user per day, use the ARPDAU-based model instead of forcing daily revenue into an order-based formula."
+      "a": "If the result is feeding an acquisition-spend decision or an LTV:CAC ratio, use the margin-adjusted model — it's built for exactly that, since it accounts for gross margin rather than raw revenue. If a quick, backward-looking estimate from order history is all that's needed, the simple model is faster and requires less input data, though it will overstate value for any business with real cost of goods. If the business is a mobile app measuring revenue per active user per day rather than tracking discrete orders, the ARPDAU-based model fits that data shape without forcing it into an order-based formula it was never measured for."
+    },
+    {
+      "id": "ltv-vs-clv-faq",
+      "q": "Is LTV the same as CLV?",
+      "a": "Yes, in almost every practical context. LTV (lifetime value) and CLV (customer lifetime value) are used interchangeably across marketing, finance and analytics, and neither label implies a specific formula or a different calculation method. A small number of sources draw a soft distinction, using CLV for one individual customer's value and LTV for an average across a customer base, but this convention isn't consistently followed even among sources that mention it, and plenty of authoritative material uses the terms the other way around or treats them as identical outright. What matters more than which label is used is checking the formula and inputs actually behind the number — a 'CLV' computed with the simple revenue model and an 'LTV' computed with the margin-adjusted model aren't comparable, regardless of which term either one uses."
+    },
+    {
+      "id": "good-ltv",
+      "q": "What is a good LTV?",
+      "a": "There's no universal good LTV on its own — the number only means something next to what it costs to acquire that customer and how quickly that value actually arrives. A $720 LTV is excellent against a $50 CAC and concerning against a $700 one, and a business with a long average customer lifespan can tolerate a smaller-looking LTV per period than one with high churn. Rather than judging LTV in isolation, pair it with CAC as an LTV:CAC ratio, or check CAC payback period to see how quickly the acquisition cost is recovered relative to when the value shows up. LTV figures published as universal benchmarks rarely state which of the three models produced them, which makes them unreliable to compare against."
+    },
+    {
+      "id": "how-far-back-ltv",
+      "q": "How far back should I look when estimating LTV?",
+      "a": "Far enough to capture a representative cohort's full or near-full lifecycle, not so far back that the business, pricing, or product has meaningfully changed since. For the simple model, that usually means using order history from customers who joined far enough in the past that most of them have already reached the end of a typical lifespan, rather than a recent cohort that's still active and whose eventual lifespan is unknown. For the margin-adjusted model, the churn rate should come from a period long enough to smooth out normal month-to-month noise but recent enough to reflect current retention, not churn behavior from before a major pricing or product change."
     }
   ],
   "seo": {
@@ -80,5 +137,5 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "No universal 'good LTV' number stated (Phase 4 §8, §12). Per-mode examples use the exact examplesByMode values already verified by test-calculators.mjs, not invented numbers (Phase 4 §11)."
+  "qaNotes": "DEEP depth. No separate top-level Worked Example section - the existing per-mode examples inside the 'models' section already are the worked examples for each of the three real modes (examplesByMode values, unmodified), and a generic single worked-example block would misrepresent a genuinely multi-mode calculator. No universal 'good LTV' number stated anywhere, including FAQ. LTV vs CLV researched - found genuinely interchangeable in practice, stated plainly rather than inventing an artificial distinction. External source: CFI's lifetime value calculation methodology (revenue vs. profit-adjusted), same source cited on the LTV:CAC Ratio page for a related but distinct claim on that page. Related Calculators authored here, verified live: ltv-cac-ratio, cac, cac-payback-period, retention-rate."
 }
