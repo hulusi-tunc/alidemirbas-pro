@@ -1,0 +1,15 @@
+{
+  "counts": {
+    "totalJourneys": 255,
+    "totalNodes": 3186,
+    "totalEdges": 3816,
+    "structuralTypesFound": 7,
+    "actionFamilies": 12,
+    "reviewRequired": 0
+  },
+  "errors": [],
+  "warnings": [
+    "263 action nodes (23.3%) matched no verb family - generic Action treatment applies, not an error"
+  ],
+  "status": "PASS"
+}

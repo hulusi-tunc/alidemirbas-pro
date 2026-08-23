@@ -1,0 +1,168 @@
+{
+  "_description": "Raw pattern -> normalized design subtype, for keyword-derived families. Canonical labels were never rewritten - this is an audit-layer mapping only.",
+  "action": [
+    {
+      "canonicalDesignSubtype": "record-create",
+      "pattern": "^(record|create|mark|update|persist|capture|log|inventory|raise)\\b",
+      "representativeLabels": [
+        "a.record",
+        "a.assign",
+        "a.mark-recycle"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "determine-classify",
+      "pattern": "^(determine|identify|classify|evaluate|compare|diagnose)\\b",
+      "representativeLabels": [
+        "a.evaluate",
+        "a.identify",
+        "a.identify"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "verify-validate",
+      "pattern": "^(verify|validate|revalidate|confirm)\\b",
+      "representativeLabels": [
+        "a.confirm",
+        "a.verify",
+        "a.verify"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "apply-establish",
+      "pattern": "^(apply|establish|define)\\b",
+      "representativeLabels": [
+        "a.reason",
+        "a.assess",
+        "a.termination-state"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "preserve-hold",
+      "pattern": "^(preserve|hold|retain|leave)\\b",
+      "representativeLabels": [
+        "a.wind-down",
+        "a.exclude",
+        "a.history"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "suppress-block",
+      "pattern": "^(suppress|block|reject|invalidate)\\b",
+      "representativeLabels": [
+        "a.suppress",
+        "a.invalidate",
+        "a.invalidate"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "stop-close-release",
+      "pattern": "^(stop|close|release)\\b",
+      "representativeLabels": [
+        "a.suppress",
+        "a.suppress",
+        "a.sunset"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "reconcile-resolve",
+      "pattern": "^(recalculate|reconcile|resolve|re-?evaluate|re-?open)\\b",
+      "representativeLabels": [
+        "a.reconcile",
+        "a.resolve",
+        "a.resolve"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "collect-request",
+      "pattern": "^(collect|request|read)\\b",
+      "representativeLabels": [
+        "a.read",
+        "a.context",
+        "a.read"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "retry-execute",
+      "pattern": "^(retry|execute)\\b",
+      "representativeLabels": [
+        "a.retry",
+        "a.retry",
+        "a.backoff"
+      ]
+    },
+    {
+      "canonicalDesignSubtype": "send-external",
+      "pattern": "^send\\b",
+      "representativeLabels": [
+        "a.educate",
+        "a.followup",
+        "a.final"
+      ]
+    }
+  ],
+  "conditionTopicTags": [
+    {
+      "canonicalDesignSubtype": "identity-verification",
+      "pattern": "identit|verif|authenticat"
+    },
+    {
+      "canonicalDesignSubtype": "eligibility-authorization",
+      "pattern": "eligib|qualif|entitled|permitted|authoris|authoriz|allowed"
+    },
+    {
+      "canonicalDesignSubtype": "existence-duplicate",
+      "pattern": "duplicate|conflict|already|existing|outstanding|is there|does .* exist"
+    },
+    {
+      "canonicalDesignSubtype": "state-status",
+      "pattern": "\\b(state|status|active|valid|current|open|closed|complete)\\b"
+    },
+    {
+      "canonicalDesignSubtype": "timing-deadline",
+      "pattern": "expir|deadline|window|overdue|elapsed"
+    },
+    {
+      "canonicalDesignSubtype": "comparison-threshold",
+      "pattern": "threshold|exceed|below|above|greater|fewer|within|limit|cap\\b"
+    },
+    {
+      "canonicalDesignSubtype": "ownership-authority",
+      "pattern": "\\bown|authority|responsib"
+    }
+  ],
+  "exitReasonTags": [
+    {
+      "canonicalDesignSubtype": "completed-satisfied",
+      "pattern": "completed?|satisfied|fulfilled|delivered|resolved|closed successfully|\\bsuccess"
+    },
+    {
+      "canonicalDesignSubtype": "ineligible-declined",
+      "pattern": "ineligible|not eligible|declined|denied|disqualified"
+    },
+    {
+      "canonicalDesignSubtype": "failed-unresolved",
+      "pattern": "failed|failure|unresolved|could not|unable"
+    },
+    {
+      "canonicalDesignSubtype": "expired-stale",
+      "pattern": "expired|stale|lapsed|timed? out"
+    },
+    {
+      "canonicalDesignSubtype": "cancelled-withdrawn",
+      "pattern": "cancell?ed|withdrawn|revoked|terminated"
+    },
+    {
+      "canonicalDesignSubtype": "suppressed-blocked",
+      "pattern": "suppress|blocked|held|on hold"
+    },
+    {
+      "canonicalDesignSubtype": "folded-merged",
+      "pattern": "folded|merged|already (outstanding|handled)|absorbed"
+    },
+    {
+      "canonicalDesignSubtype": "no-action",
+      "pattern": "no (action|communication|change)|not (applicable|required|needed)|stands on its own"
+    }
+  ]
+}

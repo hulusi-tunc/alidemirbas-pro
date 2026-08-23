@@ -1,0 +1,232 @@
+{
+  "_description": "Journey Step Vocabulary - Level 1 (structural) and Level 2 (semantic/design subtype) inventory, derived from the full 255-journey / 3186-node canonical corpus. src/canonical/ was never modified. Regenerate: node production/generate-journey-step-vocabulary.mjs",
+  "corpus": {
+    "journeys": 255,
+    "nodes": 3186,
+    "edges": 3816
+  },
+  "structuralTypes": [
+    {
+      "kind": "trigger",
+      "occurrences": 255,
+      "journeys": 255,
+      "corpusCoveragePct": 100
+    },
+    {
+      "kind": "condition",
+      "occurrences": 702,
+      "journeys": 254,
+      "corpusCoveragePct": 99.6
+    },
+    {
+      "kind": "wait",
+      "occurrences": 164,
+      "journeys": 146,
+      "corpusCoveragePct": 57.3
+    },
+    {
+      "kind": "exit",
+      "occurrences": 433,
+      "journeys": 225,
+      "corpusCoveragePct": 88.2
+    },
+    {
+      "kind": "action",
+      "occurrences": 1131,
+      "journeys": 255,
+      "corpusCoveragePct": 100
+    },
+    {
+      "kind": "handoff",
+      "occurrences": 500,
+      "journeys": 239,
+      "corpusCoveragePct": 93.7
+    },
+    {
+      "kind": "outcome",
+      "occurrences": 1,
+      "journeys": 1,
+      "corpusCoveragePct": 0.4
+    }
+  ],
+  "levelTwoSubtypes": {
+    "action": {
+      "designSignal": "leading imperative verb, clustered into 11 families",
+      "coveragePct": 76.7,
+      "families": [
+        {
+          "id": "record-create",
+          "occurrences": 455,
+          "categorySpread": 26,
+          "goalSpread": 21
+        },
+        {
+          "id": "generic-uncovered",
+          "occurrences": 263,
+          "categorySpread": 26,
+          "goalSpread": 21
+        },
+        {
+          "id": "determine-classify",
+          "occurrences": 109,
+          "categorySpread": 25,
+          "goalSpread": 21
+        },
+        {
+          "id": "apply-establish",
+          "occurrences": 56,
+          "categorySpread": 22,
+          "goalSpread": 17
+        },
+        {
+          "id": "verify-validate",
+          "occurrences": 47,
+          "categorySpread": 21,
+          "goalSpread": 15
+        },
+        {
+          "id": "suppress-block",
+          "occurrences": 45,
+          "categorySpread": 20,
+          "goalSpread": 15
+        },
+        {
+          "id": "preserve-hold",
+          "occurrences": 45,
+          "categorySpread": 20,
+          "goalSpread": 14
+        },
+        {
+          "id": "reconcile-resolve",
+          "occurrences": 37,
+          "categorySpread": 20,
+          "goalSpread": 18
+        },
+        {
+          "id": "stop-close-release",
+          "occurrences": 28,
+          "categorySpread": 15,
+          "goalSpread": 12
+        },
+        {
+          "id": "collect-request",
+          "occurrences": 24,
+          "categorySpread": 15,
+          "goalSpread": 11
+        },
+        {
+          "id": "retry-execute",
+          "occurrences": 16,
+          "categorySpread": 12,
+          "goalSpread": 6
+        },
+        {
+          "id": "send-external",
+          "occurrences": 6,
+          "categorySpread": 5,
+          "goalSpread": 4
+        }
+      ]
+    },
+    "condition": {
+      "designSignal": "PRIMARY: branch cardinality (structural). SECONDARY/optional: business-topic tag (partial coverage, informational only).",
+      "cardinality": {
+        "binary": 553,
+        "multi-way": 149
+      },
+      "topicTags": [
+        {
+          "id": "state-status",
+          "count": 80
+        },
+        {
+          "id": "existence-duplicate",
+          "count": 75
+        },
+        {
+          "id": "eligibility-authorization",
+          "count": 36
+        },
+        {
+          "id": "ownership-authority",
+          "count": 35
+        },
+        {
+          "id": "identity-verification",
+          "count": 22
+        },
+        {
+          "id": "timing-deadline",
+          "count": 19
+        },
+        {
+          "id": "comparison-threshold",
+          "count": 10
+        }
+      ],
+      "topicTagCoveragePct": 39.5
+    },
+    "trigger": {
+      "designSignal": "evidence.source (existing schema field) - not the event name, which is Level 3",
+      "sources": {
+        "behavioral": 14,
+        "declared": 21,
+        "authoritative": 213,
+        "inferred": 7
+      }
+    },
+    "wait": {
+      "designSignal": "none evidenced - windowExtendsOnEngagement is false on all 164, until/timeout text is bespoke prose. Single component."
+    },
+    "handoff": {
+      "designSignal": "internal (resolves to a real canonical journey) vs external (`external:` prefix)",
+      "subtypes": {
+        "internal": 423,
+        "external": 77
+      }
+    },
+    "exit": {
+      "designSignal": "terminal flag (rare, badge-level) is high-confidence. Reason-text families are LOW confidence (partial coverage, see reasonTagCoveragePct) - not recommended as a required subtype system.",
+      "terminalCount": 5,
+      "terminalPct": 1.2,
+      "reasonTags": [
+        {
+          "id": "completed-satisfied",
+          "count": 42
+        },
+        {
+          "id": "expired-stale",
+          "count": 38
+        },
+        {
+          "id": "suppressed-blocked",
+          "count": 21
+        },
+        {
+          "id": "cancelled-withdrawn",
+          "count": 15
+        },
+        {
+          "id": "ineligible-declined",
+          "count": 12
+        },
+        {
+          "id": "failed-unresolved",
+          "count": 9
+        },
+        {
+          "id": "folded-merged",
+          "count": 4
+        },
+        {
+          "id": "no-action",
+          "count": 2
+        }
+      ],
+      "reasonTagCoveragePct": 33
+    },
+    "outcome": {
+      "designSignal": "1 occurrence in the entire corpus (0.03% of nodes) - too rare for a dedicated component; recommend generic fallback treatment."
+    }
+  }
+}

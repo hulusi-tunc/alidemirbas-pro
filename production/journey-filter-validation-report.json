@@ -1,0 +1,128 @@
+{
+  "counts": {
+    "totalJourneys": 255,
+    "categoryValues": 26,
+    "lifecycleStageValues": 5,
+    "goalValues": 20,
+    "reviewRequired": 18
+  },
+  "handoffPrimitiveTest": {
+    "zeroHandoff": 16,
+    "withHandoff": 239,
+    "mixedTerminal": 209,
+    "handoffOnlyTerminal": 30,
+    "totalJourneys": 255,
+    "byCategory": {
+      "acquisition": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "activation": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "retention": {
+        "total": 9,
+        "withHandoff": 9
+      },
+      "consent": {
+        "total": 9,
+        "withHandoff": 5
+      },
+      "feedback": {
+        "total": 10,
+        "withHandoff": 7
+      },
+      "ownership": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "time": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "access": {
+        "total": 10,
+        "withHandoff": 9
+      },
+      "identity": {
+        "total": 10,
+        "withHandoff": 9
+      },
+      "structure": {
+        "total": 10,
+        "withHandoff": 9
+      },
+      "terminal": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "integration": {
+        "total": 10,
+        "withHandoff": 9
+      },
+      "processing": {
+        "total": 10,
+        "withHandoff": 9
+      },
+      "financial": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "fulfillment": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "remedy": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "subscription": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "scheduling": {
+        "total": 10,
+        "withHandoff": 8
+      },
+      "decision": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "risk": {
+        "total": 10,
+        "withHandoff": 9
+      },
+      "communication": {
+        "total": 9,
+        "withHandoff": 9
+      },
+      "document": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "data": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "control": {
+        "total": 8,
+        "withHandoff": 8
+      },
+      "rollout": {
+        "total": 10,
+        "withHandoff": 10
+      },
+      "incident": {
+        "total": 10,
+        "withHandoff": 9
+      }
+    }
+  },
+  "errors": [],
+  "warnings": [
+    "Goal values with <4 journeys (kept distinct on purpose, see audit doc): compensation-remedy(3)",
+    "lifecycleStage \"cross-lifecycle\" holds 216/255 (85%) - real but lopsided, see audit doc"
+  ],
+  "status": "PASS"
+}

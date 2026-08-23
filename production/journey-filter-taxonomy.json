@@ -1,0 +1,269 @@
+{
+  "_description": "Journey Filter Taxonomy (audit turn). Category/Domain reuses the existing canonical `category` field unchanged. Lifecycle Stage and Goal/Use Case are derived, evidence-based, from src/canonical/ - canonical journey data itself was never modified. Regenerate with: node production/generate-journey-filter-taxonomy.mjs",
+  "categoryDomain": {
+    "source": "existing CanonicalJourney.category field - not invented",
+    "values": [
+      {
+        "id": "acquisition",
+        "title": "Acquisition, intent & qualification",
+        "count": 10
+      },
+      {
+        "id": "activation",
+        "title": "Activation, onboarding & early value",
+        "count": 10
+      },
+      {
+        "id": "retention",
+        "title": "Engagement, health, retention & churn prevention",
+        "count": 9
+      },
+      {
+        "id": "consent",
+        "title": "Consent, preferences, communication & contactability",
+        "count": 9
+      },
+      {
+        "id": "feedback",
+        "title": "Feedback, advocacy, referral & relationship signals",
+        "count": 10
+      },
+      {
+        "id": "ownership",
+        "title": "Ownership, assignment, approval & decision authority",
+        "count": 10
+      },
+      {
+        "id": "time",
+        "title": "Time, deadlines, expiry & temporary states",
+        "count": 10
+      },
+      {
+        "id": "access",
+        "title": "Access, entitlement, credentials & capability",
+        "count": 10
+      },
+      {
+        "id": "identity",
+        "title": "Identity, verification, authentication & account integrity",
+        "count": 10
+      },
+      {
+        "id": "structure",
+        "title": "Account structure, identity relationships & entity reconciliation",
+        "count": 10
+      },
+      {
+        "id": "terminal",
+        "title": "Entity merge, account closure, data lifecycle & terminal states",
+        "count": 10
+      },
+      {
+        "id": "integration",
+        "title": "Integrations, synchronization, external systems & data consistency",
+        "count": 10
+      },
+      {
+        "id": "processing",
+        "title": "Processing, queues, async work & operational reliability",
+        "count": 10
+      },
+      {
+        "id": "financial",
+        "title": "Transactions, payments, billing & financial outcomes",
+        "count": 10
+      },
+      {
+        "id": "fulfillment",
+        "title": "Orders, fulfillment, delivery & service completion",
+        "count": 10
+      },
+      {
+        "id": "remedy",
+        "title": "Returns, remedies, corrections & post-completion recovery",
+        "count": 10
+      },
+      {
+        "id": "subscription",
+        "title": "Subscriptions, contracts, renewals & continuing relationships",
+        "count": 10
+      },
+      {
+        "id": "scheduling",
+        "title": "Scheduling, appointments, reservations & time-bound commitments",
+        "count": 10
+      },
+      {
+        "id": "decision",
+        "title": "Approvals, decisions, reviews & human-in-the-loop work",
+        "count": 10
+      },
+      {
+        "id": "risk",
+        "title": "Risk, policy, compliance & exception management",
+        "count": 10
+      },
+      {
+        "id": "communication",
+        "title": "Notifications, communications, delivery & contactability",
+        "count": 9
+      },
+      {
+        "id": "document",
+        "title": "Documents, records, signatures & versioned artifacts",
+        "count": 10
+      },
+      {
+        "id": "data",
+        "title": "Data change, import, migration & state transformation",
+        "count": 10
+      },
+      {
+        "id": "control",
+        "title": "Ownership, delegation, transfer & multi-party control",
+        "count": 8
+      },
+      {
+        "id": "rollout",
+        "title": "Deployment, rollout, change & version transitions",
+        "count": 10
+      },
+      {
+        "id": "incident",
+        "title": "Incidents, service disruption, operations & recovery",
+        "count": 10
+      }
+    ]
+  },
+  "lifecycleStage": {
+    "source": "derived: category-anchored for acquisition/activation/retention/terminal, cross-lifecycle for the other 22 categories (self-described as 'domain-neutral' in their own purpose text)",
+    "values": [
+      {
+        "id": "acquisition-qualification",
+        "count": 10
+      },
+      {
+        "id": "activation-onboarding",
+        "count": 10
+      },
+      {
+        "id": "engagement-retention",
+        "count": 9
+      },
+      {
+        "id": "cross-lifecycle",
+        "count": 216
+      },
+      {
+        "id": "ending-closure",
+        "count": 10
+      }
+    ]
+  },
+  "goalUseCase": {
+    "source": "derived from cross-category name/purpose keyword frequency analysis across all 255 journeys - not pre-imagined",
+    "values": [
+      {
+        "id": "cancellation-termination",
+        "count": 28,
+        "categorySpread": 16
+      },
+      {
+        "id": "recovery-retry",
+        "count": 27,
+        "categorySpread": 13
+      },
+      {
+        "id": "identity-verification",
+        "count": 24,
+        "categorySpread": 11
+      },
+      {
+        "id": "eligibility-qualification",
+        "count": 20,
+        "categorySpread": 12
+      },
+      {
+        "id": "ownership-transfer",
+        "count": 17,
+        "categorySpread": 8
+      },
+      {
+        "id": "expiry-renewal",
+        "count": 16,
+        "categorySpread": 10
+      },
+      {
+        "id": "reconciliation-correction",
+        "count": 15,
+        "categorySpread": 7
+      },
+      {
+        "id": "progression-milestone",
+        "count": 10,
+        "categorySpread": 5
+      },
+      {
+        "id": "delivery-confirmation",
+        "count": 10,
+        "categorySpread": 7
+      },
+      {
+        "id": "decision-approval",
+        "count": 9,
+        "categorySpread": 5
+      },
+      {
+        "id": "escalation-exception",
+        "count": 8,
+        "categorySpread": 7
+      },
+      {
+        "id": "consent-permission",
+        "count": 8,
+        "categorySpread": 3
+      },
+      {
+        "id": "change-versioning",
+        "count": 8,
+        "categorySpread": 6
+      },
+      {
+        "id": "merge-consolidation",
+        "count": 7,
+        "categorySpread": 4
+      },
+      {
+        "id": "suspension-restoration",
+        "count": 6,
+        "categorySpread": 6
+      },
+      {
+        "id": "revocation-access-change",
+        "count": 6,
+        "categorySpread": 4
+      },
+      {
+        "id": "risk-compliance",
+        "count": 5,
+        "categorySpread": 5
+      },
+      {
+        "id": "data-integrity",
+        "count": 5,
+        "categorySpread": 2
+      },
+      {
+        "id": "scheduling-commitment",
+        "count": 5,
+        "categorySpread": 3
+      },
+      {
+        "id": "compensation-remedy",
+        "count": 3,
+        "categorySpread": 2
+      }
+    ],
+    "reviewRequiredCount": 18
+  }
+}
