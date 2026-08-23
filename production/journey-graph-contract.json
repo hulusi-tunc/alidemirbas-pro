@@ -1,0 +1,101 @@
+{
+  "_description": "Design-independent node/edge render contract for the canonical journey graph. Derived from the 7 node kinds actually present in src/canonical/types.ts and the edge shapes they produce — no invented node type. Colour, spacing, typography, pixel values: none. A design adapter maps this to real components.",
+
+  "nodeFamilies": {
+    "trigger": {
+      "presentIn": "255/255 journeys (exactly one per journey, always the entry)",
+      "requiredData": ["id", "event (raw, machine name)", "evidence.source", "evidence.requires (>=1 item)", "next"],
+      "optionalData": ["evidence.insufficientAlone"],
+      "invalidStates": ["evidence.requires is empty (validator rejects this — err trigger_no_evidence)", "more than one trigger node in a journey (validator rejects — err trigger_count)"],
+      "derivedDisplayMetadata": ["event humanized to a sentence-case label (see canonical-view.ts's humanEvent)"],
+      "accessibilityLabelContract": "Accessible name = the humanized event label, prefixed 'Journey starts when'. evidence.source is announced as a qualifier ('behavioral signal', 'authoritative fact', etc.) since it changes what the journey is allowed to conclude."
+    },
+    "action": {
+      "presentIn": "1131 nodes across all journeys (median 4-5 per journey)",
+      "requiredData": ["id", "does (headline text — see content-stats: median 214, max 483 chars)", "next"],
+      "optionalData": ["writes (field/mode pairs)"],
+      "invalidStates": ["does is empty"],
+      "derivedDisplayMetadata": ["none — does is a headline with no secondary field, per the content-stats risk flag"],
+      "accessibilityLabelContract": "Accessible name = does, in full — this text cannot be safely summarized for a11y since it is the node's only content. writes entries are announced as 'records: {field}' where mode='append' is distinguished from mode='set' (append preserves history, set overwrites it — a meaningful distinction for anyone auditing the journey)."
+    },
+    "condition": {
+      "presentIn": "702 nodes, 254/255 journeys (near-universal — not a distinguishing structural signal by itself)",
+      "requiredData": ["id", "asks (headline)", "branches (>=2 items, each: label, when, to)"],
+      "optionalData": [],
+      "invalidStates": ["fewer than 2 branches (validator rejects — err single_branch)", "a branch with an empty when (validator rejects — err branch_no_test)"],
+      "derivedDisplayMetadata": ["branch.label is chip/pill-safe (median 13 chars); branch.when is NOT and must render as separate expandable detail"],
+      "accessibilityLabelContract": "The condition node's accessible name is asks. Each branch edge announces as '{label}: {when}' so a screen-reader user gets the decision criterion, not just an arbitrary letter."
+    },
+    "wait": {
+      "presentIn": "164 nodes, 146/255 journeys",
+      "requiredData": ["id", "until (>=1 item)", "onEvent", "timeout.after", "timeout.reason", "onTimeout", "windowExtendsOnEngagement (boolean)"],
+      "optionalData": [],
+      "invalidStates": ["until is empty (validator rejects)", "timeout.after is empty (validator rejects — a wait with no timeout can strand people forever)", "windowExtendsOnEngagement is undefined (validator rejects)"],
+      "derivedDisplayMetadata": ["two named exits, not one — onEvent and onTimeout must both render as distinct edges, never collapsed into a single 'next'"],
+      "accessibilityLabelContract": "Two edges announce distinctly: 'if {until} happens' and 'after {timeout.after}, because {timeout.reason}'. windowExtendsOnEngagement, when true, is announced explicitly ('this window extends on engagement') since it changes what 'timeout' means operationally."
+    },
+    "outcome": {
+      "presentIn": "1 node total (RET category) — the rarest node kind in the library, present but not statistically meaningful as a design target on its own",
+      "requiredData": ["id", "state (headline)", "means (detail)", "next"],
+      "optionalData": [],
+      "invalidStates": ["state or means empty"],
+      "derivedDisplayMetadata": ["renders like an action node with an explicit secondary 'means' field — the one node kind with a true label+detail split at this level"],
+      "accessibilityLabelContract": "Accessible name = state; means read as supporting detail, same pattern as an exit node."
+    },
+    "exit": {
+      "presentIn": "433 nodes, present in 239/255 journeys (16 self-contained + 209 mixed-termination journeys, per journey-manifest.json's primaryStructure)",
+      "requiredData": ["id", "state (headline)", "terminal (boolean)", "reEntry (detail — always present, even when terminal=true, explaining WHY no re-entry)"],
+      "optionalData": [],
+      "invalidStates": ["reEntry is empty (validator rejects — err exit_no_reentry)"],
+      "derivedDisplayMetadata": ["terminal=true is the rare case (5/433 exits, 5/255 journeys) and is the only one worth a visual badge — flagging all 433 would be noise, per canonical-view.ts's own comment"],
+      "accessibilityLabelContract": "Accessible name = state. reEntry always announces as supporting detail. terminal=true additionally announces 'this state does not allow re-entry' as a distinct qualifier, not folded into the headline."
+    },
+    "handoff": {
+      "presentIn": "500 nodes, 227/255 journeys hand off to another canonical journey, 68/255 to an external:-prefixed pending lifecycle",
+      "requiredData": ["id", "to (a canonical journey id OR an external:<lifecycle> name)", "on (detail)", "carries (>=1 item recommended — validator warns, does not reject, on empty carries)"],
+      "optionalData": ["suppresses"],
+      "invalidStates": ["to is empty (validator rejects)", "to points at a non-existent canonical journey (validator rejects — err handoff_unresolved)", "to points at the journey's own id (validator rejects — err handoff_self)", "to points at a MERGED id (validator rejects — err handoff_to_merged)"],
+      "derivedDisplayMetadata": [
+        "three distinct target kinds, never collapsed into one link style: (1) another live canonical journey — resolvable, addressable, should link; (2) external:<name> — a named but not-yet-defined destination (18 distinct names across 68 journeys) — must render as a clearly PENDING state, not a broken link and not a live one; (3) [not possible per validator] a merged id — structurally forbidden"
+      ],
+      "accessibilityLabelContract": "For a resolvable handoff: accessible name = 'hands off to {target journey name}, when {on}'. For a pending external target: accessible name = 'hands off to a lifecycle not yet defined ({name}), when {on}' — the pending state must be announced, not silently treated as equivalent to a real link. carries items announce as 'carries: {item}'; suppresses items as 'stops: {item}'."
+    }
+  },
+
+  "edgeFamilies": {
+    "forward": {
+      "description": "trigger.next, action.next, outcome.next — the default single successor.",
+      "contract": { "source": "node id", "target": "node id", "semanticRelation": "sequence", "label": null, "when": null, "navigationBehavior": "direct, same-journey" }
+    },
+    "branch": {
+      "description": "condition.branches[].to — one of >=2 named arms.",
+      "contract": { "source": "condition node id", "target": "node id", "semanticRelation": "conditional", "label": "branch.label (short)", "when": "branch.when (long, separate field)", "navigationBehavior": "direct, same-journey, exactly one arm taken at runtime" }
+    },
+    "wait-event": {
+      "description": "wait.onEvent — the arm taken if the awaited event arrives first.",
+      "contract": { "source": "wait node id", "target": "node id", "semanticRelation": "async-success", "label": "on event", "when": "wait.until joined", "navigationBehavior": "direct, same-journey, mutually exclusive with wait-timeout" }
+    },
+    "wait-timeout": {
+      "description": "wait.onTimeout — the arm taken if the timeout elapses first.",
+      "contract": { "source": "wait node id", "target": "node id", "semanticRelation": "async-timeout", "label": "on timeout", "when": "wait.timeout.reason", "navigationBehavior": "direct, same-journey, mutually exclusive with wait-event" }
+    },
+    "backward": {
+      "description": "Any of the above whose target sits earlier in the journey's own BFS reading order than its source. Present in 125/255 journeys; forms a true cycle (requires a traversal guard) in 33 of those — see journey-layout-risks.json.",
+      "contract": { "source": "node id", "target": "an earlier node id", "semanticRelation": "same as its underlying kind (branch/forward/wait-*)", "label": "inherited", "when": "inherited", "navigationBehavior": "same-journey, but the reading direction reverses — must render distinctly (e.g. an upward arrow / back-reference), never as a plain forward line" }
+    },
+    "cross-journey-handoff": {
+      "description": "handoff.to naming another live canonical journey. Present in 227/255 journeys.",
+      "contract": { "source": "handoff node id", "target": "another journey's id", "semanticRelation": "ownership-transfer", "label": null, "when": "handoff.on", "navigationBehavior": "leaves the current journey view; should be an addressable link to the target journey's own detail page" }
+    },
+    "external": {
+      "description": "handoff.to starting with external:. Present in 68/255 journeys, 18 distinct pending lifecycle names (see EXTERNAL_TARGETS in src/canonical/index.ts).",
+      "contract": { "source": "handoff node id", "target": "an external:<lifecycle> name, not a resolvable journey", "semanticRelation": "pending-ownership-transfer", "label": null, "when": "handoff.on", "navigationBehavior": "must NOT render as a live link — a later category has not yet defined this destination; render as a named, non-clickable pending state" }
+    }
+  },
+
+  "crossFamilyInvariants": [
+    "Every node kind's edges are named per its own family above — a renderer must not infer edge semantics from shape alone (e.g. a wait node's two edges are never interchangeable with a condition's branches, even though both are 'more than one outgoing edge').",
+    "A handoff edge to a MERGED id can never occur in valid data (validator-enforced) — a renderer does not need to handle that case defensively, but a production validator should still assert it stays true.",
+    "outcome is real but appears once in the whole library — a renderer must support the node family for correctness, but should not be designed as if it were common."
+  ]
+}

@@ -1,0 +1,656 @@
+[
+ {
+  "id": "FUL-146",
+  "slug": "fulfillment-delay",
+  "name": "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
+  "purpose": "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Expected fulfillment timing slipped",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation and its timing commitment, with the history of what was promised",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "FUL-147",
+  "slug": "dispatch-and-delivery-tracking",
+  "name": "Dispatch or handoff → track → delivered, failed or unknown",
+  "purpose": "Transfer execution to whoever performs the delivery while the obligation stays ours and stays open.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Fulfillment handed to delivery executor",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the handoff to a delivery executor, and the obligation behind it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "FUL-148",
+  "slug": "delivery-attempt-failure",
+  "name": "Delivery attempt failed → reason → retry, correct, alternate or return",
+  "purpose": "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Authoritative delivery attempt failure",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual delivery attempt and the obligation it was serving",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "FUL-149",
+  "slug": "delivery-acceptance-finalization",
+  "name": "Delivery confirmation → acceptance or issue window → finalize",
+  "purpose": "Separate arriving from being agreed to have arrived correctly, wherever that difference has business meaning.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Authoritative delivery completion",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the delivered fulfillment and the recipient whose acceptance may still be required",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "FUL-150",
+  "slug": "fulfillment-cancellation",
+  "name": "Fulfillment cancellation → stop future work → release resources → reconcile",
+  "purpose": "Stop what remains of an obligation while keeping everything that already happened.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Fulfillment cancellation effective",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation, split into what is completed, what is in progress and what has not started",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "IDN-81",
+  "slug": "identity-claim-verification",
+  "name": "Identity claim → evidence → verified, rejected or more evidence",
+  "purpose": "Establish confidence in one specific identity claim, bound to the evidence that established it.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Identity verification required",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual identity claim - which attribute, at what assurance, for what purpose",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "IDN-82",
+  "slug": "verification-dependency",
+  "name": "Verification requirement → collect evidence → resume blocked process",
+  "purpose": "Hold a verification dependency as its own state, blocking only the process that needs it and releasing it only after everything else is rechecked.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Process requires verification",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the blocked process plus the verification requirement holding it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "IDN-83",
+  "slug": "document-validation",
+  "name": "Document submitted → validate → accept, reject or replace",
+  "purpose": "Keep uploading a document and satisfying a requirement as separate facts, and keep an acceptance bound to the requirement it was assessed against.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Document submitted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the submitted document, the requirement it is offered against, and its owner",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "IDN-84",
+  "slug": "verification-failure-routing",
+  "name": "Verification failure → reason → retry, remediate, review or exit",
+  "purpose": "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Verification attempt failed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the verification instance that failed",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "IDN-85",
+  "slug": "authentication-challenge",
+  "name": "Authentication challenge → authenticate, step up or deny",
+  "purpose": "Establish that whoever is present controls the required identity, at the assurance the context demands.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Authentication required",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the authentication session, bound to an actor and an account",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "IDN-86",
+  "slug": "step-up-authentication",
+  "name": "Step-up requirement → stronger authentication → resume or deny",
+  "purpose": "Raise identity assurance for a sensitive action, then check the action is still authorised before it runs.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Action requires higher assurance",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the actor, the specific protected action and the authentication context around it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "IDN-87",
+  "slug": "authentication-failure-pattern",
+  "name": "Authentication failure pattern → security check → recover or restrict",
+  "purpose": "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Authentication failure pattern",
+  "triggerEvidence": "inferred",
+  "entityScope": "the account plus the authentication activity observed against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "IDN-88",
+  "slug": "account-recovery",
+  "name": "Account recovery request → prove control → restore secure access",
+  "purpose": "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Account recovery initiated",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the account plus this recovery case",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "IDN-89",
+  "slug": "identity-attribute-change",
+  "name": "Identity attribute change → verify if required → update → propagate",
+  "purpose": "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Identity attribute change",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the person or account plus the specific attribute changing",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "IDN-90",
+  "slug": "suspected-account-compromise",
+  "name": "Suspected account compromise → contain → verify → recover or clear",
+  "purpose": "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
+  "category": "identity",
+  "categoryTitle": "Identity, verification, authentication & account integrity",
+  "trigger": "Material compromise signal",
+  "triggerEvidence": "inferred",
+  "entityScope": "the account plus this security incident and the scope it affects",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "INC-251",
+  "slug": "incident-correlation",
+  "name": "Correlated failure detection → incident candidate → confirm or reject",
+  "purpose": "Establish whether several failures actually share a cause, before treating them as one thing.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Correlated failures exceed incident threshold",
+  "triggerEvidence": "inferred",
+  "entityScope": "the incident candidate and every individual failure correlated into it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "INC-252",
+  "slug": "incident-scope",
+  "name": "Incident confirmed → determine severity and blast radius → assign command",
+  "purpose": "Establish what is actually affected, how badly, and who is running the response.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Incident confirmed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the confirmed incident, its blast radius and its operational ownership",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "INC-253",
+  "slug": "incident-mitigation",
+  "name": "Incident → contain and mitigate → preserve critical operations",
+  "purpose": "Reduce the damage now, without pretending the cause has been dealt with.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Active incident requires impact reduction",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the incident and the mitigations applied against its impact",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "INC-254",
+  "slug": "incident-communication",
+  "name": "Incident communication → identify affected cohort → inform, update or close",
+  "purpose": "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Incident reaches communication relevant state",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the incident, the affected recipient cohort and the communication obligation it creates",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "INC-255",
+  "slug": "root-cause-investigation",
+  "name": "Root cause investigation → hypothesis → confirm or reject → corrective action",
+  "purpose": "Find the thing that actually explains the incident, rather than the thing that was nearest to it.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Incident requires causal investigation",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the incident and the investigation into what caused it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "INC-256",
+  "slug": "incident-recovery",
+  "name": "Recovery action → restore service → verify or continue",
+  "purpose": "Act on the cause and then check the affected population, not the command's return code.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Recovery action authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the incident, the recovery action and the capability it is meant to restore",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "INC-257",
+  "slug": "recovery-observation",
+  "name": "Service restored → observation window → stable or relapse",
+  "purpose": "Hold the incident open long enough to know the recovery held.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Material recovery observed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the incident and the recovered service under observation",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "INC-258",
+  "slug": "incident-resolution",
+  "name": "Incident resolution → close operational response → preserve residual cases",
+  "purpose": "Close the shared failure without closing the individual problems it caused.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Incident resolution criteria satisfied",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the incident and the individual cases and obligations linked to it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "INC-259",
+  "slug": "post-incident-review",
+  "name": "Post-incident review → learn → corrective work → verify",
+  "purpose": "Turn what the incident showed into work somebody owns and somebody checks.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Incident qualifies for review",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the resolved incident and the corrective work its review produces",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "INC-260",
+  "slug": "incident-recurrence",
+  "name": "Incident pattern recurrence → detect systemic weakness → escalate prevention",
+  "purpose": "Notice when the same weakness keeps producing incidents, and stop treating each one as new.",
+  "category": "incident",
+  "categoryTitle": "Incidents, service disruption, operations & recovery",
+  "trigger": "Materially similar incidents recur",
+  "triggerEvidence": "inferred",
+  "entityScope": "the family of materially similar incidents and the weakness they may share",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "INT-111",
+  "slug": "integration-connection-activation",
+  "name": "Integration connection → authenticate → validate → activate",
+  "purpose": "Make an integration active only once it has been proven to do the thing it exists for, rather than once a credential has been saved.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Integration connection requested",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual integration connection, with its own credentials, scopes and validated capabilities",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "INT-112",
+  "slug": "integration-authorization-change",
+  "name": "Integration credential or authorization change → revalidate → continue or degrade",
+  "purpose": "Recheck what an integration can still do whenever its authorization changes, rather than assuming valid credentials mean unchanged access.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Integration authorization changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the integration connection and the authorization that changed",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "INT-113",
+  "slug": "integration-health-degradation",
+  "name": "Integration health degradation → diagnose → recover, degrade or escalate",
+  "purpose": "Scope a deteriorating integration to what is actually failing, and let recovery be established by evidence rather than by a metric returning to normal.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Integration health threshold crossed",
+  "triggerEvidence": "behavioral",
+  "entityScope": "the integration connection, assessed per capability rather than as a whole",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "INT-114",
+  "slug": "external-operation-outcome",
+  "name": "External request → pending outcome → confirm, fail or unknown",
+  "purpose": "Keep submitting an external operation and completing one as separate states, and let an unknown outcome stay unknown.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "External operation submitted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual external operation, keyed by its own correlation and idempotency identifiers",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "INT-115",
+  "slug": "external-outcome-reconciliation",
+  "name": "External outcome → local state reconciliation → apply or investigate",
+  "purpose": "Apply an external outcome to local state only after establishing that it belongs here, has not already been applied, and still describes what is true.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Authoritative external outcome",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the external operation the outcome refers to, and the local entity it would change",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "INT-116",
+  "slug": "integration-failure",
+  "name": "Integration failure → stop unsafe operations → diagnose → restore",
+  "purpose": "Stop sending into an integration that cannot work, while keeping enough state to recover without repeating anything the provider may already have done.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Integration failure condition",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the failed integration or capability, and the operations that depend on it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "INT-117",
+  "slug": "failure-blocked-work-queue",
+  "name": "Integration failure → queue or hold work → recover → controlled resume",
+  "purpose": "Keep work that a failed integration blocked, but only where it can later be revalidated and safely resumed.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Work blocked by failed integration",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the failed integration and the individual work items blocked on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "INT-118",
+  "slug": "reconnect-backfill",
+  "name": "Integration reconnect → backfill → deduplicate → reconcile",
+  "purpose": "Close the gap an outage left in what we know, without recreating everything that would have happened if the events had arrived on time.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Integration operational again",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the integration connection and the specific synchronization window the outage created",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "INT-119",
+  "slug": "synchronization-conflict",
+  "name": "Synchronization conflict → determine authority → reconcile or hold",
+  "purpose": "Settle a cross-system disagreement using an explicit authority rule, and hold rather than guess where none exists.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Cross system inconsistency detected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the synchronized entity and the specific fields in disagreement",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "INT-120",
+  "slug": "external-dependency-degradation",
+  "name": "External dependency unavailable → degrade capability → alternate or recover",
+  "purpose": "Lose only the capability that actually depends on an unavailable provider, and keep every uncertain outcome uncertain.",
+  "category": "integration",
+  "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+  "trigger": "Critical external dependency unavailable",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the external dependency and each capability that depends on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "OPS-121",
+  "slug": "async-work-lifecycle",
+  "name": "Work accepted → queue → process → complete or fail",
+  "purpose": "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Asynchronous work accepted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual work item, keyed by its own idempotency and correlation identifiers",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "OPS-122",
+  "slug": "queue-lag",
+  "name": "Queue lag → measure → prioritise, scale or degrade",
+  "purpose": "Respond to a queue that cannot keep up, measured by how old the unfinished work is rather than by how much of it there is.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Queue latency or depth threshold crossed",
+  "triggerEvidence": "behavioral",
+  "entityScope": "the queue or workload class that is lagging, assessed per class",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ }
+]

@@ -1,0 +1,667 @@
+[
+ {
+  "id": "DEC-189",
+  "slug": "decision-escalation",
+  "name": "Decision escalation → higher authority → decide, return or reassign",
+  "purpose": "Move a case to an authority that can actually resolve it, carrying the work already done and predetermining nothing.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Escalation criterion satisfied",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision case and the escalation acting on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "DEC-190",
+  "slug": "decision-reconsideration",
+  "name": "Decision superseded or reopened → revalidate → continue or new decision",
+  "purpose": "Let a decision be reconsidered without any part of the original being rewritten.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Decision challenged or superseded",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the existing decision and the event challenging it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "DOC-211",
+  "slug": "document-requirement",
+  "name": "Document requirement → determine artifact → create, reuse or waive",
+  "purpose": "Decide whether a new artifact is genuinely needed, or whether one already exists that answers the requirement.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Process reaches document requirement",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the business process and the artifact requirement it has reached",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "DOC-212",
+  "slug": "document-draft",
+  "name": "Document draft → populate → validate → ready or blocked",
+  "purpose": "Build the contents from authoritative sources and prove they are complete before anything is issued.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Document generation begins",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the draft and the source entities its contents came from",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "DOC-213",
+  "slug": "document-issuance",
+  "name": "Ready document → issue → immutable issued version",
+  "purpose": "Freeze the artifact at a version that can be identified, referenced and never quietly changed.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Document authorized for issuance",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the document and the specific version being issued",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "DOC-214",
+  "slug": "document-distribution",
+  "name": "Document distribution → send or provide access → confirm or fail",
+  "purpose": "Get a specific issued version to the party who should have it, without either fact touching the other.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Issued document requires distribution",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the issued version, the intended recipient, and the distribution of one to the other",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "DOC-215",
+  "slug": "signature-process",
+  "name": "Signature request → await signatures → signed, declined or expired",
+  "purpose": "Collect the required signatures against one exact version, and know when they are actually all there.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Document requires signature",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the document version, the signature process against it, and each required signer",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "DOC-216",
+  "slug": "document-effectiveness",
+  "name": "Signed document → validate completion → effective or pending condition",
+  "purpose": "Establish when a document actually starts doing something, which is not when it was signed.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Document completion established",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the completed document version and the effect it is to have",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 21
+ },
+ {
+  "id": "DOC-217",
+  "slug": "document-amendment",
+  "name": "Document change → new version or amendment → supersede prospectively",
+  "purpose": "Change an issued artifact by creating a successor, leaving what it replaces exactly as it was.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Authorized document change required",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the document lineage and the successor version or amendment being created",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "DOC-218",
+  "slug": "document-expiry",
+  "name": "Document expiry → revalidate requirement → renew, replace or close",
+  "purpose": "End future reliance on a time-limited artifact, and stop only what genuinely needs it to be current.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Document validity reaches expiry",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the time-limited document and the processes depending on its current validity",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "DOC-219",
+  "slug": "document-revocation",
+  "name": "Document revocation or withdrawal → stop future reliance → reconcile",
+  "purpose": "Withdraw an artifact by an authority's decision, exactly as far as that decision reaches.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Authoritative revocation occurs",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the revoked document version and the revocation acting on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "DOC-220",
+  "slug": "document-conflict",
+  "name": "Document or record conflict → determine authoritative version → reconcile",
+  "purpose": "Work out which version actually governs, and explain the conflict rather than deleting it.",
+  "category": "document",
+  "categoryTitle": "Documents, records, signatures & versioned artifacts",
+  "trigger": "Document version inconsistency detected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the document lineage and every conflicting record claiming to be part of it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "FBK-41",
+  "slug": "feedback-eligibility",
+  "name": "Feedback eligibility → ask, suppress or delay",
+  "purpose": "Decide whether asking is appropriate at all, and hold the gap between asking and hearing back as a real state.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Potential feedback moment",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the specific experience being asked about",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "multi-exit",
+   "competition"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "FBK-42",
+  "slug": "advocacy-eligibility",
+  "name": "Advocacy eligibility → ask, delay or suppress",
+  "purpose": "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Potential advocacy opportunity",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person or account plus the relationship context the advocacy would be about",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit",
+   "competition"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "FBK-43",
+  "slug": "feedback-routing-and-loop-closure",
+  "name": "Feedback received → classify → route → close the loop",
+  "purpose": "Get feedback to the process that can act on it, and keep the record open until anything promised in return has actually happened.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Feedback received",
+  "triggerEvidence": "declared",
+  "entityScope": "the feedback record, linked to the person and the experience it is about",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "FBK-44",
+  "slug": "negative-feedback-issue-check",
+  "name": "Negative feedback → issue check → resolve, acknowledge or escalate",
+  "purpose": "Find out whether an unresolved obligation actually exists before anything that looks like recovery starts.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Material negative feedback",
+  "triggerEvidence": "declared",
+  "entityScope": "the feedback plus the service or experience entity it describes",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "FBK-45",
+  "slug": "positive-feedback-recognition",
+  "name": "Positive feedback → recognition → advocacy opportunity",
+  "purpose": "Record a good experience as evidence and acknowledge it, without turning the person into an advocate by arithmetic.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Credible positive feedback",
+  "triggerEvidence": "declared",
+  "entityScope": "the feedback plus the person or account it came from",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "FBK-46",
+  "slug": "issue-ownership-and-closure",
+  "name": "Complaint or issue created → ownership → resolution → confirmation",
+  "purpose": "Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Actionable issue created",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the issue or complaint itself",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit",
+   "competition"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "FBK-47",
+  "slug": "appeal-and-dispute-review",
+  "name": "Appeal or dispute → evidence review → uphold, reverse or modify",
+  "purpose": "Review a decision that has already been made, without erasing it while the review is running.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Appeal or dispute submitted",
+  "triggerEvidence": "declared",
+  "entityScope": "the appeal, linked to the original decision it disputes",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "FBK-48",
+  "slug": "declared-context-recalculation",
+  "name": "Declared need or preference signal → persist → recalculate relevant experience",
+  "purpose": "Let something a person has told us about their situation reach the decisions that actually depend on it, and nothing else.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Relevant context explicitly declared",
+  "triggerEvidence": "declared",
+  "entityScope": "person or account plus the declared attribute, at the scope it was declared for",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "FBK-49",
+  "slug": "missing-critical-data",
+  "name": "Missing critical data → request or resolve → resume",
+  "purpose": "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Required data missing and blocking",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the business entity that is blocked plus the specific missing requirement",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "FBK-50",
+  "slug": "relationship-evidence-accumulation",
+  "name": "Relationship signal → evidence accumulation → state reassessment",
+  "purpose": "Accumulate signals as dated evidence, and let a relationship label exist only where a policy defined what it means.",
+  "category": "feedback",
+  "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+  "trigger": "Meaningful relationship signal",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person or account plus the relationship context the signal was observed in",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "FIN-131",
+  "slug": "financial-obligation-lifecycle",
+  "name": "Financial obligation created → due → satisfied or outstanding",
+  "purpose": "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Financial obligation created",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation itself - its amount, its currency, its payer and the business entity it arose from",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "FIN-132",
+  "slug": "payment-attempt-outcome",
+  "name": "Payment initiated → pending → success, failure or unknown",
+  "purpose": "Keep initiating a payment and knowing what happened to it as separate states, with a third state for not knowing.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Payment attempt initiated",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual payment attempt, keyed by its own idempotency key and provider reference",
+  "primaryStructure": "router",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "FIN-133",
+  "slug": "authorization-capture-settlement",
+  "name": "Payment authorization → capture → settle or release",
+  "purpose": "Model the actual commitment of funds, where reserving, taking and receiving are three different things.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Payment authorization succeeded",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the payment transaction across its authorization, capture and settlement states",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "FIN-134",
+  "slug": "payment-failure-recovery",
+  "name": "Payment failure → classify → recover, alternate or exit",
+  "purpose": "Respond to the reason a payment actually failed, and keep the obligation alive while doing it.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Authoritative payment failure",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the failed attempt, the obligation behind it and the customer relationship it belongs to",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "FIN-135",
+  "slug": "unknown-payment-reconciliation",
+  "name": "Payment unknown → reconcile → confirm success or failure",
+  "purpose": "Find out what actually happened to a payment whose outcome we lost sight of, before anything is charged again.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Payment outcome undeterminable",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the single payment attempt whose outcome could not be established",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "FIN-136",
+  "slug": "obligation-satisfaction",
+  "name": "Financial obligation satisfied → reconcile balance → release dependent state",
+  "purpose": "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Authoritative financial event against obligation",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation and the financial event being applied to it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "FIN-137",
+  "slug": "refund-request-decision",
+  "name": "Refund request → eligibility → approve, reject or review",
+  "purpose": "Turn a refund request into an authorised decision, without money moving on the request itself.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Refund requested",
+  "triggerEvidence": "declared",
+  "entityScope": "the refund request and the original transaction it is made against",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "FIN-138",
+  "slug": "refund-execution",
+  "name": "Refund approved → execute → confirm or reconcile",
+  "purpose": "Move the money and confirm it arrived, keeping that separate from having decided it should.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Refund authorized for execution",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the approved refund and the original transaction it is issued against",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "FIN-139",
+  "slug": "financial-dispute",
+  "name": "Financial dispute or chargeback → evidence → decision → reconcile",
+  "purpose": "Run a transaction-level dispute through the authority that decides it, without treating the claim as a finding.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Financial dispute opened",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the dispute and the specific transaction it contests",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "FIN-140",
+  "slug": "financial-reconciliation",
+  "name": "Financial reconciliation → detect mismatch → correct or escalate",
+  "purpose": "Restore financial consistency by explaining the difference and adjusting it, never by editing the record that is inconvenient.",
+  "category": "financial",
+  "categoryTitle": "Transactions, payments, billing & financial outcomes",
+  "trigger": "Material financial mismatch detected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the set of financial records that disagree - transactions, obligations, refunds and settlement state together",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "external-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "FUL-141",
+  "slug": "fulfillment-request-acceptance",
+  "name": "Fulfillment request → validate → accept, reject or hold",
+  "purpose": "Decide whether we are taking responsibility for delivering something, as a state distinct from having been asked.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Fulfillment request submitted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the fulfillment request and, once accepted, the obligation it creates",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "FUL-142",
+  "slug": "fulfillment-availability",
+  "name": "Accepted fulfillment → availability check → allocate, backorder or reject",
+  "purpose": "Establish whether the resources to satisfy an accepted obligation actually exist, in the scope and window that would serve it.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Accepted fulfillment requires resources",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation and the resources it requires, at the location and time that would serve this recipient",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "FUL-143",
+  "slug": "resource-allocation",
+  "name": "Resource allocation → reserve → confirm, release or reallocate",
+  "purpose": "Bind specific capacity to one obligation until it is consumed or deliberately let go.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Resource selected for fulfillment",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the allocation itself - a link between a specific resource quantity and one fulfillment obligation",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "FUL-144",
+  "slug": "fulfillment-execution",
+  "name": "Fulfillment execution → progress → complete, partial or fail",
+  "purpose": "Track what the obligation's scope actually reaches, rather than what an internal step reported.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Fulfillment execution started",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the fulfillment obligation and the scope of it that has been satisfied",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "FUL-145",
+  "slug": "fulfillment-exception",
+  "name": "Fulfillment exception → diagnose → recover, substitute or fail",
+  "purpose": "Change only the part of an obligation the operational problem actually touches.",
+  "category": "fulfillment",
+  "categoryTitle": "Orders, fulfillment, delivery & service completion",
+  "trigger": "Material fulfillment exception",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the exception and the scope of the obligation it affects",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ }
+]

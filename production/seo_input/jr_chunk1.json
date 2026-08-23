@@ -1,0 +1,664 @@
+[
+ {
+  "id": "ACC-71",
+  "slug": "entitlement-qualification",
+  "name": "Entitlement qualification → grant, deny or pending",
+  "purpose": "Establish whether a right actually exists, as a state distinct from being eligible for one or having paid toward one.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Entitlement basis evaluated or changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the person or account plus the specific entitlement, at its own scope and validity",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "ACC-72",
+  "slug": "entitlement-provisioning",
+  "name": "Entitlement grant → provision → verify availability",
+  "purpose": "Hold the distance between a right being granted and the thing behind it actually working.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Entitlement granted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entitlement plus the resource or capability being provisioned for it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "ACC-73",
+  "slug": "entitlement-scope-change",
+  "name": "Entitlement change → recalculate scope → expand, reduce or preserve",
+  "purpose": "Apply only the difference between the old and new rights, rather than re-applying a whole scope over a working one.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Entitlement basis changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entitlement whose basis changed, and the delta between its previous and new scope",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "ACC-74",
+  "slug": "entitlement-loss",
+  "name": "Entitlement loss → revoke future capability → reconcile existing obligations",
+  "purpose": "Stop future use of a right that has ended without cancelling what was validly created while it was held.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Entitlement no longer valid",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entitlement that ended, plus the resources and commitments that depended on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "ACC-75",
+  "slug": "access-authorization-decision",
+  "name": "Access request → authorization check → allow, deny or step up",
+  "purpose": "Decide at the moment of the attempt whether this actor may take this action on this resource.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Protected action attempted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual access request - one actor, one action, one resource",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "ACC-76",
+  "slug": "credential-lifecycle",
+  "name": "Credential issued → activate → use, expire or revoke",
+  "purpose": "Run an access artifact through its own validity lifecycle, separately from the right it represents.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Credential issued",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual credential - its id, owner, scope and validity",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "ACC-77",
+  "slug": "credential-revocation",
+  "name": "Credential compromise or revocation → disable → replace or re-authenticate",
+  "purpose": "Take a credential out of use immediately, and let any replacement come through its own authorised path.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Authoritative revocation requirement",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the specific credentials affected, and their owner",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "ACC-78",
+  "slug": "access-suspension",
+  "name": "Access suspension → restricted state → restore or terminate",
+  "purpose": "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Authoritative suspension decision",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the account or person plus the specific capability scope being restricted",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "ACC-79",
+  "slug": "capability-restoration",
+  "name": "Capability restoration → revalidate → restore safely",
+  "purpose": "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Restoration condition satisfied",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the person or account plus each capability being considered for restoration",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "multi-exit"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "ACC-80",
+  "slug": "deprovision-with-dependency-check",
+  "name": "Deprovision request → dependency check → remove, retain or escalate",
+  "purpose": "Remove a capability that is no longer authorised, after establishing that nothing still depends on the thing being removed.",
+  "category": "access",
+  "categoryTitle": "Access, entitlement, credentials & capability",
+  "trigger": "Deprovisioning requirement",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the provisioned resource or capability, and the entitlement whose end triggered its removal",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "ACQ-01",
+  "slug": "anonymous-intent-to-qualified-entry",
+  "name": "Anonymous intent → known identity → qualified entry",
+  "purpose": "Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Anonymous intent threshold reached",
+  "triggerEvidence": "behavioral",
+  "entityScope": "anonymous_profile, reconciled onto person or account",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "ACQ-02",
+  "slug": "captured-interest-to-destination",
+  "name": "Captured interest → qualification → appropriate destination",
+  "purpose": "Route first-party interest to the destination its own content justifies, instead of treating every capture as either a sales lead or a subscriber.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "First party interest captured",
+  "triggerEvidence": "declared",
+  "entityScope": "lead, resolved onto person or account",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "ACQ-03",
+  "slug": "intent-escalation-handoff",
+  "name": "Intent escalation → higher-intent journey handoff",
+  "purpose": "Move ownership when someone in a low-intent lifecycle does something that no longer fits it, and make sure the journey being left behind actually goes quiet.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Intent threshold crossed",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person plus the entity the new intent is about",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "ACQ-04",
+  "slug": "high-intent-human-or-automated-route",
+  "name": "High-intent action → qualification → human or automated route",
+  "purpose": "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "High intent commercial action",
+  "triggerEvidence": "declared",
+  "entityScope": "lead, opportunity or account",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "preemption",
+   "competition"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "ACQ-05",
+  "slug": "qualification-state-change-routing",
+  "name": "Qualification state change → route, re-route or exit",
+  "purpose": "Treat qualification as a reversible state whose routing depends on why it changed, rather than a label applied once and trusted afterwards.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Qualification state changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "lead, account or opportunity",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "external-handoff",
+   "multi-exit",
+   "no-re-entry"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "ACQ-06",
+  "slug": "dynamic-eligibility-consequence",
+  "name": "Dynamic eligibility → eligible or ineligible → consequence",
+  "purpose": "Re-decide eligibility as the underlying data changes, and separate what it forbids next from what it does not undo.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Eligibility inputs changed or reevaluated",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person, account or the business entity the rule is about",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "ACQ-07",
+  "slug": "intent-decay-cooldown",
+  "name": "Intent decay → de-prioritise → cooldown or exit",
+  "purpose": "Let a recorded high-intent state expire when the evidence behind it goes stale, instead of pursuing someone on the strength of something they did once.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Intent freshness threshold passed",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person plus the intent context that was recorded",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit",
+   "competition"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "ACQ-08",
+  "slug": "destination-reached-acquisition-suppression",
+  "name": "Commercial destination reached → acquisition suppression → lifecycle handoff",
+  "purpose": "Make acquisition give up ownership the moment the outcome it existed to cause is recorded, and stop what it has already queued.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Authoritative destination event",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the destination entity",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "external-handoff",
+   "competition"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "ACQ-09",
+  "slug": "bounded-education-progress-or-sunset",
+  "name": "Researching lead → bounded education → progress or sunset",
+  "purpose": "Give a legitimate but not-yet-ready lead a window of useful education that ends whether or not it worked.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Valid lead not destination ready",
+  "triggerEvidence": "declared",
+  "entityScope": "lead or person, held against the reason they entered",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "ACQ-10",
+  "slug": "commercial-decline-reason-routing",
+  "name": "Explicit commercial decline → reason → terminal, cooldown or recycle",
+  "purpose": "Route a negative commercial outcome by its cause rather than filing every one of them under lost.",
+  "category": "acquisition",
+  "categoryTitle": "Acquisition, intent & qualification",
+  "trigger": "Explicit decline or authoritative lost outcome",
+  "triggerEvidence": "authoritative",
+  "entityScope": "lead, opportunity or account",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit",
+   "no-re-entry"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "ACT-11",
+  "slug": "onboarding-route-selection",
+  "name": "New entry → onboarding route → appropriate path",
+  "purpose": "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Authoritative lifecycle entry",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person, account, subscription or trial - the thing that was entered",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "ACT-12",
+  "slug": "onboarding-progress-next-step",
+  "name": "Onboarding progress → next best setup step → activation",
+  "purpose": "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Onboarding active without activation",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the onboarding instance",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "preemption",
+   "competition"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "ACT-13",
+  "slug": "activation-blocker-resolution",
+  "name": "Missing activation requirement → resolve blocker → resume",
+  "purpose": "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Activation blocked by named requirement",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the blocking requirement, held against the account or onboarding instance",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "ACT-14",
+  "slug": "struggling-user-assistance",
+  "name": "Struggling user detection → proactive assistance → recovery or exit",
+  "purpose": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Help seeking without activation progress",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person or account plus the open onboarding or trial instance",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 19
+ },
+ {
+  "id": "ACT-15",
+  "slug": "first-value-milestone",
+  "name": "First value milestone → recognition → next meaningful action",
+  "purpose": "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Authoritative first value event",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the product or service context the value was produced in",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 5
+ },
+ {
+  "id": "ACT-16",
+  "slug": "activation-stops-onboarding",
+  "name": "Activation achieved → stop onboarding → adoption handoff",
+  "purpose": "Make onboarding let go the moment activation is recorded, including the messages it has already queued.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Authoritative core activation event",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the onboarding instance being closed",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "ACT-17",
+  "slug": "early-adoption-to-stable-use",
+  "name": "Early adoption → usage depth → habit or stable use",
+  "purpose": "Carry an account from having produced value once to producing it repeatedly, measured against its own use-case.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Core activation completed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the product or use-case value comes from",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "ACT-18",
+  "slug": "adoption-stall-diagnosis",
+  "name": "Adoption stall → diagnose missing value → recover or re-route",
+  "purpose": "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Expected adoption pattern not met",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person or account plus the product or use-case that stalled",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "ACT-19",
+  "slug": "role-use-case-discovery",
+  "name": "Role or use-case discovery → relevant onboarding adaptation",
+  "purpose": "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Onboarding needs named role or use case",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the onboarding context being decided",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "ACT-20",
+  "slug": "dormant-non-customer-reactivation",
+  "name": "Dormant non-customer reactivation → return → re-qualification or exit",
+  "purpose": "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did.",
+  "category": "activation",
+  "categoryTitle": "Activation, onboarding & early value",
+  "trigger": "Engaged non customer became dormant",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person, lead or inactive non-customer account, in the context that went dormant",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit",
+   "competition",
+   "no-re-entry"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "CMS-201",
+  "slug": "communication-obligation",
+  "name": "Business event → communication obligation → create or suppress",
+  "purpose": "Decide whether anyone is actually owed a message about what happened, before any message exists.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Authoritative business event",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the business event, the recipient it concerns, and the communication obligation it may create",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "CMS-202",
+  "slug": "recipient-resolution",
+  "name": "Communication obligation → resolve recipient → ready, hold or fail",
+  "purpose": "Establish who is actually owed this, and where they can currently be reached.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Communication obligation awaiting recipient",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the communication obligation and the recipient with their candidate destinations",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "CMS-203",
+  "slug": "communication-permission",
+  "name": "Communication purpose → permission and preference check → allow, suppress or alternate",
+  "purpose": "Decide whether a working destination may carry this particular message, given what it is for.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Recipient and destinations resolved",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation, the recipient's destinations, and the purpose being evaluated against them",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "CMS-204",
+  "slug": "channel-selection",
+  "name": "Channel selection → choose route → prepare message",
+  "purpose": "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Permitted channels available",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation and the permitted channels available to it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "CMS-205",
+  "slug": "send-revalidation",
+  "name": "Message prepared → revalidate state → send or suppress",
+  "purpose": "Check the message is still true immediately before it goes, and stop it if it is not.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Message reaches send ready",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the prepared message instance and the business entity it describes",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "CMS-206",
+  "slug": "send-attempt",
+  "name": "Send attempt → accepted, failed or unknown",
+  "purpose": "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Message submitted to provider",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual delivery attempt, with its provider reference",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "CMS-207",
+  "slug": "delivery-outcome",
+  "name": "Delivery outcome → delivered, failed or unknown → update communication",
+  "purpose": "Derive the real delivery state from what the channel reports, attached to the exact attempt it concerns.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Delivery status received",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the delivery attempt and the outcomes reported against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ }
+]

@@ -1,0 +1,526 @@
+[
+ {
+  "id": "AB-181",
+  "slug": "mega-menu-mu-yatay-menu-mu",
+  "question": "Mega menü mü, yatay menü mü?",
+  "hypothesis": "Mega menü mü, sade yatay menü mü daha iyi gezinme sunuyor? Yapıdaki fark, içerik keşif davranışını ciddi biçimde değiştirebilir.",
+  "category": "Search & Filtering",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "menü yapısı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Mega menü (çok sütunlu açılır panel navigasyon)",
+   "Yatay/sade menü (tek satır, klasik açılır liste)"
+  ]
+ },
+ {
+  "id": "AB-182",
+  "slug": "menu-sadelestirmesi-deneyimi-etkiler-mi",
+  "question": "Menü sadeleştirmesi deneyimi etkiler mi?",
+  "hypothesis": "Menüyü sadeleştirmek navigasyon hızını ve kategori keşfini etkileyebilir. Daha az karmaşık menü odaklanmayı kolaylaştırabilir.",
+  "category": "Search & Filtering",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "remove",
+  "testedSlot": "menü öğe seti",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Menünün tam alt başlık seti (sadeleştirme öncesi mevcut menü)",
+   "Sadeleştirilmiş, azaltılmış alt başlık seti"
+  ]
+ },
+ {
+  "id": "AB-183",
+  "slug": "indirim-filtresi-davranisi-nasil-etkiler",
+  "question": "İndirim filtresi davranışı nasıl etkiler?",
+  "hypothesis": "İndirim yüzdesine göre filtreleme sunmak ürün keşfini hızlandırabilir ve fiyat hassas kullanıcıyı hedefe daha çabuk ulaştırabilir.",
+  "category": "Search & Filtering",
+  "surface": "filters",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "indirim filtresi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Filtre panelinde indirim oranına göre filtre yok",
+   "Panelde indirim oranı aralıklarını gösteren filtre bloğu var"
+  ]
+ },
+ {
+  "id": "AB-184",
+  "slug": "filtreler-kaydirma-boyunca-gorunur-kalmali-mi",
+  "question": "Filtreler kaydırma boyunca görünür kalmalı mı?",
+  "hypothesis": "Filtre panelinin sayfa kaydırılırken ekranda kalması, listenin ortasında fikir değiştiren kullanıcının yukarı dönmesini gerektirmez. Bedeli: panel sürekli yer kaplar, ürünlere kalan alan daralır ve mobilde ekranın önemli bir kısmını yiyebilir.",
+  "category": "Search & Filtering",
+  "surface": "filters",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "filtre panelinin kaydırmada kalıcılığı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Filtre paneli sayfayla kayıyor, aşağı inince ekrandan çıkıyor",
+   "Filtre paneli kaydırma boyunca ekranda sabit (sticky) kalıyor"
+  ]
+ },
+ {
+  "id": "AB-185",
+  "slug": "filtreleri-acikta-gostermek-mi-dugme-arkasina-almak-mi-daha-iyi-calisiyor",
+  "question": "Filtreleri açıkta göstermek mi, düğme arkasına almak mı daha iyi çalışıyor?",
+  "hypothesis": "Filtreleri doğrudan görünür kılmak varlıklarını hatırlatır ve kullanımı artırır. Düğme arkasına almak ise ürünlere daha çok yer bırakır ve sayfayı sadeleştirir; buna karşılık filtrenin varlığından habersiz kullanıcı hiç filtrelemeden gezinir ve doğru ürünü bulamaz.",
+  "category": "Search & Filtering",
+  "surface": "filters",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "filtre paneli görünürlüğü",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Filtreler sayfada açıkta, doğrudan görünür",
+   "Filtreler bir düğmenin arkasında gizli"
+  ]
+ },
+ {
+  "id": "AB-186",
+  "slug": "arama-kelimesini-sonuclarda-vurgulamak-ise-yarar-mi",
+  "question": "Arama kelimesini sonuçlarda vurgulamak işe yarar mı?",
+  "hypothesis": "Aranan kelimenin sonuç başlıklarında işaretlenmesi eşleşmenin nerede olduğunu gösterir ve doğru sonuca ulaşmayı hızlandırır. Riski: vurgu görsel gürültü yaratır, çok sayıda eşleşme olduğunda başlık okunmaz hâle gelir ve alakasız bir eşleşme vurgulandığında arama kalitesizmiş gibi görünür.",
+  "category": "Search & Filtering",
+  "surface": "search",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "arama kelimesi vurgusu",
+  "primaryKpi": "Arama Sonucu Tıklama Oranı",
+  "armLabels": [
+   "Arama sonuçlarında aranan kelime vurgulanmıyor",
+   "Aranan kelime sonuç başlıklarında işaretli/vurgulu gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-187",
+  "slug": "filtreleri-secenek-listesi-yerine-cumle-halinde-sormak-ise-yarar-mi",
+  "question": "Filtreleri seçenek listesi yerine cümle hâlinde sormak işe yarar mı?",
+  "hypothesis": "Filtreleri “kimin için, hangi bütçeyle” gibi bir soru akışına çevirmek, ne aradığını tam bilmeyen kullanıcıyı yönlendirir. Karşı tarafta: ne aradığını bilen kullanıcı için bu fazladan adımdır, akış onu yavaşlatır ve klasik filtreye göre daha az hassas sonuç verir.",
+  "category": "Search & Filtering",
+  "surface": "filters",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "filtre sorma biçimi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Filtreler klasik panelde seçenek listesi ve onay kutuları olarak sunuluyor",
+   "Filtreler kimin için/hangi bütçeyle tarzı adım adım soru akışına çevrilmiş"
+  ]
+ },
+ {
+  "id": "AB-188",
+  "slug": "siparis-onay-sayfasinda-ilgili-urun-onerisi-gostermek-ek-satin-alma-yaratir-mi",
+  "question": "Sipariş onay sayfasında ilgili ürün önerisi göstermek ek satın alma yaratır mı?",
+  "hypothesis": "Kullanıcı zaten ödeme yaptı, kart bilgisi elinde ve satın alma kararı tazeyken tekrar sürtünmeden geçmiş olur — bu, ikinci bir satın almayı önermek için nadir bir andır. Risk, önerinin asıl siparişin teslimat/onay bilgisini gölgelemesi veya kullanıcının “az önce ödedim, şimdi mi” hissiyle rahatsız olmasıdır.",
+  "category": "Thank You",
+  "surface": "thankyou",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "onay sayfası ürün önerisi",
+  "primaryKpi": "Ek Satın Alma Oranı",
+  "armLabels": [
+   "Sipariş onay sayfasında ilgili ürün önerisi yok",
+   "Sipariş onay sayfasında ilgili ürün önerisi gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-189",
+  "slug": "misafir-olarak-odeme-yapana-tesekkur-sayfasinda-hesap-olusturma-daveti-gostermek",
+  "question": "Misafir olarak ödeme yapana teşekkür sayfasında hesap oluşturma daveti göstermek kayıt oranını artırır mı?",
+  "hypothesis": "Misafir ödemesi checkout sürtünmesini azaltır ama işletmeyi tekrar iletişim kurabileceği bir hesaptan mahrum bırakır. Sipariş tamamlandıktan hemen sonra, bilgiler zaten girilmişken hesap oluşturmayı önermek, checkout öncesinde zorunlu kayıt istemekten farklı bir sürtünme profiline sahiptir — kullanıcı artık kaybedecek bir dönüşümü riske atmıyor.",
+  "category": "Thank You",
+  "surface": "thankyou",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "hesap oluşturma daveti",
+  "primaryKpi": "Hesap Oluşturma Oranı",
+  "armLabels": [
+   "Teşekkür sayfasında hesap oluşturma daveti yok",
+   "Teşekkür sayfasında hesap oluşturma daveti gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-190",
+  "slug": "tesekkur-sayfasinda-arkadasini-davet-et-teklifini-gostermek-paylasim-oranini-art",
+  "question": "Teşekkür sayfasında arkadaşını davet et teklifini göstermek paylaşım oranını artırır mı?",
+  "hypothesis": "Kullanıcı memnuniyetinin tepe noktası satın alma anının hemen sonrasıdır — referans isteği için davranışsal olarak en uygun an burasıdır. Riski, teklifin asıl sipariş bilgisini gölgelemesi veya ödül teklifi gerçek değilse güven kaybı yaratmasıdır.",
+  "category": "Thank You",
+  "surface": "thankyou",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "arkadaş davet teklifi",
+  "primaryKpi": "Paylaşım Başlatma Oranı",
+  "armLabels": [
+   "Teşekkür sayfasında arkadaşını davet et teklifi yok",
+   "Teşekkür sayfasında arkadaşını davet et teklifi gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-191",
+  "slug": "siparis-onayini-rutin-bir-bilgi-ekrani-yerine-akilda-kalici-bir-an-olarak-tasarl",
+  "question": "Sipariş onayını rutin bir bilgi ekranı yerine akılda kalıcı bir an olarak tasarlamak sadakati artırır mı?",
+  "hypothesis": "Bir deneyim büyük ölçüde en yoğun anına ve nasıl bittiğine göre hatırlanır — sürecin geri kalanı ortalama olsa bile güçlü bir bitiş, deneyimin genel algısını yükseltebilir. Standart bir “siparişiniz alındı” ekranı yerine kısa bir kutlama animasyonu, kişiselleştirilmiş bir teşekkür mesajı veya beklenmedik küçük bir jest, satın alma sürecinin son izlenimini güçlendirebilir.",
+  "category": "Thank You",
+  "surface": "thankyou",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "onay sayfası kurgusu",
+  "primaryKpi": "Marka Algısı (anket)",
+  "armLabels": [
+   "Standart sipariş onay ekranı: sipariş numarası, özet ve teslimat bilgisi",
+   "Aynı ekrana kişiselleştirilmiş teşekkür bloğu eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-192",
+  "slug": "buton-metni-eylemi-mi-kazanilan-seyi-mi-soylemeli",
+  "question": "Buton metni eylemi mi, kazanılan şeyi mi söylemeli?",
+  "hypothesis": "“Gönder” butonun ne yaptığını söyler, “Fiyat teklifimi al” tıklandığında ne kazanılacağını söyler. Kazanç ifadesi motive edebilir ama uzar, butonu şişirir ve bazı bağlamlarda abartılı durur. Eylem ifadesi kısadır ve beklentiyi tam karşılar; buna karşılık ilerlemek için bir sebep sunmaz.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "buton metni çerçevesi",
+  "primaryKpi": "Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Eylem ifadesi: Gönder",
+   "Kazanç ifadesi: Fiyat teklifimi al"
+  ]
+ },
+ {
+  "id": "AB-193",
+  "slug": "dolu-buton-mu-cerceveli-buton-mu-daha-cok-tiklaniyor",
+  "question": "Dolu buton mu, çerçeveli buton mu daha çok tıklanıyor?",
+  "hypothesis": "Dolu buton görsel ağırlığıyla öne çıkar ve birincil aksiyonu işaret eder. Çerçeveli (içi boş) buton sayfayı sakinleştirir ve ikincil aksiyonlar için doğal görünür. İkisini de dolu yapmak hiyerarşiyi yok eder; ikisini de çerçeveli yapmak hiçbirini öne çıkarmaz.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "buton stili",
+  "primaryKpi": "Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Dolu (arka planı renkli) buton",
+   "Çerçeveli (içi boş) buton"
+  ]
+ },
+ {
+  "id": "AB-194",
+  "slug": "ikincil-aksiyonu-baglanti-mi-buton-mu-yapmali",
+  "question": "İkincil aksiyonu bağlantı mı, buton mu yapmalı?",
+  "hypothesis": "Butona benzeyen bir öğe tıklanabilirliğini açıkça duyurur; bağlantı ise daha hafif durur ve birincil aksiyonla rekabet etmez. İkincil aksiyonu buton yapmak onu görünür kılar ama asıl istenen aksiyonun payını azaltabilir. Bağlantı yapmak ise onu tamamen görünmez kılabilir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "ikincil aksiyon biçimi",
+  "primaryKpi": "Toplam Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "İkincil aksiyon metin bağlantısı (link) olarak sunuluyor",
+   "İkincil aksiyon buton olarak sunuluyor"
+  ]
+ },
+ {
+  "id": "AB-195",
+  "slug": "buton-stillerini-tum-sayfada-tutarli-tutmak-fark-yaratir-mi",
+  "question": "Buton stillerini tüm sayfada tutarlı tutmak fark yaratır mı?",
+  "hypothesis": "Tutarlı buton stili neyin tıklanabilir olduğunu öğretir ve kullanıcı bir kez öğrendiğinde her yerde uygular. Bölümden bölüme değişen stiller dikkat çekebilir ama tıklanabilirlik işaretini bulanıklaştırır. Tutarlılık aynı zamanda tek tek bölümlerin öne çıkma imkânını azaltır.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "buton stili tutarlılığı",
+  "primaryKpi": "Toplam Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Buton stilleri bölümden bölüme farklılaşıyor (tutarsız)",
+   "Sayfadaki tüm butonlar tek bir stile getirilmiş (tutarlı)"
+  ]
+ },
+ {
+  "id": "AB-196",
+  "slug": "buyuk-taahhut-butonu-mu-kucuk-adim-butonu-mu-daha-cok-ilerletiyor",
+  "question": "Büyük taahhüt butonu mu, küçük adım butonu mu daha çok ilerletiyor?",
+  "hypothesis": "“Satın al” doğrudan sonuca gider ama hazır olmayan ziyaretçiyi durdurur. “Önce dene”, “Fiyatı gör” gibi küçük bir adım daha çok tıklanır ama ilerleyen kullanıcıların bir kısmı sonuca hiç ulaşmaz. Doğru cevap, ziyaretçinin karar aşamasına ve ürünün fiyat seviyesine bağlıdır.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "CTA taahhüt büyüklüğü",
+  "primaryKpi": "Nihai Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Büyük taahhüt CTA'sı: Satın al",
+   "Küçük adım CTA'sı: Önce dene / Fiyatı gör"
+  ]
+ },
+ {
+  "id": "AB-197",
+  "slug": "ikonlarin-yanina-yazili-etiket-eklemek-ise-yarar-mi",
+  "question": "İkonların yanına yazılı etiket eklemek işe yarar mı?",
+  "hypothesis": "İkon yer kazandırır ve dili aşar ama anlamı çoğu zaman öğrenilmiş bir konvansiyona dayanır; tanınmayan bir ikon boş bir kutudur. Etiket eklemek anlamı netleştirir, buna karşılık yer kaplar ve arayüzü kalabalıklaştırır. Özellikle az kullanılan işlevlerde etiketin değeri yükselir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ikon yanı yazılı etiket",
+  "primaryKpi": "İlgili İşlev Kullanım Oranı",
+  "armLabels": [
+   "İkon yanında yazılı etiket yok",
+   "İkon yanında yazılı etiket var"
+  ]
+ },
+ {
+  "id": "AB-198",
+  "slug": "baglantilari-yeni-sekmede-acmak-ise-yarar-mi",
+  "question": "Bağlantıları yeni sekmede açmak işe yarar mı?",
+  "hypothesis": "Yeni sekmede açmak kullanıcının bulunduğu sayfayı kaybetmemesini sağlar; ödeme veya form akışında yarım kalan işin korunması değerlidir. Karşı tarafta: kullanıcı denetimini elinden alır, geri tuşunu işlevsiz kılar, mobilde sekme yönetimi zordur ve beklenmedik davranış rahatsız eder.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "bağlantı hedef davranışı",
+  "primaryKpi": "Asıl Akış Tamamlama Oranı",
+  "armLabels": [
+   "Bağlantılar aynı sekmede açılıyor (varsayılan davranış)",
+   "Bağlantılar yeni sekmede açılıyor, akış sayfası açık kalıyor"
+  ]
+ },
+ {
+  "id": "AB-199",
+  "slug": "metin-icine-yerlestirilen-baglanti-tiklaniyor-mu",
+  "question": "Metin içine yerleştirilen bağlantı tıklanıyor mu?",
+  "hypothesis": "Açıklama metninin içine gömülü bir bağlantı, tam ilgili düşünce oluştuğu anda yol sunar ve ayrı bir buton kadar rahatsız etmez. Riski: metin içinde gözden kaçar, tıklanabilirliği butona göre zayıf işaretlenir ve okuma akışını bölerek kullanıcıyı erken uzaklaştırabilir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "metin içi bağlantı",
+  "primaryKpi": "Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Yol, paragrafın altında ayrı bir CTA butonuyla veriliyor",
+   "Aynı yol, paragraf içine gömülü bağlantı olarak veriliyor"
+  ]
+ },
+ {
+  "id": "AB-200",
+  "slug": "sik-yapilan-islemler-icin-kisayol-sunmak-ise-yarar-mi",
+  "question": "Sık yapılan işlemler için kısayol sunmak işe yarar mı?",
+  "hypothesis": "Tekrarlanan bir işlemi tek dokunuşa indirmek (tekrar sipariş, son aramayı yükle, kayıtlı adresle devam) deneyimli kullanıcıyı hızlandırır. Riski: kısayol arayüzde yer kaplar, yeni kullanıcı için anlamsızdır ve yanlış varsayımla hazırlanmış bir kısayol hatalı işleme yol açabilir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kısayol menüsü",
+  "primaryKpi": "Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Sık yapılan işlemler için kısayol yok",
+   "Sık yapılan işlemler için kısayol sunuluyor (ör. tekrar sipariş, son aramayı yükle)"
+  ]
+ },
+ {
+  "id": "AB-201",
+  "slug": "bir-adim-bittiginde-otomatik-olarak-sonrakine-gecmek-ise-yarar-mi",
+  "question": "Bir adım bittiğinde otomatik olarak sonrakine geçmek işe yarar mı?",
+  "hypothesis": "Seçim yapılır yapılmaz sonraki adıma geçmek bir tıklamayı ortadan kaldırır ve akışı hızlandırır. Bedeli: kullanıcı seçimini gözden geçiremez, yanlış dokunuş geri alınamaz bir ilerlemeye dönüşür ve kontrol hissi kaybolur. Geri dönüşün ne kadar kolay olduğu belirleyicidir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "adım geçiş davranışı",
+  "primaryKpi": "Akış Tamamlama Oranı",
+  "armLabels": [
+   "Adım tamamlandığında kullanıcı elle (ör. Devam butonuyla) ilerliyor",
+   "Seçim yapılır yapılmaz sonraki adıma otomatik geçiliyor"
+  ]
+ },
+ {
+  "id": "AB-202",
+  "slug": "sureli-kampanya-duyurusunu-site-genelinde-gostermek-ise-yarar-mi",
+  "question": "Süreli kampanya duyurusunu site genelinde göstermek işe yarar mı?",
+  "hypothesis": "Belirli bir süre boyunca tüm sayfalarda görünen bir duyuru şeridi kampanyayı kaçırılmaz kılar. Riski: kullanıcılar reklam bandına benzeyen öğeleri görmezden gelmeyi öğrenmiştir, şerit her sayfada dikey alan yer ve süreklileşen bir duyuru bir süre sonra görünmez hâle gelir. (Kalıcı hizmet vaatlerini — kargo, iade, teslimat — sayfa üstünde göstermek ayrı bir senaryodur: `home-landing.md` → fayda çubuğu.)",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "site geneli kampanya duyurusu",
+  "primaryKpi": "Duyurulan Aksiyonun Tamamlanma Oranı",
+  "armLabels": [
+   "Site genelinde kampanya duyuru şeridi yok",
+   "Belirli bir süre boyunca tüm sayfalarda görünen kampanya duyuru şeridi eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-203",
+  "slug": "kampanya-duyurusu-hemen-mi-bir-sure-sonra-mi-gorunmeli",
+  "question": "Kampanya duyurusu hemen mi, bir süre sonra mı görünmeli?",
+  "hypothesis": "Çubuğun sayfa açılır açılmaz görünmesi mesajı herkese ulaştırır ama içerikle rekabet eder. Kaydırma sonrası veya birkaç saniye gecikmeyle belirmesi ise ziyaretçi bağlamı kurduktan sonra devreye girer; buna karşılık geç beliren bir öğe içeriği kaydırarak yanlış tıklamaya yol açabilir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "kampanya duyurusu zamanlaması",
+  "primaryKpi": "Duyurulan Aksiyonun Tamamlanma Oranı",
+  "armLabels": []
+ },
+ {
+  "id": "AB-204",
+  "slug": "bildirim-isaretini-sayi-olarak-mi-nokta-olarak-mi-gostermeli",
+  "question": "Bildirim işaretini sayı olarak mı, nokta olarak mı göstermeli?",
+  "hypothesis": "Sayılı rozet ne kadar bekleyen iş olduğunu söyler ve aciliyeti ölçeklendirir. Sade bir nokta ise yalnızca “yeni bir şey var” der; daha az baskı yaratır ama bilgi vermez. Yüksek sayılar motive etmek yerine bunaltabilir, sıfırlanamayan bir rozet ise kalıcı bir rahatsızlığa dönüşür.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "bildirim işareti biçimi",
+  "primaryKpi": "İlgili Bölüm Ziyaret Oranı",
+  "armLabels": [
+   "Bildirim işareti bekleyen iş sayısını gösteren sayılı rozet",
+   "Bildirim işareti sayısız, sade bir nokta"
+  ]
+ },
+ {
+  "id": "AB-205",
+  "slug": "canli-destek-dugmesi-eklemek-donusumu-artirir-mi",
+  "question": "Canlı destek düğmesi eklemek dönüşümü artırır mı?",
+  "hypothesis": "Erişilebilir bir destek düğmesi tereddüt eden kullanıcıya çıkış yolu verir ve cevapsız kalan soruyu terke dönüşmeden yakalar. Bedeli: düğme ekranda yer kaplar, mobilde içeriği kapatabilir ve destek yükünü artırır. Ayrıca canlı destek gerçekten canlı değilse (yanıt gecikmesi) güveni düşürür.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "canlı destek düğmesi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Canlı destek düğmesi yok",
+   "Canlı destek düğmesi ekranda gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-206",
+  "slug": "sohbet-penceresini-kendiliginden-acmak-ise-yarar-mi",
+  "question": "Sohbet penceresini kendiliğinden açmak işe yarar mı?",
+  "hypothesis": "Kendiliğinden açılan sohbet penceresi yardımın varlığını duyurur ve pasif düğmeye göre çok daha fazla sohbet başlatır. Riski: davetsiz açılan bir pencere içeriği kapatır, kullanıcıyı böler ve rahatsızlık yaratır; gelen sohbetlerin niteliği de düşebilir çünkü kullanıcı yardım istemek yerine tepki vermiştir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "sohbet penceresi otomatik açılımı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Köşede kapalı bir sohbet düğmesi duruyor, kullanıcı tıklayınca pencere açılıyor",
+   "Sohbet penceresi kendiliğinden (otomatik) açılıyor"
+  ]
+ },
+ {
+  "id": "AB-207",
+  "slug": "bilgiyi-tablo-olarak-mi-kutular-halinde-mi-sunmali",
+  "question": "Bilgiyi tablo olarak mı, kutular hâlinde mi sunmalı?",
+  "hypothesis": "Tablo satır ve sütun mantığıyla doğrudan karşılaştırma kurar; çok sayıda özelliği yan yana koymak gerektiğinde en verimli biçimdir. Kutular her seçeneği bağımsız bir teklif gibi gösterir ve tarama kolaylığı sağlar ama farkların bulunmasını zorlaştırır. Yatay ve dikey yönelim de aynı içeriği farklı okutur.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "bilgi sunum biçimi",
+  "primaryKpi": "Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Bilgi tablo biçiminde, satır ve sütun karşılaştırmasıyla sunuluyor",
+   "Bilgi kutular hâlinde, her seçenek bağımsız kartla sunuluyor"
+  ]
+ },
+ {
+  "id": "AB-208",
+  "slug": "dis-baglantilari-yeni-sekmede-acmak-sayfada-kalma-oranini-artirir-mi",
+  "question": "Dış bağlantıları yeni sekmede açmak sayfada kalma oranını artırır mı?",
+  "hypothesis": "Bir sayfadaki dış bağlantı (ör. blog yazısındaki kaynak, ortak site linki) aynı sekmede açılırsa kullanıcı asıl siteden tamamen ayrılır; yeni sekmede açılırsa asıl sekme açık kalır. Riski, beklenmedik bir yeni sekmenin bazı kullanıcılarda kafa karışıklığı yaratması ve erişilebilirlik araçlarıyla kullanımı zorlaştırmasıdır.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "dış bağlantı hedefi",
+  "primaryKpi": "Sayfada Kalma/Geri Dönüş Oranı",
+  "armLabels": [
+   "Dış bağlantılar aynı sekmede açılıyor",
+   "Dış bağlantılar yeni sekmede açılıyor, iç bağlantılar değişmiyor"
+  ]
+ },
+ {
+  "id": "AB-209",
+  "slug": "buton-metnini-komut-kipiyle-mi-baslat-birinci-sahis-bildirimiyle-mi-basliyorum-y",
+  "question": "Buton metnini komut kipiyle mi (“Başlat”), birinci şahıs bildirimiyle mi (“Başlıyorum”) yazmalı?",
+  "hypothesis": "Bir CTA’nın emir kipiyle mi (“Başlat”), yoksa kullanıcının kendi ağzından söylediği birinci şahıs bildirimiyle mi (“Başlıyorum”) yazıldığı, kararı kimin verdiği hissini değiştirebilir — emir kipi siteden gelen bir talimat gibi okunurken, birinci şahıs ifade kullanıcının kendi kararını onayladığı bir cümle gibi okunur. Etkisi küçük ama tutarlı bir mikro-copy farkıdır; markanın genel ses tonuyla uyumlu olmayan bir kalıp tuhaf durabilir.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "buton metni kipi",
+  "primaryKpi": "Tıklama Oranı (CTR)",
+  "armLabels": [
+   "Buton metni komut kipinde: 'Başlat'",
+   "Buton metni birinci şahıs bildirimiyle: 'Başlıyorum'"
+  ]
+ },
+ {
+  "id": "AB-210",
+  "slug": "ic-promosyon-banner-i-tek-bir-motivasyona-mi-birden-fazla-secenege-mi-odaklanmal",
+  "question": "İç promosyon banner’ı tek bir motivasyona mı, birden fazla seçeneğe mi odaklanmalı?",
+  "hypothesis": "Bir sitenin herhangi bir noktasındaki tanıtım banner’ı genellikle birden fazla fayda veya seçeneği aynı anda listeler (“Ücretsiz kargo, yeni koleksiyon, üyelik avantajları”). Banner’ı tek bir net motivasyona kilitlemek (yalnızca “Bugüne özel: ilk siparişte %15”) mesajı netleştirebilir ama diğer tekliflerin görünürlüğünü tamamen kaybettirebilir. Bu, “Süreli kampanya duyurusunu site genelinde göstermek işe yarar mı?” senaryosundan farklıdır: o senaryo banner’ın var olup olmamasını ve zamanlamasını, bu senaryo banner içeriğinin tek mi çok mu odaklı olacağını test eder.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "promosyon banner odağı",
+  "primaryKpi": "Banner Tıklama Oranı",
+  "armLabels": [
+   "Banner aynı anda birden fazla fayda/teklifi listeliyor",
+   "Banner tek bir motivasyona kilitli, tek mesaj tek aksiyon"
+  ]
+ },
+ {
+  "id": "AB-211",
+  "slug": "birden-fazla-secenek-arasindan-birini-gorsel-agirlikla-one-cikarmak-secimi-hizla",
+  "question": "Birden fazla seçenek arasından birini görsel ağırlıkla öne çıkarmak seçimi hızlandırır mı?",
+  "hypothesis": "Kullanıcıya birden fazla eşdeğer seçenek (ör. ürün varyantı, özellik kartı, indirilecek kaynak) sunulduğunda hepsini aynı görsel ağırlıkta göstermek nötr durur ama karar yükünü tamamen kullanıcıya bırakır. Seçeneklerden birini boyut, renk veya konumla diğerlerinden görünür biçimde ağır göstermek seçimi hızlandırabilir; riski, öne çıkarılan seçeneğin gerçekten çoğunluğun ihtiyacına uymamasıdır — bu durumda ağırlık seçimi değil yalnızca tıklamayı yönlendirmiş olur. Bu, `pricing.md`’deki plan sırası veya “en popüler” rozeti senaryolarından farklıdır: onlar fiyat planlarına özgüdür, bu senaryo fiyat içermeyen herhangi bir çoklu seçenek sunumuna uygulanır.",
+  "category": "UI Elements",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "seçenek görsel ağırlığı",
+  "primaryKpi": "Seçim Tamamlama Süresi",
+  "armLabels": [
+   "Tüm seçenekler eşit görsel ağırlıkta (boyut, renk, konum) gösteriliyor",
+   "Bir seçenek boyut, renk veya konumdan biriyle diğerlerinden görsel olarak öne çıkarılmış"
+  ]
+ }
+]

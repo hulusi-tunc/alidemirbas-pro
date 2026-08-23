@@ -1,0 +1,225 @@
+{
+  "fields": [
+    {
+      "field": "journey.name (title)",
+      "n": 255,
+      "min": 35,
+      "median": 62,
+      "p90": 74,
+      "p95": 77,
+      "max": 87,
+      "maxRecordId": "RSK-200",
+      "singleLineAssumptionRisk": "two-line — median 62, max 87 chars; a single-line title truncates ~10% of the library"
+    },
+    {
+      "field": "journey.purpose",
+      "n": 255,
+      "min": 61,
+      "median": 107,
+      "p90": 135,
+      "p95": 149,
+      "max": 192,
+      "maxRecordId": "CON-36",
+      "singleLineAssumptionRisk": "unbounded — this is prose, never single-line"
+    },
+    {
+      "field": "entity.note",
+      "n": 255,
+      "min": 89,
+      "median": 139,
+      "p90": 173,
+      "p95": 183,
+      "max": 486,
+      "maxRecordId": "REL-91",
+      "singleLineAssumptionRisk": "unbounded — max is 3.5x the median, one real outlier (REL-91)"
+    },
+    {
+      "field": "reusableRule",
+      "n": 255,
+      "min": 66,
+      "median": 130,
+      "p90": 153,
+      "p95": 163,
+      "max": 181,
+      "maxRecordId": "RSK-200",
+      "singleLineAssumptionRisk": "unbounded prose"
+    },
+    {
+      "field": "trigger.event (raw, humanized for display)",
+      "n": 255,
+      "min": 12,
+      "median": 31,
+      "p90": 40,
+      "p95": 43,
+      "max": 48,
+      "maxRecordId": "FIN-136",
+      "singleLineAssumptionRisk": "two-line safe at p95, but max=48 chars needs wrap"
+    },
+    {
+      "field": "trigger.evidence.requires (per item)",
+      "n": 261,
+      "min": 24,
+      "median": 78,
+      "p90": 174,
+      "p95": 207,
+      "max": 319,
+      "maxRecordId": "RET-24",
+      "singleLineAssumptionRisk": "unbounded — this is a list, never single-line; item COUNT also varies (see requiresCount)"
+    },
+    {
+      "field": "trigger.evidence.insufficientAlone (per item)",
+      "n": 249,
+      "min": 7,
+      "median": 63,
+      "p90": 104,
+      "p95": 126,
+      "max": 211,
+      "maxRecordId": "INT-118",
+      "singleLineAssumptionRisk": "unbounded list"
+    },
+    {
+      "field": "guardrails (per item)",
+      "n": 961,
+      "min": 20,
+      "median": 71,
+      "p90": 128,
+      "p95": 153,
+      "max": 497,
+      "maxRecordId": "RET-27",
+      "singleLineAssumptionRisk": "DANGEROUS as single-line — median 71, max 497 chars (RET-27)"
+    },
+    {
+      "field": "distinctFrom.because",
+      "n": 175,
+      "min": 129,
+      "median": 200,
+      "p90": 284,
+      "p95": 315,
+      "max": 466,
+      "maxRecordId": "REL-92",
+      "singleLineAssumptionRisk": "unbounded prose, only present on 166/255 journeys"
+    },
+    {
+      "field": "action.does (node headline)",
+      "n": 1131,
+      "min": 39,
+      "median": 214,
+      "p90": 292,
+      "p95": 324,
+      "max": 483,
+      "maxRecordId": "OWN-54",
+      "singleLineAssumptionRisk": "DANGEROUS — this is the node's HEADLINE with no secondary field, median 214, max 483 chars (OWN-54). A one-line node-headline assumption fails on the majority of action nodes."
+    },
+    {
+      "field": "condition.asks (node headline)",
+      "n": 702,
+      "min": 14,
+      "median": 45,
+      "p90": 68,
+      "p95": 74,
+      "max": 97,
+      "maxRecordId": "CMS-202",
+      "singleLineAssumptionRisk": "two-line safe (median 45, p95 74)"
+    },
+    {
+      "field": "branch.label (short, chip-safe)",
+      "n": 1601,
+      "min": 2,
+      "median": 13,
+      "p90": 29,
+      "p95": 35,
+      "max": 73,
+      "maxRecordId": "CMS-203",
+      "singleLineAssumptionRisk": "single-line safe — median 13, p95 35, max 73 (CMS-203)"
+    },
+    {
+      "field": "branch.when (secondary text, separate field from label)",
+      "n": 1601,
+      "min": 12,
+      "median": 60,
+      "p90": 86,
+      "p95": 98,
+      "max": 211,
+      "maxRecordId": "RET-28",
+      "singleLineAssumptionRisk": "unbounded — must render as expandable/secondary, never inline with the label"
+    },
+    {
+      "field": "wait.until (per item)",
+      "n": 282,
+      "min": 7,
+      "median": 32,
+      "p90": 50,
+      "p95": 55,
+      "max": 87,
+      "maxRecordId": "OPS-129",
+      "singleLineAssumptionRisk": "unbounded list"
+    },
+    {
+      "field": "wait.timeout.after",
+      "n": 164,
+      "min": 16,
+      "median": 35,
+      "p90": 61,
+      "p95": 74,
+      "max": 119,
+      "maxRecordId": "FIN-131",
+      "singleLineAssumptionRisk": "single-line safe — median 35, max 119"
+    },
+    {
+      "field": "wait.timeout.reason",
+      "n": 164,
+      "min": 57,
+      "median": 137,
+      "p90": 166,
+      "p95": 178,
+      "max": 208,
+      "maxRecordId": "RET-27",
+      "singleLineAssumptionRisk": "unbounded prose, median 137"
+    },
+    {
+      "field": "exit.state (node headline)",
+      "n": 433,
+      "min": 11,
+      "median": 53,
+      "p90": 74,
+      "p95": 81,
+      "max": 102,
+      "maxRecordId": "DEC-187",
+      "singleLineAssumptionRisk": "two-line safe, median 53"
+    },
+    {
+      "field": "exit.reEntry (secondary text)",
+      "n": 433,
+      "min": 34,
+      "median": 115,
+      "p90": 165,
+      "p95": 183,
+      "max": 261,
+      "maxRecordId": "OWN-51",
+      "singleLineAssumptionRisk": "unbounded prose, median 115"
+    },
+    {
+      "field": "handoff.on (secondary text)",
+      "n": 500,
+      "min": 19,
+      "median": 50,
+      "p90": 68,
+      "p95": 73,
+      "max": 105,
+      "maxRecordId": "REL-97",
+      "singleLineAssumptionRisk": "two-line safe at median, unbounded at max"
+    },
+    {
+      "field": "handoff.carries (per item)",
+      "n": 991,
+      "min": 13,
+      "median": 70,
+      "p90": 113,
+      "p95": 131,
+      "max": 308,
+      "maxRecordId": "OWN-57",
+      "singleLineAssumptionRisk": "unbounded list"
+    }
+  ],
+  "guidance": "single-line assumption is safe only for: branch.label, wait.timeout.after. two-line assumption is safe for: journey.name, trigger.event, condition.asks, exit.state. everything else — action.does (the most dangerous: it is a node's ONLY headline field and runs to 483 chars), purpose, entity.note, reusableRule, guardrails, distinctFrom.because, branch.when, wait.timeout.reason, exit.reEntry, handoff.on, and every list-typed field (requires, insufficientAlone, until, carries) — must be designed as unbounded text or lists, never clamped."
+}

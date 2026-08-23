@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hulusi-tunc/alidemirbas-pro/production/journey-view-model.schema.json",
+  "title": "JourneyViewModel",
+  "description": "The design-independent production model for one canonical journey. Mirrors src/canonical/types.ts's CanonicalJourney field-for-field for identity/entry/graph/relationships/governance, and adds only deterministically-derived metadata (never new semantic content). Feeds journey-manifest.json, journey-graph-contract.json's node/edge families, and the design adapter layer — never the canonical TS source itself, which stays the single source of truth.",
+  "type": "object",
+  "required": ["identity", "entry", "graph", "relationships", "governance", "derived"],
+  "additionalProperties": false,
+
+  "properties": {
+    "identity": {
+      "type": "object",
+      "required": ["id", "slug", "category", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z]{3}-\\d+$" },
+        "slug": { "type": "string", "minLength": 1 },
+        "category": { "type": "string" },
+        "categoryTitle": { "type": "string" },
+        "title": { "type": "string", "minLength": 1, "description": "= CanonicalJourney.name" },
+        "purpose": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "entry": {
+      "type": "object",
+      "required": ["trigger", "triggerEvidenceClass", "requires"],
+      "additionalProperties": false,
+      "properties": {
+        "trigger": { "type": "string", "description": "the trigger node's humanized event label" },
+        "triggerEvidenceClass": { "type": "string", "enum": ["authoritative", "declared", "behavioral", "inferred"] },
+        "requires": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "insufficientAlone": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "graph": {
+      "type": "object",
+      "required": ["nodes", "edges", "startNode", "terminalNodes"],
+      "additionalProperties": false,
+      "properties": {
+        "nodes": { "type": "array", "items": { "$ref": "#/$defs/graphNode" } },
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/graphEdge" } },
+        "startNode": { "type": "string" },
+        "terminalNodes": { "type": "array", "items": { "type": "string" }, "description": "exit and handoff node ids — every node with no outgoing edge within this journey" },
+        "backwardEdgeIds": { "type": "array", "items": { "type": "integer" }, "description": "indices into edges[] that are backward per BFS reading order" },
+        "branchEdgeIds": { "type": "array", "items": { "type": "integer" } },
+        "handoffEdgeIds": { "type": "array", "items": { "type": "integer" } },
+        "externalEdgeIds": { "type": "array", "items": { "type": "integer" } }
+      }
+    },
+
+    "relationships": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "handoffs": { "type": "array", "items": { "type": "object", "properties": { "to": { "type": "string" }, "isExternal": { "type": "boolean" } } } },
+        "distinctFrom": { "type": "array", "items": { "type": "object", "required": ["journey", "because"], "properties": { "journey": { "type": "string" }, "because": { "type": "string" } } } },
+        "competition": {
+          "type": ["object", "null"],
+          "properties": { "scope": { "type": "string" }, "exclusionGroup": { "type": "string" }, "precedence": { "type": "string" }, "onLoss": { "type": "string" } }
+        },
+        "preemptedBy": { "type": "array", "items": { "type": "object", "properties": { "event": { "type": "string" }, "then": { "type": "string" } } } }
+      }
+    },
+
+    "governance": {
+      "type": "object",
+      "required": ["guardrails", "reusableRule", "entityScope"],
+      "additionalProperties": false,
+      "properties": {
+        "guardrails": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "reusableRule": { "type": "string", "minLength": 1 },
+        "entityScope": { "type": "string", "minLength": 1 },
+        "entityNote": { "type": "string" }
+      }
+    },
+
+    "derived": {
+      "type": "object",
+      "required": [
+        "hasBranches", "hasBackwardEdges", "hasTrueCycle", "hasExternalHandoff",
+        "hasWait", "hasReEntryException", "hasTerminalExit", "nodeCount", "edgeCount",
+        "primaryStructure", "behaviors", "complexityTier", "complexityScore"
+      ],
+      "additionalProperties": false,
+      "description": "Deterministically computed from graph — never authored, never a new semantic fact.",
+      "properties": {
+        "hasBranches": { "type": "boolean" },
+        "hasBackwardEdges": { "type": "boolean" },
+        "hasTrueCycle": { "type": "boolean", "description": "a real cycle (DFS-detected), stricter than hasBackwardEdges" },
+        "hasExternalHandoff": { "type": "boolean" },
+        "hasCrossJourneyHandoff": { "type": "boolean" },
+        "hasWait": { "type": "boolean" },
+        "hasReEntryException": { "type": "boolean", "description": "true only if >=1 exit is terminal:true (the rare case — 5/255 journeys)" },
+        "hasTerminalExit": { "type": "boolean" },
+        "hasMultipleExits": { "type": "boolean" },
+        "hasPreemption": { "type": "boolean" },
+        "hasCompetition": { "type": "boolean" },
+        "nodeCount": { "type": "integer" },
+        "edgeCount": { "type": "integer" },
+        "branchNodeCount": { "type": "integer" },
+        "backwardEdgeCount": { "type": "integer" },
+        "handoffCount": { "type": "integer" },
+        "exitCount": { "type": "integer" },
+        "maxDepth": { "type": "integer" },
+        "maxFanIn": { "type": "integer" },
+        "maxFanOut": { "type": "integer" },
+        "primaryStructure": { "type": "string", "enum": ["router", "self-contained", "mixed-termination"], "description": "mutually-exclusive axis, derived from termination pattern only" },
+        "behaviors": {
+          "type": "array",
+          "description": "0..N independent tags — deliberately a separate axis from primaryStructure (a journey can be router AND wait-timeout AND competition simultaneously)",
+          "items": { "type": "string", "enum": ["backward-edge", "wait-timeout", "cross-journey-handoff", "external-handoff", "multi-exit", "preemption", "competition", "no-re-entry"] }
+        },
+        "complexityTier": { "type": "string", "enum": ["simple", "medium", "complex", "extreme"], "description": "thresholds derived from the real p33/p66/p90 of complexityScore across all 255 journeys — not arbitrary" },
+        "complexityScore": { "type": "integer" }
+      }
+    }
+  },
+
+  "$defs": {
+    "graphNode": {
+      "type": "object",
+      "required": ["id", "kind", "headline"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string" },
+        "kind": { "type": "string", "enum": ["trigger", "action", "condition", "wait", "outcome", "exit", "handoff"] },
+        "headline": { "type": "string" },
+        "detail": { "type": ["string", "null"] },
+        "isEntry": { "type": "boolean" },
+        "terminal": { "type": "boolean" }
+      }
+    },
+    "graphEdge": {
+      "type": "object",
+      "required": ["from", "to", "family"],
+      "additionalProperties": true,
+      "properties": {
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "family": { "type": "string", "enum": ["forward", "branch", "wait-event", "wait-timeout", "backward", "cross-journey-handoff", "external"] },
+        "label": { "type": ["string", "null"] },
+        "when": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,411 @@
+{
+  "totals": {
+    "abPages": 211,
+    "journeyPages": 255,
+    "total": 466,
+    "expected": 466
+  },
+  "counts": {
+    "errors": 0,
+    "warnings": 39
+  },
+  "needsSeoReview": [
+    {
+      "id": "AB-024",
+      "reason": "Subject overlaps heavily with AB-031, which tests category order in the navigation menu rather than the listing itself."
+    },
+    {
+      "id": "AB-031",
+      "reason": "Subject overlaps heavily with AB-024, which tests category ordering on the listing page rather than in the menu."
+    },
+    {
+      "id": "AB-042",
+      "reason": "Near-identical in subject to AB-043: both add a small badge to the same product card slot on a PLP, differing only in the badge's message (installment vs campaign)."
+    },
+    {
+      "id": "AB-043",
+      "reason": "Near-identical in subject to AB-042 (installment badge) and closely related to AB-044, all three adding a promotional message to the same product card."
+    },
+    {
+      "id": "AB-089",
+      "reason": "Shares the guarantee-presentation subject with AB-088, which tests guarantee formatting rather than placement."
+    },
+    {
+      "id": "AB-122",
+      "reason": "Malformed canonical slug \"ucuncu-bir-cekici-alternatif-plan-eklemek-orta-planin-secilme-oranini-artiriyor-\" (trailing/duplicate hyphen from upstream slug generation). The canonicalPath inherits the defect; fixing it means changing the slug, which this round does not do."
+    },
+    {
+      "id": "AB-131",
+      "reason": "Subject overlaps AB-117, which also tests showing a smaller monthly figure instead of the full amount, though on the pricing page and for a subscription term rather than installments."
+    },
+    {
+      "id": "AB-145",
+      "reason": "Subject overlaps AB-147, which also tests benefit messaging on the product detail page."
+    },
+    {
+      "id": "AB-147",
+      "reason": "Subject overlaps AB-145, which also tests benefit messaging on the product detail page."
+    },
+    {
+      "id": "AB-149",
+      "reason": "Treatment arm is close to AB-150, which also fixes the buy CTA to a persistent bar."
+    },
+    {
+      "id": "AB-150",
+      "reason": "Treatment arm is close to AB-149, which also fixes the buy CTA to a persistent bar."
+    },
+    {
+      "id": "AB-159",
+      "reason": "Malformed canonical slug \"satin-almadan-once-urunu-ozellestirme-imkani-sunmak-satin-alma-niyetini-artirir-\" (trailing/duplicate hyphen from upstream slug generation). The canonicalPath inherits the defect; fixing it means changing the slug, which this round does not do."
+    },
+    {
+      "id": "AB-198",
+      "reason": "Subject overlaps heavily with AB-208, which also tests opening links in a new tab; this record covers in-flow links while AB-208 covers external links."
+    },
+    {
+      "id": "AB-203",
+      "reason": "Closely related to AB-202, which tests whether the site-wide announcement bar exists at all while this record tests only its timing."
+    },
+    {
+      "id": "AB-208",
+      "reason": "Subject overlaps heavily with AB-198, which also tests new-tab link behavior; this record is scoped to external links and on-site dwell."
+    },
+    {
+      "id": "ACC-74",
+      "reason": "Near-identical in subject to ACC-80, which also models ending a capability with dependency and obligation reconciliation."
+    },
+    {
+      "id": "ACC-79",
+      "reason": "Near-identical in subject to ACC-78, whose restore exit covers the same restoration decision this journey models in full."
+    },
+    {
+      "id": "ACC-80",
+      "reason": "Near-identical in subject to ACC-74, which also models removing capability after an entitlement ends."
+    },
+    {
+      "id": "ACQ-08",
+      "reason": "Near-identical in subject to ACT-16, which also models a journey releasing ownership and cancelling queued messages on an authoritative outcome."
+    },
+    {
+      "id": "ACT-16",
+      "reason": "Near-identical in subject to ACQ-08, which also models suppression and handoff the moment the target outcome is recorded."
+    },
+    {
+      "id": "CMS-206",
+      "reason": "Near-identical in subject to CMS-207, which also resolves accepted, failed and unknown states for the same delivery attempt."
+    },
+    {
+      "id": "CMS-207",
+      "reason": "Near-identical in subject to CMS-206, which also records the accepted, failed or unknown state of a delivery attempt."
+    },
+    {
+      "id": "CON-33",
+      "reason": "Close neighbour of CON-34, which also models a preference change triggering a recalculation; CON-33 covers preferences in general and CON-34 covers frequency only."
+    },
+    {
+      "id": "CON-34",
+      "reason": "Close neighbour of CON-33, the general preference-change recalculation journey; this record is the frequency-specific case."
+    },
+    {
+      "id": "CON-38",
+      "reason": "Close neighbour of CON-39, which also holds messaging back; CON-38 records any suppression reason as state while CON-39 is a time-bound cooldown on optional messaging."
+    },
+    {
+      "id": "CON-39",
+      "reason": "Close neighbour of CON-38, the general suppression-state journey; this record covers the time-bound cooldown case only."
+    },
+    {
+      "id": "DEC-185",
+      "reason": "Close neighbour of DEC-188, which also revalidates an approval before use; DEC-185 revalidates the target at execution while DEC-188 tests the approval's own validity boundaries."
+    },
+    {
+      "id": "DEC-188",
+      "reason": "Close neighbour of DEC-185, the approval execution journey; both gate an approval at the point of use, this one on the approval's own validity boundaries."
+    },
+    {
+      "id": "DEC-190",
+      "reason": "Near-identical subject to FBK-47 (appeal and dispute review): both model revisiting a decision that has already been made."
+    },
+    {
+      "id": "FBK-47",
+      "reason": "Near-identical subject to DEC-190 (decision reconsideration): both model revisiting a decision that has already been made."
+    },
+    {
+      "id": "FIN-135",
+      "reason": "Overlaps with FIN-140 (financial reconciliation) on reconciliation search intent; the scopes differ (one payment attempt vs disagreeing record sets) and need separate positioning."
+    },
+    {
+      "id": "FIN-140",
+      "reason": "Overlaps with FIN-135 (unknown payment reconciliation) on reconciliation search intent; the scopes differ (disagreeing record sets vs one payment attempt) and need separate positioning."
+    },
+    {
+      "id": "IDN-86",
+      "reason": "Subject overlaps materially with IDN-85 (authentication challenge); both cover authenticating an actor with a step-up or deny outcome and may compete on the same query."
+    },
+    {
+      "id": "INT-120",
+      "reason": "Subject overlaps materially with INT-113 (integration health degradation) and INT-116 (integration failure); all three model losing and recovering an integration capability."
+    },
+    {
+      "id": "OWN-53",
+      "reason": "Subject overlaps closely with OWN-54: both cover handing an active entity to a new owner. This page is the context handover after an assignment becomes effective; OWN-54 is the authoritative ownership change and obligation transfer."
+    },
+    {
+      "id": "OWN-54",
+      "reason": "Subject overlaps closely with OWN-53: both cover handing an active entity to a new owner. This page is the authoritative ownership change and obligation transfer; OWN-53 is the context handover after an assignment becomes effective."
+    },
+    {
+      "id": "TIM-67",
+      "reason": "Subject overlaps TIM-66 (temporary-exception): both model a time-bound state ending in revert or transition; TIM-67 is the generic case, TIM-66 the granted-exception case. Confirm the two pages stay distinct."
+    }
+  ],
+  "exactDuplicateTitles": [],
+  "exactDuplicateDescriptions": [],
+  "nearDuplicateTitles": [
+    {
+      "a": "AB-024",
+      "b": "AB-031",
+      "similarity": 0.8,
+      "aTitle": "Category Ordering A/B Test on Listing Pages",
+      "bTitle": "Menu Category Order A/B Test on Listing Pages",
+      "flagged": true
+    }
+  ],
+  "nearDuplicateDescriptions": [],
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "near_duplicate_title",
+      "id": "AB-024/AB-031",
+      "message": "title similarity 0.80 (flagged)"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "AB-029",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "AB-072",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "AB-095",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "AB-119",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "AB-136",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "AB-142",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "ACC-74",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "ACC-80",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "ACQ-04",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "ACT-20",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "CMS-203",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "DAT-225",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "DEC-181",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "DOC-211",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "DOC-219",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FBK-42",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FBK-45",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FBK-48",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FIN-131",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FUL-141",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FUL-142",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FUL-143",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FUL-144",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FUL-145",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FUL-150",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "IDN-85",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "IDN-87",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "INC-256",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "INT-120",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "OPS-126",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "OWN-55",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "RSK-198",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "SCH-172",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "SCH-176",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "SUB-167",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "TIM-69",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "malformed_slug_inherited",
+      "id": "AB-122",
+      "message": "canonicalPath inherits a malformed slug (\"ucuncu-bir-cekici-alternatif-plan-eklemek-orta-planin-secilme-oranini-artiriyor-\") — upstream slug fix required, out of scope here"
+    },
+    {
+      "severity": "warning",
+      "code": "malformed_slug_inherited",
+      "id": "AB-159",
+      "message": "canonicalPath inherits a malformed slug (\"satin-almadan-once-urunu-ozellestirme-imkani-sunmak-satin-alma-niyetini-artirir-\") — upstream slug fix required, out of scope here"
+    }
+  ]
+}

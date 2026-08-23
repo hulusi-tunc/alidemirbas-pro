@@ -46,6 +46,13 @@ export const copy = {
           ],
         },
         {
+          name: "Marketing Calculators",
+          slug: "marketing-calculators",
+          desc: "ROAS, CAC, LTV, CTR and 13 other marketing-metric calculators, plus a UTM builder and character counter - free, no account required.",
+          tags: ["Web Tool", "Marketing Analytics", "17 tools"],
+          links: [{ label: "Open the calculators", href: "/lab/calculators" }],
+        },
+        {
           name: "Marketing Dashboard Builder",
           slug: "dashboard-builder",
           desc: "Takes messy exports from different marketing platforms, checks what can actually be compared, and turns the data into a decision-ready dashboard.",
@@ -390,6 +397,13 @@ export const copy = {
             { label: "Playbook'u incele", href: "/tr/lab/ab-testing" },
             { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
+        },
+        {
+          name: "Pazarlama Hesaplayıcıları",
+          slug: "marketing-calculators",
+          desc: "ROAS, CAC, LTV, CTR ve 13 pazarlama metriği hesaplayıcısı, ayrıca bir UTM oluşturucu ve karakter sayacı - ücretsiz, hesap gerektirmez.",
+          tags: ["Web Aracı", "Pazarlama Analitiği", "17 araç"],
+          links: [{ label: "Hesaplayıcıları aç", href: "/tr/lab/calculators" }],
         },
         {
           name: "Pazarlama Dashboard Üretici",

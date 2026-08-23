@@ -1,0 +1,3127 @@
+[
+  {
+    "id": "ACC-71",
+    "slug": "entitlement-qualification",
+    "title": "Entitlement qualification → grant, deny or pending",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Entitlement basis evaluated or changed",
+    "searchableAliases": [
+      "ACC-71",
+      "entitlement-qualification"
+    ]
+  },
+  {
+    "id": "ACC-72",
+    "slug": "entitlement-provisioning",
+    "title": "Entitlement grant → provision → verify availability",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Entitlement granted",
+    "searchableAliases": [
+      "ACC-72",
+      "entitlement-provisioning"
+    ]
+  },
+  {
+    "id": "ACC-73",
+    "slug": "entitlement-scope-change",
+    "title": "Entitlement change → recalculate scope → expand, reduce or preserve",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Entitlement basis changed",
+    "searchableAliases": [
+      "ACC-73",
+      "entitlement-scope-change"
+    ]
+  },
+  {
+    "id": "ACC-74",
+    "slug": "entitlement-loss",
+    "title": "Entitlement loss → revoke future capability → reconcile existing obligations",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Entitlement no longer valid",
+    "searchableAliases": [
+      "ACC-74",
+      "entitlement-loss"
+    ]
+  },
+  {
+    "id": "ACC-75",
+    "slug": "access-authorization-decision",
+    "title": "Access request → authorization check → allow, deny or step up",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Protected action attempted",
+    "searchableAliases": [
+      "ACC-75",
+      "access-authorization-decision"
+    ]
+  },
+  {
+    "id": "ACC-76",
+    "slug": "credential-lifecycle",
+    "title": "Credential issued → activate → use, expire or revoke",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Credential issued",
+    "searchableAliases": [
+      "ACC-76",
+      "credential-lifecycle"
+    ]
+  },
+  {
+    "id": "ACC-77",
+    "slug": "credential-revocation",
+    "title": "Credential compromise or revocation → disable → replace or re-authenticate",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Authoritative revocation requirement",
+    "searchableAliases": [
+      "ACC-77",
+      "credential-revocation"
+    ]
+  },
+  {
+    "id": "ACC-78",
+    "slug": "access-suspension",
+    "title": "Access suspension → restricted state → restore or terminate",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Authoritative suspension decision",
+    "searchableAliases": [
+      "ACC-78",
+      "access-suspension"
+    ]
+  },
+  {
+    "id": "ACC-79",
+    "slug": "capability-restoration",
+    "title": "Capability restoration → revalidate → restore safely",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Restoration condition satisfied",
+    "searchableAliases": [
+      "ACC-79",
+      "capability-restoration"
+    ]
+  },
+  {
+    "id": "ACC-80",
+    "slug": "deprovision-with-dependency-check",
+    "title": "Deprovision request → dependency check → remove, retain or escalate",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Deprovisioning requirement",
+    "searchableAliases": [
+      "ACC-80",
+      "deprovision-with-dependency-check"
+    ]
+  },
+  {
+    "id": "ACQ-01",
+    "slug": "anonymous-intent-to-qualified-entry",
+    "title": "Anonymous intent → known identity → qualified entry",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Anonymous intent threshold reached",
+    "searchableAliases": [
+      "ACQ-01",
+      "anonymous-intent-to-qualified-entry"
+    ]
+  },
+  {
+    "id": "ACQ-02",
+    "slug": "captured-interest-to-destination",
+    "title": "Captured interest → qualification → appropriate destination",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "First party interest captured",
+    "searchableAliases": [
+      "ACQ-02",
+      "captured-interest-to-destination"
+    ]
+  },
+  {
+    "id": "ACQ-03",
+    "slug": "intent-escalation-handoff",
+    "title": "Intent escalation → higher-intent journey handoff",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Intent threshold crossed",
+    "searchableAliases": [
+      "ACQ-03",
+      "intent-escalation-handoff"
+    ]
+  },
+  {
+    "id": "ACQ-04",
+    "slug": "high-intent-human-or-automated-route",
+    "title": "High-intent action → qualification → human or automated route",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "High intent commercial action",
+    "searchableAliases": [
+      "ACQ-04",
+      "high-intent-human-or-automated-route"
+    ]
+  },
+  {
+    "id": "ACQ-05",
+    "slug": "qualification-state-change-routing",
+    "title": "Qualification state change → route, re-route or exit",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Qualification state changed",
+    "searchableAliases": [
+      "ACQ-05",
+      "qualification-state-change-routing"
+    ]
+  },
+  {
+    "id": "ACQ-06",
+    "slug": "dynamic-eligibility-consequence",
+    "title": "Dynamic eligibility → eligible or ineligible → consequence",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Eligibility inputs changed or reevaluated",
+    "searchableAliases": [
+      "ACQ-06",
+      "dynamic-eligibility-consequence"
+    ]
+  },
+  {
+    "id": "ACQ-07",
+    "slug": "intent-decay-cooldown",
+    "title": "Intent decay → de-prioritise → cooldown or exit",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Intent freshness threshold passed",
+    "searchableAliases": [
+      "ACQ-07",
+      "intent-decay-cooldown"
+    ]
+  },
+  {
+    "id": "ACQ-08",
+    "slug": "destination-reached-acquisition-suppression",
+    "title": "Commercial destination reached → acquisition suppression → lifecycle handoff",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Authoritative destination event",
+    "searchableAliases": [
+      "ACQ-08",
+      "destination-reached-acquisition-suppression"
+    ]
+  },
+  {
+    "id": "ACQ-09",
+    "slug": "bounded-education-progress-or-sunset",
+    "title": "Researching lead → bounded education → progress or sunset",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Valid lead not destination ready",
+    "searchableAliases": [
+      "ACQ-09",
+      "bounded-education-progress-or-sunset"
+    ]
+  },
+  {
+    "id": "ACQ-10",
+    "slug": "commercial-decline-reason-routing",
+    "title": "Explicit commercial decline → reason → terminal, cooldown or recycle",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Explicit decline or authoritative lost outcome",
+    "searchableAliases": [
+      "ACQ-10",
+      "commercial-decline-reason-routing"
+    ]
+  },
+  {
+    "id": "ACT-11",
+    "slug": "onboarding-route-selection",
+    "title": "New entry → onboarding route → appropriate path",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Authoritative lifecycle entry",
+    "searchableAliases": [
+      "ACT-11",
+      "onboarding-route-selection"
+    ]
+  },
+  {
+    "id": "ACT-12",
+    "slug": "onboarding-progress-next-step",
+    "title": "Onboarding progress → next best setup step → activation",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Onboarding active without activation",
+    "searchableAliases": [
+      "ACT-12",
+      "onboarding-progress-next-step"
+    ]
+  },
+  {
+    "id": "ACT-13",
+    "slug": "activation-blocker-resolution",
+    "title": "Missing activation requirement → resolve blocker → resume",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Activation blocked by named requirement",
+    "searchableAliases": [
+      "ACT-13",
+      "activation-blocker-resolution"
+    ]
+  },
+  {
+    "id": "ACT-14",
+    "slug": "struggling-user-assistance",
+    "title": "Struggling user detection → proactive assistance → recovery or exit",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Help seeking without activation progress",
+    "searchableAliases": [
+      "ACT-14",
+      "struggling-user-assistance"
+    ]
+  },
+  {
+    "id": "ACT-15",
+    "slug": "first-value-milestone",
+    "title": "First value milestone → recognition → next meaningful action",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Authoritative first value event",
+    "searchableAliases": [
+      "ACT-15",
+      "first-value-milestone"
+    ]
+  },
+  {
+    "id": "ACT-16",
+    "slug": "activation-stops-onboarding",
+    "title": "Activation achieved → stop onboarding → adoption handoff",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Authoritative core activation event",
+    "searchableAliases": [
+      "ACT-16",
+      "activation-stops-onboarding"
+    ]
+  },
+  {
+    "id": "ACT-17",
+    "slug": "early-adoption-to-stable-use",
+    "title": "Early adoption → usage depth → habit or stable use",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Core activation completed",
+    "searchableAliases": [
+      "ACT-17",
+      "early-adoption-to-stable-use"
+    ]
+  },
+  {
+    "id": "ACT-18",
+    "slug": "adoption-stall-diagnosis",
+    "title": "Adoption stall → diagnose missing value → recover or re-route",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Expected adoption pattern not met",
+    "searchableAliases": [
+      "ACT-18",
+      "adoption-stall-diagnosis"
+    ]
+  },
+  {
+    "id": "ACT-19",
+    "slug": "role-use-case-discovery",
+    "title": "Role or use-case discovery → relevant onboarding adaptation",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Onboarding needs named role or use case",
+    "searchableAliases": [
+      "ACT-19",
+      "role-use-case-discovery"
+    ]
+  },
+  {
+    "id": "ACT-20",
+    "slug": "dormant-non-customer-reactivation",
+    "title": "Dormant non-customer reactivation → return → re-qualification or exit",
+    "category": "activation",
+    "categoryTitle": "Activation, onboarding & early value",
+    "triggerLabel": "Engaged non customer became dormant",
+    "searchableAliases": [
+      "ACT-20",
+      "dormant-non-customer-reactivation"
+    ]
+  },
+  {
+    "id": "CMS-201",
+    "slug": "communication-obligation",
+    "title": "Business event → communication obligation → create or suppress",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Authoritative business event",
+    "searchableAliases": [
+      "CMS-201",
+      "communication-obligation"
+    ]
+  },
+  {
+    "id": "CMS-202",
+    "slug": "recipient-resolution",
+    "title": "Communication obligation → resolve recipient → ready, hold or fail",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Communication obligation awaiting recipient",
+    "searchableAliases": [
+      "CMS-202",
+      "recipient-resolution"
+    ]
+  },
+  {
+    "id": "CMS-203",
+    "slug": "communication-permission",
+    "title": "Communication purpose → permission and preference check → allow, suppress or alternate",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Recipient and destinations resolved",
+    "searchableAliases": [
+      "CMS-203",
+      "communication-permission"
+    ]
+  },
+  {
+    "id": "CMS-204",
+    "slug": "channel-selection",
+    "title": "Channel selection → choose route → prepare message",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Permitted channels available",
+    "searchableAliases": [
+      "CMS-204",
+      "channel-selection"
+    ]
+  },
+  {
+    "id": "CMS-205",
+    "slug": "send-revalidation",
+    "title": "Message prepared → revalidate state → send or suppress",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Message reaches send ready",
+    "searchableAliases": [
+      "CMS-205",
+      "send-revalidation"
+    ]
+  },
+  {
+    "id": "CMS-206",
+    "slug": "send-attempt",
+    "title": "Send attempt → accepted, failed or unknown",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Message submitted to provider",
+    "searchableAliases": [
+      "CMS-206",
+      "send-attempt"
+    ]
+  },
+  {
+    "id": "CMS-207",
+    "slug": "delivery-outcome",
+    "title": "Delivery outcome → delivered, failed or unknown → update communication",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Delivery status received",
+    "searchableAliases": [
+      "CMS-207",
+      "delivery-outcome"
+    ]
+  },
+  {
+    "id": "CMS-208",
+    "slug": "delivery-recovery",
+    "title": "Delivery failure → classify → retry, fallback or stop",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Authoritative delivery failure",
+    "searchableAliases": [
+      "CMS-208",
+      "delivery-recovery"
+    ]
+  },
+  {
+    "id": "CMS-209",
+    "slug": "cms-209",
+    "title": "Channel contactability change → recalculate reachability → route or suppress",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": null,
+    "searchableAliases": [
+      "CMS-209",
+      "cms-209"
+    ],
+    "mergedInto": "CON-36"
+  },
+  {
+    "id": "CMS-210",
+    "slug": "communication-closure",
+    "title": "Communication outcome → close obligation or escalate unreachable",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": "Delivery attempts reach meaningful outcome",
+    "searchableAliases": [
+      "CMS-210",
+      "communication-closure"
+    ]
+  },
+  {
+    "id": "CON-31",
+    "slug": "permission-capture-and-scope",
+    "title": "Permission capture → validate scope → activate or reject",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Explicit permission decision received",
+    "searchableAliases": [
+      "CON-31",
+      "permission-capture-and-scope"
+    ]
+  },
+  {
+    "id": "CON-32",
+    "slug": "preference-capture",
+    "title": "Preference capture → persist → personalise eligible communication",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Preference explicitly set or changed",
+    "searchableAliases": [
+      "CON-32",
+      "preference-capture"
+    ]
+  },
+  {
+    "id": "CON-33",
+    "slug": "preference-change-recalculation",
+    "title": "Preference change → recalculate active journeys → suppress or adapt",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Authoritative preference changed",
+    "searchableAliases": [
+      "CON-33",
+      "preference-change-recalculation"
+    ]
+  },
+  {
+    "id": "CON-34",
+    "slug": "frequency-preference-recalculation",
+    "title": "Communication frequency change → recalculate cadence → apply prospectively",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Frequency preference changed",
+    "searchableAliases": [
+      "CON-34",
+      "frequency-preference-recalculation"
+    ]
+  },
+  {
+    "id": "CON-35",
+    "slug": "permission-change-enforcement",
+    "title": "Consent or permission change → immediate enforcement → propagate",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Authoritative permission change",
+    "searchableAliases": [
+      "CON-35",
+      "permission-change-enforcement"
+    ]
+  },
+  {
+    "id": "CON-36",
+    "slug": "channel-contactability-state",
+    "title": "Channel contactability change → recalculate reachability → route or suppress",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Channel contactability materially changed",
+    "searchableAliases": [
+      "CON-36",
+      "channel-contactability-state"
+    ]
+  },
+  {
+    "id": "CON-37",
+    "slug": "con-37",
+    "title": "Delivery failure → classify → retry, fallback or stop",
+    "category": "communication",
+    "categoryTitle": "Notifications, communications, delivery & contactability",
+    "triggerLabel": null,
+    "searchableAliases": [
+      "CON-37",
+      "con-37"
+    ],
+    "mergedInto": "CMS-208"
+  },
+  {
+    "id": "CON-38",
+    "slug": "communication-suppression-state",
+    "title": "Communication suppression → reason → release or persist",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Suppression condition became active",
+    "searchableAliases": [
+      "CON-38",
+      "communication-suppression-state"
+    ]
+  },
+  {
+    "id": "CON-39",
+    "slug": "communication-cooldown",
+    "title": "Communication cooldown → hold optional messaging → re-evaluate",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Cooldown triggering event",
+    "searchableAliases": [
+      "CON-39",
+      "communication-cooldown"
+    ]
+  },
+  {
+    "id": "CON-40",
+    "slug": "permission-conflict-failsafe",
+    "title": "Permission conflict → fail-safe state → reconcile → restore",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Conflicting permission states detected",
+    "searchableAliases": [
+      "CON-40",
+      "permission-conflict-failsafe"
+    ]
+  },
+  {
+    "id": "CTL-231",
+    "slug": "ownership-assignment",
+    "title": "Ownership assignment → validate authority → assign or reject",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Ownership assignment requested",
+    "searchableAliases": [
+      "CTL-231",
+      "ownership-assignment"
+    ]
+  },
+  {
+    "id": "CTL-232",
+    "slug": "transfer-request",
+    "title": "Ownership transfer request → validate → pending acceptance or reject",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Ownership transfer requested",
+    "searchableAliases": [
+      "CTL-232",
+      "transfer-request"
+    ]
+  },
+  {
+    "id": "CTL-233",
+    "slug": "transfer-acceptance",
+    "title": "Ownership transfer acceptance → revalidate → execute or expire",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Proposed owner accepts transfer",
+    "searchableAliases": [
+      "CTL-233",
+      "transfer-acceptance"
+    ]
+  },
+  {
+    "id": "CTL-234",
+    "slug": "ownership-cutover",
+    "title": "Ownership cutover → assign new owner → reconcile old owner",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Ownership transfer authorized for execution",
+    "searchableAliases": [
+      "CTL-234",
+      "ownership-cutover"
+    ]
+  },
+  {
+    "id": "CTL-235",
+    "slug": "delegation-grant",
+    "title": "Delegation request → define scope → grant or reject",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Delegation requested",
+    "searchableAliases": [
+      "CTL-235",
+      "delegation-grant"
+    ]
+  },
+  {
+    "id": "CTL-236",
+    "slug": "temporary-delegation",
+    "title": "Temporary delegation → expire → revoke, extend or restore",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Delegation has validity boundary",
+    "searchableAliases": [
+      "CTL-236",
+      "temporary-delegation"
+    ]
+  },
+  {
+    "id": "CTL-237",
+    "slug": "delegation-revocation",
+    "title": "Delegation revoked → remove delegated authority → preserve independent access",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Delegation revocation authorized",
+    "searchableAliases": [
+      "CTL-237",
+      "delegation-revocation"
+    ]
+  },
+  {
+    "id": "CTL-238",
+    "slug": "owner-unavailable",
+    "title": "Owner unavailable or invalid → protect entity → recover ownership",
+    "category": "control",
+    "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+    "triggerLabel": "Owner becomes unavailable or invalid",
+    "searchableAliases": [
+      "CTL-238",
+      "owner-unavailable"
+    ]
+  },
+  {
+    "id": "CTL-239",
+    "slug": "ctl-239",
+    "title": "Multi-party approval → aggregate required decisions → authorised or blocked",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": null,
+    "searchableAliases": [
+      "CTL-239",
+      "ctl-239"
+    ],
+    "mergedInto": "OWN-57"
+  },
+  {
+    "id": "CTL-240",
+    "slug": "ctl-240",
+    "title": "Ownership change → transfer obligations → continue",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": null,
+    "searchableAliases": [
+      "CTL-240",
+      "ctl-240"
+    ],
+    "mergedInto": "OWN-54"
+  },
+  {
+    "id": "DAT-221",
+    "slug": "data-intake",
+    "title": "Data intake → identify format → parse or reject",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Dataset submitted for intake",
+    "searchableAliases": [
+      "DAT-221",
+      "data-intake"
+    ]
+  },
+  {
+    "id": "DAT-222",
+    "slug": "data-validation",
+    "title": "Parsed data → validate schema and semantics → accept, reject or quarantine",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Input successfully parsed",
+    "searchableAliases": [
+      "DAT-222",
+      "data-validation"
+    ]
+  },
+  {
+    "id": "DAT-223",
+    "slug": "change-impact-preview",
+    "title": "Valid data → preview and impact analysis → confirm or hold",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Validated change set ready to mutate",
+    "searchableAliases": [
+      "DAT-223",
+      "change-impact-preview"
+    ]
+  },
+  {
+    "id": "DAT-224",
+    "slug": "import-execution",
+    "title": "Import execution → apply idempotently → complete, partial or fail",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Import authorized for execution",
+    "searchableAliases": [
+      "DAT-224",
+      "import-execution"
+    ]
+  },
+  {
+    "id": "DAT-225",
+    "slug": "partial-import-recovery",
+    "title": "Partial import → isolate failed scope → correct → resume",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Import completed with mixed outcomes",
+    "searchableAliases": [
+      "DAT-225",
+      "partial-import-recovery"
+    ]
+  },
+  {
+    "id": "DAT-226",
+    "slug": "migration-readiness",
+    "title": "Migration plan → map source to target → validate readiness",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Migration planned",
+    "searchableAliases": [
+      "DAT-226",
+      "migration-readiness"
+    ]
+  },
+  {
+    "id": "DAT-227",
+    "slug": "migration-execution",
+    "title": "Migration execute → copy and transform → verify population",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Migration execution authorized",
+    "searchableAliases": [
+      "DAT-227",
+      "migration-execution"
+    ]
+  },
+  {
+    "id": "DAT-228",
+    "slug": "cutover",
+    "title": "Cutover → switch authority → observe → stabilize or roll back",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Verified target ready for cutover",
+    "searchableAliases": [
+      "DAT-228",
+      "cutover"
+    ]
+  },
+  {
+    "id": "DAT-229",
+    "slug": "historical-backfill",
+    "title": "Historical backfill → scope window → apply without replaying stale actions",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Historical gap identified",
+    "searchableAliases": [
+      "DAT-229",
+      "historical-backfill"
+    ]
+  },
+  {
+    "id": "DAT-230",
+    "slug": "transformation-error-recovery",
+    "title": "Data transformation error → reconcile → correct, roll forward or roll back",
+    "category": "data",
+    "categoryTitle": "Data change, import, migration & state transformation",
+    "triggerLabel": "Material transformation error discovered",
+    "searchableAliases": [
+      "DAT-230",
+      "transformation-error-recovery"
+    ]
+  },
+  {
+    "id": "DEC-181",
+    "slug": "decision-request",
+    "title": "Decision request → validate → route, reject or hold",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Authorized decision required",
+    "searchableAliases": [
+      "DEC-181",
+      "decision-request"
+    ]
+  },
+  {
+    "id": "DEC-182",
+    "slug": "decision-assignment",
+    "title": "Decision case → assign reviewer → accept, reassign or escalate",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Decision case requires ownership",
+    "searchableAliases": [
+      "DEC-182",
+      "decision-assignment"
+    ]
+  },
+  {
+    "id": "DEC-183",
+    "slug": "decision-review",
+    "title": "Review started → evaluate evidence → decide or request more information",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Authorized review begins",
+    "searchableAliases": [
+      "DEC-183",
+      "decision-review"
+    ]
+  },
+  {
+    "id": "DEC-184",
+    "slug": "information-requirement",
+    "title": "More information required → collect → revalidate → resume review",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Information requirement identified",
+    "searchableAliases": [
+      "DEC-184",
+      "information-requirement"
+    ]
+  },
+  {
+    "id": "DEC-185",
+    "slug": "approval-execution",
+    "title": "Approval decision → revalidate target → execute, hold or invalidate",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Decision approved",
+    "searchableAliases": [
+      "DEC-185",
+      "approval-execution"
+    ]
+  },
+  {
+    "id": "DEC-186",
+    "slug": "rejection-outcome",
+    "title": "Rejection decision → record reason → remediate, close or reapply",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Authorized rejection issued",
+    "searchableAliases": [
+      "DEC-186",
+      "rejection-outcome"
+    ]
+  },
+  {
+    "id": "DEC-187",
+    "slug": "partial-approval",
+    "title": "Partial approval → split scope → execute approved, resolve remaining",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Decision partially approved",
+    "searchableAliases": [
+      "DEC-187",
+      "partial-approval"
+    ]
+  },
+  {
+    "id": "DEC-188",
+    "slug": "approval-validity",
+    "title": "Approval validity or expiry → revalidate → use, expire or renew review",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Approval validity evaluation required",
+    "searchableAliases": [
+      "DEC-188",
+      "approval-validity"
+    ]
+  },
+  {
+    "id": "DEC-189",
+    "slug": "decision-escalation",
+    "title": "Decision escalation → higher authority → decide, return or reassign",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Escalation criterion satisfied",
+    "searchableAliases": [
+      "DEC-189",
+      "decision-escalation"
+    ]
+  },
+  {
+    "id": "DEC-190",
+    "slug": "decision-reconsideration",
+    "title": "Decision superseded or reopened → revalidate → continue or new decision",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Decision challenged or superseded",
+    "searchableAliases": [
+      "DEC-190",
+      "decision-reconsideration"
+    ]
+  },
+  {
+    "id": "DOC-211",
+    "slug": "document-requirement",
+    "title": "Document requirement → determine artifact → create, reuse or waive",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Process reaches document requirement",
+    "searchableAliases": [
+      "DOC-211",
+      "document-requirement"
+    ]
+  },
+  {
+    "id": "DOC-212",
+    "slug": "document-draft",
+    "title": "Document draft → populate → validate → ready or blocked",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Document generation begins",
+    "searchableAliases": [
+      "DOC-212",
+      "document-draft"
+    ]
+  },
+  {
+    "id": "DOC-213",
+    "slug": "document-issuance",
+    "title": "Ready document → issue → immutable issued version",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Document authorized for issuance",
+    "searchableAliases": [
+      "DOC-213",
+      "document-issuance"
+    ]
+  },
+  {
+    "id": "DOC-214",
+    "slug": "document-distribution",
+    "title": "Document distribution → send or provide access → confirm or fail",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Issued document requires distribution",
+    "searchableAliases": [
+      "DOC-214",
+      "document-distribution"
+    ]
+  },
+  {
+    "id": "DOC-215",
+    "slug": "signature-process",
+    "title": "Signature request → await signatures → signed, declined or expired",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Document requires signature",
+    "searchableAliases": [
+      "DOC-215",
+      "signature-process"
+    ]
+  },
+  {
+    "id": "DOC-216",
+    "slug": "document-effectiveness",
+    "title": "Signed document → validate completion → effective or pending condition",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Document completion established",
+    "searchableAliases": [
+      "DOC-216",
+      "document-effectiveness"
+    ]
+  },
+  {
+    "id": "DOC-217",
+    "slug": "document-amendment",
+    "title": "Document change → new version or amendment → supersede prospectively",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Authorized document change required",
+    "searchableAliases": [
+      "DOC-217",
+      "document-amendment"
+    ]
+  },
+  {
+    "id": "DOC-218",
+    "slug": "document-expiry",
+    "title": "Document expiry → revalidate requirement → renew, replace or close",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Document validity reaches expiry",
+    "searchableAliases": [
+      "DOC-218",
+      "document-expiry"
+    ]
+  },
+  {
+    "id": "DOC-219",
+    "slug": "document-revocation",
+    "title": "Document revocation or withdrawal → stop future reliance → reconcile",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Authoritative revocation occurs",
+    "searchableAliases": [
+      "DOC-219",
+      "document-revocation"
+    ]
+  },
+  {
+    "id": "DOC-220",
+    "slug": "document-conflict",
+    "title": "Document or record conflict → determine authoritative version → reconcile",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Document version inconsistency detected",
+    "searchableAliases": [
+      "DOC-220",
+      "document-conflict"
+    ]
+  },
+  {
+    "id": "FBK-41",
+    "slug": "feedback-eligibility",
+    "title": "Feedback eligibility → ask, suppress or delay",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Potential feedback moment",
+    "searchableAliases": [
+      "FBK-41",
+      "feedback-eligibility"
+    ]
+  },
+  {
+    "id": "FBK-42",
+    "slug": "advocacy-eligibility",
+    "title": "Advocacy eligibility → ask, delay or suppress",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Potential advocacy opportunity",
+    "searchableAliases": [
+      "FBK-42",
+      "advocacy-eligibility"
+    ]
+  },
+  {
+    "id": "FBK-43",
+    "slug": "feedback-routing-and-loop-closure",
+    "title": "Feedback received → classify → route → close the loop",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Feedback received",
+    "searchableAliases": [
+      "FBK-43",
+      "feedback-routing-and-loop-closure"
+    ]
+  },
+  {
+    "id": "FBK-44",
+    "slug": "negative-feedback-issue-check",
+    "title": "Negative feedback → issue check → resolve, acknowledge or escalate",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Material negative feedback",
+    "searchableAliases": [
+      "FBK-44",
+      "negative-feedback-issue-check"
+    ]
+  },
+  {
+    "id": "FBK-45",
+    "slug": "positive-feedback-recognition",
+    "title": "Positive feedback → recognition → advocacy opportunity",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Credible positive feedback",
+    "searchableAliases": [
+      "FBK-45",
+      "positive-feedback-recognition"
+    ]
+  },
+  {
+    "id": "FBK-46",
+    "slug": "issue-ownership-and-closure",
+    "title": "Complaint or issue created → ownership → resolution → confirmation",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Actionable issue created",
+    "searchableAliases": [
+      "FBK-46",
+      "issue-ownership-and-closure"
+    ]
+  },
+  {
+    "id": "FBK-47",
+    "slug": "appeal-and-dispute-review",
+    "title": "Appeal or dispute → evidence review → uphold, reverse or modify",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Appeal or dispute submitted",
+    "searchableAliases": [
+      "FBK-47",
+      "appeal-and-dispute-review"
+    ]
+  },
+  {
+    "id": "FBK-48",
+    "slug": "declared-context-recalculation",
+    "title": "Declared need or preference signal → persist → recalculate relevant experience",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Relevant context explicitly declared",
+    "searchableAliases": [
+      "FBK-48",
+      "declared-context-recalculation"
+    ]
+  },
+  {
+    "id": "FBK-49",
+    "slug": "missing-critical-data",
+    "title": "Missing critical data → request or resolve → resume",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Required data missing and blocking",
+    "searchableAliases": [
+      "FBK-49",
+      "missing-critical-data"
+    ]
+  },
+  {
+    "id": "FBK-50",
+    "slug": "relationship-evidence-accumulation",
+    "title": "Relationship signal → evidence accumulation → state reassessment",
+    "category": "feedback",
+    "categoryTitle": "Feedback, advocacy, referral & relationship signals",
+    "triggerLabel": "Meaningful relationship signal",
+    "searchableAliases": [
+      "FBK-50",
+      "relationship-evidence-accumulation"
+    ]
+  },
+  {
+    "id": "FIN-131",
+    "slug": "financial-obligation-lifecycle",
+    "title": "Financial obligation created → due → satisfied or outstanding",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Financial obligation created",
+    "searchableAliases": [
+      "FIN-131",
+      "financial-obligation-lifecycle"
+    ]
+  },
+  {
+    "id": "FIN-132",
+    "slug": "payment-attempt-outcome",
+    "title": "Payment initiated → pending → success, failure or unknown",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Payment attempt initiated",
+    "searchableAliases": [
+      "FIN-132",
+      "payment-attempt-outcome"
+    ]
+  },
+  {
+    "id": "FIN-133",
+    "slug": "authorization-capture-settlement",
+    "title": "Payment authorization → capture → settle or release",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Payment authorization succeeded",
+    "searchableAliases": [
+      "FIN-133",
+      "authorization-capture-settlement"
+    ]
+  },
+  {
+    "id": "FIN-134",
+    "slug": "payment-failure-recovery",
+    "title": "Payment failure → classify → recover, alternate or exit",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Authoritative payment failure",
+    "searchableAliases": [
+      "FIN-134",
+      "payment-failure-recovery"
+    ]
+  },
+  {
+    "id": "FIN-135",
+    "slug": "unknown-payment-reconciliation",
+    "title": "Payment unknown → reconcile → confirm success or failure",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Payment outcome undeterminable",
+    "searchableAliases": [
+      "FIN-135",
+      "unknown-payment-reconciliation"
+    ]
+  },
+  {
+    "id": "FIN-136",
+    "slug": "obligation-satisfaction",
+    "title": "Financial obligation satisfied → reconcile balance → release dependent state",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Authoritative financial event against obligation",
+    "searchableAliases": [
+      "FIN-136",
+      "obligation-satisfaction"
+    ]
+  },
+  {
+    "id": "FIN-137",
+    "slug": "refund-request-decision",
+    "title": "Refund request → eligibility → approve, reject or review",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Refund requested",
+    "searchableAliases": [
+      "FIN-137",
+      "refund-request-decision"
+    ]
+  },
+  {
+    "id": "FIN-138",
+    "slug": "refund-execution",
+    "title": "Refund approved → execute → confirm or reconcile",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Refund authorized for execution",
+    "searchableAliases": [
+      "FIN-138",
+      "refund-execution"
+    ]
+  },
+  {
+    "id": "FIN-139",
+    "slug": "financial-dispute",
+    "title": "Financial dispute or chargeback → evidence → decision → reconcile",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Financial dispute opened",
+    "searchableAliases": [
+      "FIN-139",
+      "financial-dispute"
+    ]
+  },
+  {
+    "id": "FIN-140",
+    "slug": "financial-reconciliation",
+    "title": "Financial reconciliation → detect mismatch → correct or escalate",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Material financial mismatch detected",
+    "searchableAliases": [
+      "FIN-140",
+      "financial-reconciliation"
+    ]
+  },
+  {
+    "id": "FUL-141",
+    "slug": "fulfillment-request-acceptance",
+    "title": "Fulfillment request → validate → accept, reject or hold",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Fulfillment request submitted",
+    "searchableAliases": [
+      "FUL-141",
+      "fulfillment-request-acceptance"
+    ]
+  },
+  {
+    "id": "FUL-142",
+    "slug": "fulfillment-availability",
+    "title": "Accepted fulfillment → availability check → allocate, backorder or reject",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Accepted fulfillment requires resources",
+    "searchableAliases": [
+      "FUL-142",
+      "fulfillment-availability"
+    ]
+  },
+  {
+    "id": "FUL-143",
+    "slug": "resource-allocation",
+    "title": "Resource allocation → reserve → confirm, release or reallocate",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Resource selected for fulfillment",
+    "searchableAliases": [
+      "FUL-143",
+      "resource-allocation"
+    ]
+  },
+  {
+    "id": "FUL-144",
+    "slug": "fulfillment-execution",
+    "title": "Fulfillment execution → progress → complete, partial or fail",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Fulfillment execution started",
+    "searchableAliases": [
+      "FUL-144",
+      "fulfillment-execution"
+    ]
+  },
+  {
+    "id": "FUL-145",
+    "slug": "fulfillment-exception",
+    "title": "Fulfillment exception → diagnose → recover, substitute or fail",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Material fulfillment exception",
+    "searchableAliases": [
+      "FUL-145",
+      "fulfillment-exception"
+    ]
+  },
+  {
+    "id": "FUL-146",
+    "slug": "fulfillment-delay",
+    "title": "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Expected fulfillment timing slipped",
+    "searchableAliases": [
+      "FUL-146",
+      "fulfillment-delay"
+    ]
+  },
+  {
+    "id": "FUL-147",
+    "slug": "dispatch-and-delivery-tracking",
+    "title": "Dispatch or handoff → track → delivered, failed or unknown",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Fulfillment handed to delivery executor",
+    "searchableAliases": [
+      "FUL-147",
+      "dispatch-and-delivery-tracking"
+    ]
+  },
+  {
+    "id": "FUL-148",
+    "slug": "delivery-attempt-failure",
+    "title": "Delivery attempt failed → reason → retry, correct, alternate or return",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Authoritative delivery attempt failure",
+    "searchableAliases": [
+      "FUL-148",
+      "delivery-attempt-failure"
+    ]
+  },
+  {
+    "id": "FUL-149",
+    "slug": "delivery-acceptance-finalization",
+    "title": "Delivery confirmation → acceptance or issue window → finalize",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Authoritative delivery completion",
+    "searchableAliases": [
+      "FUL-149",
+      "delivery-acceptance-finalization"
+    ]
+  },
+  {
+    "id": "FUL-150",
+    "slug": "fulfillment-cancellation",
+    "title": "Fulfillment cancellation → stop future work → release resources → reconcile",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Fulfillment cancellation effective",
+    "searchableAliases": [
+      "FUL-150",
+      "fulfillment-cancellation"
+    ]
+  },
+  {
+    "id": "IDN-81",
+    "slug": "identity-claim-verification",
+    "title": "Identity claim → evidence → verified, rejected or more evidence",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Identity verification required",
+    "searchableAliases": [
+      "IDN-81",
+      "identity-claim-verification"
+    ]
+  },
+  {
+    "id": "IDN-82",
+    "slug": "verification-dependency",
+    "title": "Verification requirement → collect evidence → resume blocked process",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Process requires verification",
+    "searchableAliases": [
+      "IDN-82",
+      "verification-dependency"
+    ]
+  },
+  {
+    "id": "IDN-83",
+    "slug": "document-validation",
+    "title": "Document submitted → validate → accept, reject or replace",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Document submitted",
+    "searchableAliases": [
+      "IDN-83",
+      "document-validation"
+    ]
+  },
+  {
+    "id": "IDN-84",
+    "slug": "verification-failure-routing",
+    "title": "Verification failure → reason → retry, remediate, review or exit",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Verification attempt failed",
+    "searchableAliases": [
+      "IDN-84",
+      "verification-failure-routing"
+    ]
+  },
+  {
+    "id": "IDN-85",
+    "slug": "authentication-challenge",
+    "title": "Authentication challenge → authenticate, step up or deny",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Authentication required",
+    "searchableAliases": [
+      "IDN-85",
+      "authentication-challenge"
+    ]
+  },
+  {
+    "id": "IDN-86",
+    "slug": "step-up-authentication",
+    "title": "Step-up requirement → stronger authentication → resume or deny",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Action requires higher assurance",
+    "searchableAliases": [
+      "IDN-86",
+      "step-up-authentication"
+    ]
+  },
+  {
+    "id": "IDN-87",
+    "slug": "authentication-failure-pattern",
+    "title": "Authentication failure pattern → security check → recover or restrict",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Authentication failure pattern",
+    "searchableAliases": [
+      "IDN-87",
+      "authentication-failure-pattern"
+    ]
+  },
+  {
+    "id": "IDN-88",
+    "slug": "account-recovery",
+    "title": "Account recovery request → prove control → restore secure access",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Account recovery initiated",
+    "searchableAliases": [
+      "IDN-88",
+      "account-recovery"
+    ]
+  },
+  {
+    "id": "IDN-89",
+    "slug": "identity-attribute-change",
+    "title": "Identity attribute change → verify if required → update → propagate",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Identity attribute change",
+    "searchableAliases": [
+      "IDN-89",
+      "identity-attribute-change"
+    ]
+  },
+  {
+    "id": "IDN-90",
+    "slug": "suspected-account-compromise",
+    "title": "Suspected account compromise → contain → verify → recover or clear",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Material compromise signal",
+    "searchableAliases": [
+      "IDN-90",
+      "suspected-account-compromise"
+    ]
+  },
+  {
+    "id": "INC-251",
+    "slug": "incident-correlation",
+    "title": "Correlated failure detection → incident candidate → confirm or reject",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Correlated failures exceed incident threshold",
+    "searchableAliases": [
+      "INC-251",
+      "incident-correlation"
+    ]
+  },
+  {
+    "id": "INC-252",
+    "slug": "incident-scope",
+    "title": "Incident confirmed → determine severity and blast radius → assign command",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Incident confirmed",
+    "searchableAliases": [
+      "INC-252",
+      "incident-scope"
+    ]
+  },
+  {
+    "id": "INC-253",
+    "slug": "incident-mitigation",
+    "title": "Incident → contain and mitigate → preserve critical operations",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Active incident requires impact reduction",
+    "searchableAliases": [
+      "INC-253",
+      "incident-mitigation"
+    ]
+  },
+  {
+    "id": "INC-254",
+    "slug": "incident-communication",
+    "title": "Incident communication → identify affected cohort → inform, update or close",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Incident reaches communication relevant state",
+    "searchableAliases": [
+      "INC-254",
+      "incident-communication"
+    ]
+  },
+  {
+    "id": "INC-255",
+    "slug": "root-cause-investigation",
+    "title": "Root cause investigation → hypothesis → confirm or reject → corrective action",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Incident requires causal investigation",
+    "searchableAliases": [
+      "INC-255",
+      "root-cause-investigation"
+    ]
+  },
+  {
+    "id": "INC-256",
+    "slug": "incident-recovery",
+    "title": "Recovery action → restore service → verify or continue",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Recovery action authorized",
+    "searchableAliases": [
+      "INC-256",
+      "incident-recovery"
+    ]
+  },
+  {
+    "id": "INC-257",
+    "slug": "recovery-observation",
+    "title": "Service restored → observation window → stable or relapse",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Material recovery observed",
+    "searchableAliases": [
+      "INC-257",
+      "recovery-observation"
+    ]
+  },
+  {
+    "id": "INC-258",
+    "slug": "incident-resolution",
+    "title": "Incident resolution → close operational response → preserve residual cases",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Incident resolution criteria satisfied",
+    "searchableAliases": [
+      "INC-258",
+      "incident-resolution"
+    ]
+  },
+  {
+    "id": "INC-259",
+    "slug": "post-incident-review",
+    "title": "Post-incident review → learn → corrective work → verify",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Incident qualifies for review",
+    "searchableAliases": [
+      "INC-259",
+      "post-incident-review"
+    ]
+  },
+  {
+    "id": "INC-260",
+    "slug": "incident-recurrence",
+    "title": "Incident pattern recurrence → detect systemic weakness → escalate prevention",
+    "category": "incident",
+    "categoryTitle": "Incidents, service disruption, operations & recovery",
+    "triggerLabel": "Materially similar incidents recur",
+    "searchableAliases": [
+      "INC-260",
+      "incident-recurrence"
+    ]
+  },
+  {
+    "id": "INT-111",
+    "slug": "integration-connection-activation",
+    "title": "Integration connection → authenticate → validate → activate",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Integration connection requested",
+    "searchableAliases": [
+      "INT-111",
+      "integration-connection-activation"
+    ]
+  },
+  {
+    "id": "INT-112",
+    "slug": "integration-authorization-change",
+    "title": "Integration credential or authorization change → revalidate → continue or degrade",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Integration authorization changed",
+    "searchableAliases": [
+      "INT-112",
+      "integration-authorization-change"
+    ]
+  },
+  {
+    "id": "INT-113",
+    "slug": "integration-health-degradation",
+    "title": "Integration health degradation → diagnose → recover, degrade or escalate",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Integration health threshold crossed",
+    "searchableAliases": [
+      "INT-113",
+      "integration-health-degradation"
+    ]
+  },
+  {
+    "id": "INT-114",
+    "slug": "external-operation-outcome",
+    "title": "External request → pending outcome → confirm, fail or unknown",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "External operation submitted",
+    "searchableAliases": [
+      "INT-114",
+      "external-operation-outcome"
+    ]
+  },
+  {
+    "id": "INT-115",
+    "slug": "external-outcome-reconciliation",
+    "title": "External outcome → local state reconciliation → apply or investigate",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Authoritative external outcome",
+    "searchableAliases": [
+      "INT-115",
+      "external-outcome-reconciliation"
+    ]
+  },
+  {
+    "id": "INT-116",
+    "slug": "integration-failure",
+    "title": "Integration failure → stop unsafe operations → diagnose → restore",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Integration failure condition",
+    "searchableAliases": [
+      "INT-116",
+      "integration-failure"
+    ]
+  },
+  {
+    "id": "INT-117",
+    "slug": "failure-blocked-work-queue",
+    "title": "Integration failure → queue or hold work → recover → controlled resume",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Work blocked by failed integration",
+    "searchableAliases": [
+      "INT-117",
+      "failure-blocked-work-queue"
+    ]
+  },
+  {
+    "id": "INT-118",
+    "slug": "reconnect-backfill",
+    "title": "Integration reconnect → backfill → deduplicate → reconcile",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Integration operational again",
+    "searchableAliases": [
+      "INT-118",
+      "reconnect-backfill"
+    ]
+  },
+  {
+    "id": "INT-119",
+    "slug": "synchronization-conflict",
+    "title": "Synchronization conflict → determine authority → reconcile or hold",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Cross system inconsistency detected",
+    "searchableAliases": [
+      "INT-119",
+      "synchronization-conflict"
+    ]
+  },
+  {
+    "id": "INT-120",
+    "slug": "external-dependency-degradation",
+    "title": "External dependency unavailable → degrade capability → alternate or recover",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Critical external dependency unavailable",
+    "searchableAliases": [
+      "INT-120",
+      "external-dependency-degradation"
+    ]
+  },
+  {
+    "id": "OPS-121",
+    "slug": "async-work-lifecycle",
+    "title": "Work accepted → queue → process → complete or fail",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Asynchronous work accepted",
+    "searchableAliases": [
+      "OPS-121",
+      "async-work-lifecycle"
+    ]
+  },
+  {
+    "id": "OPS-122",
+    "slug": "queue-lag",
+    "title": "Queue lag → measure → prioritise, scale or degrade",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Queue latency or depth threshold crossed",
+    "searchableAliases": [
+      "OPS-122",
+      "queue-lag"
+    ]
+  },
+  {
+    "id": "OPS-123",
+    "slug": "stalled-work-detection",
+    "title": "Work stalled → detect lack of progress → recover, fail or escalate",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Progress threshold exceeded without completion",
+    "searchableAliases": [
+      "OPS-123",
+      "stalled-work-detection"
+    ]
+  },
+  {
+    "id": "OPS-124",
+    "slug": "retryable-failure-recovery",
+    "title": "Retryable failure → backoff → retry → resolve or exhaust",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Failure classified retryable",
+    "searchableAliases": [
+      "OPS-124",
+      "retryable-failure-recovery"
+    ]
+  },
+  {
+    "id": "OPS-125",
+    "slug": "work-deduplication",
+    "title": "Duplicate work detected → deduplicate → reuse, suppress or reconcile",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Potential duplicate work detected",
+    "searchableAliases": [
+      "OPS-125",
+      "work-deduplication"
+    ]
+  },
+  {
+    "id": "OPS-126",
+    "slug": "partial-processing-recovery",
+    "title": "Partial processing → preserve completed work → retry only the failed scope",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Composite processing mixed outcomes",
+    "searchableAliases": [
+      "OPS-126",
+      "partial-processing-recovery"
+    ]
+  },
+  {
+    "id": "OPS-127",
+    "slug": "dead-letter-remediation",
+    "title": "Dead-letter entry → diagnose → replay, correct or close",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Work exhausted automated recovery",
+    "searchableAliases": [
+      "OPS-127",
+      "dead-letter-remediation"
+    ]
+  },
+  {
+    "id": "OPS-128",
+    "slug": "worker-failure-reclaim",
+    "title": "Worker or processor failure → reclaim work → resume safely",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Worker unavailable while owning work",
+    "searchableAliases": [
+      "OPS-128",
+      "worker-failure-reclaim"
+    ]
+  },
+  {
+    "id": "OPS-129",
+    "slug": "backlog-recovery-drain",
+    "title": "Backlog recovery → revalidate → controlled drain → normal state",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Processing capacity recovered with backlog",
+    "searchableAliases": [
+      "OPS-129",
+      "backlog-recovery-drain"
+    ]
+  },
+  {
+    "id": "OPS-130",
+    "slug": "business-outcome-verification",
+    "title": "Technical completion → verify business outcome → finalize or reconcile",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Technical processing reported success",
+    "searchableAliases": [
+      "OPS-130",
+      "business-outcome-verification"
+    ]
+  },
+  {
+    "id": "OWN-51",
+    "slug": "work-routing-to-responsibility",
+    "title": "Work created → routing → assignment",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Work item requiring responsibility",
+    "searchableAliases": [
+      "OWN-51",
+      "work-routing-to-responsibility"
+    ]
+  },
+  {
+    "id": "OWN-52",
+    "slug": "assignment-to-accepted-responsibility",
+    "title": "Assignment → acceptance → active responsibility",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Work assigned to named owner",
+    "searchableAliases": [
+      "OWN-52",
+      "assignment-to-accepted-responsibility"
+    ]
+  },
+  {
+    "id": "OWN-53",
+    "slug": "ownership-context-transfer",
+    "title": "Owner assignment → context transfer → work start",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Owner assignment became effective",
+    "searchableAliases": [
+      "OWN-53",
+      "ownership-context-transfer"
+    ]
+  },
+  {
+    "id": "OWN-54",
+    "slug": "ownership-change-obligation-transfer",
+    "title": "Ownership change → transfer obligations → continue",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Authoritative ownership change",
+    "searchableAliases": [
+      "OWN-54",
+      "ownership-change-obligation-transfer"
+    ]
+  },
+  {
+    "id": "OWN-55",
+    "slug": "responsibility-escalation",
+    "title": "Responsibility escalation → higher authority → resolution or return",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Escalation condition met",
+    "searchableAliases": [
+      "OWN-55",
+      "responsibility-escalation"
+    ]
+  },
+  {
+    "id": "OWN-56",
+    "slug": "approval-request-review",
+    "title": "Approval request → review → approve, reject or request changes",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Approval required request ready",
+    "searchableAliases": [
+      "OWN-56",
+      "approval-request-review"
+    ]
+  },
+  {
+    "id": "OWN-57",
+    "slug": "multi-party-approval-aggregation",
+    "title": "Multi-party approval → aggregate required decisions → authorised or blocked",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Multi party approval ready",
+    "searchableAliases": [
+      "OWN-57",
+      "multi-party-approval-aggregation"
+    ]
+  },
+  {
+    "id": "OWN-58",
+    "slug": "material-change-after-approval",
+    "title": "Material change after approval → impact check → re-approval or continue",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Approved subject changed before execution",
+    "searchableAliases": [
+      "OWN-58",
+      "material-change-after-approval"
+    ]
+  },
+  {
+    "id": "OWN-59",
+    "slug": "rejected-approval-revision-path",
+    "title": "Approval rejected → revision eligibility → resubmit or close",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Approval rejected",
+    "searchableAliases": [
+      "OWN-59",
+      "rejected-approval-revision-path"
+    ]
+  },
+  {
+    "id": "OWN-60",
+    "slug": "decision-authority-change",
+    "title": "Decision authority change → revalidate pending decisions → transfer or continue",
+    "category": "ownership",
+    "categoryTitle": "Ownership, assignment, approval & decision authority",
+    "triggerLabel": "Decision authority changed",
+    "searchableAliases": [
+      "OWN-60",
+      "decision-authority-change"
+    ]
+  },
+  {
+    "id": "REL-100",
+    "slug": "orphaned-entity-resolution",
+    "title": "Required relationship missing → orphan state → resolve or reassign",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Required relationship missing",
+    "searchableAliases": [
+      "REL-100",
+      "orphaned-entity-resolution"
+    ]
+  },
+  {
+    "id": "REL-91",
+    "slug": "relationship-creation",
+    "title": "Entity relationship created → validate → activate or reject",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Relationship creation requested or detected",
+    "searchableAliases": [
+      "REL-91",
+      "relationship-creation"
+    ]
+  },
+  {
+    "id": "REL-92",
+    "slug": "relationship-change",
+    "title": "Relationship change → recalculate rights and obligations → continue",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Relationship state or type changed",
+    "searchableAliases": [
+      "REL-92",
+      "relationship-change"
+    ]
+  },
+  {
+    "id": "REL-93",
+    "slug": "relationship-end",
+    "title": "Relationship end → remove future dependency → reconcile existing obligations",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Relationship ended",
+    "searchableAliases": [
+      "REL-93",
+      "relationship-end"
+    ]
+  },
+  {
+    "id": "REL-94",
+    "slug": "role-change-delta",
+    "title": "Role change → authority and capability delta → apply",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Role changed",
+    "searchableAliases": [
+      "REL-94",
+      "role-change-delta"
+    ]
+  },
+  {
+    "id": "REL-95",
+    "slug": "parent-state-propagation",
+    "title": "Parent state change → determine child impact → propagate selectively",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Parent state materially changed",
+    "searchableAliases": [
+      "REL-95",
+      "parent-state-propagation"
+    ]
+  },
+  {
+    "id": "REL-96",
+    "slug": "parent-state-aggregation",
+    "title": "Child state change → recalculate aggregate parent state",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Child state changed",
+    "searchableAliases": [
+      "REL-96",
+      "parent-state-aggregation"
+    ]
+  },
+  {
+    "id": "REL-97",
+    "slug": "duplicate-assessment",
+    "title": "Duplicate entity detected → assess → keep separate, link or merge",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Potential duplicate detected",
+    "searchableAliases": [
+      "REL-97",
+      "duplicate-assessment"
+    ]
+  },
+  {
+    "id": "REL-98",
+    "slug": "entity-link",
+    "title": "Entity link → shared context → preserve independent identity",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Cross entity link established",
+    "searchableAliases": [
+      "REL-98",
+      "entity-link"
+    ]
+  },
+  {
+    "id": "REL-99",
+    "slug": "entity-split",
+    "title": "Entity split required → create separate records → allocate history and state safely",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Entity split required",
+    "searchableAliases": [
+      "REL-99",
+      "entity-split"
+    ]
+  },
+  {
+    "id": "REM-151",
+    "slug": "post-completion-issue",
+    "title": "Post-completion issue → validate → remedy route",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Post completion issue reported",
+    "searchableAliases": [
+      "REM-151",
+      "post-completion-issue"
+    ]
+  },
+  {
+    "id": "REM-152",
+    "slug": "return-authorization",
+    "title": "Return request → eligibility → authorize, reject or review",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Return requested",
+    "searchableAliases": [
+      "REM-152",
+      "return-authorization"
+    ]
+  },
+  {
+    "id": "REM-153",
+    "slug": "return-transit",
+    "title": "Return authorized → in transit, received, lost or expired",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Return authorization active",
+    "searchableAliases": [
+      "REM-153",
+      "return-transit"
+    ]
+  },
+  {
+    "id": "REM-154",
+    "slug": "return-inspection",
+    "title": "Returned item or deliverable → inspect → accept, reject or partial",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Returned resource received",
+    "searchableAliases": [
+      "REM-154",
+      "return-inspection"
+    ]
+  },
+  {
+    "id": "REM-155",
+    "slug": "replacement-remedy",
+    "title": "Replacement decision → allocate → fulfill → confirm",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Replacement remedy authorized",
+    "searchableAliases": [
+      "REM-155",
+      "replacement-remedy"
+    ]
+  },
+  {
+    "id": "REM-156",
+    "slug": "correction-reperformance",
+    "title": "Reperformance or correction → execute → verify corrected outcome",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Correction or reperformance authorized",
+    "searchableAliases": [
+      "REM-156",
+      "correction-reperformance"
+    ]
+  },
+  {
+    "id": "REM-157",
+    "slug": "remedy-selection",
+    "title": "Remedy selection → resolve obligation → financial handoff if needed",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Remedy decision required",
+    "searchableAliases": [
+      "REM-157",
+      "remedy-selection"
+    ]
+  },
+  {
+    "id": "REM-158",
+    "slug": "remedy-outcome-verification",
+    "title": "Remedy execution → verify outcome → close or continue recovery",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Remedy execution started",
+    "searchableAliases": [
+      "REM-158",
+      "remedy-outcome-verification"
+    ]
+  },
+  {
+    "id": "REM-159",
+    "slug": "compensation-decision",
+    "title": "Compensation decision → eligibility → grant or reject → deliver",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Compensation consideration appropriate",
+    "searchableAliases": [
+      "REM-159",
+      "compensation-decision"
+    ]
+  },
+  {
+    "id": "REM-160",
+    "slug": "post-remedy-recurrence",
+    "title": "Post-remedy reopen → validate recurrence → continue or new issue",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Problem reported after remedy",
+    "searchableAliases": [
+      "REM-160",
+      "post-remedy-recurrence"
+    ]
+  },
+  {
+    "id": "RET-21",
+    "slug": "engagement-state-reclassification",
+    "title": "Engagement state change → reclassify → appropriate lifecycle",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Engagement state materially changed",
+    "searchableAliases": [
+      "RET-21",
+      "engagement-state-reclassification"
+    ]
+  },
+  {
+    "id": "RET-22",
+    "slug": "expected-usage-miss-context-check",
+    "title": "Expected usage miss → context check → observe or intervene",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Expected usage milestone or cadence missed",
+    "searchableAliases": [
+      "RET-22",
+      "expected-usage-miss-context-check"
+    ]
+  },
+  {
+    "id": "RET-23",
+    "slug": "health-deterioration-diagnosis",
+    "title": "Health deterioration → diagnose cause → recovery route",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Health state crossed deterioration threshold",
+    "searchableAliases": [
+      "RET-23",
+      "health-deterioration-diagnosis"
+    ]
+  },
+  {
+    "id": "RET-24",
+    "slug": "churn-risk-escalation",
+    "title": "Churn risk escalation → evidence → intervention priority",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Churn risk threshold crossed",
+    "searchableAliases": [
+      "RET-24",
+      "churn-risk-escalation"
+    ]
+  },
+  {
+    "id": "RET-25",
+    "slug": "ret-25",
+    "title": "Risk signal → correlate evidence → clear, monitor, restrict or review",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": null,
+    "searchableAliases": [
+      "RET-25",
+      "ret-25"
+    ],
+    "mergedInto": "RSK-192"
+  },
+  {
+    "id": "RET-26",
+    "slug": "negative-experience-recovery",
+    "title": "Negative experience → recovery eligibility → appropriate response",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Authoritative negative experience",
+    "searchableAliases": [
+      "RET-26",
+      "negative-experience-recovery"
+    ]
+  },
+  {
+    "id": "RET-27",
+    "slug": "recovery-observation-buffer",
+    "title": "Recovery signal → observation buffer → stable or relapse",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Positive signal after deterioration",
+    "searchableAliases": [
+      "RET-27",
+      "recovery-observation-buffer"
+    ]
+  },
+  {
+    "id": "RET-28",
+    "slug": "cancellation-intent-decision-point",
+    "title": "Cancellation intent → understand state → save or proceed",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Explicit cancellation intent",
+    "searchableAliases": [
+      "RET-28",
+      "cancellation-intent-decision-point"
+    ]
+  },
+  {
+    "id": "RET-29",
+    "slug": "cancellation-completed-wind-down",
+    "title": "Cancellation completed → stop retention → resolve remaining relationship",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Authoritative cancellation completed",
+    "searchableAliases": [
+      "RET-29",
+      "cancellation-completed-wind-down"
+    ]
+  },
+  {
+    "id": "RET-30",
+    "slug": "retention-intervention-outcome",
+    "title": "Retention intervention → outcome → suppress, escalate or exit",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Retention intervention delivered",
+    "searchableAliases": [
+      "RET-30",
+      "retention-intervention-outcome"
+    ]
+  },
+  {
+    "id": "RLT-241",
+    "slug": "change-eligibility",
+    "title": "Change candidate → eligibility → ready or blocked",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Change available for controlled application",
+    "searchableAliases": [
+      "RLT-241",
+      "change-eligibility"
+    ]
+  },
+  {
+    "id": "RLT-242",
+    "slug": "change-preparation",
+    "title": "Change preparation → resolve dependencies → ready or hold",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Target eligible for planned change",
+    "searchableAliases": [
+      "RLT-242",
+      "change-preparation"
+    ]
+  },
+  {
+    "id": "RLT-243",
+    "slug": "scheduled-change",
+    "title": "Change scheduled → wait → revalidate → execute or cancel",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Change receives scheduled execution window",
+    "searchableAliases": [
+      "RLT-243",
+      "scheduled-change"
+    ]
+  },
+  {
+    "id": "RLT-244",
+    "slug": "change-execution",
+    "title": "Change execution → apply → verify, fail or unknown",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Authorized change execution begins",
+    "searchableAliases": [
+      "RLT-244",
+      "change-execution"
+    ]
+  },
+  {
+    "id": "RLT-245",
+    "slug": "staged-rollout",
+    "title": "Staged rollout → pilot cohort → health gate → expand or hold",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Change approved for staged rollout",
+    "searchableAliases": [
+      "RLT-245",
+      "staged-rollout"
+    ]
+  },
+  {
+    "id": "RLT-246",
+    "slug": "rollout-pause",
+    "title": "Rollout pause → freeze expansion → diagnose → resume, roll back or end",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Rollout pause triggered",
+    "searchableAliases": [
+      "RLT-246",
+      "rollout-pause"
+    ]
+  },
+  {
+    "id": "RLT-247",
+    "slug": "rollback-decision",
+    "title": "Change failure threshold → rollback decision → execute or forward recover",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Change failure threshold reached",
+    "searchableAliases": [
+      "RLT-247",
+      "rollback-decision"
+    ]
+  },
+  {
+    "id": "RLT-248",
+    "slug": "rollback-execution",
+    "title": "Rollback execution → restore → verify stability",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Rollback authorized",
+    "searchableAliases": [
+      "RLT-248",
+      "rollback-execution"
+    ]
+  },
+  {
+    "id": "RLT-249",
+    "slug": "target-change-failure",
+    "title": "Individual target change failure → retry, isolate or remediate",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Individual target change failed",
+    "searchableAliases": [
+      "RLT-249",
+      "target-change-failure"
+    ]
+  },
+  {
+    "id": "RLT-250",
+    "slug": "change-completion",
+    "title": "Change completed → observe → close, reopen or deprecate previous version",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Planned population reached changed state",
+    "searchableAliases": [
+      "RLT-250",
+      "change-completion"
+    ]
+  },
+  {
+    "id": "RSK-191",
+    "slug": "policy-evaluation",
+    "title": "Policy check → evaluate → pass, block or review",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Protected action reaches policy decision point",
+    "searchableAliases": [
+      "RSK-191",
+      "policy-evaluation"
+    ]
+  },
+  {
+    "id": "RSK-192",
+    "slug": "risk-signal",
+    "title": "Risk signal → correlate evidence → clear, monitor, restrict or review",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Risk signal received",
+    "searchableAliases": [
+      "RSK-192",
+      "risk-signal"
+    ]
+  },
+  {
+    "id": "RSK-193",
+    "slug": "risk-restriction",
+    "title": "Risk threshold crossed → apply scoped restriction → review or release",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Risk threshold requiring intervention reached",
+    "searchableAliases": [
+      "RSK-193",
+      "risk-restriction"
+    ]
+  },
+  {
+    "id": "RSK-194",
+    "slug": "policy-violation",
+    "title": "Policy violation detected → validate → correct, restrict or escalate",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Potential policy violation detected",
+    "searchableAliases": [
+      "RSK-194",
+      "policy-violation"
+    ]
+  },
+  {
+    "id": "RSK-195",
+    "slug": "compliance-requirement",
+    "title": "Compliance requirement → collect and verify → satisfied or blocked",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Compliance requirement becomes necessary",
+    "searchableAliases": [
+      "RSK-195",
+      "compliance-requirement"
+    ]
+  },
+  {
+    "id": "RSK-196",
+    "slug": "compliance-hold",
+    "title": "Compliance or policy hold → preserve state → resolve → resume or terminate",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Policy or compliance hold applied",
+    "searchableAliases": [
+      "RSK-196",
+      "compliance-hold"
+    ]
+  },
+  {
+    "id": "RSK-197",
+    "slug": "exception-request",
+    "title": "Exception request → validate authority → approve, reject or review",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Policy exception requested",
+    "searchableAliases": [
+      "RSK-197",
+      "exception-request"
+    ]
+  },
+  {
+    "id": "RSK-198",
+    "slug": "exception-application",
+    "title": "Exception granted → apply scoped override → expire or revoke",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Exception becomes authorized",
+    "searchableAliases": [
+      "RSK-198",
+      "exception-application"
+    ]
+  },
+  {
+    "id": "RSK-199",
+    "slug": "limit-quota",
+    "title": "Limit or quota reached → block, wait, increase or reset",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Limit threshold reached or would be exceeded",
+    "searchableAliases": [
+      "RSK-199",
+      "limit-quota"
+    ]
+  },
+  {
+    "id": "RSK-200",
+    "slug": "policy-change-propagation",
+    "title": "Policy or risk state changed → re-evaluate affected work → resume, restrict or preserve",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Policy or risk state changed",
+    "searchableAliases": [
+      "RSK-200",
+      "policy-change-propagation"
+    ]
+  },
+  {
+    "id": "SCH-171",
+    "slug": "availability-query",
+    "title": "Availability query → evaluate capacity → offer valid options",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Availability requested",
+    "searchableAliases": [
+      "SCH-171",
+      "availability-query"
+    ]
+  },
+  {
+    "id": "SCH-172",
+    "slug": "slot-hold",
+    "title": "Slot hold → reserve temporarily → confirm, expire or release",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Temporary hold granted",
+    "searchableAliases": [
+      "SCH-172",
+      "slot-hold"
+    ]
+  },
+  {
+    "id": "SCH-173",
+    "slug": "reservation-request",
+    "title": "Reservation request → validate → confirm, reject or pending",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Reservation requested",
+    "searchableAliases": [
+      "SCH-173",
+      "reservation-request"
+    ]
+  },
+  {
+    "id": "SCH-174",
+    "slug": "reservation-preparation",
+    "title": "Reservation confirmed → prepare → upcoming or ready",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Reservation confirmed",
+    "searchableAliases": [
+      "SCH-174",
+      "reservation-preparation"
+    ]
+  },
+  {
+    "id": "SCH-175",
+    "slug": "reschedule",
+    "title": "Reschedule request → recheck availability → move, reject or preserve original",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Reschedule requested",
+    "searchableAliases": [
+      "SCH-175",
+      "reschedule"
+    ]
+  },
+  {
+    "id": "SCH-176",
+    "slug": "reservation-cancellation",
+    "title": "Reservation cancellation → stop commitment → release capacity → reconcile",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Reservation cancellation effective",
+    "searchableAliases": [
+      "SCH-176",
+      "reservation-cancellation"
+    ]
+  },
+  {
+    "id": "SCH-177",
+    "slug": "scheduled-start",
+    "title": "Scheduled time approaches → revalidate → check in, start or exception",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Pre start window reached",
+    "searchableAliases": [
+      "SCH-177",
+      "scheduled-start"
+    ]
+  },
+  {
+    "id": "SCH-178",
+    "slug": "service-attendance",
+    "title": "Attendance or service start → complete, partial or interrupted",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Service commencement established",
+    "searchableAliases": [
+      "SCH-178",
+      "service-attendance"
+    ]
+  },
+  {
+    "id": "SCH-179",
+    "slug": "no-show",
+    "title": "No-show or missed appointment → validate → rebook, close or consequence",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Service window passed without commencement",
+    "searchableAliases": [
+      "SCH-179",
+      "no-show"
+    ]
+  },
+  {
+    "id": "SCH-180",
+    "slug": "provider-cancellation",
+    "title": "Provider or resource cancellation → reallocate → reschedule, remedy or cancel",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Provider or resource cannot fulfil",
+    "searchableAliases": [
+      "SCH-180",
+      "provider-cancellation"
+    ]
+  },
+  {
+    "id": "SUB-161",
+    "slug": "continuing-relationship-creation",
+    "title": "Continuing relationship created → validate → activate or pending",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Continuing relationship creation authorized",
+    "searchableAliases": [
+      "SUB-161",
+      "continuing-relationship-creation"
+    ]
+  },
+  {
+    "id": "SUB-162",
+    "slug": "future-effective-activation",
+    "title": "Future effective start → wait → revalidate → activate or abort",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Relationship created with future start",
+    "searchableAliases": [
+      "SUB-162",
+      "future-effective-activation"
+    ]
+  },
+  {
+    "id": "SUB-163",
+    "slug": "renewal-decision",
+    "title": "Renewal window → eligibility → renew, non-renew or review",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Renewal decision window opens",
+    "searchableAliases": [
+      "SUB-163",
+      "renewal-decision"
+    ]
+  },
+  {
+    "id": "SUB-164",
+    "slug": "renewal-execution",
+    "title": "Renewal execution → financial and dependency check → new term active",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Renewal authorized for execution",
+    "searchableAliases": [
+      "SUB-164",
+      "renewal-execution"
+    ]
+  },
+  {
+    "id": "SUB-165",
+    "slug": "renewal-payment-failure",
+    "title": "Renewal payment failure → grace or recover → renew or lapse",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Renewal payment failed",
+    "searchableAliases": [
+      "SUB-165",
+      "renewal-payment-failure"
+    ]
+  },
+  {
+    "id": "SUB-166",
+    "slug": "terms-change",
+    "title": "Plan or terms change request → validate → schedule, apply or reject",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Relationship change requested",
+    "searchableAliases": [
+      "SUB-166",
+      "terms-change"
+    ]
+  },
+  {
+    "id": "SUB-167",
+    "slug": "cancellation-request",
+    "title": "Cancellation request → determine effective end → schedule or cancel now",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Cancellation requested",
+    "searchableAliases": [
+      "SUB-167",
+      "cancellation-request"
+    ]
+  },
+  {
+    "id": "SUB-168",
+    "slug": "scheduled-termination",
+    "title": "Scheduled cancellation → revalidate at effective time → end or preserve",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Scheduled cancellation effective time reached",
+    "searchableAliases": [
+      "SUB-168",
+      "scheduled-termination"
+    ]
+  },
+  {
+    "id": "SUB-169",
+    "slug": "relationship-suspension",
+    "title": "Suspension or hold → restrict relationship → restore or end",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Relationship suspension condition",
+    "searchableAliases": [
+      "SUB-169",
+      "relationship-suspension"
+    ]
+  },
+  {
+    "id": "SUB-170",
+    "slug": "continuing-relationship-end",
+    "title": "Relationship end → final reconciliation → former or expired state",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Relationship end effective",
+    "searchableAliases": [
+      "SUB-170",
+      "continuing-relationship-end"
+    ]
+  },
+  {
+    "id": "TIM-61",
+    "slug": "deadline-tracking",
+    "title": "Deadline created → track → complete, escalate or expire",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Authoritative deadline assigned",
+    "searchableAliases": [
+      "TIM-61",
+      "deadline-tracking"
+    ]
+  },
+  {
+    "id": "TIM-62",
+    "slug": "due-state-change",
+    "title": "Due-state change → recalculate priority → resolve or escalate",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Due state changed",
+    "searchableAliases": [
+      "TIM-62",
+      "due-state-change"
+    ]
+  },
+  {
+    "id": "TIM-63",
+    "slug": "pre-expiry-window",
+    "title": "Expiry approaching → eligibility check → renew, complete or let expire",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Pre expiry window entered",
+    "searchableAliases": [
+      "TIM-63",
+      "pre-expiry-window"
+    ]
+  },
+  {
+    "id": "TIM-64",
+    "slug": "expiry-execution",
+    "title": "Expiry reached → validate current state → expire, extend or replace",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Expiry time reached",
+    "searchableAliases": [
+      "TIM-64",
+      "expiry-execution"
+    ]
+  },
+  {
+    "id": "TIM-65",
+    "slug": "grace-period",
+    "title": "Grace period entry → temporary continuity → recover or terminate",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Primary validity ended with grace policy",
+    "searchableAliases": [
+      "TIM-65",
+      "grace-period"
+    ]
+  },
+  {
+    "id": "TIM-66",
+    "slug": "temporary-exception",
+    "title": "Temporary exception → validity window → revert or formalise",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Temporary exception granted",
+    "searchableAliases": [
+      "TIM-66",
+      "temporary-exception"
+    ]
+  },
+  {
+    "id": "TIM-67",
+    "slug": "temporary-state-lifecycle",
+    "title": "Temporary state → explicit expiry → restore or transition",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Temporary state entered",
+    "searchableAliases": [
+      "TIM-67",
+      "temporary-state-lifecycle"
+    ]
+  },
+  {
+    "id": "TIM-68",
+    "slug": "reversal-window",
+    "title": "Reversible state → reversal window → confirm or restore",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Reversible transition occurred",
+    "searchableAliases": [
+      "TIM-68",
+      "reversal-window"
+    ]
+  },
+  {
+    "id": "TIM-69",
+    "slug": "post-expiry-re-entry",
+    "title": "Expired state → re-entry eligibility → renew, requalify or remain expired",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Re entry attempted or available",
+    "searchableAliases": [
+      "TIM-69",
+      "post-expiry-re-entry"
+    ]
+  },
+  {
+    "id": "TIM-70",
+    "slug": "scheduled-transition-execution",
+    "title": "Scheduled future transition → validate at execution → apply, cancel or recalculate",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Future transition scheduled",
+    "searchableAliases": [
+      "TIM-70",
+      "scheduled-transition-execution"
+    ]
+  },
+  {
+    "id": "TRM-101",
+    "slug": "entity-merge-execution",
+    "title": "Identity or entity merge → reconcile → consolidate → verify",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Merge explicitly authorized",
+    "searchableAliases": [
+      "TRM-101",
+      "entity-merge-execution"
+    ]
+  },
+  {
+    "id": "TRM-102",
+    "slug": "merge-conflict-resolution",
+    "title": "Merge conflict → safe state → resolve → continue or abort",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Critical merge conflict detected",
+    "searchableAliases": [
+      "TRM-102",
+      "merge-conflict-resolution"
+    ]
+  },
+  {
+    "id": "TRM-103",
+    "slug": "account-consolidation",
+    "title": "Account consolidation → dependency reconciliation → unified relationship",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Account consolidation authorized",
+    "searchableAliases": [
+      "TRM-103",
+      "account-consolidation"
+    ]
+  },
+  {
+    "id": "TRM-104",
+    "slug": "primary-relationship-transfer",
+    "title": "Primary relationship transfer → validate new primary → transfer dependencies",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Primary relationship transfer authorized",
+    "searchableAliases": [
+      "TRM-104",
+      "primary-relationship-transfer"
+    ]
+  },
+  {
+    "id": "TRM-105",
+    "slug": "responsibility-handover",
+    "title": "Role or responsibility handover → effective-time transfer → continue",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Responsibility handover authorized",
+    "searchableAliases": [
+      "TRM-105",
+      "responsibility-handover"
+    ]
+  },
+  {
+    "id": "TRM-106",
+    "slug": "account-closure-request",
+    "title": "Account closure request → validate → resolve blockers → close",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Account closure requested",
+    "searchableAliases": [
+      "TRM-106",
+      "account-closure-request"
+    ]
+  },
+  {
+    "id": "TRM-107",
+    "slug": "closure-external-dependencies",
+    "title": "Account closure → reconcile external and commercial dependencies → finalize",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Account closure executing or finalizing",
+    "searchableAliases": [
+      "TRM-107",
+      "closure-external-dependencies"
+    ]
+  },
+  {
+    "id": "TRM-108",
+    "slug": "closure-wind-down",
+    "title": "Closure completed → wind-down → former or terminal account state",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Account closure succeeded",
+    "searchableAliases": [
+      "TRM-108",
+      "closure-wind-down"
+    ]
+  },
+  {
+    "id": "TRM-109",
+    "slug": "data-deletion-request",
+    "title": "Data deletion request → validate scope → hold, delete or retain required data",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Data deletion requested",
+    "searchableAliases": [
+      "TRM-109",
+      "data-deletion-request"
+    ]
+  },
+  {
+    "id": "TRM-110",
+    "slug": "data-deletion-execution",
+    "title": "Data deletion execution → propagate → verify or reconcile failure",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Data approved for deletion",
+    "searchableAliases": [
+      "TRM-110",
+      "data-deletion-execution"
+    ]
+  }
+]

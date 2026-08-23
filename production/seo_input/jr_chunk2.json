@@ -1,0 +1,644 @@
+[
+ {
+  "id": "CMS-208",
+  "slug": "delivery-recovery",
+  "name": "Delivery failure → classify → retry, fallback or stop",
+  "purpose": "Respond to the failure that actually happened, without spreading it wider than the destination it belongs to.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Authoritative delivery failure",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the failed delivery, its channel and the destination it was aimed at",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "CMS-210",
+  "slug": "communication-closure",
+  "name": "Communication outcome → close obligation or escalate unreachable",
+  "purpose": "Close the obligation against what it actually required, and escalate the ones that could not be met.",
+  "category": "communication",
+  "categoryTitle": "Notifications, communications, delivery & contactability",
+  "trigger": "Delivery attempts reach meaningful outcome",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the communication obligation and every delivery made against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "CON-31",
+  "slug": "permission-capture-and-scope",
+  "name": "Permission capture → validate scope → activate or reject",
+  "purpose": "Turn a permission decision into an auditable record of what exactly was authorised, rather than a flag that says yes.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Explicit permission decision received",
+  "triggerEvidence": "declared",
+  "entityScope": "person plus the permission record, keyed by purpose, channel and scope",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "multi-exit"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "CON-32",
+  "slug": "preference-capture",
+  "name": "Preference capture → persist → personalise eligible communication",
+  "purpose": "Record how someone would like permitted communication done, in a store that structurally cannot become permission.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Preference explicitly set or changed",
+  "triggerEvidence": "declared",
+  "entityScope": "person plus the declared-preference profile",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 6
+ },
+ {
+  "id": "CON-33",
+  "slug": "preference-change-recalculation",
+  "name": "Preference change → recalculate active journeys → suppress or adapt",
+  "purpose": "Make a preference change reach the messages already sitting in a queue, not just the profile field.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Authoritative preference changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person plus the preference plus every active journey instance and queued action it touches",
+  "primaryStructure": "self-contained",
+  "behaviors": [],
+  "nodeCount": 7
+ },
+ {
+  "id": "CON-34",
+  "slug": "frequency-preference-recalculation",
+  "name": "Communication frequency change → recalculate cadence → apply prospectively",
+  "purpose": "Recalculate how often optional communication may go out, without letting that quietly reach the messages someone has to receive.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Frequency preference changed",
+  "triggerEvidence": "declared",
+  "entityScope": "person plus the communication classes the frequency preference actually governs",
+  "primaryStructure": "self-contained",
+  "behaviors": [],
+  "nodeCount": 9
+ },
+ {
+  "id": "CON-35",
+  "slug": "permission-change-enforcement",
+  "name": "Consent or permission change → immediate enforcement → propagate",
+  "purpose": "Stop affected communication the moment permission changes, and let the distributed systems catch up afterwards.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Authoritative permission change",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person plus the permission record that changed, at its purpose, channel and scope",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "CON-36",
+  "slug": "channel-contactability-state",
+  "name": "Channel contactability change → recalculate reachability → route or suppress",
+  "purpose": "Track whether a channel can reach someone, as a state entirely separate from whether it may, and keep each destination's route health separately so future sending routes around what is broken.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Channel contactability materially changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person plus the specific contact point - this address, this number, this device token",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "CON-38",
+  "slug": "communication-suppression-state",
+  "name": "Communication suppression → reason → release or persist",
+  "purpose": "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Suppression condition became active",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the person, message or journey instance the suppression applies to, at the scope recorded with it",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "multi-exit"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "CON-39",
+  "slug": "communication-cooldown",
+  "name": "Communication cooldown → hold optional messaging → re-evaluate",
+  "purpose": "Reduce optional communication pressure for a while, without touching permission and without covering more than it needs to.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Cooldown triggering event",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the communication context the cooldown was created for",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "CON-40",
+  "slug": "permission-conflict-failsafe",
+  "name": "Permission conflict → fail-safe state → reconcile → restore",
+  "purpose": "Hold optional communication closed while two systems disagree about permission, and reconcile on evidence rather than on whichever value allows more.",
+  "category": "consent",
+  "categoryTitle": "Consent, preferences, communication & contactability",
+  "trigger": "Conflicting permission states detected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person plus the specific permission type, channel and purpose that disagrees",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "CTL-231",
+  "slug": "ownership-assignment",
+  "name": "Ownership assignment → validate authority → assign or reject",
+  "purpose": "Establish an accountable controller for an entity, by an explicit act rather than by inference.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Ownership assignment requested",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the ownable entity and the ownership relationship being created on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 22
+ },
+ {
+  "id": "CTL-232",
+  "slug": "transfer-request",
+  "name": "Ownership transfer request → validate → pending acceptance or reject",
+  "purpose": "Propose a future controller without disturbing the one the entity currently has.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Ownership transfer requested",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entity, its current owner, the proposed owner and the transfer request between them",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "CTL-233",
+  "slug": "transfer-acceptance",
+  "name": "Ownership transfer acceptance → revalidate → execute or expire",
+  "purpose": "Check that a transfer accepted today is still the transfer that was proposed.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Proposed owner accepts transfer",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the transfer request and the acceptance made against its specific version",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "CTL-234",
+  "slug": "ownership-cutover",
+  "name": "Ownership cutover → assign new owner → reconcile old owner",
+  "purpose": "Move control from one party to another without the entity being uncontrolled in between.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Ownership transfer authorized for execution",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entity and both ownership relationships during the change",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "CTL-235",
+  "slug": "delegation-grant",
+  "name": "Delegation request → define scope → grant or reject",
+  "purpose": "Let somebody act on an owner's behalf, inside a boundary, without moving anything.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Delegation requested",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the delegation, the delegator, the delegate and the target entity",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "CTL-236",
+  "slug": "temporary-delegation",
+  "name": "Temporary delegation → expire → revoke, extend or restore",
+  "purpose": "End borrowed authority at its boundary, checking first that the boundary still belongs to a delegation that exists.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Delegation has validity boundary",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the time-bounded delegation and the version this expiry was scheduled against",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "CTL-237",
+  "slug": "delegation-revocation",
+  "name": "Delegation revoked → remove delegated authority → preserve independent access",
+  "purpose": "Take back exactly what was lent, and nothing the delegate had of their own.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Delegation revocation authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the delegation and the capabilities that exist because of it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "CTL-238",
+  "slug": "owner-unavailable",
+  "name": "Owner unavailable or invalid → protect entity → recover ownership",
+  "purpose": "Hold an entity safely when its owner cannot act, without handing it to whoever is nearest.",
+  "category": "control",
+  "categoryTitle": "Ownership, delegation, transfer & multi-party control",
+  "trigger": "Owner becomes unavailable or invalid",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entity and its ownership state while the owner cannot exercise control",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "DAT-221",
+  "slug": "data-intake",
+  "name": "Data intake → identify format → parse or reject",
+  "purpose": "Get an incoming dataset into a stable readable form, without touching anything real while doing it.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Dataset submitted for intake",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the intake and the source artifact or dataset it carries",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "DAT-222",
+  "slug": "data-validation",
+  "name": "Parsed data → validate schema and semantics → accept, reject or quarantine",
+  "purpose": "Establish that the data is valid for the target it is going into, record by record where that is meaningful.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Input successfully parsed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the parsed dataset and the target's schema and business rules",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "DAT-223",
+  "slug": "change-impact-preview",
+  "name": "Valid data → preview and impact analysis → confirm or hold",
+  "purpose": "Show what the mutation would actually do, so an approval attaches to that rather than to a filename.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Validated change set ready to mutate",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the validated change set and the target state it would mutate",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "DAT-224",
+  "slug": "import-execution",
+  "name": "Import execution → apply idempotently → complete, partial or fail",
+  "purpose": "Apply a fixed validated change set to production state, keeping every record's outcome.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Import authorized for execution",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the import job and the frozen change set it applies",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "DAT-225",
+  "slug": "partial-import-recovery",
+  "name": "Partial import → isolate failed scope → correct → resume",
+  "purpose": "Fix only what did not land, without touching the records that already did.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Import completed with mixed outcomes",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the partially applied import and the per-record outcomes it produced",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "DAT-226",
+  "slug": "migration-readiness",
+  "name": "Migration plan → map source to target → validate readiness",
+  "purpose": "Prove the target can carry the source's meaning before anything is moved.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Migration planned",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the migration, the source population and the target model",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "DAT-227",
+  "slug": "migration-execution",
+  "name": "Migration execute → copy and transform → verify population",
+  "purpose": "Move the population and then prove the result still means what the source meant.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Migration execution authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the migration run, the frozen source scope and the target population it produced",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "DAT-228",
+  "slug": "cutover",
+  "name": "Cutover → switch authority → observe → stabilize or roll back",
+  "purpose": "Change which system is authoritative, once, with a way back that was defined before it was needed.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Verified target ready for cutover",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the migration, the source system or state, and the target that would replace it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "DAT-229",
+  "slug": "historical-backfill",
+  "name": "Historical backfill → scope window → apply without replaying stale actions",
+  "purpose": "Repair a gap in the record without re-enacting the things those events would have caused.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Historical gap identified",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the backfill, its defined window, and the target records inside it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "DAT-230",
+  "slug": "transformation-error-recovery",
+  "name": "Data transformation error → reconcile → correct, roll forward or roll back",
+  "purpose": "Undo the wrong mutation without undoing the right things that happened after it.",
+  "category": "data",
+  "categoryTitle": "Data change, import, migration & state transformation",
+  "trigger": "Material transformation error discovered",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the erroneous data change operation and the records it affected",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "DEC-181",
+  "slug": "decision-request",
+  "name": "Decision request → validate → route, reject or hold",
+  "purpose": "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Authorized decision required",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision request and the business entity it concerns",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 20
+ },
+ {
+  "id": "DEC-182",
+  "slug": "decision-assignment",
+  "name": "Decision case → assign reviewer → accept, reassign or escalate",
+  "purpose": "Put the case in front of someone who is actually authorized to decide it, and make that ownership explicit.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Decision case requires ownership",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision case and the reviewer or authority holding it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "DEC-183",
+  "slug": "decision-review",
+  "name": "Review started → evaluate evidence → decide or request more information",
+  "purpose": "Turn sufficient evidence into an authorized decision, within the scope the reviewer actually holds.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Authorized review begins",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision case and this instance of review against it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "DEC-184",
+  "slug": "information-requirement",
+  "name": "More information required → collect → revalidate → resume review",
+  "purpose": "Pause a decision for the fact it is actually missing, without losing the review already done.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Information requirement identified",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision case and the specific information requirement blocking it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "DEC-185",
+  "slug": "approval-execution",
+  "name": "Approval decision → revalidate target → execute, hold or invalidate",
+  "purpose": "Carry an authorization into execution, having checked it still applies to what it was granted against.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Decision approved",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the approved decision and the target action it authorizes",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "DEC-186",
+  "slug": "rejection-outcome",
+  "name": "Rejection decision → record reason → remediate, close or reapply",
+  "purpose": "Treat a refusal as the business outcome it is, and say what if anything the requester can do next.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Authorized rejection issued",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision case and the rejection issued against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "DEC-187",
+  "slug": "partial-approval",
+  "name": "Partial approval → split scope → execute approved, resolve remaining",
+  "purpose": "Make the authorized and unauthorized halves of one request explicit, so only the first can move.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Decision partially approved",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision case and the partitions of its requested scope",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "DEC-188",
+  "slug": "approval-validity",
+  "name": "Approval validity or expiry → revalidate → use, expire or renew review",
+  "purpose": "Answer, at the moment of use, whether an approval is still one - in time, in context and in count.",
+  "category": "decision",
+  "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+  "trigger": "Approval validity evaluation required",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the approval decision and the boundaries it was granted within",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 17
+ }
+]

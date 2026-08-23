@@ -1,0 +1,608 @@
+[
+ {
+  "id": "AB-145",
+  "slug": "avantaj-bilgilerini-net-sunmak-satin-almayi-etkiler-mi",
+  "question": "Avantaj bilgilerini net sunmak satın almayı etkiler mi?",
+  "hypothesis": "Taksit, ücretsiz kargo ve kolay iade gibi avantajların net sunulması kullanıcı güvenini ve satın alma motivasyonunu güçlendirebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "avantaj bilgisi sunumu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-146",
+  "slug": "urun-sayfasindaki-sss-satin-almayi-etkiliyor-mu",
+  "question": "Ürün sayfasındaki SSS satın almayı etkiliyor mu?",
+  "hypothesis": "Taksit, iade, garanti ve teslimat gibi sık sorulan bilgilerin ürün sayfasında görünür olması belirsizliği azaltıp kararı hızlandırabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ürün SSS bölümü",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Ürün sayfasında SSS bölümü yok",
+   "Ürün sayfasında SSS bölümü gösteriliyor (taksit, iade, garanti, teslimat gibi konularda)"
+  ]
+ },
+ {
+  "id": "AB-147",
+  "slug": "fayda-vurgulamak-donusumu-etkiler-mi",
+  "question": "Fayda vurgulamak dönüşümü etkiler mi?",
+  "hypothesis": "Ek fayda mesajları güven yaratabilir ama fark edilmeyebilir. Satın alma kararına gerçek etkisi ölçülmelidir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "fayda vurgusu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-148",
+  "slug": "iletisim-bilgisini-gorunur-yapmak-guveni-artirir-mi",
+  "question": "İletişim bilgisini görünür yapmak güveni artırır mı?",
+  "hypothesis": "Header’da telefon veya e-posta bilgisinin görünmesi markanın ulaşılabilirlik algısını güçlendirebilir, ancak bu her zaman dönüşüme yansımaz.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "iletişim bilgisi görünürlüğü",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Header'da iletişim bilgisi (telefon/e-posta) görünmüyor",
+   "Header'da iletişim bilgisi (telefon/e-posta) görünür ve tıklanabilir"
+  ]
+ },
+ {
+  "id": "AB-149",
+  "slug": "cta-yi-basparmak-bolgesine-almak-tiklamayi-artirir-mi",
+  "question": "CTA’yı başparmak bölgesine almak tıklamayı artırır mı?",
+  "hypothesis": "Mobilde ekranın üst yarısı tek elle zor erişilir. CTA’yı alt sabit bara taşımak tıklama maliyetini düşürebilir ama içeriği kapatabilir ve reklam gibi algılanabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "CTA konumu",
+  "primaryKpi": "Sepete Ekleme Oranı",
+  "armLabels": [
+   "CTA normal sayfa akışında, başparmak bölgesinde sabit değil",
+   "CTA alt sabit barla başparmak bölgesine taşınıyor"
+  ]
+ },
+ {
+  "id": "AB-150",
+  "slug": "sticky-satin-al-butonu-donusumu-artiriyor-mu",
+  "question": "Sticky “Satın Al” butonu dönüşümü artırıyor mu?",
+  "hypothesis": "“Satın Al” butonunun sabit kalması, uzun ürün sayfalarında kullanıcıyı yukarı çıkma zorunluluğundan kurtarıp satın alma adımına geçişi hızlandırabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "sabit satın al butonu",
+  "primaryKpi": "Sepete Ekleme Oranı",
+  "armLabels": [
+   "Sabit (sticky) Satın Al butonu yok",
+   "Satın Al butonu kaydırma boyunca sabit kalıyor"
+  ]
+ },
+ {
+  "id": "AB-151",
+  "slug": "cta-optimizasyonu-donusumu-etkiler-mi",
+  "question": "CTA optimizasyonu dönüşümü etkiler mi?",
+  "hypothesis": "Renk, boyut ve konum küçük görünen ama davranışı ciddi etkileyen değişkenler. Bazı markalarda %1, bazılarında %10 fark yaratabiliyor. Tahmin etmeyin, test edin.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "CTA metni",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-152",
+  "slug": "coklu-paket-sunumu-sepet-tutarini-artiriyor-mu",
+  "question": "Çoklu paket sunumu sepet tutarını artırıyor mu?",
+  "hypothesis": "Ürün sayfasında 2’li, 3’lü paket seçenekleri sunmak, kullanıcının değer algısını ve sepet büyüklüğünü değiştirebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "çoklu paket sunumu",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Yalnızca tekli ürün satışı, paket seçeneği yok",
+   "2'li/3'lü çoklu paket seçenekleri sunuluyor"
+  ]
+ },
+ {
+  "id": "AB-153",
+  "slug": "teslimat-bilgisi-satin-almayi-etkiliyor-mu",
+  "question": "Teslimat bilgisi satın almayı etkiliyor mu?",
+  "hypothesis": "“Bugün sipariş ver, yarın kargoda” gibi net teslimat bilgisi belirsizliği azaltır ve satın alma hızını etkileyebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "teslimat bilgisi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Net teslimat bilgisi gösterilmiyor",
+   "Net teslimat tarihi gösteriliyor (ör. 'Bugün sipariş ver, yarın kargoda')"
+  ]
+ },
+ {
+  "id": "AB-154",
+  "slug": "kucuk-gorseller-altta-mi-solda-mi-durmali",
+  "question": "Küçük görseller altta mı, solda mı durmalı?",
+  "hypothesis": "Küçük görsellerin (thumbnail) solda dikey dizilmesi ana görsele daha çok yükseklik bırakır ve galerinin varlığını sürekli görünür kılar. Altta yatay dizilim ise ana görseli genişletir ama kaydırmada gözden kaçabilir. Konum, kaç görselin ilk bakışta görüldüğünü de değiştirir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "küçük görsellerin konumu",
+  "primaryKpi": "Sepete Ekleme Oranı",
+  "armLabels": [
+   "Küçük görseller solda dikey dizilim",
+   "Küçük görseller altta yatay dizilim"
+  ]
+ },
+ {
+  "id": "AB-155",
+  "slug": "urunun-boyutunu-anlatan-bir-referans-gostermek-ise-yarar-mi",
+  "question": "Ürünün boyutunu anlatan bir referans göstermek işe yarar mı?",
+  "hypothesis": "Ürünün yanında bilinen bir nesne veya ölçü göstergesi bulunması, ölçek algısını netleştirir ve “sandığımdan küçükmüş” kaynaklı iadeyi azaltabilir. Riski: referans nesne ürünün önüne geçebilir, görsel dili bozabilir ve yanlış seçilmiş bir referans ölçeği daha da belirsizleştirir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "boyut referansı",
+  "primaryKpi": "İade Oranı",
+  "armLabels": [
+   "Ürün yanında boyut/ölçek referansı yok",
+   "Ürün yanında ölçek referansı (nesne/ölçü çizgisi/insan referansı) gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-156",
+  "slug": "urun-aciklamasi-acik-mi-katlanmis-mi-gelmeli",
+  "question": "Ürün açıklaması açık mı, katlanmış mı gelmeli?",
+  "hypothesis": "Açıklamanın tamamen açık gelmesi bilgiyi erişilebilir kılar ama sayfayı uzatır ve satın alma butonunu aşağı iter. Katlanmış başlıklar (akordiyon) sayfayı derli toplu tutar, buna karşılık açmayan kullanıcı bilgiyi hiç görmez ve karar için gereken ayrıntı gizli kalır.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "ürün açıklaması açılım durumu",
+  "primaryKpi": "Sepete Ekleme Oranı",
+  "armLabels": [
+   "Ürün açıklaması varsayılan olarak açık geliyor",
+   "Ürün açıklaması varsayılan olarak katlanmış (akordiyon) geliyor"
+  ]
+ },
+ {
+  "id": "AB-157",
+  "slug": "oneriyi-kararli-bir-dille-sunmak-secim-yapmayi-kolaylastirir-mi",
+  "question": "Öneriyi kararlı bir dille sunmak seçim yapmayı kolaylaştırır mı?",
+  "hypothesis": "“Sizin için en uygunu bu” diyen kararlı bir öneri, seçenek karşısında donan kullanıcıyı ilerletir. Karşı tarafta: öneri yanlışsa güven kaybı yaratır, kullanıcının kendi kararını verdiği hissi zayıflar ve kararlı ton bazı bağlamlarda baskı gibi algılanır.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "öneri dili",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Seçenekler nötr şekilde sunuluyor, kararlı bir öneri yok",
+   "Kararlı bir öneri ekleniyor (ör. 'Sizin için en uygunu bu')"
+  ]
+ },
+ {
+  "id": "AB-158",
+  "slug": "stokta-olmayan-bir-urunun-satin-alma-butonunu-kaldirmak-mi-haber-ver-secenegi-mi",
+  "question": "Stokta olmayan bir ürünün satın alma butonunu kaldırmak mı, haber ver seçeneği mi daha iyi çalışıyor?",
+  "hypothesis": "Stokta olmayan bir üründe satın alma butonunu olduğu gibi bırakmak hayal kırıklığı yaratır. İki yaygın alternatif vardır: butonu tamamen kaldırıp “stokta yok” yazmak, ya da “stok geldiğinde haber ver” seçeneğiyle değiştirmek. İkincisi terk eden kullanıcıyı bildirim listesine dönüştürme fırsatı sunar ama ek bir form alanı gerektirir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "stok dışı satın alma butonu",
+  "primaryKpi": "Haber Ver Kayıt Oranı",
+  "armLabels": [
+   "Satın alma butonu kaldırılıp 'stokta yok' yazılıyor",
+   "Buton 'stok geldiğinde haber ver' seçeneğiyle değiştiriliyor"
+  ]
+ },
+ {
+  "id": "AB-159",
+  "slug": "satin-almadan-once-urunu-ozellestirme-imkani-sunmak-satin-alma-niyetini-artirir-",
+  "question": "Satın almadan önce ürünü özelleştirme imkânı sunmak satın alma niyetini artırır mı?",
+  "hypothesis": "Kullanıcıya rengi, gravürü veya kombinasyonu kendi seçtirmek, ürünü kendi emeğiyle şekillendirdiği bir şey hâline getirir — bu sahiplenme hissi, hazır bir üründen daha yüksek bir değer algısı yaratabilir. Riski, özelleştirme adımının karmaşık gelip asıl satın alma kararını geciktirmesi veya terke yol açmasıdır.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ürün özelleştirme",
+  "primaryKpi": "Sepete Ekleme Oranı",
+  "armLabels": [
+   "Ürün özelleştirme seçeneği yok, hazır ürün satılıyor",
+   "Satın almadan önce özelleştirme imkânı sunuluyor (ör. renk, gravür veya kombinasyon seçimi)"
+  ]
+ },
+ {
+  "id": "AB-160",
+  "slug": "urunun-uretildigi-veya-tasarlandigi-ulkeyi-gostermek-satin-alma-kararini-etkiler",
+  "question": "Ürünün üretildiği veya tasarlandığı ülkeyi göstermek satın alma kararını etkiler mi?",
+  "hypothesis": "“İtalya’da üretildi” veya “Almanya’da tasarlandı” gibi bir köken bilgisi, bazı kategorilerde (deri, elektronik, otomotiv) algılanan kaliteyi yükseltebilir. Riski, köken bilgisinin kategoriyle veya hedef pazarla uyumsuz olduğunda hiçbir etki yaratmaması, hatta beklenmedik bir soru işareti doğurmasıdır.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "menşe bilgisi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Üretildiği/tasarlandığı ülke bilgisi gösterilmiyor",
+   "Köken bilgisi gösteriliyor (ör. 'İtalya'da üretildi')"
+  ]
+ },
+ {
+  "id": "AB-161",
+  "slug": "paket-icerigini-benzer-fiyat-araligindaki-urunlerden-mi-farkli-fiyat-araligindak",
+  "question": "Paket içeriğini benzer fiyat aralığındaki ürünlerden mi, farklı fiyat aralığındaki ürünlerden mi oluşturmalı?",
+  "hypothesis": "Bir paket ucuz ve pahalı ürünleri bir araya getirdiğinde, ucuz ürün pahalı ürünün algılanan değerini sulandırabilir — ziyaretçi paketin ortalama değerini pahalı üründen değil ucuz üründen referans alabilir. Benzer fiyat aralığındaki ürünleri bir araya getirmek bu riski azaltır ama paketin toplam faydasını daraltabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "paket içeriği fiyat aralığı",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Benzer fiyat aralığındaki ürünlerden oluşan paket",
+   "Farklı fiyat aralığındaki ürünlerden oluşan karışık paket"
+  ]
+ },
+ {
+  "id": "AB-162",
+  "slug": "deneme-cta-sinin-metni-donusumu-degistiriyor-mu",
+  "question": "Deneme CTA’sının metni dönüşümü değiştiriyor mu?",
+  "hypothesis": "Aynı işlevi yapan CTA’nın kelime seçimi (kısa/soyut vs. somut/süre belirten) tıklama isteğini değiştirebilir. “Ücretsiz Dene” nötr ve kısa; “14 Gün Ücretsiz Başla” süreyi netleştirip taahhüt hissini azaltabilir ama daha uzun ve dikkat dağıtıcı da olabilir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "deneme CTA metni",
+  "primaryKpi": "Ücretsiz Kayıt Oranı",
+  "armLabels": [
+   "Ücretsiz Dene",
+   "14 Gün Ücretsiz Başla"
+  ]
+ },
+ {
+  "id": "AB-163",
+  "slug": "ucretsiz-basla-mi-demo-iste-mi-daha-cok-firsat-getiriyor",
+  "question": "“Ücretsiz başla” mı, “Demo iste” mi daha çok fırsat getiriyor?",
+  "hypothesis": "Tek CTA basit ve nettir ama farklı alım hazırlığındaki ziyaretçiyi tek kalıba sokar. İkinci bir “Demo iste” seçeneği eklemek kurumsal alıcıyı kaybetmeden self-servis kullanıcıyı da tutabilir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "birincil CTA teklifi",
+  "primaryKpi": "Nitelikli Fırsat Sayısı (SQL)",
+  "armLabels": [
+   "Tek CTA: Ücretsiz başla",
+   "İkinci CTA olarak Demo iste eklenmesi"
+  ]
+ },
+ {
+  "id": "AB-164",
+  "slug": "yillik-planin-varsayilan-gelmesi-donusumu-artirir-mi",
+  "question": "Yıllık planın varsayılan gelmesi dönüşümü artırır mı?",
+  "hypothesis": "Yıllık planın seçili gelmesi indirim algısını öne çıkarır ama kullanıcıyı daha büyük bir taahhüde iter. Dönüşüm ile güven arasındaki denge ölçülmelidir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "varsayılan plan periyodu",
+  "primaryKpi": "Kullanıcı Başına Gelir (ARPU)",
+  "armLabels": [
+   "Aylık plan varsayılan seçili",
+   "Yıllık plan varsayılan seçili"
+  ]
+ },
+ {
+  "id": "AB-165",
+  "slug": "form-alan-sayisini-azaltmak-talep-sayisini-artirir-mi",
+  "question": "Form alan sayısını azaltmak talep sayısını artırır mı?",
+  "hypothesis": "Her ek form alanı bir sürtünme noktasıdır. Alan sayısını azaltmak talep hacmini yükseltebilir ama satış ekibine daha az bilgi bırakır. Hacim ile lead kalitesi arasındaki denge ölçülmelidir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "remove",
+  "testedSlot": "talep formu alan seti",
+  "primaryKpi": "Nitelikli Fırsat Sayısı (SQL)",
+  "armLabels": [
+   "Mevcut form alan seti (daha fazla alan)",
+   "Azaltılmış form alan seti (daha az alan)"
+  ]
+ },
+ {
+  "id": "AB-166",
+  "slug": "paywall-limit-uyarisi-ne-zaman-gosterilmeli",
+  "question": "Paywall / limit uyarısı ne zaman gösterilmeli?",
+  "hypothesis": "Yükseltme çağrısını erken göstermek kullanıcıyı değeri görmeden karşılar. Limite gerçekten değince göstermek daha ikna edici olabilir ama iş akışını böler.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "paywall zamanlaması",
+  "primaryKpi": "Yükseltme Oranı",
+  "armLabels": [
+   "Paywall/limit uyarısını erken gösterme",
+   "Paywall/limit uyarısını limite değince gösterme"
+  ]
+ },
+ {
+  "id": "AB-167",
+  "slug": "en-populer-rozeti-kartin-ustune-mi-tasmali-iceride-mi-kalmali",
+  "question": "“En popüler” rozeti kartın üstüne mi taşmalı, içeride mi kalmalı?",
+  "hypothesis": "Fiyatlandırma sayfasında bir planı öne çıkarmak seçim davranışını yönlendirir. Rozetin ortadaki planda mı, üst planda mı durduğu hem dönüşümü hem ortalama geliri değiştirebilir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "en popüler rozeti konumu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Rozet kartın üstüne taşıyor",
+   "Rozet kartın içinde kalıyor"
+  ]
+ },
+ {
+  "id": "AB-168",
+  "slug": "enterprise-fiyatini-gostermek-mi-gizlemek-mi",
+  "question": "Enterprise fiyatını göstermek mi, gizlemek mi?",
+  "hypothesis": "Kurumsal planın fiyatını gizlemek satış ekibine görüşme kazandırır ama alıcıyı elemeye de yol açar. Lead kalitesi ile hacim arasındaki denge ölçülmelidir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "remove",
+  "testedSlot": "enterprise fiyat görünürlüğü",
+  "primaryKpi": "Nitelikli Fırsat Sayısı (SQL)",
+  "armLabels": [
+   "Enterprise fiyatını gösterme",
+   "Enterprise fiyatını gizleme"
+  ]
+ },
+ {
+  "id": "AB-169",
+  "slug": "deneme-suresi-7-14-mu-yoksa-30-gun-mu-olmali",
+  "question": "Deneme süresi 7, 14 mü yoksa 30 gün mü olmalı?",
+  "hypothesis": "Kısa deneme aciliyet yaratır ama kullanıcı değeri görmeden biter. Uzun deneme değeri gösterir ama karar anını erteler. Optimum sürenin ölçülmesi gerekir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "deneme süresi",
+  "primaryKpi": "Ücretliye Geçiş Oranı",
+  "armLabels": [
+   "7 günlük deneme süresi",
+   "14 günlük deneme süresi",
+   "30 günlük deneme süresi"
+  ]
+ },
+ {
+  "id": "AB-170",
+  "slug": "cok-adimli-form-mu-tek-sayfa-form-mu-daha-cok-talep-getiriyor",
+  "question": "Çok adımlı form mu, tek sayfa form mu daha çok talep getiriyor?",
+  "hypothesis": "Tek sayfa form tüm alanları baştan gösterir; ne kadar iş olduğu açıktır ama yoğun görünür. Çok adımlı form küçük taahhütlerle ilerletir, ilk adımı bitirenin devam etme olasılığı yüksektir. Bu senaryoyu kurmadan önce şunu kontrol edin: form tek ekrana sığacak şekilde yoğunlaştırılabiliyorsa (ilişkili alanlar yan yana, gereksiz alan çıkarılmış, dikey boşluk azaltılmış) önce onu test edin — adım eklemek her adımda yeni bir terk noktası açar ve çoğu formda tek sayfa kalmak daha iyi çalışır.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "talep formu yapısı",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Tek sayfa form",
+   "Çok adımlı form"
+  ]
+ },
+ {
+  "id": "AB-171",
+  "slug": "is-e-postasi-zorunlulugu-lead-kalitesini-mi-hacmi-mi-belirliyor",
+  "question": "İş e-postası zorunluluğu lead kalitesini mi, hacmi mi belirliyor?",
+  "hypothesis": "Kurumsal e-posta zorunluluğu spam ve kişisel hesapları eler, satış ekibine daha nitelikli talep bırakır. Ama gerçek bir alıcıyı da kurumsal e-postası olmadığı için kapıda bırakabilir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "iş e-postası zorunluluğu",
+  "primaryKpi": "Nitelikli Fırsat Sayısı (SQL)",
+  "armLabels": [
+   "Kurumsal e-posta zorunlu",
+   "Kurumsal e-posta zorunlu değil"
+  ]
+ },
+ {
+  "id": "AB-172",
+  "slug": "deneme-suresi-bitmeden-gonderilen-mesaji-kayip-cercevesiyle-mi-kazanim-cercevesi",
+  "question": "Deneme süresi bitmeden gönderilen mesajı kayıp çerçevesiyle mi, kazanım çerçevesiyle mi yazmalı?",
+  "hypothesis": "Aynı bilgi iki farklı çerçeveyle verilebilir: “Yükseltmezsen 3 gün sonra [X özelliğine] erişimini kaybedeceksin” (kayıp) ya da “Şimdi yükselt, [X özelliğini] kullanmaya devam et” (kazanım). Kayıp çerçevesi genelde kazanım çerçevesinden daha güçlü bir davranışsal tepki yaratır, çünkü insanlar eşdeğer bir kaybı bir kazançtan daha ağır hisseder — ama sürekli kayıp diliyle konuşmak markayı baskıcı hissettirebilir.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "deneme bitiş mesajı çerçevesi",
+  "primaryKpi": "Yükseltme Oranı",
+  "armLabels": [
+   "Kayıp çerçevesiyle mesaj",
+   "Kazanım çerçevesiyle mesaj"
+  ]
+ },
+ {
+  "id": "AB-173",
+  "slug": "alanin-yanina-neden-soruyoruz-aciklamasi-eklemek-amaci-belirsiz-gorunen-bir-alan",
+  "question": "Alanın yanına “neden soruyoruz” açıklaması eklemek, amacı belirsiz görünen bir alanı doldurtur mu?",
+  "hypothesis": "Bir lead formundaki “şirket büyüklüğü” veya “yıllık bütçe” gibi bir alan, kullanıcıya neden sorulduğu açık değilse doldurmayı geciktirir veya alanın boş bırakılmasına yol açar. Bu, `forms-signup.md`’deki gizlilik güvencesinden farklı bir tereddüttür: orada endişe “bu bilgi paylaşılır mı”, burada “bu bilgi neden isteniyor”dur. Alanın hemen yanına kısa bir gerekçe eklemek (“Şirket büyüklüğünüzü size doğru planı önerebilmek için soruyoruz”) bu belirsizliği giderebilir, ama her alana gerekçe eklemek formu ağırlaştırır ve gerçekten önemli bir gerekçenin fark edilmesini zorlaştırır.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "alan gerekçe metni",
+  "primaryKpi": "Alan Doldurma Oranı",
+  "armLabels": [
+   "Alan yanında gerekçe açıklaması yok",
+   "Alan yanına kısa gerekçe metni eklenmesi (kaynaktaki örnek: \"Şirket büyüklüğünüzü size doğru planı önerebilmek için soruyoruz\")"
+  ]
+ },
+ {
+  "id": "AB-174",
+  "slug": "satis-sayfasini-tek-sutunlu-mu-ikinci-bir-sutunla-yan-baglantilar-ek-bilgi-mi-ku",
+  "question": "Satış sayfasını tek sütunlu mu, ikinci bir sütunla (yan bağlantılar/ek bilgi) mi kurmalı?",
+  "hypothesis": "Bu senaryo `forms-signup.md`’deki form alanı sütun düzeninden farklıdır — orası formun içindeki alanların yerleşimini, bu senaryo sayfanın genel iskeletini (ana içerik + varsa yan sütun) ele alır. İkinci bir sütun (ilgili bağlantılar, ek sosyal kanıt, site içi arama) sayfaya ek bilgi katar ama gözü ana anlatıdan uzaklaştırıp dikkati bölebilir. Tek sütuna indirmek doğrusal, kesintisiz bir okuma akışı kurar; riski, yan sütunda duran bilgiye erişimin kaybolmasıdır.",
+  "category": "SaaS & B2B",
+  "surface": "saas",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "satış sayfası kolon yapısı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "İkinci sütunlu sayfa yapısı (yan bağlantılar/ek bilgi)",
+   "Tek sütuna indirilmiş sayfa yapısı"
+  ]
+ },
+ {
+  "id": "AB-175",
+  "slug": "filtreler-aninda-mi-toplu-mu-uygulanmali",
+  "question": "Filtreler anında mı, toplu mu uygulanmalı?",
+  "hypothesis": "Anında filtreleme hızlı geri bildirim verir; toplu filtreleme daha kontrollü bir deneyim sunar. Hangisinin keşif ve dönüşümde daha iyi çalıştığı ölçülmelidir.",
+  "category": "Search & Filtering",
+  "surface": "filters",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "filtre uygulama biçimi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Anında filtreleme",
+   "Toplu filtreleme (Uygula butonuyla)"
+  ]
+ },
+ {
+  "id": "AB-176",
+  "slug": "arama-cubugu-ne-kadar-gorunur-olmali",
+  "question": "Arama çubuğu ne kadar görünür olmalı?",
+  "hypothesis": "Arama çubuğunun konumu ve görünürlüğü, kullanıcının ürün keşif davranışını değiştirebilir. Bunun dönüşüme yansıyıp yansımadığı ölçülmelidir.",
+  "category": "Search & Filtering",
+  "surface": "search",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "arama çubuğu görünürlüğü",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Header'da açık arama alanı",
+   "Menü içinde arama",
+   "Yalnızca ikon olarak arama"
+  ]
+ },
+ {
+  "id": "AB-177",
+  "slug": "varsayilan-arama-onerileri-donusumu-etkiliyor-mu",
+  "question": "Varsayılan arama önerileri dönüşümü etkiliyor mu?",
+  "hypothesis": "Arama alanının önceki aramaları otomatik doldurup doldurmaması, keşif sürecini ve karar hızını değiştirebilir.",
+  "category": "Search & Filtering",
+  "surface": "search",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "arama önerileri",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Varsayılan arama önerisi gösterme (önceki aramalar otomatik dolduruluyor)",
+   "Boş arama kutusu / öneri yok"
+  ]
+ },
+ {
+  "id": "AB-178",
+  "slug": "sifir-sonuc-sayfasi-kullaniciyi-elde-tutuyor-mu",
+  "question": "Sıfır sonuç sayfası kullanıcıyı elde tutuyor mu?",
+  "hypothesis": "Sonuç bulunamayan arama, terk oranı en yüksek ekranlardan biridir. Boş bir ekran yerine yazım önerisi, popüler kategoriler ve benzer ürünler sunmak bu trafiği kurtarabilir.",
+  "category": "Search & Filtering",
+  "surface": "search",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "add",
+  "testedSlot": "sıfır sonuç sayfası",
+  "primaryKpi": "Sıfır Sonuç Kurtarma Oranı",
+  "armLabels": [
+   "Boş sıfır sonuç ekranı",
+   "Yazım önerisi, popüler kategori ve benzer ürün önerilen sıfır sonuç ekranı"
+  ]
+ },
+ {
+  "id": "AB-179",
+  "slug": "arama-sonuclarinda-varsayilan-siralama-ne-olmali",
+  "question": "Arama sonuçlarında varsayılan sıralama ne olmalı?",
+  "hypothesis": "Varsayılan sıralama, kullanıcıların büyük çoğunluğunun gördüğü tek sıralamadır. İlgi düzeyi, çok satan ve fiyat sıralamaları farklı kullanıcı gruplarına hizmet eder ve marj üzerinde farklı etki yaratır.",
+  "category": "Search & Filtering",
+  "surface": "search",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "varsayılan sıralama",
+  "primaryKpi": "Arama Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "İlgi düzeyine göre sıralama",
+   "Çok satana göre sıralama",
+   "Fiyata göre sıralama"
+  ]
+ },
+ {
+  "id": "AB-180",
+  "slug": "sticky-menu-deneyimi-iyilestiriyor-mu",
+  "question": "Sticky menü deneyimi iyileştiriyor mu?",
+  "hypothesis": "Menünün sabit kalması sayfa içi gezinme hızını artırabilir, ancak ekran alanı kaplayarak rahatsız da edebilir.",
+  "category": "Search & Filtering",
+  "surface": "generic-ui",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "sabit menü",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Normal (sabitlenmemiş) menü",
+   "Sticky (sabit) menü"
+  ]
+ }
+]

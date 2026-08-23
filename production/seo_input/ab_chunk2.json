@@ -1,0 +1,611 @@
+[
+ {
+  "id": "AB-037",
+  "slug": "urun-kartinda-varyant-secimi-sunmak-donusumu-artirir-mi",
+  "question": "Ürün kartında varyant seçimi sunmak dönüşümü artırır mı?",
+  "hypothesis": "Kartın üzerinde renk veya beden seçeneği göstermek kullanıcının ürün sayfasına girmeden uygunluğu anlamasını sağlar. Riski: kart kalabalıklaşır, yanlış varyantla ürün sayfasına giriş olur ve seçenek gösterimi ürün görselinin alanını daraltır.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kartta varyant seçici",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Ürün kartında varyant seçici yok",
+   "Ürün kartında varyant (renk/beden) seçici gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-038",
+  "slug": "urun-kartinda-hangi-bilgi-one-cikmali",
+  "question": "Ürün kartında hangi bilgi öne çıkmalı?",
+  "hypothesis": "Kartta yer sınırlıdır; öne çıkarılan bilgi (fiyat, teslimat, puan, kampanya, stok) kararın hangi eksende verileceğini belirler. Fazla bilgi kartı okunmaz yapar, az bilgi ise kullanıcıyı gereksiz yere ürün sayfasına gönderir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "unresolved",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "ürün kartı bilgi hiyerarşisi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-039",
+  "slug": "kategori-kartlarinda-gorsel-kullanmak-yonlendirmeyi-artirir-mi",
+  "question": "Kategori kartlarında görsel kullanmak yönlendirmeyi artırır mı?",
+  "hypothesis": "Kategori adının yanına görsel eklemek taramayı hızlandırır ve ne satıldığını hızla anlatır. Riski: yanlış seçilmiş görsel kategoriyi daraltarak anlatır (tek bir ürün türü gösteren görsel, kategorinin tamamını temsil etmez) ve görseller sayfa yükünü artırır.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "media",
+  "differenceBehavior": "add",
+  "testedSlot": "kategori kartı görseli",
+  "primaryKpi": "Kategori Tıklama Oranı",
+  "armLabels": [
+   "Kategori kartında görsel yok, yalnızca kategori adı",
+   "Kategori kartında görsel gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-040",
+  "slug": "listede-en-erken-teslimat-bilgisini-gostermek-ise-yarar-mi",
+  "question": "Listede en erken teslimat bilgisini göstermek işe yarar mı?",
+  "hypothesis": "Ürün kartında en erken teslim tarihini göstermek acelesi olan kullanıcı için belirleyici olabilir ve ürün sayfasına girmeden eleme yapmasını sağlar. Riski: geç teslimat gösterilen ürünler baştan elenir, tarih hesabı yanlışsa güven kaybı ve iptal doğurur, ayrıca kart kalabalıklaşır.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kartta teslimat bilgisi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Ürün kartında teslimat bilgisi yok",
+   "Ürün kartında en erken teslimat bilgisi (tarih veya gün sayısı) gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-041",
+  "slug": "harita-gorunumu-listenin-yaninda-mi-ayri-bir-sekmede-mi-durmali",
+  "question": "Harita görünümü listenin yanında mı, ayrı bir sekmede mi durmalı?",
+  "hypothesis": "Konumun karar için belirleyici olduğu listelerde (emlak, mekân, mağaza, ilan) harita ile listeyi aynı ekranda göstermek ikisi arasında gidip gelmeyi kaldırır. Bedeli: liste alanı daralır, sayfa ağırlaşır ve mobilde iki öğe birden sığmaz. Ayrı sekme ise her ikisine tam alan verir ama geçiş maliyeti yaratır.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "harita görünümü yerleşimi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Harita görünümü listenin yanında sabit gösteriliyor",
+   "Harita görünümü ayrı bir sekmede gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-042",
+  "slug": "pesin-fiyatina-taksit-rozeti-donusumu-artiriyor-mu",
+  "question": "“Peşin fiyatına taksit” rozeti dönüşümü artırıyor mu?",
+  "hypothesis": "Ürün kartında taksit avantajını küçük bir rozetle göstermek, fiyat algısını ve satın alma eğilimini değiştirebilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kartta taksit rozeti",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Ürün kartında taksit rozeti yok",
+   "Ürün kartında peşin fiyatına taksit rozeti gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-043",
+  "slug": "kampanya-rozeti-satin-almayi-etkiler-mi",
+  "question": "Kampanya rozeti satın almayı etkiler mi?",
+  "hypothesis": "Kampanya dönemlerinde ürün üzerindeki küçük bir rozet, indirimin fark edilmesini ve satın alma motivasyonunu artırabilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kampanya rozeti",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Ürün kartında kampanya rozeti yok",
+   "Ürün kartında kampanya rozeti gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-044",
+  "slug": "ilk-alisveris-indirimi-satin-almayi-etkiliyor-mu",
+  "question": "İlk alışveriş indirimi satın almayı etkiliyor mu?",
+  "hypothesis": "Ürün kartında “İlk alışverişe özel indirim” bilgisinin görünür olması, özellikle yeni kullanıcıların satın alma motivasyonunu artırabilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ilk alışveriş indirimi mesajı",
+  "primaryKpi": "Yeni Kullanıcı Başına Net Gelir",
+  "armLabels": [
+   "Ürün kartında ilk alışveriş indirimi bilgisi yok",
+   "Ürün kartında ilk alışverişe özel indirim bilgisi gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-045",
+  "slug": "stokta-olmayan-urunleri-listede-gri-gosterip-birakmak-mi-tamamen-gizlemek-mi-dah",
+  "question": "Stokta olmayan ürünleri listede gri gösterip bırakmak mı, tamamen gizlemek mi daha iyi çalışıyor?",
+  "hypothesis": "Bir kategori listesinde stokta olmayan ürünleri tamamen gizlemek sayfayı yalnızca satın alınabilir ürünlerle sınırlar ama toplam ürün çeşitliliği algısını daraltabilir. Gri gösterip listede bırakmak çeşitlilik hissini korur ama tıklanamayan öğelerle dolu bir liste de hayal kırıklığı yaratabilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "remove",
+  "testedSlot": "stok dışı ürün görünürlüğü",
+  "primaryKpi": "Kategori Sayfasından Satın Alma Oranı",
+  "armLabels": [
+   "Stokta olmayan ürünler listede gri/soluk gösterilip bırakılıyor",
+   "Stokta olmayan ürünler listeden tamamen gizleniyor"
+  ]
+ },
+ {
+  "id": "AB-046",
+  "slug": "bos-durumda-henuz-veri-yokken-yonlendirici-bir-aksiyon-karti-gostermek-etkilesim",
+  "question": "Boş durumda (henüz veri yokken) yönlendirici bir aksiyon kartı göstermek etkileşimi artırır mı?",
+  "hypothesis": "Yeni kaydolan bir kullanıcı dashboard’u ilk açtığında ekran genelde boştur — grafik, liste veya widget’ları dolduracak veri henüz yoktur. Boş bir tablo veya “veri yok” mesajı kullanıcıyı ne yapması gerektiği konusunda yalnız bırakır; somut bir sonraki-aksiyon kartı bu boşluğu bir davete çevirebilir.",
+  "category": "Dashboard",
+  "surface": "dashboard",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "boş durum aksiyon kartı",
+  "primaryKpi": "İlk Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Boş durumda yalnızca boş tablo veya veri yok mesajı var",
+   "Boş durumda yönlendirici bir aksiyon kartı gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-047",
+  "slug": "dashboard-da-en-son-kullanilan-widget-i-one-almak-etkilesimi-artirir-mi",
+  "question": "Dashboard’da en son kullanılan widget’ı öne almak etkileşimi artırır mı?",
+  "hypothesis": "Sabit bir widget sırası her kullanıcıya aynı düzeni sunar ve öngörülebilirdir, ama çoğu kullanıcının asıl ilgilendiği widget sayfanın altında kalabilir. Kullanım geçmişine göre sıralamak ilgiyi öne çıkarır, ama düzenin sürekli değişmesi kullanıcının “her şeyin yerini bildiği” hissini bozabilir.",
+  "category": "Dashboard",
+  "surface": "dashboard",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "widget sırası",
+  "primaryKpi": "Widget Etkileşim Oranı",
+  "armLabels": [
+   "Widget'lar sabit bir sırada gösteriliyor",
+   "Widget'lar en son kullanılana göre öne alınarak sıralanıyor"
+  ]
+ },
+ {
+  "id": "AB-048",
+  "slug": "kullanilmayan-bir-ozelligi-dashboard-da-tek-seferlik-bir-ipucu-kartiyla-tanitmak",
+  "question": "Kullanılmayan bir özelliği dashboard’da tek seferlik bir ipucu kartıyla tanıtmak kullanımını artırır mı?",
+  "hypothesis": "Bir ürünün değerli ama az bilinen bir özelliği, arayüzde durduğu hâlde kullanıcı tarafından hiç keşfedilmeyebilir. Tek seferlik, kapatılabilir bir ipucu kartı bu özelliği görünür kılabilir, ama sık tekrarlanan veya çok sayıda ipucu “bildirim yorgunluğu” yaratıp asıl işe odaklanmayı bozar.",
+  "category": "Dashboard",
+  "surface": "dashboard",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "özellik tanıtım kartı",
+  "primaryKpi": "Özellik Deneme Oranı",
+  "armLabels": [
+   "Az bilinen özellik için dashboard'da tanıtım yok",
+   "Özellik tek seferlik, kapatılabilir bir ipucu kartıyla tanıtılıyor"
+  ]
+ },
+ {
+  "id": "AB-049",
+  "slug": "etiketler-alanin-ustunde-mi-solunda-mi-durmali",
+  "question": "Etiketler alanın üstünde mi, solunda mı durmalı?",
+  "hypothesis": "Sola hizalı etiket dikeyde yer kazandırır ama gözün her alanda yatay sıçrama yapmasını gerektirir. Üst hizalı etiket tek bir dikey tarama hattı oluşturur, buna karşılık form daha uzun görünür. Uzun etiketli veya çok dilli formlarda sola hizalama alan genişliğini de daraltır.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "alan etiketi konumu",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Etiket alanın üstünde duruyor",
+   "Etiket alanın solunda duruyor"
+  ]
+ },
+ {
+  "id": "AB-050",
+  "slug": "yuzen-etiket-doldurmayi-kolaylastiriyor-mu",
+  "question": "Yüzen etiket doldurmayı kolaylaştırıyor mu?",
+  "hypothesis": "Yüzen etiket (alanın içinde başlayıp yazmaya başlayınca üste kayan etiket) yer kazandırır ve form kısa görünür. Ancak boş haldeyken etiketi placeholder’dan ayırt etmek zorlaşır, kullanıcı alana tıklamadan ne isteneceğini kestiremeyebilir. Otomatik doldurma ile de çakışabilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "yüzen etiket",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Etiket alanın üstünde/yanında sabit ve her zaman görünür duruyor",
+   "Etiket alanın içinde başlayıp yazmaya başlayınca üste kayan yüzen etiket"
+  ]
+ },
+ {
+  "id": "AB-051",
+  "slug": "form-alanlarini-tek-sutuna-almak-tamamlamayi-artirir-mi",
+  "question": "Form alanlarını tek sütuna almak tamamlamayı artırır mı?",
+  "hypothesis": "İki sütunlu form ekranda kısa görünür ama gözün zikzak çizmesini gerektirir ve bir sütunu tamamen atlama riski yaratır. Tek sütun daha uzun görünür, buna karşılık sıra belirsizliği ortadan kalkar. Birlikte anlam taşıyan alanlarda (il/ilçe, ad/soyad) yan yana dizilim savunulabilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "form kolon yapısı",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Form alanları iki sütun halinde diziliyor",
+   "Form alanları tek sütuna alınıyor"
+  ]
+ },
+ {
+  "id": "AB-052",
+  "slug": "en-kolay-alani-basa-koymak-formu-tamamlatir-mi",
+  "question": "En kolay alanı başa koymak formu tamamlatır mı?",
+  "hypothesis": "Formu doldurmaya başlayan kullanıcının bitirme olasılığı artar. Bu nedenle ilk alanın düşünmeyi değil refleksi tetiklemesi (ad, e-posta) tamamlamayı artırabilir. Karşı argüman: kolay alanları öne almak zor alanları sona yığar ve terk noktasını öteler, toplam tamamlama değişmez.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "form alan sırası",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Form alanları zorluk sırasına göre değil mevcut/nötr sırada diziliyor",
+   "Tüm form alanları kolaydan zora doğru yeniden sıralanıyor"
+  ]
+ },
+ {
+  "id": "AB-053",
+  "slug": "alanlari-bastan-gostermek-mi-kademeli-acmak-mi-daha-cok-tamamlatiyor",
+  "question": "Alanları baştan göstermek mi, kademeli açmak mı daha çok tamamlatıyor?",
+  "hypothesis": "Tüm alanları baştan göstermek beklentiyi netleştirir ama form uzun görünür. Kademeli açma (bir alan doldurulunca sonrakinin belirmesi, ya da isteğe bağlı bir bölümün bir bağlantıyla açılması) algılanan uzunluğu düşürür. Riski: kullanıcı formun ne kadar süreceğini bilemez ve gizlenen alan sürpriz gibi gelir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "form alan açılım yapısı",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Tüm form alanları baştan gösteriliyor",
+   "Alanlar kademeli olarak açılıyor"
+  ]
+ },
+ {
+  "id": "AB-054",
+  "slug": "sayfa-acilir-acilmaz-imleci-ilk-alana-koymak-ise-yarar-mi",
+  "question": "Sayfa açılır açılmaz imleci ilk alana koymak işe yarar mı?",
+  "hypothesis": "Sayfa açılır açılmaz ilk alana odaklanmak bir adımı ortadan kaldırır ve masaüstünde yazmaya doğrudan başlatır. Mobilde ise klavyeyi zorla açar, sayfayı yukarı iter ve kullanıcının önce içeriği okumasını engelleyebilir. Formun sayfa içindeki konumu da sonucu değiştirir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "otomatik imleç",
+  "primaryKpi": "Form Başlama Oranı",
+  "armLabels": [
+   "Sayfa açıldığında imleç ilk alana otomatik konmuyor",
+   "Sayfa açılır açılmaz imleç otomatik olarak ilk alana konuyor"
+  ]
+ },
+ {
+  "id": "AB-055",
+  "slug": "alan-yuksekligini-buyutmek-doldurmayi-etkiler-mi",
+  "question": "Alan yüksekliğini büyütmek doldurmayı etkiler mi?",
+  "hypothesis": "Daha büyük giriş alanı dokunma hedefini büyütür, mobilde yanlış dokunmayı azaltır ve alanın tıklanabilir olduğunu görsel olarak netleştirir. Karşı tarafta: büyüyen alanlar formu uzatır, ekranda aynı anda daha az alan görünür ve form daha ağır hissettirebilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "alan yüksekliği",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Giriş alanı mevcut/standart yükseklikte",
+   "Giriş alanı yüksekliği büyütülmüş"
+  ]
+ },
+ {
+  "id": "AB-056",
+  "slug": "otomatik-tamamlama-form-doldurmayi-hizlandirir-mi",
+  "question": "Otomatik tamamlama form doldurmayı hızlandırır mı?",
+  "hypothesis": "Adres, şehir, şirket gibi alanlarda öneri listesi yazma yükünü azaltır ve yazım hatasını düşürür. Riski: öneri listesi yanlış eşleşme sunarsa kullanıcı hatalı veriyi onaylar, ya da liste klavyenin üstünü kapatıp kullanıcıyı kilitler. Veri kalitesi kazancı ile tamamlama kazancı aynı yönde olmayabilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "otomatik tamamlama",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Alan yazarken otomatik tamamlama önerisi çıkmıyor",
+   "Adres/şehir gibi alanlarda otomatik tamamlama öneri listesi çıkıyor"
+  ]
+ },
+ {
+  "id": "AB-057",
+  "slug": "alan-altina-aciklama-eklemek-hata-oranini-dusurur-mu",
+  "question": "Alan altına açıklama eklemek hata oranını düşürür mü?",
+  "hypothesis": "Kısa bir yardım metni (“Fatura adresinizle aynı olmalı”, “Örnek: 5xx xxx xx xx”) hatalı girişi azaltabilir ve tereddüdü giderebilir. Karşı tarafta: her alana açıklama eklemek formu görsel olarak ağırlaştırır, önemli uyarının fark edilmesini zorlaştırır ve gerçek sorunun yanlış alan tasarımı olduğunu gizler.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "alan altı açıklama",
+  "primaryKpi": "Doğrulama Hatası Oranı",
+  "armLabels": [
+   "Alan altında açıklama/yardım metni yok",
+   "Alan altına kısa bir açıklama/yardım metni eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-058",
+  "slug": "sosyal-hesapla-giris-secenegi-kaydi-artirir-mi",
+  "question": "Sosyal hesapla giriş seçeneği kaydı artırır mı?",
+  "hypothesis": "Sosyal giriş şifre oluşturma yükünü kaldırır ve kaydı hızlandırır. Buna karşılık kullanıcı hangi verinin paylaşılacağından çekinebilir, kurumsal kullanıcı kişisel hesabıyla giriş yapmak istemeyebilir ve sonradan “hangi yöntemle giriş yapmıştım” karışıklığı destek yüküne dönüşebilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "sosyal giriş seçeneği",
+  "primaryKpi": "Kayıt Tamamlama Oranı",
+  "armLabels": [
+   "Kayıt yalnızca e-posta ile yapılıyor, sosyal giriş seçeneği yok",
+   "Sosyal hesapla giriş seçeneği eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-059",
+  "slug": "sifre-yerine-tek-kullanimlik-kod-gondermek-girisi-artirir-mi",
+  "question": "Şifre yerine tek kullanımlık kod göndermek girişi artırır mı?",
+  "hypothesis": "Şifresiz giriş (e-postaya veya telefona gönderilen tek kullanımlık kod) unutulan şifre kaynaklı kayıpları ortadan kaldırır. Bedeli: kullanıcı e-posta veya SMS’e geçmek zorunda kalır, kod gecikirse akış kopar ve kanal teslim oranı doğrudan dönüşüme yansır.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "giriş yöntemi",
+  "primaryKpi": "Giriş Tamamlama Oranı",
+  "armLabels": [
+   "Kullanıcı şifre ile giriş yapıyor",
+   "Kullanıcı e-posta/telefona gönderilen tek kullanımlık kod ile giriş yapıyor"
+  ]
+ },
+ {
+  "id": "AB-060",
+  "slug": "kaydi-aksiyondan-sonraya-ertelemek-tamamlamayi-artirir-mi",
+  "question": "Kaydı aksiyondan sonraya ertelemek tamamlamayı artırır mı?",
+  "hypothesis": "Kayıt ekranını aksiyonun önüne koymak niyeti test eder ama hazır olmayan kullanıcıyı kaybeder. Kaydı sonraya bırakmak (önce işlemi yaptırmak, sonra kaydetmeyi teklif etmek) tamamlamayı artırabilir, buna karşılık kayıtsız tamamlanan işlemlerin geri dönüşü ve iletişimi zorlaşır.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "kayıt adımının akıştaki yeri",
+  "primaryKpi": "Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Kayıt ekranı aksiyondan önce isteniyor",
+   "Kayıt aksiyon tamamlandıktan sonraya erteleniyor"
+  ]
+ },
+ {
+  "id": "AB-061",
+  "slug": "formu-modal-icinde-mi-sayfa-akisinda-mi-gostermeli",
+  "question": "Formu modal içinde mi, sayfa akışında mı göstermeli?",
+  "hypothesis": "Modal form dikkati toplar ve kullanıcıyı sayfadan koparmaz. Ancak küçük ekranda dar kalır, arkadaki bağlamı gizler, tarayıcı geri tuşuyla ilişkisi kırılgandır ve yanlışlıkla kapatma kaybı yaratır. Sayfa içi form ise bağlamı korur ama kullanıcı formu fark etmeyebilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "form sunum kabı",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Form sayfa akışının içinde, kendi bölümünde duruyor",
+   "Form modal katmanda açılıyor"
+  ]
+ },
+ {
+  "id": "AB-062",
+  "slug": "cok-adimli-formda-geri-donus-imkani-tamamlamayi-etkiler-mi",
+  "question": "Çok adımlı formda geri dönüş imkânı tamamlamayı etkiler mi?",
+  "hypothesis": "Görünür bir geri düğmesi hata düzeltmeyi kolaylaştırır ve kullanıcıya kontrol hissi verir. Karşı argüman: geri dönüş imkânı ilerlemeyi yavaşlatır, kullanıcı adımlar arasında gidip gelir ve girilen veri kaybolursa güven zedelenir. Asıl belirleyici, geri dönüldüğünde verinin korunup korunmadığıdır.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "çok adımlı formda geri dönüş",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Adım ekranında yalnızca ileri aksiyonu var, geri düğmesi yok",
+   "Aynı ekrana görünür bir geri düğmesi eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-063",
+  "slug": "formu-cumle-haline-getirmek-doldurmayi-artirir-mi",
+  "question": "Formu cümle hâline getirmek doldurmayı artırır mı?",
+  "hypothesis": "Alanları bir cümlenin içine yerleştirmek (“Ben [ad], [şehir]’de [hizmet] arıyorum”) formu ankete değil sohbete benzetir ve kısa formlarda samimi durur. Riski: uzun formlarda cümle yapısı dağılır, alanların sırası dilbilgisine esir olur, hata mesajlarını yerleştirmek zorlaşır ve ekran okuyucu deneyimi bozulabilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "form ifade biçimi",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Etiket ve alanların alt alta listelendiği klasik form düzeni",
+   "Alanların bir cümlenin içine gömüldüğü form (\"Ben [ad], [şehir]'de [hizmet] arıyorum\")"
+  ]
+ },
+ {
+  "id": "AB-064",
+  "slug": "formu-sayfanin-ortasina-almak-mi-sola-hizalamak-mi",
+  "question": "Formu sayfanın ortasına almak mı, sola hizalamak mı?",
+  "hypothesis": "Ortalanmış form dikkati toplar ve tek amaçlı sayfalarda doğal durur. Sola hizalı form ise okuma yönüyle uyumludur ve yanına açıklama, güvence veya özet yerleştirmeye izin verir. Ortalama, formun yanındaki destekleyici içeriği de ortadan kaldırır.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "form hizalaması",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Form sola hizalı, yanında destekleyici içerik (açıklama/güvence/özet) var",
+   "Form sayfanın ortasında, tek başına"
+  ]
+ },
+ {
+  "id": "AB-065",
+  "slug": "modal-formda-arka-plani-soldurmak-dikkati-topluyor-mu",
+  "question": "Modal formda arka planı soldurmak dikkati topluyor mu?",
+  "hypothesis": "Arka planı karartmak veya bulanıklaştırmak modalı öne çıkarır ve form dışındaki her şeyi görsel olarak susturur. Karşı tarafta: karartma kullanıcının bağlamını kaybetmesine yol açar, hangi sayfadan geldiğini hatırlamasını zorlaştırır ve yoğun karartma kapana kısılma hissi verebilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "modal arka plan soldurma",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Modal açıkken arka plan düz, karartma veya bulanıklaştırma yok",
+   "Modal açıkken arka plan karartılmış veya bulanıklaştırılmış"
+  ]
+ },
+ {
+  "id": "AB-066",
+  "slug": "hazir-sablon-metin-sunmak-serbest-metin-alanini-doldurtuyor-mu",
+  "question": "Hazır şablon metin sunmak serbest metin alanını doldurtuyor mu?",
+  "hypothesis": "Boş bir metin kutusu, ne yazacağını bilmeyen kullanıcıyı durdurur. Hazır bir örnek metin sunmak (düzenlenebilir bir taslak) bu engeli kaldırır ve alanın doldurulma oranını artırabilir. Riski: gönderilen metinlerin çoğu birbirinin aynısı olur, kişisel olmaktan çıkar ve alıcı tarafında değeri düşer.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "hazır şablon metin",
+  "primaryKpi": "Alan Doldurma Oranı",
+  "armLabels": [
+   "Serbest metin alanı boş, hazır şablon yok",
+   "Alanda düzenlenebilir hazır şablon metin geliyor"
+  ]
+ },
+ {
+  "id": "AB-067",
+  "slug": "tutar-seciminde-hazir-butonlar-mi-serbest-giris-mi-sunmali",
+  "question": "Tutar seçiminde hazır butonlar mı, serbest giriş mi sunmalı?",
+  "hypothesis": "Hazır tutar butonları karar yükünü kaldırır, bir aralık önerir ve yazma zahmetini sıfırlar. Serbest giriş kutusu ise kullanıcıyı kendi tutarını belirlemekte özgür bırakır ama boş kutu ne yazılacağı konusunda bir işaret vermez. Sunulan butonların hangi tutarları içerdiği, seçilen ortalama tutarı doğrudan belirler.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "tutar giriş biçimi",
+  "primaryKpi": "Kullanıcı Başına Toplam Tutar",
+  "armLabels": [
+   "Tutar alanı serbest giriş kutusu",
+   "Tutar alanı hazır tutar butonlarından oluşan bir seçim dizisi"
+  ]
+ },
+ {
+  "id": "AB-068",
+  "slug": "formun-basina-uygunluk-aciklamasi-koymak-talebin-niteligini-artirir-mi",
+  "question": "Formun başına uygunluk açıklaması koymak talebin niteliğini artırır mı?",
+  "hypothesis": "Formun üstüne kimin için uygun olduğunu yazmak (asgari bütçe, hizmet bölgesi, gerekli koşul) uymayan kullanıcıyı baştan eler ve satış ekibinin yükünü azaltır. Bedeli: toplam talep sayısı düşer, sınırda kalan bazı uygun kullanıcılar da kendini dışarıda görüp vazgeçer.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "form başı uygunluk açıklaması",
+  "primaryKpi": "Nitelikli Talep Sayısı",
+  "armLabels": [
+   "Form başında uygunluk açıklaması yok",
+   "Form başında kimin için uygun olduğunu anlatan bir açıklama var (asgari bütçe, hizmet bölgesi, koşul)"
+  ]
+ },
+ {
+  "id": "AB-069",
+  "slug": "asil-formdan-once-kucuk-bir-isindirma-sorusu-sormak-tamamlama-oranini-artirir-mi",
+  "question": "Asıl formdan önce küçük bir ısındırma sorusu sormak tamamlama oranını artırır mı?",
+  "hypothesis": "Kullanıcıyı doğrudan çok alanlı bir formla karşılaştırmak yerine, önce tek ve kolay bir soruyla (“Hangisi size en yakın?”) başlamak küçük bir taahhüt yaratır — bu taahhüdün ardından gelen asıl formu tamamlama isteği güçlenebilir. Bu, alanları kademeli açmaktan farklıdır: orada aynı formun alanları sırayla açılır, burada asıl formdan önce ayrı, ilgisiz görünmeyen bir soru sorulur.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ısındırma sorusu",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Kullanıcı doğrudan asıl çok alanlı formla karşılaşıyor",
+   "Asıl formdan önce tek ve kolay bir ısındırma sorusu soruluyor"
+  ]
+ },
+ {
+  "id": "AB-070",
+  "slug": "form-alaninin-yanina-veri-gizliligi-guvencesi-eklemek-kayit-oranini-artirir-mi",
+  "question": "Form alanının yanına veri gizliliği güvencesi eklemek kayıt oranını artırır mı?",
+  "hypothesis": "E-posta veya telefon isteyen bir form, kullanıcıda “bu bilgi spam’e mi dönüşecek” tereddüdü yaratabilir. Alanın hemen yanına kısa bir güvence metni (“E-postanızı kimseyle paylaşmayız”) koymak bu tereddüdü giderebilir, ama gereksiz yere hatırlatma da tam tersi bir etki yaratıp “neden bunu söylemeleri gerekti” şüphesi doğurabilir.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "veri gizliliği güvencesi",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Form alanının yanında veri gizliliği güvence metni yok",
+   "Alanın hemen yanına kısa bir güvence metni eklenmiş (\"E-postanızı kimseyle paylaşmayız\")"
+  ]
+ },
+ {
+  "id": "AB-071",
+  "slug": "tek-secimlik-bir-alanda-radio-button-mu-acilir-liste-dropdown-mu-daha-cok-tamaml",
+  "question": "Tek seçimlik bir alanda radio button mu, açılır liste (dropdown) mu daha çok tamamlatıyor?",
+  "hypothesis": "Radio button tüm seçenekleri aynı anda görünür kılar, kullanıcı tıklamadan karşılaştırma yapabilir ama seçenek sayısı arttıkça dikey yer kaplar. Dropdown yer kazandırır ve çok seçenekli durumlarda formu kısa gösterir, buna karşılık seçenekleri görmek için bir ek tıklama gerektirir ve mobilde platformun kendi bileşenine bağlı bir davranışa geçer — kullanıcı neyle karşılaşacağını göremeden tıklar.",
+  "category": "Forms & Signup",
+  "surface": "form",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "tek seçim kontrol tipi",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Alan radio button olarak sunuluyor, tüm seçenekler aynı anda görünür",
+   "Alan açılır liste (dropdown) olarak sunuluyor, seçenekler tıklayınca görünür"
+  ]
+ },
+ {
+  "id": "AB-072",
+  "slug": "ana-cta-ilk-ekranda-mi-gorunmeli",
+  "question": "Ana CTA ilk ekranda mı görünmeli?",
+  "hypothesis": "CTA’yı kaydırmadan görünen alana almak aksiyonu erken sunar ve kararı vermiş ziyaretçiyi hemen ilerletir. Karşı argüman: henüz ikna olmamış ziyaretçiye erken sunulan CTA boşa gider, üstelik başlığın ve değer önerisinin yerini daraltır. Uzun ve karmaşık teklifi olan sayfalarda erken CTA tıklansa bile sonraki adımda dökülme yaratabilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "ana CTA konumu",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Ana CTA açıklama bölümünden sonra, kaydırma gerektiren bir konumda",
+   "Ana CTA kaydırmadan görünen ilk ekrana taşınmış"
+  ]
+ }
+]

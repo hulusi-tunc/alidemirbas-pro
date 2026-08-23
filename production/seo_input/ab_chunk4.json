@@ -1,0 +1,611 @@
+[
+ {
+  "id": "AB-109",
+  "slug": "uygulama-indirme-banner-i-web-donusumunu-dusuruyor-mu",
+  "question": "Uygulama indirme banner’ı web dönüşümünü düşürüyor mu?",
+  "hypothesis": "Mobil webde uygulama banner’ı kurulum sayısını artırır ama devam eden oturumu böler. Bu test iki hedefin çakıştığı klasik bir örnektir; tek metrikle okunursa yanlış karar verilir.",
+  "category": "Mobile App",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "uygulama indirme banner'ı",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Uygulama indirme banner'ı gösterilmiyor",
+   "Uygulama indirme banner'ı gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-110",
+  "slug": "ilk-kullanimda-arayuz-ipuclari-gostermek-ise-yarar-mi",
+  "question": "İlk kullanımda arayüz ipuçları göstermek işe yarar mı?",
+  "hypothesis": "Uygulamanın üstüne yerleşen kısa baloncuklar, bulunması zor işlevleri ilk kullanımda tanıtır. Riski: kullanıcı henüz ne aradığını bilmeden gösterilen ipucu ezberlenmez, akışı keser ve atlanır; ayrıca ipuçları ilk deneyimi bir eğitim seansına çevirip kullanıcıyı ürünle temas etmeden yorabilir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "arayüz ipuçları",
+  "primaryKpi": "Tanıtılan Özellik Kullanım Oranı",
+  "armLabels": [
+   "İlk kullanımda arayüz ipuçları gösterilmiyor",
+   "İlk kullanımda arayüz ipuçları (baloncuklar) gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-111",
+  "slug": "izin-istemeden-once-nedenini-anlatan-bir-ekran-gostermek-ise-yarar-mi",
+  "question": "İzin istemeden önce nedenini anlatan bir ekran göstermek işe yarar mı?",
+  "hypothesis": "Sistem izin penceresi tek seferliktir ve reddedildiğinde geri dönmek zordur. Öncesinde neden gerektiğini anlatan bir ekran göstermek, izni yalnızca ikna olan kullanıcıya sordurur ve sistem penceresini boşa harcamamayı sağlar. Karşı tarafta: fazladan bir adım eklenir ve bazı kullanıcı bu ekranda da düşer.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "izin gerekçe ekranı",
+  "primaryKpi": "Net İzin Kabul Oranı",
+  "armLabels": [
+   "İzin doğrudan sistem penceresiyle isteniyor, önceden açıklama ekranı yok",
+   "İzin istenmeden önce nedenini anlatan bir hazırlık ekranı gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-112",
+  "slug": "sonraki-adimi-kullanicinin-durumuna-gore-onermek-ise-yarar-mi",
+  "question": "Sonraki adımı kullanıcının durumuna göre önermek işe yarar mı?",
+  "hypothesis": "Herkese aynı “sonraki adım” yerine kullanıcının nerede kaldığına göre öneri sunmak (profilini tamamla, ilk siparişini ver, uygulamayı indir) ilerlemeyi hızlandırabilir. Riski: durum tespiti yanlışsa alakasız bir öneri gösterilir, öneri mantığı bakım yükü yaratır ve kullanıcı kendi önceliğini seçme imkânını kaybeder.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "sonraki adım önerisi",
+  "primaryKpi": "Önerilen Adımın Tamamlanma Oranı",
+  "armLabels": [
+   "Tüm kullanıcılara aynı sabit 'sonraki adım' önerisi gösteriliyor",
+   "Kullanıcının durumuna göre değişen kişiselleştirilmiş öneri gösteriliyor (ör. profilini tamamla / ilk siparişini ver / uygulamayı indir)"
+  ]
+ },
+ {
+  "id": "AB-113",
+  "slug": "profil-tamamlama-yuzdesi-gostermek-eksik-alanlari-doldurtuyor-mu",
+  "question": "Profil tamamlama yüzdesi göstermek eksik alanları doldurtuyor mu?",
+  "hypothesis": "Görünürde biten ama tam dolu olmayan bir gösterge (“Profiliniz %70 tamamlandı”) bitmemiş bir işi akılda tutar ve kapatma isteği yaratır — bu, ilk kayıt formunun kendisindeki adım-adım ilerleme çubuğundan (bkz. `cart-checkout.md`) farklı bir mekanizmadır: orada amaç akışta nerede olunduğunu göstermek, burada amaç kayıttan sonra kalan, isteğe bağlı alanlara geri döndürmektir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "profil tamamlama göstergesi",
+  "primaryKpi": "Profil Tamamlama Oranı",
+  "armLabels": [
+   "Profil tamamlama göstergesi yok",
+   "Profil tamamlama yüzdesi/göstergesi gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-114",
+  "slug": "kac-fiyat-plani-gosterilmeli",
+  "question": "Kaç fiyat planı gösterilmeli?",
+  "hypothesis": "Az sayıda plan kararı hızlandırır ve karşılaştırma yükünü azaltır. Çok sayıda plan farklı ihtiyaçları karşılar ama seçim felcine yol açabilir ve ziyaretçiyi hiçbirini seçmemeye itebilir. Plan sayısını değiştirmek aynı zamanda hangi planın ortada kaldığını da değiştirir; bu, seçim dağılımını fiyattan bağımsız olarak kaydırır.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "plan sayısı",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Mevcut plan sayısıyla fiyat tablosu",
+   "Bir veya daha fazla plan çıkarılmış, azaltılmış plan sayısı"
+  ]
+ },
+ {
+  "id": "AB-115",
+  "slug": "planlari-karsilastirma-tablosunda-mi-ayri-kartlarda-mi-sunmali",
+  "question": "Planları karşılaştırma tablosunda mı, ayrı kartlarda mı sunmalı?",
+  "hypothesis": "Karşılaştırma tablosu farkları satır satır görünür kılar ve ayrıntılı değerlendirme yapan ziyaretçiye hitap eder. Ayrı kartlar her planı kendi başına bir teklif gibi sunar, hızlı karar verdirir ama farkları gizler. Tablo aynı zamanda ucuz planda eksik olan her şeyi de görünür kılar; bu hem ikna edici hem caydırıcı olabilir.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "plan sunum biçimi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Planlar karşılaştırma tablosunda, satır satır sunuluyor",
+   "Planlar ayrı kartlarda, her biri kendi teklifi gibi sunuluyor"
+  ]
+ },
+ {
+  "id": "AB-116",
+  "slug": "fiyati-one-cikarmak-mi-faydadan-sonra-gostermek-mi-daha-iyi-calisiyor",
+  "question": "Fiyatı öne çıkarmak mı, faydadan sonra göstermek mi daha iyi çalışıyor?",
+  "hypothesis": "Fiyatı erken göstermek beklentiyi netleştirir ve bütçesi uymayan ziyaretçinin vaktini almaz. Faydayı önce anlatmak, fiyat görüldüğünde algılanan değeri yükseltir. Erken fiyat pahalı algılanan üründe kayıp yaratabilir; geç fiyat ise güvensizlik ve “fiyatı gizliyorlar” hissi doğurabilir.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "fiyatın sayfadaki sırası",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Fiyat sayfanın başında, faydadan önce gösteriliyor",
+   "Fayda önce anlatılıyor, fiyat sonra gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-117",
+  "slug": "abonelik-fiyatini-aylik-birime-bolerek-gostermek-ise-yarar-mi",
+  "question": "Abonelik fiyatını aylık birime bölerek göstermek işe yarar mı?",
+  "hypothesis": "Yıllık bir tutarı aylık karşılığıyla göstermek rakamı küçültür ve giriş engelini düşürür. Buna karşılık toplam taahhüdü belirsizleştirir, kullanıcı ödeme anında beklemediği bir tutarla karşılaşabilir ve bu iptal ile itiraza dönüşebilir. Belirleyici olan, toplam tutarın aynı ekranda ne kadar net durduğudur.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "fiyat birimi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Ana fiyat yıllık toplam tutar olarak, tek rakam şeklinde gösteriliyor",
+   "Ana fiyat aylık karşılığa bölünerek gösteriliyor, yıllık toplam küçük yazıyor"
+  ]
+ },
+ {
+  "id": "AB-118",
+  "slug": "birim-fiyat-gostermek-karsilastirmayi-kolaylastirip-geliri-artirir-mi",
+  "question": "Birim fiyat göstermek karşılaştırmayı kolaylaştırıp geliri artırır mı?",
+  "hypothesis": "Birim başına fiyat (kilogram, adet, kullanıcı, ay) farklı boyuttaki paketleri karşılaştırılabilir kılar ve büyük paketin avantajını görünür yapar. Riski: birim fiyat küçük paketi pahalı gösterir ve ziyaretçiyi bütçesini aşan bir pakete iter; ayrıca fiyat alanını kalabalıklaştırıp asıl tutarın okunmasını zorlaştırabilir.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "birim fiyat gösterimi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Paket kartında yalnızca toplam fiyat gösteriliyor, birim fiyat yok",
+   "Toplam fiyatın yanında birim başına fiyat da gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-119",
+  "slug": "odemenin-tek-seferlik-oldugunu-acikca-yazmak-donusumu-artirir-mi",
+  "question": "Ödemenin tek seferlik olduğunu açıkça yazmak dönüşümü artırır mı?",
+  "hypothesis": "Abonelik yorgunluğu yaşayan kullanıcı, her ödemenin tekrarlayacağını varsayabilir. “Tek seferlik ödeme, otomatik yenileme yok” gibi bir ifade bu tereddüdü kaldırabilir. Karşı tarafta: bu ifade abonelik seçeneğini de akla getirip karşılaştırma yükü yaratabilir, ya da tekrar satın alma ihtimalini zayıflatabilir.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "tek seferlik ödeme ifadesi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Fiyatın yanında ödemenin tekrarlanıp tekrarlanmadığına dair bir ifade yok",
+   "Fiyatın yanında 'tek seferlik ödeme, otomatik yenileme yok' ifadesi gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-120",
+  "slug": "fiyati-vergi-dahil-mi-haric-mi-gostermeli",
+  "question": "Fiyatı vergi dahil mi, hariç mi göstermeli?",
+  "hypothesis": "Vergi hariç fiyat rakamı küçük gösterir ve kurumsal alıcının zaten hariç düşündüğü pazarlarda doğaldır. Vergi dahil fiyat ise ödenecek gerçek tutarı verir ve ödeme adımında sürpriz yaşatmaz. Bu tercih büyük ölçüde pazara ve alıcı tipine bağlıdır; birçok pazarda ise tüketiciye dahil fiyat göstermek zorunludur.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "vergi gösterimi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Fiyat vergi dahil, ödenecek nihai tutar olarak gösteriliyor",
+   "Fiyat vergi hariç gösteriliyor, vergi tutarı ayrı satırda"
+  ]
+ },
+ {
+  "id": "AB-121",
+  "slug": "pakete-dahil-olanlarin-parasal-degerini-gostermek-algilanan-degeri-artirir-mi",
+  "question": "Pakete dahil olanların parasal değerini göstermek algılanan değeri artırır mı?",
+  "hypothesis": "Fiyatın yanında “içindekilerin toplam değeri” göstermek alınan şeyin büyüklüğünü somutlaştırır. Riski: karşılaştırma değeri gerçekçi değilse güven kaybı yaratır, ayrıca şişirilmiş referans değer bazı pazarlarda yanıltıcı fiyat gösterimi sayılır. Değer iddiası doğrulanabilir olmalıdır.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "paket değeri gösterimi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Paket değerini göstermeyen fiyat alanı",
+   "Dahil olanların toplam parasal değerini fiyatın yanında gösteren varyant"
+  ]
+ },
+ {
+  "id": "AB-122",
+  "slug": "ucuncu-bir-cekici-alternatif-plan-eklemek-orta-planin-secilme-oranini-artiriyor-",
+  "question": "Üçüncü bir çekici-alternatif plan eklemek orta planın seçilme oranını artırıyor mu?",
+  "hypothesis": "İki plan arasında seçim yapmak zordur çünkü karşılaştırılacak ortak bir ölçüt yoktur. Orta plana yakın fiyatlı ama daha az içerikli üçüncü bir plan eklemek, orta planı “açık ara daha iyi seçenek” gibi gösterebilir — üçüncü planın kendisi neredeyse hiç seçilmez, işlevi karşılaştırma çıpası olmaktır. Bu, yeni bir avantaj eklemez; var olan iki planın algısını üçüncüsüne göre değiştirir.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "add",
+  "testedSlot": "plan seti",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "İki planlık mevcut set",
+   "Orta plana yakın fiyatlı, daha az içerikli çekici-alternatif üçüncü plan eklenmiş set"
+  ]
+ },
+ {
+  "id": "AB-123",
+  "slug": "fiyat-planlarini-ucuzdan-pahaliya-mi-pahalidan-ucuza-mi-siralamali",
+  "question": "Fiyat planlarını ucuzdan pahalıya mı, pahalıdan ucuza mı sıralamalı?",
+  "hypothesis": "Planların soldan sağa hangi sırayla dizildiği, karşılaştırma sırasında hangi planın çapa görevi göreceğini belirler. Pahalı plan önce görünürse sonraki planlar daha uygun hissettirebilir; ucuz plan önce görünürse ziyaretçi bütçe eksenli düşünmeye başlar. Bu, plan sayısından ve tablo/kart biçiminden ayrı bir değişkendir — sıralama, ne gösterildiğini değil hangi sırayla görüldüğünü test eder.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "plan sıralaması",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Planları ucuzdan pahalıya sıralama",
+   "Planları pahalıdan ucuza sıralama"
+  ]
+ },
+ {
+  "id": "AB-124",
+  "slug": "fiyatin-kusuratini-ust-simge-olarak-yazmak-algilanan-tutari-kucultur-mu",
+  "question": "Fiyatın küsuratını üst simge olarak yazmak algılanan tutarı küçültür mü?",
+  "hypothesis": "“₺199,90” yerine “₺199⁹⁰” gibi küsuratı küçük ve üst simge yazmak, gözün ana sayıya (199) odaklanmasını sağlayıp fiyatı daha küçük hissettirebilir. Riski, küçük yazılan kısmın bazı kullanıcılar tarafından hiç fark edilmemesi veya okunaksız bulunmasıdır.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "fiyat küsurat biçimi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Küsuratı ana rakamla aynı boyutta yazan standart gösterim (₺199,90)",
+   "Küsuratı küçük üst simge olarak yazan gösterim (₺199⁹⁰)"
+  ]
+ },
+ {
+  "id": "AB-125",
+  "slug": "fiyattan-once-yuksek-bir-referans-sayi-gostermek-algilanan-degeri-artirir-mi",
+  "question": "Fiyattan önce yüksek bir referans sayı göstermek algılanan değeri artırır mı?",
+  "hypothesis": "Bir fiyat, yanında yüksek bir referans sayı (“piyasa ortalaması ₺X”, “benzer hizmetler ₺Y’ye kadar”) olmadan gösterildiğinde ziyaretçi değeri tek başına yargılar; referans sayı önce görüldüğünde asıl fiyat ona göre daha uygun hissedilebilir. Bu, üstü çizili “eski fiyat” göstermekten farklıdır — burada referans sizin geçmiş fiyatınız değil, dış bir karşılaştırma noktasıdır ve doğruluğu ayrıca doğrulanmalıdır.",
+  "category": "Pricing",
+  "surface": "pricing",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "referans fiyat çıpası",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Fiyatın yanında referans sayı olmadan gösterim",
+   "Fiyattan önce yüksek bir referans sayı gösteren varyant"
+  ]
+ },
+ {
+  "id": "AB-126",
+  "slug": "studyo-cekimi-mi-gercek-kullanici-fotografi-mi-daha-cok-satiyor",
+  "question": "Stüdyo çekimi mi, gerçek kullanıcı fotoğrafı mı daha çok satıyor?",
+  "hypothesis": "Profesyonel stüdyo çekimi ürünü kusursuz gösterir ama mesafeli durabilir. İzinli, gerçekten o kullanıcıdan alınmış bir kullanıcı fotoğrafı ürünün gerçek hayattaki halini gösterip güveni artırabilir — ama markanın algılanan kalitesini de düşürebilir. Gerçek olmayan bir fotoğrafı “kullanıcı fotoğrafı” gibi sunmak bu testin kapsamı dışındadır (CLAUDE.md kural 6).",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "media",
+  "differenceBehavior": "change",
+  "testedSlot": "ana görsel türü",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Profesyonel stüdyo çekimi görseli",
+   "İzinli, gerçekten o kullanıcıdan alınmış kullanıcı fotoğrafı"
+  ]
+ },
+ {
+  "id": "AB-127",
+  "slug": "tek-gorsel-mi-coklu-gorsel-mi-daha-etkili",
+  "question": "Tek görsel mi, çoklu görsel mi daha etkili?",
+  "hypothesis": "Ürün fotoğrafı, e-ticarette dokunma deneyiminin yerini alır. Farklı açılardan çoklu görsel güveni artırabilir, ancak düşük kaliteli görsel en iyi testi bile boşa çıkarır.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "media",
+  "differenceBehavior": "add",
+  "testedSlot": "görsel sayısı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Tek ürün görseli",
+   "3-5 farklı açıdan çoklu görsel"
+  ]
+ },
+ {
+  "id": "AB-128",
+  "slug": "model-beden-bilgisi-satin-almayi-etkiler-mi",
+  "question": "Model beden bilgisi satın almayı etkiler mi?",
+  "hypothesis": "Modelin boyu ve giydiği beden, kullanıcının kendi bedenini seçmesini hızlandırabilir. Bu küçük bilgi beden belirsizliğini azaltarak hem satın almayı hem iade oranını etkileyebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "model beden bilgisi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Model beden bilgisi gösterilmeyen ürün sayfası",
+   "\"Model 1,75 m, S beden giyiyor\" bilgisini gösteren varyant"
+  ]
+ },
+ {
+  "id": "AB-129",
+  "slug": "yorum-ozetinin-konumu-satin-alma-kararini-etkiliyor-mu",
+  "question": "Yorum özetinin konumu satın alma kararını etkiliyor mu?",
+  "hypothesis": "Yıldız ve yorum sayısının fiyatın hemen altında mı, sayfanın alt kısmında mı sunulduğu güven algısını ve karar anını değiştirebilir. Sosyal kanıtı yukarı taşımak inceleme süresini kısaltabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "yorum özeti konumu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Yorum özetini fiyatın hemen altında gösterme",
+   "Yorum özetini sayfanın alt kısmında / açıklama sonunda gösterme"
+  ]
+ },
+ {
+  "id": "AB-130",
+  "slug": "stokta-olmayan-urunu-gizlemek-mi-haber-ver-demek-mi",
+  "question": "Stokta olmayan ürünü gizlemek mi, “haber ver” demek mi?",
+  "hypothesis": "Tükenen ürünü listeden kaldırmak temiz bir deneyim sunar ama arama/SEO trafiğini boşa harcar. “Gelince haber ver” seçeneği o trafiği e-posta listesine çevirebilir ama sayfada ölü bir CTA bırakma riski taşır.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "stok dışı ürün davranışı",
+  "primaryKpi": "Haber Ver Kayıt Oranı",
+  "armLabels": [
+   "Stokta olmayan ürünü listeden/sayfadan gizleme",
+   "Ürünü sayfada tutup \"gelince haber ver\" seçeneği sunma"
+  ]
+ },
+ {
+  "id": "AB-131",
+  "slug": "aylik-taksit-tutarini-ana-fiyat-gibi-gostermek-ise-yarar-mi",
+  "question": "Aylık taksit tutarını ana fiyat gibi göstermek işe yarar mı?",
+  "hypothesis": "Yüksek fiyatlı üründe “aylık 2.000 TL” ifadesi, toplam tutardan daha erişilebilir algılanır. Ancak şeffaflık algısını zedeleyebilir ve iptal/iade oranını yükseltebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "taksit tutarı vurgusu",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Toplam tutarın ana fiyat olarak gösterildiği düzen",
+   "Aylık taksit tutarının ana fiyat gibi öne çıkarıldığı düzen (örn. 'aylık 2.000 TL')"
+  ]
+ },
+ {
+  "id": "AB-132",
+  "slug": "ustu-cizili-eski-fiyat-gostermek-satin-almayi-artirir-mi",
+  "question": "Üstü çizili eski fiyat göstermek satın almayı artırır mı?",
+  "hypothesis": "Referans fiyat (çıpa) indirimin büyüklüğünü algılatır ama sürekli kullanıldığında inandırıcılığını kaybeder ve fiyat güvenini zedeler. Etki kategori ve kampanya sıklığına göre değişir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "üstü çizili eski fiyat",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Üstü çizili eski fiyat gösterilmeyen fiyat alanı",
+   "Üstü çizili eski fiyat (çıpa) gösteren varyant"
+  ]
+ },
+ {
+  "id": "AB-133",
+  "slug": "urunu-kullanim-ortaminda-gostermek-duz-studyo-cekiminden-daha-mi-etkili",
+  "question": "Ürünü kullanım ortamında göstermek düz stüdyo çekiminden daha mı etkili?",
+  "hypothesis": "Düz zeminli stüdyo çekimi ürünün kendisine odaklanır, ayrıntıyı net gösterir ve katalog bütünlüğü sağlar. Kullanım ortamında çekilmiş görsel ise ürünün ölçeğini ve nerede işe yarayacağını anlatır, buna karşılık ayrıntıyı gizleyebilir ve sahne ürünün önüne geçebilir. Bu senaryo profesyonel çekimin iki tarzını karşılaştırır; müşterinin kendi çektiği fotoğrafla karşılaştırma ayrı bir senaryodur.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "media",
+  "differenceBehavior": "change",
+  "testedSlot": "görsel bağlamı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Düz zeminli stüdyo çekimi",
+   "Kullanım ortamında (lifestyle) çekim"
+  ]
+ },
+ {
+  "id": "AB-134",
+  "slug": "beden-geri-bildirimi-iade-oranini-dusurur-mu",
+  "question": "Beden geri bildirimi iade oranını düşürür mü?",
+  "hypothesis": "Kullanıcıların “kalıbı dar/normal/bol geldi” oyları, beden tablosundan daha hızlı okunan bir sinyaldir. Moda kategorisinde iadenin en büyük sebebi beden uyumsuzluğu olduğu için doğrudan kâra dokunur.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "beden geri bildirimi",
+  "primaryKpi": "İade Oranı",
+  "armLabels": [
+   "Beden geri bildirimi (kalıp oyları) gösterilmeyen sayfa",
+   "\"Kalıbı dar/normal/bol geldi\" oylarını gösteren varyant"
+  ]
+ },
+ {
+  "id": "AB-135",
+  "slug": "beden-secimi-bottom-sheet-mi-sayfa-ici-mi-olmali",
+  "question": "Beden seçimi bottom sheet mi, sayfa içi mi olmalı?",
+  "hypothesis": "Bottom sheet kullanıcıyı sayfadan koparmadan seçim yaptırır ve tek elle erişilebilir. Sayfa içi seçim ise daha az adım gerektirir ama uzun sayfada kaybolabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "beden seçim kabı",
+  "primaryKpi": "Sepete Ekleme Oranı",
+  "armLabels": [
+   "Beden seçimini bottom sheet ile yaptırma",
+   "Beden seçimini sayfa içinde yaptırma"
+  ]
+ },
+ {
+  "id": "AB-136",
+  "slug": "beden-tablosu-mu-kisisellestirilmis-oneri-mi-daha-iyi-calisiyor",
+  "question": "Beden tablosu mu, kişiselleştirilmiş öneri mi daha iyi çalışıyor?",
+  "hypothesis": "Ölçü tablosu doğru bilgiyi verir ama kullanıcıdan yorum yapmasını ister. Boy/kilo girişine dayalı kişiselleştirilmiş beden önerisi kararı tek adıma indirir ama yanlış tahmin güveni kırabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "beden yardımı biçimi",
+  "primaryKpi": "Beden Seçim Tamamlama",
+  "armLabels": [
+   "Ham ölçü/beden tablosu",
+   "Boy/kilo girişine dayalı kişiselleştirilmiş beden önerisi"
+  ]
+ },
+ {
+  "id": "AB-137",
+  "slug": "fotografli-yorumlar-metin-yorumlardan-daha-mi-ikna-edici",
+  "question": "Fotoğraflı yorumlar metin yorumlardan daha mı ikna edici?",
+  "hypothesis": "Müşteri fotoğrafları ürünün gerçek hayattaki halini gösterir ve stüdyo çekimiyle beklenti arasındaki boşluğu kapatır. Özellikle moda ve ev kategorisinde iade oranına doğrudan etki edebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "media",
+  "differenceBehavior": "change",
+  "testedSlot": "yorum görselleri",
+  "primaryKpi": "İade Oranı",
+  "armLabels": [
+   "Yalnızca metin yorumlar",
+   "Müşteri fotoğraflarını içeren yorumlar"
+  ]
+ },
+ {
+  "id": "AB-138",
+  "slug": "yorumlari-en-yeni-mi-en-faydali-mi-siralamali",
+  "question": "Yorumları “en yeni” mi “en faydalı” mı sıralamalı?",
+  "hypothesis": "Varsayılan yorum sıralaması, kullanıcının ilk okuduğu üç yorumu belirler ve algıyı büyük ölçüde şekillendirir. En faydalı sıralama daha dengeli bir resim verirken, en yeni sıralama güncellik hissi yaratır.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "yorum sıralaması",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Yorumları en yeni sıralama",
+   "Yorumları en faydalı sıralama"
+  ]
+ },
+ {
+  "id": "AB-139",
+  "slug": "stok-bilgisi-aciliyet-hissi-olusturur-mu",
+  "question": "Stok bilgisi aciliyet hissi oluşturur mu?",
+  "hypothesis": "“Son 3 ürün kaldı” gibi mesajlar bazı kullanıcıyı tetikler, bazısında baskı yaratıp kaçırır. Satın alma davranışına net etkisi ölçülmelidir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "stok bilgisi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Stok bilgisi/aciliyet mesajı gösterilmeyen sayfa",
+   "\"Son 3 ürün kaldı\" gibi stok aciliyet mesajı gösteren varyant"
+  ]
+ },
+ {
+  "id": "AB-140",
+  "slug": "canli-aktivite-bildirimi-mi-stok-uyarisi-mi-daha-az-rahatsiz-edici",
+  "question": "Canlı aktivite bildirimi mi, stok uyarısı mı daha az rahatsız edici?",
+  "hypothesis": "“Son 24 saatte 37 kişi satın aldı” sosyal kanıt üretirken, “son 3 ürün kaldı” baskı yaratır. İkisi de aciliyet kurar ama güven üzerindeki etkileri farklı olabilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "aciliyet bildirimi biçimi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Canlı aktivite bildirimi (sosyal kanıt: \"son 24 saatte 37 kişi satın aldı\")",
+   "Stok uyarısı (kıtlık: \"son 3 ürün kaldı\")"
+  ]
+ },
+ {
+  "id": "AB-141",
+  "slug": "taksit-bilgisi-satin-almayi-etkiliyor-mu",
+  "question": "Taksit bilgisi satın almayı etkiliyor mu?",
+  "hypothesis": "Taksit seçeneklerini ürün sayfasında öne çıkarmak, fiyat algısını ve satın alma motivasyonunu değiştirebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "taksit bilgisi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Taksit bilgisi ürün sayfasında öne çıkarılmıyor",
+   "Taksit bilgisi fiyat alanında öne çıkarılıyor"
+  ]
+ },
+ {
+  "id": "AB-142",
+  "slug": "kusuratli-fiyat-mi-tam-sayi-fiyat-mi",
+  "question": "Küsuratlı fiyat mı, tam sayı fiyat mı?",
+  "hypothesis": "299,99 TL ile 300 TL arasındaki tek kuruşluk fark, algılanan fiyatı farklı kırar. Küsurat ucuzluk sinyali verirken, tam sayı premium ve sade durur. Kategoriye göre kazanan değişir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "variant-vs-variant",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "fiyat yazım biçimi",
+  "primaryKpi": "Brüt Gelir / Ziyaretçi",
+  "armLabels": [
+   "Küsuratlı fiyat (299,99 TL formatı)",
+   "Tam sayı fiyat (300 TL formatı)"
+  ]
+ },
+ {
+  "id": "AB-143",
+  "slug": "indirimi-nasil-sunmalisiniz",
+  "question": "İndirimi nasıl sunmalısınız?",
+  "hypothesis": "İndirim mesajının türü, konumu ve sunuluşu davranışı ciddi biçimde değiştirebilir. Bazen tek bir kelime tıklama oranını değiştirir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "indirim sunum biçimi",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-144",
+  "slug": "kargo-ve-iade-bilgisini-one-cikarmak-satisi-artirir-mi",
+  "question": "Kargo ve iade bilgisini öne çıkarmak satışı artırır mı?",
+  "hypothesis": "Kargo ve iade avantajlarını görünür sunmak kullanıcı güvenini artırarak satın alma motivasyonunu güçlendirebilir.",
+  "category": "Product Detail Page",
+  "surface": "pdp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "kargo ve iade bilgisi vurgusu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Kargo ve iade bilgisi öne çıkarılmadan, vurgusuz sunuluyor",
+   "Kargo ve iade bilgisi görünür şekilde öne çıkarılıyor"
+  ]
+ }
+]

@@ -1,0 +1,272 @@
+{
+  "risks": [
+    {
+      "risk": "high-branch-count",
+      "description": "A condition node's arm count varies 2 to 6+; a layout that assumes 2-3 arms per fork will overflow.",
+      "affectedCount": 69,
+      "threshold": ">=4 branch nodes in one journey",
+      "worst": [
+        [
+          "ACT-14",
+          6
+        ],
+        [
+          "OWN-54",
+          6
+        ],
+        [
+          "CMS-210",
+          6
+        ],
+        [
+          "CTL-231",
+          6
+        ],
+        [
+          "SUB-166",
+          5
+        ]
+      ],
+      "maxValue": 6
+    },
+    {
+      "risk": "long-forward-chain",
+      "description": "Depth from entry to the furthest node along non-backward edges. A layout that assumes a short chain will need vertical scroll or compression.",
+      "affectedCount": 22,
+      "threshold": ">=10 levels deep",
+      "worst": [
+        [
+          "OWN-54",
+          12
+        ],
+        [
+          "OWN-58",
+          11
+        ],
+        [
+          "FUL-150",
+          11
+        ],
+        [
+          "SCH-173",
+          11
+        ],
+        [
+          "RSK-194",
+          11
+        ]
+      ],
+      "maxValue": 12
+    },
+    {
+      "risk": "backward-edges",
+      "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
+      "affectedCount": 125,
+      "threshold": ">=1 backward edge",
+      "worst": [
+        [
+          "FUL-142",
+          4
+        ],
+        [
+          "FUL-145",
+          4
+        ],
+        [
+          "SUB-163",
+          4
+        ],
+        [
+          "RSK-194",
+          4
+        ],
+        [
+          "ACT-12",
+          3
+        ]
+      ],
+      "maxValue": 4
+    },
+    {
+      "risk": "true-graph-cycles",
+      "description": "A backward edge is not automatically a cycle - only 33 of the 125 backward-edge journeys form an actual cycle (a path that returns to its own source). These need a recursion/traversal guard in the layout algorithm itself; the other 92 are simple back-references and do not.",
+      "affectedCount": 33,
+      "threshold": "DFS-detected true cycle",
+      "worst": [
+        "ACT-12",
+        "ACT-17",
+        "FBK-46",
+        "FBK-47",
+        "OWN-55",
+        "OWN-57",
+        "TIM-61",
+        "ACC-72",
+        "ACC-80",
+        "IDN-81"
+      ],
+      "maxValue": null
+    },
+    {
+      "risk": "many-exits",
+      "description": "Multiple named terminal states from one journey. A layout with one exit slot at the bottom fails for these.",
+      "affectedCount": 16,
+      "threshold": ">=4 exits",
+      "worst": [
+        [
+          "ACQ-05",
+          6
+        ],
+        [
+          "FBK-41",
+          6
+        ],
+        [
+          "ACT-14",
+          5
+        ],
+        [
+          "FBK-42",
+          5
+        ],
+        [
+          "CTL-231",
+          5
+        ]
+      ],
+      "maxValue": 6
+    },
+    {
+      "risk": "handoff-density",
+      "description": "Cross-journey and external handoffs on one graph. Each is a link leaving the current view - a layout that treats handoffs like ordinary nodes undercounts how often the reader leaves this journey.",
+      "affectedCount": 23,
+      "threshold": ">=4 handoffs",
+      "worst": [
+        [
+          "RET-23",
+          7
+        ],
+        [
+          "OPS-121",
+          6
+        ],
+        [
+          "DEC-183",
+          6
+        ],
+        [
+          "FUL-144",
+          5
+        ],
+        [
+          "SCH-177",
+          5
+        ]
+      ],
+      "maxValue": 7
+    },
+    {
+      "risk": "node-convergence (fan-in)",
+      "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
+      "affectedCount": 41,
+      "threshold": ">=3 incoming edges to one node",
+      "worst": [
+        [
+          "ACQ-10",
+          5
+        ],
+        [
+          "ACT-14",
+          4
+        ],
+        [
+          "FIN-134",
+          4
+        ],
+        [
+          "FIN-139",
+          4
+        ],
+        [
+          "FIN-140",
+          4
+        ]
+      ],
+      "maxValue": 5
+    },
+    {
+      "risk": "node-divergence (fan-out)",
+      "description": "One node with many outgoing edges (a condition with many branches, or a wait's two arms feeding a further hub). ACQ-10 alone has BOTH the highest fan-in (5) and highest fan-out (8) — the single worst node-density case in the library.",
+      "affectedCount": 7,
+      "threshold": ">=5 outgoing edges from one node",
+      "worst": [
+        [
+          "ACQ-10",
+          8
+        ],
+        [
+          "RET-23",
+          8
+        ],
+        [
+          "FBK-43",
+          6
+        ],
+        [
+          "ACQ-05",
+          5
+        ],
+        [
+          "TIM-61",
+          5
+        ]
+      ],
+      "maxValue": 8
+    },
+    {
+      "risk": "long-labels-at-fork-points",
+      "description": "branch.when text (median 60, max 211 chars, see journey-content-stats.json) rendered at a branch point competes for space with the branch arms themselves — this is a layout risk, not just a content-length one, because it happens exactly where the graph is already widest.",
+      "affectedCount": null,
+      "threshold": "n/a — cross-reference with journey-content-stats.json's branch.when row",
+      "worst": null,
+      "maxValue": null
+    }
+  ],
+  "layoutStressFixtureCandidates": [
+    "ACC-72",
+    "ACC-80",
+    "ACQ-05",
+    "ACQ-10",
+    "ACT-12",
+    "ACT-14",
+    "ACT-17",
+    "CMS-210",
+    "CTL-231",
+    "DEC-183",
+    "FBK-41",
+    "FBK-42",
+    "FBK-43",
+    "FBK-46",
+    "FBK-47",
+    "FIN-134",
+    "FIN-139",
+    "FIN-140",
+    "FUL-142",
+    "FUL-144",
+    "FUL-145",
+    "FUL-150",
+    "IDN-81",
+    "OPS-121",
+    "OWN-54",
+    "OWN-55",
+    "OWN-57",
+    "OWN-58",
+    "RET-23",
+    "RSK-194",
+    "SCH-173",
+    "SCH-177",
+    "SUB-163",
+    "SUB-166",
+    "TIM-61"
+  ],
+  "note": "These candidates overlap heavily with journey-fixture-set.json by design — the same outlier graphs stress both content and layout."
+}

@@ -1,0 +1,597 @@
+[
+ {
+  "id": "SCH-178",
+  "slug": "service-attendance",
+  "name": "Attendance or service start → complete, partial or interrupted",
+  "purpose": "Separate the fact that someone turned up from the question of whether they got what they came for.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Service commencement established",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the reservation occurrence and the service delivered inside it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 19
+ },
+ {
+  "id": "SCH-179",
+  "slug": "no-show",
+  "name": "No-show or missed appointment → validate → rebook, close or consequence",
+  "purpose": "Establish that one confirmed booking did not happen because the customer did not attend, having ruled out every other explanation.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Service window passed without commencement",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the single reservation occurrence that did not take place",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "SCH-180",
+  "slug": "provider-cancellation",
+  "name": "Provider or resource cancellation → reallocate → reschedule, remedy or cancel",
+  "purpose": "Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Provider or resource cannot fulfil",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the affected reservations and the provider or resource failure behind them",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "SUB-161",
+  "slug": "continuing-relationship-creation",
+  "name": "Continuing relationship created → validate → activate or pending",
+  "purpose": "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Continuing relationship creation authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the continuing relationship record - a subscription, contract, membership, policy, licence or service agreement",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "SUB-162",
+  "slug": "future-effective-activation",
+  "name": "Future effective start → wait → revalidate → activate or abort",
+  "purpose": "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Relationship created with future start",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the future-dated continuing relationship and its scheduled activation",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "SUB-163",
+  "slug": "renewal-decision",
+  "name": "Renewal window → eligibility → renew, non-renew or review",
+  "purpose": "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Renewal decision window opens",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the continuing relationship and the renewal cycle currently open on it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "competition"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "SUB-164",
+  "slug": "renewal-execution",
+  "name": "Renewal execution → financial and dependency check → new term active",
+  "purpose": "Make the new term exist, once the things it depends on have actually happened.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Renewal authorized for execution",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the renewal operation and the new term it would create",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "SUB-165",
+  "slug": "renewal-payment-failure",
+  "name": "Renewal payment failure → grace or recover → renew or lapse",
+  "purpose": "Decide what the relationship does while a failed renewal payment is being chased, without ending it by reflex.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Renewal payment failed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the continuing relationship and the renewal obligation whose payment failed",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "SUB-166",
+  "slug": "terms-change",
+  "name": "Plan or terms change request → validate → schedule, apply or reject",
+  "purpose": "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Relationship change requested",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the continuing relationship and the change request raised against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 23
+ },
+ {
+  "id": "SUB-167",
+  "slug": "cancellation-request",
+  "name": "Cancellation request → determine effective end → schedule or cancel now",
+  "purpose": "Establish whether and when a relationship will end, while the current term keeps running until it does.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Cancellation requested",
+  "triggerEvidence": "declared",
+  "entityScope": "the continuing relationship and the cancellation request raised against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "competition"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "SUB-168",
+  "slug": "scheduled-termination",
+  "name": "Scheduled cancellation → revalidate at effective time → end or preserve",
+  "purpose": "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Scheduled cancellation effective time reached",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the continuing relationship and the scheduled termination standing against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "SUB-169",
+  "slug": "relationship-suspension",
+  "name": "Suspension or hold → restrict relationship → restore or end",
+  "purpose": "Hold a relationship in a state where it cannot operate normally and has not ended.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Relationship suspension condition",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the continuing relationship and the suspension standing against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "SUB-170",
+  "slug": "continuing-relationship-end",
+  "name": "Relationship end → final reconciliation → former or expired state",
+  "purpose": "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
+  "category": "subscription",
+  "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+  "trigger": "Relationship end effective",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the ended continuing relationship and the state that depended on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "TIM-61",
+  "slug": "deadline-tracking",
+  "name": "Deadline created → track → complete, escalate or expire",
+  "purpose": "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Authoritative deadline assigned",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation the deadline is attached to - a task, request, case or application",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "TIM-62",
+  "slug": "due-state-change",
+  "name": "Due-state change → recalculate priority → resolve or escalate",
+  "purpose": "Change what an unresolved obligation costs operationally when it becomes due or overdue, rather than only announcing that it has.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Due state changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the obligation or work item whose due state changed",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "TIM-63",
+  "slug": "pre-expiry-window",
+  "name": "Expiry approaching → eligibility check → renew, complete or let expire",
+  "purpose": "Use the window before an expiry only where acting inside it could actually change what happens.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Pre expiry window entered",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the time-bound entity approaching expiry - a subscription, document, entitlement, credential, approval, reservation, benefit or agreement",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "TIM-64",
+  "slug": "expiry-execution",
+  "name": "Expiry reached → validate current state → expire, extend or replace",
+  "purpose": "Check what the entity actually is at the moment the expiry fires, before applying anything the timer was written to apply.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Expiry time reached",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the time-bound entity and the specific version of it the timer was scheduled against",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "TIM-65",
+  "slug": "grace-period",
+  "name": "Grace period entry → temporary continuity → recover or terminate",
+  "purpose": "Keep limited continuity while something recoverable is unresolved, without pretending the normal active state still exists.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Primary validity ended with grace policy",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the subscription, account, entitlement or obligation whose primary validity ended",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "TIM-66",
+  "slug": "temporary-exception",
+  "name": "Temporary exception → validity window → revert or formalise",
+  "purpose": "Stop an exception granted for a reason from becoming a permanent state nobody remembers deciding on.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Temporary exception granted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the exception itself - its scope, the authority that granted it and the state it departs from",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "TIM-67",
+  "slug": "temporary-state-lifecycle",
+  "name": "Temporary state → explicit expiry → restore or transition",
+  "purpose": "Give any time-bound state a defined ending, and revalidate before returning anything to what it was.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Temporary state entered",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entity plus the temporary state placed on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "TIM-68",
+  "slug": "reversal-window",
+  "name": "Reversible state → reversal window → confirm or restore",
+  "purpose": "Undo a transition within its window while restoring only what is independently still valid.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Reversible transition occurred",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the transition itself - what changed, when, and which of its side effects have already run",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "TIM-69",
+  "slug": "post-expiry-re-entry",
+  "name": "Expired state → re-entry eligibility → renew, requalify or remain expired",
+  "purpose": "Decide how something expired can become valid again, through the mechanism that actually restores validity rather than by editing the expiry away.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Re entry attempted or available",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the expired entity, kept distinct from any replacement created for it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit",
+   "no-re-entry"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "TIM-70",
+  "slug": "scheduled-transition-execution",
+  "name": "Scheduled future transition → validate at execution → apply, cancel or recalculate",
+  "purpose": "Treat a scheduled transition as an intention recorded in the past, and check it against the present before applying it.",
+  "category": "time",
+  "categoryTitle": "Time, deadlines, expiry & temporary states",
+  "trigger": "Future transition scheduled",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the scheduled transition plus the target entity and the version it expected to find",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "TRM-101",
+  "slug": "entity-merge-execution",
+  "name": "Identity or entity merge → reconcile → consolidate → verify",
+  "purpose": "Consolidate records that represent one entity, after every dependent state has been reconciled under its own authority rule.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Merge explicitly authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the source entities, the canonical target, and the merge operation itself as an auditable record",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "TRM-102",
+  "slug": "merge-conflict-resolution",
+  "name": "Merge conflict → safe state → resolve → continue or abort",
+  "purpose": "Fail safe wherever consolidating would require inventing an authority the system does not have.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Critical merge conflict detected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the merge operation and the specific state in conflict",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "TRM-103",
+  "slug": "account-consolidation",
+  "name": "Account consolidation → dependency reconciliation → unified relationship",
+  "purpose": "Unify business structure across accounts while every person involved stays a separate person.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Account consolidation authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the accounts being consolidated and the canonical structure that results",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "TRM-104",
+  "slug": "primary-relationship-transfer",
+  "name": "Primary relationship transfer → validate new primary → transfer dependencies",
+  "purpose": "Move a dependent entity to a new primary, carrying only what the primary relationship actually governs.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Primary relationship transfer authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the dependent entity, its outgoing primary and its incoming one",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "TRM-105",
+  "slug": "responsibility-handover",
+  "name": "Role or responsibility handover → effective-time transfer → continue",
+  "purpose": "Move a role between two people at a defined moment, without changing anything before it or rewriting anything behind it.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Responsibility handover authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the role or responsibility, its outgoing holder and its incoming one",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "TRM-106",
+  "slug": "account-closure-request",
+  "name": "Account closure request → validate → resolve blockers → close",
+  "purpose": "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Account closure requested",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the account and this closure request",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "TRM-107",
+  "slug": "closure-external-dependencies",
+  "name": "Account closure → reconcile external and commercial dependencies → finalize",
+  "purpose": "Make sure nothing that lives outside the account is assumed to have ended because the account did.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Account closure executing or finalizing",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the closing account plus each external or commercial dependency, individually",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "TRM-108",
+  "slug": "closure-wind-down",
+  "name": "Closure completed → wind-down → former or terminal account state",
+  "purpose": "Stop normal account activity while letting the obligations that outlive closure actually finish.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Account closure succeeded",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the closed account and the obligations still outstanding against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "TRM-109",
+  "slug": "data-deletion-request",
+  "name": "Data deletion request → validate scope → hold, delete or retain required data",
+  "purpose": "Decide what a deletion request actually covers, and keep only what an authoritative retention obligation genuinely requires.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Data deletion requested",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the data subject, this deletion request, and the data scope it names",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "TRM-110",
+  "slug": "data-deletion-execution",
+  "name": "Data deletion execution → propagate → verify or reconcile failure",
+  "purpose": "Carry a deletion through every system it has to reach, and keep any part that did not arrive visible.",
+  "category": "terminal",
+  "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+  "trigger": "Data approved for deletion",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the deletion job and each affected system's operation individually",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 15
+ }
+]

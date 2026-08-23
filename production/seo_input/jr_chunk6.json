@@ -1,0 +1,674 @@
+[
+ {
+  "id": "REM-160",
+  "slug": "post-remedy-recurrence",
+  "name": "Post-remedy reopen → validate recurrence → continue or new issue",
+  "purpose": "Tell a recurrence of the same problem apart from a new one, and from a remedy that never actually finished.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Problem reported after remedy",
+  "triggerEvidence": "declared",
+  "entityScope": "the previously resolved issue and the new report made against it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "RET-21",
+  "slug": "engagement-state-reclassification",
+  "name": "Engagement state change → reclassify → appropriate lifecycle",
+  "purpose": "Hold engagement as a state that moves in both directions, and decide separately whether a movement is worth acting on.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Engagement state materially changed",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person or account, per product or service relationship",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "RET-22",
+  "slug": "expected-usage-miss-context-check",
+  "name": "Expected usage miss → context check → observe or intervene",
+  "purpose": "Read a missed usage expectation as evidence only where an expectation genuinely existed, and only where something else corroborates it.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Expected usage milestone or cadence missed",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person or account plus the product or use-case the expectation belongs to",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "RET-23",
+  "slug": "health-deterioration-diagnosis",
+  "name": "Health deterioration → diagnose cause → recovery route",
+  "purpose": "Send a deteriorating relationship to the mechanism that is actually breaking it, and never to a generic retention campaign in its place.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Health state crossed deterioration threshold",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person, account, subscription or customer relationship - whichever the health state is held against",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "RET-24",
+  "slug": "churn-risk-escalation",
+  "name": "Churn risk escalation → evidence → intervention priority",
+  "purpose": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Churn risk threshold crossed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "customer, account or subscription relationship",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "competition"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "RET-26",
+  "slug": "negative-experience-recovery",
+  "name": "Negative experience → recovery eligibility → appropriate response",
+  "purpose": "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Authoritative negative experience",
+  "triggerEvidence": "authoritative",
+  "entityScope": "person or account plus the experience or service entity that failed",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "RET-27",
+  "slug": "recovery-observation-buffer",
+  "name": "Recovery signal → observation buffer → stable or relapse",
+  "purpose": "Keep the distance between a good sign and an actual recovery, so a relapse is still being watched for when it happens.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Positive signal after deterioration",
+  "triggerEvidence": "behavioral",
+  "entityScope": "person or account plus the health or risk context that deteriorated",
+  "primaryStructure": "router",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "RET-28",
+  "slug": "cancellation-intent-decision-point",
+  "name": "Cancellation intent → understand state → save or proceed",
+  "purpose": "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Explicit cancellation intent",
+  "triggerEvidence": "declared",
+  "entityScope": "the subscription, membership or service relationship being cancelled",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "RET-29",
+  "slug": "cancellation-completed-wind-down",
+  "name": "Cancellation completed → stop retention → resolve remaining relationship",
+  "purpose": "End retention ownership the moment cancellation is real, and manage what is still outstanding without pretending the relationship is either fully over or still winnable.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Authoritative cancellation completed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the subscription, membership or service relationship that ended",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "RET-30",
+  "slug": "retention-intervention-outcome",
+  "name": "Retention intervention → outcome → suppress, escalate or exit",
+  "purpose": "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
+  "category": "retention",
+  "categoryTitle": "Engagement, health, retention & churn prevention",
+  "trigger": "Retention intervention delivered",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the customer, account or subscription plus the retention episode the intervention belongs to",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit",
+   "competition"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "RLT-241",
+  "slug": "change-eligibility",
+  "name": "Change candidate → eligibility → ready or blocked",
+  "purpose": "Decide which targets a change may reach at all, before anyone starts preparing any of them.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Change available for controlled application",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the change or version, and each target evaluated against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "RLT-242",
+  "slug": "change-preparation",
+  "name": "Change preparation → resolve dependencies → ready or hold",
+  "purpose": "Get an eligible target into a state where the change can actually be applied to it.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Target eligible for planned change",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the target and the preparation the change requires of it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "RLT-243",
+  "slug": "scheduled-change",
+  "name": "Change scheduled → wait → revalidate → execute or cancel",
+  "purpose": "Check, at the moment of execution, that the change scheduled earlier is still the right one for this target.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Change receives scheduled execution window",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the scheduled change and the target it is scheduled against",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "RLT-244",
+  "slug": "change-execution",
+  "name": "Change execution → apply → verify, fail or unknown",
+  "purpose": "Establish that the target actually ended up in the state the change intended, rather than that a command was accepted.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Authorized change execution begins",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the change execution against one target",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "RLT-245",
+  "slug": "staged-rollout",
+  "name": "Staged rollout → pilot cohort → health gate → expand or hold",
+  "purpose": "Widen a change only when the targets that already took it show it is safe to widen.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Change approved for staged rollout",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the rollout, its target population and the cohorts it progresses through",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "RLT-246",
+  "slug": "rollout-pause",
+  "name": "Rollout pause → freeze expansion → diagnose → resume, roll back or end",
+  "purpose": "Stop the change spreading while the question of what to do about it is still open.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Rollout pause triggered",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the rollout, and the changed and unchanged populations at the moment it paused",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "RLT-247",
+  "slug": "rollback-decision",
+  "name": "Change failure threshold → rollback decision → execute or forward recover",
+  "purpose": "Decide whether going back is actually safer than going on, before anyone starts going back.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Change failure threshold reached",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the failing rollout or change and the targets it affects",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "RLT-248",
+  "slug": "rollback-execution",
+  "name": "Rollback execution → restore → verify stability",
+  "purpose": "Return the affected targets to a known-good state and prove that they actually work there.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Rollback authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the rollback operation and the targets it is reverting",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "external-handoff"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "RLT-249",
+  "slug": "target-change-failure",
+  "name": "Individual target change failure → retry, isolate or remediate",
+  "purpose": "Recover one target that could not take the change, and notice when it stops being one target.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Individual target change failed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual target and its failed change attempt",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "RLT-250",
+  "slug": "change-completion",
+  "name": "Change completed → observe → close, reopen or deprecate previous version",
+  "purpose": "Wait long enough to know the change held, and keep what a recovery would need until it clearly does not.",
+  "category": "rollout",
+  "categoryTitle": "Deployment, rollout, change & version transitions",
+  "trigger": "Planned population reached changed state",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the completed rollout, the changed population and the exception targets",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "RSK-191",
+  "slug": "policy-evaluation",
+  "name": "Policy check → evaluate → pass, block or review",
+  "purpose": "Decide whether a specific action is permitted under the rules that actually govern it, at the version that actually applies.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Protected action reaches policy decision point",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the policy evaluation, the actor or entity it concerns, and the proposed action",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "RSK-192",
+  "slug": "risk-signal",
+  "name": "Risk signal → correlate evidence → clear, monitor, restrict or review",
+  "purpose": "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Risk signal received",
+  "triggerEvidence": "inferred",
+  "entityScope": "the risk case and the actor, account, transaction or resource it concerns",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "RSK-193",
+  "slug": "risk-restriction",
+  "name": "Risk threshold crossed → apply scoped restriction → review or release",
+  "purpose": "Stop the smallest thing that manages the risk, and keep a stated route back.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Risk threshold requiring intervention reached",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the risk case and the specific capability or action being restricted",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "RSK-194",
+  "slug": "policy-violation",
+  "name": "Policy violation detected → validate → correct, restrict or escalate",
+  "purpose": "Establish that a rule was actually broken, against the version that governed it, before anything follows from that.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Potential policy violation detected",
+  "triggerEvidence": "inferred",
+  "entityScope": "the violation case, the entity or action it concerns, and the policy version it is judged under",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "RSK-195",
+  "slug": "compliance-requirement",
+  "name": "Compliance requirement → collect and verify → satisfied or blocked",
+  "purpose": "Hold one mandatory requirement as its own state, blocking only what genuinely depends on it.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Compliance requirement becomes necessary",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the compliance requirement and the specific process depending on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "RSK-196",
+  "slug": "compliance-hold",
+  "name": "Compliance or policy hold → preserve state → resolve → resume or terminate",
+  "purpose": "Pause what a policy question makes unsafe, and leave everything else running.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Policy or compliance hold applied",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entity or process on hold, and the hold acting on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "RSK-197",
+  "slug": "exception-request",
+  "name": "Exception request → validate authority → approve, reject or review",
+  "purpose": "Ask for a controlled deviation from a named rule, over a stated scope, from someone entitled to ask.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Policy exception requested",
+  "triggerEvidence": "declared",
+  "entityScope": "the exception request and the specific policy, action or entity it concerns",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "RSK-198",
+  "slug": "exception-application",
+  "name": "Exception granted → apply scoped override → expire or revoke",
+  "purpose": "Let an authorized deviation apply exactly where it was authorized, and stop applying the moment it should.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Exception becomes authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the granted exception and each action it is invoked against",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "RSK-199",
+  "slug": "limit-quota",
+  "name": "Limit or quota reached → block, wait, increase or reset",
+  "purpose": "Treat a limit being reached as the limit working, and give the constrained action a real path forward.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Limit threshold reached or would be exceeded",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entity and the specific limit or quota constraining it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "RSK-200",
+  "slug": "policy-change-propagation",
+  "name": "Policy or risk state changed → re-evaluate affected work → resume, restrict or preserve",
+  "purpose": "Apply a change where the new authority actually reaches, and leave the past alone.",
+  "category": "risk",
+  "categoryTitle": "Risk, policy, compliance & exception management",
+  "trigger": "Policy or risk state changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the policy or risk state change and the work it actually touches",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "SCH-171",
+  "slug": "availability-query",
+  "name": "Availability query → evaluate capacity → offer valid options",
+  "purpose": "Produce the options that are genuinely bookable right now, and say plainly that nothing is being held.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Availability requested",
+  "triggerEvidence": "declared",
+  "entityScope": "the availability request and the schedulable resource or service it asks about",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "SCH-172",
+  "slug": "slot-hold",
+  "name": "Slot hold → reserve temporarily → confirm, expire or release",
+  "purpose": "Protect specific capacity for a bounded moment while a booking is being completed, without pretending it is a booking.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Temporary hold granted",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the hold, the capacity it protects and the requester who owns it",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "SCH-173",
+  "slug": "reservation-request",
+  "name": "Reservation request → validate → confirm, reject or pending",
+  "purpose": "Turn a request for a specific time into a commitment both sides can rely on, or say clearly that it did not.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Reservation requested",
+  "triggerEvidence": "declared",
+  "entityScope": "the reservation request, the requester and the resource or service it names",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 17
+ },
+ {
+  "id": "SCH-174",
+  "slug": "reservation-preparation",
+  "name": "Reservation confirmed → prepare → upcoming or ready",
+  "purpose": "Get the conditions for a successful service in place, without letting them move the time that was promised.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Reservation confirmed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the confirmed reservation and the preparation running against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "SCH-175",
+  "slug": "reschedule",
+  "name": "Reschedule request → recheck availability → move, reject or preserve original",
+  "purpose": "Move a commitment to a new time without ever leaving the customer holding neither.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Reschedule requested",
+  "triggerEvidence": "declared",
+  "entityScope": "the existing reservation and the reschedule request raised against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "SCH-176",
+  "slug": "reservation-cancellation",
+  "name": "Reservation cancellation → stop commitment → release capacity → reconcile",
+  "purpose": "End a future time commitment cleanly, returning the capacity and leaving the money to be decided elsewhere.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Reservation cancellation effective",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the reservation and the cancellation acting on it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "SCH-177",
+  "slug": "scheduled-start",
+  "name": "Scheduled time approaches → revalidate → check in, start or exception",
+  "purpose": "Start a service from what the booking is now, not from a confirmation issued weeks ago.",
+  "category": "scheduling",
+  "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+  "trigger": "Pre start window reached",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the confirmed reservation and the occurrence about to begin",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 16
+ }
+]

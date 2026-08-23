@@ -1,0 +1,286 @@
+[
+  {
+    "id": "ACT-15",
+    "reason": "Shortest journey in the library (5 nodes) - the minimal-content floor a renderer must still handle gracefully.",
+    "category": "activation",
+    "nodeCount": 5,
+    "edgeCount": 6,
+    "primaryStructure": "router",
+    "behaviors": [
+      "cross-journey-handoff"
+    ],
+    "complexityTier": "simple",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "SUB-166",
+    "reason": "Most nodes (23) - the maximal-content ceiling for a single graph view.",
+    "category": "subscription",
+    "nodeCount": 23,
+    "edgeCount": 27,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "complexityTier": "extreme",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "DOC-216",
+    "reason": "Most edges (28) - highest edge-rendering density.",
+    "category": "document",
+    "nodeCount": 21,
+    "edgeCount": 28,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "external-handoff",
+      "multi-exit"
+    ],
+    "complexityTier": "extreme",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "OWN-54",
+    "reason": "Extreme complexity tier: most branch nodes (6), deepest forward chain (12), and the single longest node-headline text in the library (action.does, 483 chars) - also the surviving target of merged id CTL-240.",
+    "category": "ownership",
+    "nodeCount": 20,
+    "edgeCount": 27,
+    "primaryStructure": "router",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff"
+    ],
+    "complexityTier": "extreme",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "CTL-240",
+    "reason": "Merged-ID alias fixture - resolves to OWN-54. Exercises the noindex/redirect/banner contract on a real target that is itself a complexity outlier.",
+    "category": "ownership",
+    "nodeCount": 20,
+    "edgeCount": 27,
+    "primaryStructure": "router",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff"
+    ],
+    "complexityTier": "extreme",
+    "isMergedAlias": true,
+    "resolvesTo": "OWN-54"
+  },
+  {
+    "id": "RSK-194",
+    "reason": "Most backward edges (4) tied, extreme complexity tier, deep chain (11) - the layout engine's worst-case cycle-guard candidate.",
+    "category": "risk",
+    "nodeCount": 18,
+    "edgeCount": 24,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "external-handoff",
+      "multi-exit"
+    ],
+    "complexityTier": "extreme",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "ACQ-05",
+    "reason": "Rare no-re-entry (terminal:true) exit, tied for most exits (6), plus backward-edge/wait-timeout/external-handoff together - five behaviors on one graph.",
+    "category": "acquisition",
+    "nodeCount": 16,
+    "edgeCount": 19,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "external-handoff",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "complexityTier": "complex",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "ACQ-10",
+    "reason": "Rare no-re-entry exit, highest fan-in (5) AND highest fan-out (8) on the same graph - the worst single-node convergence/divergence case.",
+    "category": "acquisition",
+    "nodeCount": 10,
+    "edgeCount": 17,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "complexityTier": "medium",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "RET-23",
+    "reason": "Most handoffs (7), fan-out tied at 8 - a handoff-dense dispatcher graph.",
+    "category": "retention",
+    "nodeCount": 16,
+    "edgeCount": 22,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "external-handoff",
+      "multi-exit"
+    ],
+    "complexityTier": "complex",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "ACT-12",
+    "reason": "One of only 2 journeys with preemptedBy, combined with a competition group - both rare governance relationships on one fixture.",
+    "category": "activation",
+    "nodeCount": 10,
+    "edgeCount": 14,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "preemption",
+      "competition"
+    ],
+    "complexityTier": "medium",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "RET-30",
+    "reason": "Most simultaneous behaviors (6) - the single hardest journey to render honestly.",
+    "category": "retention",
+    "nodeCount": 14,
+    "edgeCount": 19,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "external-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "complex",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "RSK-200",
+    "reason": "Longest journey title (87 chars) and longest reusableRule text (181 chars).",
+    "category": "risk",
+    "nodeCount": 15,
+    "edgeCount": 18,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "complexityTier": "complex",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "RET-24",
+    "reason": "Longest trigger evidence text (requires items, 319 chars combined).",
+    "category": "retention",
+    "nodeCount": 12,
+    "edgeCount": 15,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "cross-journey-handoff",
+      "external-handoff",
+      "competition"
+    ],
+    "complexityTier": "medium",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "RET-28",
+    "reason": "Longest branch.when text (211 chars) - overflow case distinct from the short branch.label.",
+    "category": "retention",
+    "nodeCount": 14,
+    "edgeCount": 18,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff"
+    ],
+    "complexityTier": "complex",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "CMS-203",
+    "reason": "Longest branch.label (73 chars) - tests the short-label assumption a chip/pill component would make.",
+    "category": "communication",
+    "nodeCount": 14,
+    "edgeCount": 18,
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "cross-journey-handoff"
+    ],
+    "complexityTier": "complex",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "RET-27",
+    "reason": "Longest single guardrail item (497 chars) and longest wait.timeout.reason (208 chars) - the most extreme unbounded-text case in the whole content contract.",
+    "category": "retention",
+    "nodeCount": 7,
+    "edgeCount": 8,
+    "primaryStructure": "router",
+    "behaviors": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "external-handoff"
+    ],
+    "complexityTier": "simple",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  },
+  {
+    "id": "FBK-41",
+    "reason": "Self-contained structure (never hands off, tied for most exits at 6) - represents the primaryStructure category no other fixture covers.",
+    "category": "feedback",
+    "nodeCount": 14,
+    "edgeCount": 14,
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "complex",
+    "isMergedAlias": false,
+    "resolvesTo": null
+  }
+]

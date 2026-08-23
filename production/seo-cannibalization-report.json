@@ -1,0 +1,3836 @@
+{
+  "note": "Clustered by library + secondaryIntent. A large cluster is normal for a programmatic corpus; what matters is whether two pages inside it are actually competing for the same query with near-identical titles. `unresolved: true` means they are AND nobody flagged it.",
+  "totalClusters": 324,
+  "unresolvedClusters": 0,
+  "clusters": [
+    {
+      "cluster": "ab :: form a/b test",
+      "size": 21,
+      "ids": [
+        "AB-049",
+        "AB-050",
+        "AB-051",
+        "AB-052",
+        "AB-053",
+        "AB-054",
+        "AB-055",
+        "AB-056",
+        "AB-057",
+        "AB-061",
+        "AB-063",
+        "AB-064",
+        "AB-066",
+        "AB-067",
+        "AB-069",
+        "AB-070",
+        "AB-071",
+        "AB-165",
+        "AB-170",
+        "AB-171",
+        "AB-173"
+      ],
+      "worstTitleSimilarity": 0.429,
+      "worstPair": [
+        "AB-052",
+        "AB-054"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product page a/b test",
+      "size": 17,
+      "ids": [
+        "AB-128",
+        "AB-143",
+        "AB-144",
+        "AB-145",
+        "AB-146",
+        "AB-147",
+        "AB-148",
+        "AB-152",
+        "AB-153",
+        "AB-154",
+        "AB-155",
+        "AB-156",
+        "AB-157",
+        "AB-158",
+        "AB-159",
+        "AB-160",
+        "AB-161"
+      ],
+      "worstTitleSimilarity": 0.375,
+      "worstPair": [
+        "AB-153",
+        "AB-160"
+      ],
+      "flaggedForReview": 3,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: checkout a/b test",
+      "size": 12,
+      "ids": [
+        "AB-005",
+        "AB-006",
+        "AB-011",
+        "AB-012",
+        "AB-013",
+        "AB-015",
+        "AB-017",
+        "AB-018",
+        "AB-019",
+        "AB-020",
+        "AB-021",
+        "AB-022"
+      ],
+      "worstTitleSimilarity": 0.375,
+      "worstPair": [
+        "AB-017",
+        "AB-022"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product listing page a/b test",
+      "size": 12,
+      "ids": [
+        "AB-027",
+        "AB-028",
+        "AB-029",
+        "AB-032",
+        "AB-034",
+        "AB-036",
+        "AB-037",
+        "AB-038",
+        "AB-040",
+        "AB-042",
+        "AB-043",
+        "AB-044"
+      ],
+      "worstTitleSimilarity": 0.429,
+      "worstPair": [
+        "AB-037",
+        "AB-043"
+      ],
+      "flaggedForReview": 2,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: category page a/b test",
+      "size": 9,
+      "ids": [
+        "AB-023",
+        "AB-024",
+        "AB-025",
+        "AB-030",
+        "AB-031",
+        "AB-033",
+        "AB-035",
+        "AB-039",
+        "AB-045"
+      ],
+      "worstTitleSimilarity": 0.8,
+      "worstPair": [
+        "AB-024",
+        "AB-031"
+      ],
+      "flaggedForReview": 2,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: cta a/b test",
+      "size": 8,
+      "ids": [
+        "AB-072",
+        "AB-075",
+        "AB-149",
+        "AB-150",
+        "AB-151",
+        "AB-162",
+        "AB-163",
+        "AB-196"
+      ],
+      "worstTitleSimilarity": 0.25,
+      "worstPair": [
+        "AB-075",
+        "AB-151"
+      ],
+      "flaggedForReview": 2,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: cart page a/b test",
+      "size": 6,
+      "ids": [
+        "AB-003",
+        "AB-004",
+        "AB-008",
+        "AB-009",
+        "AB-010",
+        "AB-014"
+      ],
+      "worstTitleSimilarity": 0.25,
+      "worstPair": [
+        "AB-003",
+        "AB-010"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page a/b test",
+      "size": 5,
+      "ids": [
+        "AB-114",
+        "AB-116",
+        "AB-164",
+        "AB-167",
+        "AB-168"
+      ],
+      "worstTitleSimilarity": 0.2,
+      "worstPair": [
+        "AB-114",
+        "AB-116"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: homepage a/b test",
+      "size": 4,
+      "ids": [
+        "AB-086",
+        "AB-097",
+        "AB-100",
+        "AB-101"
+      ],
+      "worstTitleSimilarity": 0.1,
+      "worstPair": [
+        "AB-086",
+        "AB-097"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product page pricing a/b test",
+      "size": 4,
+      "ids": [
+        "AB-131",
+        "AB-132",
+        "AB-141",
+        "AB-142"
+      ],
+      "worstTitleSimilarity": 0.333,
+      "worstPair": [
+        "AB-132",
+        "AB-141"
+      ],
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: search a/b test",
+      "size": 4,
+      "ids": [
+        "AB-176",
+        "AB-177",
+        "AB-178",
+        "AB-179"
+      ],
+      "worstTitleSimilarity": 0.375,
+      "worstPair": [
+        "AB-178",
+        "AB-179"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: consent journey",
+      "size": 4,
+      "ids": [
+        "CMS-203",
+        "CON-31",
+        "CON-35",
+        "CON-40"
+      ],
+      "worstTitleSimilarity": 0.25,
+      "worstPair": [
+        "CMS-203",
+        "CON-35"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: ownership transfer journey",
+      "size": 4,
+      "ids": [
+        "CTL-232",
+        "CTL-233",
+        "CTL-234",
+        "OWN-54"
+      ],
+      "worstTitleSimilarity": 0.375,
+      "worstPair": [
+        "CTL-232",
+        "OWN-54"
+      ],
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: dashboard a/b test",
+      "size": 3,
+      "ids": [
+        "AB-046",
+        "AB-047",
+        "AB-048"
+      ],
+      "worstTitleSimilarity": 0.2,
+      "worstPair": [
+        "AB-046",
+        "AB-048"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: homepage headline a/b test",
+      "size": 3,
+      "ids": [
+        "AB-073",
+        "AB-081",
+        "AB-087"
+      ],
+      "worstTitleSimilarity": 0.143,
+      "worstPair": [
+        "AB-081",
+        "AB-087"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: social proof a/b test",
+      "size": 3,
+      "ids": [
+        "AB-077",
+        "AB-092",
+        "AB-099"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: landing page layout a/b test",
+      "size": 3,
+      "ids": [
+        "AB-082",
+        "AB-089",
+        "AB-093"
+      ],
+      "worstTitleSimilarity": 0.083,
+      "worstPair": [
+        "AB-082",
+        "AB-089"
+      ],
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: testimonial a/b test",
+      "size": 3,
+      "ids": [
+        "AB-090",
+        "AB-091",
+        "AB-098"
+      ],
+      "worstTitleSimilarity": 0.25,
+      "worstPair": [
+        "AB-090",
+        "AB-098"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: mobile app a/b test",
+      "size": 3,
+      "ids": [
+        "AB-102",
+        "AB-105",
+        "AB-112"
+      ],
+      "worstTitleSimilarity": 0.083,
+      "worstPair": [
+        "AB-102",
+        "AB-105"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product page image a/b test",
+      "size": 3,
+      "ids": [
+        "AB-126",
+        "AB-127",
+        "AB-133"
+      ],
+      "worstTitleSimilarity": 0.375,
+      "worstPair": [
+        "AB-126",
+        "AB-133"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product page reviews a/b test",
+      "size": 3,
+      "ids": [
+        "AB-129",
+        "AB-137",
+        "AB-138"
+      ],
+      "worstTitleSimilarity": 0.375,
+      "worstPair": [
+        "AB-129",
+        "AB-138"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: thank you page a/b test",
+      "size": 3,
+      "ids": [
+        "AB-188",
+        "AB-189",
+        "AB-190"
+      ],
+      "worstTitleSimilarity": 0.111,
+      "worstPair": [
+        "AB-188",
+        "AB-190"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: onboarding journey",
+      "size": 3,
+      "ids": [
+        "ACT-11",
+        "ACT-12",
+        "ACT-19"
+      ],
+      "worstTitleSimilarity": 0.2,
+      "worstPair": [
+        "ACT-11",
+        "ACT-12"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: delegation journey",
+      "size": 3,
+      "ids": [
+        "CTL-235",
+        "CTL-236",
+        "CTL-237"
+      ],
+      "worstTitleSimilarity": 0.222,
+      "worstPair": [
+        "CTL-236",
+        "CTL-237"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: approval journey",
+      "size": 3,
+      "ids": [
+        "DEC-181",
+        "DEC-185",
+        "DEC-187"
+      ],
+      "worstTitleSimilarity": 0.1,
+      "worstPair": [
+        "DEC-181",
+        "DEC-185"
+      ],
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: cart cta a/b test",
+      "size": 2,
+      "ids": [
+        "AB-001",
+        "AB-002"
+      ],
+      "worstTitleSimilarity": 0.25,
+      "worstPair": [
+        "AB-001",
+        "AB-002"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: checkout form a/b test",
+      "size": 2,
+      "ids": [
+        "AB-007",
+        "AB-016"
+      ],
+      "worstTitleSimilarity": 0.25,
+      "worstPair": [
+        "AB-007",
+        "AB-016"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: signup form a/b test",
+      "size": 2,
+      "ids": [
+        "AB-058",
+        "AB-060"
+      ],
+      "worstTitleSimilarity": 0.111,
+      "worstPair": [
+        "AB-058",
+        "AB-060"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: landing page copy a/b test",
+      "size": 2,
+      "ids": [
+        "AB-074",
+        "AB-088"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: hero section a/b test",
+      "size": 2,
+      "ids": [
+        "AB-076",
+        "AB-094"
+      ],
+      "worstTitleSimilarity": 0.091,
+      "worstPair": [
+        "AB-076",
+        "AB-094"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: landing page a/b test",
+      "size": 2,
+      "ids": [
+        "AB-079",
+        "AB-096"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: landing page content a/b test",
+      "size": 2,
+      "ids": [
+        "AB-080",
+        "AB-083"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: mobile app onboarding a/b test",
+      "size": 2,
+      "ids": [
+        "AB-103",
+        "AB-110"
+      ],
+      "worstTitleSimilarity": 0.182,
+      "worstPair": [
+        "AB-103",
+        "AB-110"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: mobile app home screen a/b test",
+      "size": 2,
+      "ids": [
+        "AB-106",
+        "AB-107"
+      ],
+      "worstTitleSimilarity": 0.3,
+      "worstPair": [
+        "AB-106",
+        "AB-107"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product page size guide a/b test",
+      "size": 2,
+      "ids": [
+        "AB-134",
+        "AB-136"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product page urgency a/b test",
+      "size": 2,
+      "ids": [
+        "AB-139",
+        "AB-140"
+      ],
+      "worstTitleSimilarity": 0.2,
+      "worstPair": [
+        "AB-139",
+        "AB-140"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: saas trial a/b test",
+      "size": 2,
+      "ids": [
+        "AB-169",
+        "AB-172"
+      ],
+      "worstTitleSimilarity": 0.111,
+      "worstPair": [
+        "AB-169",
+        "AB-172"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: navigation menu a/b test",
+      "size": 2,
+      "ids": [
+        "AB-181",
+        "AB-182"
+      ],
+      "worstTitleSimilarity": 0.111,
+      "worstPair": [
+        "AB-181",
+        "AB-182"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: filter panel a/b test",
+      "size": 2,
+      "ids": [
+        "AB-184",
+        "AB-185"
+      ],
+      "worstTitleSimilarity": 0.1,
+      "worstPair": [
+        "AB-184",
+        "AB-185"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: cta copy a/b test",
+      "size": 2,
+      "ids": [
+        "AB-192",
+        "AB-209"
+      ],
+      "worstTitleSimilarity": 0.2,
+      "worstPair": [
+        "AB-192",
+        "AB-209"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: button style a/b test",
+      "size": 2,
+      "ids": [
+        "AB-193",
+        "AB-195"
+      ],
+      "worstTitleSimilarity": 0.111,
+      "worstPair": [
+        "AB-193",
+        "AB-195"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: announcement bar a/b test",
+      "size": 2,
+      "ids": [
+        "AB-202",
+        "AB-203"
+      ],
+      "worstTitleSimilarity": 0.222,
+      "worstPair": [
+        "AB-202",
+        "AB-203"
+      ],
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: live chat a/b test",
+      "size": 2,
+      "ids": [
+        "AB-205",
+        "AB-206"
+      ],
+      "worstTitleSimilarity": 0.2,
+      "worstPair": [
+        "AB-205",
+        "AB-206"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: activation journey",
+      "size": 2,
+      "ids": [
+        "ACT-13",
+        "ACT-16"
+      ],
+      "worstTitleSimilarity": 0.091,
+      "worstPair": [
+        "ACT-13",
+        "ACT-16"
+      ],
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data migration journey",
+      "size": 2,
+      "ids": [
+        "DAT-226",
+        "DAT-227"
+      ],
+      "worstTitleSimilarity": 0.125,
+      "worstPair": [
+        "DAT-226",
+        "DAT-227"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data backfill journey",
+      "size": 2,
+      "ids": [
+        "DAT-229",
+        "INT-118"
+      ],
+      "worstTitleSimilarity": 0.1,
+      "worstPair": [
+        "DAT-229",
+        "INT-118"
+      ],
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: mobile product grid a/b test",
+      "size": 1,
+      "ids": [
+        "AB-026"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: listing page a/b test",
+      "size": 1,
+      "ids": [
+        "AB-041"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: login form a/b test",
+      "size": 1,
+      "ids": [
+        "AB-059"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: multi-step form a/b test",
+      "size": 1,
+      "ids": [
+        "AB-062"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: modal form a/b test",
+      "size": 1,
+      "ids": [
+        "AB-065"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: lead form a/b test",
+      "size": 1,
+      "ids": [
+        "AB-068"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: homepage trust a/b test",
+      "size": 1,
+      "ids": [
+        "AB-078"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: landing page navigation a/b test",
+      "size": 1,
+      "ids": [
+        "AB-084"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: offer prompt a/b test",
+      "size": 1,
+      "ids": [
+        "AB-085"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: lead capture a/b test",
+      "size": 1,
+      "ids": [
+        "AB-095"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: push permission a/b test",
+      "size": 1,
+      "ids": [
+        "AB-104"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: mobile app pop-up a/b test",
+      "size": 1,
+      "ids": [
+        "AB-108"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: app install banner a/b test",
+      "size": 1,
+      "ids": [
+        "AB-109"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: app permission prompt a/b test",
+      "size": 1,
+      "ids": [
+        "AB-111"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: mobile app profile a/b test",
+      "size": 1,
+      "ids": [
+        "AB-113"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing table a/b test",
+      "size": 1,
+      "ids": [
+        "AB-115"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page price framing a/b test",
+      "size": 1,
+      "ids": [
+        "AB-117"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page unit price a/b test",
+      "size": 1,
+      "ids": [
+        "AB-118"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page copy a/b test",
+      "size": 1,
+      "ids": [
+        "AB-119"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page tax display a/b test",
+      "size": 1,
+      "ids": [
+        "AB-120"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page bundle value a/b test",
+      "size": 1,
+      "ids": [
+        "AB-121"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing plan set a/b test",
+      "size": 1,
+      "ids": [
+        "AB-122"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing plan order a/b test",
+      "size": 1,
+      "ids": [
+        "AB-123"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page price format a/b test",
+      "size": 1,
+      "ids": [
+        "AB-124"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: pricing page anchoring a/b test",
+      "size": 1,
+      "ids": [
+        "AB-125"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: out of stock product page a/b test",
+      "size": 1,
+      "ids": [
+        "AB-130"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product page size selector a/b test",
+      "size": 1,
+      "ids": [
+        "AB-135"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: saas paywall a/b test",
+      "size": 1,
+      "ids": [
+        "AB-166"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: sales page a/b test",
+      "size": 1,
+      "ids": [
+        "AB-174"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: filter a/b test",
+      "size": 1,
+      "ids": [
+        "AB-175"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: navigation a/b test",
+      "size": 1,
+      "ids": [
+        "AB-180"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: product filter a/b test",
+      "size": 1,
+      "ids": [
+        "AB-183"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: search results a/b test",
+      "size": 1,
+      "ids": [
+        "AB-186"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: filter ux a/b test",
+      "size": 1,
+      "ids": [
+        "AB-187"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: order confirmation page a/b test",
+      "size": 1,
+      "ids": [
+        "AB-191"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: secondary cta a/b test",
+      "size": 1,
+      "ids": [
+        "AB-194"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: icon label a/b test",
+      "size": 1,
+      "ids": [
+        "AB-197"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: link behavior a/b test",
+      "size": 1,
+      "ids": [
+        "AB-198"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: inline cta a/b test",
+      "size": 1,
+      "ids": [
+        "AB-199"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: ui shortcut a/b test",
+      "size": 1,
+      "ids": [
+        "AB-200"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: multi-step flow a/b test",
+      "size": 1,
+      "ids": [
+        "AB-201"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: notification badge a/b test",
+      "size": 1,
+      "ids": [
+        "AB-204"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: ui layout a/b test",
+      "size": 1,
+      "ids": [
+        "AB-207"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: outbound link a/b test",
+      "size": 1,
+      "ids": [
+        "AB-208"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: promo banner a/b test",
+      "size": 1,
+      "ids": [
+        "AB-210"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "ab :: ui element a/b test",
+      "size": 1,
+      "ids": [
+        "AB-211"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: entitlement journey",
+      "size": 1,
+      "ids": [
+        "ACC-71"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: provisioning journey",
+      "size": 1,
+      "ids": [
+        "ACC-72"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: entitlement change journey",
+      "size": 1,
+      "ids": [
+        "ACC-73"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: revocation journey",
+      "size": 1,
+      "ids": [
+        "ACC-74"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: access authorization journey",
+      "size": 1,
+      "ids": [
+        "ACC-75"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: credential lifecycle journey",
+      "size": 1,
+      "ids": [
+        "ACC-76"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: credential revocation journey",
+      "size": 1,
+      "ids": [
+        "ACC-77"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: access suspension journey",
+      "size": 1,
+      "ids": [
+        "ACC-78"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: access restoration journey",
+      "size": 1,
+      "ids": [
+        "ACC-79"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: deprovisioning journey",
+      "size": 1,
+      "ids": [
+        "ACC-80"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: identity resolution journey",
+      "size": 1,
+      "ids": [
+        "ACQ-01"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: lead routing journey",
+      "size": 1,
+      "ids": [
+        "ACQ-02"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: intent escalation journey",
+      "size": 1,
+      "ids": [
+        "ACQ-03"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: lead qualification journey",
+      "size": 1,
+      "ids": [
+        "ACQ-04"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: qualification journey",
+      "size": 1,
+      "ids": [
+        "ACQ-05"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: eligibility journey",
+      "size": 1,
+      "ids": [
+        "ACQ-06"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: intent decay journey",
+      "size": 1,
+      "ids": [
+        "ACQ-07"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: acquisition suppression journey",
+      "size": 1,
+      "ids": [
+        "ACQ-08"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: lead education journey",
+      "size": 1,
+      "ids": [
+        "ACQ-09"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: commercial decline journey",
+      "size": 1,
+      "ids": [
+        "ACQ-10"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: user assistance journey",
+      "size": 1,
+      "ids": [
+        "ACT-14"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: first value journey",
+      "size": 1,
+      "ids": [
+        "ACT-15"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: adoption journey",
+      "size": 1,
+      "ids": [
+        "ACT-17"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: adoption stall journey",
+      "size": 1,
+      "ids": [
+        "ACT-18"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: reactivation journey",
+      "size": 1,
+      "ids": [
+        "ACT-20"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: notification journey",
+      "size": 1,
+      "ids": [
+        "CMS-201"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: recipient resolution journey",
+      "size": 1,
+      "ids": [
+        "CMS-202"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: channel selection journey",
+      "size": 1,
+      "ids": [
+        "CMS-204"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: message suppression journey",
+      "size": 1,
+      "ids": [
+        "CMS-205"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: message delivery journey",
+      "size": 1,
+      "ids": [
+        "CMS-206"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: delivery outcome journey",
+      "size": 1,
+      "ids": [
+        "CMS-207"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: delivery failure journey",
+      "size": 1,
+      "ids": [
+        "CMS-208"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: notification delivery journey",
+      "size": 1,
+      "ids": [
+        "CMS-210"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: preference centre journey",
+      "size": 1,
+      "ids": [
+        "CON-32"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: preference change journey",
+      "size": 1,
+      "ids": [
+        "CON-33"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: frequency preference journey",
+      "size": 1,
+      "ids": [
+        "CON-34"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: contactability journey",
+      "size": 1,
+      "ids": [
+        "CON-36"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: suppression journey",
+      "size": 1,
+      "ids": [
+        "CON-38"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: cooldown journey",
+      "size": 1,
+      "ids": [
+        "CON-39"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: ownership assignment journey",
+      "size": 1,
+      "ids": [
+        "CTL-231"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: ownership recovery journey",
+      "size": 1,
+      "ids": [
+        "CTL-238"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data intake journey",
+      "size": 1,
+      "ids": [
+        "DAT-221"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data validation journey",
+      "size": 1,
+      "ids": [
+        "DAT-222"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: change approval journey",
+      "size": 1,
+      "ids": [
+        "DAT-223"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data import journey",
+      "size": 1,
+      "ids": [
+        "DAT-224"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: import recovery journey",
+      "size": 1,
+      "ids": [
+        "DAT-225"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: system cutover journey",
+      "size": 1,
+      "ids": [
+        "DAT-228"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: error recovery journey",
+      "size": 1,
+      "ids": [
+        "DAT-230"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: review assignment journey",
+      "size": 1,
+      "ids": [
+        "DEC-182"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: review journey",
+      "size": 1,
+      "ids": [
+        "DEC-183"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: information request journey",
+      "size": 1,
+      "ids": [
+        "DEC-184"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: rejection journey",
+      "size": 1,
+      "ids": [
+        "DEC-186"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: approval validity journey",
+      "size": 1,
+      "ids": [
+        "DEC-188"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: decision escalation journey",
+      "size": 1,
+      "ids": [
+        "DEC-189"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: decision reconsideration journey",
+      "size": 1,
+      "ids": [
+        "DEC-190"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document requirement decision journey",
+      "size": 1,
+      "ids": [
+        "DOC-211"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document draft validation journey",
+      "size": 1,
+      "ids": [
+        "DOC-212"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document issuance journey",
+      "size": 1,
+      "ids": [
+        "DOC-213"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document distribution journey",
+      "size": 1,
+      "ids": [
+        "DOC-214"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: signature process journey",
+      "size": 1,
+      "ids": [
+        "DOC-215"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document effectiveness journey",
+      "size": 1,
+      "ids": [
+        "DOC-216"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document amendment journey",
+      "size": 1,
+      "ids": [
+        "DOC-217"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document expiry renewal journey",
+      "size": 1,
+      "ids": [
+        "DOC-218"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document revocation journey",
+      "size": 1,
+      "ids": [
+        "DOC-219"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document version conflict journey",
+      "size": 1,
+      "ids": [
+        "DOC-220"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: feedback request eligibility journey",
+      "size": 1,
+      "ids": [
+        "FBK-41"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: customer advocacy eligibility journey",
+      "size": 1,
+      "ids": [
+        "FBK-42"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: feedback loop closure journey",
+      "size": 1,
+      "ids": [
+        "FBK-43"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: negative feedback handling journey",
+      "size": 1,
+      "ids": [
+        "FBK-44"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: positive feedback recognition journey",
+      "size": 1,
+      "ids": [
+        "FBK-45"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: complaint resolution journey",
+      "size": 1,
+      "ids": [
+        "FBK-46"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: appeal and dispute review journey",
+      "size": 1,
+      "ids": [
+        "FBK-47"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: declared preference journey",
+      "size": 1,
+      "ids": [
+        "FBK-48"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: missing data resolution journey",
+      "size": 1,
+      "ids": [
+        "FBK-49"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: relationship signal evidence journey",
+      "size": 1,
+      "ids": [
+        "FBK-50"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: financial obligation journey",
+      "size": 1,
+      "ids": [
+        "FIN-131"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: payment attempt outcome journey",
+      "size": 1,
+      "ids": [
+        "FIN-132"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: payment authorization capture journey",
+      "size": 1,
+      "ids": [
+        "FIN-133"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: failed payment recovery journey",
+      "size": 1,
+      "ids": [
+        "FIN-134"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: payment reconciliation journey",
+      "size": 1,
+      "ids": [
+        "FIN-135"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: obligation satisfaction journey",
+      "size": 1,
+      "ids": [
+        "FIN-136"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: refund request decision journey",
+      "size": 1,
+      "ids": [
+        "FIN-137"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: refund execution journey",
+      "size": 1,
+      "ids": [
+        "FIN-138"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: chargeback dispute journey",
+      "size": 1,
+      "ids": [
+        "FIN-139"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: financial reconciliation journey",
+      "size": 1,
+      "ids": [
+        "FIN-140"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: fulfillment request acceptance journey",
+      "size": 1,
+      "ids": [
+        "FUL-141"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: fulfillment availability check journey",
+      "size": 1,
+      "ids": [
+        "FUL-142"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: resource allocation journey",
+      "size": 1,
+      "ids": [
+        "FUL-143"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: fulfillment execution journey",
+      "size": 1,
+      "ids": [
+        "FUL-144"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: fulfillment exception journey",
+      "size": 1,
+      "ids": [
+        "FUL-145"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: fulfillment delay journey",
+      "size": 1,
+      "ids": [
+        "FUL-146"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: delivery tracking journey",
+      "size": 1,
+      "ids": [
+        "FUL-147"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: failed delivery recovery journey",
+      "size": 1,
+      "ids": [
+        "FUL-148"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: delivery acceptance journey",
+      "size": 1,
+      "ids": [
+        "FUL-149"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: order cancellation journey",
+      "size": 1,
+      "ids": [
+        "FUL-150"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: identity verification journey",
+      "size": 1,
+      "ids": [
+        "IDN-81"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: blocked verification journey",
+      "size": 1,
+      "ids": [
+        "IDN-82"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: document verification journey",
+      "size": 1,
+      "ids": [
+        "IDN-83"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: verification failure journey",
+      "size": 1,
+      "ids": [
+        "IDN-84"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: authentication journey",
+      "size": 1,
+      "ids": [
+        "IDN-85"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: step-up authentication journey",
+      "size": 1,
+      "ids": [
+        "IDN-86"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: login failure journey",
+      "size": 1,
+      "ids": [
+        "IDN-87"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: account recovery journey",
+      "size": 1,
+      "ids": [
+        "IDN-88"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: profile data change journey",
+      "size": 1,
+      "ids": [
+        "IDN-89"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: account security journey",
+      "size": 1,
+      "ids": [
+        "IDN-90"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: incident detection journey",
+      "size": 1,
+      "ids": [
+        "INC-251"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: incident severity journey",
+      "size": 1,
+      "ids": [
+        "INC-252"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: incident mitigation journey",
+      "size": 1,
+      "ids": [
+        "INC-253"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: incident communication journey",
+      "size": 1,
+      "ids": [
+        "INC-254"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: root cause analysis journey",
+      "size": 1,
+      "ids": [
+        "INC-255"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: service restoration journey",
+      "size": 1,
+      "ids": [
+        "INC-256"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: recovery monitoring journey",
+      "size": 1,
+      "ids": [
+        "INC-257"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: incident closure journey",
+      "size": 1,
+      "ids": [
+        "INC-258"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: post-incident review journey",
+      "size": 1,
+      "ids": [
+        "INC-259"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: recurring incident journey",
+      "size": 1,
+      "ids": [
+        "INC-260"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: integration setup journey",
+      "size": 1,
+      "ids": [
+        "INT-111"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: integration permission journey",
+      "size": 1,
+      "ids": [
+        "INT-112"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: integration health journey",
+      "size": 1,
+      "ids": [
+        "INT-113"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: external request journey",
+      "size": 1,
+      "ids": [
+        "INT-114"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data reconciliation journey",
+      "size": 1,
+      "ids": [
+        "INT-115"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: integration outage journey",
+      "size": 1,
+      "ids": [
+        "INT-116"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: blocked work queue journey",
+      "size": 1,
+      "ids": [
+        "INT-117"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data sync conflict journey",
+      "size": 1,
+      "ids": [
+        "INT-119"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: dependency outage journey",
+      "size": 1,
+      "ids": [
+        "INT-120"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: async job processing journey",
+      "size": 1,
+      "ids": [
+        "OPS-121"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: queue backlog journey",
+      "size": 1,
+      "ids": [
+        "OPS-122"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: stalled work recovery journey",
+      "size": 1,
+      "ids": [
+        "OPS-123"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: retry and backoff journey",
+      "size": 1,
+      "ids": [
+        "OPS-124"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: work deduplication journey",
+      "size": 1,
+      "ids": [
+        "OPS-125"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: partial failure recovery journey",
+      "size": 1,
+      "ids": [
+        "OPS-126"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: dead letter queue journey",
+      "size": 1,
+      "ids": [
+        "OPS-127"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: worker failure recovery journey",
+      "size": 1,
+      "ids": [
+        "OPS-128"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: backlog drain journey",
+      "size": 1,
+      "ids": [
+        "OPS-129"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: outcome verification journey",
+      "size": 1,
+      "ids": [
+        "OPS-130"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: work assignment routing journey",
+      "size": 1,
+      "ids": [
+        "OWN-51"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: work acceptance journey",
+      "size": 1,
+      "ids": [
+        "OWN-52"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: owner handover journey",
+      "size": 1,
+      "ids": [
+        "OWN-53"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: escalation journey example",
+      "size": 1,
+      "ids": [
+        "OWN-55"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: approval workflow journey",
+      "size": 1,
+      "ids": [
+        "OWN-56"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: multi party approval journey",
+      "size": 1,
+      "ids": [
+        "OWN-57"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: re-approval journey example",
+      "size": 1,
+      "ids": [
+        "OWN-58"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: approval rejection journey",
+      "size": 1,
+      "ids": [
+        "OWN-59"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: approval authority change journey",
+      "size": 1,
+      "ids": [
+        "OWN-60"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: entity relationship setup journey",
+      "size": 1,
+      "ids": [
+        "REL-91"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: relationship change journey",
+      "size": 1,
+      "ids": [
+        "REL-92"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: relationship termination journey",
+      "size": 1,
+      "ids": [
+        "REL-93"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: role and permission change journey",
+      "size": 1,
+      "ids": [
+        "REL-94"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: parent child state journey",
+      "size": 1,
+      "ids": [
+        "REL-95"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: aggregate account state journey",
+      "size": 1,
+      "ids": [
+        "REL-96"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: duplicate record handling journey",
+      "size": 1,
+      "ids": [
+        "REL-97"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: cross entity link journey",
+      "size": 1,
+      "ids": [
+        "REL-98"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: record split journey example",
+      "size": 1,
+      "ids": [
+        "REL-99"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: missing relationship journey",
+      "size": 1,
+      "ids": [
+        "REL-100"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: post purchase issue journey",
+      "size": 1,
+      "ids": [
+        "REM-151"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: return authorization journey",
+      "size": 1,
+      "ids": [
+        "REM-152"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: return shipment tracking journey",
+      "size": 1,
+      "ids": [
+        "REM-153"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: return inspection journey",
+      "size": 1,
+      "ids": [
+        "REM-154"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: replacement remedy journey",
+      "size": 1,
+      "ids": [
+        "REM-155"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: service correction journey",
+      "size": 1,
+      "ids": [
+        "REM-156"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: remedy decision journey",
+      "size": 1,
+      "ids": [
+        "REM-157"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: remedy verification journey",
+      "size": 1,
+      "ids": [
+        "REM-158"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: goodwill compensation journey",
+      "size": 1,
+      "ids": [
+        "REM-159"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: post-remedy recurrence handling journey",
+      "size": 1,
+      "ids": [
+        "REM-160"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: engagement state change reclassification",
+      "size": 1,
+      "ids": [
+        "RET-21"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: missed usage expectation journey",
+      "size": 1,
+      "ids": [
+        "RET-22"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: customer health deterioration diagnosis",
+      "size": 1,
+      "ids": [
+        "RET-23"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: churn risk escalation journey",
+      "size": 1,
+      "ids": [
+        "RET-24"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: service failure recovery journey",
+      "size": 1,
+      "ids": [
+        "RET-26"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: recovery observation window journey",
+      "size": 1,
+      "ids": [
+        "RET-27"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: cancellation intent save journey",
+      "size": 1,
+      "ids": [
+        "RET-28"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: post-cancellation wind-down journey",
+      "size": 1,
+      "ids": [
+        "RET-29"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: retention intervention outcome handling",
+      "size": 1,
+      "ids": [
+        "RET-30"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: rollout eligibility evaluation journey",
+      "size": 1,
+      "ids": [
+        "RLT-241"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: change preparation dependency journey",
+      "size": 1,
+      "ids": [
+        "RLT-242"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: scheduled change revalidation journey",
+      "size": 1,
+      "ids": [
+        "RLT-243"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: change execution verification journey",
+      "size": 1,
+      "ids": [
+        "RLT-244"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: staged rollout pilot cohort journey",
+      "size": 1,
+      "ids": [
+        "RLT-245"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: rollout pause and freeze journey",
+      "size": 1,
+      "ids": [
+        "RLT-246"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: rollback decision routing journey",
+      "size": 1,
+      "ids": [
+        "RLT-247"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: rollback execution and restore journey",
+      "size": 1,
+      "ids": [
+        "RLT-248"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: target-level change failure recovery",
+      "size": 1,
+      "ids": [
+        "RLT-249"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: change completion observation journey",
+      "size": 1,
+      "ids": [
+        "RLT-250"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: policy check evaluation journey",
+      "size": 1,
+      "ids": [
+        "RSK-191"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: risk signal correlation journey",
+      "size": 1,
+      "ids": [
+        "RSK-192"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: scoped risk restriction journey",
+      "size": 1,
+      "ids": [
+        "RSK-193"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: policy violation validation journey",
+      "size": 1,
+      "ids": [
+        "RSK-194"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: compliance requirement verification journey",
+      "size": 1,
+      "ids": [
+        "RSK-195"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: compliance hold and resume journey",
+      "size": 1,
+      "ids": [
+        "RSK-196"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: policy exception request journey",
+      "size": 1,
+      "ids": [
+        "RSK-197"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: granted exception override journey",
+      "size": 1,
+      "ids": [
+        "RSK-198"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: limit and quota handling journey",
+      "size": 1,
+      "ids": [
+        "RSK-199"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: policy change propagation journey",
+      "size": 1,
+      "ids": [
+        "RSK-200"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: availability and capacity query journey",
+      "size": 1,
+      "ids": [
+        "SCH-171"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: temporary slot hold journey",
+      "size": 1,
+      "ids": [
+        "SCH-172"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: reservation request validation journey",
+      "size": 1,
+      "ids": [
+        "SCH-173"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: confirmed reservation preparation journey",
+      "size": 1,
+      "ids": [
+        "SCH-174"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: appointment reschedule journey",
+      "size": 1,
+      "ids": [
+        "SCH-175"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: reservation cancellation journey",
+      "size": 1,
+      "ids": [
+        "SCH-176"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: scheduled start revalidation journey",
+      "size": 1,
+      "ids": [
+        "SCH-177"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: service attendance journey",
+      "size": 1,
+      "ids": [
+        "SCH-178"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: no-show and missed appointment journey",
+      "size": 1,
+      "ids": [
+        "SCH-179"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: provider cancellation journey",
+      "size": 1,
+      "ids": [
+        "SCH-180"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: subscription creation journey",
+      "size": 1,
+      "ids": [
+        "SUB-161"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: future-dated activation journey",
+      "size": 1,
+      "ids": [
+        "SUB-162"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: renewal decision journey",
+      "size": 1,
+      "ids": [
+        "SUB-163"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: renewal execution journey",
+      "size": 1,
+      "ids": [
+        "SUB-164"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: failed renewal payment journey",
+      "size": 1,
+      "ids": [
+        "SUB-165"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: plan change request journey",
+      "size": 1,
+      "ids": [
+        "SUB-166"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: cancellation request journey",
+      "size": 1,
+      "ids": [
+        "SUB-167"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: scheduled cancellation journey",
+      "size": 1,
+      "ids": [
+        "SUB-168"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: subscription suspension journey",
+      "size": 1,
+      "ids": [
+        "SUB-169"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: relationship end journey",
+      "size": 1,
+      "ids": [
+        "SUB-170"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: deadline tracking journey",
+      "size": 1,
+      "ids": [
+        "TIM-61"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: overdue state change journey",
+      "size": 1,
+      "ids": [
+        "TIM-62"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: pre-expiry window journey",
+      "size": 1,
+      "ids": [
+        "TIM-63"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: expiry execution journey",
+      "size": 1,
+      "ids": [
+        "TIM-64"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: grace period journey",
+      "size": 1,
+      "ids": [
+        "TIM-65"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: temporary exception journey",
+      "size": 1,
+      "ids": [
+        "TIM-66"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: temporary state lifecycle journey",
+      "size": 1,
+      "ids": [
+        "TIM-67"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 1,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: reversal window journey",
+      "size": 1,
+      "ids": [
+        "TIM-68"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: post-expiry re-entry journey",
+      "size": 1,
+      "ids": [
+        "TIM-69"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: scheduled transition journey",
+      "size": 1,
+      "ids": [
+        "TIM-70"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: identity merge journey",
+      "size": 1,
+      "ids": [
+        "TRM-101"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: merge conflict journey",
+      "size": 1,
+      "ids": [
+        "TRM-102"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: account consolidation journey",
+      "size": 1,
+      "ids": [
+        "TRM-103"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: primary relationship transfer journey",
+      "size": 1,
+      "ids": [
+        "TRM-104"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: responsibility handover journey",
+      "size": 1,
+      "ids": [
+        "TRM-105"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: account closure request journey",
+      "size": 1,
+      "ids": [
+        "TRM-106"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: closure dependency reconciliation journey",
+      "size": 1,
+      "ids": [
+        "TRM-107"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: account wind-down journey",
+      "size": 1,
+      "ids": [
+        "TRM-108"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data deletion request journey",
+      "size": 1,
+      "ids": [
+        "TRM-109"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    },
+    {
+      "cluster": "journey :: data deletion execution journey",
+      "size": 1,
+      "ids": [
+        "TRM-110"
+      ],
+      "worstTitleSimilarity": 0,
+      "worstPair": null,
+      "flaggedForReview": 0,
+      "unresolved": false
+    }
+  ]
+}

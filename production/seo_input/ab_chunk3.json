@@ -1,0 +1,614 @@
+[
+ {
+  "id": "AB-073",
+  "slug": "baslik-problemi-mi-cozumu-mu-anlatmali",
+  "question": "Başlık problemi mi, çözümü mü anlatmalı?",
+  "hypothesis": "Problemi adlandıran başlık ziyaretçinin kendini tanımasını sağlar ve “bu benim için” hissi yaratır. Çözümü anlatan başlık ise ne satıldığını hemen netleştirir ve zaman kaybettirmez. Problem odaklı çerçeveleme, ziyaretçi problemini zaten biliyorsa gereksiz bir adım; çözüm odaklı çerçeveleme, ziyaretçi problemin farkında değilse anlamsız gelir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "başlık çerçevesi",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Başlık problemi adlandırıyor",
+   "Başlık çözümü anlatıyor"
+  ]
+ },
+ {
+  "id": "AB-074",
+  "slug": "fayda-ifadesi-soyut-mu-somut-mu-olmali",
+  "question": "Fayda ifadesi soyut mu, somut mu olmalı?",
+  "hypothesis": "Soyut fayda (“daha verimli çalışın”) geniş kitleye hitap eder ama kimseye özel gelmez. Somut fayda (“rapor hazırlama süresi yarıya iner”) inandırıcıdır ama dar bir kullanım senaryosunu tarif eder ve diğer ziyaretçileri dışarıda bırakabilir. Somutluk aynı zamanda doğrulanabilir bir iddia yaratır; arkasında veri yoksa risklidir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "fayda ifadesi somutluğu",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Fayda ifadesi soyut (ör. \"daha verimli çalışın\")",
+   "Fayda ifadesi somut (ör. \"rapor hazırlama süresi yarıya iner\")"
+  ]
+ },
+ {
+  "id": "AB-075",
+  "slug": "sayfa-sonunda-cta-yi-tekrarlamak-donusumu-artirir-mi",
+  "question": "Sayfa sonunda CTA’yı tekrarlamak dönüşümü artırır mı?",
+  "hypothesis": "Uzun sayfada aşağı inen ziyaretçi ikna olduğunda yukarı dönmek zorunda kalmamalıdır. Sayfa sonuna ikinci bir CTA koymak bu sürtünmeyi kaldırır. Karşı tarafta: tekrar eden CTA sayfayı satış baskısı gibi hissettirebilir ve iki CTA farklı metin taşırsa mesaj dağılır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "sayfa sonu CTA",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Sayfa sonunda ikinci bir CTA yok",
+   "Sayfa sonuna ikinci bir CTA eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-076",
+  "slug": "otomatik-oynayan-tanitim-videosu-anlatimi-guclendirir-mi",
+  "question": "Otomatik oynayan tanıtım videosu anlatımı güçlendirir mi?",
+  "hypothesis": "Video karmaşık bir ürünü metinden hızlı anlatabilir. Otomatik oynatma dikkat çeker ama ses açıksa rahatsız eder, veri tüketir, sayfa yükünü artırır ve bazı ziyaretçilerin hemen çıkmasına yol açar. Tıklayınca oynayan video ise izlenme oranını düşürür fakat izleyeni gerçekten ilgili kılar.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "media",
+  "differenceBehavior": "add",
+  "testedSlot": "tanıtım videosu",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Hero alanında statik görsel, video yok",
+   "Hero alanında otomatik oynayan sessiz tanıtım videosu"
+  ]
+ },
+ {
+  "id": "AB-077",
+  "slug": "musteri-logolari-guven-yaratiyor-mu",
+  "question": "Müşteri logoları güven yaratıyor mu?",
+  "hypothesis": "Tanınan kurum logoları hızlı bir güven kısayolu sağlar. Ancak logolar ziyaretçinin tanımadığı kurumlardansa etkisizdir, hedef kitleden farklı ölçekteki kurumlarsa (kurumsal logolar küçük işletme ziyaretçisine) “bu benim için değil” hissi bile yaratabilir. Logo bandı ayrıca sayfanın ilk ekranından değerli yer alır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "müşteri logoları",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Sayfada müşteri logo bandı yok",
+   "Sayfada tanınan müşteri logolarından oluşan bir bant var"
+  ]
+ },
+ {
+  "id": "AB-078",
+  "slug": "uzman-veya-kurucu-gorunurlugu-guveni-artirir-mi",
+  "question": "Uzman veya kurucu görünürlüğü güveni artırır mı?",
+  "hypothesis": "Arkasında gerçek bir insan olduğunu göstermek (kurucu fotoğrafı ve imzası, alan uzmanının açıklaması) soyut bir markayı somutlaştırır. Karşı tarafta: kişi öne çıkarıldığında marka küçük ölçekli görünebilir, kurumsal alıcıda “tek kişilik iş” algısı yaratabilir ve kişiye bağımlılık riski doğar.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "uzman ve kurucu görünürlüğü",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Sayfada kurucu veya uzman görünürlüğü yok",
+   "Kurucu fotoğrafı ve imzası veya alan uzmanının açıklaması eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-079",
+  "slug": "uzun-sayfa-mi-kisa-sayfa-mi-daha-cok-donusturuyor",
+  "question": "Uzun sayfa mı, kısa sayfa mı daha çok dönüştürüyor?",
+  "hypothesis": "Uzun sayfa itirazları tek tek karşılar ve karmaşık ürünü anlatmaya yer bırakır. Kısa sayfa kararı hızlandırır ve dikkat dağınıklığını azaltır. Belirleyici olan uzunluk değil, ziyaretçinin karar vermek için ihtiyaç duyduğu bilgi miktarıdır; bu da ürünün karmaşıklığına ve fiyat seviyesine bağlıdır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "sayfa uzunluğu",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Uzun sayfa, itirazları tek tek karşılayan bölümlerle",
+   "Kısa sayfa, az bölümle"
+  ]
+ },
+ {
+  "id": "AB-080",
+  "slug": "nasil-calisir-bolumu-tereddudu-gideriyor-mu",
+  "question": "“Nasıl çalışır” bölümü tereddüdü gideriyor mu?",
+  "hypothesis": "Sürecin adım adım anlatılması belirsizliği azaltır ve “kaydolunca ne olacak” sorusunu cevaplar. Karşı tarafta: süreci göstermek işin ne kadar emek gerektirdiğini de ortaya koyar ve basit sanılan bir hizmetin karmaşık görünmesine yol açabilir. Adım sayısı burada mesajın kendisidir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "nasıl çalışır bölümü",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Sayfada \"nasıl çalışır\" süreç anlatımı bölümü yok",
+   "Sayfaya adım adım \"nasıl çalışır\" bölümü eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-081",
+  "slug": "ziyaretcinin-geldigi-kaynaga-gore-basligi-degistirmek-ise-yarar-mi",
+  "question": "Ziyaretçinin geldiği kaynağa göre başlığı değiştirmek işe yarar mı?",
+  "hypothesis": "Reklamdaki veya yönlendiren sayfadaki ifadeyi başlıkta karşılamak beklenti sürekliliği kurar ve “yanlış yere geldim” hissini önler. Riski: kaynak sayısı arttıkça yönetilemez sayıda varyasyon doğar, yanlış eşleştirme alakasız bir başlık gösterir ve kişiselleştirme rahatsız edici bir takip hissi yaratabilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "kaynağa göre başlık",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Tüm ziyaretçilere kaynaktan bağımsız aynı sabit başlık",
+   "Ziyaretçinin geldiği kaynağın ifadesini karşılayan, kaynağa göre uyarlanmış başlık"
+  ]
+ },
+ {
+  "id": "AB-082",
+  "slug": "sayfanin-bittigi-izlenimi-veren-tasarim-kaydirmayi-durduruyor-mu",
+  "question": "Sayfanın bittiği izlenimi veren tasarım kaydırmayı durduruyor mu?",
+  "hypothesis": "Tam ekran kaplayan bir bölüm veya güçlü bir yatay ayırıcı, ziyaretçide sayfanın sona erdiği izlenimi yaratabilir ve altındaki içerik hiç görülmez. Bu genelde fark edilmeyen bir kayıptır: içerik oradadır, ölçümde “okunmadı” görünür ve içeriğin kendisi suçlanır. Ayırıcıyı yumuşatmak veya alttan bir parça göstermek kaydırmayı sürdürebilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "sayfa sonu izlenimi",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Tam ekran yüksekliğinde bölüm veya güçlü yatay ayırıcıyla biten, sayfanın bittiği izlenimini veren görünüm",
+   "Bölüm sınırı yumuşatılmış veya alttaki içerikten bir parça görünen, kaydırmayı sürdüren geçiş"
+  ]
+ },
+ {
+  "id": "AB-083",
+  "slug": "ornek-kullanim-senaryolari-gostermek-karar-verdiriyor-mu",
+  "question": "Örnek kullanım senaryoları göstermek karar verdiriyor mu?",
+  "hypothesis": "Ziyaretçi çoğu zaman ürünün ne olduğunu değil, kendi durumunda ne işe yarayacağını anlamakta zorlanır. Somut kullanım örnekleri bu boşluğu doldurur. Karşı tarafta: örnekler dar seçilirse kendini orada görmeyen ziyaretçi elenir ve sayfa uzar.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kullanım senaryoları",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Sayfada kullanım senaryosu örneği yok",
+   "Somut kullanım senaryosu örnekleri eklenmiş sayfa"
+  ]
+ },
+ {
+  "id": "AB-084",
+  "slug": "uzun-sayfada-bolum-navigasyonu-ise-yariyor-mu",
+  "question": "Uzun sayfada bölüm navigasyonu işe yarıyor mu?",
+  "hypothesis": "Sayfa içi bağlantılar (sabit bir bölüm menüsü veya içindekiler) ziyaretçinin aradığı bölüme atlamasını sağlar. Riski: navigasyon ziyaretçiyi tek bir bölüme götürüp geri kalan ikna içeriğini atlatabilir; ayrıca ekranda yer kaplar ve mobilde dar alanda sıkışır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "bölüm navigasyonu",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Bölüm navigasyonu (sabit menü/içindekiler) olmayan uzun sayfa",
+   "Sabit menü veya içindekiler biçiminde bölüm navigasyonu eklenmiş sayfa"
+  ]
+ },
+ {
+  "id": "AB-085",
+  "slug": "reddetme-secenegini-gorunur-yapmak-donusumu-etkiler-mi",
+  "question": "Reddetme seçeneğini görünür yapmak dönüşümü etkiler mi?",
+  "hypothesis": "Bir teklifin yanına açık bir “şimdi değil” seçeneği koymak kullanıcıya kontrol hissi verir ve zorlanma tepkisini azaltır. Sezgiye aykırı olan şudur: reddetmeyi kolaylaştırmak kabul oranını düşürebileceği gibi, güven artışı yoluyla toplam ilişkiyi güçlendirebilir. Ölçülmesi gereken tek seferlik kabul değil, sonraki davranıştır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "reddetme seçeneği görünürlüğü",
+  "primaryKpi": "Toplam Kabul Oranı",
+  "armLabels": [
+   "Teklifte yalnızca kabul aksiyonu var, açık bir reddetme seçeneği görünmüyor",
+   "Teklifin yanında açık, görünür bir 'şimdi değil' reddetme seçeneği var"
+  ]
+ },
+ {
+  "id": "AB-086",
+  "slug": "sayfanin-ustundeki-fayda-cubugu-aksiyonu-artiriyor-mu",
+  "question": "Sayfanın üstündeki fayda çubuğu aksiyonu artırıyor mu?",
+  "hypothesis": "Başlığın hemen üstünde veya altında duran ince bir şerit (ücretsiz kargo, iade süresi, teslimat vaadi) en sık sorulan üç soruyu kaydırmadan cevaplar. Karşı tarafta: şerit reklam bandına benzeyip görmezden gelinebilir, dikkat çekerse asıl başlığın önüne geçer ve ekranın en değerli bölümünden yer alır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "üst fayda çubuğu",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Başlığın üstünde veya altında fayda çubuğu yok",
+   "Başlığın üstünde veya altında en sık sorulan üç konuyu özetleyen ince fayda çubuğu"
+  ]
+ },
+ {
+  "id": "AB-087",
+  "slug": "baslikta-ozellik-mi-fayda-mi-once-gelmeli",
+  "question": "Başlıkta özellik mi, fayda mı önce gelmeli?",
+  "hypothesis": "Faydayı öne almak ziyaretçinin kendi sonucunu görmesini sağlar. Özelliği öne almak ise ne olduğunu hemen netleştirir ve ne aradığını bilen ziyaretçiyi hızlandırır. Fayda önde olduğunda ürünün ne olduğu belirsiz kalabilir; özellik önde olduğunda ise “bu bana ne kazandırır” sorusu cevapsız kalır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "başlıkta özellik ve fayda sırası",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Başlıkta önce fayda ifadesi, sonra özellik",
+   "Başlıkta önce özellik ifadesi, sonra fayda"
+  ]
+ },
+ {
+  "id": "AB-088",
+  "slug": "guvenceleri-madde-listesi-halinde-vermek-ikna-ediyor-mu",
+  "question": "Güvenceleri madde listesi hâlinde vermek ikna ediyor mu?",
+  "hypothesis": "Kısa madde listesi (iptal koşulu, veri güvenliği, destek, teslimat) paragraf içinde kaybolan güvenceleri taranabilir hâle getirir. Riski: liste uzarsa hiçbiri okunmaz, ayrıca güvence listesi ziyaretçinin aklına gelmemiş endişeleri hatırlatıp tereddüt yaratabilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "güvence listesi biçimi",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Güvenceler açıklama paragrafının içinde geçiyor",
+   "Güvenceler kısa madde listesi hâlinde"
+  ]
+ },
+ {
+  "id": "AB-089",
+  "slug": "guvenceleri-tek-blokta-mi-akisa-yayarak-mi-sunmali",
+  "question": "Güvenceleri tek blokta mı, akışa yayarak mı sunmalı?",
+  "hypothesis": "Tüm güvenceleri tek bölümde toplamak derli toplu bir cevap verir ama o bölüme ulaşmayan ziyaretçi hiçbirini görmez. Endişenin doğduğu yere yerleştirmek (fiyatın yanına iade koşulu, forma veri güvencesi) her güvenceyi tam ihtiyaç anında sunar; buna karşılık sayfa dağınıklaşabilir ve mesaj tekrarı yorucu gelebilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "güvencelerin sayfadaki dağılımı",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Tüm güvenceler tek bir bölümde toplanmış",
+   "Güvenceler endişenin doğduğu noktalara (fiyatın yanına iade koşulu, forma veri güvencesi) yayılmış"
+  ]
+ },
+ {
+  "id": "AB-090",
+  "slug": "video-referans-yazili-referanstan-daha-mi-ikna-edici",
+  "question": "Video referans yazılı referanstan daha mı ikna edici?",
+  "hypothesis": "Videoda gerçek bir kişinin konuşması metinden daha inandırıcı gelir ve taklit edilmesi zordur. Bedeli: izlenme oranı okumaya göre düşüktür, üretimi pahalıdır, sayfa yükünü artırır ve videoyu açmayan ziyaretçi hiçbir referans görmemiş olur.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "media",
+  "differenceBehavior": "change",
+  "testedSlot": "video referans",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Yazılı referans (alıntı metni)",
+   "Video referans (gerçek kişinin konuştuğu kayıt)"
+  ]
+ },
+ {
+  "id": "AB-091",
+  "slug": "referansi-sonuc-anlatan-musteriden-secmek-fark-yaratir-mi",
+  "question": "Referansı sonuç anlatan müşteriden seçmek fark yaratır mı?",
+  "hypothesis": "“Çok memnun kaldım” diyen genel bir referans duygu bildirir; “şu sorunu şu kadar sürede çözdük” diyen referans ise somut bir sonuç gösterir. Sonuç odaklı referans daha ikna edicidir ama dar bir kullanım senaryosunu tarif eder ve kendini orada görmeyen ziyaretçiyi kapsamayabilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "referans seçimi",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Genel övgü ifade eden referans (ör. 'Çok memnun kaldım')",
+   "Somut sonuç anlatan referans (ör. 'şu sorunu şu kadar sürede çözdük')"
+  ]
+ },
+ {
+  "id": "AB-092",
+  "slug": "ziyaretcinin-geldigi-kaynaga-uygun-referans-gostermek-ise-yarar-mi",
+  "question": "Ziyaretçinin geldiği kaynağa uygun referans göstermek işe yarar mı?",
+  "hypothesis": "Ziyaretçiyle aynı sektörden veya aynı kanaldan gelen bir müşterinin referansı “benim gibi biri” etkisi yaratır. Riski: kaynak eşleştirmesi yanlışsa alakasız bir referans gösterilir, ayrıca her kaynak için ayrı referans yönetmek sürdürülemez hâle gelebilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "kaynağa göre referans",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Tüm ziyaretçilere kaynaktan bağımsız aynı sabit referans",
+   "Ziyaretçinin geldiği kaynağa (sektör/kanal) uygun eşleştirilmiş referans"
+  ]
+ },
+ {
+  "id": "AB-093",
+  "slug": "bolumleri-zigzag-dizmek-okumayi-surduruyor-mu",
+  "question": "Bölümleri zigzag dizmek okumayı sürdürüyor mu?",
+  "hypothesis": "Görsel ve metnin dönüşümlü olarak sağa sola geçmesi (zigzag) monotonluğu kırar ve her bölümü ayrı bir birim gibi gösterir. Karşı tarafta: göz her bölümde yön değiştirmek zorunda kalır, tarama yavaşlar ve tek sütunlu düzenin sunduğu hızlı okuma kaybolur.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "bölüm yerleşim deseni",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Tüm bölümlerde görsel ve metin aynı tarafta, tutarlı hizalama",
+   "Bölümlerde görsel ve metnin dönüşümlü olarak sağa sola geçtiği zigzag düzen"
+  ]
+ },
+ {
+  "id": "AB-094",
+  "slug": "soyut-tema-gorselleri-mi-gercek-urun-ekranlari-mi-daha-etkili",
+  "question": "Soyut tema görselleri mi, gerçek ürün ekranları mı daha etkili?",
+  "hypothesis": "Soyut veya kavramsal görseller estetik bir bütünlük kurar ve ürün henüz olgunlaşmamışken işe yarar. Gerçek ürün ekranları ise ne alındığını gösterir ve belirsizliği kaldırır; buna karşılık ekranlar karmaşık görünüp caydırabilir ve hızla eskiyip bakım yükü yaratabilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "media",
+  "differenceBehavior": "change",
+  "testedSlot": "hero görsel türü",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Soyut veya kavramsal tema görselleri",
+   "Gerçek ürün ekran görüntüleri"
+  ]
+ },
+ {
+  "id": "AB-095",
+  "slug": "indirilebilir-bir-kaynak-sunmak-lead-sayisini-artirir-mi",
+  "question": "İndirilebilir bir kaynak sunmak lead sayısını artırır mı?",
+  "hypothesis": "Rehber, şablon veya kontrol listesi karşılığında iletişim bilgisi istemek, satın almaya hazır olmayan ziyaretçiyi de yakalar. Riski: gelen kayıtların çoğu ürünle değil kaynakla ilgilenir, satış ekibinin yükü artar ve niteliksiz lead oranı yükselir. Asıl ölçülmesi gereken kayıt sayısı değil, nitelikli fırsat sayısıdır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "indirilebilir kaynak",
+  "primaryKpi": "Nitelikli Fırsat Sayısı",
+  "armLabels": [
+   "Sayfada indirilebilir bir kaynak (rehber/şablon/kontrol listesi) sunulmuyor",
+   "İletişim bilgisi karşılığında indirilebilir bir kaynak (rehber, şablon, kontrol listesi) sunuluyor"
+  ]
+ },
+ {
+  "id": "AB-096",
+  "slug": "para-iade-garantisini-one-cikarmak-satin-almayi-artirir-mi",
+  "question": "Para iade garantisini öne çıkarmak satın almayı artırır mı?",
+  "hypothesis": "Koşulsuz iade vaadi algılanan riski satıcıya aktarır ve kararsız ziyaretçiyi ilerletir. Bedeli: iade oranı yükselebilir, operasyonel maliyet artabilir ve garanti çok öne çıkarsa ürüne güvenilmediği izlenimi bile doğurabilir. Kazanç, ek satışın iade maliyetini aşıp aşmadığına bağlıdır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "para iade garantisi vurgusu",
+  "primaryKpi": "Ziyaretçi Başına Net Gelir",
+  "armLabels": [
+   "Para iade garantisi sayfada var ama öne çıkarılmamış",
+   "Para iade garantisi görünür şekilde öne çıkarılmış, vurgulanmış"
+  ]
+ },
+ {
+  "id": "AB-097",
+  "slug": "ziyaretciyi-kendi-diliyle-karsilamak-ise-yarar-mi",
+  "question": "Ziyaretçiyi kendi diliyle karşılamak işe yarar mı?",
+  "hypothesis": "Tarayıcı diline veya konuma göre karşılama ifadesini uyarlamak yakınlık kurar ve doğru yere geldiğini hissettirir. Riski: yanlış tespit edilen dil rahatsız eder, yarım çevrilmiş bir sayfa güveni düşürür ve karşılama dili ile içerik dili farklı olursa kafa karışıklığı yaratır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "dil karşılaması",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Herkese sitenin varsayılan dilinde tek karşılama ifadesi",
+   "Tarayıcı diline veya konuma göre uyarlanmış karşılama ifadesi"
+  ]
+ },
+ {
+  "id": "AB-098",
+  "slug": "referanslari-kaydiricida-mi-hepsi-gorunur-halde-mi-sunmali",
+  "question": "Referansları kaydırıcıda mı, hepsi görünür hâlde mi sunmalı?",
+  "hypothesis": "Kaydırıcı çok sayıda referansı az yerde barındırır ve sayfayı kısaltır. Bedeli: ilk kartın ötesini çok az ziyaretçi görür, otomatik ilerleyen kaydırıcı okumayı yarıda keser ve kaydırılabilir olduğu fark edilmezse geri kalan içerik boşa gider. Hepsini göstermek ise sayfayı uzatır ama tamamının görülmesini sağlar.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "referans sunum biçimi",
+  "primaryKpi": "Ana Aksiyon Tamamlama Oranı",
+  "armLabels": [
+   "Referanslar kaydırıcıda (carousel) sunuluyor",
+   "Tüm referanslar aynı anda görünür hâlde sunuluyor"
+  ]
+ },
+ {
+  "id": "AB-099",
+  "slug": "sosyal-medya-takipci-veya-begeni-sayisini-gostermek-guveni-artirir-mi",
+  "question": "Sosyal medya takipçi veya beğeni sayısını göstermek güveni artırır mı?",
+  "hypothesis": "Bir marka sayfasının yanında görünen takipçi veya beğeni sayısı, ürünün başkaları tarafından da tercih edildiğini gösteren dolaylı bir sosyal kanıttır. Risk, sayının küçük veya büyümekte olduğu bir markada beklenenin tersi bir etki yaratmasıdır — düşük bir sayı, kanıt yerine şüphe uyandırabilir.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "sosyal medya sayaçları",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Sosyal medya takipçi veya beğeni sayısı gösterilmiyor",
+   "Marka sayfasının yanında takipçi veya beğeni sayacı gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-100",
+  "slug": "sayfa-acilisinda-icerigi-kismen-kaplayan-buyuk-bir-karsilama-ekrani-ilgiyi-artir",
+  "question": "Sayfa açılışında içeriği kısmen kaplayan büyük bir karşılama ekranı ilgiyi artırır mı?",
+  "hypothesis": "Küçük bir pop-up’tan farklı olarak, kısmi karşılama ekranı sayfanın büyük bir kısmını (genelde ilk ekranın tamamına yakınını) tek bir mesaj veya teklifle kaplar, altındaki içeriğin bir kısmı kenarlarda görünür kalır. Amaç dikkati tek bir noktaya toplamaktır; risk, ziyaretçinin asıl sayfaya hiç ulaşmadan ayrılmasıdır.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "karşılama ekranı",
+  "primaryKpi": "Devam Etme Oranı",
+  "armLabels": [
+   "Sayfa normal şekilde açılıyor, karşılama ekranı/takeover yok",
+   "Sayfa açılışında içeriğin büyük kısmını kısmen kaplayan, tek mesaj/teklif içeren karşılama ekranı"
+  ]
+ },
+ {
+  "id": "AB-101",
+  "slug": "anasayfayi-tek-bir-anlati-yerine-ziyaretci-tipine-gore-ayri-bloklara-bolmek-iler",
+  "question": "Anasayfayı tek bir anlatı yerine ziyaretçi tipine göre ayrı bloklara bölmek ilerlemeyi artırır mı?",
+  "hypothesis": "Çoğu anasayfa tek bir ziyaretçi profilini varsayıp doğrusal bir anlatı kurar (başlık → fayda → sosyal kanıt → CTA). Farklı ziyaretçi tipleri (ör. bireysel kullanıcı / kurumsal alıcı, yeni müşteri / mevcut müşteri) farklı sorularla geldiğinde bu tek anlatı hiçbirine tam oturmaz. Sayfayı bir yönlendirme sayfası gibi kurup her tipe ayrı bir blok sunmak (ör. “Bireysel kullanım için” / “Ekibiniz için” iki ayrı kart) ilgili ziyaretçiyi daha hızlı doğru içeriğe taşıyabilir; riski, tek bir net mesaj yerine sayfanın başında birden fazla seçenek sunmanın kararsızlık yaratmasıdır. Bu, “Ziyaretçinin geldiği kaynağa göre başlığı değiştirmek işe yarar mı?” senaryosundan farklıdır: orada tek başlık ziyaretçiye göre değişir, burada ekranda aynı anda birden fazla yol görünür durur.",
+  "category": "Home & Landing",
+  "surface": "home",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "anasayfa anlatı yapısı",
+  "primaryKpi": "İlgili Bloğa Tıklama Oranı",
+  "armLabels": [
+   "Tek anlatılı, doğrusal anasayfa, tüm ziyaretçilere aynı akış",
+   "Ziyaretçi tipine göre ayrılmış, aynı ekranda görünen ayrı bloklar (ör. \"Bireysel kullanım için\" / \"Ekibiniz için\" iki ayrı kart)"
+  ]
+ },
+ {
+  "id": "AB-102",
+  "slug": "servis-ikonlarini-buyutmek-davranisi-degistirir-mi",
+  "question": "Servis ikonlarını büyütmek davranışı değiştirir mi?",
+  "hypothesis": "Tüm servisleri eşit boyutta göstermek nötr bir deneyim yaratır. Öncelikli servisleri büyütmek o servislere yönelmeyi artırabilir ama diğerlerini gölgeleyebilir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "servis ikonu boyutu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Tüm servis ikonları eşit boyutta gösteriliyor",
+   "Öncelikli servisin ikonu büyütülmüş, diğerleri aynı boyutta kalıyor"
+  ]
+ },
+ {
+  "id": "AB-103",
+  "slug": "kayit-duvari-sert-mi-yumusak-mi-olmali",
+  "question": "Kayıt duvarı sert mi, yumuşak mı olmalı?",
+  "hypothesis": "Uygulamayı açar açmaz üye olmayı zorunlu tutmak (sert duvar), kullanıcının değeri görmeden ayrılmasına yol açabilir. Önce denemesine izin vermek (yumuşak duvar) ilk izlenimi artırabilir ama kayıt oranını düşürebilir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "kayıt duvarı sertliği",
+  "primaryKpi": "Kayıt Oranı",
+  "armLabels": [
+   "Sert duvar: açılışta zorunlu kayıt, atlama yolu yok",
+   "Yumuşak duvar: önce misafir modunda deneme, kayıt sonra"
+  ]
+ },
+ {
+  "id": "AB-104",
+  "slug": "push-izni-ne-zaman-istenmeli",
+  "question": "Push izni ne zaman istenmeli?",
+  "hypothesis": "İzin isteğini açılışta göstermek çoğu kullanıcıdan “İzin Verme” yanıtı alır ve o izni bir daha kolay isteyemezsiniz. İlk değeri gördükten sonra sormak kabul oranını yükseltebilir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "push izni zamanlaması",
+  "primaryKpi": "İzin Kabul Oranı",
+  "armLabels": [
+   "İzin isteği uygulama açılışında gösteriliyor",
+   "İzin isteği ilk değer gösterildikten sonra gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-105",
+  "slug": "yukleme-ekrani-mesaji-satisi-etkiler-mi",
+  "question": "Yükleme ekranı mesajı satışı etkiler mi?",
+  "hypothesis": "Yükleme ekranları çoğunlukla boş geçer. Bu anlarda kampanya veya avantaj bilgisi göstermek dikkati çekebilir ve bekleme algısını yumuşatabilir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "yükleme ekranı mesajı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Yükleme ekranı boş, sadece marka işareti ve yükleme göstergesi",
+   "Yükleme ekranında kampanya veya avantaj mesajı gösteriliyor (ör. \"%70'e varan indirim\")"
+  ]
+ },
+ {
+  "id": "AB-106",
+  "slug": "yeni-ve-donen-kullaniciya-farkli-anasayfa-gostermek-ise-yarar-mi",
+  "question": "Yeni ve dönen kullanıcıya farklı anasayfa göstermek işe yarar mı?",
+  "hypothesis": "Yeni ziyaretçinin marka bilgisine, dönen ziyaretçinin ise hızlı devam yoluna ihtiyacı vardır. Aynı anasayfayı ikisine de göstermek her iki grubu da yarı yolda bırakabilir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "kullanıcı tipine göre anasayfa",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Yeni ve dönen kullanıcıya aynı anasayfa gösteriliyor",
+   "Dönen kullanıcıya 'kaldığın yerden devam' bloğuyla açılan farklı anasayfa"
+  ]
+ },
+ {
+  "id": "AB-107",
+  "slug": "son-gezilen-urunler-seridi-geri-donusu-artirir-mi",
+  "question": "Son gezilen ürünler şeridi geri dönüşü artırır mı?",
+  "hypothesis": "Kullanıcının kendi gezinme geçmişi, algoritmik öneriden daha alakalıdır ve hatırlatma maliyeti sıfırdır. Ancak satın alınmış ürünü tekrar göstermek deneyimi bozar.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "son gezilen ürünler şeridi",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Anasayfada son gezilen ürünler şeridi yok",
+   "Anasayfada son gezilen ürünler şeridi gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-108",
+  "slug": "cikis-niyeti-pop-up-i-kacan-kullaniciyi-kurtarir-mi",
+  "question": "Çıkış niyeti pop-up’ı kaçan kullanıcıyı kurtarır mı?",
+  "hypothesis": "Zamana bağlı pop-up herkesi keser; çıkış niyetine bağlı pop-up sadece zaten gitmekte olan kullanıcıyı yakalar. Teorik olarak maliyeti düşüktür ama mobilde çıkış niyeti sinyali güvenilir değildir.",
+  "category": "Mobile App",
+  "surface": "mobile",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "çıkış niyeti pop-up'ı",
+  "primaryKpi": "Kurtarma Oranı",
+  "armLabels": [
+   "Çıkış niyeti pop-up'ı gösterilmiyor",
+   "Çıkış niyetinde pop-up gösteriliyor"
+  ]
+ }
+]

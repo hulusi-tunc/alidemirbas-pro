@@ -1,0 +1,42 @@
+{
+  "_description": "Deterministic SEO/indexability contract for the 255 active journey detail pages plus the 5 merged redirects. No marketing copy invented — every source field named here already exists in the canonical data; where none exists, that is stated as UNKNOWN rather than filled.",
+
+  "activeJourneys": {
+    "count": 255,
+    "index": true,
+    "follow": true,
+    "canonicalUrl": "/{basePath}/{slug} — slug is unique across all 255 (verified: 0 duplicates)",
+    "titleSource": {
+      "field": "journey.name",
+      "status": "COMPLETE",
+      "note": "Unique across all 255 (0 duplicates). Length 35-87 chars (median 62) — see journey-content-stats.json. A <title> tag built directly from this needs no fallback."
+    },
+    "descriptionSource": {
+      "field": "journey.purpose",
+      "status": "NEEDS-COPY",
+      "note": "journey.purpose exists on all 255 and is unique (0 duplicates), but it is written as internal documentation prose for the people maintaining the library ('Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity...') — not as a search-result-facing meta description. Using it verbatim is safe (no source mutation) but is a genuine content decision, not a data gap: whether purpose text doubles as the meta description, or a shorter public-facing description gets authored separately, is UNKNOWN and left for the content owner to decide. Length range 61-192 chars (median 107) — most of the range fits a meta description's ~155-char budget; REL-91-length outliers (192) would need truncation policy, not source mutation."
+    },
+    "hreflang": {
+      "status": "UNKNOWN",
+      "note": "The canonical library carries no language field — src/canonical/types.ts has no locale/language property on CanonicalJourney. Whether/how an EN/TR pair exists is a routing-layer decision outside this data model; this contract cannot assert hreflang correctness because the source data doesn't carry the information needed to. Flagged, not guessed."
+    },
+    "sitemapInclusion": "all 255 active journeys, canonical URL only"
+  },
+
+  "mergedRedirects": {
+    "count": 5,
+    "ids": ["CON-37", "CMS-209", "CTL-239", "CTL-240", "RET-25"],
+    "index": false,
+    "follow": true,
+    "canonicalUrl": "points to the surviving journey's own canonical URL (never a second canonical URL of its own)",
+    "sitemapInclusion": false,
+    "note": "A merged id's page exists only so an old link resolves (per src/lib/canonical-view.ts's MERGED_REDIRECTS). It must never independently rank — noindex + canonical-to-survivor is the whole contract, and it is already what canonical-view.ts's resolveDetailSlug produces structurally."
+  },
+
+  "duplicateContentRisk": {
+    "titleDuplicates": 0,
+    "purposeDuplicates": 0,
+    "slugDuplicates": 0,
+    "note": "Checked across all 255 active journeys. 0 found on all three axes — no dedup work needed at the data layer."
+  }
+}

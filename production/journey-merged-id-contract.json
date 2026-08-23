@@ -1,0 +1,50 @@
+{
+  "_description": "Production contract for the 5 merged redirects. Represents existing behavior only — no new redirect created. Merged ids are never counted as active journeys, categories, or graph statistics.",
+  "records": [
+    {
+      "requestedId": "CON-37",
+      "resolvedJourneyId": "CMS-208",
+      "canonicalSlug": "delivery-recovery",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'CON-37 was consolidated into CMS-208' — the mechanism this id used to own now lives on Delivery failure → classify → retry, fallback or stop"
+    },
+    {
+      "requestedId": "CMS-209",
+      "resolvedJourneyId": "CON-36",
+      "canonicalSlug": "channel-contactability-state",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'CMS-209 was consolidated into CON-36' — the mechanism this id used to own now lives on Channel contactability change → recalculate reachability → route or suppress"
+    },
+    {
+      "requestedId": "CTL-239",
+      "resolvedJourneyId": "OWN-57",
+      "canonicalSlug": "multi-party-approval-aggregation",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'CTL-239 was consolidated into OWN-57' — the mechanism this id used to own now lives on Multi-party approval → aggregate required decisions → authorised or blocked"
+    },
+    {
+      "requestedId": "CTL-240",
+      "resolvedJourneyId": "OWN-54",
+      "canonicalSlug": "ownership-change-obligation-transfer",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'CTL-240 was consolidated into OWN-54' — the mechanism this id used to own now lives on Ownership change → transfer obligations → continue"
+    },
+    {
+      "requestedId": "RET-25",
+      "resolvedJourneyId": "RSK-192",
+      "canonicalSlug": "risk-signal",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'RET-25 was consolidated into RSK-192' — the mechanism this id used to own now lives on Risk signal → correlate evidence → clear, monitor, restrict or review"
+    }
+  ]
+}

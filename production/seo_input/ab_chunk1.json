@@ -1,0 +1,593 @@
+[
+ {
+  "id": "AB-001",
+  "slug": "cta-buton-rengi-donusumu-etkiler-mi",
+  "question": "CTA buton rengi dönüşümü etkiler mi?",
+  "hypothesis": "Buton rengi klasik bir test konusudur ama genelde yanlış kurulur: “kırmızı mı yeşil mi daha iyi” evrensel bir cevabı yoktur, sayfanın geri kalan renk paletiyle kontrastı önemlidir. Marka renginden sapan ama sayfada öne çıkan bir renk genelde kazanır — rengin kendisi değil, göze çarpma derecesi test edilir.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "CTA buton rengi",
+  "primaryKpi": "Tıklama Oranı (CTR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-002",
+  "slug": "fazla-cta-donusumu-azaltir-mi",
+  "question": "Fazla CTA dönüşümü azaltır mı?",
+  "hypothesis": "Birden fazla CTA kullanıcı odağını bölerek karar süresini uzatabilir. Sadeleşmenin dönüşüme etkisi ölçülmelidir.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "remove",
+  "testedSlot": "CTA sayısı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Sepette birden fazla, tekrarlayan/işlevsiz CTA bulunuyor",
+   "Tekrarlayan/işlevsiz CTA'lar kaldırılmış, sade tek CTA yapısı"
+  ]
+ },
+ {
+  "id": "AB-003",
+  "slug": "ucretsiz-kargo-cubugu-sepet-tutarini-artiriyor-mu",
+  "question": "Ücretsiz kargo çubuğu sepet tutarını artırıyor mu?",
+  "hypothesis": "Ücretsiz kargoya ne kadar kaldığını göstermek, sepeti büyütme motivasyonunu yükseltebilir. Bu etkinin gerçekte ne kadar olduğu ölçülmelidir.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ücretsiz kargo çubuğu",
+  "primaryKpi": "Ortalama Sepet Tutarı (AOV)",
+  "armLabels": [
+   "Sepette ücretsiz kargoya kalan tutarı gösteren bir çubuk yok",
+   "Ücretsiz kargoya kalan tutarı gösteren ilerleme çubuğu eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-004",
+  "slug": "acik-kupon-kodu-alani-sepet-terkini-artirir-mi",
+  "question": "Açık kupon kodu alanı sepet terkini artırır mı?",
+  "hypothesis": "Görünür bir kupon kutusu, kodu olmayan kullanıcıyı “indirim arayayım” diye siteden çıkarabilir. Kodu bağlantı arkasına almak bu kaçağı kapatabilir ama kampanya kullanımını düşürebilir.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "kupon kodu alanı",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Kupon kodu alanı sepette açık, doğrudan görünür bir kutu",
+   "Kupon alanı 'İndirim kodum var' bağlantısı arkasında gizli"
+  ]
+ },
+ {
+  "id": "AB-005",
+  "slug": "uye-olmadan-odeme-secenegi-ise-yarar-mi",
+  "question": "Üye olmadan ödeme seçeneği işe yarar mı?",
+  "hypothesis": "Zorunlu üyelik satın alma sürecini uzatır ve terk oranını yükseltebilir. Misafir ödemenin dönüşüme etkisi ölçülmelidir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "üyeliksiz ödeme seçeneği",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Satın almak için üyelik/hesap oluşturma zorunlu",
+   "Üye olmadan (misafir) ödeme seçeneği eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-006",
+  "slug": "tek-sayfa-checkout-mu-cok-adimli-checkout-mu",
+  "question": "Tek sayfa checkout mu, çok adımlı checkout mu?",
+  "hypothesis": "Tek sayfa akışı toplam tıklamayı azaltır ama ilk bakışta yoğun görünür. Çok adımlı akış daha sindirilebilirdir ama her adım bir kayıp noktasıdır. Sepet tutarına ve cihaza göre kazanan değişebilir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "checkout akış yapısı",
+  "primaryKpi": "Sipariş Tamamlama Oranı",
+  "armLabels": [
+   "Tek sayfa checkout akışı",
+   "Çok adımlı checkout akışı"
+  ]
+ },
+ {
+  "id": "AB-007",
+  "slug": "adres-formundaki-alan-sayisini-azaltmak-tamamlamayi-artirir-mi",
+  "question": "Adres formundaki alan sayısını azaltmak tamamlamayı artırır mı?",
+  "hypothesis": "Her ek form alanı bir sürtünme noktasıdır. Posta koduyla otomatik il/ilçe doldurma veya adres önerisi kullanmak, mobilde yazma yükünü ciddi biçimde azaltabilir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "remove",
+  "testedSlot": "adres formu alan seti",
+  "primaryKpi": "Adres Adımı Tamamlama",
+  "armLabels": [
+   "Adres formunda mevcut alan seti, kullanıcı her alanı elle dolduruyor",
+   "Alan sayısı azaltılmış; posta kodundan otomatik doldurma veya adres önerisi kullanılıyor"
+  ]
+ },
+ {
+  "id": "AB-008",
+  "slug": "adet-seciminin-gorunurlugu-davranisi-etkiliyor-mu",
+  "question": "Adet seçiminin görünürlüğü davranışı etkiliyor mu?",
+  "hypothesis": "Sepette adet seçimini daha net sunmak, kullanıcıların adedi artırma davranışını ve sepet değerini etkileyebilir.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "adet seçici görünürlüğü",
+  "primaryKpi": "Ortalama Sepet Tutarı",
+  "armLabels": [
+   "Sepette adet seçici küçük, az belirgin bir kontrol",
+   "Adet seçici belirginleştirilmiş, '+ / −' butonları öne çıkarılmış"
+  ]
+ },
+ {
+  "id": "AB-009",
+  "slug": "sepetteki-urun-onerileri-satin-almayi-artirir-mi",
+  "question": "Sepetteki ürün önerileri satın almayı artırır mı?",
+  "hypothesis": "Sepet adımında tamamlayıcı ürün göstermek ortalama sepet tutarını yükseltebilir ama asıl akıştan uzaklaştırma riski taşır.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "sepette ürün önerisi modülü",
+  "primaryKpi": "Ortalama Sepet Tutarı (AOV)",
+  "armLabels": [
+   "Sepette tamamlayıcı ürün önerisi gösterilmiyor",
+   "Sepete tamamlayıcı ürün önerileri modülü eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-010",
+  "slug": "kargo-esigini-yukseltmek-sepet-ortalamasini-artirir-mi",
+  "question": "Kargo eşiğini yükseltmek sepet ortalamasını artırır mı?",
+  "hypothesis": "Ücretsiz kargo sınırı sepeti büyütmek için güçlü bir teşviktir, ancak eşik fazla yükselirse kullanıcıyı kaçırır. Dengenin nerede olduğu ölçülmelidir.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "ücretsiz kargo eşiği",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-011",
+  "slug": "microcopy-kullanici-davranisini-nasil-etkiliyor",
+  "question": "Microcopy kullanıcı davranışını nasıl etkiliyor?",
+  "hypothesis": "Küçük metin değişiklikleri bile karar hızını, güven algısını ve yönlendirilme davranışını etkileyebilir. Bu test, buton altı mesajların ve güven verici ifadelerin dönüşüme etkisini ölçer.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "microcopy",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-012",
+  "slug": "kayitli-kartla-hizli-odeme-donusumu-artiriyor-mu",
+  "question": "Kayıtlı kartla hızlı ödeme dönüşümü artırıyor mu?",
+  "hypothesis": "Kayıtlı kartla tek tıkla ödeme, veri girişini ortadan kaldırarak süreci hızlandırır ve sürtünmeyi azaltır. Bu kolaylığın dönüşüme ne kadar yansıdığı ölçülmelidir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kayıtlı kartla hızlı ödeme",
+  "primaryKpi": "Ödeme Tamamlama Oranı",
+  "armLabels": [
+   "Ödeme adımında kayıtlı kartla hızlı ödeme yok, kart bilgisi elle giriliyor",
+   "Kayıtlı kartla tek tıkla hızlı ödeme seçeneği eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-013",
+  "slug": "ilerleme-cubugu-tamamlama-oranini-artiriyor-mu",
+  "question": "İlerleme çubuğu tamamlama oranını artırıyor mu?",
+  "hypothesis": "İlerleme çubuğu kullanıcıya konumunu ve kalan adımı gösterir, süreçten vazgeçmeyi azaltabilir. Özellikle ödeme ve adres adımlarında etkisi ölçülmelidir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ilerleme çubuğu",
+  "primaryKpi": "Tamamlama Oranı",
+  "armLabels": [
+   "Checkout'ta ilerleme çubuğu yok",
+   "Adım/kalan adımı gösteren ilerleme çubuğu eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-014",
+  "slug": "otomatik-indirim-kodu-davranisi-nasil-etkiler",
+  "question": "Otomatik indirim kodu davranışı nasıl etkiler?",
+  "hypothesis": "İndirim kodunun otomatik uygulanması ödeme sürecini kısaltarak dönüşümü artırabilir. Gerçek karşılığı ölçülmelidir.",
+  "category": "Cart & Checkout",
+  "surface": "cart",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "otomatik indirim kodu",
+  "primaryKpi": "Ziyaretçi Başına Gelir (RPV)",
+  "armLabels": [
+   "Kullanıcı indirim kodunu kupon alanına kendisi girip uyguluyor",
+   "İndirim kodu sepete otomatik uygulanıyor"
+  ]
+ },
+ {
+  "id": "AB-015",
+  "slug": "odeme-adimindaki-guven-rozetleri-tamamlamayi-artirir-mi",
+  "question": "Ödeme adımındaki güven rozetleri tamamlamayı artırır mı?",
+  "hypothesis": "Kart bilgisi girilen ekran, terk oranının en yüksek olduğu andır. Güvenli ödeme, iade garantisi ve 3D Secure gibi görsel sinyaller tereddüdü azaltabilir; fazlası ise şüphe uyandırabilir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "güven rozetleri",
+  "primaryKpi": "Ödeme Tamamlama Oranı",
+  "armLabels": [
+   "Ödeme adımında güven rozeti (güvenli ödeme, iade garantisi, 3D Secure) yok",
+   "Ödeme adımına güvenli ödeme, iade garantisi ve 3D Secure rozetleri eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-016",
+  "slug": "zorunlu-ve-istege-bagli-alanlari-acikca-isaretlemek-doldurma-oranini-artirir-mi",
+  "question": "Zorunlu ve isteğe bağlı alanları açıkça işaretlemek doldurma oranını artırır mı?",
+  "hypothesis": "Formdaki hangi alanın zorunlu, hangisinin isteğe bağlı olduğu genelde belirsizdir; kullanıcı emin olmadığı alanı da doldurur ya da doldurmayıp hata mesajıyla karşılaşır. İkisini de açıkça işaretlemek bu belirsizliği kaldırabilir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "zorunlu ve isteğe bağlı alan işaretleri",
+  "primaryKpi": "Form Tamamlama Oranı",
+  "armLabels": [
+   "Form alanlarında zorunlu/isteğe bağlı işareti yok, belirsiz",
+   "Her alan '(isteğe bağlı)' veya zorunluluk işaretiyle açıkça etiketlenmiş"
+  ]
+ },
+ {
+  "id": "AB-017",
+  "slug": "odeme-yontemini-adres-bilgisinden-once-sormak-ise-yarar-mi",
+  "question": "Ödeme yöntemini adres bilgisinden önce sormak işe yarar mı?",
+  "hypothesis": "Ödeme adımını öne almak, taahhüdü erken alır ve ödeme yöntemini seçmiş kullanıcının akıştan kopma ihtimalini azaltabilir. Karşı tarafta: kullanıcı toplam tutarı (kargo dahil) görmeden ödeme bilgisi vermeye zorlanır, bu güvensizlik yaratır ve bazı ödeme yöntemleri teslimat adresine bağlı olduğu için teknik olarak da sorun çıkarabilir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "move",
+  "testedSlot": "checkout adım sırası",
+  "primaryKpi": "Sipariş Tamamlama Oranı",
+  "armLabels": [
+   "Checkout adres bilgisiyle başlıyor, ödeme yöntemi sonraki adımda soruluyor",
+   "Ödeme yöntemi adres bilgisinden önceki adıma alınmış"
+  ]
+ },
+ {
+  "id": "AB-018",
+  "slug": "odeme-akisinda-menu-ve-baglantilari-kaldirmak-tamamlamayi-artirir-mi",
+  "question": "Ödeme akışında menü ve bağlantıları kaldırmak tamamlamayı artırır mı?",
+  "hypothesis": "Checkout sırasında üst menüyü, kategori bağlantılarını ve alt bilgi bağlantılarını kaldırmak (tünel akışı) dikkat dağıtıcıları temizler ve kullanıcıyı tek yolda tutar. Riski: kullanıcı bilgiye ulaşamaz (iade koşulu, iletişim), kaybolmuş hisseder ve sitede kapana kısıldığı algısı güveni düşürür.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "remove",
+  "testedSlot": "checkout menü ve bağlantıları",
+  "primaryKpi": "Sipariş Tamamlama Oranı",
+  "armLabels": [
+   "Checkout akışında üst menü, kategori bağlantıları ve alt bilgi bağlantıları görünür",
+   "Bu bağlantılar kaldırılmış, tek yola kilitli tünel akış"
+  ]
+ },
+ {
+  "id": "AB-019",
+  "slug": "secimi-onaylayan-geri-bildirim-vermek-hatayi-azaltir-mi",
+  "question": "Seçimi onaylayan geri bildirim vermek hatayı azaltır mı?",
+  "hypothesis": "Kullanıcı bir seçim yaptığında (beden, adet, teslimat günü) bunun alındığını açıkça göstermek belirsizliği kaldırır ve tekrar tıklamayı önler. Karşı tarafta: her seçime eklenen onay öğesi arayüzü kalabalıklaştırır, sayfa zıplamasına yol açabilir ve deneyimli kullanıcıyı yavaşlatır.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "seçim onayı geri bildirimi",
+  "primaryKpi": "Sipariş Tamamlama Oranı",
+  "armLabels": [
+   "Kullanıcı bir seçim yaptığında (beden, adet, gün) alındığını gösteren ek bir onay öğesi yok",
+   "Seçimin alındığını bildiren, yalnızca renk değişimine dayanmayan açık bir onay öğesi (ikon veya yazılı metin) eklenmiş"
+  ]
+ },
+ {
+  "id": "AB-020",
+  "slug": "varsayilan-olarak-isaretli-gelen-secenekler-kabul-edilebilir-mi",
+  "question": "Varsayılan olarak işaretli gelen seçenekler kabul edilebilir mi?",
+  "hypothesis": "Bir kutunun önceden işaretli gelmesi kullanıcıyı hızlandırabilir, ama bu tekniğin sınırı nettir: pazarlama izni, veri paylaşımı ve ek ücretli hizmetler önceden işaretlenemez; birçok pazarda bu yasaktır ve kullanıcının açık iradesi gerekir. Test edilebilir olan yalnızca tarafsız tercihlerdir (teslimat günü, kargo yöntemi, adet).",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "varsayılan işaretli seçenekler",
+  "primaryKpi": "Sipariş Tamamlama Oranı",
+  "armLabels": [
+   "Tarafsız seçenek (teslimat günü, kargo yöntemi) işaretsiz geliyor, kullanıcı kendisi seçiyor",
+   "Aynı tarafsız seçenek ekranda önceden işaretli (varsayılan seçili) geliyor"
+  ]
+ },
+ {
+  "id": "AB-021",
+  "slug": "odeme-islenirken-adimlari-gosteren-bir-yukleme-ekrani-guveni-artiriyor-mu",
+  "question": "Ödeme işlenirken adımları gösteren bir yükleme ekranı güveni artırıyor mu?",
+  "hypothesis": "Tek bir dönen ikon, arka planda ne olduğu hakkında hiçbir şey söylemez ve bekleme süresini belirsiz hissettirir. “Kart doğrulanıyor”, “banka onayı bekleniyor”, “sipariş oluşturuluyor” gibi gerçek adımları sırayla göstermek, işlemin özenle yapıldığını hissettirip aynı bekleme süresini daha kısa algılatabilir — görünür emek, güven inşa eder. Risk, adımların gerçek işlem sırasını yansıtmaması veya süreyi yapay olarak uzatmak için kullanılmasıdır.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "ödeme yükleme ekranı",
+  "primaryKpi": "Ödeme Adımı Terk Oranı",
+  "armLabels": [
+   "Tek bir dönen yükleme ikonu gösteriliyor",
+   "Kart doğrulanıyor, banka onayı bekleniyor, sipariş oluşturuluyor gibi adımları sırayla gösteren yükleme ekranı"
+  ]
+ },
+ {
+  "id": "AB-022",
+  "slug": "odeme-yontemi-ikonlarini-checkout-tan-once-gorunur-yapmak-guveni-artirir-mi",
+  "question": "Ödeme yöntemi ikonlarını checkout’tan önce görünür yapmak güveni artırır mı?",
+  "hypothesis": "Kullanıcı ödeme adımına gelmeden önce hangi kartların veya yöntemlerin kabul edildiğini bilmek ister; bu bilgi genelde yalnızca ödeme sayfasında ortaya çıkar. İkonları daha erken (ürün sayfası veya sepette) göstermek, desteklenmeyen bir yöntemi kullanan ziyaretçinin akışı erkenden terk etmesini önleyebilir — ama fazla ikon görsel gürültü yaratabilir.",
+  "category": "Cart & Checkout",
+  "surface": "checkout",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "ödeme yöntemi ikonları",
+  "primaryKpi": "Ödeme Adımına Ulaşma Oranı",
+  "armLabels": [
+   "Ödeme yöntemi ikonları yalnızca ödeme sayfasında gösteriliyor",
+   "Ödeme yöntemi ikonları checkout öncesinde, ürün sayfası veya sepette de gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-023",
+  "slug": "kampanya-banner-inda-geri-sayim-sayaci-aciliyet-yaratip-donusumu-artiriyor-mu",
+  "question": "Kampanya banner’ında geri sayım sayacı aciliyet yaratıp dönüşümü artırıyor mu?",
+  "hypothesis": "Geri sayım sayacı “şimdi karar ver” baskısı yaratır ve kısa vadede tıklamayı artırabilir. Ama süre sürekli sıfırlanıyorsa (her ziyarette yeniden başlıyorsa) güvenilirliğini kaybeder ve marka algısını zedeler.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "geri sayım sayacı",
+  "primaryKpi": "Kampanya Tıklama Oranı",
+  "armLabels": [
+   "Kampanya banner'ında geri sayım sayacı yok",
+   "Kampanya banner'ında geri sayım sayacı gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-024",
+  "slug": "kategori-siralamasi-donusumu-nasil-etkiler",
+  "question": "Kategori sıralaması dönüşümü nasıl etkiler?",
+  "hypothesis": "Kategori sırasındaki küçük bir değişiklik bile gezinme yönünü ve keşif davranışını etkileyebilir. Hangi sıralamanın daha çok dönüşüm getirdiği ölçülmelidir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "unresolved",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "kategori sırası",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-025",
+  "slug": "sonsuz-scroll-mu-daha-fazla-goster-mi-daha-iyi-calisiyor",
+  "question": "Sonsuz scroll mu, “daha fazla göster” mi daha iyi çalışıyor?",
+  "hypothesis": "Sonsuz scroll keşfi artırır ama kullanıcının konum hissini ve sayfa altındaki filtre/footer erişimini bozar. Butonla yükleme kontrolü kullanıcıya bırakır ve ölçümü kolaylaştırır.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "sayfalama mekanizması",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Sonsuz scroll (infinite scroll)",
+   "Buton ile 'daha fazla göster' yüklemesi"
+  ]
+ },
+ {
+  "id": "AB-026",
+  "slug": "mobilde-2-li-mi-3-lu-grid-mi-daha-cok-donusturuyor",
+  "question": "Mobilde 2’li mi 3’lü grid mi daha çok dönüştürüyor?",
+  "hypothesis": "Daha dar kolon ekranda daha fazla ürün gösterir ama görsel detayı küçültür. Moda kategorisinde görsel büyüklüğü karar için kritikken, standart üründe seçenek genişliği öne çıkabilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "ürün ızgarası kolon sayısı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Mobilde 2'li ürün ızgarası",
+   "Mobilde 3'lü ürün ızgarası"
+  ]
+ },
+ {
+  "id": "AB-027",
+  "slug": "urun-kartinda-ikinci-gorsele-gecis-donusumu-artirir-mi",
+  "question": "Ürün kartında ikinci görsele geçiş dönüşümü artırır mı?",
+  "hypothesis": "Kartta ikinci görsele swipe veya hover ile geçebilmek, kullanıcının detay sayfasına gitmeden karar vermesini sağlar. Bu detay sayfası trafiğini düşürebilir ama toplam dönüşümü yükseltebilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "kartta ikinci görsel",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Kartta yalnızca tek ürün görseli gösteriliyor",
+   "Kartta swipe veya hover ile ikinci görsele geçiliyor"
+  ]
+ },
+ {
+  "id": "AB-028",
+  "slug": "hizli-sepete-ekle-satin-almayi-hizlandiriyor-mu",
+  "question": "“Hızlı Sepete Ekle” satın almayı hızlandırıyor mu?",
+  "hypothesis": "Liste sayfasındaki hızlı ekleme butonu, kullanıcının ürünü incelemeden sepete ekleme davranışını değiştirebilir ve satın alma akışını kısaltabilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "hızlı sepete ekle butonu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Liste sayfasında hızlı sepete ekle butonu yok",
+   "Liste sayfasında hızlı sepete ekle butonu var"
+  ]
+ },
+ {
+  "id": "AB-029",
+  "slug": "hikaye-odakli-mesajlar-liste-sayfasinda-ise-yariyor-mu",
+  "question": "Hikaye odaklı mesajlar liste sayfasında işe yarıyor mu?",
+  "hypothesis": "Liste sayfasında teknik özellik yerine kısa ve duygusal mesaj kullanmak, ürünün algılanan değerini ve inceleme motivasyonunu değiştirebilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "liste sayfası mesajı",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Liste sayfasında teknik özellik bilgisi gösteriliyor",
+   "Liste sayfasında kısa, duygusal hikaye mesajı gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-030",
+  "slug": "sadece-farklari-gostermek-karar-hizini-artiriyor-mu",
+  "question": "Sadece farkları göstermek karar hızını artırıyor mu?",
+  "hypothesis": "Karşılaştırma tablosunda tüm özellikler yerine sadece farkları göstermek bilişsel yükü azaltabilir ve kullanıcının kritik bilgilere odaklanmasını kolaylaştırabilir. Bu da karar sürecini hızlandırıp yanlış seçim riskini düşürebilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "karşılaştırma görünümü",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Karşılaştırma tablosunda tüm özellikler gösteriliyor",
+   "Karşılaştırma tablosunda yalnızca farklar gösteriliyor"
+  ]
+ },
+ {
+  "id": "AB-031",
+  "slug": "kategori-sirasi-menude-onceligi-nasil-etkiler",
+  "question": "Kategori sırası menüde önceliği nasıl etkiler?",
+  "hypothesis": "Menüdeki kategorilerin sırası, hangisinin öncelikli/popüler kabul edildiği algısını kurar. Üste alınan kategori daha fazla tıklama alabilir ama bu etkinin gerçek dönüşüme yansıyıp yansımadığı ölçülmelidir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "unresolved",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "menüdeki kategori sırası",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-032",
+  "slug": "hangi-baslik-uzunlugu-daha-etkili",
+  "question": "Hangi başlık uzunluğu daha etkili?",
+  "hypothesis": "Kısa mı, uzun ve açıklayıcı mı başlık daha çok dikkat çekiyor? Başlık uzunluğu içeriğe yönelme davranışını ve dönüşümü etkileyebilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "ürün başlığı uzunluğu",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Kısa başlık",
+   "Uzun ve açıklayıcı başlık"
+  ]
+ },
+ {
+  "id": "AB-033",
+  "slug": "pop-up-ne-zaman-gosterilmeli",
+  "question": "Pop-up ne zaman gösterilmeli?",
+  "hypothesis": "Çok erken çıkan pop-up kullanıcıyı kaçırır, çok geç çıkan fark edilmez. Doğru zamanlamanın ölçülmesi gerekir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "unresolved",
+  "comparisonMode": "element",
+  "differenceBehavior": "change",
+  "testedSlot": "pop-up zamanlaması",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": []
+ },
+ {
+  "id": "AB-034",
+  "slug": "sayfa-basina-kac-urun-gosterilmeli",
+  "question": "Sayfa başına kaç ürün gösterilmeli?",
+  "hypothesis": "Sayfa başına daha çok ürün göstermek sayfalar arası geçiş sayısını azaltır ve karşılaştırmayı kolaylaştırır. Bedeli: sayfa ağırlaşır, yüklenme yavaşlar ve seçenek fazlalığı karar vermeyi zorlaştırabilir. Az ürün ise hızlı yüklenir ama kullanıcıyı sürekli tıklamaya zorlar.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "unresolved",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "sayfa başına ürün sayısı",
+  "primaryKpi": "Liste → Ürün Tıklama Oranı",
+  "armLabels": []
+ },
+ {
+  "id": "AB-035",
+  "slug": "liste-gorunumu-mu-izgara-gorunumu-mu-daha-cok-donusturuyor",
+  "question": "Liste görünümü mü, ızgara görünümü mü daha çok dönüştürüyor?",
+  "hypothesis": "Izgara görünümü aynı anda çok ürün gösterir ve görselin öne çıktığı kategorilerde işe yarar. Liste görünümü her ürüne daha fazla metin alanı verir; teknik özelliklerin veya fiyat ayrıntılarının belirleyici olduğu kategorilerde karşılaştırmayı kolaylaştırır. Doğru cevap kategoriye göre değişir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "option-vs-option",
+  "comparisonMode": "structural",
+  "differenceBehavior": "change",
+  "testedSlot": "liste ve ızgara görünümü",
+  "primaryKpi": "Liste → Ürün Tıklama Oranı",
+  "armLabels": [
+   "Liste görünümü",
+   "Izgara görünümü"
+  ]
+ },
+ {
+  "id": "AB-036",
+  "slug": "daha-once-gorulen-urunleri-isaretlemek-ise-yarar-mi",
+  "question": "Daha önce görülen ürünleri işaretlemek işe yarar mı?",
+  "hypothesis": "Ziyaret edilmiş ürünleri işaretlemek uzun listelerde nerede kalındığını gösterir ve aynı ürünü tekrar açma kaybını önler. Karşı tarafta: işaret ürünü “elenmiş” gibi gösterip tekrar değerlendirilmesini engelleyebilir ve kararsız kullanıcının geri dönmesini zorlaştırabilir.",
+  "category": "Category & Listing",
+  "surface": "plp",
+  "setupType": "control-vs-treatment",
+  "comparisonMode": "element",
+  "differenceBehavior": "add",
+  "testedSlot": "görülen ürün işareti",
+  "primaryKpi": "Dönüşüm Oranı (CR)",
+  "armLabels": [
+   "Daha önce görülen ürünler işaretlenmiyor",
+   "Daha önce görülen ürünler işaretleniyor (soluklaştırma veya etiket)"
+  ]
+ }
+]

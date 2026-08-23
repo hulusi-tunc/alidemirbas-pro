@@ -1,0 +1,654 @@
+[
+ {
+  "id": "OPS-123",
+  "slug": "stalled-work-detection",
+  "name": "Work stalled → detect lack of progress → recover, fail or escalate",
+  "purpose": "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Progress threshold exceeded without completion",
+  "triggerEvidence": "behavioral",
+  "entityScope": "the individual in-flight work item and the worker that holds it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "OPS-124",
+  "slug": "retryable-failure-recovery",
+  "name": "Retryable failure → backoff → retry → resolve or exhaust",
+  "purpose": "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Failure classified retryable",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the work item together with its durable attempt history",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "OPS-125",
+  "slug": "work-deduplication",
+  "name": "Duplicate work detected → deduplicate → reuse, suppress or reconcile",
+  "purpose": "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Potential duplicate work detected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the logical business operation, and the work instances claiming to be it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "OPS-126",
+  "slug": "partial-processing-recovery",
+  "name": "Partial processing → preserve completed work → retry only the failed scope",
+  "purpose": "Recover the part of a composite operation that failed, without re-running the part that worked.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Composite processing mixed outcomes",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the composite job and each child operation individually",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "OPS-127",
+  "slug": "dead-letter-remediation",
+  "name": "Dead-letter entry → diagnose → replay, correct or close",
+  "purpose": "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Work exhausted automated recovery",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the dead-lettered item, linked to the original work it came from",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "OPS-128",
+  "slug": "worker-failure-reclaim",
+  "name": "Worker or processor failure → reclaim work → resume safely",
+  "purpose": "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Worker unavailable while owning work",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the failed worker and each in-flight work item it owned",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "OPS-129",
+  "slug": "backlog-recovery-drain",
+  "name": "Backlog recovery → revalidate → controlled drain → normal state",
+  "purpose": "Work through an accumulated backlog deliberately, discarding what has gone stale and pacing what has not.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Processing capacity recovered with backlog",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the accumulated backlog, inventoried by workload class",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "OPS-130",
+  "slug": "business-outcome-verification",
+  "name": "Technical completion → verify business outcome → finalize or reconcile",
+  "purpose": "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",
+  "category": "processing",
+  "categoryTitle": "Processing, queues, async work & operational reliability",
+  "trigger": "Technical processing reported success",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the completed technical job and the business entity it was meant to change",
+  "primaryStructure": "self-contained",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "OWN-51",
+  "slug": "work-routing-to-responsibility",
+  "name": "Work created → routing → assignment",
+  "purpose": "Get new work into the smallest responsibility scope that is genuinely valid, and refuse to invent one where the policy is silent.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Work item requiring responsibility",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the individual work item - a case, lead, opportunity, task or request",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "OWN-52",
+  "slug": "assignment-to-accepted-responsibility",
+  "name": "Assignment → acceptance → active responsibility",
+  "purpose": "Keep proposed responsibility and accepted responsibility as different states, so work nobody has taken is visible as such.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Work assigned to named owner",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the work item plus this specific assignment of it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "OWN-53",
+  "slug": "ownership-context-transfer",
+  "name": "Owner assignment → context transfer → work start",
+  "purpose": "Give a new owner what they need to continue an existing obligation, rather than an entity with their name on it.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Owner assignment became effective",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the business entity plus the owner now responsible for it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "OWN-54",
+  "slug": "ownership-change-obligation-transfer",
+  "name": "Ownership change → transfer obligations → continue",
+  "purpose": "Move responsibility for an active entity without losing anything that was already owed, without letting the clock restart, and without rewriting who did what before the change.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Authoritative ownership change",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the business entity, its previous owner and its next one",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 20
+ },
+ {
+  "id": "OWN-55",
+  "slug": "responsibility-escalation",
+  "name": "Responsibility escalation → higher authority → resolution or return",
+  "purpose": "Move a blocker up to the level that can clear it, without the original owner putting the work down by raising it.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Escalation condition met",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the work item plus its ownership chain",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 14
+ },
+ {
+  "id": "OWN-56",
+  "slug": "approval-request-review",
+  "name": "Approval request → review → approve, reject or request changes",
+  "purpose": "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Approval required request ready",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the approval request, bound to one specific version of the subject",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "OWN-57",
+  "slug": "multi-party-approval-aggregation",
+  "name": "Multi-party approval → aggregate required decisions → authorised or blocked",
+  "purpose": "Combine several genuinely independent approval decisions strictly according to the governing policy, and refuse to proceed where no policy defines how.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Multi party approval ready",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the approval package, the action and subject version it authorises, and each authority's individual decision",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 18
+ },
+ {
+  "id": "OWN-58",
+  "slug": "material-change-after-approval",
+  "name": "Material change after approval → impact check → re-approval or continue",
+  "purpose": "Work out whether an approval still covers what the subject has become, and re-open only the decisions whose basis stopped being true.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Approved subject changed before execution",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the approved subject, its version history and the approvals bound to those versions",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ },
+ {
+  "id": "OWN-59",
+  "slug": "rejected-approval-revision-path",
+  "name": "Approval rejected → revision eligibility → resubmit or close",
+  "purpose": "Keep rejection from being either a dead end by default or a retry loop, and make sure a rejected version cannot quietly execute later.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Approval rejected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the rejected approval request and the exact subject version it rejected",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit",
+   "no-re-entry"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "OWN-60",
+  "slug": "decision-authority-change",
+  "name": "Decision authority change → revalidate pending decisions → transfer or continue",
+  "purpose": "Re-evaluate decisions against who is actually authorised now, without unapproving history or blindly moving what is pending.",
+  "category": "ownership",
+  "categoryTitle": "Ownership, assignment, approval & decision authority",
+  "trigger": "Decision authority changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the decision process plus the authority holders whose scope changed",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "REL-91",
+  "slug": "relationship-creation",
+  "name": "Entity relationship created → validate → activate or reject",
+  "purpose": "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Relationship creation requested or detected",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the relationship, plus the two entities it connects, in the direction it was created",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 9
+ },
+ {
+  "id": "REL-92",
+  "slug": "relationship-change",
+  "name": "Relationship change → recalculate rights and obligations → continue",
+  "purpose": "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Relationship state or type changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the relationship that changed and the entities connected by it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "REL-93",
+  "slug": "relationship-end",
+  "name": "Relationship end → remove future dependency → reconcile existing obligations",
+  "purpose": "Stop what a relationship was carrying forward without cancelling what it validly produced.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Relationship ended",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the relationship that ended and the entities it connected",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "external-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "REL-94",
+  "slug": "role-change-delta",
+  "name": "Role change → authority and capability delta → apply",
+  "purpose": "Move what someone may do next, by the difference between two roles, without disturbing what they did under the old one.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Role changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the person or member, the role, and the account or organisation the role is held in",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "REL-95",
+  "slug": "parent-state-propagation",
+  "name": "Parent state change → determine child impact → propagate selectively",
+  "purpose": "Let a parent's state reach only the children that genuinely depend on it, through a rule someone actually wrote.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Parent state materially changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the parent whose state changed, and each child evaluated individually against the dependency model",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "external-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "REL-96",
+  "slug": "parent-state-aggregation",
+  "name": "Child state change → recalculate aggregate parent state",
+  "purpose": "Derive a parent's state from its children through an explicit aggregation policy, recomputed from source rather than nudged by whichever child reported last.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Child state changed",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the parent and the full collection of children the policy reads",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 8
+ },
+ {
+  "id": "REL-97",
+  "slug": "duplicate-assessment",
+  "name": "Duplicate entity detected → assess → keep separate, link or merge",
+  "purpose": "Assess whether two records are the same entity, and route the answer - without consolidating anything.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Potential duplicate detected",
+  "triggerEvidence": "inferred",
+  "entityScope": "the candidate set of records suspected of representing one entity",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 7
+ },
+ {
+  "id": "REL-98",
+  "slug": "entity-link",
+  "name": "Entity link → shared context → preserve independent identity",
+  "purpose": "Record that two entities are related and let defined context cross between them, while both remain two entities.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Cross entity link established",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the link itself, plus the two entities it connects",
+  "primaryStructure": "self-contained",
+  "behaviors": [],
+  "nodeCount": 8
+ },
+ {
+  "id": "REL-99",
+  "slug": "entity-split",
+  "name": "Entity split required → create separate records → allocate history and state safely",
+  "purpose": "Separate what should never have been one record, or what must now be managed apart, without copying the things that do not divide.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Entity split required",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the source entity and the entities that result from the split",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "REL-100",
+  "slug": "orphaned-entity-resolution",
+  "name": "Required relationship missing → orphan state → resolve or reassign",
+  "purpose": "Make a missing required relationship an explicit, findable state rather than a null field that active work quietly runs against.",
+  "category": "structure",
+  "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+  "trigger": "Required relationship missing",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the entity missing its required relationship, and the relationship type that is absent",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "REM-151",
+  "slug": "post-completion-issue",
+  "name": "Post-completion issue → validate → remedy route",
+  "purpose": "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Post completion issue reported",
+  "triggerEvidence": "declared",
+  "entityScope": "the completed fulfillment or service, and the specific problem reported against it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "REM-152",
+  "slug": "return-authorization",
+  "name": "Return request → eligibility → authorize, reject or review",
+  "purpose": "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Return requested",
+  "triggerEvidence": "declared",
+  "entityScope": "the return request and the original fulfillment it concerns",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 15
+ },
+ {
+  "id": "REM-153",
+  "slug": "return-transit",
+  "name": "Return authorized → in transit, received, lost or expired",
+  "purpose": "Track whether an authorised return actually comes back, and hold the states where it might not have.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Return authorization active",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the authorised return and the resource travelling under it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "REM-154",
+  "slug": "return-inspection",
+  "name": "Returned item or deliverable → inspect → accept, reject or partial",
+  "purpose": "Judge what came back against the conditions it was authorised under, keeping receipt and acceptance apart.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Returned resource received",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the returned resource as received, and the return case it arrived under",
+  "primaryStructure": "router",
+  "behaviors": [
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "REM-155",
+  "slug": "replacement-remedy",
+  "name": "Replacement decision → allocate → fulfill → confirm",
+  "purpose": "Deliver a second time against the same promise, tied to the defect it exists to resolve.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Replacement remedy authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the replacement case, linking the original fulfillment to the new one",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 11
+ },
+ {
+  "id": "REM-156",
+  "slug": "correction-reperformance",
+  "name": "Reperformance or correction → execute → verify corrected outcome",
+  "purpose": "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Correction or reperformance authorized",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the original fulfillment or service, and the corrective obligation created against it",
+  "primaryStructure": "router",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 10
+ },
+ {
+  "id": "REM-157",
+  "slug": "remedy-selection",
+  "name": "Remedy selection → resolve obligation → financial handoff if needed",
+  "purpose": "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Remedy decision required",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the confirmed issue and the unresolved obligation behind it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "nodeCount": 13
+ },
+ {
+  "id": "REM-158",
+  "slug": "remedy-outcome-verification",
+  "name": "Remedy execution → verify outcome → close or continue recovery",
+  "purpose": "Check that the remedy actually satisfied the obligation, rather than that it was carried out.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Remedy execution started",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the remedy and the issue it was chosen to resolve",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "external-handoff"
+  ],
+  "nodeCount": 12
+ },
+ {
+  "id": "REM-159",
+  "slug": "compensation-decision",
+  "name": "Compensation decision → eligibility → grant or reject → deliver",
+  "purpose": "Decide separately whether impact warrants something beyond fixing the problem, and confirm it actually arrived.",
+  "category": "remedy",
+  "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+  "trigger": "Compensation consideration appropriate",
+  "triggerEvidence": "authoritative",
+  "entityScope": "the compensation case and the experience or issue that prompted it",
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "wait-timeout",
+   "cross-journey-handoff",
+   "multi-exit"
+  ],
+  "nodeCount": 16
+ }
+]
