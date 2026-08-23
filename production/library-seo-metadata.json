@@ -1,6 +1,5 @@
 {
   "_description": "Landing-page SEO RECOMMENDATIONS for the two library index pages. Deliberately kept OUT of the 466-record detail metadata dataset (ab-test-seo-metadata.json / journey-seo-metadata.json) — these are index pages with a different intent profile, and mixing them into the detail corpus would corrupt every duplicate/cannibalization measurement. These are recommendations, not applied changes: nothing in src/lib/content.ts has been modified.",
-
   "libraries": [
     {
       "library": "journey",
@@ -19,20 +18,24 @@
         "primaryIntent": "customer journey examples",
         "secondaryIntent": "lifecycle marketing journeys"
       },
-      "sourceBasis": ["CATEGORIES", "JOURNEYS.length", "src/lib/content.ts lab.projects[Canonical Journey Library].desc"]
+      "sourceBasis": [
+        "CATEGORIES",
+        "JOURNEYS.length",
+        "src/lib/content.ts lab.projects[Canonical Journey Library].desc"
+      ]
     },
     {
       "library": "ab",
       "indexPath": "/lab/ab-testing",
       "currentState": {
-        "implemented": "partially",
-        "note": "IMPORTANT ROUTING FINDING: /lab/ab-testing currently renders a PRODUCT page for the open-source ab-test-playbook Claude Code plugin (src/lib/content.ts abTesting.*: install instructions, marketplace command, GitHub clone). It is NOT a browsable library index today, and no /lab/ab-testing/[slug] detail route exists. The 211 detail pages in ab-test-seo-metadata.json therefore have a canonicalPath DERIVED from two existing facts — the /lab/ab-testing prefix and the /lab/journeys/[slug] detail precedent — not from an implemented route. See the caveat below before treating those paths as final."
+        "implemented": true,
+        "note": "Resolved: /lab/ab-testing/library ([slug]) is now live, mirroring /lab/journeys/[slug]. canonicalPath updated across ab-test-seo-metadata.json accordingly."
       },
       "openRoutingDecision": {
         "question": "Should the 211 scenario pages live under the plugin product page (/lab/ab-testing/{slug}), or should the browsable library get its own root the way /lab/journeys did, with the product page linking across to it?",
         "whyItMatters": "The journey library resolved this by giving the library its own route (/lab/journeys) separate from any product page. The A/B library has not made that call yet. Nesting a 211-page programmatic library under a single-product marketing page mixes two different intent profiles on one path prefix.",
         "impactIfChanged": "Only the canonicalPath field of all 211 records changes — seoTitle, seoDescription, intents and sourceBasis are all route-independent and would survive the move untouched. Regenerating is a one-line prefix swap in the metadata builder, not an authoring round.",
-        "status": "UNRESOLVED — flagged, not decided here"
+        "status": "RESOLVED — /lab/ab-testing stays the plugin landing page; /lab/ab-testing/library is the 211-test browsable index; /lab/ab-testing/library/[slug] is the detail route. Shipped."
       },
       "recommendation": {
         "seoTitle": "A/B Test Library: 211 Experiment Examples",
@@ -44,9 +47,12 @@
         "primaryIntent": "a/b test examples",
         "secondaryIntent": "cro experiments"
       },
-      "sourceBasis": ["canonical-tests.json record count", "surface distribution", "src/lib/content.ts abTesting.metaDesc"]
+      "sourceBasis": [
+        "canonical-tests.json record count",
+        "surface distribution",
+        "src/lib/content.ts abTesting.metaDesc"
+      ]
     }
   ],
-
   "notAppliedNote": "Neither recommendation has been written into src/lib/content.ts. The existing abTesting.metaTitle/metaDesc still describe the plugin product, which is correct for what that page currently is."
 }

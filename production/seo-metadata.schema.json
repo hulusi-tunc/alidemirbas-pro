@@ -5,21 +5,33 @@
   "description": "Programmatic SEO metadata for ONE indexable detail page. Covers both libraries (211 A/B test pages + 255 canonical journey pages = 466 active pages). A frontend renders a page's metadata by reading only seoTitle, seoDescription, canonicalPath, index, follow and sitemap — nothing else in this record is required at render time; the remaining fields exist for auditing and regeneration. Merged/redirect records are NOT represented here: they keep the separate journey-merged-id-contract.json and must never be given detail-page metadata.",
   "type": "object",
   "required": [
-    "id", "slug", "seoTitle", "seoDescription",
-    "titleCharacterCount", "descriptionCharacterCount",
-    "primaryIntent", "secondaryIntent", "canonicalPath",
-    "index", "follow", "sitemap", "sourceBasis", "needsSeoReview", "reviewReason"
+    "id",
+    "slug",
+    "seoTitle",
+    "seoDescription",
+    "titleCharacterCount",
+    "descriptionCharacterCount",
+    "primaryIntent",
+    "secondaryIntent",
+    "canonicalPath",
+    "index",
+    "follow",
+    "sitemap",
+    "sourceBasis",
+    "needsSeoReview",
+    "reviewReason"
   ],
   "additionalProperties": false,
-
   "properties": {
     "id": {
       "type": "string",
       "pattern": "^(AB-[0-9]{3}|[A-Z]{3}-[0-9]+)$",
       "description": "AB-### for an A/B test page, XXX-## for a canonical journey page."
     },
-    "slug": { "type": "string", "minLength": 1 },
-
+    "slug": {
+      "type": "string",
+      "minLength": 1
+    },
     "seoTitle": {
       "type": "string",
       "minLength": 1,
@@ -30,16 +42,26 @@
       "minLength": 1,
       "description": "140-155 characters preferred, 120-165 tolerated. Explains what the page shows. Must not be an ad slogan, a restatement of the title, or a near-copy of another record's description."
     },
-
-    "titleCharacterCount": { "type": "integer", "minimum": 1 },
-    "descriptionCharacterCount": { "type": "integer", "minimum": 1 },
-
+    "titleCharacterCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "descriptionCharacterCount": {
+      "type": "integer",
+      "minimum": 1
+    },
     "primaryIntent": {
       "type": "string",
       "minLength": 1,
       "enum": [
-        "a/b testing ideas", "a/b test examples", "cro experiments", "conversion optimization tests",
-        "customer journey examples", "lifecycle marketing journeys", "customer lifecycle examples", "marketing automation journeys"
+        "a/b testing ideas",
+        "a/b test examples",
+        "cro experiments",
+        "conversion optimization tests",
+        "customer journey examples",
+        "lifecycle marketing journeys",
+        "customer lifecycle examples",
+        "marketing automation journeys"
       ],
       "description": "The broad library-level search intent. The first four belong to the A/B test library, the last four to the journey library — a record must not use the other library's set."
     },
@@ -48,42 +70,73 @@
       "minLength": 1,
       "description": "Page-specific intent, derived from the record's real subject/surface. Free-form because the subject space is the library's own, not a fixed keyword list."
     },
-
     "canonicalPath": {
       "type": "string",
-      "pattern": "^/lab/(ab-testing|journeys)/[a-z0-9]+(-[a-z0-9]+)*$",
+      "pattern": "^/lab/(ab-testing/library|journeys)/[a-z0-9]+(-[a-z0-9]+)*$",
       "description": "Path only, no origin. The deployment layer binds SITE_URL and the /tr counterpart via src/lib/seo.ts's pageAlternates — this file deliberately does not hardcode a domain."
     },
-
-    "index": { "type": "boolean" },
-    "follow": { "type": "boolean" },
-    "sitemap": { "type": "boolean" },
-
+    "index": {
+      "type": "boolean"
+    },
+    "follow": {
+      "type": "boolean"
+    },
+    "sitemap": {
+      "type": "boolean"
+    },
     "sourceBasis": {
       "type": "array",
       "minItems": 1,
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Which canonical source fields this metadata was actually derived from. Provenance, not decoration — a record with no sourceBasis is a record nobody can audit."
     },
-
     "needsSeoReview": {
       "type": "boolean",
       "description": "True where a human still has to decide something: a title that had to exceed 60 characters, or a genuine subject collision with a neighbouring record. Deliberately NOT driven to zero — hiding a real collision behind artificially differentiated wording is worse than flagging it."
     },
     "reviewReason": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Required (non-null) whenever needsSeoReview is true; must be null otherwise."
     }
   },
-
   "allOf": [
     {
-      "if": { "properties": { "needsSeoReview": { "const": true } } },
-      "then": { "properties": { "reviewReason": { "type": "string", "minLength": 1 } } }
+      "if": {
+        "properties": {
+          "needsSeoReview": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reviewReason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
     },
     {
-      "if": { "properties": { "needsSeoReview": { "const": false } } },
-      "then": { "properties": { "reviewReason": { "type": "null" } } }
+      "if": {
+        "properties": {
+          "needsSeoReview": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reviewReason": {
+            "type": "null"
+          }
+        }
+      }
     }
   ]
 }
