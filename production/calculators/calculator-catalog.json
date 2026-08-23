@@ -4672,7 +4672,7 @@
       "modes": [
         {
           "id": "simple",
-          "label": "Simple (historic)",
+          "label": "Simple",
           "formula": "aov * purchaseFrequency * customerLifespan",
           "inputs": [
             {
@@ -4701,7 +4701,7 @@
         },
         {
           "id": "margin-adjusted",
-          "label": "Margin-adjusted (predictive)",
+          "label": "Margin-adjusted (churn-based)",
           "formula": "(aov * purchaseFrequency * grossMarginPct) / churnRate",
           "inputs": [
             {

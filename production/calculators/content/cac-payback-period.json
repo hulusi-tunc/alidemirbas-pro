@@ -8,7 +8,7 @@
       "id": "formula",
       "type": "formula",
       "heading": "How CAC payback period is calculated",
-      "body": "CAC payback period is CAC divided by monthly ARPU adjusted for gross margin: CAC ÷ (Monthly ARPU × Gross Margin). It answers a cash-flow question specifically, not whether a customer is worth acquiring, but how many months the business has to carry that acquisition cost before it's recovered. Per [CFI's own breakdown of this metric](https://corporatefinanceinstitute.com/resources/valuation/months-to-recover-cac), the margin adjustment exists because a company needs operating profit, not raw revenue, to actually recover an acquisition cost."
+      "body": "CAC payback period is CAC divided by monthly ARPU adjusted for gross margin: CAC ÷ (Monthly ARPU × Gross Margin). It answers a cash-flow question specifically, not whether a customer is worth acquiring, but how many months the business has to carry that acquisition cost before it's recovered. Per [CFI's own breakdown of this metric](https://corporatefinanceinstitute.com/resources/valuation/months-to-recover-cac), the margin adjustment exists because only the gross-margin-adjusted portion of revenue, not raw revenue, is actually available to offset an acquisition cost."
     },
     {
       "id": "worked-example",
@@ -20,7 +20,7 @@
         { "label": "Gross margin", "value": "75%" }
       ],
       "output": { "label": "CAC Payback Period", "value": "8.0 months" },
-      "body": "8.0 months means it takes roughly eight months of this customer's margin-adjusted revenue to earn back the $600 spent acquiring them. Dividing CAC by raw ARPU alone would suggest 6 months — the margin adjustment is what stretches that to the real figure of 8."
+      "body": "8.0 months means it takes roughly eight months of this customer's gross-margin-adjusted revenue to earn back the $600 spent acquiring them. Applying the 75% gross margin changes the estimate from 6 months on a revenue-only basis to 8 months on a gross-margin-adjusted basis — this is a model-based estimate, not a guaranteed recovery timeline."
     },
     {
       "id": "interpretation",
@@ -44,7 +44,7 @@
         },
         {
           "title": "ARPU reflects steady state, not a promotion",
-          "body": "An ARPU pulled from a discount or trial period understates what the customer normally pays, which understates the denominator and makes payback look faster than it will once pricing normalizes."
+          "body": "An ARPU pulled from a discount or trial period understates what the customer normally pays, which reduces the denominator and makes the estimated payback period look longer than it will once pricing normalizes."
         }
       ]
     },
@@ -65,7 +65,7 @@
       "type": "common-mistakes",
       "heading": "Common mistakes",
       "items": [
-        "Dividing CAC by raw ARPU without the margin adjustment — it understates the real payback period by counting revenue the business doesn't actually keep.",
+        "Dividing CAC by raw ARPU without the margin adjustment — it understates the gross-margin-adjusted payback estimate by counting revenue that isn't actually available to offset acquisition cost.",
         "Using an ARPU figure from a different period or cohort than the CAC it's being compared against.",
         "Applying a company-wide blended margin to a specific product or segment whose actual margin is meaningfully different, which shifts payback in either direction.",
         "Treating a generic 'X months is good' benchmark as a target without checking whether it assumes the same margin structure and business model."
@@ -91,7 +91,7 @@
     {
       "id": "why-margin-matters-payback",
       "q": "Why does gross margin matter in CAC payback period?",
-      "a": "Because only the profit portion of revenue is actually available to offset an acquisition cost — the rest goes toward the cost of delivering the product or service itself. A customer paying $100 a month at 75% gross margin contributes $75 a month toward recovering acquisition cost, not the full $100, so using raw ARPU instead of margin-adjusted ARPU understates how long recovery actually takes. Skipping this adjustment is widely cited as the single most common error in this calculation, and it consistently biases the result in the same direction: toward a payback period that looks shorter, and therefore healthier, than it really is. Any CAC payback figure quoted without stating whether margin was applied should be treated as incomplete."
+      "a": "Because only the gross-margin-adjusted portion of revenue is actually available to offset an acquisition cost — the rest goes toward the cost of delivering the product or service itself. A customer paying $100 a month at 75% gross margin contributes $75 a month toward recovering acquisition cost, not the full $100, so using raw ARPU instead of margin-adjusted ARPU understates how long recovery actually takes. Skipping this adjustment is flagged directly in this calculator's own validation logic as the single most common error in this calculation, and it consistently biases the result in the same direction: toward a payback period that looks shorter, and therefore healthier, than it really is. Any CAC payback figure quoted without stating whether margin was applied should be treated as incomplete."
     },
     {
       "id": "good-cac-payback",

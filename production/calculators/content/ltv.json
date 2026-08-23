@@ -18,14 +18,14 @@
       "models": [
         {
           "modeId": "simple",
-          "heading": "Simple (historic)",
-          "body": "Average order value × purchase frequency × customer lifespan. This is the model to reach for when you have clean order history and want a quick, backward-looking estimate of what a customer has been worth on average. It doesn't touch margin or churn at all, which means it describes revenue potential, not what the business actually keeps — treat it as a starting point, not the number to feed into an acquisition-spend decision.",
+          "heading": "Simple",
+          "body": "Average order value × purchase frequency × customer lifespan. This is the model to reach for when you have clean order history and want a quick, backward-looking estimate of what a customer has been worth on average. It doesn't touch margin or churn at all, which means it describes revenue potential rather than the portion of revenue remaining after the costs represented in gross margin — a useful starting point, but not automatically the number to feed into an acquisition-spend decision.",
           "example": "An average order of $60, four purchases a year, over a 3-year lifespan gives an LTV of $720."
         },
         {
           "modeId": "margin-adjusted",
-          "heading": "Margin-adjusted (predictive)",
-          "body": "(Average order value × purchase frequency × gross margin) ÷ annual churn rate. This model swaps a fixed lifespan assumption for an estimate derived from churn, 1 ÷ churn rate is the modeled average lifetime, and multiplies by gross margin instead of raw revenue, so the result is closer to what the business actually retains. This is the model to use when the LTV number is feeding a decision like acquisition spend or the LTV:CAC ratio, because it doesn't overstate what a customer is worth the way the simple model can.",
+          "heading": "Margin-adjusted (churn-based)",
+          "body": "(Average order value × purchase frequency × gross margin) ÷ annual churn rate. This model swaps a fixed lifespan assumption for an estimate derived from churn — 1 ÷ churn rate is the modeled average lifetime — and multiplies by gross margin instead of raw revenue, producing a margin-adjusted customer value rather than a revenue figure. A margin-adjusted model like this one can be more useful when the LTV number needs to be related to acquisition economics, such as an LTV:CAC ratio, because it accounts for the modeled margin — though the simple, revenue-based model isn't inherently invalid for other uses. What matters is knowing which figure is being used and keeping it consistent across any comparison.",
           "example": "A $60 average order, four purchases a year, 60% gross margin and a 20% annual churn rate also gives $720 here — the two models can agree at a particular set of inputs, but they won't in general, since they're built on different assumptions about margin and lifespan."
         },
         {
@@ -46,7 +46,7 @@
       "id": "interpretation",
       "type": "interpretation",
       "heading": "Reading the number",
-      "body": "LTV means the most next to what it costs to get there — pair it with [CAC](/calculators/cac), either as a straight [LTV:CAC ratio](/calculators/ltv-cac-ratio) or a [CAC payback period](/calculators/cac-payback-period), rather than reading it in isolation. A rising LTV with a flat or rising CAC can still be a business getting less efficient overall, even though the top-line LTV number looks healthy on its own. Per [CFI's own breakdown of lifetime value calculation](https://corporatefinanceinstitute.com/resources/valuation/lifetime-value-calculation/), the version that applies profit margin, not the raw revenue version, is the one that reflects actual earnings — a distinction worth keeping in mind before treating any LTV figure as a proxy for profit."
+      "body": "LTV means the most next to what it costs to get there — pair it with [CAC](/calculators/cac), either as a straight [LTV:CAC ratio](/calculators/ltv-cac-ratio) or a [CAC payback period](/calculators/cac-payback-period), rather than reading it in isolation. A rising LTV with a flat or rising CAC can still be a business getting less efficient overall, even though the top-line LTV number looks healthy on its own. Per [CFI's own breakdown of lifetime value calculation](https://corporatefinanceinstitute.com/resources/valuation/lifetime-value-calculation/), the version built on gross margin, not raw revenue, is the one that isolates margin-adjusted customer value rather than gross revenue — worth keeping in mind before treating any LTV figure, either model, as a stand-in for bottom-line profit, which accounts for more than gross margin alone."
     },
     {
       "id": "trust-checks",
@@ -106,7 +106,7 @@
     {
       "id": "what-is-ltv",
       "q": "What is LTV?",
-      "a": "LTV (lifetime value) is an estimate of how much revenue, or margin-adjusted profit depending on the model, a customer generates over the entire time they remain a customer. It isn't measured directly the way a single transaction is; it's modeled from data like average order value, purchase frequency, customer lifespan, or churn rate, which is why more than one legitimate formula exists for it. A simple LTV model built from order history describes revenue potential; a margin-adjusted model describes something closer to what the business actually keeps. Neither version predicts what any individual customer will be worth — both describe an average across a cohort, and both are only as reliable as the assumptions and data feeding them."
+      "a": "LTV (lifetime value) is an estimate of how much revenue, or margin-adjusted customer value depending on the model, a customer generates over the entire time they remain a customer. It isn't measured directly the way a single transaction is; it's modeled from data like average order value, purchase frequency, customer lifespan, or churn rate, which is why more than one legitimate formula exists for it. A simple LTV model built from order history describes revenue potential; a margin-adjusted model describes the portion of revenue remaining after the costs represented in gross margin. Neither version predicts what any individual customer will be worth — both describe an average across a cohort, and both are only as reliable as the assumptions and data feeding them."
     },
     {
       "id": "which-model-should-i-use",

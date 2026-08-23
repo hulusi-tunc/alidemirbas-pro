@@ -40,7 +40,7 @@
       "id": "ctr-vs-ctor",
       "type": "comparison-note",
       "heading": "CTR and CTOR are not the same rate",
-      "body": "CTR divides clicks by impressions \u2014 everyone who was shown the ad, whether they noticed it or not. Click-to-Open Rate (CTOR) divides clicks by opens, and only applies to email, where 'opened' is a separate, earlier event than 'was delivered' or 'was shown.' A campaign can have a low CTR but a healthy CTOR if the creative works once someone actually opens it \u2014 the two numbers answer different questions, not two versions of the same one."
+      "body": "CTR's denominator depends on the channel. In advertising, CTR is clicks divided by impressions \u2014 everyone who was shown the ad, whether they noticed it or not. In email, CTR is commonly calculated as clicks divided by delivered emails, not opens, while Click-to-Open Rate (CTOR) uses opens as its denominator instead. That distinction matters: an email's CTR reflects performance against everyone who received it, while its CTOR isolates how well the message worked once someone actually opened it. A campaign can have a low CTR but a healthy CTOR if the creative converts well among people who open it \u2014 the two rates answer different questions, and comparing an advertising CTR directly against an email CTR or CTOR conflates three different denominators."
     }
   ],
   "related": [
