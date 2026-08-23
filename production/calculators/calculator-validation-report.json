@@ -1,0 +1,26 @@
+{
+  "generatedAt": "static (re-run to refresh)",
+  "counts": {
+    "candidates": 161,
+    "families": 18,
+    "catalog": 77,
+    "byClassification": {
+      "calculator": 63,
+      "calculator-educational": 14,
+      "glossary": 8,
+      "duplicate-variant": 60,
+      "skip": 16
+    },
+    "byPriority": {
+      "P0": 18,
+      "P1": 31,
+      "P2": 20,
+      "P3": 8
+    }
+  },
+  "errors": [],
+  "warnings": [
+    "bayesian-probability-to-beat: unusually many inputs (6) - consider whether this should split into modes"
+  ],
+  "status": "PASS"
+}

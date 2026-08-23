@@ -1,0 +1,4 @@
+{
+  "_description": "Source registry for empirical claims in Phase 4 content (instruction 40). Deliberately empty for this batch: every benchmark-flavored secondary keyword in calculator-seo-map.json (e.g. 'average roas', 'what is a good cac') was reviewed per-calculator and left untargeted rather than answered with an unsourced number - see each content file's qaNotes for the specific decision. This is not a gap; it is Phase 4 §8's benchmark policy applied literally: no credible Tier 1/2 source was available in this pass, so no benchmark claim was made. Mathematical facts (formulas) are not sourced here per instruction 40 - they trace to calculator-catalog.json, the canonical spec, not to an external citation.",
+  "sources": []
+}

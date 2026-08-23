@@ -1,0 +1,17 @@
+{
+  "counts": {
+    "expected": 13,
+    "found": 13,
+    "byQaStatus": {
+      "ready": 13,
+      "review": 0,
+      "blocked": 0
+    }
+  },
+  "errors": [],
+  "warnings": [
+    "Heading \"The formula\" repeats on 5/13 pages (aov, cac, cr, gross-margin, roas) - reviewed and judged healthy consistency, not template risk, since the prose underneath differs substantively (see calculator-content-system-audit.md); flagged here so it's visible as the corpus grows.",
+    "Heading \"Reading the number\" repeats on 8/13 pages (aov, cac-payback-period, cac, cr, gross-margin, ltv, retention-rate, roas) - reviewed and judged healthy consistency, not template risk, since the prose underneath differs substantively (see calculator-content-system-audit.md); flagged here so it's visible as the corpus grows."
+  ],
+  "status": "PASS"
+}

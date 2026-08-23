@@ -1,0 +1,36 @@
+{
+  "calculatorId": "CALC-CTR",
+  "slug": "ctr",
+  "contentDepth": "light",
+  "intro": "CTR tells you what share of the people who saw your ad actually clicked it. Enter clicks and impressions below to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How CTR is calculated",
+      "body": "CTR is clicks divided by impressions, shown as a percentage. Impressions are how many times the ad was shown; clicks are how many of those views turned into a click. Nothing else feeds into it — no cost, no conversions, just the ratio of the two counts you already have in any ad platform's dashboard."
+    },
+    {
+      "id": "example",
+      "type": "example",
+      "heading": "Example",
+      "body": "An ad that gets 240 clicks from 12,000 impressions has a CTR of 2.00%. Double the impressions with the same click count and CTR halves — it moves with the denominator just as much as the numerator, which is easy to forget when comparing two campaigns that ran at different scales."
+    },
+    {
+      "id": "ctr-vs-ctor",
+      "type": "comparison-note",
+      "heading": "CTR and CTOR are not the same rate",
+      "body": "CTR divides clicks by impressions — everyone who was shown the ad, whether they noticed it or not. Click-to-Open Rate (CTOR) divides clicks by opens, and only applies to email, where 'opened' is a separate, earlier event than 'was delivered.' A campaign can have a low CTR but a healthy CTOR if the creative works once someone actually opens it — the two numbers are answering different questions, not two versions of the same one."
+    }
+  ],
+  "faq": [],
+  "seo": {
+    "seoTitle": "CTR Calculator",
+    "seoDescription": "Calculate click-through rate from clicks and impressions, with a worked example and the distinction between CTR and CTOR.",
+    "canonicalPath": "/calculators/ctr",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "No benchmark section - no Tier 1/2 source was available to cite for 'average CTR' in this pass, and CTR varies enough by placement/network that a single number would mislead more than it helps. Left out rather than fabricated (Phase 4 instruction 8)."
+}

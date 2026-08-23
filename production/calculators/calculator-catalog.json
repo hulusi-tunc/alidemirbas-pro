@@ -1,0 +1,6263 @@
+{
+  "_description": "Phase 4 catalog: full specification for every candidate recommended as a real calculator (classification calculator or calculator-educational). Formula families and category/subcategory are cross-validated against calculator-candidates.json and calculator-formula-families.json at generation time, not hand-copied.",
+  "generatedFrom": [
+    "calculator-candidates.json",
+    "calculator-formula-families.json"
+  ],
+  "count": 77,
+  "calculators": [
+    {
+      "id": "CALC-ROAS",
+      "name": "ROAS Calculator",
+      "slug": "roas",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "revenue / adSpend",
+      "formulaPlainEnglish": "Revenue generated per unit of ad spend.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Revenue from ads",
+          "unit": "currency"
+        },
+        {
+          "key": "spend",
+          "label": "Ad spend",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "roas",
+          "label": "ROAS",
+          "unit": "x (multiplier)"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "spend": "currency"
+      },
+      "outputUnits": {
+        "roas": "x (multiplier)"
+      },
+      "acceptedRanges": {
+        "revenue": ">=0",
+        "spend": ">0"
+      },
+      "validationRules": [
+        "spend must be > 0 (undefined otherwise)",
+        "output is a multiplier (2.5x), not a percentage - do not append %"
+      ],
+      "edgeCases": [
+        "spend = 0 -> undefined, show '-' not Infinity",
+        "revenue = 0 -> valid, ROAS = 0x"
+      ],
+      "exampleInput": {
+        "revenue": 5000,
+        "spend": 1000
+      },
+      "exampleOutput": {
+        "roas": "5.00x"
+      },
+      "relatedMetrics": [
+        "Marketing ROI",
+        "Break-Even ROAS"
+      ],
+      "relatedCalculators": [
+        "marketing-roi",
+        "incremental-roas"
+      ],
+      "formulaFamily": "return-efficiency",
+      "aliases": [
+        "Return on Ad Spend"
+      ]
+    },
+    {
+      "id": "CALC-MARKETING-ROI",
+      "name": "Marketing ROI Calculator",
+      "slug": "marketing-roi",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "(revenue - cost) / cost",
+      "formulaPlainEnglish": "Net return on marketing investment as a percentage of cost.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Revenue attributed to marketing",
+          "unit": "currency"
+        },
+        {
+          "key": "cost",
+          "label": "Marketing cost",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "roi",
+          "label": "Marketing ROI",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "cost": "currency"
+      },
+      "outputUnits": {
+        "roi": "%"
+      },
+      "acceptedRanges": {
+        "revenue": ">=0",
+        "cost": ">0"
+      },
+      "validationRules": [
+        "cost must be > 0",
+        "output is a percentage, distinct from ROAS's multiplier - do not conflate the two on the same page"
+      ],
+      "edgeCases": [
+        "cost = 0 -> undefined",
+        "revenue < cost -> negative ROI is valid and expected"
+      ],
+      "exampleInput": {
+        "revenue": 5000,
+        "cost": 1000
+      },
+      "exampleOutput": {
+        "roi": "400.00%"
+      },
+      "relatedMetrics": [
+        "ROAS",
+        "Profit Margin"
+      ],
+      "relatedCalculators": [
+        "roas",
+        "incremental-roas",
+        "profit-margin"
+      ],
+      "formulaFamily": "return-efficiency",
+      "aliases": [
+        "ROI"
+      ]
+    },
+    {
+      "id": "CALC-INCREMENTAL-ROAS",
+      "name": "Incremental ROAS Calculator",
+      "slug": "incremental-roas",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "(testRevenue - controlRevenue) / spend",
+      "formulaPlainEnglish": "Revenue actually caused by the ad spend (from a holdout test), divided by that spend.",
+      "inputs": [
+        {
+          "key": "testRevenue",
+          "label": "Revenue, exposed group",
+          "unit": "currency"
+        },
+        {
+          "key": "controlRevenue",
+          "label": "Revenue, holdout group",
+          "unit": "currency"
+        },
+        {
+          "key": "spend",
+          "label": "Ad spend",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "iroas",
+          "label": "Incremental ROAS",
+          "unit": "x (multiplier)"
+        }
+      ],
+      "inputUnits": {
+        "testRevenue": "currency",
+        "controlRevenue": "currency",
+        "spend": "currency"
+      },
+      "outputUnits": {
+        "iroas": "x (multiplier)"
+      },
+      "acceptedRanges": {
+        "testRevenue": ">=0",
+        "controlRevenue": ">=0",
+        "spend": ">0"
+      },
+      "validationRules": [
+        "requires a true randomized holdout; a non-random control group invalidates the result",
+        "spend must be > 0"
+      ],
+      "edgeCases": [
+        "controlRevenue > testRevenue -> negative incremental ROAS is valid (ads suppressed organic-equivalent behavior)"
+      ],
+      "exampleInput": {
+        "testRevenue": 12000,
+        "controlRevenue": 9000,
+        "spend": 2000
+      },
+      "exampleOutput": {
+        "iroas": "1.50x"
+      },
+      "relatedMetrics": [
+        "ROAS"
+      ],
+      "relatedCalculators": [
+        "roas",
+        "marketing-roi"
+      ],
+      "formulaFamily": "return-efficiency",
+      "aliases": []
+    },
+    {
+      "id": "CALC-CTR",
+      "name": "CTR (ads) Calculator",
+      "slug": "ctr",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "clicks / impressions",
+      "formulaPlainEnglish": "Share of impressions that were clicked.",
+      "inputs": [
+        {
+          "key": "clicks",
+          "label": "Clicks",
+          "unit": "count"
+        },
+        {
+          "key": "impressions",
+          "label": "Impressions",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "ctr",
+          "label": "CTR",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "clicks": "count",
+        "impressions": "count"
+      },
+      "outputUnits": {
+        "ctr": "%"
+      },
+      "acceptedRanges": {
+        "clicks": ">=0",
+        "impressions": ">0"
+      },
+      "validationRules": [
+        "clicks should not exceed impressions in normal ad delivery",
+        "impressions must be > 0"
+      ],
+      "edgeCases": [
+        "impressions = 0 -> undefined",
+        "clicks = impressions -> 100%, flag as suspicious click fraud pattern"
+      ],
+      "exampleInput": {
+        "clicks": 240,
+        "impressions": 12000
+      },
+      "exampleOutput": {
+        "ctr": "2.00%"
+      },
+      "relatedMetrics": [
+        "CPC",
+        "Conversion Rate"
+      ],
+      "relatedCalculators": [
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "cpc",
+        "cr"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": [
+        "Click-Through Rate"
+      ]
+    },
+    {
+      "id": "CALC-CPC",
+      "name": "CPC Calculator",
+      "slug": "cpc",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "spend / clicks",
+      "formulaPlainEnglish": "Average price paid per click.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total spend",
+          "unit": "currency"
+        },
+        {
+          "key": "clicks",
+          "label": "Clicks",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cpc",
+          "label": "CPC",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "clicks": "count"
+      },
+      "outputUnits": {
+        "cpc": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "clicks": ">0"
+      },
+      "validationRules": [
+        "clicks must be > 0"
+      ],
+      "edgeCases": [
+        "clicks = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 500,
+        "clicks": 250
+      },
+      "exampleOutput": {
+        "cpc": "2.00"
+      },
+      "relatedMetrics": [
+        "CPM",
+        "CTR"
+      ],
+      "relatedCalculators": [
+        "cpm",
+        "cpa",
+        "cpl",
+        "cpi",
+        "cpv",
+        "cpe",
+        "ctr"
+      ],
+      "formulaFamily": "cost-per-unit",
+      "aliases": [
+        "Cost per Click"
+      ]
+    },
+    {
+      "id": "CALC-CPM",
+      "name": "CPM Calculator",
+      "slug": "cpm",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "(spend / impressions) * 1000",
+      "formulaPlainEnglish": "Cost to reach 1,000 impressions.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total spend",
+          "unit": "currency"
+        },
+        {
+          "key": "impressions",
+          "label": "Impressions",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cpm",
+          "label": "CPM",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "impressions": "count"
+      },
+      "outputUnits": {
+        "cpm": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "impressions": ">0"
+      },
+      "validationRules": [
+        "impressions must be > 0",
+        "the x1000 factor is part of the definition - do not report raw cost-per-impression"
+      ],
+      "edgeCases": [
+        "impressions = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 300,
+        "impressions": 150000
+      },
+      "exampleOutput": {
+        "cpm": "2.00"
+      },
+      "relatedMetrics": [
+        "CPC",
+        "Effective CPM"
+      ],
+      "relatedCalculators": [
+        "cpc",
+        "cpa",
+        "cpl",
+        "cpi",
+        "cpv",
+        "cpe"
+      ],
+      "formulaFamily": "cost-per-unit",
+      "aliases": [
+        "Cost per Mille",
+        "Cost per 1,000 Impressions"
+      ]
+    },
+    {
+      "id": "CALC-CPA",
+      "name": "CPA Calculator",
+      "slug": "cpa",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "recommended",
+      "formula": "spend / conversions",
+      "formulaPlainEnglish": "Average price paid per conversion.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total spend",
+          "unit": "currency"
+        },
+        {
+          "key": "conversions",
+          "label": "Conversions",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cpa",
+          "label": "CPA",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "conversions": "count"
+      },
+      "outputUnits": {
+        "cpa": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "conversions": ">0"
+      },
+      "validationRules": [
+        "conversions must be > 0",
+        "keep the conversion definition (lead vs sale vs signup) explicit next to the result - the same spend against a looser definition silently understates CPA"
+      ],
+      "edgeCases": [
+        "conversions = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 4000,
+        "conversions": 80
+      },
+      "exampleOutput": {
+        "cpa": "50.00"
+      },
+      "relatedMetrics": [
+        "CPL",
+        "CAC"
+      ],
+      "relatedCalculators": [
+        "cpc",
+        "cpm",
+        "cpl",
+        "cpi",
+        "cpv",
+        "cpe",
+        "cac"
+      ],
+      "formulaFamily": "cost-per-unit",
+      "aliases": [
+        "Cost per Acquisition",
+        "Cost per Conversion"
+      ]
+    },
+    {
+      "id": "CALC-CPL",
+      "name": "CPL Calculator",
+      "slug": "cpl",
+      "category": "advertising",
+      "subcategory": "paid-search-social",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "spend / leads",
+      "formulaPlainEnglish": "Average price paid per lead generated.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total spend",
+          "unit": "currency"
+        },
+        {
+          "key": "leads",
+          "label": "Leads generated",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cpl",
+          "label": "CPL",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "leads": "count"
+      },
+      "outputUnits": {
+        "cpl": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "leads": ">0"
+      },
+      "validationRules": [
+        "leads must be > 0"
+      ],
+      "edgeCases": [
+        "leads = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 2000,
+        "leads": 100
+      },
+      "exampleOutput": {
+        "cpl": "20.00"
+      },
+      "relatedMetrics": [
+        "CPA",
+        "CAC"
+      ],
+      "relatedCalculators": [
+        "cpc",
+        "cpm",
+        "cpa",
+        "cpi",
+        "cpv",
+        "cpe",
+        "cac"
+      ],
+      "formulaFamily": "cost-per-unit",
+      "aliases": [
+        "Cost per Lead"
+      ]
+    },
+    {
+      "id": "CALC-CPI",
+      "name": "CPI (cost per install) Calculator",
+      "slug": "cpi",
+      "category": "advertising",
+      "subcategory": "display-video",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "spend / installs",
+      "formulaPlainEnglish": "Average price paid per app install.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total spend",
+          "unit": "currency"
+        },
+        {
+          "key": "installs",
+          "label": "Installs",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cpi",
+          "label": "CPI",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "installs": "count"
+      },
+      "outputUnits": {
+        "cpi": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "installs": ">0"
+      },
+      "validationRules": [
+        "installs must be > 0"
+      ],
+      "edgeCases": [
+        "installs = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 1500,
+        "installs": 500
+      },
+      "exampleOutput": {
+        "cpi": "3.00"
+      },
+      "relatedMetrics": [
+        "Activation Rate",
+        "Mobile LTV"
+      ],
+      "relatedCalculators": [
+        "cpc",
+        "cpm",
+        "cpa",
+        "cpl",
+        "cpv",
+        "cpe",
+        "activation-rate"
+      ],
+      "formulaFamily": "cost-per-unit",
+      "aliases": [
+        "Cost per Install"
+      ]
+    },
+    {
+      "id": "CALC-CPV",
+      "name": "CPV (cost per view) Calculator",
+      "slug": "cpv",
+      "category": "advertising",
+      "subcategory": "display-video",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "spend / views",
+      "formulaPlainEnglish": "Average price paid per (qualifying) video view.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total spend",
+          "unit": "currency"
+        },
+        {
+          "key": "views",
+          "label": "Qualifying views",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cpv",
+          "label": "CPV",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "views": "count"
+      },
+      "outputUnits": {
+        "cpv": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "views": ">0"
+      },
+      "validationRules": [
+        "'view' definition (e.g. 30s watched, or completed) must be stated - platforms differ",
+        "views must be > 0"
+      ],
+      "edgeCases": [
+        "views = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 800,
+        "views": 8000
+      },
+      "exampleOutput": {
+        "cpv": "0.10"
+      },
+      "relatedMetrics": [
+        "Video Completion Rate",
+        "CPM"
+      ],
+      "relatedCalculators": [
+        "cpc",
+        "cpm",
+        "cpa",
+        "cpl",
+        "cpi",
+        "cpe",
+        "video-completion-rate"
+      ],
+      "formulaFamily": "cost-per-unit",
+      "aliases": [
+        "Cost per View"
+      ]
+    },
+    {
+      "id": "CALC-CPE",
+      "name": "CPE (cost per engagement) Calculator",
+      "slug": "cpe",
+      "category": "advertising",
+      "subcategory": "display-video",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "spend / engagements",
+      "formulaPlainEnglish": "Average price paid per tracked engagement action.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total spend",
+          "unit": "currency"
+        },
+        {
+          "key": "engagements",
+          "label": "Engagements",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cpe",
+          "label": "CPE",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "engagements": "count"
+      },
+      "outputUnits": {
+        "cpe": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "engagements": ">0"
+      },
+      "validationRules": [
+        "'engagement' has no fixed cross-platform definition (like, share, save, swipe-up all count on different platforms) - state which events are included",
+        "engagements must be > 0"
+      ],
+      "edgeCases": [
+        "engagements = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 600,
+        "engagements": 3000
+      },
+      "exampleOutput": {
+        "cpe": "0.20"
+      },
+      "relatedMetrics": [
+        "Web Engagement Rate"
+      ],
+      "relatedCalculators": [
+        "cpc",
+        "cpm",
+        "cpa",
+        "cpl",
+        "cpi",
+        "cpv",
+        "engagement-rate"
+      ],
+      "formulaFamily": "cost-per-unit",
+      "aliases": [
+        "Cost per Engagement"
+      ]
+    },
+    {
+      "id": "CALC-FREQUENCY",
+      "name": "Frequency Calculator",
+      "slug": "frequency",
+      "category": "advertising",
+      "subcategory": "awareness-reach",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "impressions / reach",
+      "formulaPlainEnglish": "Average number of times a unique person was exposed to the ad.",
+      "inputs": [
+        {
+          "key": "impressions",
+          "label": "Impressions",
+          "unit": "count"
+        },
+        {
+          "key": "reach",
+          "label": "Unique reach",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "frequency",
+          "label": "Frequency",
+          "unit": "x (avg exposures)"
+        }
+      ],
+      "inputUnits": {
+        "impressions": "count",
+        "reach": "count"
+      },
+      "outputUnits": {
+        "frequency": "x (avg exposures)"
+      },
+      "acceptedRanges": {
+        "impressions": ">=0",
+        "reach": ">0"
+      },
+      "validationRules": [
+        "reach must be > 0",
+        "frequency is always >= 1 in a correct dataset; a result < 1 signals a data error, not a real value"
+      ],
+      "edgeCases": [
+        "reach = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "impressions": 500000,
+        "reach": 100000
+      },
+      "exampleOutput": {
+        "frequency": "5.00x"
+      },
+      "relatedMetrics": [
+        "Reach",
+        "Impression Share"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-VIDEO-COMPLETION-RATE",
+      "name": "Video Completion Rate Calculator",
+      "slug": "video-completion-rate",
+      "category": "advertising",
+      "subcategory": "display-video",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "completions / starts",
+      "formulaPlainEnglish": "Share of started video views that played to completion.",
+      "inputs": [
+        {
+          "key": "completions",
+          "label": "Completed views",
+          "unit": "count"
+        },
+        {
+          "key": "starts",
+          "label": "Video starts",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "completionRate",
+          "label": "Video Completion Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "completions": "count",
+        "starts": "count"
+      },
+      "outputUnits": {
+        "completionRate": "%"
+      },
+      "acceptedRanges": {
+        "completions": ">=0",
+        "starts": ">0"
+      },
+      "validationRules": [
+        "starts must be > 0",
+        "completions should not exceed starts"
+      ],
+      "edgeCases": [
+        "starts = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "completions": 4200,
+        "starts": 6000
+      },
+      "exampleOutput": {
+        "completionRate": "70.00%"
+      },
+      "relatedMetrics": [
+        "CPV",
+        "Video View-Through Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "cpv"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-SHARE-OF-VOICE",
+      "name": "Share of Voice Calculator",
+      "slug": "share-of-voice",
+      "category": "advertising",
+      "subcategory": "awareness-reach",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "ownImpressions / totalMarketImpressions",
+      "formulaPlainEnglish": "Your share of total category ad impressions in a market.",
+      "inputs": [
+        {
+          "key": "ownImpressions",
+          "label": "Your impressions",
+          "unit": "count"
+        },
+        {
+          "key": "totalMarketImpressions",
+          "label": "Total market impressions",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sov",
+          "label": "Share of Voice",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "ownImpressions": "count",
+        "totalMarketImpressions": "count"
+      },
+      "outputUnits": {
+        "sov": "%"
+      },
+      "acceptedRanges": {
+        "ownImpressions": ">=0",
+        "totalMarketImpressions": ">0"
+      },
+      "validationRules": [
+        "totalMarketImpressions is rarely directly known - usually estimated from a competitive intelligence tool; state the source",
+        "ownImpressions must be <= totalMarketImpressions"
+      ],
+      "edgeCases": [
+        "totalMarketImpressions = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "ownImpressions": 50000,
+        "totalMarketImpressions": 400000
+      },
+      "exampleOutput": {
+        "sov": "12.50%"
+      },
+      "relatedMetrics": [
+        "Frequency",
+        "Reach"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-CAC",
+      "name": "CAC Calculator",
+      "slug": "cac",
+      "category": "acquisition",
+      "subcategory": "cac-efficiency",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "spend / customers",
+      "formulaPlainEnglish": "Total acquisition spend divided by new customers acquired.",
+      "inputs": [
+        {
+          "key": "spend",
+          "label": "Total acquisition spend",
+          "unit": "currency"
+        },
+        {
+          "key": "customers",
+          "label": "New customers acquired",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "cac",
+          "label": "CAC",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "spend": "currency",
+        "customers": "count"
+      },
+      "outputUnits": {
+        "cac": "currency"
+      },
+      "acceptedRanges": {
+        "spend": ">=0",
+        "customers": ">0"
+      },
+      "validationRules": [
+        "customers must be > 0",
+        "spend should include the full acquisition cost base being measured (paid-only vs blended) - state which"
+      ],
+      "edgeCases": [
+        "customers = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "spend": 10000,
+        "customers": 200
+      },
+      "exampleOutput": {
+        "cac": "50.00"
+      },
+      "relatedMetrics": [
+        "LTV:CAC Ratio",
+        "CAC Payback Period"
+      ],
+      "relatedCalculators": [
+        "blended-cac",
+        "ltv-cac-ratio",
+        "cac-payback-period"
+      ],
+      "formulaFamily": "cac-cost-per-unit",
+      "aliases": [
+        "Customer Acquisition Cost"
+      ]
+    },
+    {
+      "id": "CALC-BLENDED-CAC",
+      "name": "Blended CAC Calculator",
+      "slug": "blended-cac",
+      "category": "acquisition",
+      "subcategory": "cac-efficiency",
+      "classification": "calculator-educational",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "totalSpendAllChannels / totalNewCustomersAllSources",
+      "formulaPlainEnglish": "Total acquisition spend across every channel (including $0-cost organic) divided by all new customers, regardless of source.",
+      "inputs": [
+        {
+          "key": "totalSpend",
+          "label": "Total spend, all channels",
+          "unit": "currency"
+        },
+        {
+          "key": "totalCustomers",
+          "label": "New customers, all sources",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "blendedCac",
+          "label": "Blended CAC",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "totalSpend": "currency",
+        "totalCustomers": "count"
+      },
+      "outputUnits": {
+        "blendedCac": "currency"
+      },
+      "acceptedRanges": {
+        "totalSpend": ">=0",
+        "totalCustomers": ">0"
+      },
+      "validationRules": [
+        "totalCustomers must include organic/referral customers, not only paid-attributed ones, or the result is really Paid CAC mislabeled",
+        "totalCustomers must be > 0"
+      ],
+      "edgeCases": [
+        "totalCustomers = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "totalSpend": 10000,
+        "totalCustomers": 400
+      },
+      "exampleOutput": {
+        "blendedCac": "25.00"
+      },
+      "relatedMetrics": [
+        "CAC"
+      ],
+      "relatedCalculators": [
+        "cac"
+      ],
+      "formulaFamily": "cac-cost-per-unit",
+      "aliases": []
+    },
+    {
+      "id": "CALC-AOV",
+      "name": "AOV Calculator",
+      "slug": "aov",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "revenue / orders",
+      "formulaPlainEnglish": "Average revenue per completed order.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Total revenue",
+          "unit": "currency"
+        },
+        {
+          "key": "orders",
+          "label": "Number of orders",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "aov",
+          "label": "AOV",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "orders": "count"
+      },
+      "outputUnits": {
+        "aov": "currency"
+      },
+      "acceptedRanges": {
+        "revenue": ">=0",
+        "orders": ">0"
+      },
+      "validationRules": [
+        "orders must be > 0"
+      ],
+      "edgeCases": [
+        "orders = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "revenue": 45000,
+        "orders": 900
+      },
+      "exampleOutput": {
+        "aov": "50.00"
+      },
+      "relatedMetrics": [
+        "Units per Transaction",
+        "Revenue per Visitor"
+      ],
+      "relatedCalculators": [
+        "units-per-transaction",
+        "session-length-avg",
+        "sessions-per-user",
+        "arpu",
+        "annual-contract-value",
+        "arpdau",
+        "revenue-per-visitor"
+      ],
+      "formulaFamily": "average-value",
+      "aliases": [
+        "Average Order Value",
+        "Average Basket Size",
+        "Revenue per Order"
+      ]
+    },
+    {
+      "id": "CALC-UNITS-PER-TRANSACTION",
+      "name": "Units per Transaction Calculator",
+      "slug": "units-per-transaction",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "unitsSold / orders",
+      "formulaPlainEnglish": "Average number of items per completed order.",
+      "inputs": [
+        {
+          "key": "unitsSold",
+          "label": "Units sold",
+          "unit": "count"
+        },
+        {
+          "key": "orders",
+          "label": "Number of orders",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "upt",
+          "label": "Units per Transaction",
+          "unit": "x (avg items)"
+        }
+      ],
+      "inputUnits": {
+        "unitsSold": "count",
+        "orders": "count"
+      },
+      "outputUnits": {
+        "upt": "x (avg items)"
+      },
+      "acceptedRanges": {
+        "unitsSold": ">=0",
+        "orders": ">0"
+      },
+      "validationRules": [
+        "orders must be > 0"
+      ],
+      "edgeCases": [
+        "orders = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "unitsSold": 2100,
+        "orders": 900
+      },
+      "exampleOutput": {
+        "upt": "2.33"
+      },
+      "relatedMetrics": [
+        "AOV"
+      ],
+      "relatedCalculators": [
+        "aov",
+        "session-length-avg",
+        "sessions-per-user",
+        "arpu",
+        "annual-contract-value",
+        "arpdau"
+      ],
+      "formulaFamily": "average-value",
+      "aliases": []
+    },
+    {
+      "id": "CALC-REVENUE-PER-VISITOR",
+      "name": "Revenue per Visitor Calculator",
+      "slug": "revenue-per-visitor",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "revenue / visitors",
+      "formulaPlainEnglish": "Average revenue generated per site visitor.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Total revenue",
+          "unit": "currency"
+        },
+        {
+          "key": "visitors",
+          "label": "Total visitors",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "rpv",
+          "label": "Revenue per Visitor",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "visitors": "count"
+      },
+      "outputUnits": {
+        "rpv": "currency"
+      },
+      "acceptedRanges": {
+        "revenue": ">=0",
+        "visitors": ">0"
+      },
+      "validationRules": [
+        "visitors must be > 0"
+      ],
+      "edgeCases": [
+        "visitors = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "revenue": 45000,
+        "visitors": 30000
+      },
+      "exampleOutput": {
+        "rpv": "1.50"
+      },
+      "relatedMetrics": [
+        "AOV",
+        "Conversion Rate"
+      ],
+      "relatedCalculators": [
+        "inventory-turnover",
+        "revenue-per-recipient",
+        "saas-quick-ratio",
+        "magic-number",
+        "rule-of-40",
+        "burn-multiple",
+        "aov",
+        "cr"
+      ],
+      "formulaFamily": "efficiency-per-unit",
+      "aliases": [
+        "RPV"
+      ]
+    },
+    {
+      "id": "CALC-CART-ABANDONMENT-RATE",
+      "name": "Cart Abandonment Rate Calculator",
+      "slug": "cart-abandonment",
+      "category": "ecommerce",
+      "subcategory": "cart-checkout",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "implemented",
+      "formula": "(cartsCreated - completedPurchases) / cartsCreated",
+      "formulaPlainEnglish": "Share of started carts that never converted, at a chosen funnel stage.",
+      "inputs": [
+        {
+          "key": "stage",
+          "label": "Stage",
+          "unit": "enum(cart/checkout)"
+        },
+        {
+          "key": "cartsCreated",
+          "label": "Carts (or checkouts) started",
+          "unit": "count"
+        },
+        {
+          "key": "completedPurchases",
+          "label": "Completed purchases",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "abandonmentRate",
+          "label": "Abandonment Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "stage": "enum(cart/checkout)",
+        "cartsCreated": "count",
+        "completedPurchases": "count"
+      },
+      "outputUnits": {
+        "abandonmentRate": "%"
+      },
+      "acceptedRanges": {
+        "cartsCreated": ">0",
+        "completedPurchases": ">=0"
+      },
+      "validationRules": [
+        "completedPurchases should not exceed cartsCreated",
+        "cartsCreated must be > 0",
+        "the stage label must be shown in the result, since cart-stage and checkout-stage numbers are not comparable to each other"
+      ],
+      "edgeCases": [
+        "cartsCreated = 0 -> undefined",
+        "completedPurchases = cartsCreated -> 0% abandonment"
+      ],
+      "exampleInput": {
+        "stage": "cart",
+        "cartsCreated": 1000,
+        "completedPurchases": 280
+      },
+      "exampleOutput": {
+        "abandonmentRate": "72.00%"
+      },
+      "relatedMetrics": [
+        "Conversion Rate",
+        "Landing Page Bounce Rate"
+      ],
+      "relatedCalculators": [
+        "cr",
+        "bounce-rate-landing"
+      ],
+      "formulaFamily": "abandonment",
+      "aliases": [
+        "Checkout Abandonment Rate"
+      ]
+    },
+    {
+      "id": "CALC-DISCOUNT-RATE",
+      "name": "Discount Rate Calculator",
+      "slug": "discount-rate",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "discountAmount / originalPrice",
+      "formulaPlainEnglish": "Discount given as a share of original price.",
+      "inputs": [
+        {
+          "key": "discountAmount",
+          "label": "Discount amount",
+          "unit": "currency"
+        },
+        {
+          "key": "originalPrice",
+          "label": "Original price",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "discountRate",
+          "label": "Discount Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "discountAmount": "currency",
+        "originalPrice": "currency"
+      },
+      "outputUnits": {
+        "discountRate": "%"
+      },
+      "acceptedRanges": {
+        "discountAmount": ">=0",
+        "originalPrice": ">0"
+      },
+      "validationRules": [
+        "discountAmount should not exceed originalPrice",
+        "originalPrice must be > 0"
+      ],
+      "edgeCases": [
+        "originalPrice = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "discountAmount": 15,
+        "originalPrice": 60
+      },
+      "exampleOutput": {
+        "discountRate": "25.00%"
+      },
+      "relatedMetrics": [
+        "Profit Margin"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "profit-margin"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-RETURN-RATE",
+      "name": "Return Rate Calculator",
+      "slug": "return-rate",
+      "category": "ecommerce",
+      "subcategory": "merchandising-ops",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "returnedUnits / soldUnits",
+      "formulaPlainEnglish": "Share of sold units later returned.",
+      "inputs": [
+        {
+          "key": "returnedUnits",
+          "label": "Returned units",
+          "unit": "count"
+        },
+        {
+          "key": "soldUnits",
+          "label": "Sold units",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "returnRate",
+          "label": "Return Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "returnedUnits": "count",
+        "soldUnits": "count"
+      },
+      "outputUnits": {
+        "returnRate": "%"
+      },
+      "acceptedRanges": {
+        "returnedUnits": ">=0",
+        "soldUnits": ">0"
+      },
+      "validationRules": [
+        "soldUnits must be > 0",
+        "measured in units - do not silently substitute a revenue figure (see Refund Rate for the currency-based counterpart)"
+      ],
+      "edgeCases": [
+        "soldUnits = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "returnedUnits": 60,
+        "soldUnits": 1200
+      },
+      "exampleOutput": {
+        "returnRate": "5.00%"
+      },
+      "relatedMetrics": [
+        "Refund Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-REFUND-RATE",
+      "name": "Refund Rate Calculator",
+      "slug": "refund-rate",
+      "category": "ecommerce",
+      "subcategory": "merchandising-ops",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "refundedRevenue / grossRevenue",
+      "formulaPlainEnglish": "Refunded revenue as a share of gross revenue - the currency-based counterpart to Return Rate's unit count.",
+      "inputs": [
+        {
+          "key": "refundedRevenue",
+          "label": "Refunded revenue",
+          "unit": "currency"
+        },
+        {
+          "key": "grossRevenue",
+          "label": "Gross revenue",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "refundRate",
+          "label": "Refund Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "refundedRevenue": "currency",
+        "grossRevenue": "currency"
+      },
+      "outputUnits": {
+        "refundRate": "%"
+      },
+      "acceptedRanges": {
+        "refundedRevenue": ">=0",
+        "grossRevenue": ">0"
+      },
+      "validationRules": [
+        "grossRevenue must be > 0",
+        "state explicitly that this is currency-based, not unit-based, so it is never silently compared to Return Rate as if identical"
+      ],
+      "edgeCases": [
+        "grossRevenue = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "refundedRevenue": 3000,
+        "grossRevenue": 45000
+      },
+      "exampleOutput": {
+        "refundRate": "6.67%"
+      },
+      "relatedMetrics": [
+        "Return Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-INVENTORY-TURNOVER",
+      "name": "Inventory Turnover Calculator",
+      "slug": "inventory-turnover",
+      "category": "ecommerce",
+      "subcategory": "merchandising-ops",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "cogs / averageInventoryValue",
+      "formulaPlainEnglish": "How many times inventory is sold and replaced over a period.",
+      "inputs": [
+        {
+          "key": "cogs",
+          "label": "Cost of goods sold",
+          "unit": "currency"
+        },
+        {
+          "key": "averageInventoryValue",
+          "label": "Average inventory value",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "turnover",
+          "label": "Inventory Turnover",
+          "unit": "x (times per period)"
+        }
+      ],
+      "inputUnits": {
+        "cogs": "currency",
+        "averageInventoryValue": "currency"
+      },
+      "outputUnits": {
+        "turnover": "x (times per period)"
+      },
+      "acceptedRanges": {
+        "cogs": ">=0",
+        "averageInventoryValue": ">0"
+      },
+      "validationRules": [
+        "averageInventoryValue must be > 0",
+        "cogs and inventory value must cover the same period"
+      ],
+      "edgeCases": [
+        "averageInventoryValue = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "cogs": 240000,
+        "averageInventoryValue": 40000
+      },
+      "exampleOutput": {
+        "turnover": "6.00x"
+      },
+      "relatedMetrics": [
+        "Sell-Through Rate"
+      ],
+      "relatedCalculators": [
+        "revenue-per-visitor",
+        "revenue-per-recipient",
+        "saas-quick-ratio",
+        "magic-number",
+        "rule-of-40",
+        "burn-multiple",
+        "sell-through-rate"
+      ],
+      "formulaFamily": "efficiency-per-unit",
+      "aliases": []
+    },
+    {
+      "id": "CALC-SELL-THROUGH-RATE",
+      "name": "Sell-Through Rate Calculator",
+      "slug": "sell-through-rate",
+      "category": "ecommerce",
+      "subcategory": "merchandising-ops",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "unitsSold / unitsReceived",
+      "formulaPlainEnglish": "Share of received inventory that has sold.",
+      "inputs": [
+        {
+          "key": "unitsSold",
+          "label": "Units sold",
+          "unit": "count"
+        },
+        {
+          "key": "unitsReceived",
+          "label": "Units received",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sellThroughRate",
+          "label": "Sell-Through Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "unitsSold": "count",
+        "unitsReceived": "count"
+      },
+      "outputUnits": {
+        "sellThroughRate": "%"
+      },
+      "acceptedRanges": {
+        "unitsSold": ">=0",
+        "unitsReceived": ">0"
+      },
+      "validationRules": [
+        "unitsReceived must be > 0",
+        "unitsSold should not exceed unitsReceived within one stocking period"
+      ],
+      "edgeCases": [
+        "unitsReceived = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "unitsSold": 850,
+        "unitsReceived": 1000
+      },
+      "exampleOutput": {
+        "sellThroughRate": "85.00%"
+      },
+      "relatedMetrics": [
+        "Inventory Turnover"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "inventory-turnover"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-SHIPPING-COST-RATIO",
+      "name": "Shipping Cost Ratio Calculator",
+      "slug": "shipping-cost-ratio",
+      "category": "ecommerce",
+      "subcategory": "merchandising-ops",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "shippingCost / orderValue",
+      "formulaPlainEnglish": "Shipping cost as a share of order value.",
+      "inputs": [
+        {
+          "key": "shippingCost",
+          "label": "Shipping cost",
+          "unit": "currency"
+        },
+        {
+          "key": "orderValue",
+          "label": "Order value",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "shippingRatio",
+          "label": "Shipping Cost Ratio",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "shippingCost": "currency",
+        "orderValue": "currency"
+      },
+      "outputUnits": {
+        "shippingRatio": "%"
+      },
+      "acceptedRanges": {
+        "shippingCost": ">=0",
+        "orderValue": ">0"
+      },
+      "validationRules": [
+        "orderValue must be > 0"
+      ],
+      "edgeCases": [
+        "orderValue = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "shippingCost": 6,
+        "orderValue": 60
+      },
+      "exampleOutput": {
+        "shippingRatio": "10.00%"
+      },
+      "relatedMetrics": [
+        "Contribution Margin"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "contribution-margin"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-GROSS-MARGIN",
+      "name": "Gross Margin Calculator",
+      "slug": "gross-margin",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "recommended",
+      "formula": "(revenue - cogs) / revenue",
+      "formulaPlainEnglish": "Revenue remaining after the direct cost of goods sold.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Revenue",
+          "unit": "currency"
+        },
+        {
+          "key": "cogs",
+          "label": "Cost of goods sold",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "grossMargin",
+          "label": "Gross Margin",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "cogs": "currency"
+      },
+      "outputUnits": {
+        "grossMargin": "%"
+      },
+      "acceptedRanges": {
+        "revenue": ">0",
+        "cogs": ">=0"
+      },
+      "validationRules": [
+        "revenue must be > 0",
+        "cogs only - do not fold in shipping/payment fees here, that is Contribution Margin's job"
+      ],
+      "edgeCases": [
+        "cogs > revenue -> negative margin is valid and should display as such, not clamp to 0"
+      ],
+      "exampleInput": {
+        "revenue": 100000,
+        "cogs": 40000
+      },
+      "exampleOutput": {
+        "grossMargin": "60.00%"
+      },
+      "relatedMetrics": [
+        "Contribution Margin",
+        "Profit Margin"
+      ],
+      "relatedCalculators": [
+        "contribution-margin",
+        "profit-margin"
+      ],
+      "formulaFamily": "margin",
+      "aliases": []
+    },
+    {
+      "id": "CALC-CONTRIBUTION-MARGIN",
+      "name": "Contribution Margin Calculator",
+      "slug": "contribution-margin",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "(revenue - cogs - variableCosts) / revenue",
+      "formulaPlainEnglish": "Revenue remaining after cost of goods sold AND other variable costs (shipping, payment fees, etc).",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Revenue",
+          "unit": "currency"
+        },
+        {
+          "key": "cogs",
+          "label": "Cost of goods sold",
+          "unit": "currency"
+        },
+        {
+          "key": "variableCosts",
+          "label": "Other variable costs",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "contributionMargin",
+          "label": "Contribution Margin",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "cogs": "currency",
+        "variableCosts": "currency"
+      },
+      "outputUnits": {
+        "contributionMargin": "%"
+      },
+      "acceptedRanges": {
+        "revenue": ">0",
+        "cogs": ">=0",
+        "variableCosts": ">=0"
+      },
+      "validationRules": [
+        "revenue must be > 0",
+        "variableCosts must exclude fixed costs (rent, salaries) - those belong in Break-Even, not here"
+      ],
+      "edgeCases": [
+        "cogs + variableCosts > revenue -> negative margin is valid"
+      ],
+      "exampleInput": {
+        "revenue": 100000,
+        "cogs": 40000,
+        "variableCosts": 8000
+      },
+      "exampleOutput": {
+        "contributionMargin": "52.00%"
+      },
+      "relatedMetrics": [
+        "Gross Margin",
+        "Break-Even Point"
+      ],
+      "relatedCalculators": [
+        "gross-margin",
+        "profit-margin",
+        "break-even-point"
+      ],
+      "formulaFamily": "margin",
+      "aliases": []
+    },
+    {
+      "id": "CALC-PROFIT-MARGIN",
+      "name": "Profit Margin Calculator",
+      "slug": "profit-margin",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "implemented",
+      "formula": "(revenue - cost) / revenue",
+      "formulaPlainEnglish": "Net profit as a percentage of revenue, fully loaded.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Revenue",
+          "unit": "currency"
+        },
+        {
+          "key": "cost",
+          "label": "Total cost",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "profitMargin",
+          "label": "Profit Margin",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "cost": "currency"
+      },
+      "outputUnits": {
+        "profitMargin": "%"
+      },
+      "acceptedRanges": {
+        "revenue": ">0",
+        "cost": ">=0"
+      },
+      "validationRules": [
+        "revenue must be > 0",
+        "cost here is fully loaded (all costs), unlike Gross/Contribution Margin's partial cost bases"
+      ],
+      "edgeCases": [
+        "cost > revenue -> negative margin is valid"
+      ],
+      "exampleInput": {
+        "revenue": 100000,
+        "cost": 55000
+      },
+      "exampleOutput": {
+        "profitMargin": "45.00%"
+      },
+      "relatedMetrics": [
+        "Marketing ROI",
+        "Gross Margin"
+      ],
+      "relatedCalculators": [
+        "gross-margin",
+        "contribution-margin",
+        "marketing-roi"
+      ],
+      "formulaFamily": "margin",
+      "aliases": [
+        "Net Margin"
+      ]
+    },
+    {
+      "id": "CALC-RETENTION-RATE",
+      "name": "Retention Rate Calculator",
+      "slug": "retention-rate",
+      "category": "lifecycle-retention",
+      "subcategory": "retention-churn",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "(endCustomers - acquiredCustomers) / startCustomers",
+      "formulaPlainEnglish": "Share of existing customers retained over a period; Churn Rate is its complement (1 - retention).",
+      "inputs": [
+        {
+          "key": "startCustomers",
+          "label": "Customers at period start",
+          "unit": "count"
+        },
+        {
+          "key": "endCustomers",
+          "label": "Customers at period end",
+          "unit": "count"
+        },
+        {
+          "key": "acquiredCustomers",
+          "label": "New customers acquired",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "retentionRate",
+          "label": "Retention Rate",
+          "unit": "%"
+        },
+        {
+          "key": "churnRate",
+          "label": "Churn Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "startCustomers": "count",
+        "endCustomers": "count",
+        "acquiredCustomers": "count"
+      },
+      "outputUnits": {
+        "retentionRate": "%",
+        "churnRate": "%"
+      },
+      "acceptedRanges": {
+        "startCustomers": ">0",
+        "endCustomers": ">=0",
+        "acquiredCustomers": ">=0"
+      },
+      "validationRules": [
+        "startCustomers must be > 0",
+        "churnRate is always reported as 1 - retentionRate, never independently re-derived"
+      ],
+      "edgeCases": [
+        "endCustomers - acquiredCustomers can be negative if churn exceeded start - display as a negative retention rate, don't clamp"
+      ],
+      "exampleInput": {
+        "startCustomers": 1000,
+        "endCustomers": 1050,
+        "acquiredCustomers": 150
+      },
+      "exampleOutput": {
+        "retentionRate": "90.00%",
+        "churnRate": "10.00%"
+      },
+      "relatedMetrics": [
+        "Reactivation Rate",
+        "Logo Churn"
+      ],
+      "relatedCalculators": [
+        "reactivation-rate",
+        "d1-retention",
+        "logo-churn",
+        "customer-lifetime",
+        "repeat-purchase-rate"
+      ],
+      "formulaFamily": "retention",
+      "aliases": []
+    },
+    {
+      "id": "CALC-LOYALTY-PARTICIPATION-RATE",
+      "name": "Loyalty Program Participation Rate Calculator",
+      "slug": "loyalty-participation-rate",
+      "category": "lifecycle-retention",
+      "subcategory": "reactivation",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "enrolledMembers / totalCustomers",
+      "formulaPlainEnglish": "Share of customers enrolled in the loyalty program.",
+      "inputs": [
+        {
+          "key": "enrolledMembers",
+          "label": "Enrolled members",
+          "unit": "count"
+        },
+        {
+          "key": "totalCustomers",
+          "label": "Total customers",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "participationRate",
+          "label": "Loyalty Participation Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "enrolledMembers": "count",
+        "totalCustomers": "count"
+      },
+      "outputUnits": {
+        "participationRate": "%"
+      },
+      "acceptedRanges": {
+        "enrolledMembers": ">=0",
+        "totalCustomers": ">0"
+      },
+      "validationRules": [
+        "totalCustomers must be > 0",
+        "enrolledMembers should not exceed totalCustomers"
+      ],
+      "edgeCases": [
+        "totalCustomers = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "enrolledMembers": 360,
+        "totalCustomers": 1200
+      },
+      "exampleOutput": {
+        "participationRate": "30.00%"
+      },
+      "relatedMetrics": [
+        "Repeat Purchase Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "repeat-purchase-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-REACTIVATION-RATE",
+      "name": "Reactivation Rate Calculator",
+      "slug": "reactivation-rate",
+      "category": "lifecycle-retention",
+      "subcategory": "reactivation",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "reactivatedCustomers / lapsedCustomers",
+      "formulaPlainEnglish": "Share of lapsed customers who returned.",
+      "inputs": [
+        {
+          "key": "reactivatedCustomers",
+          "label": "Reactivated customers",
+          "unit": "count"
+        },
+        {
+          "key": "lapsedCustomers",
+          "label": "Lapsed customers targeted",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "reactivationRate",
+          "label": "Reactivation Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "reactivatedCustomers": "count",
+        "lapsedCustomers": "count"
+      },
+      "outputUnits": {
+        "reactivationRate": "%"
+      },
+      "acceptedRanges": {
+        "reactivatedCustomers": ">=0",
+        "lapsedCustomers": ">0"
+      },
+      "validationRules": [
+        "lapsedCustomers must be > 0",
+        "reactivatedCustomers should not exceed lapsedCustomers"
+      ],
+      "edgeCases": [
+        "lapsedCustomers = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "reactivatedCustomers": 80,
+        "lapsedCustomers": 1000
+      },
+      "exampleOutput": {
+        "reactivationRate": "8.00%"
+      },
+      "relatedMetrics": [
+        "Retention Rate"
+      ],
+      "relatedCalculators": [
+        "retention-rate",
+        "d1-retention",
+        "logo-churn",
+        "customer-lifetime",
+        "repeat-purchase-rate"
+      ],
+      "formulaFamily": "retention",
+      "aliases": [
+        "Win-Back Rate"
+      ]
+    },
+    {
+      "id": "CALC-CUSTOMER-LIFETIME",
+      "name": "Average Customer Lifetime Calculator",
+      "slug": "customer-lifetime",
+      "category": "lifecycle-retention",
+      "subcategory": "retention-churn",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "1 / churnRate",
+      "formulaPlainEnglish": "Modeled average customer lifetime (in the same period unit as the churn rate), not an observed fact.",
+      "inputs": [
+        {
+          "key": "churnRate",
+          "label": "Period churn rate",
+          "unit": "%"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "lifetime",
+          "label": "Average Customer Lifetime",
+          "unit": "periods"
+        }
+      ],
+      "inputUnits": {
+        "churnRate": "%"
+      },
+      "outputUnits": {
+        "lifetime": "periods"
+      },
+      "acceptedRanges": {
+        "churnRate": ">0 and <=1"
+      },
+      "validationRules": [
+        "churnRate must be > 0 (a 0% churn model implies infinite lifetime - reject, don't return Infinity)",
+        "this is a steady-state model, not a cohort-observed number - label it as modeled"
+      ],
+      "edgeCases": [
+        "churnRate = 1 -> lifetime = 1 period exactly"
+      ],
+      "exampleInput": {
+        "churnRate": 0.05
+      },
+      "exampleOutput": {
+        "lifetime": "20.0 periods"
+      },
+      "relatedMetrics": [
+        "LTV",
+        "Retention Rate"
+      ],
+      "relatedCalculators": [
+        "retention-rate",
+        "reactivation-rate",
+        "d1-retention",
+        "logo-churn",
+        "repeat-purchase-rate",
+        "ltv"
+      ],
+      "formulaFamily": "retention",
+      "aliases": []
+    },
+    {
+      "id": "CALC-LOGO-CHURN",
+      "name": "Logo Churn Calculator",
+      "slug": "logo-churn",
+      "category": "saas",
+      "subcategory": "revenue-retention",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "lostCustomers / startCustomers",
+      "formulaPlainEnglish": "Customer-count churn (as opposed to revenue churn) - the SaaS-standard framing of Churn Rate.",
+      "inputs": [
+        {
+          "key": "lostCustomers",
+          "label": "Customers lost",
+          "unit": "count"
+        },
+        {
+          "key": "startCustomers",
+          "label": "Customers at period start",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "logoChurn",
+          "label": "Logo Churn",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "lostCustomers": "count",
+        "startCustomers": "count"
+      },
+      "outputUnits": {
+        "logoChurn": "%"
+      },
+      "acceptedRanges": {
+        "lostCustomers": ">=0",
+        "startCustomers": ">0"
+      },
+      "validationRules": [
+        "startCustomers must be > 0",
+        "counts customers/accounts, not revenue - see Revenue Retention Calculator for the dollar-weighted version"
+      ],
+      "edgeCases": [
+        "startCustomers = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "lostCustomers": 12,
+        "startCustomers": 240
+      },
+      "exampleOutput": {
+        "logoChurn": "5.00%"
+      },
+      "relatedMetrics": [
+        "Retention Rate",
+        "Gross Revenue Retention"
+      ],
+      "relatedCalculators": [
+        "retention-rate",
+        "reactivation-rate",
+        "d1-retention",
+        "customer-lifetime",
+        "repeat-purchase-rate"
+      ],
+      "formulaFamily": "retention",
+      "aliases": []
+    },
+    {
+      "id": "CALC-REPEAT-PURCHASE-RATE",
+      "name": "Repeat Purchase Rate Calculator",
+      "slug": "repeat-purchase-rate",
+      "category": "ecommerce",
+      "subcategory": "aov-revenue",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "repeatCustomers / totalCustomers",
+      "formulaPlainEnglish": "Share of customers who purchased more than once.",
+      "inputs": [
+        {
+          "key": "repeatCustomers",
+          "label": "Customers with 2+ orders",
+          "unit": "count"
+        },
+        {
+          "key": "totalCustomers",
+          "label": "Total customers",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "repeatRate",
+          "label": "Repeat Purchase Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "repeatCustomers": "count",
+        "totalCustomers": "count"
+      },
+      "outputUnits": {
+        "repeatRate": "%"
+      },
+      "acceptedRanges": {
+        "repeatCustomers": ">=0",
+        "totalCustomers": ">0"
+      },
+      "validationRules": [
+        "totalCustomers must be > 0",
+        "repeatCustomers should not exceed totalCustomers"
+      ],
+      "edgeCases": [
+        "totalCustomers = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "repeatCustomers": 300,
+        "totalCustomers": 1200
+      },
+      "exampleOutput": {
+        "repeatRate": "25.00%"
+      },
+      "relatedMetrics": [
+        "Retention Rate",
+        "LTV"
+      ],
+      "relatedCalculators": [
+        "retention-rate",
+        "reactivation-rate",
+        "d1-retention",
+        "logo-churn",
+        "customer-lifetime",
+        "ltv"
+      ],
+      "formulaFamily": "retention",
+      "aliases": [
+        "Repeat Customer Rate"
+      ]
+    },
+    {
+      "id": "CALC-DELIVERY-RATE",
+      "name": "Delivery Rate Calculator",
+      "slug": "delivery-rate",
+      "category": "crm-email",
+      "subcategory": "deliverability",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "delivered / sent",
+      "formulaPlainEnglish": "Share of sent emails that were actually delivered.",
+      "inputs": [
+        {
+          "key": "delivered",
+          "label": "Delivered",
+          "unit": "count"
+        },
+        {
+          "key": "sent",
+          "label": "Sent",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "deliveryRate",
+          "label": "Delivery Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "delivered": "count",
+        "sent": "count"
+      },
+      "outputUnits": {
+        "deliveryRate": "%"
+      },
+      "acceptedRanges": {
+        "delivered": ">=0",
+        "sent": ">0"
+      },
+      "validationRules": [
+        "sent must be > 0",
+        "delivered should not exceed sent"
+      ],
+      "edgeCases": [
+        "sent = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "delivered": 9800,
+        "sent": 10000
+      },
+      "exampleOutput": {
+        "deliveryRate": "98.00%"
+      },
+      "relatedMetrics": [
+        "Bounce Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-OPEN-RATE",
+      "name": "Open Rate Calculator",
+      "slug": "open-rate",
+      "category": "crm-email",
+      "subcategory": "engagement",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "recommended",
+      "formula": "opens / delivered",
+      "formulaPlainEnglish": "Share of delivered emails that were opened.",
+      "inputs": [
+        {
+          "key": "opens",
+          "label": "Opens",
+          "unit": "count"
+        },
+        {
+          "key": "delivered",
+          "label": "Delivered",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "openRate",
+          "label": "Open Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "opens": "count",
+        "delivered": "count"
+      },
+      "outputUnits": {
+        "openRate": "%"
+      },
+      "acceptedRanges": {
+        "opens": ">=0",
+        "delivered": ">0"
+      },
+      "validationRules": [
+        "delivered must be > 0",
+        "Apple MPP and similar privacy features inflate opens - flag results near or above 100% as unreliable, not impossible"
+      ],
+      "edgeCases": [
+        "delivered = 0 -> undefined",
+        "opens > delivered can legitimately occur due to proxy pre-fetching - do not clamp to 100%, but flag it"
+      ],
+      "exampleInput": {
+        "opens": 2500,
+        "delivered": 10000
+      },
+      "exampleOutput": {
+        "openRate": "25.00%"
+      },
+      "relatedMetrics": [
+        "CTOR",
+        "CTR"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-CTOR",
+      "name": "Click-to-Open Rate (CTOR) Calculator",
+      "slug": "ctor",
+      "category": "crm-email",
+      "subcategory": "engagement",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "clicks / opens",
+      "formulaPlainEnglish": "Of the people who opened, the share who clicked - isolates content/offer quality from deliverability.",
+      "inputs": [
+        {
+          "key": "clicks",
+          "label": "Clicks",
+          "unit": "count"
+        },
+        {
+          "key": "opens",
+          "label": "Opens",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "ctor",
+          "label": "CTOR",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "clicks": "count",
+        "opens": "count"
+      },
+      "outputUnits": {
+        "ctor": "%"
+      },
+      "acceptedRanges": {
+        "clicks": ">=0",
+        "opens": ">0"
+      },
+      "validationRules": [
+        "opens must be > 0",
+        "do not confuse with Email CTR (clicks/delivered) - CTOR removes deliverability/open-rate noise from the content-quality question"
+      ],
+      "edgeCases": [
+        "opens = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "clicks": 400,
+        "opens": 2500
+      },
+      "exampleOutput": {
+        "ctor": "16.00%"
+      },
+      "relatedMetrics": [
+        "Open Rate",
+        "CTR"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": [
+        "Click-to-Open Rate"
+      ]
+    },
+    {
+      "id": "CALC-BOUNCE-RATE-EMAIL",
+      "name": "Bounce Rate (email) Calculator",
+      "slug": "bounce-rate-email",
+      "category": "crm-email",
+      "subcategory": "deliverability",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "bounced / sent",
+      "formulaPlainEnglish": "Share of sent emails that bounced.",
+      "inputs": [
+        {
+          "key": "bounced",
+          "label": "Bounced",
+          "unit": "count"
+        },
+        {
+          "key": "sent",
+          "label": "Sent",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "bounceRate",
+          "label": "Bounce Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "bounced": "count",
+        "sent": "count"
+      },
+      "outputUnits": {
+        "bounceRate": "%"
+      },
+      "acceptedRanges": {
+        "bounced": ">=0",
+        "sent": ">0"
+      },
+      "validationRules": [
+        "sent must be > 0",
+        "hard bounces and soft bounces should be labeled separately if the input distinguishes them - a blended number hides list-hygiene problems"
+      ],
+      "edgeCases": [
+        "sent = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "bounced": 150,
+        "sent": 10000
+      },
+      "exampleOutput": {
+        "bounceRate": "1.50%"
+      },
+      "relatedMetrics": [
+        "Delivery Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-UNSUBSCRIBE-RATE",
+      "name": "Unsubscribe Rate Calculator",
+      "slug": "unsubscribe-rate",
+      "category": "crm-email",
+      "subcategory": "engagement",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "unsubscribes / delivered",
+      "formulaPlainEnglish": "Share of delivered emails that triggered an unsubscribe.",
+      "inputs": [
+        {
+          "key": "unsubscribes",
+          "label": "Unsubscribes",
+          "unit": "count"
+        },
+        {
+          "key": "delivered",
+          "label": "Delivered",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "unsubRate",
+          "label": "Unsubscribe Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "unsubscribes": "count",
+        "delivered": "count"
+      },
+      "outputUnits": {
+        "unsubRate": "%"
+      },
+      "acceptedRanges": {
+        "unsubscribes": ">=0",
+        "delivered": ">0"
+      },
+      "validationRules": [
+        "delivered must be > 0"
+      ],
+      "edgeCases": [
+        "delivered = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "unsubscribes": 20,
+        "delivered": 10000
+      },
+      "exampleOutput": {
+        "unsubRate": "0.20%"
+      },
+      "relatedMetrics": [
+        "Complaint Rate",
+        "List Growth Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-COMPLAINT-RATE",
+      "name": "Complaint Rate Calculator",
+      "slug": "complaint-rate",
+      "category": "crm-email",
+      "subcategory": "deliverability",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "complaints / delivered",
+      "formulaPlainEnglish": "Share of delivered emails marked as spam.",
+      "inputs": [
+        {
+          "key": "complaints",
+          "label": "Spam complaints",
+          "unit": "count"
+        },
+        {
+          "key": "delivered",
+          "label": "Delivered",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "complaintRate",
+          "label": "Complaint Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "complaints": "count",
+        "delivered": "count"
+      },
+      "outputUnits": {
+        "complaintRate": "%"
+      },
+      "acceptedRanges": {
+        "complaints": ">=0",
+        "delivered": ">0"
+      },
+      "validationRules": [
+        "delivered must be > 0",
+        "rates above ~0.1% put sender reputation at risk - worth a threshold note, not a hard validation error"
+      ],
+      "edgeCases": [
+        "delivered = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "complaints": 5,
+        "delivered": 10000
+      },
+      "exampleOutput": {
+        "complaintRate": "0.05%"
+      },
+      "relatedMetrics": [
+        "Unsubscribe Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-LIST-GROWTH-RATE",
+      "name": "List Growth Rate Calculator",
+      "slug": "list-growth-rate",
+      "category": "crm-email",
+      "subcategory": "engagement",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "(newSubscribers - unsubscribes) / listStart",
+      "formulaPlainEnglish": "Net change in list size over a period.",
+      "inputs": [
+        {
+          "key": "newSubscribers",
+          "label": "New subscribers",
+          "unit": "count"
+        },
+        {
+          "key": "unsubscribes",
+          "label": "Unsubscribes (incl. hard bounces)",
+          "unit": "count"
+        },
+        {
+          "key": "listStart",
+          "label": "List size at period start",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "listGrowthRate",
+          "label": "List Growth Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "newSubscribers": "count",
+        "unsubscribes": "count",
+        "listStart": "count"
+      },
+      "outputUnits": {
+        "listGrowthRate": "%"
+      },
+      "acceptedRanges": {
+        "newSubscribers": ">=0",
+        "unsubscribes": ">=0",
+        "listStart": ">0"
+      },
+      "validationRules": [
+        "listStart must be > 0",
+        "can be negative if losses exceed gains - do not clamp"
+      ],
+      "edgeCases": [
+        "listStart = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "newSubscribers": 500,
+        "unsubscribes": 300,
+        "listStart": 10000
+      },
+      "exampleOutput": {
+        "listGrowthRate": "2.00%"
+      },
+      "relatedMetrics": [
+        "Unsubscribe Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-REVENUE-PER-RECIPIENT",
+      "name": "Revenue per Recipient Calculator",
+      "slug": "revenue-per-recipient",
+      "category": "crm-email",
+      "subcategory": "revenue",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "revenue / emailsSent",
+      "formulaPlainEnglish": "Average revenue generated per email sent.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Revenue attributed",
+          "unit": "currency"
+        },
+        {
+          "key": "emailsSent",
+          "label": "Emails sent",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "rpr",
+          "label": "Revenue per Recipient",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "emailsSent": "count"
+      },
+      "outputUnits": {
+        "rpr": "currency"
+      },
+      "acceptedRanges": {
+        "revenue": ">=0",
+        "emailsSent": ">0"
+      },
+      "validationRules": [
+        "emailsSent must be > 0"
+      ],
+      "edgeCases": [
+        "emailsSent = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "revenue": 8000,
+        "emailsSent": 40000
+      },
+      "exampleOutput": {
+        "rpr": "0.20"
+      },
+      "relatedMetrics": [
+        "Revenue per Visitor"
+      ],
+      "relatedCalculators": [
+        "revenue-per-visitor",
+        "inventory-turnover",
+        "saas-quick-ratio",
+        "magic-number",
+        "rule-of-40",
+        "burn-multiple"
+      ],
+      "formulaFamily": "efficiency-per-unit",
+      "aliases": [
+        "Revenue per Email"
+      ]
+    },
+    {
+      "id": "CALC-ACTIVATION-RATE",
+      "name": "Activation Rate Calculator",
+      "slug": "activation-rate",
+      "category": "mobile-growth",
+      "subcategory": "activity",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "activatedUsers / installs",
+      "formulaPlainEnglish": "Share of installs who reached the product's defined activation event.",
+      "inputs": [
+        {
+          "key": "activatedUsers",
+          "label": "Activated users",
+          "unit": "count"
+        },
+        {
+          "key": "installs",
+          "label": "Installs",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "activationRate",
+          "label": "Activation Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "activatedUsers": "count",
+        "installs": "count"
+      },
+      "outputUnits": {
+        "activationRate": "%"
+      },
+      "acceptedRanges": {
+        "activatedUsers": ">=0",
+        "installs": ">0"
+      },
+      "validationRules": [
+        "installs must be > 0",
+        "the activation event is product-defined - state it next to the result, it is not a generic funnel step"
+      ],
+      "edgeCases": [
+        "installs = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "activatedUsers": 3200,
+        "installs": 8000
+      },
+      "exampleOutput": {
+        "activationRate": "40.00%"
+      },
+      "relatedMetrics": [
+        "D1 Retention",
+        "CPI"
+      ],
+      "relatedCalculators": [
+        "cr",
+        "d1-retention",
+        "cpi"
+      ],
+      "formulaFamily": "conversion-rate",
+      "aliases": []
+    },
+    {
+      "id": "CALC-DAU-MAU-STICKINESS",
+      "name": "DAU/MAU Stickiness Calculator",
+      "slug": "dau-mau-stickiness",
+      "category": "mobile-growth",
+      "subcategory": "activity",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "dau / mau",
+      "formulaPlainEnglish": "How often the average monthly user returns daily - a proxy for habit formation.",
+      "inputs": [
+        {
+          "key": "dau",
+          "label": "Average daily active users",
+          "unit": "count"
+        },
+        {
+          "key": "mau",
+          "label": "Monthly active users",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "stickiness",
+          "label": "DAU/MAU Stickiness",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "dau": "count",
+        "mau": "count"
+      },
+      "outputUnits": {
+        "stickiness": "%"
+      },
+      "acceptedRanges": {
+        "dau": ">=0",
+        "mau": ">0"
+      },
+      "validationRules": [
+        "mau must be > 0",
+        "dau should not exceed mau"
+      ],
+      "edgeCases": [
+        "mau = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "dau": 20000,
+        "mau": 100000
+      },
+      "exampleOutput": {
+        "stickiness": "20.00%"
+      },
+      "relatedMetrics": [
+        "D1 Retention"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "d1-retention"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": [
+        "DAU/WAU Stickiness"
+      ]
+    },
+    {
+      "id": "CALC-D1-RETENTION",
+      "name": "D1 Retention Calculator",
+      "slug": "d1-retention",
+      "category": "mobile-growth",
+      "subcategory": "retention-mobile",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "usersReturnedOnDayN / cohortSize",
+      "formulaPlainEnglish": "Share of a signup cohort that returned on day N (N is an input, not a fixed day).",
+      "inputs": [
+        {
+          "key": "day",
+          "label": "Day N",
+          "unit": "enum(1/7/14/30)"
+        },
+        {
+          "key": "usersReturnedOnDayN",
+          "label": "Users returned on day N",
+          "unit": "count"
+        },
+        {
+          "key": "cohortSize",
+          "label": "Original cohort size",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "retentionN",
+          "label": "Day-N Retention",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "day": "enum(1/7/14/30)",
+        "usersReturnedOnDayN": "count",
+        "cohortSize": "count"
+      },
+      "outputUnits": {
+        "retentionN": "%"
+      },
+      "acceptedRanges": {
+        "usersReturnedOnDayN": ">=0",
+        "cohortSize": ">0"
+      },
+      "validationRules": [
+        "cohortSize must be > 0",
+        "usersReturnedOnDayN should not exceed cohortSize",
+        "the day value must be shown in the result - D1 and D30 numbers are never comparable to each other"
+      ],
+      "edgeCases": [
+        "cohortSize = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "day": 7,
+        "usersReturnedOnDayN": 1800,
+        "cohortSize": 10000
+      },
+      "exampleOutput": {
+        "retentionN": "18.00%"
+      },
+      "relatedMetrics": [
+        "Activation Rate",
+        "DAU/MAU Stickiness"
+      ],
+      "relatedCalculators": [
+        "retention-rate",
+        "reactivation-rate",
+        "logo-churn",
+        "customer-lifetime",
+        "repeat-purchase-rate",
+        "activation-rate",
+        "dau-mau-stickiness"
+      ],
+      "formulaFamily": "retention",
+      "aliases": [
+        "D7 Retention",
+        "D30 Retention"
+      ]
+    },
+    {
+      "id": "CALC-UNINSTALL-RATE",
+      "name": "Uninstall Rate Calculator",
+      "slug": "uninstall-rate",
+      "category": "mobile-growth",
+      "subcategory": "retention-mobile",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "uninstalls / installs",
+      "formulaPlainEnglish": "Share of installs later uninstalled.",
+      "inputs": [
+        {
+          "key": "uninstalls",
+          "label": "Uninstalls",
+          "unit": "count"
+        },
+        {
+          "key": "installs",
+          "label": "Installs",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "uninstallRate",
+          "label": "Uninstall Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "uninstalls": "count",
+        "installs": "count"
+      },
+      "outputUnits": {
+        "uninstallRate": "%"
+      },
+      "acceptedRanges": {
+        "uninstalls": ">=0",
+        "installs": ">0"
+      },
+      "validationRules": [
+        "installs must be > 0",
+        "uninstalls should not exceed installs within the measured window"
+      ],
+      "edgeCases": [
+        "installs = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "uninstalls": 1600,
+        "installs": 8000
+      },
+      "exampleOutput": {
+        "uninstallRate": "20.00%"
+      },
+      "relatedMetrics": [
+        "D1 Retention"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "d1-retention"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-SESSION-LENGTH-AVG",
+      "name": "Average Session Length Calculator",
+      "slug": "session-length-avg",
+      "category": "mobile-growth",
+      "subcategory": "activity",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "totalSessionDuration / sessionCount",
+      "formulaPlainEnglish": "Average duration of a session.",
+      "inputs": [
+        {
+          "key": "totalSessionDuration",
+          "label": "Total session duration (min)",
+          "unit": "minutes"
+        },
+        {
+          "key": "sessionCount",
+          "label": "Session count",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "avgSessionLength",
+          "label": "Average Session Length",
+          "unit": "minutes"
+        }
+      ],
+      "inputUnits": {
+        "totalSessionDuration": "minutes",
+        "sessionCount": "count"
+      },
+      "outputUnits": {
+        "avgSessionLength": "minutes"
+      },
+      "acceptedRanges": {
+        "totalSessionDuration": ">=0",
+        "sessionCount": ">0"
+      },
+      "validationRules": [
+        "sessionCount must be > 0"
+      ],
+      "edgeCases": [
+        "sessionCount = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "totalSessionDuration": 4500,
+        "sessionCount": 1000
+      },
+      "exampleOutput": {
+        "avgSessionLength": "4.50 min"
+      },
+      "relatedMetrics": [
+        "Sessions per User"
+      ],
+      "relatedCalculators": [
+        "aov",
+        "units-per-transaction",
+        "sessions-per-user",
+        "arpu",
+        "annual-contract-value",
+        "arpdau"
+      ],
+      "formulaFamily": "average-value",
+      "aliases": []
+    },
+    {
+      "id": "CALC-SESSIONS-PER-USER",
+      "name": "Sessions per User Calculator",
+      "slug": "sessions-per-user",
+      "category": "mobile-growth",
+      "subcategory": "activity",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "sessionCount / dau",
+      "formulaPlainEnglish": "Average number of sessions per active user in the period.",
+      "inputs": [
+        {
+          "key": "sessionCount",
+          "label": "Session count",
+          "unit": "count"
+        },
+        {
+          "key": "dau",
+          "label": "Active users",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sessionsPerUser",
+          "label": "Sessions per User",
+          "unit": "x (avg sessions)"
+        }
+      ],
+      "inputUnits": {
+        "sessionCount": "count",
+        "dau": "count"
+      },
+      "outputUnits": {
+        "sessionsPerUser": "x (avg sessions)"
+      },
+      "acceptedRanges": {
+        "sessionCount": ">=0",
+        "dau": ">0"
+      },
+      "validationRules": [
+        "dau must be > 0"
+      ],
+      "edgeCases": [
+        "dau = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "sessionCount": 3000,
+        "dau": 1000
+      },
+      "exampleOutput": {
+        "sessionsPerUser": "3.00"
+      },
+      "relatedMetrics": [
+        "DAU/MAU Stickiness"
+      ],
+      "relatedCalculators": [
+        "aov",
+        "units-per-transaction",
+        "session-length-avg",
+        "arpu",
+        "annual-contract-value",
+        "arpdau",
+        "dau-mau-stickiness"
+      ],
+      "formulaFamily": "average-value",
+      "aliases": []
+    },
+    {
+      "id": "CALC-ARPDAU",
+      "name": "ARPDAU Calculator",
+      "slug": "arpdau",
+      "category": "mobile-growth",
+      "subcategory": "monetization-mobile",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "revenue / dau",
+      "formulaPlainEnglish": "Average revenue per daily active user - a daily-window metric, not to be confused with monthly ARPU.",
+      "inputs": [
+        {
+          "key": "revenue",
+          "label": "Daily revenue",
+          "unit": "currency"
+        },
+        {
+          "key": "dau",
+          "label": "Daily active users",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "arpdau",
+          "label": "ARPDAU",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "revenue": "currency",
+        "dau": "count"
+      },
+      "outputUnits": {
+        "arpdau": "currency"
+      },
+      "acceptedRanges": {
+        "revenue": ">=0",
+        "dau": ">0"
+      },
+      "validationRules": [
+        "dau must be > 0",
+        "revenue and dau must both be measured on the SAME day - mixing a monthly revenue figure with a single day's DAU misstates the result by ~30x"
+      ],
+      "edgeCases": [
+        "dau = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "revenue": 4000,
+        "dau": 20000
+      },
+      "exampleOutput": {
+        "arpdau": "0.20"
+      },
+      "relatedMetrics": [
+        "ARPU"
+      ],
+      "relatedCalculators": [
+        "aov",
+        "units-per-transaction",
+        "session-length-avg",
+        "sessions-per-user",
+        "arpu",
+        "annual-contract-value"
+      ],
+      "formulaFamily": "average-value",
+      "aliases": []
+    },
+    {
+      "id": "CALC-MRR",
+      "name": "MRR Calculator",
+      "slug": "mrr",
+      "category": "saas",
+      "subcategory": "recurring-revenue",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "sum(activeSubscriptionValue)",
+      "formulaPlainEnglish": "Sum of all active subscription value normalized to a monthly figure; ARR = MRR x 12, growth rate compares two periods' MRR.",
+      "inputs": [
+        {
+          "key": "currentMrr",
+          "label": "Current MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "priorMrr",
+          "label": "Prior period MRR (optional)",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "mrr",
+          "label": "MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "arr",
+          "label": "ARR",
+          "unit": "currency"
+        },
+        {
+          "key": "mrrGrowthRate",
+          "label": "MRR Growth Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "currentMrr": "currency",
+        "priorMrr": "currency"
+      },
+      "outputUnits": {
+        "mrr": "currency",
+        "arr": "currency",
+        "mrrGrowthRate": "%"
+      },
+      "acceptedRanges": {
+        "currentMrr": ">=0",
+        "priorMrr": ">=0"
+      },
+      "validationRules": [
+        "annual contracts must be normalized to a monthly value before summing, not counted at face value",
+        "mrrGrowthRate is only computed when priorMrr is provided and > 0"
+      ],
+      "edgeCases": [
+        "priorMrr omitted or 0 -> growth rate omitted from output, not shown as 0% or Infinity"
+      ],
+      "exampleInput": {
+        "currentMrr": 50000,
+        "priorMrr": 45000
+      },
+      "exampleOutput": {
+        "mrr": "50,000",
+        "arr": "600,000",
+        "mrrGrowthRate": "11.11%"
+      },
+      "relatedMetrics": [
+        "ARPU",
+        "SaaS Quick Ratio"
+      ],
+      "relatedCalculators": [
+        "arpu",
+        "saas-quick-ratio"
+      ],
+      "formulaFamily": "recurring-revenue",
+      "aliases": [
+        "ARR",
+        "MRR Growth Rate"
+      ]
+    },
+    {
+      "id": "CALC-ARPU",
+      "name": "ARPU Calculator",
+      "slug": "arpu",
+      "category": "saas",
+      "subcategory": "recurring-revenue",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "mrr / activeAccounts",
+      "formulaPlainEnglish": "Average revenue per account; optionally divided again by avg seats per account for a true per-user figure.",
+      "inputs": [
+        {
+          "key": "mrr",
+          "label": "MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "activeAccounts",
+          "label": "Active accounts",
+          "unit": "count"
+        },
+        {
+          "key": "avgSeatsPerAccount",
+          "label": "Avg seats per account (optional)",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "arpu",
+          "label": "ARPU",
+          "unit": "currency"
+        },
+        {
+          "key": "arpuPerSeat",
+          "label": "ARPU per seat (if seats given)",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "mrr": "currency",
+        "activeAccounts": "count",
+        "avgSeatsPerAccount": "count"
+      },
+      "outputUnits": {
+        "arpu": "currency",
+        "arpuPerSeat": "currency"
+      },
+      "acceptedRanges": {
+        "mrr": ">=0",
+        "activeAccounts": ">0",
+        "avgSeatsPerAccount": ">0 or omitted"
+      },
+      "validationRules": [
+        "activeAccounts must be > 0",
+        "ARPU and ARPA are the same number unless avgSeatsPerAccount is supplied - only then do they diverge"
+      ],
+      "edgeCases": [
+        "activeAccounts = 0 -> undefined",
+        "avgSeatsPerAccount omitted -> only arpu is returned"
+      ],
+      "exampleInput": {
+        "mrr": 50000,
+        "activeAccounts": 250
+      },
+      "exampleOutput": {
+        "arpu": "200.00"
+      },
+      "relatedMetrics": [
+        "MRR",
+        "Annual Contract Value"
+      ],
+      "relatedCalculators": [
+        "aov",
+        "units-per-transaction",
+        "session-length-avg",
+        "sessions-per-user",
+        "annual-contract-value",
+        "arpdau",
+        "mrr"
+      ],
+      "formulaFamily": "average-value",
+      "aliases": [
+        "ARPA"
+      ]
+    },
+    {
+      "id": "CALC-NRR",
+      "name": "Net Revenue Retention (NRR) Calculator",
+      "slug": "nrr",
+      "category": "saas",
+      "subcategory": "revenue-retention",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "recommended",
+      "formula": "(startingMrr + expansion - contraction - churn) / startingMrr",
+      "formulaPlainEnglish": "Revenue retained from the existing base, with (NRR) or without (GRR) expansion revenue counted.",
+      "inputs": [
+        {
+          "key": "startingMrr",
+          "label": "Starting MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "expansion",
+          "label": "Expansion MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "contraction",
+          "label": "Contraction MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "churnedMrr",
+          "label": "Churned MRR",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "nrr",
+          "label": "Net Revenue Retention (NRR)",
+          "unit": "%"
+        },
+        {
+          "key": "grr",
+          "label": "Gross Revenue Retention (GRR)",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "startingMrr": "currency",
+        "expansion": "currency",
+        "contraction": "currency",
+        "churnedMrr": "currency"
+      },
+      "outputUnits": {
+        "nrr": "%",
+        "grr": "%"
+      },
+      "acceptedRanges": {
+        "startingMrr": ">0",
+        "expansion": ">=0",
+        "contraction": ">=0",
+        "churnedMrr": ">=0"
+      },
+      "validationRules": [
+        "startingMrr must be > 0",
+        "GRR excludes expansion by definition (numerator caps at startingMrr) - it can equal but never exceed 100%; NRR has no such cap and can exceed 100%"
+      ],
+      "edgeCases": [
+        "contraction + churnedMrr > startingMrr -> both metrics can go negative, valid"
+      ],
+      "exampleInput": {
+        "startingMrr": 100000,
+        "expansion": 8000,
+        "contraction": 2000,
+        "churnedMrr": 5000
+      },
+      "exampleOutput": {
+        "nrr": "101.00%",
+        "grr": "93.00%"
+      },
+      "relatedMetrics": [
+        "Logo Churn",
+        "MRR"
+      ],
+      "relatedCalculators": [
+        "logo-churn",
+        "mrr"
+      ],
+      "formulaFamily": "revenue-retention",
+      "aliases": [
+        "GRR",
+        "Net Dollar Retention",
+        "Revenue Churn"
+      ]
+    },
+    {
+      "id": "CALC-SAAS-QUICK-RATIO",
+      "name": "SaaS Quick Ratio Calculator",
+      "slug": "saas-quick-ratio",
+      "category": "saas",
+      "subcategory": "efficiency",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "(newMrr + expansionMrr) / (churnedMrr + contractionMrr)",
+      "formulaPlainEnglish": "Growth MRR relative to lost MRR - how much you're growing for every dollar lost.",
+      "inputs": [
+        {
+          "key": "newMrr",
+          "label": "New MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "expansionMrr",
+          "label": "Expansion MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "churnedMrr",
+          "label": "Churned MRR",
+          "unit": "currency"
+        },
+        {
+          "key": "contractionMrr",
+          "label": "Contraction MRR",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "quickRatio",
+          "label": "SaaS Quick Ratio",
+          "unit": "x (ratio)"
+        }
+      ],
+      "inputUnits": {
+        "newMrr": "currency",
+        "expansionMrr": "currency",
+        "churnedMrr": "currency",
+        "contractionMrr": "currency"
+      },
+      "outputUnits": {
+        "quickRatio": "x (ratio)"
+      },
+      "acceptedRanges": {
+        "newMrr": ">=0",
+        "expansionMrr": ">=0",
+        "churnedMrr": ">=0",
+        "contractionMrr": ">=0"
+      },
+      "validationRules": [
+        "denominator (churned + contraction) must be > 0"
+      ],
+      "edgeCases": [
+        "churnedMrr + contractionMrr = 0 -> undefined (infinite ratio), show '-' not Infinity"
+      ],
+      "exampleInput": {
+        "newMrr": 15000,
+        "expansionMrr": 5000,
+        "churnedMrr": 4000,
+        "contractionMrr": 1000
+      },
+      "exampleOutput": {
+        "quickRatio": "4.00x"
+      },
+      "relatedMetrics": [
+        "Net Revenue Retention",
+        "MRR Growth Rate"
+      ],
+      "relatedCalculators": [
+        "revenue-per-visitor",
+        "inventory-turnover",
+        "revenue-per-recipient",
+        "magic-number",
+        "rule-of-40",
+        "burn-multiple",
+        "nrr"
+      ],
+      "formulaFamily": "efficiency-per-unit",
+      "aliases": []
+    },
+    {
+      "id": "CALC-MAGIC-NUMBER",
+      "name": "SaaS Magic Number Calculator",
+      "slug": "magic-number",
+      "category": "saas",
+      "subcategory": "efficiency",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "netNewArr / priorQuarterSalesMarketingSpend",
+      "formulaPlainEnglish": "Net new ARR generated per dollar of the PRIOR quarter's sales & marketing spend.",
+      "inputs": [
+        {
+          "key": "netNewArr",
+          "label": "Net new ARR, this quarter",
+          "unit": "currency"
+        },
+        {
+          "key": "priorSmSpend",
+          "label": "Prior quarter S&M spend",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "magicNumber",
+          "label": "Magic Number",
+          "unit": "x (ratio)"
+        }
+      ],
+      "inputUnits": {
+        "netNewArr": "currency",
+        "priorSmSpend": "currency"
+      },
+      "outputUnits": {
+        "magicNumber": "x (ratio)"
+      },
+      "acceptedRanges": {
+        "netNewArr": ">=0",
+        "priorSmSpend": ">0"
+      },
+      "validationRules": [
+        "must use the PRIOR quarter's spend, not the current quarter's - using the same quarter for both understates efficiency because current spend hasn't converted yet",
+        "priorSmSpend must be > 0"
+      ],
+      "edgeCases": [
+        "priorSmSpend = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "netNewArr": 300000,
+        "priorSmSpend": 400000
+      },
+      "exampleOutput": {
+        "magicNumber": "0.75x"
+      },
+      "relatedMetrics": [
+        "SaaS Quick Ratio",
+        "Burn Multiple"
+      ],
+      "relatedCalculators": [
+        "revenue-per-visitor",
+        "inventory-turnover",
+        "revenue-per-recipient",
+        "saas-quick-ratio",
+        "rule-of-40",
+        "burn-multiple"
+      ],
+      "formulaFamily": "efficiency-per-unit",
+      "aliases": []
+    },
+    {
+      "id": "CALC-RULE-OF-40",
+      "name": "Rule of 40 Calculator",
+      "slug": "rule-of-40",
+      "category": "saas",
+      "subcategory": "efficiency",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "revenueGrowthRate + profitMargin",
+      "formulaPlainEnglish": "Combined growth-plus-profitability health check.",
+      "inputs": [
+        {
+          "key": "revenueGrowthRate",
+          "label": "Revenue Growth Rate",
+          "unit": "%"
+        },
+        {
+          "key": "profitMargin",
+          "label": "Profit Margin",
+          "unit": "%"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "ruleOf40Score",
+          "label": "Rule of 40 Score",
+          "unit": "percentage points"
+        }
+      ],
+      "inputUnits": {
+        "revenueGrowthRate": "%",
+        "profitMargin": "%"
+      },
+      "outputUnits": {
+        "ruleOf40Score": "percentage points"
+      },
+      "acceptedRanges": {
+        "revenueGrowthRate": "any real number, as %",
+        "profitMargin": "any real number, as %"
+      },
+      "validationRules": [
+        "both inputs are percentages already, and are ADDED as percentage points - never multiply or compound them",
+        "either input may legitimately be negative"
+      ],
+      "edgeCases": [
+        "both negative -> a valid (very low) score, not an error"
+      ],
+      "exampleInput": {
+        "revenueGrowthRate": 30,
+        "profitMargin": 15
+      },
+      "exampleOutput": {
+        "ruleOf40Score": "45 pts"
+      },
+      "relatedMetrics": [
+        "MRR Growth Rate",
+        "Profit Margin"
+      ],
+      "relatedCalculators": [
+        "revenue-per-visitor",
+        "inventory-turnover",
+        "revenue-per-recipient",
+        "saas-quick-ratio",
+        "magic-number",
+        "burn-multiple",
+        "profit-margin"
+      ],
+      "formulaFamily": "efficiency-per-unit",
+      "aliases": []
+    },
+    {
+      "id": "CALC-BURN-MULTIPLE",
+      "name": "Burn Multiple Calculator",
+      "slug": "burn-multiple",
+      "category": "saas",
+      "subcategory": "efficiency",
+      "classification": "calculator",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "netBurn / netNewArr",
+      "formulaPlainEnglish": "Cash burned per dollar of new ARR generated - lower is more efficient.",
+      "inputs": [
+        {
+          "key": "netBurn",
+          "label": "Net burn",
+          "unit": "currency"
+        },
+        {
+          "key": "netNewArr",
+          "label": "Net new ARR",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "burnMultiple",
+          "label": "Burn Multiple",
+          "unit": "x (ratio)"
+        }
+      ],
+      "inputUnits": {
+        "netBurn": "currency",
+        "netNewArr": "currency"
+      },
+      "outputUnits": {
+        "burnMultiple": "x (ratio)"
+      },
+      "acceptedRanges": {
+        "netBurn": ">=0",
+        "netNewArr": ">0"
+      },
+      "validationRules": [
+        "netNewArr must be > 0 (undefined if ARR shrank - the ratio is not meaningful for a contracting business)"
+      ],
+      "edgeCases": [
+        "netNewArr = 0 or negative -> undefined, show '-' with an explanatory note rather than a misleading negative multiple"
+      ],
+      "exampleInput": {
+        "netBurn": 1200000,
+        "netNewArr": 3000000
+      },
+      "exampleOutput": {
+        "burnMultiple": "0.40x"
+      },
+      "relatedMetrics": [
+        "Magic Number"
+      ],
+      "relatedCalculators": [
+        "revenue-per-visitor",
+        "inventory-turnover",
+        "revenue-per-recipient",
+        "saas-quick-ratio",
+        "magic-number",
+        "rule-of-40"
+      ],
+      "formulaFamily": "efficiency-per-unit",
+      "aliases": []
+    },
+    {
+      "id": "CALC-ANNUAL-CONTRACT-VALUE",
+      "name": "Annual Contract Value (ACV) Calculator",
+      "slug": "annual-contract-value",
+      "category": "saas",
+      "subcategory": "recurring-revenue",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "totalContractValue / contractYears",
+      "formulaPlainEnglish": "Average annualized value of a contract.",
+      "inputs": [
+        {
+          "key": "totalContractValue",
+          "label": "Total contract value",
+          "unit": "currency"
+        },
+        {
+          "key": "contractYears",
+          "label": "Contract length (years)",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "acv",
+          "label": "Annual Contract Value",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "totalContractValue": "currency",
+        "contractYears": "count"
+      },
+      "outputUnits": {
+        "acv": "currency"
+      },
+      "acceptedRanges": {
+        "totalContractValue": ">=0",
+        "contractYears": ">0"
+      },
+      "validationRules": [
+        "contractYears must be > 0",
+        "ACV is per-contract, distinct from ARPU which is per-account across the whole base"
+      ],
+      "edgeCases": [
+        "contractYears = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "totalContractValue": 90000,
+        "contractYears": 3
+      },
+      "exampleOutput": {
+        "acv": "30,000"
+      },
+      "relatedMetrics": [
+        "ARPU"
+      ],
+      "relatedCalculators": [
+        "aov",
+        "units-per-transaction",
+        "session-length-avg",
+        "sessions-per-user",
+        "arpu",
+        "arpdau"
+      ],
+      "formulaFamily": "average-value",
+      "aliases": [
+        "ACV"
+      ]
+    },
+    {
+      "id": "CALC-SEAT-UTILIZATION-RATE",
+      "name": "Seat Utilization Rate Calculator",
+      "slug": "seat-utilization-rate",
+      "category": "saas",
+      "subcategory": "efficiency",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "activeSeats / purchasedSeats",
+      "formulaPlainEnglish": "Share of purchased seats actually in active use.",
+      "inputs": [
+        {
+          "key": "activeSeats",
+          "label": "Active seats",
+          "unit": "count"
+        },
+        {
+          "key": "purchasedSeats",
+          "label": "Purchased seats",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "seatUtilization",
+          "label": "Seat Utilization Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "activeSeats": "count",
+        "purchasedSeats": "count"
+      },
+      "outputUnits": {
+        "seatUtilization": "%"
+      },
+      "acceptedRanges": {
+        "activeSeats": ">=0",
+        "purchasedSeats": ">0"
+      },
+      "validationRules": [
+        "purchasedSeats must be > 0",
+        "activeSeats should not exceed purchasedSeats"
+      ],
+      "edgeCases": [
+        "purchasedSeats = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "activeSeats": 180,
+        "purchasedSeats": 250
+      },
+      "exampleOutput": {
+        "seatUtilization": "72.00%"
+      },
+      "relatedMetrics": [
+        "ARPU"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate",
+        "arpu"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-LTV",
+      "name": "LTV Calculator",
+      "slug": "ltv",
+      "category": "unit-economics",
+      "subcategory": "ltv-cac",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "aov * purchaseFrequency * customerLifespan",
+      "formulaPlainEnglish": "Simple/historic model: average order value times annual purchase frequency times customer lifespan in years. Two other legitimate models exist - see calculator-architecture.md.",
+      "inputs": [
+        {
+          "key": "aov",
+          "label": "Average order value",
+          "unit": "currency"
+        },
+        {
+          "key": "purchaseFrequency",
+          "label": "Purchases per year",
+          "unit": "count"
+        },
+        {
+          "key": "customerLifespan",
+          "label": "Customer lifespan (years)",
+          "unit": "years"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "ltv",
+          "label": "LTV (simple model)",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "aov": "currency",
+        "purchaseFrequency": "count",
+        "customerLifespan": "years"
+      },
+      "outputUnits": {
+        "ltv": "currency"
+      },
+      "acceptedRanges": {
+        "aov": ">=0",
+        "purchaseFrequency": ">=0",
+        "customerLifespan": ">=0"
+      },
+      "validationRules": [
+        "this is the simple/historic model, not margin-adjusted - it overstates LTV for low-margin businesses; the margin-adjusted model is the one to use for LTV:CAC decisions",
+        "all three inputs must cover consistent units (per-year figures)"
+      ],
+      "edgeCases": [
+        "any input = 0 -> LTV = 0, which is valid, not an error"
+      ],
+      "exampleInput": {
+        "aov": 60,
+        "purchaseFrequency": 4,
+        "customerLifespan": 3
+      },
+      "exampleOutput": {
+        "ltv": "720.00"
+      },
+      "relatedMetrics": [
+        "LTV:CAC Ratio",
+        "CAC"
+      ],
+      "relatedCalculators": [
+        "ltv-cac-ratio",
+        "cac"
+      ],
+      "formulaFamily": "ltv-model",
+      "aliases": [
+        "Customer Lifetime Value",
+        "LTV (simple model)"
+      ],
+      "modes": [
+        {
+          "id": "simple",
+          "label": "Simple (historic)",
+          "formula": "aov * purchaseFrequency * customerLifespan",
+          "inputs": [
+            {
+              "key": "aov",
+              "label": "Average order value",
+              "unit": "currency"
+            },
+            {
+              "key": "purchaseFrequency",
+              "label": "Purchases per year",
+              "unit": "count"
+            },
+            {
+              "key": "customerLifespan",
+              "label": "Customer lifespan (years)",
+              "unit": "years"
+            }
+          ],
+          "outputs": [
+            {
+              "key": "ltv",
+              "label": "LTV (simple model)",
+              "unit": "currency"
+            }
+          ]
+        },
+        {
+          "id": "margin-adjusted",
+          "label": "Margin-adjusted (predictive)",
+          "formula": "(aov * purchaseFrequency * grossMarginPct) / churnRate",
+          "inputs": [
+            {
+              "key": "aov",
+              "label": "Average order value",
+              "unit": "currency"
+            },
+            {
+              "key": "purchaseFrequency",
+              "label": "Purchases per year",
+              "unit": "count"
+            },
+            {
+              "key": "grossMarginPct",
+              "label": "Gross margin",
+              "unit": "%"
+            },
+            {
+              "key": "churnRate",
+              "label": "Annual churn rate",
+              "unit": "%"
+            }
+          ],
+          "outputs": [
+            {
+              "key": "ltv",
+              "label": "LTV (margin-adjusted model)",
+              "unit": "currency"
+            }
+          ]
+        },
+        {
+          "id": "mobile-arpdau",
+          "label": "Mobile (ARPDAU-based)",
+          "formula": "arpdau * avgLifetimeDays",
+          "inputs": [
+            {
+              "key": "arpdau",
+              "label": "ARPDAU",
+              "unit": "currency"
+            },
+            {
+              "key": "avgLifetimeDays",
+              "label": "Average lifetime (days)",
+              "unit": "days"
+            }
+          ],
+          "outputs": [
+            {
+              "key": "ltv",
+              "label": "LTV (mobile model)",
+              "unit": "currency"
+            }
+          ]
+        }
+      ],
+      "examplesByMode": {
+        "simple": {
+          "input": {
+            "aov": 60,
+            "purchaseFrequency": 4,
+            "customerLifespan": 3
+          },
+          "output": {
+            "ltv": "720.00"
+          }
+        },
+        "margin-adjusted": {
+          "input": {
+            "aov": 60,
+            "purchaseFrequency": 4,
+            "grossMarginPct": 60,
+            "churnRate": 20
+          },
+          "output": {
+            "ltv": "720.00"
+          }
+        },
+        "mobile-arpdau": {
+          "input": {
+            "arpdau": 0.2,
+            "avgLifetimeDays": 400
+          },
+          "output": {
+            "ltv": "80.00"
+          }
+        }
+      }
+    },
+    {
+      "id": "CALC-LTV-CAC-RATIO",
+      "name": "LTV:CAC Ratio Calculator",
+      "slug": "ltv-cac-ratio",
+      "category": "unit-economics",
+      "subcategory": "ltv-cac",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "recommended",
+      "formula": "ltv / cac",
+      "formulaPlainEnglish": "How many times a customer's lifetime value exceeds the cost to acquire them.",
+      "inputs": [
+        {
+          "key": "ltv",
+          "label": "LTV",
+          "unit": "currency"
+        },
+        {
+          "key": "cac",
+          "label": "CAC",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "ltvCacRatio",
+          "label": "LTV:CAC Ratio",
+          "unit": "x (ratio)"
+        }
+      ],
+      "inputUnits": {
+        "ltv": "currency",
+        "cac": "currency"
+      },
+      "outputUnits": {
+        "ltvCacRatio": "x (ratio)"
+      },
+      "acceptedRanges": {
+        "ltv": ">=0",
+        "cac": ">0"
+      },
+      "validationRules": [
+        "cac must be > 0",
+        "use the margin-adjusted LTV model here, not the simple/historic one, or the ratio overstates payback economics - flag which model fed the input"
+      ],
+      "edgeCases": [
+        "cac = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "ltv": 720,
+        "cac": 240
+      },
+      "exampleOutput": {
+        "ltvCacRatio": "3.00x"
+      },
+      "relatedMetrics": [
+        "LTV",
+        "CAC",
+        "CAC Payback Period"
+      ],
+      "relatedCalculators": [
+        "ltv",
+        "cac",
+        "cac-payback-period"
+      ],
+      "formulaFamily": "ltv-model",
+      "aliases": []
+    },
+    {
+      "id": "CALC-CAC-PAYBACK-PERIOD",
+      "name": "CAC Payback Period Calculator",
+      "slug": "cac-payback-period",
+      "category": "unit-economics",
+      "subcategory": "ltv-cac",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "recommended",
+      "formula": "cac / (arpu * grossMarginPct)",
+      "formulaPlainEnglish": "Months to recover the cost of acquiring a customer, adjusted for gross margin.",
+      "inputs": [
+        {
+          "key": "cac",
+          "label": "CAC",
+          "unit": "currency"
+        },
+        {
+          "key": "arpu",
+          "label": "Monthly ARPU",
+          "unit": "currency"
+        },
+        {
+          "key": "grossMarginPct",
+          "label": "Gross margin",
+          "unit": "%"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "paybackMonths",
+          "label": "CAC Payback Period",
+          "unit": "months"
+        }
+      ],
+      "inputUnits": {
+        "cac": "currency",
+        "arpu": "currency",
+        "grossMarginPct": "%"
+      },
+      "outputUnits": {
+        "paybackMonths": "months"
+      },
+      "acceptedRanges": {
+        "cac": ">=0",
+        "arpu": ">0",
+        "grossMarginPct": ">0 and <=1"
+      },
+      "validationRules": [
+        "arpu and grossMarginPct must both be > 0 (denominator is arpu * grossMarginPct)",
+        "the margin adjustment is required, not optional - omitting it (using arpu alone) is the single most common error in this calculation"
+      ],
+      "edgeCases": [
+        "arpu = 0 or grossMarginPct = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "cac": 600,
+        "arpu": 100,
+        "grossMarginPct": 75
+      },
+      "exampleOutput": {
+        "paybackMonths": "8.0 months"
+      },
+      "relatedMetrics": [
+        "CAC",
+        "LTV:CAC Ratio"
+      ],
+      "relatedCalculators": [
+        "cac",
+        "ltv-cac-ratio"
+      ],
+      "formulaFamily": "payback",
+      "aliases": []
+    },
+    {
+      "id": "CALC-BREAK-EVEN-POINT",
+      "name": "Break-Even Point Calculator",
+      "slug": "break-even-point",
+      "category": "unit-economics",
+      "subcategory": "margin-breakeven",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "fixedCosts / contributionMarginPerUnit",
+      "formulaPlainEnglish": "Units, CAC ceiling, and ROAS floor needed to cover fixed costs, from one shared margin input.",
+      "inputs": [
+        {
+          "key": "fixedCosts",
+          "label": "Fixed costs",
+          "unit": "currency"
+        },
+        {
+          "key": "pricePerUnit",
+          "label": "Price per unit",
+          "unit": "currency"
+        },
+        {
+          "key": "variableCostPerUnit",
+          "label": "Variable cost per unit",
+          "unit": "currency"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "breakEvenUnits",
+          "label": "Break-Even Units",
+          "unit": "count"
+        },
+        {
+          "key": "breakEvenCac",
+          "label": "Break-Even CAC",
+          "unit": "currency"
+        },
+        {
+          "key": "breakEvenRoas",
+          "label": "Break-Even ROAS",
+          "unit": "x (multiplier)"
+        }
+      ],
+      "inputUnits": {
+        "fixedCosts": "currency",
+        "pricePerUnit": "currency",
+        "variableCostPerUnit": "currency"
+      },
+      "outputUnits": {
+        "breakEvenUnits": "count",
+        "breakEvenCac": "currency",
+        "breakEvenRoas": "x (multiplier)"
+      },
+      "acceptedRanges": {
+        "fixedCosts": ">=0",
+        "pricePerUnit": ">0",
+        "variableCostPerUnit": ">=0 and < pricePerUnit"
+      },
+      "validationRules": [
+        "variableCostPerUnit must be < pricePerUnit or contribution margin is zero/negative and break-even is never reached",
+        "pricePerUnit must be > 0"
+      ],
+      "edgeCases": [
+        "variableCostPerUnit >= pricePerUnit -> undefined, no break-even exists at this price"
+      ],
+      "exampleInput": {
+        "fixedCosts": 50000,
+        "pricePerUnit": 100,
+        "variableCostPerUnit": 40
+      },
+      "exampleOutput": {
+        "breakEvenUnits": "834",
+        "breakEvenCac": "60.00",
+        "breakEvenRoas": "1.67x"
+      },
+      "relatedMetrics": [
+        "Contribution Margin",
+        "ROAS",
+        "CAC"
+      ],
+      "relatedCalculators": [
+        "contribution-margin",
+        "roas",
+        "cac"
+      ],
+      "formulaFamily": "break-even",
+      "aliases": [
+        "Break-Even CAC",
+        "Break-Even ROAS"
+      ]
+    },
+    {
+      "id": "CALC-CR",
+      "name": "Conversion Rate Calculator",
+      "slug": "cr",
+      "category": "cro-funnel",
+      "subcategory": "funnel",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "conversions / opportunities",
+      "formulaPlainEnglish": "Share of opportunities (visitors, leads, etc.) that completed the target action. Universal calculator - see calculator-formula-families.json for the 16 industry-naming variants it covers.",
+      "inputs": [
+        {
+          "key": "conversions",
+          "label": "Conversions",
+          "unit": "count"
+        },
+        {
+          "key": "opportunities",
+          "label": "Total opportunities (visitors/leads/etc.)",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "conversionRate",
+          "label": "Conversion Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "conversions": "count",
+        "opportunities": "count"
+      },
+      "outputUnits": {
+        "conversionRate": "%"
+      },
+      "acceptedRanges": {
+        "conversions": ">=0",
+        "opportunities": ">0"
+      },
+      "validationRules": [
+        "opportunities must be > 0",
+        "conversions should not exceed opportunities"
+      ],
+      "edgeCases": [
+        "opportunities = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "conversions": 340,
+        "opportunities": 8000
+      },
+      "exampleOutput": {
+        "conversionRate": "4.25%"
+      },
+      "relatedMetrics": [
+        "CTR",
+        "Funnel Analysis"
+      ],
+      "relatedCalculators": [
+        "activation-rate",
+        "ctr"
+      ],
+      "formulaFamily": "conversion-rate",
+      "aliases": [
+        "Conversion Rate"
+      ]
+    },
+    {
+      "id": "CALC-FUNNEL-ANALYSIS-MULTISTEP",
+      "name": "Multi-Step Funnel Analysis Calculator",
+      "slug": "funnel-analysis-multistep",
+      "category": "cro-funnel",
+      "subcategory": "funnel",
+      "classification": "calculator-educational",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "stage[i+1].count / stage[i].count, per step",
+      "formulaPlainEnglish": "Enter N ordered funnel stages; get per-step conversion, cumulative conversion, and drop-off at each stage.",
+      "inputs": [
+        {
+          "key": "stages",
+          "label": "Ordered list of {label, count}",
+          "unit": "array (2-10 stages)"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "stepConversions",
+          "label": "Per-step conversion rates",
+          "unit": "array of %"
+        },
+        {
+          "key": "overallConversion",
+          "label": "Overall conversion (first to last stage)",
+          "unit": "%"
+        },
+        {
+          "key": "dropOffByStage",
+          "label": "Drop-off count/rate per stage",
+          "unit": "array"
+        }
+      ],
+      "inputUnits": {
+        "stages": "array (2-10 stages)"
+      },
+      "outputUnits": {
+        "stepConversions": "array of %",
+        "overallConversion": "%",
+        "dropOffByStage": "array"
+      },
+      "acceptedRanges": {
+        "stages": "each count >= 0, non-increasing is expected but not enforced"
+      },
+      "validationRules": [
+        "at least 2 stages required",
+        "a stage count higher than the previous stage is allowed but should be visually flagged as a likely data error, not silently accepted"
+      ],
+      "edgeCases": [
+        "any stage count = 0 -> that step's conversion is undefined, remaining downstream steps are not computable"
+      ],
+      "exampleInput": {
+        "stages": [
+          {
+            "label": "Visit",
+            "count": 10000
+          },
+          {
+            "label": "Add to cart",
+            "count": 1800
+          },
+          {
+            "label": "Checkout",
+            "count": 900
+          },
+          {
+            "label": "Purchase",
+            "count": 620
+          }
+        ]
+      },
+      "exampleOutput": {
+        "stepConversions": [
+          18,
+          50,
+          68.89
+        ],
+        "overallConversion": 6.2,
+        "dropOffByStage": [
+          82,
+          50,
+          31.11
+        ]
+      },
+      "relatedMetrics": [
+        "Conversion Rate",
+        "Cart Abandonment Rate"
+      ],
+      "relatedCalculators": [
+        "cr",
+        "cart-abandonment"
+      ],
+      "formulaFamily": "funnel",
+      "aliases": [
+        "Step Conversion Rate",
+        "Drop-off Rate"
+      ],
+      "formulaDisplay": "Stage conversion = Next stage count ÷ Previous stage count"
+    },
+    {
+      "id": "CALC-FIELD-ABANDONMENT-RATE",
+      "name": "Field Abandonment Rate Calculator",
+      "slug": "field-abandonment-rate",
+      "category": "cro-funnel",
+      "subcategory": "forms-landing",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "usersAbandoningAtField / usersReachingField",
+      "formulaPlainEnglish": "Share of users who reach a specific form field and abandon there - a per-field diagnostic, distinct from whole-form completion.",
+      "inputs": [
+        {
+          "key": "usersAbandoningAtField",
+          "label": "Users abandoning at this field",
+          "unit": "count"
+        },
+        {
+          "key": "usersReachingField",
+          "label": "Users reaching this field",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "fieldAbandonment",
+          "label": "Field Abandonment Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "usersAbandoningAtField": "count",
+        "usersReachingField": "count"
+      },
+      "outputUnits": {
+        "fieldAbandonment": "%"
+      },
+      "acceptedRanges": {
+        "usersAbandoningAtField": ">=0",
+        "usersReachingField": ">0"
+      },
+      "validationRules": [
+        "usersReachingField must be > 0",
+        "requires field-level instrumentation (e.g. focus/blur events) - state that as a prerequisite"
+      ],
+      "edgeCases": [
+        "usersReachingField = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "usersAbandoningAtField": 220,
+        "usersReachingField": 1000
+      },
+      "exampleOutput": {
+        "fieldAbandonment": "22.00%"
+      },
+      "relatedMetrics": [
+        "Form Completion Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-EXIT-RATE",
+      "name": "Exit Rate Calculator",
+      "slug": "exit-rate",
+      "category": "cro-funnel",
+      "subcategory": "forms-landing",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "exits / pageviews",
+      "formulaPlainEnglish": "Share of pageviews on a page that were the last in the session - distinct from Bounce Rate, which counts only single-page sessions.",
+      "inputs": [
+        {
+          "key": "exits",
+          "label": "Exits",
+          "unit": "count"
+        },
+        {
+          "key": "pageviews",
+          "label": "Pageviews of this page",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "exitRate",
+          "label": "Exit Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "exits": "count",
+        "pageviews": "count"
+      },
+      "outputUnits": {
+        "exitRate": "%"
+      },
+      "acceptedRanges": {
+        "exits": ">=0",
+        "pageviews": ">0"
+      },
+      "validationRules": [
+        "pageviews must be > 0",
+        "must not be presented next to Bounce Rate without the distinction explained - a high-traffic page can have a high exit rate and a low bounce rate simultaneously, and that is not a contradiction"
+      ],
+      "edgeCases": [
+        "pageviews = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "exits": 400,
+        "pageviews": 2000
+      },
+      "exampleOutput": {
+        "exitRate": "20.00%"
+      },
+      "relatedMetrics": [
+        "Landing Page Bounce Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-BOUNCE-RATE-LANDING",
+      "name": "Landing Page Bounce Rate Calculator",
+      "slug": "bounce-rate-landing",
+      "category": "cro-funnel",
+      "subcategory": "forms-landing",
+      "classification": "calculator",
+      "priority": "P3",
+      "status": "recommended",
+      "formula": "singlePageSessions / totalSessions",
+      "formulaPlainEnglish": "Share of sessions that viewed only one page.",
+      "inputs": [
+        {
+          "key": "singlePageSessions",
+          "label": "Single-page sessions",
+          "unit": "count"
+        },
+        {
+          "key": "totalSessions",
+          "label": "Total sessions",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "bounceRate",
+          "label": "Bounce Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "singlePageSessions": "count",
+        "totalSessions": "count"
+      },
+      "outputUnits": {
+        "bounceRate": "%"
+      },
+      "acceptedRanges": {
+        "singlePageSessions": ">=0",
+        "totalSessions": ">0"
+      },
+      "validationRules": [
+        "totalSessions must be > 0",
+        "session-based, not funnel-step-based - not directly comparable to Cart Abandonment Rate despite the superficially similar shape"
+      ],
+      "edgeCases": [
+        "totalSessions = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "singlePageSessions": 1400,
+        "totalSessions": 4000
+      },
+      "exampleOutput": {
+        "bounceRate": "35.00%"
+      },
+      "relatedMetrics": [
+        "Exit Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "engagement-rate",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": []
+    },
+    {
+      "id": "CALC-ENGAGEMENT-RATE",
+      "name": "Web Engagement Rate Calculator",
+      "slug": "engagement-rate",
+      "category": "cro-funnel",
+      "subcategory": "funnel",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "implemented",
+      "formula": "engagedSessions / totalSessions",
+      "formulaPlainEnglish": "Engaged sessions (meeting a platform's engagement threshold) as a share of total sessions.",
+      "inputs": [
+        {
+          "key": "engagedSessions",
+          "label": "Engaged sessions",
+          "unit": "count"
+        },
+        {
+          "key": "totalSessions",
+          "label": "Total sessions",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "engagementRate",
+          "label": "Engagement Rate",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "engagedSessions": "count",
+        "totalSessions": "count"
+      },
+      "outputUnits": {
+        "engagementRate": "%"
+      },
+      "acceptedRanges": {
+        "engagedSessions": ">=0",
+        "totalSessions": ">0"
+      },
+      "validationRules": [
+        "totalSessions must be > 0",
+        "the 'engaged' threshold (e.g. GA4's 10s+/conversion/2+ pageviews definition) should be stated, since it is platform-defined"
+      ],
+      "edgeCases": [
+        "totalSessions = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "engagedSessions": 2600,
+        "totalSessions": 4000
+      },
+      "exampleOutput": {
+        "engagementRate": "65.00%"
+      },
+      "relatedMetrics": [
+        "Bounce Rate"
+      ],
+      "relatedCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
+      "formulaFamily": "rate-ratio",
+      "aliases": [
+        "Web Engagement Rate"
+      ]
+    },
+    {
+      "id": "CALC-AB-TEST-SIGNIFICANCE",
+      "name": "A/B Test Significance (z-test) Calculator",
+      "slug": "ab-test",
+      "category": "experimentation",
+      "subcategory": "test-analysis",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "implemented",
+      "formula": "z = (p2 - p1) / SE(pooled)",
+      "formulaPlainEnglish": "Two-proportion z-test for whether a variant's conversion rate differs significantly from control.",
+      "inputs": [
+        {
+          "key": "visitorsA",
+          "label": "Control visitors",
+          "unit": "count"
+        },
+        {
+          "key": "conversionsA",
+          "label": "Control conversions",
+          "unit": "count"
+        },
+        {
+          "key": "visitorsB",
+          "label": "Variant visitors",
+          "unit": "count"
+        },
+        {
+          "key": "conversionsB",
+          "label": "Variant conversions",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "controlRate",
+          "label": "Control rate",
+          "unit": "%"
+        },
+        {
+          "key": "variantRate",
+          "label": "Variant rate",
+          "unit": "%"
+        },
+        {
+          "key": "absoluteUplift",
+          "label": "Absolute uplift",
+          "unit": "percentage points"
+        },
+        {
+          "key": "relativeUplift",
+          "label": "Relative uplift",
+          "unit": "%"
+        },
+        {
+          "key": "zScore",
+          "label": "z-score",
+          "unit": "number"
+        },
+        {
+          "key": "pValue",
+          "label": "p-value",
+          "unit": "number"
+        },
+        {
+          "key": "significant",
+          "label": "Significant at 95%?",
+          "unit": "boolean"
+        }
+      ],
+      "inputUnits": {
+        "visitorsA": "count",
+        "conversionsA": "count",
+        "visitorsB": "count",
+        "conversionsB": "count"
+      },
+      "outputUnits": {
+        "controlRate": "%",
+        "variantRate": "%",
+        "absoluteUplift": "percentage points",
+        "relativeUplift": "%",
+        "zScore": "number",
+        "pValue": "number",
+        "significant": "boolean"
+      },
+      "acceptedRanges": {
+        "visitorsA": ">0",
+        "conversionsA": ">=0 and <=visitorsA",
+        "visitorsB": ">0",
+        "conversionsB": ">=0 and <=visitorsB"
+      },
+      "validationRules": [
+        "both visitor counts must be > 0",
+        "frequentist method - see Bayesian Probability to Beat Control for the documented alternative method, do not present this as the only valid approach"
+      ],
+      "edgeCases": [
+        "conversionsA = 0 or conversionsB = 0 -> valid, z-test still computes",
+        "very small samples (<30 per arm) -> flag result as low-confidence even if p < 0.05"
+      ],
+      "exampleInput": {
+        "visitorsA": 5000,
+        "conversionsA": 250,
+        "visitorsB": 5000,
+        "conversionsB": 290
+      },
+      "exampleOutput": {
+        "pValue": "0.0847",
+        "significant": false
+      },
+      "relatedMetrics": [
+        "Sample Size Calculator",
+        "Confidence Interval"
+      ],
+      "relatedCalculators": [
+        "confidence-interval-calculator",
+        "bayesian-probability-to-beat",
+        "multi-variant-test-significance",
+        "sample-size-calculator"
+      ],
+      "formulaFamily": "significance-test",
+      "aliases": [
+        "Two-Proportion Z-Test"
+      ],
+      "formulaDisplay": "z-score = (Variant rate − Control rate) ÷ Standard error"
+    },
+    {
+      "id": "CALC-CONFIDENCE-INTERVAL-CALCULATOR",
+      "name": "Confidence Interval Calculator",
+      "slug": "confidence-interval-calculator",
+      "category": "experimentation",
+      "subcategory": "test-analysis",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "p ± z* * sqrt(p(1-p)/n)",
+      "formulaPlainEnglish": "Confidence interval around one observed conversion rate.",
+      "inputs": [
+        {
+          "key": "conversions",
+          "label": "Conversions",
+          "unit": "count"
+        },
+        {
+          "key": "visitors",
+          "label": "Visitors",
+          "unit": "count"
+        },
+        {
+          "key": "confidenceLevel",
+          "label": "Confidence level",
+          "unit": "enum(90/95/99)"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "pointEstimate",
+          "label": "Observed rate",
+          "unit": "%"
+        },
+        {
+          "key": "lowerBound",
+          "label": "Lower bound",
+          "unit": "%"
+        },
+        {
+          "key": "upperBound",
+          "label": "Upper bound",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "conversions": "count",
+        "visitors": "count",
+        "confidenceLevel": "enum(90/95/99)"
+      },
+      "outputUnits": {
+        "pointEstimate": "%",
+        "lowerBound": "%",
+        "upperBound": "%"
+      },
+      "acceptedRanges": {
+        "conversions": ">=0 and <=visitors",
+        "visitors": ">0"
+      },
+      "validationRules": [
+        "visitors must be > 0",
+        "normal-approximation interval - accurate for reasonably large n and p not near 0 or 1; flag when n*p or n*(1-p) < 5"
+      ],
+      "edgeCases": [
+        "visitors = 0 -> undefined"
+      ],
+      "exampleInput": {
+        "conversions": 250,
+        "visitors": 5000,
+        "confidenceLevel": 95
+      },
+      "exampleOutput": {
+        "pointEstimate": "5.00%",
+        "lowerBound": "4.40%",
+        "upperBound": "5.60%"
+      },
+      "relatedMetrics": [
+        "A/B Test Significance"
+      ],
+      "relatedCalculators": [
+        "ab-test",
+        "bayesian-probability-to-beat",
+        "multi-variant-test-significance"
+      ],
+      "formulaFamily": "significance-test",
+      "aliases": [],
+      "formulaDisplay": "Confidence interval = Observed rate ± (z-value × Standard error)"
+    },
+    {
+      "id": "CALC-BAYESIAN-PROBABILITY-TO-BEAT",
+      "name": "Bayesian Probability to Beat Control Calculator",
+      "slug": "bayesian-probability-to-beat",
+      "category": "experimentation",
+      "subcategory": "test-analysis",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "P(variant_rate > control_rate | data), via Beta posteriors",
+      "formulaPlainEnglish": "Bayesian alternative to the frequentist z-test: probability the variant is actually better than control.",
+      "inputs": [
+        {
+          "key": "visitorsA",
+          "label": "Control visitors",
+          "unit": "count"
+        },
+        {
+          "key": "conversionsA",
+          "label": "Control conversions",
+          "unit": "count"
+        },
+        {
+          "key": "visitorsB",
+          "label": "Variant visitors",
+          "unit": "count"
+        },
+        {
+          "key": "conversionsB",
+          "label": "Variant conversions",
+          "unit": "count"
+        },
+        {
+          "key": "priorAlpha",
+          "label": "Prior alpha (default 1)",
+          "unit": "count"
+        },
+        {
+          "key": "priorBeta",
+          "label": "Prior beta (default 1)",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "probabilityBToBeatA",
+          "label": "Probability B beats A",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "visitorsA": "count",
+        "conversionsA": "count",
+        "visitorsB": "count",
+        "conversionsB": "count",
+        "priorAlpha": "count",
+        "priorBeta": "count"
+      },
+      "outputUnits": {
+        "probabilityBToBeatA": "%"
+      },
+      "acceptedRanges": {
+        "visitorsA": ">0",
+        "visitorsB": ">0"
+      },
+      "validationRules": [
+        "a flat (1,1) prior is the honest default unless the user states a real informative prior - do not silently invent one",
+        "this answers a genuinely different question from the frequentist p-value (probability of superiority, not probability of the data under a null) - never present the two numbers as interchangeable"
+      ],
+      "edgeCases": [
+        "extreme priors can dominate a small sample - flag low-traffic results as prior-sensitive"
+      ],
+      "exampleInput": {
+        "visitorsA": 5000,
+        "conversionsA": 250,
+        "visitorsB": 5000,
+        "conversionsB": 290
+      },
+      "exampleOutput": {
+        "probabilityBToBeatA": "93.40%"
+      },
+      "relatedMetrics": [
+        "A/B Test Significance"
+      ],
+      "relatedCalculators": [
+        "ab-test",
+        "confidence-interval-calculator",
+        "multi-variant-test-significance"
+      ],
+      "formulaFamily": "significance-test",
+      "aliases": [],
+      "formulaDisplay": "Probability variant beats control, estimated from Beta distributions fitted to both observed conversion rates"
+    },
+    {
+      "id": "CALC-MULTI-VARIANT-TEST-SIGNIFICANCE",
+      "name": "A/B/n Multi-Variant Significance Calculator",
+      "slug": "multi-variant-test-significance",
+      "category": "experimentation",
+      "subcategory": "test-analysis",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "pairwise z-tests with Bonferroni-corrected alpha",
+      "formulaPlainEnglish": "A/B/n significance across 3+ variants with a multiple-comparison correction.",
+      "inputs": [
+        {
+          "key": "variants",
+          "label": "Array of {label, visitors, conversions}, 3-8 variants",
+          "unit": "array"
+        },
+        {
+          "key": "controlIndex",
+          "label": "Which variant is control",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "pairwiseResults",
+          "label": "Per-variant-vs-control results with corrected significance",
+          "unit": "array"
+        }
+      ],
+      "inputUnits": {
+        "variants": "array",
+        "controlIndex": "count"
+      },
+      "outputUnits": {
+        "pairwiseResults": "array"
+      },
+      "acceptedRanges": {
+        "variants": "each visitors > 0, conversions <= visitors"
+      },
+      "validationRules": [
+        "at least 3 variants required (2 is just the standard A/B test)",
+        "alpha must be divided by the number of comparisons (Bonferroni) - running N uncorrected z-tests inflates the false-positive rate and must not be shipped as the default"
+      ],
+      "edgeCases": [
+        "a variant with 0 conversions -> still computable, its rate is 0%"
+      ],
+      "exampleInput": {
+        "variants": [
+          {
+            "label": "Control",
+            "visitors": 4000,
+            "conversions": 200
+          },
+          {
+            "label": "B",
+            "visitors": 4000,
+            "conversions": 230
+          },
+          {
+            "label": "C",
+            "visitors": 4000,
+            "conversions": 180
+          }
+        ],
+        "controlIndex": 0
+      },
+      "exampleOutput": {
+        "pairwiseResults": [
+          {
+            "variant": "B",
+            "significant": false,
+            "correctedAlpha": 0.025
+          },
+          {
+            "variant": "C",
+            "significant": false,
+            "correctedAlpha": 0.025
+          }
+        ]
+      },
+      "relatedMetrics": [
+        "A/B Test Significance",
+        "Sample Size Calculator"
+      ],
+      "relatedCalculators": [
+        "ab-test",
+        "confidence-interval-calculator",
+        "bayesian-probability-to-beat",
+        "sample-size-calculator"
+      ],
+      "formulaFamily": "significance-test",
+      "aliases": []
+    },
+    {
+      "id": "CALC-SAMPLE-SIZE-CALCULATOR",
+      "name": "Sample Size Calculator",
+      "slug": "sample-size-calculator",
+      "category": "experimentation",
+      "subcategory": "test-design",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "n = 2 * ((z_alpha/2 + z_beta)^2 * p(1-p)) / (baselineRate * mde)^2",
+      "formulaPlainEnglish": "Required sample size per variant, given a baseline rate, a RELATIVE minimum detectable lift, power and significance level.",
+      "inputs": [
+        {
+          "key": "baselineRate",
+          "label": "Baseline conversion rate",
+          "unit": "%"
+        },
+        {
+          "key": "mde",
+          "label": "Minimum detectable effect (relative lift)",
+          "unit": "%"
+        },
+        {
+          "key": "power",
+          "label": "Statistical power",
+          "unit": "enum(80/90)"
+        },
+        {
+          "key": "significanceLevel",
+          "label": "Significance level",
+          "unit": "enum(90/95/99)"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "samplePerVariant",
+          "label": "Required sample size per variant",
+          "unit": "count"
+        }
+      ],
+      "inputUnits": {
+        "baselineRate": "%",
+        "mde": "%",
+        "power": "enum(80/90)",
+        "significanceLevel": "enum(90/95/99)"
+      },
+      "outputUnits": {
+        "samplePerVariant": "count"
+      },
+      "acceptedRanges": {
+        "baselineRate": ">0 and <1",
+        "mde": ">0"
+      },
+      "validationRules": [
+        "baselineRate must be strictly between 0 and 1",
+        "mde is RELATIVE (10 means 'detect a 10% relative lift') - resolved explicitly during implementation after this was flagged as an unresolved ambiguity; converted to an absolute effect internally as baselineRate x mde before use in the formula"
+      ],
+      "edgeCases": [
+        "mde very small relative to baseline -> sample size can become impractically large; surface the raw number rather than capping it silently"
+      ],
+      "exampleInput": {
+        "baselineRate": 5,
+        "mde": 10,
+        "power": 80,
+        "significanceLevel": 95
+      },
+      "exampleOutput": {
+        "samplePerVariant": "29,827"
+      },
+      "relatedMetrics": [
+        "Minimum Detectable Effect",
+        "Test Duration Estimator"
+      ],
+      "relatedCalculators": [
+        "minimum-detectable-effect",
+        "test-duration-estimator",
+        "srm-check"
+      ],
+      "formulaFamily": "test-design",
+      "aliases": [
+        "Power Analysis"
+      ],
+      "formulaDisplay": "Sample size per variant = 2 × (z-values for power and significance, summed)² × Baseline rate × (1 − Baseline rate) ÷ (Baseline rate × Relative MDE)²"
+    },
+    {
+      "id": "CALC-MINIMUM-DETECTABLE-EFFECT",
+      "name": "Minimum Detectable Effect (MDE) Calculator",
+      "slug": "minimum-detectable-effect",
+      "category": "experimentation",
+      "subcategory": "test-design",
+      "classification": "calculator",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "MDE = sqrt(2 * (z_alpha/2 + z_beta)^2 * p(1-p) / n)",
+      "formulaPlainEnglish": "Given available traffic and test duration, the smallest effect size the test can reliably detect - the inverse of Sample Size.",
+      "inputs": [
+        {
+          "key": "baselineRate",
+          "label": "Baseline conversion rate",
+          "unit": "%"
+        },
+        {
+          "key": "samplePerVariant",
+          "label": "Available sample per variant",
+          "unit": "count"
+        },
+        {
+          "key": "power",
+          "label": "Statistical power",
+          "unit": "enum(80/90)"
+        },
+        {
+          "key": "significanceLevel",
+          "label": "Significance level",
+          "unit": "enum(90/95/99)"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "mde",
+          "label": "Minimum Detectable Effect",
+          "unit": "%"
+        }
+      ],
+      "inputUnits": {
+        "baselineRate": "%",
+        "samplePerVariant": "count",
+        "power": "enum(80/90)",
+        "significanceLevel": "enum(90/95/99)"
+      },
+      "outputUnits": {
+        "mde": "%"
+      },
+      "acceptedRanges": {
+        "baselineRate": ">0 and <1",
+        "samplePerVariant": ">0"
+      },
+      "validationRules": [
+        "samplePerVariant must be > 0",
+        "solves the same equation as Sample Size Calculator for a different unknown - kept as its own tool because users arrive asking 'what can I detect', not 'how many visitors do I need'"
+      ],
+      "edgeCases": [
+        "samplePerVariant very small -> MDE become very large (>100%), display as-is with a 'test is underpowered' flag rather than erroring"
+      ],
+      "exampleInput": {
+        "baselineRate": 0.05,
+        "samplePerVariant": 5000,
+        "power": 80,
+        "significanceLevel": 95
+      },
+      "exampleOutput": {
+        "mde": "25.30%"
+      },
+      "relatedMetrics": [
+        "Sample Size Calculator"
+      ],
+      "relatedCalculators": [
+        "sample-size-calculator",
+        "test-duration-estimator",
+        "srm-check"
+      ],
+      "formulaFamily": "test-design",
+      "aliases": [],
+      "formulaDisplay": "Minimum detectable effect = √(2 × (z-values for power and significance, summed)² × Baseline rate × (1 − Baseline rate) ÷ Sample size)"
+    },
+    {
+      "id": "CALC-TEST-DURATION-ESTIMATOR",
+      "name": "Test Duration Estimator Calculator",
+      "slug": "test-duration-estimator",
+      "category": "experimentation",
+      "subcategory": "test-design",
+      "classification": "calculator-educational",
+      "priority": "P1",
+      "status": "recommended",
+      "formula": "requiredSamplePerVariant / dailyTrafficPerVariant",
+      "formulaPlainEnglish": "Days needed to reach the required sample size at current traffic.",
+      "inputs": [
+        {
+          "key": "requiredSamplePerVariant",
+          "label": "Required sample per variant",
+          "unit": "count"
+        },
+        {
+          "key": "dailyTrafficPerVariant",
+          "label": "Daily traffic per variant",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "days",
+          "label": "Estimated Duration",
+          "unit": "days"
+        }
+      ],
+      "inputUnits": {
+        "requiredSamplePerVariant": "count",
+        "dailyTrafficPerVariant": "count"
+      },
+      "outputUnits": {
+        "days": "days"
+      },
+      "acceptedRanges": {
+        "requiredSamplePerVariant": ">0",
+        "dailyTrafficPerVariant": ">0"
+      },
+      "validationRules": [
+        "dailyTrafficPerVariant must be > 0",
+        "round the result UP to the nearest full week - stopping mid-week reintroduces day-of-week bias even if the raw day count is reached"
+      ],
+      "edgeCases": [
+        "dailyTrafficPerVariant very small -> very large day counts are valid output, not an error"
+      ],
+      "exampleInput": {
+        "requiredSamplePerVariant": 29827,
+        "dailyTrafficPerVariant": 1000
+      },
+      "exampleOutput": {
+        "days": "35 days (5 weeks)"
+      },
+      "relatedMetrics": [
+        "Sample Size Calculator"
+      ],
+      "relatedCalculators": [
+        "sample-size-calculator",
+        "minimum-detectable-effect",
+        "srm-check"
+      ],
+      "formulaFamily": "test-design",
+      "aliases": [
+        "Required Runtime"
+      ]
+    },
+    {
+      "id": "CALC-SRM-CHECK",
+      "name": "Sample Ratio Mismatch (SRM) Check Calculator",
+      "slug": "srm-check",
+      "category": "experimentation",
+      "subcategory": "test-analysis",
+      "classification": "calculator-educational",
+      "priority": "P2",
+      "status": "recommended",
+      "formula": "chi-square goodness-of-fit test on observed vs expected traffic split",
+      "formulaPlainEnglish": "Checks whether the actual traffic split between variants matches the intended split - a guardrail on the test's validity, not on its outcome.",
+      "inputs": [
+        {
+          "key": "variants",
+          "label": "Array of {label, expectedShare, observedVisitors}",
+          "unit": "array"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "chiSquare",
+          "label": "Chi-square statistic",
+          "unit": "number"
+        },
+        {
+          "key": "pValue",
+          "label": "p-value",
+          "unit": "number"
+        },
+        {
+          "key": "mismatchDetected",
+          "label": "SRM detected?",
+          "unit": "boolean"
+        }
+      ],
+      "inputUnits": {
+        "variants": "array"
+      },
+      "outputUnits": {
+        "chiSquare": "number",
+        "pValue": "number",
+        "mismatchDetected": "boolean"
+      },
+      "acceptedRanges": {
+        "variants": "expectedShare values sum to 1, observedVisitors >= 0"
+      },
+      "validationRules": [
+        "expectedShare values across variants must sum to 1",
+        "a low p-value here (e.g. <0.01) means the TEST ITSELF is broken (bucketing bug, bot filtering asymmetry) - it says nothing about which variant is better and must never be read as a significance result"
+      ],
+      "edgeCases": [
+        "a perfectly even split with small samples can still trigger a false SRM flag - note that low-traffic tests are noisier on this check too"
+      ],
+      "exampleInput": {
+        "variants": [
+          {
+            "label": "A",
+            "expectedShare": 0.5,
+            "observedVisitors": 5100
+          },
+          {
+            "label": "B",
+            "expectedShare": 0.5,
+            "observedVisitors": 4900
+          }
+        ]
+      },
+      "exampleOutput": {
+        "pValue": "0.317",
+        "mismatchDetected": false
+      },
+      "relatedMetrics": [
+        "A/B Test Significance"
+      ],
+      "relatedCalculators": [
+        "sample-size-calculator",
+        "minimum-detectable-effect",
+        "test-duration-estimator",
+        "ab-test"
+      ],
+      "formulaFamily": "test-design",
+      "aliases": [
+        "Sample Ratio Mismatch"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "_description": "Phase 3 category-hub strategy. verdict is one of create-later / maybe / not-needed. No routes implemented - see Phase 2's own §7 decision to skip category routes for now.",
+  "categories": [
+    {
+      "id": "advertising",
+      "name": "Advertising & Paid Media",
+      "catalogCalculatorCount": 14,
+      "verdict": "create-later",
+      "why": "27 candidates / 14 catalog calculators - largest, most coherent category with real hub-page navigational value once more of it ships."
+    },
+    {
+      "id": "acquisition",
+      "name": "Acquisition",
+      "catalogCalculatorCount": 2,
+      "verdict": "not-needed",
+      "why": "Only 2 catalog calculators (CAC, Blended CAC); a hub with 2 links has no navigational value."
+    },
+    {
+      "id": "ecommerce",
+      "name": "E-commerce",
+      "catalogCalculatorCount": 14,
+      "verdict": "create-later",
+      "why": "14 catalog calculators, coherent audience (store operators); worth a hub once P1/P2 e-commerce items ship."
+    },
+    {
+      "id": "lifecycle-retention",
+      "name": "Lifecycle & Retention",
+      "catalogCalculatorCount": 4,
+      "verdict": "maybe",
+      "why": "4 catalog calculators today; conceptually coherent but thin until reactivation/customer-lifetime-adjacent items expand."
+    },
+    {
+      "id": "crm-email",
+      "name": "CRM & Email",
+      "catalogCalculatorCount": 8,
+      "verdict": "maybe",
+      "why": "8 catalog calculators, coherent audience (lifecycle/CRM marketers); reasonable hub candidate once deliverability calculators (bounce/complaint) ship."
+    },
+    {
+      "id": "mobile-growth",
+      "name": "Mobile Growth",
+      "catalogCalculatorCount": 7,
+      "verdict": "maybe",
+      "why": "7 catalog calculators; coherent but overlaps conceptually with acquisition/retention - a hub adds value mainly for a mobile-specific audience segment."
+    },
+    {
+      "id": "saas",
+      "name": "SaaS",
+      "catalogCalculatorCount": 10,
+      "verdict": "create-later",
+      "why": "11 catalog calculators, the most internally coherent audience (SaaS operators) of any category - good future hub candidate."
+    },
+    {
+      "id": "unit-economics",
+      "name": "Unit Economics",
+      "catalogCalculatorCount": 4,
+      "verdict": "not-needed",
+      "why": "Only 4 catalog calculators, and they're already the most-cross-linked group (LTV, LTV:CAC, CAC Payback, Break-Even) - internal links do this job better than a thin hub."
+    },
+    {
+      "id": "cro-funnel",
+      "name": "CRO & Funnel",
+      "catalogCalculatorCount": 6,
+      "verdict": "maybe",
+      "why": "6 catalog calculators, real conceptual coherence (funnel/CRO practitioners), but small until more forms/landing calculators ship."
+    },
+    {
+      "id": "experimentation",
+      "name": "Experimentation / A/B Testing",
+      "catalogCalculatorCount": 8,
+      "verdict": "create-later",
+      "why": "8 catalog calculators, high topical coherence, and the one category where a hub could plausibly rank for 'a/b testing calculators' as its own query."
+    }
+  ]
+}

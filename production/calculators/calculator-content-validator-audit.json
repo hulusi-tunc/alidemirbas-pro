@@ -1,0 +1,59 @@
+{
+  "_description": "Phase 4.5: every rule in validate-calculator-content.mjs, existing and newly added, with purpose/severity/false-positive testing against the 13 shipped files (instruction 36).",
+  "existingRules": [
+    { "rule": "coverage: exactly the approved batch", "severity": "error", "purpose": "Prevents scope creep (content for an unapproved calculator) or silent gaps (a missing one).", "falsePositiveRisk": "none - exact set membership", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "calculatorId/canonicalPath match catalog.json", "severity": "error", "purpose": "Catches copy-paste id/slug mismatches.", "falsePositiveRisk": "none", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "seoTitle doesn't duplicate 'Calculator'", "severity": "error", "purpose": "Same class of bug Phase 2 found in catalog names.", "falsePositiveRisk": "none", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "contentDepth matches Phase 3 classification", "severity": "error", "purpose": "Content and SEO map can't silently disagree on depth.", "falsePositiveRisk": "none", "testedAgainst13": "0 hits (after the test-duration-estimator depth-model fix, which didn't touch any of the 13)", "status": "unchanged" },
+    { "rule": "required-slot coverage (TYPE_TO_SLOTS mapping)", "severity": "warning", "purpose": "Flags when a page is missing content a depth-appropriate page should have.", "falsePositiveRisk": "medium before this audit - the mapping over-credited 'formula' sections for workedExample without checking the example was actually present. Fixed by rule 'worked-example-presence' below.", "testedAgainst13": "0 hits after all Phase 4 gaps were fixed", "status": "kept, backed by the new mechanical check" },
+    { "rule": "prohibited-slot violation", "severity": "error", "purpose": "A light page shouldn't carry a methodology/assumptions/limitations section it doesn't need.", "falsePositiveRisk": "none observed", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "duplicate section ids / duplicate FAQ questions", "severity": "error", "purpose": "Structural integrity within one file.", "falsePositiveRisk": "none", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "empty/short section body", "severity": "error", "purpose": "Catches an accidentally-empty section.", "falsePositiveRisk": "none", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "placeholder text scan (TODO/TBD/lorem ipsum/etc.)", "severity": "error", "purpose": "Catches unfinished drafts shipped by accident.", "falsePositiveRisk": "none", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "metadata uniqueness (seoTitle/seoDescription across the batch)", "severity": "error", "purpose": "Two pages can't compete for the exact same SERP snippet.", "falsePositiveRisk": "none", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "intro-pair word similarity >35%", "severity": "warning", "purpose": "Catches introductions that read as copies of each other.", "falsePositiveRisk": "low - Jaccard on 4+ letter words is a blunt instrument, but 0.35 is a high enough bar that it hasn't false-positived on genuinely-different-but-topically-related intros (e.g. cac/cac-payback-period, which share vocabulary but scored well under 0.35).", "testedAgainst13": "0 hits", "status": "unchanged" },
+    { "rule": "identical section-type sequence on >=5 pages", "severity": "warning", "purpose": "Catches mechanical page-shape templating.", "falsePositiveRisk": "medium - structural sameness isn't the same as prose sameness (instruction 5's own point). Two sequences hit 3-4 pages each, below the 5-page trigger, so this rule hasn't actually fired yet even though the audit found real (and judged acceptable) repetition via the new heading-level check instead.", "testedAgainst13": "0 hits (below threshold)", "status": "unchanged - kept as a second, coarser signal alongside the new heading-level check" }
+  ],
+  "newRulesAddedThisPhase": [
+    {
+      "rule": "worked-example-presence",
+      "what_it_detects": "For any calculator whose slot template requires workedExample, checks that at least one number from the calculator's own exampleInput/exampleOutput (or examplesByMode) literally appears in a formula/example/models section's text - not just that a section with the right `type` exists.",
+      "why_it_matters": "This was the single biggest scaling risk found in the audit (Section 1): the old TYPE_TO_SLOTS credit assumed every 'formula' section embeds a real example because that happened to be true for all 12 shipped ones, with nothing actually verifying it. At 40+ pages, a future formula section that skips the example would pass silently.",
+      "severity": "warning (not error - a page can legitimately explain 'why' without repeating the exact example numbers a second time in a different section, so this flags for review rather than blocking)",
+      "falsePositiveRisk": "low for flat scalar-input calculators (all 13 shipped ones); intentionally skipped for array-input calculators (funnel-analysis-multistep and future ones) where the exampleInput isn't a flat key/value pair the number-matching can reliably parse against prose - documented in the code comment, not silently wrong.",
+      "testedAgainst13": "0 warnings - confirms every shipped page's example claim is backed by the actual number, not just asserted"
+    },
+    {
+      "rule": "generic-prose pattern scan",
+      "what_it_detects": "17 known AI-filler phrases (instruction 15's list plus a few observed in the wild: 'leverage', 'robust', 'seamless', 'game-changing') anywhere in intro/section/model prose.",
+      "why_it_matters": "The single most direct check against the content reading as machine-generated at scale, and the cheapest one to run - pure string matching.",
+      "severity": "warning",
+      "falsePositiveRisk": "some patterns (e.g. 'robust') can appear in genuinely relevant technical prose (e.g. 'a robust standard error estimate') - deliberately kept as a warning, never an error, per instruction 15.",
+      "testedAgainst13": "0 hits - matches the manual grep run earlier in this audit"
+    },
+    {
+      "rule": "repeated section heading (>=4 pages)",
+      "what_it_detects": "The exact same section heading string used on 4 or more content files.",
+      "why_it_matters": "Directly surfaced the audit's own finding: 'Reading the number' on 8/13 pages, 'The formula' on 5/13. Makes this visible automatically as the corpus grows instead of requiring another manual grep.",
+      "severity": "warning, explicitly excluding 'Common mistakes' (a utility label expected to repeat, not a claim)",
+      "falsePositiveRisk": "by design this rule doesn't distinguish healthy consistency from real template risk - that judgment call is documented in this audit (calculator-content-system-audit.md), not automated. The warning message says so explicitly so a future reviewer doesn't have to re-litigate it from scratch.",
+      "testedAgainst13": "2 hits, both real and already reviewed as healthy (see calculator-content-system-audit.md)"
+    },
+    {
+      "rule": "unflagged possible keyword overlap",
+      "what_it_detects": "Two different calculators' primaryKeyword strings (Phase 3's calculator-seo-map.json) that substring-overlap after normalization, with neither a Phase 3 cannibalizationRisk flag nor a comparison-note on either page.",
+      "why_it_matters": "Backstops Phase 3's cannibalizationRisks list, which came from the brief's named examples (10 pairs), not an exhaustive pairwise scan across all 77 - a real future collision could exist that Phase 3 never looked at.",
+      "severity": "warning",
+      "falsePositiveRisk": "medium - a >4-character substring match is a blunt signal (e.g. two calculators both containing the word 'rate' at the right length could theoretically trip it). Tuned to require >4 characters specifically to avoid 3-letter acronym false positives (cac/cac-payback-period didn't fire); should be revisited if it gets noisy once the 21 live-but-unwritten calculators get content.",
+      "testedAgainst13": "0 hits"
+    },
+    {
+      "rule": "benchmark section requires a resolvable sourceId",
+      "what_it_detects": "Any section typed 'benchmark' must carry a `benchmark.sourceId` that exists in calculator-content-sources.json.",
+      "why_it_matters": "Structurally enforces the benchmark policy (instruction 8) instead of relying on editorial discipline alone - the schema change (calculator-content.schema.json) makes 'benchmark' its own type distinct from 'interpretation', and this validator rule makes it impossible to ship a sourceless benchmark claim without the build failing.",
+      "severity": "error",
+      "falsePositiveRisk": "none - exact reference resolution",
+      "testedAgainst13": "0 hits (no page uses the benchmark type yet - none met the sourcing bar, see calculator-content-sources.json)"
+    }
+  ]
+}

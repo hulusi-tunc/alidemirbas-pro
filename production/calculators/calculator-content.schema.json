@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hulusi-tunc/alidemirbas-pro/production/calculators/calculator-content.schema.json",
+  "title": "CalculatorContentRecord",
+  "description": "Phase 4: one calculator's editorial content (production/calculators/content/{slug}.json). Cross-file checks (slot coverage, similarity, dead links) live in validate-calculator-content.mjs.",
+  "type": "object",
+  "required": ["calculatorId", "slug", "contentDepth", "intro", "sections", "faq", "seo", "qaStatus"],
+  "additionalProperties": false,
+  "properties": {
+    "calculatorId": { "type": "string", "pattern": "^CALC-[A-Z0-9-]+$" },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "contentDepth": { "type": "string", "enum": ["light", "standard", "deep"] },
+    "intro": { "type": "string", "minLength": 20 },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "heading"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "string",
+            "enum": ["definition", "formula", "example", "interpretation", "methodology", "models", "assumptions", "limitations", "common-mistakes", "comparison-note", "benchmark"]
+          },
+          "heading": { "type": "string", "minLength": 1 },
+          "body": { "type": "string" },
+          "items": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "intro": { "type": "string" },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["modeId", "heading", "body"],
+              "properties": {
+                "modeId": { "type": "string" },
+                "heading": { "type": "string" },
+                "body": { "type": "string", "minLength": 1 },
+                "example": { "type": "string" }
+              }
+            }
+          },
+          "benchmark": {
+            "type": "object",
+            "description": "Phase 4.5: required when type is 'benchmark' - structural separation from 'interpretation' so a numeric claim can't be added without sourcing metadata. Not used by any of the 13 shipped pages (none met the sourcing bar - see calculator-content-sources.json).",
+            "required": ["value", "context", "sourceId"],
+            "properties": {
+              "value": { "type": "string", "description": "e.g. '2-5%' or '4x' - a string, not a bare number, since most benchmarks are ranges" },
+              "range": { "type": "string" },
+              "context": { "type": "string", "minLength": 1, "description": "The condition the value applies under - required, never a bare universal number" },
+              "industry": { "type": "string" },
+              "channel": { "type": "string" },
+              "geography": { "type": "string" },
+              "period": { "type": "string" },
+              "sourceId": { "type": "string", "minLength": 1, "description": "Must resolve to an entry in calculator-content-sources.json" },
+              "caveat": { "type": "string" }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "type": { "const": "benchmark" } } },
+            "then": { "required": ["benchmark"] }
+          }
+        ]
+      }
+    },
+    "faq": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "q", "a"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "q": { "type": "string", "minLength": 1 },
+          "a": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "seo": {
+      "type": "object",
+      "required": ["seoTitle", "seoDescription", "canonicalPath", "index", "follow"],
+      "additionalProperties": false,
+      "properties": {
+        "seoTitle": { "type": "string", "minLength": 1 },
+        "seoDescription": { "type": "string", "minLength": 1 },
+        "canonicalPath": { "type": "string", "pattern": "^/calculators/[a-z0-9]+(-[a-z0-9]+)*$" },
+        "index": { "type": "boolean" },
+        "follow": { "type": "boolean" }
+      }
+    },
+    "qaStatus": { "type": "string", "enum": ["ready", "review", "blocked"] },
+    "qaNotes": { "type": "string" }
+  }
+}

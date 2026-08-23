@@ -1,0 +1,45 @@
+{
+  "calculatorId": "CALC-RETENTION-RATE",
+  "slug": "retention-rate",
+  "contentDepth": "standard",
+  "intro": "Retention rate is the share of your existing customers who were still customers at the end of the period. Enter the customer counts below to get both retention and churn.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What retention rate measures",
+      "body": "Retention rate is (customers at period end − customers acquired during the period) ÷ customers at period start. Subtracting new customers matters — without it, new signups would mask churn among the customers you already had, which is the number this metric is actually trying to isolate."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "The formula, and its complement",
+      "body": "Starting with 1,000 customers, ending the period with 1,050, and having acquired 150 new ones during it: (1,050 − 150) ÷ 1,000 = 90% retention. Churn rate is reported as 1 − retention, so this same period has a 10% churn rate. That relationship only holds because both numbers are measured over the exact same population and the exact same time window — a churn rate calculated over a different period, or a different customer segment, isn't the complement of this retention rate anymore, it's a different measurement entirely."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "Reading the number",
+      "body": "Retention rate is a period-level average — it tells you how a whole cohort of existing customers behaved over one stretch of time, not what happens to any individual customer or how retention trends across the customer's actual lifetime. For that finer-grained view, cohort retention (like D1/D7/D30 retention in mobile) tracks the same group from a shared starting point instead of a rolling period, and answers a related but different question: not 'how many of my current customers stuck around this month,' but 'how many of the people who signed up on day zero are still here N days later.'"
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Forgetting to subtract new customers from the end count, which inflates retention by counting brand-new signups as 'retained.'",
+        "Comparing retention rates calculated over different period lengths (a month vs. a quarter) as if they were the same measurement."
+      ]
+    }
+  ],
+  "faq": [],
+  "seo": {
+    "seoTitle": "Retention Rate Calculator",
+    "seoDescription": "Calculate customer retention rate and churn rate together from period-start, period-end and newly acquired customer counts.",
+    "canonicalPath": "/calculators/retention-rate",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "Excluded 'improve customer retention' (future-guide placement) and 'average retention rate' (no sourced benchmark this pass). Churn = 1 - retention explained with the same-population/same-period caveat required by Phase 4 §15."
+}

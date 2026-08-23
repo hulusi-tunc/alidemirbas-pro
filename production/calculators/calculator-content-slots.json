@@ -1,0 +1,1840 @@
+{
+  "_description": "Content slot requirements per calculator, derived from contentDepth in calculator-seo-map.json via 3 fixed templates (light/standard/deep) - not 77 individually authored lists, since depth classification already encodes the judgment.",
+  "templates": {
+    "light": {
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    "standard": {
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    "deep": {
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    }
+  },
+  "calculators": [
+    {
+      "slug": "roas",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "marketing-roi",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "incremental-roas",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "ctr",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "cpc",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "cpm",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "cpa",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "cpl",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "cpi",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "cpv",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "cpe",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "frequency",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "video-completion-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "share-of-voice",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "cac",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "blended-cac",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "aov",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "units-per-transaction",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "revenue-per-visitor",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "cart-abandonment",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "discount-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "return-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "refund-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "inventory-turnover",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "sell-through-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "shipping-cost-ratio",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "gross-margin",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "contribution-margin",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "profit-margin",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "retention-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "loyalty-participation-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "reactivation-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "customer-lifetime",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "logo-churn",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "repeat-purchase-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "delivery-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "open-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "ctor",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "bounce-rate-email",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "unsubscribe-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "complaint-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "list-growth-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "revenue-per-recipient",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "activation-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "dau-mau-stickiness",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "d1-retention",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "uninstall-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "session-length-avg",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "sessions-per-user",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "arpdau",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "mrr",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "arpu",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "nrr",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "saas-quick-ratio",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "magic-number",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "rule-of-40",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "burn-multiple",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "annual-contract-value",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "seat-utilization-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "ltv",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    },
+    {
+      "slug": "ltv-cac-ratio",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "cac-payback-period",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "break-even-point",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "cr",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "funnel-analysis-multistep",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "field-abandonment-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "exit-rate",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "bounce-rate-landing",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "engagement-rate",
+      "contentDepth": "light",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "relatedMetrics"
+      ],
+      "optional": [
+        "interpretation"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations",
+        "benchmarks",
+        "faq"
+      ]
+    },
+    {
+      "slug": "ab-test",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    },
+    {
+      "slug": "confidence-interval-calculator",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    },
+    {
+      "slug": "bayesian-probability-to-beat",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    },
+    {
+      "slug": "multi-variant-test-significance",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    },
+    {
+      "slug": "sample-size-calculator",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    },
+    {
+      "slug": "minimum-detectable-effect",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    },
+    {
+      "slug": "test-duration-estimator",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
+      "slug": "srm-check",
+      "contentDepth": "deep",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "methodology",
+        "assumptions",
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
+    }
+  ]
+}

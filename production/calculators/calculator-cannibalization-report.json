@@ -1,0 +1,357 @@
+{
+  "_description": "Phase 3 cannibalization audit. ALIAS pairs are verified programmatically from calculator-formula-families.json's foldedVariants (already one URL, zero risk by construction). The rest are the brief's named example collisions, hand-classified.",
+  "aliasPairsAlreadyMerged": [
+    {
+      "folded": "lead-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "visitor-to-lead-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "lead-to-customer-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "mql-to-sql-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "sql-to-customer-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "purchase-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "email-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "click-to-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "install-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "app-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "push-opt-in-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "trial-to-paid-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "free-to-paid-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "funnel-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "form-completion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "landing-page-conversion-rate",
+      "canonical": "cr",
+      "family": "conversion-rate"
+    },
+    {
+      "folded": "cost-per-conversion",
+      "canonical": "cpa",
+      "family": "cost-per-unit"
+    },
+    {
+      "folded": "effective-cpm",
+      "canonical": "cpm",
+      "family": "cost-per-unit"
+    },
+    {
+      "folded": "cost-per-mql",
+      "canonical": "cpl",
+      "family": "cost-per-unit"
+    },
+    {
+      "folded": "cost-per-sql",
+      "canonical": "cpl",
+      "family": "cost-per-unit"
+    },
+    {
+      "folded": "paid-cac",
+      "canonical": "cac",
+      "family": "cac-cost-per-unit"
+    },
+    {
+      "folded": "channel-cac",
+      "canonical": "cac",
+      "family": "cac-cost-per-unit"
+    },
+    {
+      "folded": "video-view-rate",
+      "canonical": "video-completion-rate",
+      "family": "rate-ratio"
+    },
+    {
+      "folded": "click-to-call-rate",
+      "canonical": "ctr",
+      "family": "rate-ratio"
+    },
+    {
+      "folded": "markdown-rate",
+      "canonical": "discount-rate",
+      "family": "rate-ratio"
+    },
+    {
+      "folded": "email-ctr",
+      "canonical": "ctr",
+      "family": "rate-ratio"
+    },
+    {
+      "folded": "dau-wau-stickiness",
+      "canonical": "dau-mau-stickiness",
+      "family": "rate-ratio"
+    },
+    {
+      "folded": "rewarded-video-completion-rate",
+      "canonical": "video-completion-rate",
+      "family": "rate-ratio"
+    },
+    {
+      "folded": "average-basket-size",
+      "canonical": "aov",
+      "family": "average-value"
+    },
+    {
+      "folded": "revenue-per-order",
+      "canonical": "aov",
+      "family": "average-value"
+    },
+    {
+      "folded": "arpu-mobile",
+      "canonical": "arpu",
+      "family": "average-value"
+    },
+    {
+      "folded": "arpa",
+      "canonical": "arpu",
+      "family": "average-value"
+    },
+    {
+      "folded": "net-margin",
+      "canonical": "profit-margin",
+      "family": "margin"
+    },
+    {
+      "folded": "break-even-roas",
+      "canonical": "break-even-point",
+      "family": "break-even"
+    },
+    {
+      "folded": "break-even-cac",
+      "canonical": "break-even-point",
+      "family": "break-even"
+    },
+    {
+      "folded": "acquisition-payback",
+      "canonical": "cac-payback-period",
+      "family": "payback"
+    },
+    {
+      "folded": "payback-period-general",
+      "canonical": "cac-payback-period",
+      "family": "payback"
+    },
+    {
+      "folded": "ltv-mobile",
+      "canonical": "ltv",
+      "family": "ltv-model"
+    },
+    {
+      "folded": "churn-rate",
+      "canonical": "retention-rate",
+      "family": "retention"
+    },
+    {
+      "folded": "repeat-customer-rate",
+      "canonical": "repeat-purchase-rate",
+      "family": "retention"
+    },
+    {
+      "folded": "renewal-rate",
+      "canonical": "retention-rate",
+      "family": "retention"
+    },
+    {
+      "folded": "win-back-rate",
+      "canonical": "reactivation-rate",
+      "family": "retention"
+    },
+    {
+      "folded": "d7-retention",
+      "canonical": "d1-retention",
+      "family": "retention"
+    },
+    {
+      "folded": "d30-retention",
+      "canonical": "d1-retention",
+      "family": "retention"
+    },
+    {
+      "folded": "arr",
+      "canonical": "mrr",
+      "family": "recurring-revenue"
+    },
+    {
+      "folded": "mrr-growth-rate",
+      "canonical": "mrr",
+      "family": "recurring-revenue"
+    },
+    {
+      "folded": "grr",
+      "canonical": "nrr",
+      "family": "revenue-retention"
+    },
+    {
+      "folded": "net-dollar-retention",
+      "canonical": "nrr",
+      "family": "revenue-retention"
+    },
+    {
+      "folded": "revenue-churn",
+      "canonical": "nrr",
+      "family": "revenue-retention"
+    },
+    {
+      "folded": "expansion-revenue",
+      "canonical": "nrr",
+      "family": "revenue-retention"
+    },
+    {
+      "folded": "revenue-per-email",
+      "canonical": "revenue-per-recipient",
+      "family": "efficiency-per-unit"
+    },
+    {
+      "folded": "checkout-abandonment-rate",
+      "canonical": "cart-abandonment-rate",
+      "family": "abandonment"
+    },
+    {
+      "folded": "step-conversion-rate",
+      "canonical": "funnel-analysis-multistep",
+      "family": "funnel"
+    },
+    {
+      "folded": "drop-off-rate",
+      "canonical": "funnel-analysis-multistep",
+      "family": "funnel"
+    },
+    {
+      "folded": "roi-general",
+      "canonical": "marketing-roi",
+      "family": "return-efficiency"
+    },
+    {
+      "folded": "absolute-uplift",
+      "canonical": "ab-test-significance",
+      "family": "significance-test"
+    },
+    {
+      "folded": "required-runtime-weeks",
+      "canonical": "test-duration-estimator",
+      "family": "test-design"
+    },
+    {
+      "folded": "power-analysis",
+      "canonical": "sample-size-calculator",
+      "family": "test-design"
+    }
+  ],
+  "namedCollisions": [
+    {
+      "a": "roas",
+      "b": "marketing-roi",
+      "risk": "cannibalization-risk",
+      "why": "Near-synonymous in casual usage ('was this worth it'); titles/intros must state the denominator difference explicitly."
+    },
+    {
+      "a": "cac",
+      "b": "cpa",
+      "risk": "cannibalization-risk",
+      "why": "'Cost to acquire a customer' is ambiguous between the two; each page must state what counts as the denominator event."
+    },
+    {
+      "a": "gross-margin",
+      "b": "contribution-margin",
+      "risk": "cannibalization-risk",
+      "why": "Adjacent cost bases, very similar page titles - needs an explicit 'what's excluded here' statement on both."
+    },
+    {
+      "a": "gross-margin",
+      "b": "profit-margin",
+      "risk": "cannibalization-risk",
+      "why": "Same risk as above, wider cost-base gap but still commonly conflated as 'margin calculator'."
+    },
+    {
+      "a": "ctr",
+      "b": "ctor",
+      "risk": "cannibalization-risk",
+      "why": "Same click-ratio shape, different denominator - CTOR's page must not just look like a CTR variant."
+    },
+    {
+      "a": "ab-test",
+      "b": "confidence-interval-calculator",
+      "risk": "cannibalization-risk",
+      "why": "Both statistical, both about 'can I trust this result' - CI page must stay framed around ANY observed rate, not just A/B tests."
+    },
+    {
+      "a": "revenue-per-visitor",
+      "b": "cr",
+      "risk": "adjacent-intent",
+      "why": "Different metrics on the same e-commerce funnel; internal linking is enough, no wording risk."
+    },
+    {
+      "a": "ltv",
+      "b": "customer-lifetime",
+      "risk": "adjacent-intent",
+      "why": "Customer Lifetime is a glossary/input-modeling concept feeding LTV, not a separate search target of its own."
+    },
+    {
+      "a": "cpc",
+      "b": "cpm",
+      "risk": "no-issue",
+      "why": "Different, well-established bidding-model queries; no wording confusion in practice."
+    },
+    {
+      "a": "d1-retention",
+      "b": "retention-rate",
+      "risk": "no-issue",
+      "why": "Cohort day-N retention vs. period retention are distinct, well-understood query families in mobile/product contexts."
+    }
+  ]
+}

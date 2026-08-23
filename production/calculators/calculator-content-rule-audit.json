@@ -1,0 +1,58 @@
+{
+  "_description": "Phase 4.5: every content-system rule classified KEEP / RELAX / STRENGTHEN / REMOVE, and every section type classified CORE / CONDITIONAL / SPECIALIZED / REDUNDANT. Evidence-based against the actual 13 shipped files, not preserved just because all 13 currently pass.",
+  "slotMappingRules": [
+    {
+      "rule": "formula section credits workedExample",
+      "status": "STRENGTHEN",
+      "evidence": "True for all 12 formula-typed sections in the current batch, but the validator only checks that the section TYPE is 'formula' - it never verifies a concrete number is actually present. A future page could have a formula section with no embedded example and the validator would not catch it.",
+      "action": "Added a mechanical check in validate-calculator-content.mjs: a formula/models section must contain at least one number pulled from the calculator's own exampleInput/exampleOutput (or examplesByMode), not just carry the right `type` label. See calculator-content-validator-audit.json rule 'worked-example-presence'."
+    },
+    {
+      "rule": "models section credits methodology+assumptions+formulaExplanation+workedExample simultaneously",
+      "status": "KEEP",
+      "evidence": "Only one calculator (LTV) uses this today, and its models section genuinely does all four things per mode. Revisit only if a second modes-having calculator is ever added (none exist in the other 76 catalog entries - confirmed by the stress test)."
+    },
+    {
+      "rule": "assumptions section also credits methodology",
+      "status": "RELAX",
+      "evidence": "Reasonable for the 2 statistical DEEP pages that used it (ab-test, sample-size-calculator), where the assumptions ARE the methodology. Too generous as a blanket rule once more DEEP pages exist with assumptions unrelated to method (e.g. a margin-adjusted LTV mode's assumption about churn stability is not really 'methodology'). Recommend keeping the credit but only when contentDepth is deep AND the calculator's category is experimentation - narrower than 'any assumptions section, anywhere'."
+    },
+    {
+      "rule": "comparisonLinks required only when calculator-seo-map.json flags a cannibalizationRisk",
+      "status": "KEEP, with a documented gap",
+      "evidence": "Correct call for the 13 shipped pages - it stopped aov/retention-rate/ltv/etc. from carrying a fabricated comparison note. The gap: Phase 3's cannibalizationRisks list (6 pairs) came from the brief's named examples, not an exhaustive pairwise scan, so a real future collision could exist without being flagged. Added a heuristic backstop warning (not a hard requirement) - see calculator-content-validator-audit.json rule 'unflagged-similar-primary-keyword'."
+    },
+    {
+      "rule": "intro >60 chars auto-satisfies the 'definition' slot",
+      "status": "KEEP",
+      "evidence": "Avoided a redundant separate definition section that would just restate the intro (ctr, aov-adjacent cases). No false negative found across the 13 files."
+    },
+    {
+      "rule": "relatedMetrics slot is always considered satisfied (rendered by the existing Phase 2 UI, not content)",
+      "status": "KEEP",
+      "evidence": "Correct architectural boundary - content should not duplicate what CalculatorTool.tsx already renders from catalog.relatedCalculators."
+    }
+  ],
+  "depthModel": {
+    "current": "light / standard / deep, derived from formula family + modes + experimentation-category membership (see _generate-seo-map.mjs contentDepth())",
+    "verdict": "RELAX the experimentation-category blanket rule; otherwise KEEP the three-tier model",
+    "evidence": "Word counts across the 13 shipped pages form a clean, unforced gradient by depth (light ~205 words, standard 240-478, deep 667-825) - the three tiers are doing real work, not arbitrary labels. The one concrete miscalibration found: test-duration-estimator is 'deep' purely because its category is experimentation, but its actual complexity is one caveat (round up to a full week) on top of simple division - nothing like the genuine statistical methodology/assumptions/limitations that ab-test, sample-size-calculator and confidence-interval-calculator need. Adding a fourth depth tier or per-dimension scores (editorialDepth/methodologyDepth/interpretationDepth) was considered and rejected as unjustified complexity for a single miscalibrated calculator - a documented override is enough.",
+    "action": "Added a small, explicit DEPTH_OVERRIDES map in _generate-seo-map.mjs (same pattern as the existing STANDARD_OVERRIDES list) reclassifying test-duration-estimator from deep to standard. Regenerated calculator-seo-map.json and calculator-content-slots.json; re-ran the full validator chain. No content files were touched - test-duration-estimator has no Phase 4 content yet."
+  },
+  "sectionTypes": [
+    { "type": "definition", "classification": "CORE", "note": "Every page needs to state what it measures, even briefly. Often folded into the intro for light pages." },
+    { "type": "formula", "classification": "CORE", "note": "Every page needs this; also the one type most at risk of silently omitting its expected worked example (see slotMappingRules)." },
+    { "type": "example", "classification": "CONDITIONAL", "note": "Only ctr uses it as a standalone type; every other page embeds the example inside 'formula' prose instead. Both are legitimate per instruction 11 - keep as an available type for calculators (like light ones) where a separate short example section reads better than folding it in." },
+    { "type": "interpretation", "classification": "CORE", "note": "Present on every standard/deep page; light pages can skip it (ctr did)." },
+    { "type": "methodology", "classification": "SPECIALIZED", "note": "Only meaningful for statistical/methodology-heavy calculators (experimentation family, or LTV's models). Should stay prohibited outside deep." },
+    { "type": "models", "classification": "SPECIALIZED", "note": "Only relevant to multi-mode calculators. Exactly one live case (LTV) and no other catalog entry has modes, so this stays narrow by construction, not by choice." },
+    { "type": "assumptions", "classification": "SPECIALIZED", "note": "Same scope as methodology - deep, statistical/modeled calculators." },
+    { "type": "limitations", "classification": "SPECIALIZED", "note": "Deep only. Genuinely different content from 'common mistakes' (limitations are inherent to the model; mistakes are user error) - not redundant, keep both." },
+    { "type": "common-mistakes", "classification": "CORE", "note": "Present on 12/13 pages; the one page without it (ctr) is light and correctly optional per its template. Broadly reusable and genuinely metric-specific in practice - not generic filler in any of the 13." },
+    { "type": "comparison-note", "classification": "CONDITIONAL", "note": "Correctly gated on an actual flagged cannibalization risk (see slotMappingRules) - not every page needs one, and forcing it everywhere would be manufactured content." }
+  ],
+  "faqPolicy": {
+    "verdict": "KEEP as optional, no minimum/maximum count",
+    "evidence": "Counts across the 13 files: 0 (six pages), 1 (two pages), 2 (five pages) - not mechanically uniform. All 13 questions inspected are genuinely distinct from their own page's body sections, not restated content. No cross-page duplicate FAQ questions exist (checked directly, not just within the schema's per-file uniqueness check)."
+  }
+}

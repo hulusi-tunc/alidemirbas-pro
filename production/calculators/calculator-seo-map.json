@@ -1,0 +1,4249 @@
+{
+  "_description": "Phase 3: search-intent architecture for all 77 catalog calculators. Generated from calculator-catalog.json + calculator-formula-families.json + curated overrides (see _generate-seo-map.mjs) - never hand-edit this file directly.",
+  "count": 77,
+  "calculators": [
+    {
+      "calculatorId": "CALC-ROAS",
+      "slug": "roas",
+      "primaryKeyword": "roas calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "roas formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate roas",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "roas example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is roas",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "return on ad spend calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good roas",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "target roas",
+          "intent": "improvement",
+          "placement": "future-guide"
+        },
+        {
+          "keyword": "average roas",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/roas",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "marketing-roi",
+          "why": "Near-synonymous in casual usage ('was this worth it'); titles/intros must state the denominator difference explicitly."
+        }
+      ],
+      "futureGlossary": [
+        "attribution-window",
+        "assisted-conversion",
+        "view-through-conversion"
+      ],
+      "futureComparisons": [
+        "roas-vs-roi"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-MARKETING-ROI",
+      "slug": "marketing-roi",
+      "primaryKeyword": "marketing roi calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "marketing roi formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate marketing roi",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "marketing roi example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is marketing roi",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "roi calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good marketing roi",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/marketing-roi",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "roas",
+          "why": "Near-synonymous in casual usage ('was this worth it'); titles/intros must state the denominator difference explicitly."
+        }
+      ],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "roas-vs-roi"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-INCREMENTAL-ROAS",
+      "slug": "incremental-roas",
+      "primaryKeyword": "incremental roas calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "incremental roas formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate incremental roas",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "incremental roas example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is incremental roas",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good incremental roas",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/incremental-roas",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [
+        "incrementality",
+        "holdout-group"
+      ],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CTR",
+      "slug": "ctr",
+      "primaryKeyword": "ctr calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "ctr formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate ctr",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "ctr example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is ctr",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "click-through rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "average ctr",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/ctr",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "ctor",
+          "why": "Same click-ratio shape, different denominator - CTOR's page must not just look like a CTR variant."
+        }
+      ],
+      "futureGlossary": [
+        "view-through-conversion"
+      ],
+      "futureComparisons": [
+        "ctr-vs-ctor"
+      ],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CPC",
+      "slug": "cpc",
+      "primaryKeyword": "cpc calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cpc formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cpc",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cpc example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cpc",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cost per click calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cpc",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "cpc-vs-cpm"
+      ],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CPM",
+      "slug": "cpm",
+      "primaryKeyword": "cpm calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cpm formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cpm",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cpm example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cpm",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cost per mille calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cost per 1,000 impressions calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cpm",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "cpc-vs-cpm"
+      ],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CPA",
+      "slug": "cpa",
+      "primaryKeyword": "cpa calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cpa formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cpa",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cpa example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cpa",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cost per acquisition calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cost per conversion calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cpa",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "cac",
+          "why": "'Cost to acquire a customer' is ambiguous between the two; each page must state what counts as the denominator event."
+        }
+      ],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "cac-vs-cpa"
+      ],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CPL",
+      "slug": "cpl",
+      "primaryKeyword": "cpl calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cpl formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cpl",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cpl example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cpl",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cost per lead calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cpl",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CPI",
+      "slug": "cpi",
+      "primaryKeyword": "cpi calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cpi formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cpi",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cpi example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cpi",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cost per install calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cpi",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "cpi-vs-cac"
+      ],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CPV",
+      "slug": "cpv",
+      "primaryKeyword": "cpv calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cpv formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cpv",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cpv example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cpv",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cost per view calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cpv",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CPE",
+      "slug": "cpe",
+      "primaryKeyword": "cpe calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cpe formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cpe",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cpe example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cpe",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cost per engagement calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good cpe",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cpe",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-FREQUENCY",
+      "slug": "frequency",
+      "primaryKeyword": "frequency calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "frequency formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate frequency",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "frequency example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is frequency",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/frequency",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-VIDEO-COMPLETION-RATE",
+      "slug": "video-completion-rate",
+      "primaryKeyword": "video completion rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "video completion rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate video completion rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "video completion rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is video completion rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/video-completion-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SHARE-OF-VOICE",
+      "slug": "share-of-voice",
+      "primaryKeyword": "share of voice calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "share of voice formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate share of voice",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "share of voice example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is share of voice",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good share of voice",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/share-of-voice",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CAC",
+      "slug": "cac",
+      "primaryKeyword": "cac calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cac formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cac",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cac example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cac",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "customer acquisition cost calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good cac",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "reduce cac",
+          "intent": "improvement",
+          "placement": "future-guide"
+        },
+        {
+          "keyword": "average cac",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cac",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "cpa",
+          "why": "'Cost to acquire a customer' is ambiguous between the two; each page must state what counts as the denominator event."
+        }
+      ],
+      "futureGlossary": [
+        "attribution-window"
+      ],
+      "futureComparisons": [
+        "cac-vs-cpa",
+        "blended-cac-vs-paid-cac",
+        "cpi-vs-cac"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-BLENDED-CAC",
+      "slug": "blended-cac",
+      "primaryKeyword": "blended cac calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "blended cac formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate blended cac",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "blended cac example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is blended cac",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good blended cac",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/blended-cac",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "blended-cac-vs-paid-cac"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-AOV",
+      "slug": "aov",
+      "primaryKeyword": "aov calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "aov formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate aov",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "aov example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is aov",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "average order value calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "average basket size calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "revenue per order calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good aov",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "average aov",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/aov",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-UNITS-PER-TRANSACTION",
+      "slug": "units-per-transaction",
+      "primaryKeyword": "units per transaction calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "units per transaction formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate units per transaction",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "units per transaction example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is units per transaction",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good units per transaction",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/units-per-transaction",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-REVENUE-PER-VISITOR",
+      "slug": "revenue-per-visitor",
+      "primaryKeyword": "revenue per visitor calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "revenue per visitor formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate revenue per visitor",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "revenue per visitor example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is revenue per visitor",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "rpv calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good revenue per visitor",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/revenue-per-visitor",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CART-ABANDONMENT-RATE",
+      "slug": "cart-abandonment",
+      "primaryKeyword": "cart abandonment rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cart abandonment rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cart abandonment rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cart abandonment rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cart abandonment rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "checkout abandonment rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good cart abandonment rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "reduce cart abandonment",
+          "intent": "improvement",
+          "placement": "future-guide"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cart-abandonment",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-DISCOUNT-RATE",
+      "slug": "discount-rate",
+      "primaryKeyword": "discount rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "discount rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate discount rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "discount rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is discount rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/discount-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-RETURN-RATE",
+      "slug": "return-rate",
+      "primaryKeyword": "return rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "return rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate return rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "return rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is return rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/return-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-REFUND-RATE",
+      "slug": "refund-rate",
+      "primaryKeyword": "refund rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "refund rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate refund rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "refund rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is refund rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good refund rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/refund-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-INVENTORY-TURNOVER",
+      "slug": "inventory-turnover",
+      "primaryKeyword": "inventory turnover calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "inventory turnover formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate inventory turnover",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "inventory turnover example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is inventory turnover",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good inventory turnover",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/inventory-turnover",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SELL-THROUGH-RATE",
+      "slug": "sell-through-rate",
+      "primaryKeyword": "sell-through rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "sell-through rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate sell-through rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "sell-through rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is sell-through rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/sell-through-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SHIPPING-COST-RATIO",
+      "slug": "shipping-cost-ratio",
+      "primaryKeyword": "shipping cost ratio calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "shipping cost ratio formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate shipping cost ratio",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "shipping cost ratio example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is shipping cost ratio",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/shipping-cost-ratio",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-GROSS-MARGIN",
+      "slug": "gross-margin",
+      "primaryKeyword": "gross margin calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "gross margin formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate gross margin",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "gross margin example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is gross margin",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good gross margin",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/gross-margin",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "contribution-margin",
+          "why": "Adjacent cost bases, very similar page titles - needs an explicit 'what's excluded here' statement on both."
+        },
+        {
+          "with": "profit-margin",
+          "why": "Same risk as above, wider cost-base gap but still commonly conflated as 'margin calculator'."
+        }
+      ],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "margin-types-compared"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CONTRIBUTION-MARGIN",
+      "slug": "contribution-margin",
+      "primaryKeyword": "contribution margin calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "contribution margin formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate contribution margin",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "contribution margin example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is contribution margin",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good contribution margin",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/contribution-margin",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "gross-margin",
+          "why": "Adjacent cost bases, very similar page titles - needs an explicit 'what's excluded here' statement on both."
+        }
+      ],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "margin-types-compared"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-PROFIT-MARGIN",
+      "slug": "profit-margin",
+      "primaryKeyword": "profit margin calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "profit margin formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate profit margin",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "profit margin example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is profit margin",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "net margin calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good profit margin",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/profit-margin",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "gross-margin",
+          "why": "Same risk as above, wider cost-base gap but still commonly conflated as 'margin calculator'."
+        }
+      ],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "margin-types-compared"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-RETENTION-RATE",
+      "slug": "retention-rate",
+      "primaryKeyword": "retention rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "retention rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate retention rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "retention rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is retention rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good retention rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "improve customer retention",
+          "intent": "improvement",
+          "placement": "future-guide"
+        },
+        {
+          "keyword": "average retention rate",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/retention-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [
+        "cohort"
+      ],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-LOYALTY-PARTICIPATION-RATE",
+      "slug": "loyalty-participation-rate",
+      "primaryKeyword": "loyalty program participation rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "loyalty program participation rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate loyalty program participation rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "loyalty program participation rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is loyalty program participation rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/loyalty-participation-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-REACTIVATION-RATE",
+      "slug": "reactivation-rate",
+      "primaryKeyword": "reactivation rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "reactivation rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate reactivation rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "reactivation rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is reactivation rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "win-back rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good reactivation rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/reactivation-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CUSTOMER-LIFETIME",
+      "slug": "customer-lifetime",
+      "primaryKeyword": "average customer lifetime calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "average customer lifetime formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate average customer lifetime",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "average customer lifetime example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is average customer lifetime",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good average customer lifetime",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/customer-lifetime",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-LOGO-CHURN",
+      "slug": "logo-churn",
+      "primaryKeyword": "logo churn calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "logo churn formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate logo churn",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "logo churn example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is logo churn",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good logo churn",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/logo-churn",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "logo-churn-vs-revenue-churn"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-REPEAT-PURCHASE-RATE",
+      "slug": "repeat-purchase-rate",
+      "primaryKeyword": "repeat purchase rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "repeat purchase rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate repeat purchase rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "repeat purchase rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is repeat purchase rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "repeat customer rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good repeat purchase rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/repeat-purchase-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-DELIVERY-RATE",
+      "slug": "delivery-rate",
+      "primaryKeyword": "delivery rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "delivery rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate delivery rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "delivery rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is delivery rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/delivery-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-OPEN-RATE",
+      "slug": "open-rate",
+      "primaryKeyword": "open rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "open rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate open rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "open rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is open rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good open rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "average open rate",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/open-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CTOR",
+      "slug": "ctor",
+      "primaryKeyword": "click-to-open rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "click-to-open rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate click-to-open rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "click-to-open rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is click-to-open rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "ctor calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good click-to-open rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/ctor",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "ctr",
+          "why": "Same click-ratio shape, different denominator - CTOR's page must not just look like a CTR variant."
+        }
+      ],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "ctr-vs-ctor"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-BOUNCE-RATE-EMAIL",
+      "slug": "bounce-rate-email",
+      "primaryKeyword": "bounce rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "bounce rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate bounce rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "bounce rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is bounce rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "average bounce rate",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/bounce-rate-email",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-UNSUBSCRIBE-RATE",
+      "slug": "unsubscribe-rate",
+      "primaryKeyword": "unsubscribe rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "unsubscribe rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate unsubscribe rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "unsubscribe rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is unsubscribe rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "average unsubscribe rate",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/unsubscribe-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-COMPLAINT-RATE",
+      "slug": "complaint-rate",
+      "primaryKeyword": "complaint rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "complaint rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate complaint rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "complaint rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is complaint rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/complaint-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-LIST-GROWTH-RATE",
+      "slug": "list-growth-rate",
+      "primaryKeyword": "list growth rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "list growth rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate list growth rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "list growth rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is list growth rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/list-growth-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-REVENUE-PER-RECIPIENT",
+      "slug": "revenue-per-recipient",
+      "primaryKeyword": "revenue per recipient calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "revenue per recipient formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate revenue per recipient",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "revenue per recipient example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is revenue per recipient",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "revenue per email calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good revenue per recipient",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/revenue-per-recipient",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-ACTIVATION-RATE",
+      "slug": "activation-rate",
+      "primaryKeyword": "activation rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "activation rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate activation rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "activation rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is activation rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good activation rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/activation-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [
+        "activation-event"
+      ],
+      "futureComparisons": [
+        "activation-rate-vs-conversion-rate"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-DAU-MAU-STICKINESS",
+      "slug": "dau-mau-stickiness",
+      "primaryKeyword": "dau/mau stickiness calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "dau/mau stickiness formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate dau/mau stickiness",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "dau/mau stickiness example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is dau/mau stickiness",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "dau/wau stickiness calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good dau/mau stickiness",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/dau-mau-stickiness",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-D1-RETENTION",
+      "slug": "d1-retention",
+      "primaryKeyword": "d1 retention calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "d1 retention formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate d1 retention",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "d1 retention example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is d1 retention",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "d7 retention calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "d30 retention calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good d1 retention",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/d1-retention",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [
+        "cohort"
+      ],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-UNINSTALL-RATE",
+      "slug": "uninstall-rate",
+      "primaryKeyword": "uninstall rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "uninstall rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate uninstall rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "uninstall rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is uninstall rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/uninstall-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SESSION-LENGTH-AVG",
+      "slug": "session-length-avg",
+      "primaryKeyword": "average session length calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "average session length formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate average session length",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "average session length example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is average session length",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good average session length",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/session-length-avg",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SESSIONS-PER-USER",
+      "slug": "sessions-per-user",
+      "primaryKeyword": "sessions per user calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "sessions per user formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate sessions per user",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "sessions per user example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is sessions per user",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good sessions per user",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/sessions-per-user",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-ARPDAU",
+      "slug": "arpdau",
+      "primaryKeyword": "arpdau calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "arpdau formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate arpdau",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "arpdau example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is arpdau",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good arpdau",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/arpdau",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-MRR",
+      "slug": "mrr",
+      "primaryKeyword": "mrr calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "mrr formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate mrr",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "mrr example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is mrr",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "arr calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "mrr growth rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good mrr",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/mrr",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-ARPU",
+      "slug": "arpu",
+      "primaryKeyword": "arpu calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "arpu formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate arpu",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "arpu example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is arpu",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "arpa calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good arpu",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/arpu",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "ltv-vs-arpu"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-NRR",
+      "slug": "nrr",
+      "primaryKeyword": "net revenue retention calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "net revenue retention formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate net revenue retention",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "net revenue retention example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is net revenue retention",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "nrr calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "grr calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "net dollar retention calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "revenue churn calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good net revenue retention",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/nrr",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "logo-churn-vs-revenue-churn"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SAAS-QUICK-RATIO",
+      "slug": "saas-quick-ratio",
+      "primaryKeyword": "saas quick ratio calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "saas quick ratio formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate saas quick ratio",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "saas quick ratio example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is saas quick ratio",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good saas quick ratio",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/saas-quick-ratio",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "rule-of-40-vs-quick-ratio"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-MAGIC-NUMBER",
+      "slug": "magic-number",
+      "primaryKeyword": "saas magic number calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "saas magic number formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate saas magic number",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "saas magic number example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is saas magic number",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good saas magic number",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/magic-number",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-RULE-OF-40",
+      "slug": "rule-of-40",
+      "primaryKeyword": "rule of 40 calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "rule of 40 formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate rule of 40",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "rule of 40 example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is rule of 40",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good rule of 40",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/rule-of-40",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "rule-of-40-vs-quick-ratio"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-BURN-MULTIPLE",
+      "slug": "burn-multiple",
+      "primaryKeyword": "burn multiple calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "burn multiple formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate burn multiple",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "burn multiple example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is burn multiple",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good burn multiple",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/burn-multiple",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-ANNUAL-CONTRACT-VALUE",
+      "slug": "annual-contract-value",
+      "primaryKeyword": "annual contract value calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "annual contract value formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate annual contract value",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "annual contract value example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is annual contract value",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "acv calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good annual contract value",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/annual-contract-value",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SEAT-UTILIZATION-RATE",
+      "slug": "seat-utilization-rate",
+      "primaryKeyword": "seat utilization rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "seat utilization rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate seat utilization rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "seat utilization rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is seat utilization rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/seat-utilization-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-LTV",
+      "slug": "ltv",
+      "primaryKeyword": "ltv calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "ltv formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate ltv",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "ltv example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is ltv",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "customer lifetime value calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "ltv (simple model) calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good ltv",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "simple (historic) ltv formula",
+          "intent": "method-model",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "margin-adjusted (predictive) ltv formula",
+          "intent": "method-model",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "mobile (arpdau-based) ltv formula",
+          "intent": "method-model",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "simple vs margin-adjusted ltv",
+          "intent": "method-model",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/ltv",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "ltv-vs-arpu"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-LTV-CAC-RATIO",
+      "slug": "ltv-cac-ratio",
+      "primaryKeyword": "ltv:cac ratio calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "ltv:cac ratio formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate ltv:cac ratio",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "ltv:cac ratio example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is ltv:cac ratio",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good ltv:cac ratio",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/ltv-cac-ratio",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CAC-PAYBACK-PERIOD",
+      "slug": "cac-payback-period",
+      "primaryKeyword": "cac payback period calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "cac payback period formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate cac payback period",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "cac payback period example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is cac payback period",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good cac payback period",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cac-payback-period",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-BREAK-EVEN-POINT",
+      "slug": "break-even-point",
+      "primaryKeyword": "break-even point calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "break-even point formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate break-even point",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "break-even point example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is break-even point",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "break-even cac calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "break-even roas calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good break-even point",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/break-even-point",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CR",
+      "slug": "cr",
+      "primaryKeyword": "conversion rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "conversion rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate conversion rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "conversion rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is conversion rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "cr calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good conversion rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "average conversion rate by industry",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "average conversion rate",
+          "intent": "benchmark",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/cr",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [
+        "assisted-conversion"
+      ],
+      "futureComparisons": [
+        "activation-rate-vs-conversion-rate"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-FUNNEL-ANALYSIS-MULTISTEP",
+      "slug": "funnel-analysis-multistep",
+      "primaryKeyword": "multi-step funnel analysis calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "multi-step funnel analysis formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate multi-step funnel analysis",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "multi-step funnel analysis example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is multi-step funnel analysis",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "step conversion rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "drop-off rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good multi-step funnel analysis",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/funnel-analysis-multistep",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-FIELD-ABANDONMENT-RATE",
+      "slug": "field-abandonment-rate",
+      "primaryKeyword": "field abandonment rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "field abandonment rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate field abandonment rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "field abandonment rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is field abandonment rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good field abandonment rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/field-abandonment-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-EXIT-RATE",
+      "slug": "exit-rate",
+      "primaryKeyword": "exit rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "exit rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate exit rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "exit rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is exit rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good exit rate",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/exit-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-BOUNCE-RATE-LANDING",
+      "slug": "bounce-rate-landing",
+      "primaryKeyword": "landing page bounce rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "landing page bounce rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate landing page bounce rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "landing page bounce rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is landing page bounce rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "D",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/bounce-rate-landing",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-ENGAGEMENT-RATE",
+      "slug": "engagement-rate",
+      "primaryKeyword": "web engagement rate calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "web engagement rate formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate web engagement rate",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "web engagement rate example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is web engagement rate",
+          "intent": "definition",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "light",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/engagement-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "methodology",
+        "benchmarks (unless in BENCHMARK_SLUGS)",
+        "long interpretation guides"
+      ]
+    },
+    {
+      "calculatorId": "CALC-AB-TEST-SIGNIFICANCE",
+      "slug": "ab-test",
+      "primaryKeyword": "a/b test significance calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "a/b test significance formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate a/b test significance",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "a/b test significance example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a/b test significance",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "two-proportion z-test calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good a/b test significance",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "statistical significance vs practical significance",
+          "intent": "glossary-related-concept",
+          "placement": "future-glossary"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/ab-test",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "confidence-interval-calculator",
+          "why": "Both statistical, both about 'can I trust this result' - CI page must stay framed around ANY observed rate, not just A/B tests."
+        }
+      ],
+      "futureGlossary": [
+        "p-value",
+        "network-effect-vs-organic-lift"
+      ],
+      "futureComparisons": [
+        "significance-vs-confidence-interval"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-CONFIDENCE-INTERVAL-CALCULATOR",
+      "slug": "confidence-interval-calculator",
+      "primaryKeyword": "confidence interval calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "confidence interval formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate confidence interval",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "confidence interval example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is confidence interval",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good confidence interval",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/confidence-interval-calculator",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [
+        {
+          "with": "ab-test",
+          "why": "Both statistical, both about 'can I trust this result' - CI page must stay framed around ANY observed rate, not just A/B tests."
+        }
+      ],
+      "futureGlossary": [],
+      "futureComparisons": [
+        "significance-vs-confidence-interval"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-BAYESIAN-PROBABILITY-TO-BEAT",
+      "slug": "bayesian-probability-to-beat",
+      "primaryKeyword": "bayesian probability to beat control calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "bayesian probability to beat control formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate bayesian probability to beat control",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "bayesian probability to beat control example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is bayesian probability to beat control",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good bayesian probability to beat control",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/bayesian-probability-to-beat",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-MULTI-VARIANT-TEST-SIGNIFICANCE",
+      "slug": "multi-variant-test-significance",
+      "primaryKeyword": "a/b/n multi-variant significance calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "a/b/n multi-variant significance formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate a/b/n multi-variant significance",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "a/b/n multi-variant significance example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a/b/n multi-variant significance",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good a/b/n multi-variant significance",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/multi-variant-test-significance",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SAMPLE-SIZE-CALCULATOR",
+      "slug": "sample-size-calculator",
+      "primaryKeyword": "sample size calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "sample size formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate sample size",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "sample size example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is sample size",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "power analysis calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good sample size",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "ab test sample size formula",
+          "intent": "formula",
+          "placement": "same-page"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/sample-size-calculator",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [
+        "statistical-power"
+      ],
+      "futureComparisons": [
+        "sample-size-vs-mde"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-MINIMUM-DETECTABLE-EFFECT",
+      "slug": "minimum-detectable-effect",
+      "primaryKeyword": "minimum detectable effect calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "minimum detectable effect formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate minimum detectable effect",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "minimum detectable effect example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is minimum detectable effect",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "what is a good minimum detectable effect",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/minimum-detectable-effect",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [
+        "statistical-power"
+      ],
+      "futureComparisons": [
+        "sample-size-vs-mde"
+      ],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-TEST-DURATION-ESTIMATOR",
+      "slug": "test-duration-estimator",
+      "primaryKeyword": "test duration estimator calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "test duration estimator formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate test duration estimator",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "test duration estimator example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is test duration estimator",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "required runtime calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good test duration estimator",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "B",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/test-duration-estimator",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-SRM-CHECK",
+      "slug": "srm-check",
+      "primaryKeyword": "sample ratio mismatch check calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "sample ratio mismatch check formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate sample ratio mismatch check",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "sample ratio mismatch check example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is sample ratio mismatch check",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "sample ratio mismatch calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good sample ratio mismatch check",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "deep",
+      "seoPriority": "C",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/srm-check",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    }
+  ]
+}

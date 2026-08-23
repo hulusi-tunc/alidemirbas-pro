@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CalculatorDetailPage, calculatorDetailMetadata } from "@/components/CalculatorRoutes";
-import { ALL_TOOL_SLUGS } from "@/lib/calculators";
+import { ALL_TOOL_SLUGS } from "@/lib/calc-catalog";
 
 export const dynamicParams = false;
 

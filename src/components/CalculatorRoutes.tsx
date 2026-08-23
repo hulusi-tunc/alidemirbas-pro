@@ -4,20 +4,40 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import CalculatorTool from "@/components/CalculatorTool";
+import CalculatorContent from "@/components/CalculatorContent";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { copy } from "@/lib/content";
-import { CALCULATORS, TEXT_TOOLS, type Lang } from "@/lib/calculators";
+import { TEXT_TOOLS } from "@/lib/text-tools";
+import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec } from "@/lib/calc-catalog";
+import { getContent } from "@/lib/calc-content";
+import type { Lang } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
 
 /* Top-level section, a sibling of Lab and Stack - not a Lab project. Uses
-   the same SiteHeader/SiteFooter chrome as About/Stack, not LabShell. */
+   the same SiteHeader/SiteFooter chrome as About/Stack, not LabShell.
+   Calculator metadata is sourced from the Phase 1 catalog
+   (production/calculators/calculator-catalog.json) via calc-catalog.ts -
+   this file no longer owns any calculator data of its own. */
 export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/tr/calculators");
 
 const T = {
   en: { title: "Marketing Calculators", intro: "Quick, correct formulas for the numbers marketing teams check daily. No account, no tracking of your inputs." },
   tr: { title: "Pazarlama Hesaplayıcıları", intro: "Pazarlama ekiplerinin günlük kontrol ettiği rakamlar için hızlı ve doğru formüller. Hesap gerektirmez, girdileriniz izlenmez." },
+};
+
+const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
+  advertising: { en: "Advertising & Paid Media", tr: "Reklam ve Medya" },
+  acquisition: { en: "Acquisition", tr: "Edinme" },
+  ecommerce: { en: "E-commerce", tr: "E-ticaret" },
+  "lifecycle-retention": { en: "Lifecycle & Retention", tr: "Yaşam Döngüsü ve Elde Tutma" },
+  "crm-email": { en: "CRM & Email", tr: "CRM ve E-posta" },
+  "mobile-growth": { en: "Mobile Growth", tr: "Mobil Büyüme" },
+  saas: { en: "SaaS", tr: "SaaS" },
+  "unit-economics": { en: "Unit Economics", tr: "Birim Ekonomisi" },
+  "cro-funnel": { en: "CRO & Funnel", tr: "CRO ve Huni" },
+  experimentation: { en: "Experimentation", tr: "Deneysel Test" },
 };
 
 export function calculatorIndexMetadata(lang: Lang): Metadata {
@@ -26,12 +46,20 @@ export function calculatorIndexMetadata(lang: Lang): Metadata {
 }
 
 export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
-  const calc = CALCULATORS.find((c) => c.slug === slug) ?? TEXT_TOOLS.find((c) => c.slug === slug);
-  if (!calc) return {};
+  const spec = getCalcSpec(slug);
+  const textTool = TEXT_TOOLS.find((c) => c.slug === slug);
+  if (!spec && !textTool) return {};
+  const content = getContent(slug, lang);
+  // Phase 4 content carries its own editorially-written seoTitle/
+  // seoDescription (EN only, 13 calculators) - prefer it over the
+  // Phase 2 fallback (spec name + formulaPlainEnglish) when present.
+  const title = content ? content.seo.seoTitle : spec ? spec.name : textTool!.title[lang];
+  const description = content ? content.seo.seoDescription : spec ? spec.formulaPlainEnglish : textTool!.desc[lang];
   return {
-    title: `${calc.title[lang]} - Ali Demirbaş`,
-    description: calc.desc[lang],
+    title: `${title} - Ali Demirbaş`,
+    description,
     alternates: pageAlternates(`/calculators/${slug}`, lang),
+    robots: content ? { index: content.seo.index, follow: content.seo.follow } : undefined,
   };
 }
 
@@ -40,7 +68,14 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
-  const all = [...CALCULATORS, ...TEXT_TOOLS];
+  const specs = getAllLiveSpecs();
+
+  const byCategory = new Map<string, typeof specs>();
+  for (const s of specs) {
+    if (!byCategory.has(s.category)) byCategory.set(s.category, []);
+    byCategory.get(s.category)!.push(s);
+  }
+
   return (
     <>
       <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? "/tr/calculators" : "/calculators"} />
@@ -53,13 +88,38 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
           </div>
         </section>
         <div className="altor-container py-16">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {all.map((tool) => (
-              <Link key={tool.slug} href={`${base}/${tool.slug}`} className="rounded-lg border border-line p-4 transition-colors hover:border-ink-900">
-                <p className="font-medium text-ink-950">{tool.title[lang]}</p>
-                <p className="mt-1 text-sm text-neutral-600">{tool.desc[lang]}</p>
-              </Link>
-            ))}
+          {[...byCategory.entries()].map(([cat, list]) => (
+            <div key={cat} className="mb-10">
+              <h2 className="mb-3 text-sm font-medium tracking-wide text-neutral-500 uppercase">
+                {CATEGORY_LABEL[cat]?.[lang] ?? cat}
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {list.map((spec) => (
+                  <Link
+                    key={spec.slug}
+                    href={`${base}/${spec.slug}`}
+                    className="rounded-lg border border-line p-4 transition-colors hover:border-ink-900"
+                  >
+                    <p className="font-medium text-ink-950">{spec.name}</p>
+                    <p className="mt-1 text-sm text-neutral-600">{spec.formulaPlainEnglish}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="mb-10">
+            <h2 className="mb-3 text-sm font-medium tracking-wide text-neutral-500 uppercase">
+              {lang === "en" ? "Text tools" : "Metin araçları"}
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {TEXT_TOOLS.map((tool) => (
+                <Link key={tool.slug} href={`${base}/${tool.slug}`} className="rounded-lg border border-line p-4 transition-colors hover:border-ink-900">
+                  <p className="font-medium text-ink-950">{tool.title[lang]}</p>
+                  <p className="mt-1 text-sm text-neutral-600">{tool.desc[lang]}</p>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </main>
@@ -69,13 +129,19 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
 }
 
 export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string }) {
-  const calc = CALCULATORS.find((c) => c.slug === slug);
+  const spec = getCalcSpec(slug);
   const textTool = TEXT_TOOLS.find((c) => c.slug === slug);
-  if (!calc && !textTool) notFound();
-  const meta = calc ?? textTool!;
+  if (!spec && !textTool) notFound();
+  const content = getContent(slug, lang);
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
+  const title = spec ? spec.name : textTool!.title[lang];
+  // Phase 4's intro is a short, tool-first 1-3 sentence description
+  // (instruction 24) - prefer it in the hero when it exists; it's
+  // written specifically to sit above the calculator, unlike
+  // formulaPlainEnglish which is documentation prose.
+  const desc = content ? content.intro : spec ? spec.formulaPlainEnglish : textTool!.desc[lang];
 
   return (
     <>
@@ -87,15 +153,16 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
               <ArrowLeft aria-hidden className="size-3.5" />
               {T[lang].title}
             </Link>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{meta.title[lang]}</h1>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{meta.desc[lang]}</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h1>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{desc}</p>
           </div>
         </section>
         <div className="altor-container max-w-2xl py-12">
-          {calc && <CalculatorTool slug={calc.slug} lang={lang} />}
+          {spec && <CalculatorTool spec={toRuntimeSpec(spec)} lang={lang} />}
           {textTool?.slug === "utm-builder" && <UtmBuilder lang={lang} />}
           {textTool?.slug === "character-counter" && <CharacterCounter lang={lang} />}
         </div>
+        {content && <CalculatorContent content={content} />}
       </main>
       <SiteFooter t={c} lang={lang} />
     </>

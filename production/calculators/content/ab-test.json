@@ -1,0 +1,75 @@
+{
+  "calculatorId": "CALC-AB-TEST-SIGNIFICANCE",
+  "slug": "ab-test",
+  "contentDepth": "deep",
+  "intro": "This calculator runs a two-proportion z-test on your control and variant conversion data, to check whether the difference between them is larger than you'd expect from random chance alone. Enter visitor and conversion counts for both sides below.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What the test is actually asking",
+      "body": "The test starts from a null hypothesis: that control and variant have the same true conversion rate, and any difference you observed in the data is just noise from randomly assigning visitors to each side. The z-test measures how far your observed difference is from zero, in units of standard error, and the p-value tells you how likely a difference at least that large would be to show up by chance alone if the null hypothesis were actually true."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How it's calculated",
+      "body": "Control conversions ÷ control visitors and variant conversions ÷ variant visitors give the two observed rates. The z-score is the difference between them divided by the pooled standard error, and the p-value comes from that z-score via the standard normal distribution. With 250 conversions from 5,000 control visitors and 290 conversions from 5,000 variant visitors, the test returns a p-value of 0.0847 — above the conventional 0.05 threshold, so this particular result is not significant at 95% confidence, even though the variant's raw rate (5.80%) is higher than control's (5.00%)."
+    },
+    {
+      "id": "what-p-value-means",
+      "type": "interpretation",
+      "heading": "What the p-value does and doesn't mean",
+      "body": "A p-value of 0.05 does not mean there's a 95% probability the variant is actually better — that's a common misreading. The p-value is a statement about the data assuming the null hypothesis is true, not a statement about the probability that the null hypothesis itself is true. It also doesn't tell you the size of the effect, only whether the observed difference is larger than plausible chance variation given your sample size. A tiny, practically meaningless lift can still cross the significance threshold with a big enough sample, and a genuinely large lift can fail to reach it with a small one."
+    },
+    {
+      "id": "significance-doesnt-prove-causation",
+      "type": "limitations",
+      "heading": "Significance is not proof",
+      "body": "Statistical significance tells you the difference is unlikely to be random noise under the model's assumptions — it does not prove the variant caused the difference, and it says nothing about whether the difference matters commercially. A statistically significant 0.1 percentage point lift might not be worth shipping if it comes with added complexity; a non-significant result with too small a sample doesn't mean 'no effect,' it can just as easily mean 'not enough data yet' — see the sample size calculator before concluding a test was inconclusive."
+    },
+    {
+      "id": "assumptions",
+      "type": "assumptions",
+      "heading": "Assumptions behind this specific test",
+      "body": "This is the frequentist two-proportion z-test — one accepted method, not the only one. A Bayesian approach to the same question (estimating the probability the variant beats control, rather than a p-value against a null hypothesis) asks a related but genuinely different question and can disagree with this test at the margins; the two aren't interchangeable ways of computing the same number. The z-test also assumes visitors were randomly and independently assigned to control or variant, and its normal-distribution approximation gets less reliable with very small samples — treat a result from fewer than about 30 conversions per arm as low-confidence even if the p-value clears 0.05."
+    },
+    {
+      "id": "significance-vs-confidence-interval",
+      "type": "comparison-note",
+      "heading": "This is not the confidence interval calculator",
+      "body": "This page tests whether control and variant differ from each other. The confidence interval calculator answers a related but narrower question about a single observed rate — the range that rate is likely to sit in, without comparing it to anything else. You can use a confidence interval to eyeball whether two ranges overlap, but this significance test is the direct way to answer 'do these two differ,' and the two tools shouldn't be read as interchangeable ways of getting the same answer."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Checking the test daily and stopping as soon as it crosses significance — repeated peeking inflates the chance of a false positive well above the stated threshold.",
+        "Reading 'not significant' as 'no difference exists,' when it can just as easily mean the sample size wasn't large enough to detect the difference that's actually there.",
+        "Reporting the p-value as 'the probability the variant is better' rather than what it actually measures."
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "id": "not-significant-what-now",
+      "q": "My test isn't significant. Does that mean there's no difference?",
+      "a": "Not necessarily. It can mean there's genuinely no difference, or it can mean your sample size wasn't large enough to detect the difference that's actually there. Check the sample size calculator to see whether your traffic and test duration gave the test a real chance to detect the effect you were hoping for."
+    },
+    {
+      "id": "how-long-to-run",
+      "q": "How long should I run the test before checking this?",
+      "a": "Long enough to reach the sample size the test needs for the effect you're trying to detect - see the sample size calculator - and for at least one full weekly cycle, so day-of-week traffic patterns don't skew either side."
+    }
+  ],
+  "seo": {
+    "seoTitle": "A/B Test Significance Calculator",
+    "seoDescription": "Run a two-proportion z-test on your A/B test results, with a plain-language explanation of what the p-value does and doesn't tell you.",
+    "canonicalPath": "/calculators/ab-test",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "No link to Bayesian Probability to Beat Control - that calculator isn't implemented yet (P2, outside the 34-calculator live batch), so it's mentioned conceptually only, never as a clickable related calculator, to avoid a dead link (Phase 4 §32). p-value/significance interpretation follows Phase 4 §13's explicit correct/incorrect wording exactly."
+}

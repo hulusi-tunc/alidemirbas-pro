@@ -1,0 +1,50 @@
+{
+  "_description": "Stable category/subcategory taxonomy for the Marketing Calculator Library candidate universe. Categories match the 10 disciplines the research brief named as a minimum; no extra top-level category was added just to increase surface area.",
+  "categories": [
+    { "id": "advertising", "name": "Advertising & Paid Media", "subcategories": [
+      { "id": "paid-search-social", "name": "Paid search & social" },
+      { "id": "display-video", "name": "Display & video" },
+      { "id": "awareness-reach", "name": "Awareness & reach" }
+    ]},
+    { "id": "acquisition", "name": "Acquisition", "subcategories": [
+      { "id": "funnel-top", "name": "Top-of-funnel conversion" },
+      { "id": "cac-efficiency", "name": "Acquisition cost & efficiency" }
+    ]},
+    { "id": "ecommerce", "name": "E-commerce", "subcategories": [
+      { "id": "cart-checkout", "name": "Cart & checkout" },
+      { "id": "aov-revenue", "name": "Order value & revenue" },
+      { "id": "merchandising-ops", "name": "Merchandising & inventory" }
+    ]},
+    { "id": "lifecycle-retention", "name": "Lifecycle & Retention", "subcategories": [
+      { "id": "retention-churn", "name": "Retention & churn" },
+      { "id": "reactivation", "name": "Reactivation & loyalty" }
+    ]},
+    { "id": "crm-email", "name": "CRM & Email", "subcategories": [
+      { "id": "deliverability", "name": "Deliverability" },
+      { "id": "engagement", "name": "Engagement" },
+      { "id": "revenue", "name": "Revenue" }
+    ]},
+    { "id": "mobile-growth", "name": "Mobile Growth", "subcategories": [
+      { "id": "activity", "name": "Activity & engagement" },
+      { "id": "retention-mobile", "name": "Retention curves" },
+      { "id": "monetization-mobile", "name": "Monetization" }
+    ]},
+    { "id": "saas", "name": "SaaS", "subcategories": [
+      { "id": "recurring-revenue", "name": "Recurring revenue" },
+      { "id": "revenue-retention", "name": "Revenue retention" },
+      { "id": "efficiency", "name": "Growth efficiency" }
+    ]},
+    { "id": "unit-economics", "name": "Unit Economics", "subcategories": [
+      { "id": "ltv-cac", "name": "LTV & CAC" },
+      { "id": "margin-breakeven", "name": "Margin & break-even" }
+    ]},
+    { "id": "cro-funnel", "name": "CRO & Funnel", "subcategories": [
+      { "id": "funnel", "name": "Funnel analysis" },
+      { "id": "forms-landing", "name": "Forms & landing pages" }
+    ]},
+    { "id": "experimentation", "name": "Experimentation / A/B Testing", "subcategories": [
+      { "id": "test-design", "name": "Test design" },
+      { "id": "test-analysis", "name": "Result analysis" }
+    ]}
+  ]
+}

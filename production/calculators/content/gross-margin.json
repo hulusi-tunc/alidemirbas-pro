@@ -1,0 +1,51 @@
+{
+  "calculatorId": "CALC-GROSS-MARGIN",
+  "slug": "gross-margin",
+  "contentDepth": "standard",
+  "intro": "Gross margin is the share of revenue left after subtracting the direct cost of goods sold. Enter revenue and COGS below.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What gross margin measures",
+      "body": "Gross margin is (revenue − cost of goods sold) ÷ revenue, shown as a percentage. It only subtracts COGS — the direct cost of producing or sourcing what was sold. Shipping, payment processing fees, returns handling, and every other operating cost stay out of this number on purpose."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "The formula",
+      "body": "(Revenue − COGS) ÷ revenue. $100,000 in revenue against $40,000 in COGS gives a gross margin of 60%. If COGS ever exceeds revenue, the result is negative — that's a valid outcome, not an error, and it means the goods themselves are being sold at a loss before any other cost is even counted."
+    },
+    {
+      "id": "margin-boundaries",
+      "type": "comparison-note",
+      "heading": "Gross margin only covers COGS",
+      "body": "This page calculates gross margin specifically — revenue minus the direct cost of goods, nothing else. Contribution margin goes a step further and also subtracts other variable costs like shipping and payment fees, so it's always equal to or lower than gross margin for the same order. Profit margin goes further still and subtracts every cost the business has, fixed and variable. The three aren't interchangeable names for the same thing; they answer 'how much is left' after progressively wider cost bases."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "Reading the number",
+      "body": "Because gross margin stops at COGS, it's the number to use when the question is specifically about product economics — is what you're selling priced well relative to what it costs to make or source. It's not the number to use when the question is whether the business as a whole is profitable; contribution margin and profit margin exist for that, precisely because they count more of the real cost of running the business."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Folding shipping, payment processing or fulfillment costs into COGS - that's what turns gross margin into contribution margin, a different, always-lower number.",
+        "Reading gross margin alone as a profitability verdict, when it hasn't accounted for operating costs at all."
+      ]
+    }
+  ],
+  "faq": [],
+  "seo": {
+    "seoTitle": "Gross Margin Calculator",
+    "seoDescription": "Calculate gross margin from revenue and cost of goods sold, and see how it differs from contribution margin and profit margin.",
+    "canonicalPath": "/calculators/gross-margin",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "Deliberately does not build the full 3-way margin comparison - that belongs to the 'margin-types-compared' backlog page (Phase 3). This page states the boundary and moves on, per Phase 4 §19."
+}

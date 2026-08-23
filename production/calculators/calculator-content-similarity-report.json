@@ -1,0 +1,68 @@
+{
+  "introPairs": [],
+  "sectionHeadingOverlap": [],
+  "identicalSectionSequences": [
+    {
+      "sequence": "definition>formula>interpretation>common-mistakes",
+      "slugs": [
+        "aov",
+        "cac-payback-period",
+        "cr",
+        "retention-rate"
+      ]
+    },
+    {
+      "sequence": "definition>formula>comparison-note>interpretation>common-mistakes",
+      "slugs": [
+        "cac",
+        "gross-margin",
+        "roas"
+      ]
+    }
+  ],
+  "repeatedHeadings": [
+    {
+      "heading": "Common mistakes",
+      "count": 12,
+      "slugs": [
+        "ab-test",
+        "aov",
+        "cac-payback-period",
+        "cac",
+        "cr",
+        "gross-margin",
+        "ltv-cac-ratio",
+        "ltv",
+        "nrr",
+        "retention-rate",
+        "roas",
+        "sample-size-calculator"
+      ]
+    },
+    {
+      "heading": "The formula",
+      "count": 5,
+      "slugs": [
+        "aov",
+        "cac",
+        "cr",
+        "gross-margin",
+        "roas"
+      ]
+    },
+    {
+      "heading": "Reading the number",
+      "count": 8,
+      "slugs": [
+        "aov",
+        "cac-payback-period",
+        "cac",
+        "cr",
+        "gross-margin",
+        "ltv",
+        "retention-rate",
+        "roas"
+      ]
+    }
+  ]
+}

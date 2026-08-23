@@ -1,0 +1,45 @@
+{
+  "calculatorId": "CALC-CR",
+  "slug": "cr",
+  "contentDepth": "standard",
+  "intro": "Conversion rate is the share of opportunities that completed whatever action you're counting. Enter conversions and total opportunities below.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "One equation, many names",
+      "body": "Conversion rate is conversions ÷ opportunities, shown as a percentage. The equation doesn't change depending on what you're measuring — a landing page turning visitors into signups, a checkout turning carts into orders, a store listing turning views into installs, and a sales team turning leads into customers are all the same division, just with different words for the numerator and denominator. That's why this is one calculator rather than a separate page for every industry's name for it."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "The formula",
+      "body": "Conversions ÷ opportunities. 340 conversions out of 8,000 opportunities gives a conversion rate of 4.25%. The label on each input changes with context — 'visitors' for a landing page, 'leads' for a sales funnel, 'store views' for an app listing — but the calculation underneath stays the same."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "Reading the number",
+      "body": "Conversion rate only means something next to a clear definition of both sides of the fraction. The same underlying data can produce very different rates depending on what counts as an 'opportunity' — all site visitors versus only visitors who reached checkout, for instance — so before comparing two conversion rates, check that both sides were measured the same way."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Comparing conversion rates measured against different denominators (e.g. all visitors vs. only qualified visitors) as if they were the same metric.",
+        "Including bot or non-human traffic in the opportunity count, which quietly dilutes the rate without anyone changing anything real."
+      ]
+    }
+  ],
+  "faq": [],
+  "seo": {
+    "seoTitle": "Conversion Rate Calculator",
+    "seoDescription": "Calculate conversion rate from conversions and total opportunities - the same formula behind lead, checkout, install and signup conversion rates.",
+    "canonicalPath": "/calculators/cr",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "Deliberately not split into 16 aliased subsections (Phase 4 §20) - the 16 industry names are handled as one sentence of naturally-occurring examples, not repeated headings. No universal benchmark stated (Phase 4 §8)."
+}

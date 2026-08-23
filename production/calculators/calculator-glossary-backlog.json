@@ -1,0 +1,154 @@
+{
+  "_description": "Phase 3 glossary backlog: Phase 1's 8 glossary-classified candidates plus 11 new terms discovered while mapping calculator query intent. Structured backlog only - no glossary pages exist yet.",
+  "fromPhase1Candidates": [
+    {
+      "id": "impression-share",
+      "term": "Impression Share",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "Platform-computed from auction eligibility data the user cannot supply; not honestly calculable from a plain formula."
+    },
+    {
+      "id": "reach",
+      "term": "Reach",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "Raw platform-reported unique-user count, not derived from other inputs."
+    },
+    {
+      "id": "viewability-rate",
+      "term": "Viewability Rate",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "Platform-measured (MRC standard), not user-computable."
+    },
+    {
+      "id": "gross-merchandise-value",
+      "term": "Gross Merchandise Value (GMV)",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "A sum, not a derived rate; no meaningful calculate step beyond addition."
+    },
+    {
+      "id": "dau",
+      "term": "DAU",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "Raw count, not a derived calculation."
+    },
+    {
+      "id": "wau",
+      "term": "WAU",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "Raw count."
+    },
+    {
+      "id": "mau",
+      "term": "MAU",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "Raw count."
+    },
+    {
+      "id": "time-on-page-avg",
+      "term": "Average Time on Page",
+      "source": "phase-1-candidate",
+      "relatedCalculators": [],
+      "note": "Simple average with thin standalone calculator demand."
+    }
+  ],
+  "newDiscoveries": [
+    {
+      "id": "attribution-window",
+      "term": "Attribution Window",
+      "relatedCalculators": [
+        "cac",
+        "roas"
+      ],
+      "note": "Explains why the same spend/conversion data can produce different CAC/ROAS depending on the lookback window used - referenced from both, defined on neither."
+    },
+    {
+      "id": "assisted-conversion",
+      "term": "Assisted Conversion",
+      "relatedCalculators": [
+        "cr",
+        "roas"
+      ],
+      "note": "Common point of confusion when a channel's ROAS looks low but it's actually assisting conversions credited elsewhere."
+    },
+    {
+      "id": "view-through-conversion",
+      "term": "View-Through Conversion",
+      "relatedCalculators": [
+        "ctr",
+        "roas"
+      ],
+      "note": "A conversion counted without a click - relevant context for CTR/ROAS pages without being a calculator itself."
+    },
+    {
+      "id": "activation-event",
+      "term": "Activation Event",
+      "relatedCalculators": [
+        "activation-rate"
+      ],
+      "note": "Product-defined, not generic - the Activation Rate page references this term but shouldn't try to define it universally."
+    },
+    {
+      "id": "cohort",
+      "term": "Cohort",
+      "relatedCalculators": [
+        "d1-retention",
+        "retention-rate"
+      ],
+      "note": "Underpins every retention/D1-D30 calculator; worth one shared definition instead of repeating it per page."
+    },
+    {
+      "id": "incrementality",
+      "term": "Incrementality",
+      "relatedCalculators": [
+        "incremental-roas"
+      ],
+      "note": "The methodology behind Incremental ROAS; a glossary page can carry the holdout-test explanation once."
+    },
+    {
+      "id": "statistical-power",
+      "term": "Statistical Power",
+      "relatedCalculators": [
+        "sample-size-calculator",
+        "minimum-detectable-effect"
+      ],
+      "note": "Referenced by every experimentation calculator's power selector; one shared definition avoids repeating it four times."
+    },
+    {
+      "id": "p-value",
+      "term": "p-value",
+      "relatedCalculators": [
+        "ab-test"
+      ],
+      "note": "Widely searched on its own ('what is a p-value'), separate from wanting to run a test."
+    },
+    {
+      "id": "holdout-group",
+      "term": "Holdout Group",
+      "relatedCalculators": [
+        "incremental-roas"
+      ],
+      "note": "Prerequisite concept for Incremental ROAS; not a calculator, but a common blocker query."
+    },
+    {
+      "id": "multiple-comparisons-problem",
+      "term": "Multiple Comparisons Problem",
+      "relatedCalculators": [],
+      "note": "Underlies the (not-yet-built) A/B/n Bonferroni correction; worth defining once ahead of that build."
+    },
+    {
+      "id": "network-effect-vs-organic-lift",
+      "term": "Statistical Significance vs. Practical Significance",
+      "relatedCalculators": [
+        "ab-test"
+      ],
+      "note": "A recurring 'my test is significant but the lift is tiny' confusion; belongs next to the significance calculator, not inside it."
+    }
+  ]
+}

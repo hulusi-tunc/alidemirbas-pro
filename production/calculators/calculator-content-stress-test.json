@@ -1,0 +1,675 @@
+{
+  "_description": "Phase 4.5 dry simulation of the content system against all 77 catalog calculators. No content was written for this - it only flags which calculators the CURRENT rules would need to special-case before writing (instruction 37).",
+  "summary": {
+    "total": 77,
+    "cleanFit": 57,
+    "specialHandling": 20,
+    "byStatus": {
+      "content-done": 13,
+      "live-no-content-yet": 21,
+      "not-implemented": 43
+    }
+  },
+  "calculators": [
+    {
+      "slug": "roas",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "marketing-roi",
+      "priority": "P0",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "incremental-roas",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "ctr",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "light",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "cpc",
+      "priority": "P0",
+      "status": "live-no-content-yet",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cpm",
+      "priority": "P0",
+      "status": "live-no-content-yet",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cpa",
+      "priority": "P0",
+      "status": "live-no-content-yet",
+      "contentDepth": "light",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "cpl",
+      "priority": "P0",
+      "status": "live-no-content-yet",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cpi",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cpv",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cpe",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "frequency",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "video-completion-rate",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "share-of-voice",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cac",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "blended-cac",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "aov",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "units-per-transaction",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "revenue-per-visitor",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cart-abandonment",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "discount-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "return-rate",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "refund-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "inventory-turnover",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "sell-through-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "shipping-cost-ratio",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "gross-margin",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "contribution-margin",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "profit-margin",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "retention-rate",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (2) - verify generic interpretation covers all outputs or needs per-output notes"
+      ]
+    },
+    {
+      "slug": "loyalty-participation-rate",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "reactivation-rate",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "customer-lifetime",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "logo-churn",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "repeat-purchase-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "delivery-rate",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "open-rate",
+      "priority": "P0",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "ctor",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "bounce-rate-email",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "unsubscribe-rate",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "complaint-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "list-growth-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "revenue-per-recipient",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "activation-rate",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "dau-mau-stickiness",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "d1-retention",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "uninstall-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "session-length-avg",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "sessions-per-user",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "arpdau",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "mrr",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (3) - verify generic interpretation covers all outputs or needs per-output notes"
+      ]
+    },
+    {
+      "slug": "arpu",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (2) - verify generic interpretation covers all outputs or needs per-output notes"
+      ]
+    },
+    {
+      "slug": "nrr",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (2) - verify generic interpretation covers all outputs or needs per-output notes"
+      ]
+    },
+    {
+      "slug": "saas-quick-ratio",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "magic-number",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "rule-of-40",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "burn-multiple",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "annual-contract-value",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "seat-utilization-rate",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "ltv",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "deep",
+      "fitStatus": "special-handling",
+      "notes": [
+        "needs a models-type section + examplesByMode (only LTV needs this today)"
+      ]
+    },
+    {
+      "slug": "ltv-cac-ratio",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "cac-payback-period",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "break-even-point",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (3) - verify generic interpretation covers all outputs or needs per-output notes"
+      ]
+    },
+    {
+      "slug": "cr",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "funnel-analysis-multistep",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (3) - verify generic interpretation covers all outputs or needs per-output notes",
+        "array/dynamic input - needs an input-format explanation beyond the standard scalar-field slots"
+      ]
+    },
+    {
+      "slug": "field-abandonment-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "exit-rate",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "bounce-rate-landing",
+      "priority": "P3",
+      "status": "not-implemented",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "engagement-rate",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "light",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "ab-test",
+      "priority": "P0",
+      "status": "content-done",
+      "contentDepth": "deep",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (7) - verify generic interpretation covers all outputs or needs per-output notes",
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "confidence-interval-calculator",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "deep",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (3) - verify generic interpretation covers all outputs or needs per-output notes",
+        "has a flagged cannibalization risk - comparison-note required under the conditional rule"
+      ]
+    },
+    {
+      "slug": "bayesian-probability-to-beat",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "deep",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "multi-variant-test-significance",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "deep",
+      "fitStatus": "special-handling",
+      "notes": [
+        "array/dynamic input - needs an input-format explanation beyond the standard scalar-field slots"
+      ]
+    },
+    {
+      "slug": "sample-size-calculator",
+      "priority": "P1",
+      "status": "content-done",
+      "contentDepth": "deep",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "minimum-detectable-effect",
+      "priority": "P1",
+      "status": "not-implemented",
+      "contentDepth": "deep",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "test-duration-estimator",
+      "priority": "P1",
+      "status": "live-no-content-yet",
+      "contentDepth": "standard",
+      "fitStatus": "clean-fit",
+      "notes": []
+    },
+    {
+      "slug": "srm-check",
+      "priority": "P2",
+      "status": "not-implemented",
+      "contentDepth": "deep",
+      "fitStatus": "special-handling",
+      "notes": [
+        "multi-output (3) - verify generic interpretation covers all outputs or needs per-output notes",
+        "array/dynamic input - needs an input-format explanation beyond the standard scalar-field slots"
+      ]
+    }
+  ]
+}

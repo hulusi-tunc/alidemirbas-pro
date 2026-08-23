@@ -1,0 +1,25 @@
+{
+  "counts": {
+    "seoRecords": 77,
+    "byContentDepth": {
+      "light": 23,
+      "standard": 46,
+      "deep": 8
+    },
+    "bySeoPriority": {
+      "A": 18,
+      "B": 31,
+      "C": 20,
+      "D": 8
+    },
+    "comparisons": 13,
+    "cannibalizationRiskPairs": 6,
+    "aliasPairsAutoVerified": 58,
+    "glossaryBacklog": 19
+  },
+  "errors": [],
+  "warnings": [
+    "ltv: unusually broad secondary keyword set (11)"
+  ],
+  "status": "PASS"
+}

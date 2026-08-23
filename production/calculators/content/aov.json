@@ -1,0 +1,51 @@
+{
+  "calculatorId": "CALC-AOV",
+  "slug": "aov",
+  "contentDepth": "standard",
+  "intro": "AOV (average order value) is the average amount a customer spends per completed order. Enter total revenue and number of orders below.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What AOV measures",
+      "body": "Average order value is total revenue divided by the number of orders that produced it, over the same period. You'll also see it called average basket size or revenue per order — same formula, different names depending on the industry."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "The formula",
+      "body": "Total revenue ÷ number of orders. $45,000 in revenue from 900 orders gives an AOV of $50. Refunded or cancelled orders should be handled consistently — decide once whether they're included in both the revenue and the order count, and apply that rule every time you calculate it."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "Reading the number",
+      "body": "A higher AOV doesn't automatically mean a more profitable order — it depends on what's inside it. An order padded out with a low-margin add-on can raise AOV while barely moving actual profit, and a smaller order of high-margin items can be worth more to the business than a bigger one full of discounted stock. AOV is a revenue metric; pair it with margin if the question is really about profitability rather than order size."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Reading a rising AOV as automatically good news without checking whether margin moved with it.",
+        "Mixing gross and net revenue between periods, which shifts AOV without any real change in customer behavior."
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "id": "aov-vs-basket-size",
+      "q": "Is average basket size the same as AOV?",
+      "a": "Yes — 'average basket size' and 'revenue per order' are both the same calculation as AOV, just named differently depending on the platform or industry."
+    }
+  ],
+  "seo": {
+    "seoTitle": "AOV Calculator",
+    "seoDescription": "Calculate average order value from revenue and orders, with the same formula as average basket size and revenue per order.",
+    "canonicalPath": "/calculators/aov",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "No 'good AOV' benchmark given - it's entirely dependent on price point/category, and no reliable cross-industry source was available this pass."
+}

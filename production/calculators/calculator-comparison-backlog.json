@@ -1,0 +1,97 @@
+{
+  "_description": "Phase 3 comparison-page backlog. Only pairs with real confusion or decision-relevance are listed - see calculator-architecture.md / seo-architecture.md for pairs explicitly considered and rejected (MRR vs ARR, Retention vs Churn, NRR vs GRR - all already one page).",
+  "comparisons": [
+    {
+      "id": "roas-vs-roi",
+      "a": "roas",
+      "b": "marketing-roi",
+      "why": "Both answer 'was this spend worth it', with different denominators (spend vs. cost) that regularly get conflated.",
+      "strength": "high"
+    },
+    {
+      "id": "cac-vs-cpa",
+      "a": "cac",
+      "b": "cpa",
+      "why": "CAC counts paying customers, CPA counts any defined conversion - the two get used interchangeably in casual usage.",
+      "strength": "high"
+    },
+    {
+      "id": "cpc-vs-cpm",
+      "a": "cpc",
+      "b": "cpm",
+      "why": "Different bidding models (per-click vs. per-1000-impressions); a buyer choosing between them is genuine decision intent.",
+      "strength": "medium"
+    },
+    {
+      "id": "ctr-vs-ctor",
+      "a": "ctr",
+      "b": "ctor",
+      "why": "Both are click ratios with different denominators (impressions/delivered vs. opens) - a common email-marketing confusion point.",
+      "strength": "high"
+    },
+    {
+      "id": "margin-types-compared",
+      "a": "gross-margin",
+      "b": "contribution-margin",
+      "c": "profit-margin",
+      "why": "Three margin calculators with increasingly broad cost bases; one three-way comparison page serves this better than pairwise ones.",
+      "strength": "high"
+    },
+    {
+      "id": "ltv-vs-arpu",
+      "a": "ltv",
+      "b": "arpu",
+      "why": "ARPU is a per-period snapshot, LTV projects across a customer's lifetime - frequently confused when sizing a business.",
+      "strength": "medium"
+    },
+    {
+      "id": "significance-vs-confidence-interval",
+      "a": "ab-test",
+      "b": "confidence-interval-calculator",
+      "why": "A CI calculator can be (mis)used to eyeball significance; the two answer related but distinct questions.",
+      "strength": "medium"
+    },
+    {
+      "id": "sample-size-vs-mde",
+      "a": "sample-size-calculator",
+      "b": "minimum-detectable-effect",
+      "why": "Same equation, solved for the opposite variable - users often aren't sure which one they actually need.",
+      "strength": "high"
+    },
+    {
+      "id": "blended-cac-vs-paid-cac",
+      "a": "blended-cac",
+      "b": "cac",
+      "why": "Same formula shape, different spend/customer population - a frequent methodology mix-up in CAC reporting.",
+      "strength": "medium"
+    },
+    {
+      "id": "logo-churn-vs-revenue-churn",
+      "a": "logo-churn",
+      "b": "nrr",
+      "why": "Customer-count churn vs. dollar-weighted churn (an NRR output) can move in opposite directions in the same period.",
+      "strength": "medium"
+    },
+    {
+      "id": "rule-of-40-vs-quick-ratio",
+      "a": "rule-of-40",
+      "b": "saas-quick-ratio",
+      "why": "Both are single-number SaaS health checks; teams often want to know which one to report.",
+      "strength": "low"
+    },
+    {
+      "id": "activation-rate-vs-conversion-rate",
+      "a": "activation-rate",
+      "b": "cr",
+      "why": "Mobile 'activation' is a specific product event, not a generic funnel conversion - worth a direct contrast.",
+      "strength": "low"
+    },
+    {
+      "id": "cpi-vs-cac",
+      "a": "cpi",
+      "b": "cac",
+      "why": "Cost to install vs. cost to acquire a paying customer - a common mobile-UA budgeting confusion.",
+      "strength": "medium"
+    }
+  ]
+}

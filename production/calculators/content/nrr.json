@@ -1,0 +1,62 @@
+{
+  "calculatorId": "CALC-NRR",
+  "slug": "nrr",
+  "contentDepth": "standard",
+  "intro": "Net revenue retention (NRR) shows how your existing customer base's recurring revenue changed over a period, once expansion, contraction and churn are all counted. Enter starting MRR and the three movements below to get both NRR and GRR.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What goes into the number",
+      "body": "Four inputs: starting MRR (recurring revenue from the existing base at the start of the period), expansion (revenue gained from upsells and upgrades within that same base), contraction (revenue lost from downgrades), and churned MRR (revenue lost from customers who left entirely). NRR and GRR are two different ways of combining the same four numbers — NRR counts expansion, GRR doesn't."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "NRR and GRR from the same inputs",
+      "body": "NRR = (starting MRR + expansion − contraction − churned MRR) ÷ starting MRR. GRR uses the same formula without the expansion term, so it never counts revenue you gained back. On $100,000 starting MRR with $8,000 expansion, $2,000 contraction and $5,000 churned MRR: NRR is 101%, GRR is 93%. Note that GRR is capped at 100% by definition — you can't retain more than you started with once expansion is excluded — while NRR has no such ceiling."
+    },
+    {
+      "id": "why-over-100",
+      "type": "interpretation",
+      "heading": "Why NRR can go above 100%",
+      "body": "NRR exceeds 100% when expansion revenue from existing customers outweighs everything lost to contraction and churn combined — the business grew its existing base's revenue without adding a single new customer. That's the whole point of tracking it separately from new-customer revenue: NRR isolates how well a company keeps and grows the customers it already has, independent of how good it is at acquiring new ones."
+    },
+    {
+      "id": "nrr-vs-grr-use",
+      "type": "comparison-note",
+      "heading": "When each number matters",
+      "body": "GRR is the more conservative read — it shows how much revenue would survive with zero expansion, which is useful for stress-testing the base. NRR shows the fuller picture including upsell performance, which is why it's the number more commonly reported externally. Neither one replaces the other; they're deliberately shown together here rather than on separate pages, since they come from the same four inputs and reading only one hides half the story."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Reporting NRR without stating the period it covers - a monthly and an annual NRR from the same business are not comparable numbers.",
+        "Leaving out contraction (downgrades) and only counting full churn, which overstates retention."
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "id": "nrr-aliases",
+      "q": "Is Net Dollar Retention the same as NRR?",
+      "a": "Yes — Net Dollar Retention (NDR) is the same calculation as NRR, just a different name used by some companies and analysts."
+    },
+    {
+      "id": "revenue-churn-definition",
+      "q": "What is 'Revenue Churn' here?",
+      "a": "Revenue churn is GRR's complement (1 − GRR) — the share of starting MRR lost to contraction and churn, before counting any expansion."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Net Revenue Retention (NRR) Calculator",
+    "seoDescription": "Calculate NRR and GRR together from starting MRR, expansion, contraction and churn, and see why NRR can exceed 100%.",
+    "canonicalPath": "/calculators/nrr",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "No SaaS NRR benchmark stated (Phase 4 §16, §8 - no universal claim without sourcing). NRR-vs-GRR is explained within this one page's content, not spun out into a separate comparison page, per the Phase 3 decision that a comparison page would just re-explain the same calculator."
+}

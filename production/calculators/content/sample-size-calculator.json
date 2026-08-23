@@ -1,0 +1,69 @@
+{
+  "calculatorId": "CALC-SAMPLE-SIZE-CALCULATOR",
+  "slug": "sample-size-calculator",
+  "contentDepth": "deep",
+  "intro": "This calculator estimates how many visitors per variant your A/B test needs before it has a real chance of detecting the lift you're looking for. Enter your baseline rate and the smallest lift worth detecting below.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What it's solving for",
+      "body": "Run a test on too few visitors and even a real effect can slip past undetected — the test simply didn't have enough data to tell a genuine lift apart from random noise. This calculator works backward from four inputs (baseline rate, minimum detectable effect, statistical power, significance level) to the sample size per variant that gives the test a reasonable chance of catching an effect of the size you specify, if it's really there."
+    },
+    {
+      "id": "inputs-explained",
+      "type": "assumptions",
+      "heading": "The four inputs",
+      "body": "Baseline conversion rate is what control is currently converting at. Minimum detectable effect (MDE) is the smallest lift you actually care about catching — this calculator treats MDE as relative, so entering 10 means 'detect a 10% relative improvement' (a move from a 5% baseline to 5.5%, not to 15%). Statistical power is the chance the test detects a real effect of that size when one exists — 80% power means a 1-in-5 chance of missing a real effect that size, 90% cuts that to 1-in-10 at the cost of needing more visitors. Significance level is the same threshold used by the A/B test significance calculator to decide whether a result counts as statistically significant."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "Working example",
+      "body": "A 5% baseline rate, a 10% relative MDE (so detecting a move to roughly 5.5%), 80% power and a 95% significance level calls for about 29,827 visitors per variant. Push the MDE down to something smaller — trying to detect a 5% relative lift instead of 10% — and the required sample size roughly quadruples, since the required sample size scales with the inverse square of the effect you're trying to detect. That's the main lever: small effects need a lot more traffic to detect reliably than large ones."
+    },
+    {
+      "id": "relative-vs-absolute",
+      "type": "limitations",
+      "heading": "Relative, not absolute",
+      "body": "MDE here is always relative to the baseline, not an absolute percentage-point move. This matters more than it sounds: a 10% relative MDE means something very different at a 2% baseline (detecting a move to about 2.2%) than at a 40% baseline (detecting a move to about 44%). If a number from another sample size calculator doesn't match this one, check whether it's using relative or absolute MDE before assuming either tool is wrong — the two conventions produce genuinely different sample sizes from the same-looking inputs."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "Using the result",
+      "body": "The number this returns is a requirement, not a target to hit and stop at — run the test until each variant reaches it, then check the significance calculator once, rather than checking early and stopping the moment it happens to look favorable. If your actual traffic can't reach this sample size in a reasonable time frame, that's a signal to raise the MDE or extend the test window, not to ship a result computed with fewer visitors than the test needed."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Setting the MDE to whatever lift you're hoping for rather than the smallest lift that would actually change a decision - an unrealistically small MDE demands an unrealistically large sample.",
+        "Running the test only until it happens to cross significance, instead of to the sample size calculated up front - that inflates the false-positive rate (see the significance calculator's common mistakes).",
+        "Mixing up relative and absolute MDE when comparing this result against a number from a different tool."
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "id": "power-choice",
+      "q": "Should I use 80% or 90% power?",
+      "a": "80% is the conventional default and needs less traffic to reach. 90% lowers the chance of missing a real effect, but costs meaningfully more sample size to get there - worth it for decisions where a missed effect is expensive, less necessary for lower-stakes tests."
+    },
+    {
+      "id": "not-enough-traffic",
+      "q": "What if I don't have enough traffic to reach this sample size?",
+      "a": "You can raise the MDE (accept that only a larger lift will be detectable), lower statistical power, or extend the test duration - see the test duration estimator for how sample size translates into calendar time at your actual traffic level."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Sample Size Calculator",
+    "seoDescription": "Calculate the sample size an A/B test needs per variant, from baseline rate, minimum detectable lift, power and significance level.",
+    "canonicalPath": "/calculators/sample-size-calculator",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "MDE convention (relative, e.g. 10 = 10% relative lift) matches exactly what Phase 2's calc-registry.ts implements - verified against the same test-calculators.mjs case (29,827) rather than re-deriving independently. Excluded 'what is a good sample size' - there is no universal good number, it's fully determined by the other three inputs, so the SEO map's auto-generated interpretation keyword for this page was intentionally not targeted (Phase 4 §21)."
+}

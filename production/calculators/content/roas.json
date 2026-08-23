@@ -1,0 +1,63 @@
+{
+  "calculatorId": "CALC-ROAS",
+  "slug": "roas",
+  "contentDepth": "standard",
+  "intro": "ROAS (return on ad spend) tells you how much revenue a campaign generated for every unit of currency spent on it. Enter revenue and spend below to get the multiplier.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What ROAS measures",
+      "body": "ROAS is revenue divided by ad spend, expressed as a multiplier — 5x means the campaign brought back five times what was spent on it. It only looks at revenue and spend; it has no idea what your margin is, so a 5x ROAS on a product with thin margins can be far less profitable than a 3x ROAS on a high-margin one."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "The formula",
+      "body": "Revenue from ads ÷ ad spend. If a campaign generated $5,000 in revenue from $1,000 in spend, ROAS is 5.00x. The result is a multiplier, not a percentage — a page that shows '500%' instead of '5.00x' is describing the same number differently, but the calculator here always returns the multiplier form."
+    },
+    {
+      "id": "roas-vs-roi",
+      "type": "comparison-note",
+      "heading": "ROAS and ROI are not interchangeable",
+      "body": "ROAS is revenue ÷ spend. Marketing ROI is (revenue − cost) ÷ cost — it subtracts the cost first, so it answers 'how much did I gain relative to what I put in,' while ROAS answers 'how much did I get back for what I put in.' A campaign can have a strong ROAS and a weak ROI at the same time if its margins are thin, because ROAS never sees cost of goods, only ad spend. Use ROAS to compare campaigns against each other; use Marketing ROI when the question is whether the spend was actually worth it after costs."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "Reading the number",
+      "body": "The same ROAS means different things depending on margin. A retailer with 70% gross margin can turn a 3x ROAS into real profit; a retailer with 20% gross margin needs closer to 5x just to break even on the same spend, before accounting for anything else in the business. ROAS on its own tells you efficiency relative to spend — it doesn't tell you whether the campaign was profitable unless you also know what it cost to fulfill what was sold."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Comparing ROAS across campaigns with different attribution windows — a 7-day click window and a 28-day click window will produce different revenue totals for the same spend.",
+        "Treating ROAS as profit. It isn't; it's revenue ÷ spend, with no cost of goods in the equation at all.",
+        "Leaving part of the spend out — platform fees, agency fees, or creative production costs that were part of running the campaign but didn't hit the 'ad spend' line item."
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "id": "roas-vs-percentage",
+      "q": "Is ROAS the same as a percentage?",
+      "a": "It's usually shown as a multiplier (5x), but the same number can be written as a percentage (500%) — they describe the same ratio two different ways. This calculator returns the multiplier form."
+    },
+    {
+      "id": "roas-negative",
+      "q": "Can ROAS be negative?",
+      "a": "No — revenue and spend are both non-negative, so ROAS is 0 or higher. A campaign with $0 in attributed revenue has a ROAS of 0x, not a negative number."
+    }
+  ],
+  "seo": {
+    "seoTitle": "ROAS Calculator",
+    "seoDescription": "Calculate return on ad spend from revenue and spend, and see how ROAS differs from Marketing ROI.",
+    "canonicalPath": "/calculators/roas",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "Excluded 'target roas' - that keyword is tagged future-guide in the SEO map, not same-page, so it's left for a dedicated guide rather than a section here. No universal 'good ROAS' number given (Phase 4 §8) - interpretation is framed around margin sensitivity instead."
+}

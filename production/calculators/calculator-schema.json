@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hulusi-tunc/alidemirbas-pro/production/calculators/calculator-schema.json",
+  "title": "CalculatorCatalogRecord",
+  "description": "One entry in calculator-catalog.json - a fully specified marketing calculator recommended for the library.",
+  "type": "object",
+  "required": [
+    "id", "name", "slug", "category", "subcategory", "classification", "priority", "status",
+    "formula", "formulaPlainEnglish", "inputs", "outputs", "inputUnits", "outputUnits",
+    "acceptedRanges", "validationRules", "edgeCases", "exampleInput", "exampleOutput",
+    "relatedMetrics", "relatedCalculators", "formulaFamily", "aliases"
+  ],
+  "additionalProperties": false,
+  "$comment": "The optional `modes` array (Phase 2 addition) covers calculators with multiple legitimate formulas (currently just LTV) - see calculator-architecture.md Phase 5.",
+  "properties": {
+    "id": { "type": "string", "pattern": "^CALC-[A-Z0-9-]+$" },
+    "name": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "category": { "type": "string" },
+    "subcategory": { "type": "string" },
+    "classification": { "type": "string", "enum": ["calculator", "calculator-educational"] },
+    "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+    "status": { "type": "string", "enum": ["implemented", "recommended"] },
+    "formula": { "type": "string", "minLength": 1 },
+    "formulaPlainEnglish": { "type": "string", "minLength": 1 },
+    "inputs": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["key", "label"], "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "unit": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["key", "label"], "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "unit": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "inputUnits": { "type": "object" },
+    "outputUnits": { "type": "object" },
+    "acceptedRanges": { "type": "object" },
+    "validationRules": { "type": "array", "items": { "type": "string" } },
+    "edgeCases": { "type": "array", "items": { "type": "string" } },
+    "exampleInput": { "type": "object" },
+    "exampleOutput": { "type": "object" },
+    "relatedMetrics": { "type": "array", "items": { "type": "string" } },
+    "relatedCalculators": { "type": "array", "items": { "type": "string" } },
+    "formulaFamily": { "type": "string" },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "modes": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "formula", "inputs", "outputs"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "label": { "type": "string", "minLength": 1 },
+          "formula": { "type": "string", "minLength": 1 },
+          "inputs": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["key", "label"], "properties": { "key": { "type": "string" }, "label": { "type": "string" }, "unit": { "type": ["string", "null"] } } } },
+          "outputs": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["key", "label"], "properties": { "key": { "type": "string" }, "label": { "type": "string" }, "unit": { "type": ["string", "null"] } } } }
+        }
+      }
+    },
+    "formulaDisplay": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Phase 3: hand-authored human-readable formula, used only when the raw `formula` string contains notation (^, ±, subscripts, etc.) the runtime auto-prettifier declines to touch. Mathematically equivalent to `formula`, presentation-only."
+    },
+    "examplesByMode": {
+      "type": "object",
+      "description": "Phase 3: per-mode worked examples for calculators with `modes`. Keys must match a modes[].id.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["input", "output"],
+        "properties": { "input": { "type": "object" }, "output": { "type": "object" } }
+      }
+    }
+  }
+}
