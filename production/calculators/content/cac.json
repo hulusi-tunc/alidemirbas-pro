@@ -2,53 +2,138 @@
   "calculatorId": "CALC-CAC",
   "slug": "cac",
   "contentDepth": "standard",
-  "intro": "CAC (customer acquisition cost) is what it cost, on average, to turn spend into one new paying customer. Enter total acquisition spend and new customers acquired below.",
+  "heroTitle": "Customer Acquisition Cost (CAC) Calculator",
+  "intro": "CAC (customer acquisition cost) is what it cost, on average, to turn spend into one new paying customer. Enter total acquisition spend and new customers acquired below to get your CAC, the average dollar cost per customer, not a rate or percentage.",
   "sections": [
-    {
-      "id": "definition",
-      "type": "definition",
-      "heading": "What CAC measures",
-      "body": "Customer acquisition cost is total acquisition spend divided by the number of new customers that spend produced, over the same period. It's a cost figure, not a rate — the unit is currency per customer, not a percentage."
-    },
     {
       "id": "formula",
       "type": "formula",
-      "heading": "The formula",
-      "body": "Total acquisition spend ÷ new customers acquired. $10,000 in spend that produced 200 new customers gives a CAC of $50. What counts as 'spend' is a scope decision you have to make consistently — paid media only, or paid media plus sales/marketing salaries and tooling (a 'fully loaded' CAC). Neither is wrong, but mixing the two across periods or channels makes the number meaningless to compare."
+      "heading": "How to calculate CAC",
+      "body": "CAC is total acquisition spend divided by new customers acquired over the same period. Spend of $10,000 that produced 200 new customers gives a CAC of $50, the average cost to acquire one paying customer. What counts as 'acquisition spend' is a scope decision, not a fixed rule. It can mean paid media only, or it can include sales and marketing salaries, commissions, tools and overhead, a broader 'fully loaded' figure. Neither definition is wrong on its own, but the same definition needs to apply every time you calculate it, or the number stops being comparable across periods or channels."
     },
     {
-      "id": "cac-vs-cpa",
-      "type": "comparison-note",
-      "heading": "CAC and CPA answer different questions",
-      "body": "CAC counts paying customers in the denominator. CPA (cost per acquisition/action) counts whatever conversion event you've defined — a lead, a signup, a trial start, a sale. Every CAC is technically a CPA with 'customer' as the defined action, but not every CPA is a CAC: a $20 cost-per-lead calculator and a $200 CAC calculator can both be true for the same funnel if only 1 in 10 leads becomes a paying customer. When the denominator is 'paying customer,' it's CAC; for any looser conversion event, it's CPA."
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        {
+          "label": "Total acquisition spend",
+          "value": "$10,000"
+        },
+        {
+          "label": "New customers acquired",
+          "value": "200"
+        }
+      ],
+      "output": {
+        "label": "CAC",
+        "value": "$50.00"
+      },
+      "body": "A CAC of $50 means the business spent an average of $50 to acquire each new customer during that period. It says nothing on its own about whether $50 was a good price, that depends on what those customers are worth."
     },
     {
       "id": "interpretation",
       "type": "interpretation",
-      "heading": "Reading the number",
-      "body": "CAC on its own doesn't tell you if the business works — it has to be read against what that customer is worth. That's what LTV:CAC ratio and CAC payback period are for: LTV:CAC asks whether the customer is worth more than they cost to acquire over their full lifetime, and payback period asks how many months it takes to earn the acquisition cost back. A $50 CAC is fine next to a $500 LTV and painful next to a $60 one."
+      "heading": "How to interpret CAC",
+      "body": "CAC on its own doesn't say whether acquisition is working \u2014 a $50 CAC is a good result next to a $500 customer and a bad one next to a $60 customer. Reading it requires context outside the calculation itself. The two numbers that supply that context are customer value and payback speed. [LTV:CAC Ratio](/calculators/ltv-cac-ratio) compares CAC against what a customer is worth over their full relationship with the business; [CAC Payback Period](/calculators/cac-payback-period) asks how many months it takes to earn that acquisition cost back through gross margin. CAC without either of those is a cost figure with no reference point."
+    },
+    {
+      "id": "trust-checks",
+      "type": "trust-checks",
+      "heading": "Before you trust this result",
+      "intro": "Three things worth checking before comparing or acting on a CAC number.",
+      "checks": [
+        {
+          "title": "Same period",
+          "body": "Acquisition spend and the customers it produced need to come from the same window. Spend from a campaign that ran in March, counted against customers who signed up in April after a typical sales-cycle lag, understates March's CAC and overstates April's."
+        },
+        {
+          "title": "Same acquisition scope",
+          "body": "The costs in the numerator and the customers in the denominator need to describe the same acquisition activity. Paid-channel spend divided by all new customers, including ones who arrived through organic search or referral, produces a CAC that looks better than paid acquisition actually performed."
+        },
+        {
+          "title": "New customers, not all customers",
+          "body": "The denominator is new customers acquired in the period, not the total active customer base. Including existing or returning customers dilutes the number and no longer measures what it cost to win someone new."
+        }
+      ]
+    },
+    {
+      "id": "costs-included",
+      "type": "interpretation",
+      "heading": "What should be included in CAC?",
+      "body": "There's no single required list, since CAC has no governing accounting standard the way revenue recognition does. [Corporate Finance Institute's own breakdown](https://corporatefinanceinstitute.com/resources/knowledge/accounting/customer-acquisition-cost-cac) includes advertising and marketing spend, sales commissions and bonuses, salaries of marketing and sales staff, and overhead, a 'fully loaded' view of what it took to win the customer. A narrower 'paid CAC', media spend only, divided by customers from paid channels, answers a different question: how efficient is paid acquisition alone, independent of the sales team's cost. Neither is more correct. What matters is stating which scope you're reporting and using it consistently. Blended CAC (every channel) and channel-specific CAC apply the same principle to acquisition source instead of cost category."
+    },
+    {
+      "id": "cac-vs-cpa",
+      "type": "comparison-note",
+      "heading": "CAC vs. CPA",
+      "body": "CAC and [CPA](/calculators/cpa) answer different questions. CAC counts paying customers in the denominator, total acquisition spend divided by new customers won. CPA (cost per acquisition, or cost per action) counts whatever conversion event you've defined instead: a lead, a signup, a trial start, a completed purchase. Every CAC is technically a CPA where the defined action happens to be 'became a paying customer', but not every CPA is a CAC. A $20 cost-per-lead and a $200 CAC can both be true for the same funnel if only 1 in 10 leads converts to a paying customer. The terms get used loosely across platforms and teams, so the distinction that matters isn't the label, it's checking what event the denominator is counting."
     },
     {
       "id": "common-mistakes",
       "type": "common-mistakes",
       "heading": "Common mistakes",
       "items": [
-        "Counting leads or trial signups as 'customers' in the denominator — that's a CPA, not a CAC.",
-        "Changing what counts as 'spend' between periods (e.g. adding headcount costs one quarter but not the next) and then comparing CAC trend lines as if the scope hadn't changed.",
-        "Comparing blended CAC (all channels, including free/organic) against paid-only CAC as if they were the same measurement."
+        "Mixing acquisition costs and new-customer counts from different scopes. Spend from paid channels only, divided by all new customers including organic ones, produces a CAC that understates what paid acquisition actually cost.",
+        "Counting returning or existing customers in the denominator. CAC measures the cost of winning someone new \u2014 including anyone who was already a customer dilutes the number and hides the real acquisition cost.",
+        "Treating CAC and CPA as interchangeable. A cost-per-lead or cost-per-signup number is a CPA, not a CAC, unless the defined action is specifically 'became a paying customer'.",
+        "Changing what counts as spend between periods, adding sales headcount cost one quarter and excluding it the next, then reading the change in CAC as a change in acquisition efficiency.",
+        "Judging CAC without checking customer value or payback speed. A rising CAC next to a rising LTV can still be a good trade; the number alone doesn't say either way."
       ]
+    }
+  ],
+  "related": [
+    {
+      "slug": "ltv",
+      "name": "LTV Calculator",
+      "desc": "What a customer is worth over their full relationship with the business \u2014 the number CAC needs a comparison against to mean anything."
+    },
+    {
+      "slug": "ltv-cac-ratio",
+      "name": "LTV:CAC Ratio Calculator",
+      "desc": "Puts LTV and CAC together directly, showing how many times over a customer's value exceeds what it cost to acquire them."
+    },
+    {
+      "slug": "cac-payback-period",
+      "name": "CAC Payback Period Calculator",
+      "desc": "How many months of gross margin it takes to earn back this CAC \u2014 a faster read on acquisition efficiency than LTV:CAC alone."
+    },
+    {
+      "slug": "cpa",
+      "name": "CPA Calculator",
+      "desc": "Cost per whatever conversion event you define \u2014 lead, signup, trial \u2014 the broader metric CAC is one specific case of."
+    },
+    {
+      "slug": "marketing-roi",
+      "name": "Marketing ROI Calculator",
+      "desc": "Profitability of marketing spend after real costs, a different question than what it cost to acquire one customer."
     }
   ],
   "faq": [
     {
-      "id": "cac-vs-cpl",
-      "q": "Is CAC the same as cost per lead?",
-      "a": "No. Cost per lead divides spend by leads generated; CAC divides spend by paying customers acquired. A lead hasn't paid yet, so cost per lead is always a smaller number than CAC for the same funnel unless every lead converts."
+      "id": "what-is-cac",
+      "q": "What is customer acquisition cost?",
+      "a": "Customer acquisition cost (CAC) is the average amount a business spends to win one new paying customer, calculated as total acquisition spend divided by the number of new customers that spend produced over the same period. A CAC of $50 means it cost $50, on average, to acquire each new customer during that window, not that every individual customer cost exactly $50, since it's an average across the whole cohort. CAC is a cost figure, not a rate or a percentage, and it only measures acquisition efficiency in isolation. It says nothing about whether those customers were worth acquiring at that price, which is why it's almost always read alongside customer lifetime value or payback period rather than on its own. A low CAC isn't automatically good, and a high one isn't automatically bad, without that context."
     },
     {
-      "id": "cac-blended-or-paid",
-      "q": "Should CAC include organic/free acquisition?",
-      "a": "Depends what you're trying to answer. Paid CAC (paid spend ÷ customers from paid channels) tells you the efficiency of paid acquisition specifically. Blended CAC (all spend ÷ all new customers, including organic) tells you the average cost across the whole business. State which one you're reporting — the two numbers are not interchangeable."
+      "id": "how-to-calculate-cac",
+      "q": "How do you calculate CAC?",
+      "a": "Divide total acquisition spend by new customers acquired: CAC = Spend \u00f7 New Customers. $10,000 in spend that produced 200 new customers gives a CAC of 10,000 \u00f7 200 = $50. Both numbers need to cover the same period and the same acquisition scope \u2014 spend from a campaign that ran in March shouldn't be divided by customers who signed up in April after a sales-cycle lag, and paid-channel spend shouldn't be divided by a customer count that includes organic signups. What counts as spend is also a scope decision: some teams use paid media only, others include sales and marketing salaries and tools for a fully loaded figure. Either is valid, but the same definition needs to hold every time the number gets compared."
+    },
+    {
+      "id": "costs-in-cac",
+      "q": "What costs should be included in CAC?",
+      "a": "There's no single required list, since CAC has no governing accounting standard the way revenue recognition does \u2014 but the most common 'fully loaded' definition includes advertising and marketing spend, sales commissions and bonuses, marketing and sales salaries, and related overhead, the categories Corporate Finance Institute's own breakdown of CAC uses. A narrower 'paid CAC' includes only paid media spend, which measures paid-channel efficiency specifically rather than total go-to-market cost. Neither definition is wrong. What actually matters is picking one scope and applying it consistently \u2014 a CAC trend line that quietly adds headcount cost in one quarter and drops it the next isn't measuring a real change in acquisition efficiency, it's measuring a change in the formula."
+    },
+    {
+      "id": "cac-vs-cpa-faq",
+      "q": "What is the difference between CAC and CPA?",
+      "a": "CAC counts paying customers in the denominator; CPA (cost per acquisition or cost per action) counts whatever conversion event has been defined, which could be a lead, a signup, a trial start, or a completed purchase. Every CAC is technically a CPA where the defined action is 'became a paying customer', but not every CPA is a CAC. The gap between the two can be large: a $20 cost-per-lead and a $200 CAC are both true for the same funnel if only 1 in 10 leads eventually pays. Platforms and teams use the terms loosely, sometimes calling a CPA number 'CAC' when the denominator isn't actually paying customers, so the reliable check is asking what event is being counted, not trusting the label attached to the number."
+    },
+    {
+      "id": "good-cac",
+      "q": "What is a good CAC?",
+      "a": "There's no universal good CAC \u2014 it depends entirely on what the customer is worth, the business's margin structure, and how fast the acquisition cost needs to be recovered. A $200 CAC is excellent against a $2,000 lifetime value and unsustainable against a $150 one. The more useful questions are what LTV:CAC ratio the acquisition produces and how many months of gross margin it takes to pay back. The LTV:CAC Ratio Calculator and CAC Payback Period Calculator both answer that using your own numbers, rather than a flat number that has no way of knowing your margins or customer value. Treat any generic 'good CAC is $X' claim with real skepticism unless it states the business model and margin assumptions behind it."
     }
   ],
   "seo": {
@@ -59,5 +144,5 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "Excluded 'reduce cac' (future-guide placement in SEO map). No universal 'good CAC' number - interpretation routed through LTV:CAC and payback period instead, per Phase 4 §27's own worked example for this exact metric."
+  "qaNotes": "Calculator Product Page Content Standard, second page after ROAS. Body content is CAC-specific throughout (Before You Trust This Result, What Should Be Included in CAC, Common Mistakes, FAQ) - not a reworded ROAS page; checked for accidental overlap before publishing. No universal 'good CAC' number given anywhere - interpretation and FAQ both route through LTV:CAC ratio and payback period instead. External source: Corporate Finance Institute's CAC breakdown, used for the cost-category claim in 'What should be included in CAC?' - chosen over SaaS vendor blogs/benchmark-mill sites surfaced in research, none of which qualified as authoritative. Related Calculators authored here (catalog's own relatedCalculators field lists a dead 'blended-cac' slug) - verified against LIVE_CALCULATOR_SLUGS: ltv, ltv-cac-ratio, cac-payback-period, cpa, marketing-roi."
 }

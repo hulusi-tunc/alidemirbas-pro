@@ -48,6 +48,13 @@ export type CalcContent = {
   calculatorId: string;
   slug: string;
   contentDepth: "light" | "standard" | "deep";
+  /** Overrides the H1 (and only the H1 - breadcrumbs, nav, related-card
+      labels elsewhere on the site keep using the catalog's own spec.name)
+      when the page needs a fuller form than the catalog's short tool
+      name, e.g. "Customer Acquisition Cost (CAC) Calculator" vs. the
+      catalog's "CAC Calculator". Optional - omitting it keeps the
+      existing spec.name behavior exactly as before. */
+  heroTitle?: string;
   intro: string;
   sections: ContentSection[];
   /** Authored Related Calculators, verified against LIVE_CALCULATOR_SLUGS at

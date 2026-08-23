@@ -140,7 +140,10 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
-  const title = spec ? spec.name : textTool!.title[lang];
+  // heroTitle is an optional Phase 4 override for the H1 only (see
+  // CalcContent.heroTitle) - everything else on the site (breadcrumbs,
+  // index listing, related-card labels) keeps using spec.name.
+  const title = content?.heroTitle ?? (spec ? spec.name : textTool!.title[lang]);
   // Phase 4's intro is a short, tool-first 1-3 sentence description
   // (instruction 24) - prefer it in the hero when it exists; it's
   // written specifically to sit above the calculator, unlike
