@@ -42,8 +42,8 @@
           "body": "Check what conversion window generated the revenue number — a 7-day click window and a 28-day click window produce different revenue totals for identical spend. Per [Google Ads' own conversion window documentation](https://support.google.com/google-ads/answer/3123169), this setting alone changes what counts as attributed, so a ROAS number is only comparable to another one measured with the same window."
         },
         {
-          "title": "Comparable revenue/spend scope",
-          "body": "Revenue should reflect only what this specific ad spend drove, and spend should include everything it took to run the campaign, platform fees and creative costs included, not just the media buy line item. Leaving either side incomplete moves the ratio without changing anything about actual performance."
+          "title": "Consistent ad spend definition",
+          "body": "Keep the spend definition consistent. When comparing ROAS across campaigns, use the same definition of ad spend for each calculation. Additional costs such as agency fees or creative production may matter for profitability analysis, but they shouldn't silently change the denominator used for ROAS."
         }
       ]
     },
@@ -51,7 +51,7 @@
       "id": "good-roas",
       "type": "interpretation",
       "heading": "What is a good ROAS?",
-      "body": "There's no universal 'good' ROAS. It depends entirely on margin structure, product cost, and everything else in the business beyond ad spend — a 3x ROAS can be highly profitable for a software product with 90% gross margin and mostly unprofitable for a retailer with 20% margin and real fulfillment costs. The number that actually matters is the ROAS needed just to break even, which depends on your own margin and fixed costs, not on what any other business reports. The [Break-Even Point Calculator](/calculators/break-even-point) computes the minimum ROAS a given cost structure requires, from your own price, variable cost, and fixed costs, a more useful reference point than an industry-wide number that doesn't know your margins."
+      "body": "There's no universal 'good' ROAS. It depends entirely on margin structure, product cost, and everything else in the business beyond ad spend — a 3x ROAS can be highly profitable for a software product with 90% gross margin and mostly unprofitable for a retailer with 20% margin and real fulfillment costs. The number that actually matters is the ROAS needed just to break even, which depends on your own margin and fixed costs, not on what any other business reports. The [Break-Even Point Calculator](/calculators/break-even-point) computes the break-even units, CAC ceiling and ROAS floor your own price, variable cost and fixed costs require, a more useful reference point than an industry-wide number that doesn't know your margins."
     },
     {
       "id": "roas-vs-roi",
@@ -66,14 +66,14 @@
       "items": [
         "Comparing ROAS across different attribution windows. A 7-day click window and a 28-day click window credit different amounts of revenue to identical spend, so the difference reflects the settings, not the campaign.",
         "Treating ROAS as profit. It's revenue divided by spend, with no cost of goods, fulfillment, or refunds in the equation, so a high ROAS says nothing about whether the campaign was actually profitable.",
-        "Leaving part of the spend out. Platform fees, agency fees, and creative production costs are real costs of running the campaign even when they don't hit the 'ad spend' line item, and omitting them inflates ROAS.",
+        "Changing the ad spend definition between campaigns. Comparing one campaign's ROAS using media cost alone against another's that also folds in agency or creative fees moves the ratio for reasons that have nothing to do with performance.",
         "Comparing platform-reported ROAS across platforms without checking attribution differences first. Each platform can credit itself under its own model, so the same purchase gets counted more than once across dashboards, and summed ROAS overstates real performance."
       ]
     }
   ],
   "related": [
     { "slug": "marketing-roi", "name": "Marketing ROI Calculator", "desc": "Profitability after real costs, not just revenue efficiency — the number to check when a strong ROAS still needs to prove it was worth it." },
-    { "slug": "break-even-point", "name": "Break-Even Point Calculator", "desc": "Computes the minimum ROAS your own price, cost and fixed costs require, instead of relying on a benchmark that doesn't know your margins." },
+    { "slug": "break-even-point", "name": "Break-Even Point Calculator", "desc": "Computes the break-even units, CAC ceiling and ROAS floor your price and costs require, instead of relying on a benchmark that doesn't know your margins." },
     { "slug": "cac", "name": "CAC Calculator", "desc": "Cost to acquire one customer — a per-customer view of spend efficiency that complements ROAS's per-dollar-of-revenue view." },
     { "slug": "ltv-cac-ratio", "name": "LTV:CAC Ratio Calculator", "desc": "Whether a customer is worth more over their lifetime than it cost to acquire them, the longer-horizon question ROAS doesn't cover." }
   ],
@@ -86,7 +86,7 @@
     {
       "id": "how-to-calculate-roas",
       "q": "How do you calculate ROAS?",
-      "a": "Divide attributed revenue by ad spend: ROAS = Revenue ÷ Ad Spend. If a campaign generated $5,000 in revenue from $1,000 in spend, ROAS is 5,000 ÷ 1,000 = 5.00x. Both numbers need to cover the same campaign, the same date range, and the same attribution scope, or the ratio stops meaning anything useful. Revenue should be what your tracking attributes specifically to that ad, not total store revenue for the period, and spend should be the full cost of running it, including platform fees and creative costs, not just the media line item. The result is a multiplier, not a percentage: some platforms display the same ratio as '500%' instead of '5.00x', which is the identical number written differently, not a different metric entirely."
+      "a": "Divide attributed revenue by ad spend: ROAS = Revenue ÷ Ad Spend. If a campaign generated $5,000 in revenue from $1,000 in spend, ROAS is 5,000 ÷ 1,000 = 5.00x. Both numbers need to cover the same campaign, the same date range, and the same attribution scope, or the ratio stops meaning anything useful. Revenue should be what your tracking attributes specifically to that ad, not total store revenue for the period, and spend should use the same definition every time you calculate it — mixing media cost alone in one calculation with media plus agency and creative costs in another produces numbers that aren't actually comparable. The result is a multiplier, not a percentage: some platforms display the same ratio as '500%' instead of '5.00x', which is the identical number written differently, not a different metric entirely."
     },
     {
       "id": "roas-vs-roi-faq",
@@ -96,7 +96,7 @@
     {
       "id": "good-roas-faq",
       "q": "What is a good ROAS?",
-      "a": "There's no universal number, despite how often one gets quoted. A 'good' ROAS depends on gross margin, fulfillment cost, and every other expense the ad spend itself doesn't cover. A 3x ROAS can be very profitable for a high-margin software product and barely break even for a low-margin retailer selling physical goods. The more useful question is what ROAS your specific business needs to break even, which is a function of your own costs, not an industry average. A break-even ROAS calculator can compute that number from your actual price, variable cost and fixed costs, which makes it a far more reliable reference point than a benchmark that has no idea what your margins look like. Treat any flat 'X is good' number you see elsewhere with real skepticism unless it states the margin assumptions behind it."
+      "a": "There's no universal number, despite how often one gets quoted. A 'good' ROAS depends on gross margin, fulfillment cost, and every other expense the ad spend itself doesn't cover. A 3x ROAS can be very profitable for a high-margin software product and barely break even for a low-margin retailer selling physical goods. The more useful question is what ROAS your specific business needs to break even, which is a function of your own costs, not an industry average. A break-even point calculator can compute that ROAS floor from your actual price, variable cost and fixed costs, which makes it a far more reliable reference point than a benchmark that has no idea what your margins look like. Treat any flat 'X is good' number you see elsewhere with real skepticism unless it states the margin assumptions behind it."
     },
     {
       "id": "roas-below-1",

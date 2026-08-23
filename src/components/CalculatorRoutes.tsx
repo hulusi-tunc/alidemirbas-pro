@@ -196,10 +196,12 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
                   just above (formula + plain-English, for every live
                   calculator, not only the 13 with Phase 4 content) - a
                   second one here would just repeat it, so this template
-                  starts at FAQ instead. */}
-              <FaqAccordion title="FAQ" items={content?.faq ?? []} />
-
+                  starts at Related Calculators instead. Related comes
+                  before FAQ by request - it's closer to what someone who
+                  just finished reading Common Mistakes wants next. */}
               <RelatedGrid title={RELATED_TITLE[lang]} items={relatedItems} />
+
+              <FaqAccordion title="FAQ" items={content?.faq ?? []} />
             </div>
           </div>
         )}
