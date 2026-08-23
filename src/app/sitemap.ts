@@ -6,7 +6,7 @@ import { SITE_URL } from "@/lib/seo";
 // post archive) is deliberately not in this list - it was decided the new
 // site won't carry that section at all.
 const routes = [
-  "", "/about", "/lab", "/lab/journeys", "/lab/ab-testing", "/stack", "/contact",
+  "", "/about", "/lab", "/lab/journeys", "/lab/ab-testing", "/lab/dashboard-builder", "/stack", "/contact",
   // Every canonical journey is its own page now. The 4 retired ids that
   // resolve into a survivor are deliberately absent: they are noindex, and a
   // sitemap entry would ask for exactly the indexing they decline.

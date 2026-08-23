@@ -2,34 +2,22 @@ import type { CalcContent, ContentSection } from "@/lib/calc-content";
 
 /* Renders Phase 4 editorial content below the calculator (the tool stays
    primary - see calculator-content-architecture.md's hierarchy note).
-   Plain server component: no interactivity needed beyond native
-   <details>/<summary> for FAQ, which is accessible without JS. Section
-   layout is driven entirely by `type` - no calculator-specific markup,
-   so all 13 pages share this one renderer while their actual content
-   still differs per calculator. */
+   Plain server component. Section layout is driven entirely by `type` -
+   no calculator-specific markup, so all 13 pages share this one renderer
+   while their actual content still differs per calculator.
+
+   FAQ used to render inline here (native <details>/<summary>) - it now
+   lives in the shared FaqAccordion component instead, rendered by
+   CalculatorRoutes after the category grid (see the Calculator Product
+   Page section order). This component only owns `content.sections`. */
 export default function CalculatorContent({ content }: { content: CalcContent }) {
+  if (content.sections.length === 0) return null;
   return (
     <div className="altor-container max-w-2xl pb-16">
       <div className="flex flex-col gap-8 border-t border-line pt-10">
         {content.sections.map((s) => (
           <Section key={s.id} section={s} />
         ))}
-
-        {content.faq.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-ink-950">FAQ</h2>
-            <div className="mt-3 flex flex-col divide-y divide-line border-t border-line">
-              {content.faq.map((f) => (
-                <details key={f.id} className="group py-3">
-                  <summary className="cursor-pointer list-none text-sm font-medium text-ink-900 marker:content-none">
-                    {f.q}
-                  </summary>
-                  <p className="mt-2 text-sm leading-relaxed text-neutral-600">{f.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

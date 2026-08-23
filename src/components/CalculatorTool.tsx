@@ -332,26 +332,16 @@ function FormulaBlock({
       <p className="mt-2 rounded-md bg-paper-soft px-3 py-2 font-mono text-ink-800">{displayFormula}</p>
 
       <ExampleBlock spec={spec} activeModeId={activeModeId} />
-
-      {spec.related.length > 0 && (
-        <div className="mt-6">
-          <p className="font-medium text-ink-900">{lang === "en" ? "Related calculators" : "İlgili hesaplayıcılar"}</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {spec.related.map((r) => (
-              <a
-                key={r.slug}
-                href={`${lang === "en" ? "" : "/tr"}/calculators/${r.slug}`}
-                className="rounded-md border border-line px-2.5 py-1 text-xs text-ink-700 hover:border-ink-900"
-              >
-                {r.name}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+
+/* "Related calculators" used to render right here as an inline chip list -
+   moved to its own page-level section (RelatedGrid, rendered by
+   CalculatorRoutes after the FAQ) as part of the Calculator Product Page
+   section order, so it isn't shown twice. Formula + plain-English stays
+   inline above - it's the tool's own compact summary, not a duplicate of
+   anything the new page sections add. */
 
 function ExampleBlock({ spec, activeModeId }: { spec: RuntimeCalcSpec; activeModeId?: string }) {
   const fmt = (v: unknown): string => (Array.isArray(v) || (typeof v === "object" && v !== null) ? JSON.stringify(v) : String(v));

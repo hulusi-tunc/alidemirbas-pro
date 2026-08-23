@@ -13,11 +13,11 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = `${t.formTitle} - ${name || "—"}`;
     const bodyLines = [
       message,
       "",
@@ -25,7 +25,7 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
       `${t.formEmail}: ${email}`,
       company ? `${t.formCompany}: ${company}` : null,
     ].filter((line): line is string => line !== null);
-    const href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    const href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject || t.formTitle)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
     window.location.href = href;
   };
 
@@ -48,12 +48,21 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           className="border border-line bg-paper px-4 py-3 text-sm text-ink-900 outline-none placeholder:text-neutral-500 focus:border-blue-600"
         />
       </div>
-      <input
-        value={company}
-        onChange={(e) => setCompany(e.target.value)}
-        placeholder={t.formCompany}
-        className="border border-line bg-paper px-4 py-3 text-sm text-ink-900 outline-none placeholder:text-neutral-500 focus:border-blue-600"
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <input
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+          placeholder={t.formCompany}
+          className="border border-line bg-paper px-4 py-3 text-sm text-ink-900 outline-none placeholder:text-neutral-500 focus:border-blue-600"
+        />
+        <input
+          required
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          placeholder={t.formSubject}
+          className="border border-line bg-paper px-4 py-3 text-sm text-ink-900 outline-none placeholder:text-neutral-500 focus:border-blue-600"
+        />
+      </div>
       <textarea
         required
         value={message}

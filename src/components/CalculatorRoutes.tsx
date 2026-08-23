@@ -1,13 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  Megaphone,
+  UserPlus,
+  ShoppingCart,
+  Repeat,
+  Mail,
+  Smartphone,
+  Layers,
+  Calculator as CalculatorIcon,
+  Filter,
+  FlaskConical,
+  type LucideIcon,
+} from "lucide-react";
 
 import CalculatorTool from "@/components/CalculatorTool";
 import CalculatorContent from "@/components/CalculatorContent";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
 import { SiteFooter, SiteHeader } from "@/components/Site";
+import { CategoryCardGrid, type CategoryCard } from "@/components/ui/CategoryCardGrid";
+import { FaqAccordion } from "@/components/ui/FaqAccordion";
+import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { copy } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
 import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec } from "@/lib/calc-catalog";
@@ -39,6 +55,27 @@ const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
   "cro-funnel": { en: "CRO & Funnel", tr: "CRO ve Huni" },
   experimentation: { en: "Experimentation", tr: "Deneysel Test" },
 };
+
+// One icon per existing catalog category - purely visual, the category
+// set itself still comes from CATEGORY_LABEL/spec.category, never from
+// this map. A category with no entry here falls back to CalculatorIcon
+// rather than being dropped, so a future catalog category never 404s the
+// grid silently.
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  advertising: Megaphone,
+  acquisition: UserPlus,
+  ecommerce: ShoppingCart,
+  "lifecycle-retention": Repeat,
+  "crm-email": Mail,
+  "mobile-growth": Smartphone,
+  saas: Layers,
+  "unit-economics": CalculatorIcon,
+  "cro-funnel": Filter,
+  experimentation: FlaskConical,
+};
+
+const CATEGORY_GRID_TITLE = { en: "Browse by category", tr: "Kategoriye göre göz at" };
+const RELATED_TITLE = { en: "Related calculators", tr: "İlgili hesaplayıcılar" };
 
 export function calculatorIndexMetadata(lang: Lang): Metadata {
   const t = T[lang];
@@ -89,7 +126,7 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
         </section>
         <div className="altor-container py-16">
           {[...byCategory.entries()].map(([cat, list]) => (
-            <div key={cat} className="mb-10">
+            <div key={cat} id={`cat-${cat}`} className="mb-10 scroll-mt-24">
               <h2 className="mb-3 text-sm font-medium tracking-wide text-neutral-500 uppercase">
                 {CATEGORY_LABEL[cat]?.[lang] ?? cat}
               </h2>
@@ -143,6 +180,29 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   // formulaPlainEnglish which is documentation prose.
   const desc = content ? content.intro : spec ? spec.formulaPlainEnglish : textTool!.desc[lang];
 
+  // Section order below: Hero -> Calculator -> short desc/formula area ->
+  // related categories -> FAQ -> Related calculators. Text tools (UTM
+  // builder, character counter) have no CalcSpec, so the category/FAQ/
+  // related sections - all spec-driven - simply don't render for them.
+  const runtime = spec ? toRuntimeSpec(spec) : null;
+
+  const categoryItems: CategoryCard[] = spec
+    ? [...new Set(getAllLiveSpecs().map((s) => s.category))]
+        .filter((cat) => cat !== spec.category)
+        .map((cat) => ({
+          slug: cat,
+          label: CATEGORY_LABEL[cat]?.[lang] ?? cat,
+          count: getAllLiveSpecs().filter((s) => s.category === cat).length,
+          href: `${base}#cat-${cat}`,
+          icon: CATEGORY_ICON[cat] ?? CalculatorIcon,
+        }))
+    : [];
+
+  const relatedItems = (runtime?.related ?? []).map((r) => ({
+    href: `${base}/${r.slug}`,
+    name: r.name,
+  }));
+
   return (
     <>
       <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
@@ -162,7 +222,26 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
           {textTool?.slug === "utm-builder" && <UtmBuilder lang={lang} />}
           {textTool?.slug === "character-counter" && <CharacterCounter lang={lang} />}
         </div>
+
         {content && <CalculatorContent content={content} />}
+
+        {spec && (
+          <div className="altor-container max-w-2xl pb-16">
+            <div className="flex flex-col gap-12 border-t border-line pt-10">
+              {/* The "short desc / formula area" the section order calls
+                  for is CalculatorTool's own inline FormulaBlock, rendered
+                  just above (formula + plain-English, for every live
+                  calculator, not only the 13 with Phase 4 content) - a
+                  second one here would just repeat it, so this template
+                  starts at the category grid instead. */}
+              <CategoryCardGrid title={CATEGORY_GRID_TITLE[lang]} items={categoryItems} />
+
+              <FaqAccordion title="FAQ" items={content?.faq ?? []} />
+
+              <RelatedGrid title={RELATED_TITLE[lang]} items={relatedItems} />
+            </div>
+          </div>
+        )}
       </main>
       <SiteFooter t={c} lang={lang} />
     </>

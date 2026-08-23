@@ -8,8 +8,8 @@ import { LabProjectGrid } from "@/components/ui/LabProjectGrid";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
+import { StackShowcase } from "@/components/ui/StackShowcase";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
-import { logoSrc, stackPreview } from "@/lib/stack";
 
 const GITHUB = "https://github.com/ali-demirbas";
 
@@ -196,40 +196,6 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/** Short teaser for the Stack page - eyebrow, a curated 8-tool subset of
-    the full stack (same names as the cv site's own home-page preview),
-    a link to the full /stack page. */
-function StackTeaser({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const tools = stackPreview();
-  return (
-    <section className="bg-paper-soft py-24 md:py-32">
-      <div className="altor-container">
-        <SectionHeading eyebrow={t.stack.eyebrow} title={t.stack.homeTitle} intro={t.stack.homeIntro} />
-        <div className="mt-14 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {tools.map((tool) => (
-            <div key={tool.name} className="flex items-center gap-3 border border-line bg-paper p-3.5">
-              <span className="relative size-11 shrink-0 border border-line bg-paper-soft p-2">
-                <Image src={logoSrc(tool.domain)} alt="" fill sizes="2.75rem" className="object-contain" />
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate text-[15px] font-medium tracking-tight text-ink-950">{tool.name}</span>
-                <span className="block truncate text-xs text-neutral-500">{tool.tag[lang]}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-        <Link
-          href={t.nav.stackHref}
-          className="mt-8 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-        >
-          {t.stack.homeMore}
-          <ArrowRight aria-hidden className="size-3.5" />
-        </Link>
-      </div>
-    </section>
-  );
-}
-
 export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="contact" data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
@@ -366,7 +332,7 @@ export default function Site({ lang }: { lang: Lang }) {
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
         <Lab t={t} />
-        <StackTeaser t={t} lang={lang} />
+        <StackShowcase lang={lang} />
         <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />

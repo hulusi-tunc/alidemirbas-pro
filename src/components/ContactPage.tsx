@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Briefcase, Mail, MessageCircle, Users } from "lucide-react";
 
 import { CalEmbed } from "@/components/CalEmbed";
 import { ContactForm } from "@/components/ContactForm";
@@ -8,12 +8,14 @@ import { Reveal } from "@/components/ui/Reveal";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 
 const GITHUB = "https://github.com/ali-demirbas";
+const REASON_ICONS = [Briefcase, Users, MessageCircle];
 
-/* Contact page. Same dark title band as About and Stack; below it, three
-   things a visitor might want, in likely order of intent: reach out
-   directly (social pills, right in the dark band), book time on the
-   calendar, or write a longer message. No FinalCta - the whole page
-   already is the contact CTA. */
+/* Contact page. Same dark title band as About and Stack, then the main
+   content is one two-column section - reasons to reach out on the left,
+   the form on the right (the layout instruction 6 asked for) - followed
+   by the existing Cal.com scheduler as a supplementary section rather
+   than removed outright. No FinalCta - the whole page already is the
+   contact CTA. */
 
 function Intro({ t }: { t: (typeof copy)[Lang] }) {
   return (
@@ -69,9 +71,51 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-function Schedule({ t }: { t: (typeof copy)[Lang] }) {
+/* The two-column body: reasons to reach out on the left (real copy
+   derived from finalCta's own "role, project or question" framing - not
+   a corporate demo-request page, so the copy stays personal), the form
+   on the right. Stacks to one column on mobile per instruction 6. */
+function Main({ t }: { t: (typeof copy)[Lang] }) {
+  const c = t.contact;
   return (
     <section className="bg-paper py-24 md:py-32">
+      <div className="altor-container">
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-20">
+          <Reveal>
+            <p className="altor-eyebrow text-ink-400">{c.reasonsTitle}</p>
+            <div className="mt-6 flex flex-col">
+              {c.reasons.map((reason, i) => {
+                const Icon = REASON_ICONS[i] ?? MessageCircle;
+                return (
+                  <div key={reason.title} className="flex gap-4 border-t border-line py-6 first:pt-0 last:border-b">
+                    <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-400" strokeWidth={1.5} />
+                    <div>
+                      <p className="font-medium text-ink-950">{reason.title}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-ink-600">{reason.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Reveal>
+
+          <Reveal delay={90}>
+            <div className="border border-line bg-paper p-8">
+              <h2 className="text-xl font-semibold tracking-tight text-ink-950">{c.formTitle}</h2>
+              <div className="mt-6">
+                <ContactForm t={c} />
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Schedule({ t }: { t: (typeof copy)[Lang] }) {
+  return (
+    <section className="bg-paper-soft py-24 md:py-32">
       <div className="altor-container">
         <Reveal>
           <h2 className="text-[clamp(1.5rem,1.1rem+1.6vw,2.25rem)] leading-[1.1] text-ink-900">
@@ -89,23 +133,6 @@ function Schedule({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-function Form({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    <section className="bg-paper-soft py-24 md:py-32">
-      <div className="altor-container">
-        <Reveal>
-          <div className="mx-auto max-w-xl border border-line bg-paper p-8">
-            <h2 className="text-xl font-semibold tracking-tight text-ink-950">{t.contact.formTitle}</h2>
-            <div className="mt-6">
-              <ContactForm t={t.contact} />
-            </div>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
 export default function ContactPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
@@ -115,8 +142,8 @@ export default function ContactPage({ lang }: { lang: Lang }) {
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <Intro t={t} />
+        <Main t={t} />
         <Schedule t={t} />
-        <Form t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </>
