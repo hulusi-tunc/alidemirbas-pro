@@ -8,19 +8,36 @@
       "id": "definition",
       "type": "definition",
       "heading": "What AOV measures",
-      "body": "Average order value is total revenue divided by the number of orders that produced it, over the same period. You'll also see it called average basket size or revenue per order — same formula, different names depending on the industry."
+      "body": "Average order value is total revenue divided by the number of orders that produced it, over the same period — the same calculation [CFI defines](https://corporatefinanceinstitute.com/resources/accounting/average-order-value-aov/) as revenue for a period divided by orders placed in that period. You'll also see it called average basket size or revenue per order — same formula, different names depending on the industry."
     },
     {
       "id": "formula",
       "type": "formula",
       "heading": "The formula",
-      "body": "Total revenue ÷ number of orders. $45,000 in revenue from 900 orders gives an AOV of $50. Refunded or cancelled orders should be handled consistently — decide once whether they're included in both the revenue and the order count, and apply that rule every time you calculate it."
+      "body": "Total revenue divided by number of orders, over the same period and the same order definition. Refunded or cancelled orders should be handled consistently — decide once whether they're included in both the revenue and the order count, and apply that rule every time AOV is calculated, so a change in the number reflects a real shift in customer behavior rather than a change in accounting treatment."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Total revenue", "value": "$45,000" },
+        { "label": "Number of orders", "value": "900" }
+      ],
+      "output": { "label": "AOV", "value": "$50.00" },
+      "body": "An AOV of $50 means the average completed order brought in $50 of revenue. The same $45,000 split across 450 orders instead of 900 would double AOV to $100 without a single dollar more actually being spent — AOV moves with order count as much as with revenue."
     },
     {
       "id": "interpretation",
       "type": "interpretation",
       "heading": "Reading the number",
-      "body": "A higher AOV doesn't automatically mean a more profitable order — it depends on what's inside it. An order padded out with a low-margin add-on can raise AOV while barely moving actual profit, and a smaller order of high-margin items can be worth more to the business than a bigger one full of discounted stock. AOV is a revenue metric; pair it with margin if the question is really about profitability rather than order size."
+      "body": "A higher AOV doesn't automatically mean a more profitable order — it depends on what's inside it. An order padded out with a low-margin add-on can raise AOV while barely moving actual profit, and a smaller order of high-margin items can be worth more to the business than a bigger one full of discounted stock. AOV is a revenue metric — pair it with [gross margin](/calculators/gross-margin) if the question is really about profitability rather than order size."
+    },
+    {
+      "id": "what-aov-tells-you",
+      "type": "interpretation",
+      "heading": "What AOV actually tells you",
+      "body": "AOV describes one dimension of purchasing behavior: how much revenue the average completed order generates. It's an order-level metric, not a customer-level one — it says nothing about how often a given customer orders, how many total orders they'll place over their relationship with the business, or what that relationship is worth overall. Two stores can post identical AOV with very different economics if one customer base orders monthly and the other orders once a year. For the customer-level view, [LTV](/calculators/ltv) is the metric built for that question; AOV answers a narrower one — what a single completed order is worth in revenue, nothing more."
     },
     {
       "id": "common-mistakes",
@@ -28,15 +45,42 @@
       "heading": "Common mistakes",
       "items": [
         "Reading a rising AOV as automatically good news without checking whether margin moved with it.",
-        "Mixing gross and net revenue between periods, which shifts AOV without any real change in customer behavior."
+        "Mixing gross and net revenue between periods, which shifts AOV without any real change in customer behavior.",
+        "Treating AOV as a stand-in for customer value or purchase frequency, when it only describes a single order.",
+        "Comparing AOV across channels or regions with different price points as if the difference reflects purchasing behavior rather than catalog mix."
       ]
     }
   ],
+  "related": [
+    { "slug": "revenue-per-visitor", "name": "Revenue per Visitor Calculator", "desc": "Blends AOV with conversion rate into one traffic-level revenue number, instead of an order-level one." },
+    { "slug": "ltv", "name": "LTV Calculator", "desc": "The customer-level question AOV doesn't answer — what a customer is worth across every order, not just one." },
+    { "slug": "gross-margin", "name": "Gross Margin Calculator", "desc": "What's actually left after an order's cost, for when the real question is profitability rather than order size." }
+  ],
   "faq": [
+    {
+      "id": "what-is-aov",
+      "q": "What is AOV?",
+      "a": "AOV (average order value) is the average amount of revenue a business collects per completed order, calculated as total revenue divided by the number of orders over the same period. A $45,000 revenue period across 900 orders gives an AOV of $50. It's also known as average basket size or revenue per order — the same calculation under different names depending on the platform or industry. AOV describes order-level revenue specifically; it doesn't measure profit, customer value, or how often any given customer buys. It's most useful as a way to track whether the average completed transaction is growing or shrinking over time, or to compare that pattern across channels, campaigns, or customer segments."
+    },
+    {
+      "id": "how-to-calculate-aov",
+      "q": "How do you calculate AOV?",
+      "a": "Divide total revenue by the number of orders: AOV = Revenue ÷ Orders. $45,000 in revenue from 900 orders gives 45,000 ÷ 900 = $50.00. Both figures need to come from the same period and the same order definition — revenue that includes tax or shipping divided by an order count that doesn't (or the reverse) produces a number that isn't really comparable across periods. Refunded and cancelled orders are the most common inconsistency: decide once whether they count toward both the revenue and the order total, and apply that same rule every time AOV gets calculated, so period-over-period changes reflect real shifts in behavior rather than a shift in accounting treatment."
+    },
     {
       "id": "aov-vs-basket-size",
       "q": "Is average basket size the same as AOV?",
-      "a": "Yes — 'average basket size' and 'revenue per order' are both the same calculation as AOV, just named differently depending on the platform or industry."
+      "a": "Yes. 'Average basket size' and 'revenue per order' are both the exact same calculation as AOV — total revenue divided by number of orders — just named differently depending on the platform, industry, or region. E-commerce platforms sometimes favor 'average basket size' because it evokes a physical shopping cart, while B2B or subscription contexts more often say 'revenue per order' or 'average order value' directly. None of these labels change the underlying formula or what it measures. If a report or tool uses one of these terms, it's safe to assume it's describing the same revenue-divided-by-orders calculation, though it's still worth checking whether refunds, tax, and shipping are handled consistently with however AOV is measured elsewhere."
+    },
+    {
+      "id": "aov-vs-ltv-faq",
+      "q": "How is AOV different from LTV?",
+      "a": "AOV measures the average revenue from a single completed order. LTV (lifetime value) measures the total value a customer generates across every order they ever place, over their entire relationship with the business. A customer with a modest AOV who orders every month can be worth far more in LTV than a customer with a high AOV who orders once and never returns — AOV alone can't distinguish between these two customers, because it only describes what happens inside one transaction, not how many transactions a customer goes on to make. The two metrics are complementary rather than interchangeable: AOV feeds into some LTV models as one input among several, but it isn't a substitute for measuring lifetime value directly."
+    },
+    {
+      "id": "good-aov",
+      "q": "What is a good AOV?",
+      "a": "There's no universal good AOV — it depends heavily on price point, product category, and average basket composition, which vary enormously between, say, a fast-fashion retailer and a furniture store. A $50 AOV is unremarkable for one category and would be an exceptional outlier for another selling much cheaper items. AOV is also silent on profitability: a rising AOV built on low-margin add-ons can leave a business worse off than a lower, higher-margin AOV. Rather than chasing a published benchmark, AOV is most useful tracked against a business's own history — a real change in AOV for the same catalog and customer base is meaningful; a comparison against an unrelated industry average usually isn't."
     }
   ],
   "seo": {
@@ -47,5 +91,5 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "No 'good AOV' benchmark given - it's entirely dependent on price point/category, and no reliable cross-industry source was available this pass."
+  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept existing definition/formula/interpretation prose and both original common-mistakes items. Added worked-example, 'what AOV actually tells you' metric-specific section (order-level vs customer-level, links to LTV), related calculators, and 5-question FAQ (all 100-150 words) including AOV vs LTV. No universal 'good AOV' benchmark stated. External source: CFI's Average Order Value page, verified live (revenue/orders formula confirmed verbatim). Related calculators verified live: revenue-per-visitor, ltv, gross-margin. No separate AOV-vs-LTV comparison-note added - the metric-specific section already covers that boundary, avoiding a redundant section."
 }

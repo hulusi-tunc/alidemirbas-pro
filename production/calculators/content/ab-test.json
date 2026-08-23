@@ -14,7 +14,20 @@
       "id": "formula",
       "type": "formula",
       "heading": "How it's calculated",
-      "body": "Control conversions ÷ control visitors and variant conversions ÷ variant visitors give the two observed rates. The z-score is the difference between them divided by the pooled standard error, and the p-value comes from that z-score via the standard normal distribution. With 250 conversions from 5,000 control visitors and 290 conversions from 5,000 variant visitors, the test returns a p-value of 0.0847 — above the conventional 0.05 threshold, so this particular result is not significant at 95% confidence, even though the variant's raw rate (5.80%) is higher than control's (5.00%)."
+      "body": "Control conversions divided by control visitors, and variant conversions divided by variant visitors, give the two observed rates. The z-score is the difference between them divided by the pooled standard error — [the standard two-sample test procedure for comparing proportions](https://www.itl.nist.gov/div898/handbook/prc/section3/prc33.htm) — and the p-value comes from that z-score via the standard normal distribution."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Control visitors", "value": "5,000" },
+        { "label": "Control conversions", "value": "250" },
+        { "label": "Variant visitors", "value": "5,000" },
+        { "label": "Variant conversions", "value": "290" }
+      ],
+      "output": { "label": "p-value", "value": "0.0768" },
+      "body": "Control converts at 5.00%, variant at 5.80% — a 0.8 percentage point, 16% relative lift. The pooled standard error works out to about 0.0045, giving a z-score of 1.77 and a two-sided p-value of 0.0768. That's above the conventional 0.05 threshold, so this result is not significant at 95% confidence, even though the variant's raw rate is higher than control's."
     },
     {
       "id": "what-p-value-means",
@@ -23,10 +36,10 @@
       "body": "A p-value of 0.05 does not mean there's a 95% probability the variant is actually better — that's a common misreading. The p-value is a statement about the data assuming the null hypothesis is true, not a statement about the probability that the null hypothesis itself is true. It also doesn't tell you the size of the effect, only whether the observed difference is larger than plausible chance variation given your sample size. A tiny, practically meaningless lift can still cross the significance threshold with a big enough sample, and a genuinely large lift can fail to reach it with a small one."
     },
     {
-      "id": "significance-doesnt-prove-causation",
-      "type": "limitations",
-      "heading": "Significance is not proof",
-      "body": "Statistical significance tells you the difference is unlikely to be random noise under the model's assumptions — it does not prove the variant caused the difference, and it says nothing about whether the difference matters commercially. A statistically significant 0.1 percentage point lift might not be worth shipping if it comes with added complexity; a non-significant result with too small a sample doesn't mean 'no effect,' it can just as easily mean 'not enough data yet' — see the sample size calculator before concluding a test was inconclusive."
+      "id": "statistical-vs-practical-significance",
+      "type": "interpretation",
+      "heading": "Statistical significance vs. practical significance",
+      "body": "Statistical significance answers one narrow question: is the observed difference larger than plausible chance variation, given this sample size? It doesn't say the difference is causally proven, or that it's large enough to matter commercially — a significant 0.1 percentage point lift might not be worth shipping once added complexity is weighed in, while a real, commercially meaningful lift can fail to reach significance with too small a sample. Deciding whether to ship also depends on the effect size itself, not just its p-value, and the [confidence interval](/calculators/confidence-interval-calculator) around it, which shows how precisely that effect is actually known. A non-significant result doesn't mean 'no effect' either — it can just as easily mean the [sample size](/calculators/sample-size-calculator) wasn't large enough to detect the effect that's really there."
     },
     {
       "id": "assumptions",
@@ -38,7 +51,7 @@
       "id": "significance-vs-confidence-interval",
       "type": "comparison-note",
       "heading": "This is not the confidence interval calculator",
-      "body": "This page tests whether control and variant differ from each other. The confidence interval calculator answers a related but narrower question about a single observed rate — the range that rate is likely to sit in, without comparing it to anything else. You can use a confidence interval to eyeball whether two ranges overlap, but this significance test is the direct way to answer 'do these two differ,' and the two tools shouldn't be read as interchangeable ways of getting the same answer."
+      "body": "This page tests whether control and variant differ from each other. The [confidence interval calculator](/calculators/confidence-interval-calculator) answers a related but narrower question about a single observed rate — the range that rate is likely to sit in, without comparing it to anything else. You can use a confidence interval to eyeball whether two ranges overlap, but this significance test is the direct way to answer 'do these two differ,' and the two tools shouldn't be read as interchangeable ways of getting the same answer."
     },
     {
       "id": "common-mistakes",
@@ -47,20 +60,42 @@
       "items": [
         "Checking the test daily and stopping as soon as it crosses significance — repeated peeking inflates the chance of a false positive well above the stated threshold.",
         "Reading 'not significant' as 'no difference exists,' when it can just as easily mean the sample size wasn't large enough to detect the difference that's actually there.",
-        "Reporting the p-value as 'the probability the variant is better' rather than what it actually measures."
+        "Reporting the p-value as 'the probability the variant is better' rather than what it actually measures.",
+        "Declaring a winner from one of several simultaneously tested variants or metrics without accounting for how many chances the test had to produce a false positive by chance alone.",
+        "Not checking that visitors actually split close to the intended ratio between control and variant - a broken randomizer can produce a 'significant' result that has nothing to do with the variant itself."
       ]
     }
+  ],
+  "related": [
+    { "slug": "confidence-interval-calculator", "name": "Confidence Interval Calculator", "desc": "The range a single observed rate likely sits in - a narrower question than whether two rates differ." },
+    { "slug": "sample-size-calculator", "name": "Sample Size Calculator", "desc": "Works out how much traffic this test needs before it has a real chance of detecting the effect you're hoping for." },
+    { "slug": "test-duration-estimator", "name": "Test Duration Estimator Calculator", "desc": "Turns that required sample size into an actual number of days, given current traffic." }
   ],
   "faq": [
     {
       "id": "not-significant-what-now",
       "q": "My test isn't significant. Does that mean there's no difference?",
-      "a": "Not necessarily. It can mean there's genuinely no difference, or it can mean your sample size wasn't large enough to detect the difference that's actually there. Check the sample size calculator to see whether your traffic and test duration gave the test a real chance to detect the effect you were hoping for."
+      "a": "Not necessarily. A non-significant result can mean there's genuinely no meaningful difference between control and variant, or it can mean the sample size wasn't large enough to detect the difference that's actually there — the two look identical from the p-value alone. Check the [sample size calculator](/calculators/sample-size-calculator) to see whether the traffic and duration this test ran with gave it a real chance of detecting an effect of the size you were hoping to find; if the required sample was much larger than what the test actually collected, 'not significant' is more likely an underpowered test than a true zero effect. A significant result and an underpowered non-significant one aren't symmetric conclusions, even though the calculator's binary significant/not-significant output can make them look that way at a glance."
     },
     {
       "id": "how-long-to-run",
       "q": "How long should I run the test before checking this?",
-      "a": "Long enough to reach the sample size the test needs for the effect you're trying to detect - see the sample size calculator - and for at least one full weekly cycle, so day-of-week traffic patterns don't skew either side."
+      "a": "Long enough to reach the sample size the test needs for the effect you're trying to detect — see the [sample size calculator](/calculators/sample-size-calculator) for that number — and for at least one full weekly cycle, so day-of-week traffic patterns don't skew either side. Stopping as soon as the running p-value first dips below 0.05, rather than waiting for the pre-planned sample size, is one of the most common ways a test result ends up misleading, since checking repeatedly and stopping at the first significant-looking moment inflates the real false-positive rate well above 5%. The [test duration estimator](/calculators/test-duration-estimator) converts a required sample size into an actual number of days given current traffic, which is a more reliable stopping rule than watching the p-value move day to day."
+    },
+    {
+      "id": "what-is-p-value-faq",
+      "q": "What does the p-value actually mean?",
+      "a": "The p-value is the probability of seeing a difference at least as large as the one observed, if control and variant actually had the same true conversion rate and the only reason for the observed gap was random chance in who got assigned to each side. It is not the probability that the null hypothesis is true, and it is not the probability that the variant is actually better — both are common misreadings of the same number. A p-value of 0.0768, for example, means that if there were truly no difference between control and variant, a gap this large or larger would show up in roughly 7.7% of random assignments by chance alone. That's a statement about the data given an assumption, not a verdict on which version is actually better."
+    },
+    {
+      "id": "statistical-vs-practical-faq",
+      "q": "What's the difference between statistical and practical significance?",
+      "a": "Statistical significance asks whether an observed difference is larger than plausible chance variation, given the sample size collected. Practical significance asks whether that difference is large enough to matter for the business, once implementation cost, complexity, and any tradeoffs are considered. The two can disagree in either direction: a tiny, commercially trivial lift can reach statistical significance with a large enough sample, and a genuinely large, valuable lift can fail to reach significance if the sample was too small. A statistically significant result is a signal worth taking seriously, not a shipping decision on its own — the actual effect size and its confidence interval matter as much as whether the p-value cleared a threshold."
+    },
+    {
+      "id": "what-does-95-confidence-mean",
+      "q": "Does 95% confidence mean there's a 95% chance the variant is better?",
+      "a": "No — this is one of the most common misreadings of significance testing. 95% confidence (a p-value below 0.05) means that if control and variant truly had the same conversion rate, a difference this large or larger would appear by chance alone less than 5% of the time. It says nothing directly about the probability that the variant is actually better; that would require a different kind of calculation entirely — a Bayesian approach, which estimates the probability one variant beats another directly rather than testing against a null hypothesis. This frequentist test and a Bayesian one can produce different-sounding answers to what feels like the same question, because they're formally answering different questions."
     }
   ],
   "seo": {
@@ -70,6 +105,6 @@
     "index": true,
     "follow": true
   },
-  "qaStatus": "ready",
-  "qaNotes": "No link to Bayesian Probability to Beat Control - that calculator isn't implemented yet (P2, outside the 34-calculator live batch), so it's mentioned conceptually only, never as a clickable related calculator, to avoid a dead link (Phase 4 §32). p-value/significance interpretation follows Phase 4 §13's explicit correct/incorrect wording exactly."
+  "qaStatus": "review",
+  "qaNotes": "DEEP depth, Content Standard rebuild (Batch 02). Kept the existing definition/what-p-value-means/assumptions/significance-vs-confidence-interval prose almost verbatim - already correctly worded per the p-value claim policy. Renamed and expanded 'significance-doesnt-prove-causation' into an explicit 'statistical vs practical significance' section per instruction, now naming effect size, confidence interval and sample size as the missing inputs. Added worked-example, related calculators, and expanded FAQ from 2 to 5 (all 100-150 words). External source: NIST/SEMATECH e-Handbook of Statistical Methods, two-sample proportion test section - verified live, formula shape matches src/lib/calc-registry.ts's ab-test implementation exactly (pooled-variance z-test). REVIEW/BLOCK FLAG (per instruction 0/7): calculator-catalog.json's own exampleOutput for CALC-AB-TEST-SIGNIFICANCE states pValue '0.0847' for exampleInput {visitorsA:5000,conversionsA:250,visitorsB:5000,conversionsB:290}. Independently re-derived by hand and by running the actual src/lib/calc-registry.ts 'ab-test' function against that exact input: p-value is 0.0768 (z=1.77), not 0.0847 - verified twice (Python + Node, same registry formula). 'significant: false' is still correct either way. Used the verified-correct 0.0768 in this content (matches what a real user testing this exact input on the live calculator will see) rather than the catalog's stale documented value - did NOT edit calculator-catalog.json itself, per the no-silent-spec-edit rule. This means production/validate-calculator-content.mjs's worked-example cross-check will show one ERROR on this file (output mismatch vs. the catalog's own wrong exampleOutput) - that error is expected and points at the catalog bug described here, not a content bug. Related calculators verified live: confidence-interval-calculator, sample-size-calculator, test-duration-estimator - bayesian-probability-to-beat and multi-variant-test-significance are NOT live, not linked, matching the prior page's existing caution."
 }

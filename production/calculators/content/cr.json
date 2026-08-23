@@ -14,13 +14,36 @@
       "id": "formula",
       "type": "formula",
       "heading": "The formula",
-      "body": "Conversions ÷ opportunities. 340 conversions out of 8,000 opportunities gives a conversion rate of 4.25%. The label on each input changes with context — 'visitors' for a landing page, 'leads' for a sales funnel, 'store views' for an app listing — but the calculation underneath stays the same."
+      "body": "Conversion rate is conversions divided by opportunities, expressed as a percentage — the same shape [Corporate Finance Institute's definition](https://corporatefinanceinstitute.com/resources/valuation/customer-conversion-rate/) uses, dividing the number of people who performed a desired action by the total number of potential customers. What counts as the action and what counts as the opportunity both depend on the funnel being measured, not on the formula itself."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Conversions", "value": "340" },
+        { "label": "Opportunities", "value": "8,000" }
+      ],
+      "output": { "label": "Conversion Rate", "value": "4.25%" },
+      "body": "A conversion rate of 4.25% means roughly 1 in 24 opportunities completed the tracked action. The same 340 conversions would produce a very different rate against a narrower or wider opportunity count, which is why the opportunity definition matters as much as the conversion count itself."
     },
     {
       "id": "interpretation",
       "type": "interpretation",
-      "heading": "Reading the number",
-      "body": "Conversion rate only means something next to a clear definition of both sides of the fraction. The same underlying data can produce very different rates depending on what counts as an 'opportunity' — all site visitors versus only visitors who reached checkout, for instance — so before comparing two conversion rates, check that both sides were measured the same way."
+      "heading": "What conversion rate tells you, and what it doesn't",
+      "body": "Conversion rate tells you what share of a defined opportunity set completed a defined action, within the period measured. It doesn't tell you why they did or didn't convert, what a completed action was actually worth, or whether the opportunities reaching the top of the funnel were the right ones to begin with — a channel sending fewer, better-qualified opportunities can post a much higher rate than one sending a flood of unqualified ones, without either channel being objectively better until what happens after conversion is counted too."
+    },
+    {
+      "id": "what-counts-as-conversion",
+      "type": "interpretation",
+      "heading": "What counts as a conversion?",
+      "body": "The tracked action changes by context — a purchase, a signup, a lead form, a trial start, an app install, an account activation — and the calculator doesn't assume which one applies; whatever event is entered as 'conversions' is what the rate describes. The denominator shifts the same way: sessions, unique visitors, ad clicks, leads or installs can all be the 'opportunity' side of the fraction, depending on the funnel stage being measured. A [cart abandonment rate](/calculators/cart-abandonment) and a checkout conversion rate can describe the same shoppers from opposite directions, using different denominators for the same funnel step. What has to stay fixed is the definition itself — the same conversion event and the same denominator, every time the rate is compared against another period or channel."
+    },
+    {
+      "id": "cr-vs-ctr",
+      "type": "comparison-note",
+      "heading": "CR and CTR measure different things",
+      "body": "[CTR](/calculators/ctr) measures whether someone clicked; conversion rate measures whether they completed the actual goal afterward, whether they arrived by a click or any other path. A high CTR with a low conversion rate usually means the ad or link earns attention it can't back up once someone lands — the traffic shows up, but doesn't do the thing being measured. The two aren't substitutes: a campaign can be strong on one and weak on the other, and neither number explains the other's result on its own."
     },
     {
       "id": "common-mistakes",
@@ -28,11 +51,44 @@
       "heading": "Common mistakes",
       "items": [
         "Comparing conversion rates measured against different denominators (e.g. all visitors vs. only qualified visitors) as if they were the same metric.",
-        "Including bot or non-human traffic in the opportunity count, which quietly dilutes the rate without anyone changing anything real."
+        "Including bot or non-human traffic in the opportunity count, which quietly dilutes the rate without anyone changing anything real.",
+        "Treating a rising conversion rate as automatically good news without checking whether the conversion definition or traffic mix changed underneath it.",
+        "Comparing conversion rate across channels without accounting for how different channels naturally send different-quality opportunities to the same funnel step."
       ]
     }
   ],
-  "faq": [],
+  "related": [
+    { "slug": "ctr", "name": "CTR Calculator", "desc": "The click-behavior step before this one — attention earned, not the goal completed." },
+    { "slug": "activation-rate", "name": "Activation Rate Calculator", "desc": "A specific, product-side conversion event — reaching a defined 'aha' action after signup." },
+    { "slug": "funnel-analysis-multistep", "name": "Funnel Analysis Calculator", "desc": "Chains several conversion rates together across a multi-step funnel instead of one isolated step." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-cr",
+      "q": "What is conversion rate?",
+      "a": "Conversion rate is the percentage of a defined group of opportunities — visitors, leads, sessions, or any other countable audience — that completed a defined action, calculated as conversions divided by opportunities. It's a single formula used across very different contexts: an e-commerce site tracking purchases per visitor, a SaaS company tracking trial signups per lead, or a mobile app tracking installs per store view are all computing the same ratio with different labels on each side. The number only means something once both the action and the audience it's measured against are clearly defined, since changing either one changes what the rate actually describes, even if the underlying behavior hasn't changed at all."
+    },
+    {
+      "id": "how-to-calculate-cr",
+      "q": "How do you calculate conversion rate?",
+      "a": "Divide conversions by opportunities and multiply by 100: Conversion Rate = (Conversions ÷ Opportunities) × 100. 340 conversions out of 8,000 opportunities gives 340 ÷ 8,000 = 4.25%. Both numbers need to come from the same time window and the same audience definition — conversions counted over one period divided by opportunities counted over a different one won't produce a rate that describes either period accurately. Most analytics and CRM platforms report both sides of this ratio automatically, but the underlying formula matters for spotting what moved the number: a rate change can come from more conversions, fewer opportunities, or both moving in opposite directions at once."
+    },
+    {
+      "id": "what-counts-as-a-conversion-faq",
+      "q": "What counts as a 'conversion'?",
+      "a": "Whatever action the business defines as the goal for that specific funnel — there's no fixed list. A purchase, a completed signup form, a qualified lead, a trial start, an app install, or a feature-activation event are all valid 'conversions' depending on what's being measured, and the same website or product can track several different conversion definitions for different funnels at once. The important part isn't picking the 'correct' definition, since there isn't a single correct one — it's stating clearly which action is being counted before reading the rate, and keeping that same definition in place whenever the rate gets compared across time, channels, or pages."
+    },
+    {
+      "id": "cr-vs-ctr-faq",
+      "q": "Is conversion rate the same as CTR?",
+      "a": "No. CTR measures how often people who saw something clicked it — clicks divided by impressions. Conversion rate measures how often people completed a defined goal, which can happen well after a click, or without a click ever being involved, such as a direct visitor converting on a landing page. A campaign can have a strong CTR and a weak conversion rate if the ad earns clicks the landing page can't turn into anything, or a weak CTR and a strong conversion rate if the few people who do click are highly qualified. The two metrics measure different stages of the same funnel, not two versions of the same measurement."
+    },
+    {
+      "id": "good-cr",
+      "q": "What is a good conversion rate?",
+      "a": "There's no fixed good number — it depends on the conversion definition, the traffic source, the industry, the device, and how far down the funnel the 'opportunity' side of the fraction is measured. A rate for 'all visitors who made a purchase' will always look lower than a rate for 'checkout starts who completed a purchase,' even from the exact same store on the exact same day, because the denominators describe different populations. Rather than chasing a published average, conversion rate is most reliable compared against a business's own past performance for the same funnel step, traffic source and conversion definition — a real shift in that specific comparison means something; an unrelated external benchmark usually doesn't."
+    }
+  ],
   "seo": {
     "seoTitle": "Conversion Rate Calculator",
     "seoDescription": "Calculate conversion rate from conversions and total opportunities - the same formula behind lead, checkout, install and signup conversion rates.",
@@ -41,5 +97,5 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "Deliberately not split into 16 aliased subsections (Phase 4 §20) - the 16 industry names are handled as one sentence of naturally-occurring examples, not repeated headings. No universal benchmark stated (Phase 4 §8)."
+  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing 'one equation, many names' framing and both original common-mistakes items - genuinely good prior content. Added worked-example, metric-specific 'what counts as a conversion' section covering denominator/action flexibility per instruction, CR vs CTR comparison-note, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good CR' benchmark stated, including in the good-cr FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Conversion Rate page, verified live. Related calculators verified live: ctr, activation-rate, funnel-analysis-multistep."
 }

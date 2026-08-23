@@ -13,14 +13,32 @@
     {
       "id": "formula",
       "type": "formula",
-      "heading": "The formula, and its complement",
-      "body": "Starting with 1,000 customers, ending the period with 1,050, and having acquired 150 new ones during it: (1,050 − 150) ÷ 1,000 = 90% retention. Churn rate is reported as 1 − retention, so this same period has a 10% churn rate. That relationship only holds because both numbers are measured over the exact same population and the exact same time window — a churn rate calculated over a different period, or a different customer segment, isn't the complement of this retention rate anymore, it's a different measurement entirely."
+      "heading": "Retention and its complement, churn",
+      "body": "This calculator reports churn rate alongside retention, calculated as 1 − retention rate. That relationship holds here because both numbers come from the exact same start, end and newly-acquired customer counts in one calculation — not because retention and churn always sum to 100% by some universal law. A churn rate sourced from a different population, a different period, or measured independently rather than derived from this same retention figure isn't guaranteed to be this retention rate's complement anymore."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Customers at period start", "value": "1,000" },
+        { "label": "Customers at period end", "value": "1,050" },
+        { "label": "New customers acquired", "value": "150" }
+      ],
+      "output": { "label": "Retention Rate", "value": "90.00%" },
+      "body": "(1,050 − 150) ÷ 1,000 = 90% retention. Churn rate for this exact same population and period is reported as 10% (1 − 90%) — both numbers describe the 1,000 customers who were already there at the start."
     },
     {
       "id": "interpretation",
       "type": "interpretation",
       "heading": "Reading the number",
-      "body": "Retention rate is a period-level average — it tells you how a whole cohort of existing customers behaved over one stretch of time, not what happens to any individual customer or how retention trends across the customer's actual lifetime. For that finer-grained view, cohort retention (like D1/D7/D30 retention in mobile) tracks the same group from a shared starting point instead of a rolling period, and answers a related but different question: not 'how many of my current customers stuck around this month,' but 'how many of the people who signed up on day zero are still here N days later.'"
+      "body": "Retention rate is a period-level average — it tells you how a whole cohort of existing customers behaved over one stretch of time, not what happens to any individual customer or how retention trends across a customer's actual lifetime. For that finer-grained view, cohort retention (like [D1 retention](/calculators/d1-retention) in mobile) tracks the same group from a shared starting point instead of a rolling period, and answers a related but different question: not 'how many of my current customers stuck around this month,' but 'how many of the people who signed up on day zero are still here N days later.'"
+    },
+    {
+      "id": "customer-vs-revenue-retention",
+      "type": "comparison-note",
+      "heading": "Customer retention vs. revenue retention",
+      "body": "This calculator measures customer (or 'logo') retention — the share of customers who stuck around, regardless of how much each one spends. [Revenue churn is a distinct measurement](https://corporatefinanceinstitute.com/resources/valuation/customer-churn-vs-revenue-churn), tracking lost revenue rather than lost customers, including revenue lost to downgrades from customers who technically stayed. A business can retain 90% of its customers by headcount while losing far more than 10% of revenue, if the customers who left or downgraded were disproportionately large accounts. For the revenue-based version of this question, [Net Revenue Retention](/calculators/nrr) is the metric built for it — the two aren't interchangeable."
     },
     {
       "id": "common-mistakes",
@@ -28,11 +46,44 @@
       "heading": "Common mistakes",
       "items": [
         "Forgetting to subtract new customers from the end count, which inflates retention by counting brand-new signups as 'retained.'",
-        "Comparing retention rates calculated over different period lengths (a month vs. a quarter) as if they were the same measurement."
+        "Comparing retention rates calculated over different period lengths (a month vs. a quarter) as if they were the same measurement.",
+        "Treating this calculator's customer retention rate and Net Revenue Retention as interchangeable, when a business can retain most customers by headcount while still losing significant revenue to downgrades.",
+        "Reading a churn rate from a different population or period as this retention rate's complement, when the 1 − retention relationship only holds for numbers derived from the same population and period."
       ]
     }
   ],
-  "faq": [],
+  "related": [
+    { "slug": "nrr", "name": "Net Revenue Retention Calculator", "desc": "The revenue-based counterpart to this customer-count-based retention rate - not interchangeable with it." },
+    { "slug": "d1-retention", "name": "D1 Retention Calculator", "desc": "The cohort-based view this period-level retention rate can't give you - the same group tracked from a shared starting point." },
+    { "slug": "ltv", "name": "LTV Calculator", "desc": "Uses a churn rate like this one to derive an implied customer lifetime in its margin-adjusted model." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-retention-rate",
+      "q": "What is retention rate?",
+      "a": "Retention rate is the share of customers a business already had at the start of a period who were still customers at the end of it, with any newly acquired customers excluded from the count so they don't mask churn among the existing base. It's calculated as (customers at period end − customers acquired during the period) ÷ customers at period start, and reported as a percentage. Starting with 1,000 customers, ending with 1,050 after acquiring 150 new ones, gives 90% retention — meaning 900 of the original 1,000 customers were still active by the end. This calculator also reports churn rate as the complement, 1 − retention rate, since both are derived from the same customer counts over the same period."
+    },
+    {
+      "id": "how-to-calculate-retention-rate",
+      "q": "How do you calculate retention rate?",
+      "a": "Subtract customers acquired during the period from customers at period end, then divide by customers at period start: Retention = (End − Acquired) ÷ Start. With 1,000 customers at the start, 1,050 at the end, and 150 newly acquired, that's (1,050 − 150) ÷ 1,000 = 90%. Subtracting new customers is the step most manual calculations skip, and skipping it inflates the result by counting brand-new signups as retained customers rather than isolating what happened to the customers who were already there. All three inputs need to describe the same customer population and the same time window, or the result won't describe a real, comparable retention figure."
+    },
+    {
+      "id": "retention-vs-churn-faq",
+      "q": "How is retention rate related to churn rate?",
+      "a": "Churn rate is retention rate's complement: churn = 1 − retention. A 90% retention rate corresponds to a 10% churn rate, and this calculator reports both from the same input numbers in one calculation. That identity holds specifically because both figures are derived from the exact same customer population and the exact same time period — it isn't a universal law that any two retention and churn numbers will sum to 100%. A churn rate measured independently, over a different period, or for a different customer segment than the retention rate it's being compared against isn't guaranteed to be its complement, and treating it as one produces a misleading picture of what actually changed."
+    },
+    {
+      "id": "customer-vs-revenue-retention-faq",
+      "q": "Is customer retention the same as revenue retention?",
+      "a": "No. Customer retention, what this calculator measures, counts how many customers stuck around, treating every customer equally regardless of what they spend. Revenue retention tracks how much revenue stuck around instead, which also captures downgrades from customers who technically remained active but are now paying less. A business can post a strong 90% customer retention rate while still losing a large share of revenue, if the customers who churned or downgraded were disproportionately its highest-spending accounts. Net Revenue Retention is the metric built specifically for the revenue-based question, and it isn't interchangeable with this calculator's customer-count-based retention rate — a healthy number on one doesn't guarantee a healthy number on the other."
+    },
+    {
+      "id": "good-retention-rate",
+      "q": "What is a good retention rate?",
+      "a": "There's no universal good retention rate — it varies enormously by product category, subscription model, period length, and exactly how 'retained' is defined for that business. A monthly retention rate and an annual retention rate for the same customers will look very different even though nothing about the underlying churn pattern changed, simply because a longer period gives more time for customers to leave. A consumer mobile app and an enterprise B2B contract also have fundamentally different natural retention patterns, driven by how the product is bought and used, not by one business managing retention better than the other. The more reliable comparison is this business's own retention rate over time, for the same period length and customer definition, rather than a number pulled from an unrelated company or category."
+    }
+  ],
   "seo": {
     "seoTitle": "Retention Rate Calculator",
     "seoDescription": "Calculate customer retention rate and churn rate together from period-start, period-end and newly acquired customer counts.",
@@ -41,5 +92,5 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "Excluded 'improve customer retention' (future-guide placement) and 'average retention rate' (no sourced benchmark this pass). Churn = 1 - retention explained with the same-population/same-period caveat required by Phase 4 §15."
+  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing definition and cohort-retention interpretation prose - genuinely good prior content. Split the original combined formula+example section into a formula section (explicit about why retention+churn=100% holds here specifically, not as a universal identity) and a separate worked-example. Added the required customer-retention-vs-revenue-retention boundary (logo churn != revenue churn), 2 more common mistakes, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good retention rate' benchmark stated, including in the good-retention-rate FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Churn vs Revenue Churn page, verified live. Related calculators verified live: nrr, d1-retention, ltv."
 }
