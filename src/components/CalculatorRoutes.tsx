@@ -26,7 +26,7 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { copy } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
-import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec } from "@/lib/calc-catalog";
+import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS } from "@/lib/calc-catalog";
 import { getContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
@@ -198,10 +198,16 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
         }))
     : [];
 
-  const relatedItems = (runtime?.related ?? []).map((r) => ({
-    href: `${base}/${r.slug}`,
-    name: r.name,
-  }));
+  // Phase 4 content can author its own Related Calculators with a real
+  // one-sentence relationship (see CalcContent.related) - preferred over
+  // the catalog's relatedCalculators field, which carries no description
+  // and can list a slug that's no longer live. Every content-authored
+  // slug is re-verified against LIVE_CALCULATOR_SLUGS here regardless, so
+  // a typo or a slug that goes dark later can't silently produce a 404.
+  const authoredRelated = (content?.related ?? []).filter((r) => LIVE_CALCULATOR_SLUGS.includes(r.slug));
+  const relatedItems = authoredRelated.length > 0
+    ? authoredRelated.map((r) => ({ href: `${base}/${r.slug}`, name: r.name, desc: r.desc }))
+    : (runtime?.related ?? []).map((r) => ({ href: `${base}/${r.slug}`, name: r.name }));
 
   return (
     <>

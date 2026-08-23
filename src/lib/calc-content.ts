@@ -19,12 +19,29 @@ import sampleSizeCalculator from "../../production/calculators/content/sample-si
 
 export type ContentSection = {
   id: string;
-  type: "definition" | "formula" | "example" | "interpretation" | "methodology" | "models" | "assumptions" | "limitations" | "common-mistakes" | "comparison-note";
+  type:
+    | "definition" | "formula" | "example" | "interpretation" | "methodology"
+    | "models" | "assumptions" | "limitations" | "common-mistakes" | "comparison-note"
+    // worked-example: a scannable input/output readout followed by a plain-
+    // language reading of the result. output/inputs come straight from the
+    // calculator spec's own verified exampleInput/exampleOutput - never
+    // invented.
+    | "worked-example"
+    // trust-checks: the "Before You Trust This Result" pattern - a short
+    // title + 1-3 sentences per check, not a flat bullet list, because each
+    // check is its own small claim rather than one item in a series.
+    | "trust-checks";
   heading: string;
+  /** Supports inline links: `[label](href)` - see Prose in CalculatorContent.tsx.
+      Internal (starts with "/") renders as a Next Link, external (starts with
+      "http") as a new-tab anchor. This is the only markup body text accepts. */
   body?: string;
   items?: string[];
   intro?: string;
   models?: { modeId: string; heading: string; body: string; example?: string }[];
+  inputs?: { label: string; value: string }[];
+  output?: { label: string; value: string };
+  checks?: { title: string; body: string }[];
 };
 
 export type CalcContent = {
@@ -33,6 +50,12 @@ export type CalcContent = {
   contentDepth: "light" | "standard" | "deep";
   intro: string;
   sections: ContentSection[];
+  /** Authored Related Calculators, verified against LIVE_CALCULATOR_SLUGS at
+      build time by CalculatorRoutes.tsx - a real, checked slug with a real
+      one-sentence relationship description, not the catalog's own
+      relatedCalculators field (which can carry a slug that no longer
+      resolves to a live route, and carries no description at all). */
+  related?: { slug: string; name: string; desc: string }[];
   faq: { id: string; q: string; a: string }[];
   seo: { seoTitle: string; seoDescription: string; canonicalPath: string; index: boolean; follow: boolean };
   qaStatus: "ready" | "review" | "blocked";
