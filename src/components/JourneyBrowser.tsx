@@ -4,9 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 
-import { FacetCheckbox, FacetGroup, FacetRadio } from "@/components/ui/Facets";
+import { FacetCheckbox, FacetGroup } from "@/components/ui/Facets";
 import type {
-  CategoryFacet,
   EvidenceSource,
   JourneyRow,
   MergedRedirect,
@@ -19,16 +18,17 @@ import type { copy, Lang } from "@/lib/content";
    library, so the browser downloads one-line rows rather than node graphs;
    a journey's graph arrives on that journey's own route.
 
-   Four facets, in the order the filter taxonomy audit recommended
-   (production/journey-filter-taxonomy-audit.md): Category first (26
-   balanced values, the strongest single differentiator), Goal/Use Case
-   second (20 values, genuinely cross-cutting - checkbox, since asking
-   for two goals at once is a real question), Lifecycle Stage third
-   (real but secondary - only 4 of 26 categories are lifecycle-anchored,
-   the other 85% of the library is "cross-lifecycle" by design, so this
-   is a checkbox too rather than a prominent radio), and Trigger evidence
-   last - the pre-existing facet from before the audit, for what the
-   trigger is allowed to conclude. */
+   Three facets: Goal/Use Case (20 values, genuinely cross-cutting -
+   checkbox, since asking for two goals at once is a real question),
+   Lifecycle Stage (real but secondary - only 4 of 26 categories are
+   lifecycle-anchored, the other 85% of the library is "cross-lifecycle"
+   by design, so this is a checkbox too rather than a prominent radio),
+   and Trigger evidence - the pre-existing facet from before the filter
+   taxonomy audit, for what the trigger is allowed to conclude.
+
+   Category was dropped as a filter by request - each journey still shows
+   its category inline in the result row (categoryTitle), it's just not a
+   facet to filter by anymore. */
 
 const EVIDENCE_SOURCES: readonly EvidenceSource[] = [
   "authoritative",
@@ -80,28 +80,25 @@ export default function JourneyBrowser({
   lang,
   t,
   rows: allRows,
-  categories,
   merged,
   basePath,
 }: {
   lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
   rows: readonly JourneyRow[];
-  categories: readonly CategoryFacet[];
   merged: readonly MergedRedirect[];
   basePath: string;
 }) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("");
   const [goal, setGoal] = useState<Goal[]>([]);
   const [stage, setStage] = useState<LifecycleStage[]>([]);
   const [evidence, setEvidence] = useState<EvidenceSource[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   /* Each facet is a separate predicate so the counts can leave its own one
-     out. A category's count is "how many would I get if I picked this",
-     which is only true if the category filter is not already applied to it. */
-  const { rows, categoryCounts, goalCounts, stageCounts, evidenceCounts, mergedHit } = useMemo(() => {
+     out - a goal's count is "how many would I get if I picked this",
+     which is only true if the goal filter is not already applied to it. */
+  const { rows, goalCounts, stageCounts, evidenceCounts, mergedHit } = useMemo(() => {
     const q = query.trim().toLocaleLowerCase(lang);
     const byQuery = (j: JourneyRow) =>
       !q ||
@@ -109,7 +106,6 @@ export default function JourneyBrowser({
         .join(" ")
         .toLocaleLowerCase(lang)
         .includes(q);
-    const byCategory = (j: JourneyRow) => !category || j.category === category;
     // Goal, Stage and Evidence read as "any of these", not "all of them" -
     // one journey has exactly one value for each, so "all" would always
     // return nothing once two or more are selected.
@@ -117,13 +113,10 @@ export default function JourneyBrowser({
     const byStage = (j: JourneyRow) => stage.length === 0 || stage.includes(j.lifecycleStage);
     const byEvidence = (j: JourneyRow) => evidence.length === 0 || evidence.includes(j.evidence);
 
-    const forCategoryFacet = allRows.filter((j) => byQuery(j) && byGoal(j) && byStage(j) && byEvidence(j));
-    const forGoalFacet = allRows.filter((j) => byQuery(j) && byCategory(j) && byStage(j) && byEvidence(j));
-    const forStageFacet = allRows.filter((j) => byQuery(j) && byCategory(j) && byGoal(j) && byEvidence(j));
-    const forEvidenceFacet = allRows.filter((j) => byQuery(j) && byCategory(j) && byGoal(j) && byStage(j));
-    const matched = allRows.filter(
-      (j) => byQuery(j) && byCategory(j) && byGoal(j) && byStage(j) && byEvidence(j),
-    );
+    const forGoalFacet = allRows.filter((j) => byQuery(j) && byStage(j) && byEvidence(j));
+    const forStageFacet = allRows.filter((j) => byQuery(j) && byGoal(j) && byEvidence(j));
+    const forEvidenceFacet = allRows.filter((j) => byQuery(j) && byGoal(j) && byStage(j));
+    const matched = allRows.filter((j) => byQuery(j) && byGoal(j) && byStage(j) && byEvidence(j));
 
     /* A merged id is not a journey and matches nothing, which would leave
        someone holding an old reference at a dead end. Answer with the journey
@@ -134,9 +127,6 @@ export default function JourneyBrowser({
     return {
       rows: survivor ?? matched,
       mergedHit: hit,
-      categoryCounts: Object.fromEntries(
-        categories.map((c) => [c.id, forCategoryFacet.filter((j) => j.category === c.id).length]),
-      ) as Record<string, number>,
       goalCounts: Object.fromEntries(
         GOALS.map((g) => [g, forGoalFacet.filter((j) => j.goal === g).length]),
       ) as Record<Goal, number>,
@@ -147,13 +137,11 @@ export default function JourneyBrowser({
         EVIDENCE_SOURCES.map((s) => [s, forEvidenceFacet.filter((j) => j.evidence === s).length]),
       ) as Record<string, number>,
     };
-  }, [query, category, goal, stage, evidence, lang, allRows, categories, merged]);
+  }, [query, goal, stage, evidence, lang, allRows, merged]);
 
-  const activeCount =
-    (category ? 1 : 0) + goal.length + stage.length + evidence.length + (query.trim() ? 1 : 0);
+  const activeCount = goal.length + stage.length + evidence.length + (query.trim() ? 1 : 0);
   const clearAll = () => {
     setQuery("");
-    setCategory("");
     setGoal([]);
     setStage([]);
     setEvidence([]);
@@ -163,32 +151,6 @@ export default function JourneyBrowser({
 
   const facetPanel = (
     <div className="space-y-8">
-      <FacetGroup
-        title={t.categoryLabel}
-        moreLabel={t.showMore}
-        lessLabel={t.showLess}
-        initialVisible={8}
-      >
-        {[
-          <FacetRadio
-            key="__all"
-            label={t.allCategories}
-            count={allRows.length}
-            selected={category === ""}
-            onSelect={() => setCategory("")}
-          />,
-          ...categories.map((c) => (
-            <FacetRadio
-              key={c.id}
-              label={c.title}
-              count={categoryCounts[c.id] ?? 0}
-              selected={category === c.id}
-              onSelect={() => setCategory(category === c.id ? "" : c.id)}
-            />
-          )),
-        ]}
-      </FacetGroup>
-
       <FacetGroup title={t.goalLabel} moreLabel={t.showMore} lessLabel={t.showLess} initialVisible={8}>
         {GOALS.map((g) => (
           <FacetCheckbox

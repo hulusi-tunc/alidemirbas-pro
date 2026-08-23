@@ -1,7 +1,6 @@
 import JourneyBrowser from "@/components/JourneyBrowser";
 import LabShell from "@/components/LabShell";
 import {
-  CATEGORY_FACETS,
   JOURNEY_ROWS,
   MERGED_REDIRECTS,
   withCanonicalCount,
@@ -43,7 +42,6 @@ export default function LabPage({ lang }: { lang: Lang }) {
             lang={lang}
             t={t.lab.page}
             rows={JOURNEY_ROWS}
-            categories={CATEGORY_FACETS}
             merged={MERGED_REDIRECTS}
             basePath={basePath}
           />

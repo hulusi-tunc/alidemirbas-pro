@@ -54,8 +54,6 @@ export const EVIDENCE_SOURCES: readonly EvidenceSource[] = [
   "inferred",
 ];
 
-export type CategoryFacet = { id: CategoryId; title: string };
-
 export type JourneyRow = {
   id: string;
   slug: string;
@@ -87,11 +85,6 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   competesIn: j.competition?.exclusionGroup ?? null,
   lifecycleStage: lifecycleStageOf(j.category),
   goal: goalOf(j),
-}));
-
-export const CATEGORY_FACETS: readonly CategoryFacet[] = CATEGORIES.map((c) => ({
-  id: c.id,
-  title: c.title,
 }));
 
 /* ------------------------------------------------------------ merged ids */
