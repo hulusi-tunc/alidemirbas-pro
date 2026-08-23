@@ -76,9 +76,13 @@ export const copy = {
       page: {
         title: "Canonical Journey Library",
         intro:
-          "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Filter by category or by what the trigger is allowed to conclude, or search - each entry is a graph, not a sequence.",
+          "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Filter by category, goal, lifecycle stage or what the trigger is allowed to conclude, or search - each entry is a graph, not a sequence.",
         searchPlaceholder: "Search journeys...",
         categoryLabel: "Category",
+        goalLabel: "Goal / use case",
+        lifecycleStageLabel: "Lifecycle stage",
+        lifecycleStageHint:
+          "Only 4 of 26 categories are anchored to a point in the customer lifecycle - the rest run the same regardless of where someone is, so most journeys show as cross-lifecycle.",
         evidenceLabel: "Trigger evidence",
         allCategories: "All categories",
         filtersLabel: "Filters",
@@ -439,9 +443,13 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Kategoriye veya trigger kanıtına göre filtrele ya da ara. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Kategoriye, amaca, yaşam döngüsü aşamasına veya trigger kanıtına göre filtrele ya da ara. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
         searchPlaceholder: "Journey ara...",
         categoryLabel: "Kategori",
+        goalLabel: "Amaç / kullanım senaryosu",
+        lifecycleStageLabel: "Yaşam döngüsü aşaması",
+        lifecycleStageHint:
+          "26 kategoriden yalnızca 4'ü müşteri yaşam döngüsünde belirli bir noktaya bağlı - geri kalanı kişinin nerede olduğundan bağımsız aynı şekilde çalışır, bu yüzden çoğu journey yaşam döngüsünden bağımsız görünür.",
         evidenceLabel: "Trigger kanıtı",
         allCategories: "Tüm kategoriler",
         filtersLabel: "Filtreler",

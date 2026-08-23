@@ -11,17 +11,24 @@ import type {
   JourneyRow,
   MergedRedirect,
 } from "@/lib/canonical-view";
+import type { Goal, LifecycleStage } from "@/lib/journey-taxonomy";
+import { GOALS, LIFECYCLE_STAGES } from "@/lib/journey-taxonomy";
 import type { copy, Lang } from "@/lib/content";
 
 /* The list. It takes rows as props and imports nothing from the canonical
    library, so the browser downloads one-line rows rather than node graphs;
    a journey's graph arrives on that journey's own route.
 
-   Two facets. Category is the obvious one. The second is the trigger's
-   evidence source, because that is the property that decides what a journey
-   is allowed to conclude - a filter for "show me the journeys that act on a
-   model's guess" is a more useful question of this library than anything
-   cosmetic would be. */
+   Four facets, in the order the filter taxonomy audit recommended
+   (production/journey-filter-taxonomy-audit.md): Category first (26
+   balanced values, the strongest single differentiator), Goal/Use Case
+   second (20 values, genuinely cross-cutting - checkbox, since asking
+   for two goals at once is a real question), Lifecycle Stage third
+   (real but secondary - only 4 of 26 categories are lifecycle-anchored,
+   the other 85% of the library is "cross-lifecycle" by design, so this
+   is a checkbox too rather than a prominent radio), and Trigger evidence
+   last - the pre-existing facet from before the audit, for what the
+   trigger is allowed to conclude. */
 
 const EVIDENCE_SOURCES: readonly EvidenceSource[] = [
   "authoritative",
@@ -35,6 +42,38 @@ const EVIDENCE_DOT: Record<EvidenceSource, string> = {
   declared: "bg-emerald-600",
   behavioral: "bg-amber-500",
   inferred: "bg-violet-500",
+};
+
+const STAGE_LABEL: Record<LifecycleStage, { en: string; tr: string }> = {
+  "acquisition-qualification": { en: "Acquisition & qualification", tr: "Edinme ve nitelendirme" },
+  "activation-onboarding": { en: "Activation & onboarding", tr: "Aktivasyon ve katılım" },
+  "engagement-retention": { en: "Engagement & retention", tr: "Etkileşim ve elde tutma" },
+  "ending-closure": { en: "Ending & closure", tr: "Sonlanma ve kapanış" },
+  "cross-lifecycle": { en: "Cross-lifecycle", tr: "Yaşam döngüsünden bağımsız" },
+};
+
+const GOAL_LABEL: Record<Goal, { en: string; tr: string }> = {
+  "eligibility-qualification": { en: "Eligibility & qualification", tr: "Uygunluk ve nitelendirme" },
+  "consent-permission": { en: "Consent & permission", tr: "Onay ve izin" },
+  "identity-verification": { en: "Identity verification", tr: "Kimlik doğrulama" },
+  "expiry-renewal": { en: "Expiry & renewal", tr: "Süre dolumu ve yenileme" },
+  "cancellation-termination": { en: "Cancellation & termination", tr: "İptal ve sonlandırma" },
+  "suspension-restoration": { en: "Suspension & restoration", tr: "Askıya alma ve geri yükleme" },
+  "revocation-access-change": { en: "Revocation & access change", tr: "Yetki iptali ve erişim değişikliği" },
+  "ownership-transfer": { en: "Ownership transfer", tr: "Sahiplik devri" },
+  "merge-consolidation": { en: "Merge & consolidation", tr: "Birleştirme ve konsolidasyon" },
+  "reconciliation-correction": { en: "Reconciliation & correction", tr: "Mutabakat ve düzeltme" },
+  "recovery-retry": { en: "Recovery & retry", tr: "Kurtarma ve yeniden deneme" },
+  "escalation-exception": { en: "Escalation & exception", tr: "Eskalasyon ve istisna" },
+  "delivery-confirmation": { en: "Delivery & confirmation", tr: "Teslimat ve onay" },
+  "compensation-remedy": { en: "Compensation & remedy", tr: "Tazminat ve telafi" },
+  "change-versioning": { en: "Change & versioning", tr: "Değişiklik ve sürümleme" },
+  "scheduling-commitment": { en: "Scheduling & commitment", tr: "Zamanlama ve taahhüt" },
+  "decision-approval": { en: "Decision & approval", tr: "Karar ve onay" },
+  "risk-compliance": { en: "Risk & compliance", tr: "Risk ve uyum" },
+  "data-integrity": { en: "Data integrity", tr: "Veri bütünlüğü" },
+  "progression-milestone": { en: "Progression & milestone", tr: "İlerleme ve kilometre taşı" },
+  "review-required": { en: "Not yet categorized", tr: "Henüz kategorize edilmedi" },
 };
 
 export default function JourneyBrowser({
@@ -54,13 +93,15 @@ export default function JourneyBrowser({
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  const [goal, setGoal] = useState<Goal[]>([]);
+  const [stage, setStage] = useState<LifecycleStage[]>([]);
   const [evidence, setEvidence] = useState<EvidenceSource[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   /* Each facet is a separate predicate so the counts can leave its own one
      out. A category's count is "how many would I get if I picked this",
      which is only true if the category filter is not already applied to it. */
-  const { rows, categoryCounts, evidenceCounts, mergedHit } = useMemo(() => {
+  const { rows, categoryCounts, goalCounts, stageCounts, evidenceCounts, mergedHit } = useMemo(() => {
     const q = query.trim().toLocaleLowerCase(lang);
     const byQuery = (j: JourneyRow) =>
       !q ||
@@ -69,13 +110,20 @@ export default function JourneyBrowser({
         .toLocaleLowerCase(lang)
         .includes(q);
     const byCategory = (j: JourneyRow) => !category || j.category === category;
-    // Several sources read as "any of these", not "all of them" - one journey
-    // has exactly one trigger, so "all" would always return nothing.
+    // Goal, Stage and Evidence read as "any of these", not "all of them" -
+    // one journey has exactly one value for each, so "all" would always
+    // return nothing once two or more are selected.
+    const byGoal = (j: JourneyRow) => goal.length === 0 || goal.includes(j.goal);
+    const byStage = (j: JourneyRow) => stage.length === 0 || stage.includes(j.lifecycleStage);
     const byEvidence = (j: JourneyRow) => evidence.length === 0 || evidence.includes(j.evidence);
 
-    const forCategoryFacet = allRows.filter((j) => byQuery(j) && byEvidence(j));
-    const forEvidenceFacet = allRows.filter((j) => byQuery(j) && byCategory(j));
-    const matched = allRows.filter((j) => byQuery(j) && byCategory(j) && byEvidence(j));
+    const forCategoryFacet = allRows.filter((j) => byQuery(j) && byGoal(j) && byStage(j) && byEvidence(j));
+    const forGoalFacet = allRows.filter((j) => byQuery(j) && byCategory(j) && byStage(j) && byEvidence(j));
+    const forStageFacet = allRows.filter((j) => byQuery(j) && byCategory(j) && byGoal(j) && byEvidence(j));
+    const forEvidenceFacet = allRows.filter((j) => byQuery(j) && byCategory(j) && byGoal(j) && byStage(j));
+    const matched = allRows.filter(
+      (j) => byQuery(j) && byCategory(j) && byGoal(j) && byStage(j) && byEvidence(j),
+    );
 
     /* A merged id is not a journey and matches nothing, which would leave
        someone holding an old reference at a dead end. Answer with the journey
@@ -89,18 +137,29 @@ export default function JourneyBrowser({
       categoryCounts: Object.fromEntries(
         categories.map((c) => [c.id, forCategoryFacet.filter((j) => j.category === c.id).length]),
       ) as Record<string, number>,
+      goalCounts: Object.fromEntries(
+        GOALS.map((g) => [g, forGoalFacet.filter((j) => j.goal === g).length]),
+      ) as Record<Goal, number>,
+      stageCounts: Object.fromEntries(
+        LIFECYCLE_STAGES.map((s) => [s, forStageFacet.filter((j) => j.lifecycleStage === s).length]),
+      ) as Record<LifecycleStage, number>,
       evidenceCounts: Object.fromEntries(
         EVIDENCE_SOURCES.map((s) => [s, forEvidenceFacet.filter((j) => j.evidence === s).length]),
       ) as Record<string, number>,
     };
-  }, [query, category, evidence, lang, allRows, categories, merged]);
+  }, [query, category, goal, stage, evidence, lang, allRows, categories, merged]);
 
-  const activeCount = (category ? 1 : 0) + evidence.length + (query.trim() ? 1 : 0);
+  const activeCount =
+    (category ? 1 : 0) + goal.length + stage.length + evidence.length + (query.trim() ? 1 : 0);
   const clearAll = () => {
     setQuery("");
     setCategory("");
+    setGoal([]);
+    setStage([]);
     setEvidence([]);
   };
+  const toggle = <T,>(cur: T[], setFn: (v: T[]) => void, value: T) =>
+    setFn(cur.includes(value) ? cur.filter((x) => x !== value) : [...cur, value]);
 
   const facetPanel = (
     <div className="space-y-8">
@@ -130,6 +189,33 @@ export default function JourneyBrowser({
         ]}
       </FacetGroup>
 
+      <FacetGroup title={t.goalLabel} moreLabel={t.showMore} lessLabel={t.showLess} initialVisible={8}>
+        {GOALS.map((g) => (
+          <FacetCheckbox
+            key={g}
+            label={GOAL_LABEL[g][lang]}
+            count={goalCounts[g] ?? 0}
+            selected={goal.includes(g)}
+            onSelect={() => toggle(goal, setGoal, g)}
+          />
+        ))}
+      </FacetGroup>
+
+      <div>
+        <FacetGroup title={t.lifecycleStageLabel} moreLabel={t.showMore} lessLabel={t.showLess}>
+          {LIFECYCLE_STAGES.map((s) => (
+            <FacetCheckbox
+              key={s}
+              label={STAGE_LABEL[s][lang]}
+              count={stageCounts[s] ?? 0}
+              selected={stage.includes(s)}
+              onSelect={() => toggle(stage, setStage, s)}
+            />
+          ))}
+        </FacetGroup>
+        <p className="mt-2 text-xs leading-relaxed text-neutral-500">{t.lifecycleStageHint}</p>
+      </div>
+
       <FacetGroup title={t.evidenceLabel} moreLabel={t.showMore} lessLabel={t.showLess}>
         {EVIDENCE_SOURCES.map((s) => (
           <FacetCheckbox
@@ -138,9 +224,7 @@ export default function JourneyBrowser({
             count={evidenceCounts[s] ?? 0}
             dot={EVIDENCE_DOT[s]}
             selected={evidence.includes(s)}
-            onSelect={() =>
-              setEvidence((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]))
-            }
+            onSelect={() => toggle(evidence, setEvidence, s)}
           />
         ))}
       </FacetGroup>

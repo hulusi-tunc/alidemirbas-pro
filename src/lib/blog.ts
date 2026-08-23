@@ -1,12 +1,12 @@
 import type { Lang } from "@/lib/content";
+import { BLOG_POSTS } from "@/lib/blog-posts";
 
-/* Blog data model + accessor. There is no blog content yet - BlogPage.tsx
-   has always rendered an honest "nothing published yet" empty state (see
-   its own comment), and that hasn't changed. This file exists so the new
-   editorial-library shell (search, filters, grid/list) has a real,
-   typed data source to read from - one that returns an empty array today
-   and needs no rewiring the day the first post is added. No placeholder
-   posts are defined here. */
+/* Blog data model + accessor. blog-posts.ts holds the actual authored
+   posts (real writing, no placeholders) - this file is just the type and
+   the read layer the editorial-library shell (search, filters, grid/
+   list) reads from. */
+
+export type BlogSection = { heading: string; body: string };
 
 export type BlogPost = {
   slug: string;
@@ -17,11 +17,25 @@ export type BlogPost = {
   category: string;
   topic?: string;
   contentType?: string;
+  sections: BlogSection[];
+  /** Internal links relevant to the post - the calculator or Lab tool it
+      references, so the post actually connects to the rest of the site. */
+  related?: { href: string; label: string }[];
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// EN only for now, matching the same precedent already established for
+// calculator Phase 4 content (calc-content.ts): real long-form writing is
+// authored once, in English, and TR falls back rather than shipping a
+// half-translated page. lang is kept in the signature so callers don't
+// need special-casing and TR posts can be added later without a call-site
+// change.
 export function getAllBlogPosts(lang: Lang): BlogPost[] {
-  return [];
+  if (lang !== "en") return [];
+  return BLOG_POSTS;
+}
+
+export function getBlogPost(lang: Lang, slug: string): BlogPost | undefined {
+  return getAllBlogPosts(lang).find((p) => p.slug === slug);
 }
 
 export type BlogFacetCount = { id: string; count: number };

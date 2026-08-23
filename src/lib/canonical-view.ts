@@ -8,6 +8,7 @@ import {
   resolveJourneyId,
 } from "@/canonical";
 import type { CanonicalJourney, CanonicalNode, CategoryId } from "@/canonical/types";
+import { goalOf, lifecycleStageOf, type Goal, type LifecycleStage } from "@/lib/journey-taxonomy";
 
 /* The read model the archive renders from.
 
@@ -66,6 +67,10 @@ export type JourneyRow = {
   nodeCount: number;
   /** The exclusion group this journey competes in, where it competes at all. */
   competesIn: string | null;
+  /** Filter taxonomy audit's other two approved facets - see
+      lib/journey-taxonomy.ts and production/journey-filter-taxonomy-audit.md. */
+  lifecycleStage: LifecycleStage;
+  goal: Goal;
 };
 
 const triggerOf = (j: CanonicalJourney) => j.nodes.find((n) => n.kind === "trigger");
@@ -80,6 +85,8 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   evidence: (triggerOf(j)?.evidence.source ?? "authoritative") as EvidenceSource,
   nodeCount: j.nodes.length,
   competesIn: j.competition?.exclusionGroup ?? null,
+  lifecycleStage: lifecycleStageOf(j.category),
+  goal: goalOf(j),
 }));
 
 export const CATEGORY_FACETS: readonly CategoryFacet[] = CATEGORIES.map((c) => ({
