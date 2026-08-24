@@ -11,6 +11,20 @@
       ]
     },
     {
+      "sequence": "formula>worked-example>interpretation>comparison-note>common-mistakes",
+      "slugs": [
+        "cart-abandonment",
+        "contribution-margin",
+        "ctor",
+        "d1-retention",
+        "dau-mau-stickiness",
+        "open-rate",
+        "revenue-per-visitor",
+        "rule-of-40",
+        "saas-quick-ratio"
+      ]
+    },
+    {
       "sequence": "definition>formula>worked-example>methodology>assumptions>limitations>interpretation>comparison-note>common-mistakes",
       "slugs": [
         "confidence-interval-calculator",
@@ -19,18 +33,9 @@
       ]
     },
     {
-      "sequence": "formula>worked-example>interpretation>comparison-note>common-mistakes",
-      "slugs": [
-        "contribution-margin",
-        "d1-retention",
-        "open-rate",
-        "revenue-per-visitor",
-        "rule-of-40"
-      ]
-    },
-    {
       "sequence": "formula>worked-example>interpretation>comparison-note",
       "slugs": [
+        "cpa",
         "cpc",
         "ctr"
       ]
@@ -46,19 +51,23 @@
   "repeatedHeadings": [
     {
       "heading": "Worked example",
-      "count": 23,
+      "count": 28,
       "slugs": [
         "ab-test",
         "aov",
         "break-even-point",
         "cac-payback-period",
         "cac",
+        "cart-abandonment",
         "confidence-interval-calculator",
         "contribution-margin",
+        "cpa",
         "cpc",
         "cr",
+        "ctor",
         "ctr",
         "d1-retention",
+        "dau-mau-stickiness",
         "gross-margin",
         "logo-churn",
         "ltv-cac-ratio",
@@ -70,22 +79,26 @@
         "revenue-per-visitor",
         "roas",
         "rule-of-40",
+        "saas-quick-ratio",
         "test-duration-estimator"
       ]
     },
     {
       "heading": "Common mistakes",
-      "count": 24,
+      "count": 28,
       "slugs": [
         "ab-test",
         "aov",
         "break-even-point",
         "cac-payback-period",
         "cac",
+        "cart-abandonment",
         "confidence-interval-calculator",
         "contribution-margin",
         "cr",
+        "ctor",
         "d1-retention",
+        "dau-mau-stickiness",
         "gross-margin",
         "logo-churn",
         "ltv-cac-ratio",
@@ -99,6 +112,7 @@
         "revenue-per-visitor",
         "roas",
         "rule-of-40",
+        "saas-quick-ratio",
         "sample-size-calculator",
         "test-duration-estimator"
       ]

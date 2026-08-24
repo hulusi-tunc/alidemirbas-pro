@@ -19,7 +19,7 @@ const LIVE_SLUGS = [
   "dau-mau-stickiness", "d1-retention", "saas-quick-ratio", "rule-of-40",
   "cart-abandonment", "confidence-interval-calculator", "test-duration-estimator",
   "profit-margin", "engagement-rate",
-  "logo-churn",
+  "logo-churn", "ctor",
 ];
 
 let pass = 0, fail = 0;

@@ -9,7 +9,7 @@ import type { CalcField } from "@/lib/calc-catalog";
 
 export type ValidationResult =
   | { ok: true; values: Record<string, number | string> }
-  | { ok: false; errors: Record<string, "required" | "invalid" | "negative" | "not_an_option" | "exceeds"> };
+  | { ok: false; errors: Record<string, "required" | "invalid" | "negative" | "not_an_option" | "exceeds_delivered" | "exceeds_mau"> };
 
 // The one genuinely optional input in the whole live batch: MRR Growth
 // Rate can't be computed without a prior period, but MRR/ARR themselves
@@ -28,11 +28,27 @@ const OPTIONAL_FIELDS: Record<string, string[]> = { mrr: ["priorMrr"] };
    accepted opens > delivered would let the UI show a result the content
    explicitly says can't happen. Returns field -> error for any field that
    fails; empty object means no cross-field problem. */
-const CROSS_FIELD_CHECKS: Record<string, (values: Record<string, number | string>) => Partial<Record<string, "exceeds">>> = {
+const CROSS_FIELD_CHECKS: Record<string, (values: Record<string, number | string>) => Partial<Record<string, "exceeds_delivered" | "exceeds_mau">>> = {
   "open-rate": (values) => {
     const { opens, delivered } = values;
     if (typeof opens === "number" && typeof delivered === "number" && opens > delivered) {
-      return { opens: "exceeds" };
+      return { opens: "exceeds_delivered" };
+    }
+    return {};
+  },
+  // Every daily active user is, by definition, also part of that same
+  // month's active user count - DAU is structurally a subset of MAU for
+  // the same window (the calculator's own documented validationRule:
+  // "dau should not exceed mau"). Same category of constraint as
+  // open-rate's opens<=delivered above - not the CTOR situation, where
+  // clicks and opens are tracked through genuinely different mechanisms
+  // and clicks>opens is a real, legitimate result (see
+  // production/calculators/content/dau-mau-stickiness.json's qaNotes for
+  // the reasoning distinguishing the two).
+  "dau-mau-stickiness": (values) => {
+    const { dau, mau } = values;
+    if (typeof dau === "number" && typeof mau === "number" && dau > mau) {
+      return { dau: "exceeds_mau" };
     }
     return {};
   },
@@ -75,7 +91,7 @@ export function validateInputs(inputs: CalcField[], raw: Record<string, string>,
 }
 
 export const errorMessage = (
-  error: "required" | "invalid" | "negative" | "not_an_option" | "exceeds",
+  error: "required" | "invalid" | "negative" | "not_an_option" | "exceeds_delivered" | "exceeds_mau",
   lang: "en" | "tr"
 ): string => {
   const messages: Record<string, { en: string; tr: string }> = {
@@ -83,7 +99,8 @@ export const errorMessage = (
     invalid: { en: "Enter a number", tr: "Bir sayı girin" },
     negative: { en: "Must be zero or more", tr: "Sıfır veya daha büyük olmalı" },
     not_an_option: { en: "Choose an option", tr: "Bir seçenek seçin" },
-    exceeds: { en: "Can't exceed delivered", tr: "Teslim edilenden fazla olamaz" },
+    exceeds_delivered: { en: "Can't exceed delivered", tr: "Teslim edilenden fazla olamaz" },
+    exceeds_mau: { en: "Can't exceed monthly active users", tr: "Aylık aktif kullanıcıyı geçemez" },
   };
   return messages[error][lang];
 };

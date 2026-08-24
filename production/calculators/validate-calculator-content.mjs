@@ -26,6 +26,11 @@ const APPROVED_BATCH = [
   // calculator-catalog.json against every already-shipped slug plus the
   // ARR/GRR aliases blocked in Batch 04
   "marketing-roi", "revenue-per-visitor", "open-rate", "rule-of-40", "d1-retention",
+  // Batch 06: CPA (LIGHT), Cart Abandonment Rate / CTOR / SaaS Quick
+  // Ratio / DAU-MAU Stickiness (all STANDARD) - CTOR required a new
+  // runtime implementation (calc-registry.ts + LIVE_CALCULATOR_SLUGS),
+  // the other four were already live
+  "cpa", "cart-abandonment", "ctor", "saas-quick-ratio", "dau-mau-stickiness",
 ];
 
 const errors = [];
