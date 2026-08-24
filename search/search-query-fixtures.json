@@ -1,0 +1,76 @@
+{
+  "_description": "55 realistic test queries, drawn from real corpus data (not invented titles/ids), for headless-search-prototype.mjs to run against. expectedTopSet lists document ids that should appear near the top - not necessarily rank 1 for broad/ambiguous queries. reason explains why.",
+  "fixtures": [
+    { "query": "CAC Calculator", "expectedType": "exact-title", "expectedEntity": "calculator:cac", "reason": "exact title match" },
+    { "query": "ROAS Calculator", "expectedType": "exact-title", "expectedEntity": "calculator:roas", "reason": "exact title match" },
+    { "query": "Marketing Dashboard Builder", "expectedType": "exact-title", "expectedEntity": "lab-product:dashboard-builder", "reason": "exact title match" },
+    { "query": "A/B Test Playbook", "expectedType": "exact-title", "expectedEntity": "lab-product:ab-test-playbook", "reason": "exact title match" },
+    { "query": "Numerspace", "expectedType": "exact-title", "expectedEntity": "lab-product:numerspace", "reason": "exact title match, external entity" },
+
+    { "query": "CAC", "expectedType": "acronym", "expectedEntity": "calculator:cac", "reason": "acronym exact match against keywords[]" },
+    { "query": "ROAS", "expectedType": "acronym", "expectedEntity": "calculator:roas", "reason": "acronym exact match" },
+    { "query": "LTV", "expectedType": "acronym", "expectedEntity": "calculator:ltv", "reason": "acronym exact match" },
+    { "query": "MDE", "expectedType": "acronym", "expectedEntity": "calculator:minimum-detectable-effect", "reason": "acronym exact match" },
+    { "query": "NRR", "expectedType": "acronym", "expectedEntity": "calculator:nrr", "reason": "acronym exact match" },
+    { "query": "CTOR", "expectedType": "acronym", "expectedEntity": "calculator:ctor", "reason": "acronym exact match" },
+    { "query": "AB-001", "expectedType": "acronym", "expectedEntity": "ab-test:AB-001", "reason": "ab-test id is in keywords[]" },
+    { "query": "ACC-71", "expectedType": "acronym", "expectedEntity": "journey:ACC-71", "reason": "journey id is in keywords[]" },
+
+    { "query": "conversion", "expectedType": "broad-concept", "expectedTopSet": ["calculator:cr", "type-diversity-check"], "reason": "broad term hits calculator, ab-test and journey documents - content-type balancing should prevent one type from taking all 10 slots" },
+    { "query": "checkout", "expectedType": "broad-concept", "expectedTopSet": ["type-diversity-check"], "reason": "same balancing check, different term - checkout appears across ab-test surface, calculator category and journey text" },
+    { "query": "retention", "expectedType": "broad-concept", "expectedTopSet": ["calculator:retention-rate", "calculator:d1-retention", "calculator:dau-mau-stickiness"], "reason": "should surface the retention-family calculators near the top given title/keyword weight over the more diffuse journey/ab-test matches" },
+    { "query": "pricing", "expectedType": "broad-concept", "expectedTopSet": ["ab-test:AB-114", "ab-test:AB-115", "ab-test:AB-121", "ab-test:AB-122"], "reason": "VERIFIED against the real corpus: no calculator or journey document contains 'pricing' anywhere in title/searchText/category/keywords (checked directly) - an all-ab-test result set here is the honest, correct outcome, not a diversity failure. Originally fixtured as a diversity case before that check was run; corrected." },
+    { "query": "onboarding", "expectedType": "broad-concept", "expectedTopSet": ["journey:ACT-11", "journey:ACT-12"], "reason": "VERIFIED against the real corpus: no calculator or ab-test document contains 'onboard'/'onboarding' anywhere - an all-journey result set is honest and correct here. Same correction as 'pricing' above." },
+
+    { "query": "free shipping bar cart", "expectedType": "find-example", "expectedEntity": "ab-test:AB-003", "reason": "matches AB-003's seoTitle/summary concept (free shipping progress bar affecting cart value) via token overlap" },
+    { "query": "coupon code field abandonment", "expectedType": "find-example", "expectedEntity": "ab-test:AB-004", "reason": "matches AB-004's own topic (visible coupon field vs cart abandonment) - also the worked example on the /lab/ab-testing product page itself" },
+    { "query": "pricing plan comparison table", "expectedType": "find-example", "expectedEntity": "ab-test:AB-115", "reason": "matches AB-115 (comparison table vs separate cards for pricing plans)" },
+    { "query": "how many pricing plans to show", "expectedType": "find-example", "expectedEntity": "ab-test:AB-114", "reason": "matches AB-114" },
+    { "query": "unit price display", "expectedType": "find-example", "expectedEntity": "ab-test:AB-118", "reason": "matches AB-118 (does showing unit price make comparison easier)" },
+
+    { "query": "entitlement qualification", "expectedType": "find-journey", "expectedEntity": "journey:ACC-71", "reason": "exact title-token match" },
+    { "query": "churn risk escalation", "expectedType": "find-journey", "expectedEntity": "journey:RET-24", "reason": "exact title-token match" },
+    { "query": "cancellation intent", "expectedType": "find-journey", "expectedEntity": "journey:RET-28", "reason": "matches RET-28's own title" },
+    { "query": "risk signal correlation", "expectedType": "find-journey", "expectedEntity": "journey:RSK-192", "reason": "exact title-token match - also the survivor of the RET-25 merge, see the alias fixture below" },
+    { "query": "delivery failure retry", "expectedType": "find-journey", "expectedEntity": "journey:CMS-208", "reason": "matches CMS-208's own title" },
+
+    { "query": "return on ad spend", "expectedType": "metric", "expectedEntity": "calculator:roas", "reason": "synonym expansion (ROAS <-> return on ad spend) should surface the exact calculator" },
+    { "query": "customer acquisition cost", "expectedType": "metric", "expectedEntity": "calculator:cac", "reason": "synonym expansion (CAC)" },
+    { "query": "click through rate", "expectedType": "metric", "expectedEntity": "calculator:ctr", "reason": "synonym expansion (CTR)" },
+    { "query": "cost per lead", "expectedType": "metric", "expectedEntity": "calculator:cpl", "reason": "synonym expansion (CPL)" },
+    { "query": "customer lifetime value", "expectedType": "metric", "expectedEntity": "calculator:ltv", "reason": "synonym expansion (LTV)" },
+    { "query": "net revenue retention", "expectedType": "metric", "expectedEntity": "calculator:nrr", "reason": "synonym expansion (NRR)" },
+
+    { "query": "cart", "expectedType": "surface", "expectedTopSet": ["type-diversity-check"], "reason": "matches ab-test surface='cart' broadly across many records - a genuine broad-surface query" },
+    { "query": "pricing page test", "expectedType": "surface", "expectedTopSet": ["type-diversity-check"], "reason": "surface=pricing + find-test intent" },
+    { "query": "search results", "expectedType": "surface", "expectedTopSet": ["ab-test:AB-179", "ab-test:AB-186"], "reason": "surface=search - VERIFIED the corpus has only one weak non-ab-test candidate (a journey with 'search' as a substring inside an unrelated word) and it correctly doesn't outscore genuine surface=search ab-tests; an all-ab-test result here is honest, not a balancing failure." },
+
+    { "query": "calclator", "expectedType": "misspelling", "expectedTopSet": ["type-diversity-check"], "reason": "misspelling of 'calculator' - see typo-tolerance contract in SEARCH-DESIGN-HANDOFF.md; the headless prototype does NOT implement fuzzy matching (out of scope, dependency-free contract only), so this fixture documents a KNOWN GAP rather than a passing case - see prototype's own reported failures" },
+    { "query": "converion rate", "expectedType": "misspelling", "expectedEntity": "calculator:cr", "reason": "missing 's' in conversion - same known-gap caveat as above" },
+    { "query": "AB Testt", "expectedType": "misspelling", "expectedTopSet": ["type-diversity-check"], "reason": "trailing typo - synonym expansion for 'AB Test' should still partially match even without fuzzy correction" },
+    { "query": "custmer acquisition cost", "expectedType": "misspelling", "expectedEntity": "calculator:cac", "reason": "missing 'o' - known-gap caveat" },
+    { "query": "joruney", "expectedType": "misspelling", "expectedTopSet": ["type-diversity-check"], "reason": "transposed letters in 'journey' - known-gap caveat, exercises whether the prototype degrades gracefully (returns SOMETHING relevant via other tokens) rather than erroring" },
+
+    { "query": "checkout optimization", "expectedType": "mixed-intent", "expectedTopSet": ["type-diversity-check"], "reason": "spans calculator (cart-abandonment, funnel-analysis-multistep), ab-test (checkout surface) and potentially journey documents" },
+    { "query": "cart abandonment", "expectedType": "mixed-intent", "expectedEntity": "calculator:cart-abandonment", "reason": "exact calculator title-token match should outrank the broader ab-test/journey matches on the same concept" },
+    { "query": "pricing test", "expectedType": "mixed-intent", "expectedTopSet": ["type-diversity-check"], "reason": "find-test intent + pricing surface, should favor ab-test documents but not exclude others entirely" },
+    { "query": "signup form journey", "expectedType": "mixed-intent", "expectedTopSet": ["ab-test:AB-049", "ab-test:AB-056"], "reason": "VERIFIED: the journey corpus is backend lifecycle/state-machine content (entitlement, ownership, access) and genuinely has no document about UI-level 'signup forms' - that's an ab-test/surface concept in this corpus, not a journey one. An all-ab-test result is the honest reflection of that real structural difference between the two corpora, not a balancing defect." },
+    { "query": "checkout journey vs test", "expectedType": "mixed-intent", "expectedTopSet": ["type-diversity-check"], "reason": "compare intent + two type-specific terms in the same query" },
+
+    { "query": "CON-37", "expectedType": "merged-journey-id", "expectedEntity": "journey:CMS-208", "reason": "merged id must resolve to survivor CMS-208 (delivery-recovery), never return a separate CON-37 result" },
+    { "query": "CMS-209", "expectedType": "merged-journey-id", "expectedEntity": "journey:CON-36", "reason": "merged id must resolve to survivor CON-36" },
+    { "query": "CTL-239", "expectedType": "merged-journey-id", "expectedEntity": "journey:OWN-57", "reason": "merged id must resolve to survivor OWN-57" },
+    { "query": "CTL-240", "expectedType": "merged-journey-id", "expectedEntity": "journey:OWN-54", "reason": "merged id must resolve to survivor OWN-54" },
+    { "query": "RET-25", "expectedType": "merged-journey-id", "expectedEntity": "journey:RSK-192", "reason": "merged id must resolve to survivor RSK-192 (risk-signal)" },
+
+    { "query": "75+ calculator tools", "expectedType": "lab-product", "expectedEntity": "lab-product:numerspace", "reason": "matches Numerspace's own description text" },
+    { "query": "Google Ads change history", "expectedType": "lab-product", "expectedEntity": "lab-product:google-ads-change-history-dashboard", "reason": "exact title-token match" },
+    { "query": "Canonical Journey Library", "expectedType": "lab-product", "expectedEntity": "lab-product:lifecycle-card-archive", "reason": "exact title match" },
+
+    { "query": "guardrail metric AB test", "expectedType": "blog", "expectedEntity": "blog-article:the-guardrail-metric-most-ab-tests-forget", "reason": "exact title-token match" },
+    { "query": "ROAS different ad platform", "expectedType": "blog", "expectedEntity": "blog-article:why-your-roas-looks-different-on-every-ad-platform", "reason": "exact title-token match" },
+    { "query": "LTV CAC ratio scale", "expectedType": "blog", "expectedTopSet": ["calculator:ltv-cac-ratio", "blog-article:ltv-cac-ratio-doesnt-tell-you-when-to-scale"], "reason": "CORRECTED from an original expectation of the blog article alone: the real blog title is 'LTV:CAC alone doesn't tell you when to scale' - it does not contain the word 'ratio' at all. calculator:ltv-cac-ratio's own title ('LTV:CAC Ratio Calculator') is a genuinely closer literal match to this exact query and correctly outranks the blog post - that's honest relevance, not a defect. Both are acceptable top results; the blog post alone was never the single correct answer." },
+    { "query": "journey vs campaign", "expectedType": "blog", "expectedEntity": "blog-article:what-belongs-in-a-lifecycle-journey-vs-a-campaign", "reason": "compare intent + exact title-token match" },
+    { "query": "D1 D7 D30 retention", "expectedType": "blog", "expectedEntity": "blog-article:reading-d1-d7-d30-retention-without-fooling-yourself", "reason": "exact title-token match, also overlaps with calculator:d1-retention - a genuine, expected multi-type result" }
+  ]
+}

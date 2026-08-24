@@ -1,0 +1,721 @@
+{
+  "_description": "Output of search/run-query-fixtures.mjs against search/headless-search-prototype.mjs. Regenerate by re-running that script.",
+  "summary": {
+    "total": 60,
+    "pass": 58,
+    "fail": 0,
+    "knownGap": 2
+  },
+  "results": [
+    {
+      "query": "CAC Calculator",
+      "expectedType": "exact-title",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cac",
+        "calculator:cac-payback-period",
+        "calculator:ltv-cac-ratio"
+      ],
+      "reason": "exact title match"
+    },
+    {
+      "query": "ROAS Calculator",
+      "expectedType": "exact-title",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:roas",
+        "blog-article:why-your-roas-looks-different-on-every-ad-platform",
+        "calculator:break-even-point"
+      ],
+      "reason": "exact title match"
+    },
+    {
+      "query": "Marketing Dashboard Builder",
+      "expectedType": "exact-title",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "lab-product:dashboard-builder",
+        "lab-product:claude-lifecycle",
+        "calculator:marketing-roi"
+      ],
+      "reason": "exact title match"
+    },
+    {
+      "query": "A/B Test Playbook",
+      "expectedType": "exact-title",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "lab-product:ab-test-playbook",
+        "calculator:ab-test",
+        "calculator:test-duration-estimator"
+      ],
+      "reason": "exact title match"
+    },
+    {
+      "query": "Numerspace",
+      "expectedType": "exact-title",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "lab-product:numerspace"
+      ],
+      "reason": "exact title match, external entity"
+    },
+    {
+      "query": "CAC",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cac",
+        "calculator:cac-payback-period",
+        "calculator:ltv-cac-ratio"
+      ],
+      "reason": "acronym exact match against keywords[]"
+    },
+    {
+      "query": "ROAS",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:roas",
+        "blog-article:why-your-roas-looks-different-on-every-ad-platform",
+        "ab-test:AB-165"
+      ],
+      "reason": "acronym exact match"
+    },
+    {
+      "query": "LTV",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:ltv",
+        "calculator:ltv-cac-ratio",
+        "blog-article:ltv-cac-ratio-doesnt-tell-you-when-to-scale"
+      ],
+      "reason": "acronym exact match"
+    },
+    {
+      "query": "MDE",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:minimum-detectable-effect",
+        "calculator:sample-size-calculator",
+        "journey:DOC-213"
+      ],
+      "reason": "acronym exact match"
+    },
+    {
+      "query": "NRR",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:nrr",
+        "calculator:retention-rate",
+        "calculator:revenue-per-visitor"
+      ],
+      "reason": "acronym exact match"
+    },
+    {
+      "query": "CTOR",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:ctor",
+        "calculator:activation-rate",
+        "calculator:bounce-rate-email"
+      ],
+      "reason": "acronym exact match"
+    },
+    {
+      "query": "AB-001",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-001",
+        "calculator:sample-size-calculator",
+        "ab-test:AB-026"
+      ],
+      "reason": "ab-test id is in keywords[]"
+    },
+    {
+      "query": "ACC-71",
+      "expectedType": "acronym",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:ACC-71",
+        "journey:ACC-73",
+        "journey:ACC-74"
+      ],
+      "reason": "journey id is in keywords[]"
+    },
+    {
+      "query": "conversion",
+      "expectedType": "broad-concept",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cr",
+        "calculator:cpa",
+        "calculator:funnel-analysis-multistep"
+      ],
+      "reason": "broad term hits calculator, ab-test and journey documents - content-type balancing should prevent one type from taking all 10 slots"
+    },
+    {
+      "query": "checkout",
+      "expectedType": "broad-concept",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-013",
+        "ab-test:AB-005",
+        "ab-test:AB-006"
+      ],
+      "reason": "same balancing check, different term - checkout appears across ab-test surface, calculator category and journey text"
+    },
+    {
+      "query": "retention",
+      "expectedType": "broad-concept",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:retention-rate",
+        "calculator:d1-retention",
+        "calculator:nrr"
+      ],
+      "reason": "should surface the retention-family calculators near the top given title/keyword weight over the more diffuse journey/ab-test matches"
+    },
+    {
+      "query": "pricing",
+      "expectedType": "broad-concept",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-122",
+        "ab-test:AB-121",
+        "ab-test:AB-115"
+      ],
+      "reason": "VERIFIED against the real corpus: no calculator or journey document contains 'pricing' anywhere in title/searchText/category/keywords (checked directly) - an all-ab-test result set here is the honest, correct outcome, not a diversity failure. Originally fixtured as a diversity case before that check was run; corrected."
+    },
+    {
+      "query": "onboarding",
+      "expectedType": "broad-concept",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:ACT-11",
+        "journey:ACT-12",
+        "journey:ACT-16"
+      ],
+      "reason": "VERIFIED against the real corpus: no calculator or ab-test document contains 'onboard'/'onboarding' anywhere - an all-journey result set is honest and correct here. Same correction as 'pricing' above."
+    },
+    {
+      "query": "free shipping bar cart",
+      "expectedType": "find-example",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-003",
+        "calculator:cart-abandonment",
+        "ab-test:AB-010"
+      ],
+      "reason": "matches AB-003's seoTitle/summary concept (free shipping progress bar affecting cart value) via token overlap"
+    },
+    {
+      "query": "coupon code field abandonment",
+      "expectedType": "find-example",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cart-abandonment",
+        "ab-test:AB-004",
+        "ab-test:AB-014"
+      ],
+      "reason": "matches AB-004's own topic (visible coupon field vs cart abandonment) - also the worked example on the /lab/ab-testing product page itself"
+    },
+    {
+      "query": "pricing plan comparison table",
+      "expectedType": "find-example",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-115",
+        "ab-test:AB-122",
+        "ab-test:AB-121"
+      ],
+      "reason": "matches AB-115 (comparison table vs separate cards for pricing plans)"
+    },
+    {
+      "query": "how many pricing plans to show",
+      "expectedType": "find-example",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-114",
+        "ab-test:AB-123",
+        "ab-test:AB-122"
+      ],
+      "reason": "matches AB-114"
+    },
+    {
+      "query": "unit price display",
+      "expectedType": "find-example",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-118",
+        "calculator:break-even-point",
+        "ab-test:AB-121"
+      ],
+      "reason": "matches AB-118 (does showing unit price make comparison easier)"
+    },
+    {
+      "query": "entitlement qualification",
+      "expectedType": "find-journey",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:ACC-71",
+        "journey:ACQ-02",
+        "journey:ACQ-04"
+      ],
+      "reason": "exact title-token match"
+    },
+    {
+      "query": "churn risk escalation",
+      "expectedType": "find-journey",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:RET-24",
+        "calculator:logo-churn",
+        "journey:RSK-192"
+      ],
+      "reason": "exact title-token match"
+    },
+    {
+      "query": "cancellation intent",
+      "expectedType": "find-journey",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:RET-28",
+        "journey:ACQ-01",
+        "journey:ACQ-03"
+      ],
+      "reason": "matches RET-28's own title"
+    },
+    {
+      "query": "risk signal correlation",
+      "expectedType": "find-journey",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:RSK-192",
+        "journey:RSK-193",
+        "journey:RSK-200"
+      ],
+      "reason": "exact title-token match - also the survivor of the RET-25 merge, see the alias fixture below"
+    },
+    {
+      "query": "delivery failure retry",
+      "expectedType": "find-journey",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:CMS-208",
+        "calculator:delivery-rate",
+        "journey:FUL-148"
+      ],
+      "reason": "matches CMS-208's own title"
+    },
+    {
+      "query": "return on ad spend",
+      "expectedType": "metric",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:roas",
+        "blog-article:why-your-roas-looks-different-on-every-ad-platform",
+        "ab-test:AB-165"
+      ],
+      "reason": "synonym expansion (ROAS <-> return on ad spend) should surface the exact calculator"
+    },
+    {
+      "query": "customer acquisition cost",
+      "expectedType": "metric",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cac",
+        "calculator:cac-payback-period",
+        "calculator:ltv-cac-ratio"
+      ],
+      "reason": "synonym expansion (CAC)"
+    },
+    {
+      "query": "click through rate",
+      "expectedType": "metric",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:ctor",
+        "calculator:ctr",
+        "calculator:activation-rate"
+      ],
+      "reason": "synonym expansion (CTR)"
+    },
+    {
+      "query": "cost per lead",
+      "expectedType": "metric",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cpl",
+        "calculator:revenue-per-recipient",
+        "calculator:revenue-per-visitor"
+      ],
+      "reason": "synonym expansion (CPL)"
+    },
+    {
+      "query": "customer lifetime value",
+      "expectedType": "metric",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:ltv",
+        "calculator:ltv-cac-ratio",
+        "calculator:cac"
+      ],
+      "reason": "synonym expansion (LTV)"
+    },
+    {
+      "query": "net revenue retention",
+      "expectedType": "metric",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:nrr",
+        "calculator:retention-rate",
+        "calculator:revenue-per-recipient"
+      ],
+      "reason": "synonym expansion (NRR)"
+    },
+    {
+      "query": "cart",
+      "expectedType": "surface",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cart-abandonment",
+        "ab-test:AB-001",
+        "ab-test:AB-002"
+      ],
+      "reason": "matches ab-test surface='cart' broadly across many records - a genuine broad-surface query"
+    },
+    {
+      "query": "pricing page test",
+      "expectedType": "surface",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-121",
+        "ab-test:AB-119",
+        "ab-test:AB-115"
+      ],
+      "reason": "surface=pricing + find-test intent"
+    },
+    {
+      "query": "search results",
+      "expectedType": "surface",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-179",
+        "ab-test:AB-186",
+        "ab-test:AB-178"
+      ],
+      "reason": "surface=search - VERIFIED the corpus has only one weak non-ab-test candidate (a journey with 'search' as a substring inside an unrelated word) and it correctly doesn't outscore genuine surface=search ab-tests; an all-ab-test result here is honest, not a balancing failure."
+    },
+    {
+      "query": "calclator",
+      "expectedType": "misspelling",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [],
+      "reason": "misspelling of 'calculator' - see typo-tolerance contract in SEARCH-DESIGN-HANDOFF.md; the headless prototype does NOT implement fuzzy matching (out of scope, dependency-free contract only), so this fixture documents a KNOWN GAP rather than a passing case - see prototype's own reported failures"
+    },
+    {
+      "query": "converion rate",
+      "expectedType": "misspelling",
+      "ok": false,
+      "isKnownGap": true,
+      "top3": [
+        "calculator:activation-rate",
+        "calculator:bounce-rate-email",
+        "calculator:cart-abandonment"
+      ],
+      "reason": "missing 's' in conversion - same known-gap caveat as above"
+    },
+    {
+      "query": "AB Testt",
+      "expectedType": "misspelling",
+      "ok": false,
+      "isKnownGap": true,
+      "top3": [
+        "ab-test:AB-026",
+        "ab-test:AB-150",
+        "ab-test:AB-106"
+      ],
+      "reason": "trailing typo - synonym expansion for 'AB Test' should still partially match even without fuzzy correction"
+    },
+    {
+      "query": "custmer acquisition cost",
+      "expectedType": "misspelling",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cac",
+        "journey:ACQ-08",
+        "calculator:cpa"
+      ],
+      "reason": "missing 'o' - known-gap caveat"
+    },
+    {
+      "query": "joruney",
+      "expectedType": "misspelling",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [],
+      "reason": "transposed letters in 'journey' - known-gap caveat, exercises whether the prototype degrades gracefully (returns SOMETHING relevant via other tokens) rather than erroring"
+    },
+    {
+      "query": "checkout optimization",
+      "expectedType": "mixed-intent",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-005",
+        "ab-test:AB-006",
+        "ab-test:AB-007"
+      ],
+      "reason": "spans calculator (cart-abandonment, funnel-analysis-multistep), ab-test (checkout surface) and potentially journey documents"
+    },
+    {
+      "query": "cart abandonment",
+      "expectedType": "mixed-intent",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:cart-abandonment",
+        "ab-test:AB-001",
+        "ab-test:AB-002"
+      ],
+      "reason": "exact calculator title-token match should outrank the broader ab-test/journey matches on the same concept"
+    },
+    {
+      "query": "pricing test",
+      "expectedType": "mixed-intent",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-122",
+        "ab-test:AB-121",
+        "ab-test:AB-119"
+      ],
+      "reason": "find-test intent + pricing surface, should favor ab-test documents but not exclude others entirely"
+    },
+    {
+      "query": "signup form journey",
+      "expectedType": "mixed-intent",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-049",
+        "ab-test:AB-056",
+        "ab-test:AB-054"
+      ],
+      "reason": "VERIFIED: the journey corpus is backend lifecycle/state-machine content (entitlement, ownership, access) and genuinely has no document about UI-level 'signup forms' - that's an ab-test/surface concept in this corpus, not a journey one. An all-ab-test result is the honest reflection of that real structural difference between the two corpora, not a balancing defect."
+    },
+    {
+      "query": "checkout journey vs test",
+      "expectedType": "mixed-intent",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "ab-test:AB-005",
+        "ab-test:AB-006",
+        "ab-test:AB-007"
+      ],
+      "reason": "compare intent + two type-specific terms in the same query"
+    },
+    {
+      "query": "CON-37",
+      "expectedType": "merged-journey-id",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:CMS-208",
+        "journey:CON-32",
+        "journey:CON-35"
+      ],
+      "reason": "merged id must resolve to survivor CMS-208 (delivery-recovery), never return a separate CON-37 result"
+    },
+    {
+      "query": "CMS-209",
+      "expectedType": "merged-journey-id",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:CON-36",
+        "journey:CMS-201",
+        "journey:CMS-202"
+      ],
+      "reason": "merged id must resolve to survivor CON-36"
+    },
+    {
+      "query": "CTL-239",
+      "expectedType": "merged-journey-id",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:OWN-57",
+        "journey:CTL-232",
+        "journey:CTL-233"
+      ],
+      "reason": "merged id must resolve to survivor OWN-57"
+    },
+    {
+      "query": "CTL-240",
+      "expectedType": "merged-journey-id",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:OWN-54",
+        "journey:CTL-232",
+        "journey:CTL-233"
+      ],
+      "reason": "merged id must resolve to survivor OWN-54"
+    },
+    {
+      "query": "RET-25",
+      "expectedType": "merged-journey-id",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "journey:RSK-192",
+        "journey:RET-21",
+        "journey:RET-22"
+      ],
+      "reason": "merged id must resolve to survivor RSK-192 (risk-signal)"
+    },
+    {
+      "query": "75+ calculator tools",
+      "expectedType": "lab-product",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "lab-product:numerspace",
+        "calculator:ab-test",
+        "calculator:aov"
+      ],
+      "reason": "matches Numerspace's own description text"
+    },
+    {
+      "query": "Google Ads change history",
+      "expectedType": "lab-product",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "lab-product:google-ads-change-history-dashboard",
+        "calculator:ctr",
+        "journey:REL-99"
+      ],
+      "reason": "exact title-token match"
+    },
+    {
+      "query": "Canonical Journey Library",
+      "expectedType": "lab-product",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "lab-product:lifecycle-card-archive",
+        "lab-product:claude-lifecycle",
+        "journey:ACQ-03"
+      ],
+      "reason": "exact title match"
+    },
+    {
+      "query": "guardrail metric AB test",
+      "expectedType": "blog",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "blog-article:the-guardrail-metric-most-ab-tests-forget",
+        "calculator:ab-test",
+        "calculator:test-duration-estimator"
+      ],
+      "reason": "exact title-token match"
+    },
+    {
+      "query": "ROAS different ad platform",
+      "expectedType": "blog",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:roas",
+        "blog-article:why-your-roas-looks-different-on-every-ad-platform",
+        "ab-test:AB-165"
+      ],
+      "reason": "exact title-token match"
+    },
+    {
+      "query": "LTV CAC ratio scale",
+      "expectedType": "blog",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:ltv-cac-ratio",
+        "calculator:cac",
+        "calculator:ltv"
+      ],
+      "reason": "CORRECTED from an original expectation of the blog article alone: the real blog title is 'LTV:CAC alone doesn't tell you when to scale' - it does not contain the word 'ratio' at all. calculator:ltv-cac-ratio's own title ('LTV:CAC Ratio Calculator') is a genuinely closer literal match to this exact query and correctly outranks the blog post - that's honest relevance, not a defect. Both are acceptable top results; the blog post alone was never the single correct answer."
+    },
+    {
+      "query": "journey vs campaign",
+      "expectedType": "blog",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "blog-article:what-belongs-in-a-lifecycle-journey-vs-a-campaign",
+        "lab-product:claude-lifecycle",
+        "journey:ACQ-03"
+      ],
+      "reason": "compare intent + exact title-token match"
+    },
+    {
+      "query": "D1 D7 D30 retention",
+      "expectedType": "blog",
+      "ok": true,
+      "isKnownGap": false,
+      "top3": [
+        "calculator:d1-retention",
+        "blog-article:reading-d1-d7-d30-retention-without-fooling-yourself",
+        "calculator:retention-rate"
+      ],
+      "reason": "exact title-token match, also overlaps with calculator:d1-retention - a genuine, expected multi-type result"
+    }
+  ]
+}

@@ -1,0 +1,4767 @@
+{
+  "_description": "Per-document related-content edges, keyed by document id. Each edge carries its reasons[] and a deterministic score - never an opaque similarity number. Minimum relevance threshold 0.3; relatedPrimary requires score >= 1.0 (always includes at least one explicit-* reason, since only explicit relations score that high on their own... unless enough scored signals stack).",
+  "scoringModel": {
+    "explicit-product-relation": "1.0 - from calculator-catalog.json's own relatedCalculators field",
+    "explicit-content-relation": "1.0 - from a blog post's own related[] links",
+    "shared-category": "0.5 * normalizedCategory Jaccard overlap",
+    "shared-metric": "0.6 * metric[] Jaccard overlap, only counted if overlap >= 0.2",
+    "shared-stage": "not currently producing edges - see note below",
+    "note": "shared-stage (funnelStage overlap) is defined in the taxonomy but produced zero qualifying edges in this generation pass, since journey/ab-test funnelStage population is deliberately sparse (see search-taxonomy.json's abTestStageMap - only 5 of 14 surfaces map) - documented rather than forced to produce output."
+  },
+  "corpusPowers": {
+    "lifecycle-card-archive": "journey",
+    "ab-test-playbook": "ab-test"
+  },
+  "relations": {
+    "calculator:ab-test": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:confidence-interval-calculator",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:sample-size-calculator",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:activation-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-102",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-103",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-104",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:aov": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:revenue-per-visitor",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-001",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-002",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-003",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:bounce-rate-email": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:break-even-point": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:roas",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:cac-payback-period": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:ltv-cac-ratio",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:cac": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ltv-cac-ratio",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cac-payback-period",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-051",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:cart-abandonment": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-001",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-002",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-003",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:complaint-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:confidence-interval-calculator": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ab-test",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:contribution-margin": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:gross-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:profit-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:break-even-point",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-001",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-002",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-003",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:cpa": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cpc",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpm",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpl",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:cpc": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cpm",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpa",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpl",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:cpl": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cpc",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpm",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpa",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:cpm": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cpc",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpa",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpl",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:cr": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:ctor": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:ctr": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:ctor",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:d1-retention": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-102",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-103",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-104",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:dau-mau-stickiness": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-102",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-103",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-104",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:delivery-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:ctor",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:engagement-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:funnel-analysis-multistep": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:gross-margin": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:profit-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-001",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-002",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-003",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:list-growth-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:logo-churn": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-162",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-163",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-164",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:ltv-cac-ratio": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ltv",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cac-payback-period",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:ltv": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ltv-cac-ratio",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:marketing-roi": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:roas",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:profit-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:minimum-detectable-effect": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:sample-size-calculator",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:test-duration-estimator",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:mrr": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:saas-quick-ratio",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-162",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-163",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-164",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:nrr": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-162",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-163",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-164",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:open-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:ctor",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:profit-margin": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:gross-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:marketing-roi",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-001",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-002",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-003",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:retention-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "journey:RET-21",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:RET-22",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:RET-23",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:revenue-per-recipient": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:revenue-per-visitor",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:saas-quick-ratio",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:rule-of-40",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:revenue-per-visitor": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:revenue-per-recipient",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:saas-quick-ratio",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:rule-of-40",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-001",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-002",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-003",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:roas": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:marketing-roi",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:rule-of-40": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:revenue-per-visitor",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:revenue-per-recipient",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:saas-quick-ratio",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-162",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-163",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-164",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:saas-quick-ratio": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:revenue-per-visitor",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:revenue-per-recipient",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:rule-of-40",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-162",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-163",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-164",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:sample-size-calculator": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:minimum-detectable-effect",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:test-duration-estimator",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:test-duration-estimator": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:sample-size-calculator",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:minimum-detectable-effect",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "calculator:unsubscribe-rate": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ctr",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:delivery-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:open-rate",
+          "reasons": [
+            "explicit-product-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "blog-article:ltv-cac-ratio-doesnt-tell-you-when-to-scale": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:ltv-cac-ratio",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cac-payback-period",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:ltv",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "blog-article:reading-d1-d7-d30-retention-without-fooling-yourself": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "blog-article:why-your-roas-looks-different-on-every-ad-platform": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:roas",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:marketing-roi",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:cpa",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "blog-article:what-belongs-in-a-lifecycle-journey-vs-a-campaign": {
+      "relatedPrimary": [
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "blog-article:the-guardrail-metric-most-ab-tests-forget": {
+      "relatedPrimary": [
+        {
+          "to": "lab-product:ab-test-playbook",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:ab-test",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        },
+        {
+          "to": "calculator:sample-size-calculator",
+          "reasons": [
+            "explicit-content-relation"
+          ],
+          "score": 1
+        }
+      ],
+      "relatedSecondary": []
+    },
+    "ab-test:AB-102": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-103": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-104": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-105": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-106": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-107": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-108": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-109": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-110": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-111": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-112": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-113": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:activation-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:d1-retention",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:dau-mau-stickiness",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-001": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-002": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-003": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-004": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-005": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-006": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-007": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-008": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-009": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-010": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-011": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-012": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-013": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-014": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-015": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-016": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-017": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-018": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-019": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-020": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-021": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-022": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-188": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-189": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-190": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-191": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:aov",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:cart-abandonment",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:contribution-margin",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-049": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-050": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-051": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-052": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-053": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-054": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-055": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-056": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-057": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-058": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-059": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-060": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-061": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-062": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-063": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-064": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-065": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-066": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-067": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-068": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-069": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-070": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-071": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-072": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-073": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-074": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-075": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-076": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-077": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-078": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-079": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-080": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-081": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-082": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-083": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-084": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-085": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-086": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-087": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-088": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-089": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-090": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-091": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-092": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-093": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-094": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-095": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-096": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-097": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-098": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-099": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-100": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-101": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-01",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "journey:ACQ-02",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-162": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-163": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-164": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-165": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-166": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-167": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-168": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-169": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-170": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-171": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-172": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-173": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "ab-test:AB-174": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:logo-churn",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:mrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "calculator:nrr",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-01": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-02": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-03": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-04": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-05": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-06": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-07": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-08": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-09": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-10": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-11": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-12": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-13": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-14": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-15": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-16": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-17": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-18": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-19": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACT-20": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-21": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-22": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-23": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-24": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-26": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-27": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-28": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-29": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-30": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    }
+  }
+}

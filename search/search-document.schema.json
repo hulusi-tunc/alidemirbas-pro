@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hulusi-tunc/alidemirbas-pro/search/search-document.schema.json",
+  "title": "SearchDocument",
+  "description": "Runtime-validatable equivalent of search-document.types.ts - keep the two in sync by hand.",
+  "type": "object",
+  "required": [
+    "id", "type", "slug", "url", "urlTr", "external", "title", "summary", "searchText",
+    "keywords", "category", "normalizedCategory", "surface", "funnelStage", "metric",
+    "businessObjective", "intent", "tags", "language", "indexable", "canonical",
+    "searchAliases", "boost", "source"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^(ab-test|journey|calculator|lab-product|blog-article):[a-zA-Z0-9._-]+$" },
+    "type": { "enum": ["ab-test", "journey", "calculator", "lab-product", "blog-article"] },
+    "slug": { "type": "string", "minLength": 1 },
+    "url": { "type": "string", "minLength": 1 },
+    "urlTr": { "type": ["string", "null"] },
+    "external": { "type": "boolean" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "searchText": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "keywords": { "type": "array", "items": { "type": "string" } },
+    "category": { "type": "array", "items": { "type": "string" } },
+    "normalizedCategory": { "type": "array", "items": { "type": "string" } },
+    "surface": { "type": "array", "items": { "type": "string" } },
+    "funnelStage": { "type": "array", "items": { "type": "string" } },
+    "metric": { "type": "array", "items": { "type": "string" } },
+    "businessObjective": { "type": "array", "items": { "type": "string" } },
+    "intent": { "type": "array", "items": { "enum": ["learn", "calculate", "find-example", "find-journey", "find-test", "use-tool", "browse", "compare"] } },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "language": { "enum": ["en", "tr", "en+tr"] },
+    "indexable": { "type": "boolean" },
+    "canonical": { "type": ["string", "null"] },
+    "searchAliases": { "type": "array", "items": { "type": "string" } },
+    "boost": { "type": "object", "additionalProperties": { "type": "number" } },
+    "source": {
+      "type": "object",
+      "required": ["file", "fields"],
+      "additionalProperties": false,
+      "properties": {
+        "file": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "fields": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    }
+  }
+}
