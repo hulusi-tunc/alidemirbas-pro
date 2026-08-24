@@ -105,6 +105,55 @@ for (const slug of LIVE_SLUGS) {
   void ltvSpec;
 }
 
+// --- Batch 04: minimum-detectable-effect - deliberately NOT run through the
+// generic per-slug loop above. calculator-catalog.json's own exampleOutput
+// for this slug (mde: "25.30%") is stale against the RELATIVE-MDE
+// convention this implementation uses (documented in calc-registry.ts and
+// production/calculators/content/minimum-detectable-effect.json's
+// qaNotes) - the generic loop's 0.15-percentage-point tolerance for "%"
+// units would fail against that stale value even though the
+// implementation is correct. Verified here instead with a tighter,
+// independently-derived tolerance, plus round-trip and directionality
+// checks the generic loop doesn't do for any slug. ---
+{
+  const mdeCompute = getCompute("minimum-detectable-effect");
+  const sampleSizeCompute = getCompute("sample-size-calculator");
+
+  // Canonical catalog example (baselineRate 5%, samplePerVariant 5000,
+  // power 80, significanceLevel 95) - independently re-derived by hand
+  // (see chat) as 24.42%, not the catalog's stale 25.30%.
+  const canonical = mdeCompute({ baselineRate: 0.05, samplePerVariant: 5000, power: 80, significanceLevel: 95 });
+  check("minimum-detectable-effect.mde (canonical, independently verified)", canonical.mde, 24.42, "%");
+
+  // Round-trip: sample-size-calculator(baseline, relMDE, power, sig) -> n,
+  // then minimum-detectable-effect(baseline, n, power, sig) -> relMDE
+  // should reproduce the original relMDE within sample-size rounding
+  // tolerance (Math.ceil on n is the only source of drift). Five cases
+  // spanning low/moderate/high baseline, small/large MDE, and every
+  // supported power/significance combination.
+  const roundTripCases = [
+    { label: "low baseline 1%, relMDE 20%, power 80, sig 95", baselineRate: 0.01, mde: 0.20, power: 80, significanceLevel: 95 },
+    { label: "moderate baseline 10%, relMDE 15%, power 80, sig 95", baselineRate: 0.10, mde: 0.15, power: 80, significanceLevel: 95 },
+    { label: "baseline 5%, relMDE 10%, power 90, sig 99 (smaller MDE -> larger n)", baselineRate: 0.05, mde: 0.10, power: 90, significanceLevel: 99 },
+    { label: "baseline 5%, relMDE 30%, power 80, sig 90 (larger MDE -> smaller n)", baselineRate: 0.05, mde: 0.30, power: 80, significanceLevel: 90 },
+    { label: "high baseline 20%, relMDE 5%, power 80, sig 95", baselineRate: 0.20, mde: 0.05, power: 80, significanceLevel: 95 },
+  ];
+  for (const c of roundTripCases) {
+    const n = sampleSizeCompute({ baselineRate: c.baselineRate, mde: c.mde, power: c.power, significanceLevel: c.significanceLevel }).samplePerVariant;
+    const back = mdeCompute({ baselineRate: c.baselineRate, samplePerVariant: n, power: c.power, significanceLevel: c.significanceLevel }).mde;
+    check(`minimum-detectable-effect round-trip: ${c.label}`, back, c.mde * 100, "%");
+  }
+
+  // Directionality: same baseline/power/significance, larger sample ->
+  // smaller (monotonically decreasing) detectable relative MDE.
+  const samplesAscending = [1000, 5000, 20000, 100000];
+  const mdesForSamples = samplesAscending.map((n) => mdeCompute({ baselineRate: 0.05, samplePerVariant: n, power: 80, significanceLevel: 95 }).mde);
+  let monotonic = true;
+  for (let i = 1; i < mdesForSamples.length; i++) if (!(mdesForSamples[i] < mdesForSamples[i - 1])) monotonic = false;
+  if (monotonic) pass++;
+  else { fail++; failures.push(`minimum-detectable-effect directionality: expected strictly decreasing MDE as sample grows, got ${JSON.stringify(mdesForSamples)}`); }
+}
+
 // --- Phase 27: shared edge-case tests, applied where the calculator's own validationRules say they apply ---
 const edgeCases = [
   { label: "roas: zero spend -> NaN, not Infinity", fn: () => getCompute("roas")({ revenue: 100, spend: 0 }).roas, assertNaN: true },

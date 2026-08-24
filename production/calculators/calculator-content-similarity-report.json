@@ -11,6 +11,14 @@
       ]
     },
     {
+      "sequence": "definition>formula>worked-example>methodology>assumptions>limitations>interpretation>comparison-note>common-mistakes",
+      "slugs": [
+        "confidence-interval-calculator",
+        "minimum-detectable-effect",
+        "test-duration-estimator"
+      ]
+    },
+    {
       "sequence": "formula>worked-example>interpretation>comparison-note",
       "slugs": [
         "cpc",
@@ -28,19 +36,22 @@
   "repeatedHeadings": [
     {
       "heading": "Worked example",
-      "count": 15,
+      "count": 18,
       "slugs": [
         "ab-test",
         "aov",
         "break-even-point",
         "cac-payback-period",
         "cac",
+        "confidence-interval-calculator",
+        "contribution-margin",
         "cpc",
         "cr",
         "ctr",
         "gross-margin",
         "logo-churn",
         "ltv-cac-ratio",
+        "minimum-detectable-effect",
         "mrr",
         "retention-rate",
         "roas",
@@ -49,18 +60,21 @@
     },
     {
       "heading": "Common mistakes",
-      "count": 16,
+      "count": 19,
       "slugs": [
         "ab-test",
         "aov",
         "break-even-point",
         "cac-payback-period",
         "cac",
+        "confidence-interval-calculator",
+        "contribution-margin",
         "cr",
         "gross-margin",
         "logo-churn",
         "ltv-cac-ratio",
         "ltv",
+        "minimum-detectable-effect",
         "mrr",
         "nrr",
         "retention-rate",

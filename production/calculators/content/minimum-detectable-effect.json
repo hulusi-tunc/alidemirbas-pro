@@ -1,0 +1,115 @@
+{
+  "calculatorId": "CALC-MINIMUM-DETECTABLE-EFFECT",
+  "slug": "minimum-detectable-effect",
+  "contentDepth": "deep",
+  "intro": "Minimum Detectable Effect (MDE) is the smallest relative lift a test can reliably detect, given its baseline rate, available sample, power and significance level. Enter those four to get the MDE this test is actually capable of finding.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What MDE actually is",
+      "body": "MDE is [the smallest change in a metric that an experiment can reliably detect](https://www.statsig.com/glossary/minimum-detectable-effect) — a planning threshold computed from statistical assumptions, not a prediction of what the test will find. It isn't the uplift you expect the variant to produce, and it isn't automatically the smallest effect worth caring about commercially. It's the answer to one specific question: given this baseline rate, this much traffic, and the power and significance level chosen, how small a true effect can this test tell apart from noise?"
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How MDE is calculated",
+      "body": "This calculator solves the same two-proportion equation as the [Sample Size Calculator](/calculators/sample-size-calculator), for the opposite unknown. It first computes the absolute detectable effect, √(2 × (z-values for significance and power, summed)² × baseline × (1 − baseline) ÷ sample size), then divides that by the baseline rate to report a relative MDE — the same relative-lift convention the Sample Size Calculator's own MDE input uses, just solved in the other direction."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Baseline conversion rate", "value": "5%" },
+        { "label": "Available sample per variant", "value": "5,000" },
+        { "label": "Statistical power", "value": "80%" },
+        { "label": "Significance level", "value": "95%" }
+      ],
+      "output": { "label": "Minimum Detectable Effect", "value": "24.42%" },
+      "body": "24.42% is a relative lift, not 24.42 percentage points. Applied to a 5% baseline, it means this test can reliably detect a true rate around 6.22% (5% × 1.2442) — an absolute move of about 1.22 percentage points, not 24.42 of them. A true effect smaller than that, at this sample size, is more likely than not to slip past this test undetected."
+    },
+    {
+      "id": "sample-size-tradeoff",
+      "type": "methodology",
+      "heading": "How sample size moves the detectable effect",
+      "body": "Holding baseline, power and significance fixed, more sample lowers the detectable relative MDE, and less sample raises it — at a 5% baseline with 80% power and 95% significance, 1,000 per variant detects only a 54.6% relative lift or larger, 5,000 gets down to 24.4%, 20,000 to 12.2%, and 100,000 to 5.5%. The relationship isn't linear: cutting MDE in half roughly quadruples the required sample, since sample size scales with the inverse square of the effect. A smaller MDE means catching smaller, real effects that a less-sensitive test would miss entirely — but only at a real traffic and time cost."
+    },
+    {
+      "id": "assumptions",
+      "type": "assumptions",
+      "heading": "Statistical assumptions behind this number",
+      "body": "This is the same two-proportion, normal-approximation framework the Sample Size and A/B Test Significance calculators use — fixed power and significance levels chosen from this tool's own supported enums (80% or 90% power; 90%, 95% or 99% significance), not continuously adjustable, and an assumption that both variants split traffic evenly. It reports relative MDE specifically because that matches how the Sample Size Calculator's own input is defined; a different tool that reports absolute MDE instead would need its output read against baseline differently, so don't assume a 'MDE' figure from another source uses the same convention without checking."
+    },
+    {
+      "id": "limitations",
+      "type": "limitations",
+      "heading": "What MDE doesn't tell you",
+      "body": "MDE is not the uplift you should expect the test to produce, and it's not what the test actually measured once it runs — those are two entirely different numbers from a completely different calculation, one planned in advance and one observed afterward. It's also not automatically the smallest effect worth shipping commercially: that's a business judgment about value, weighed against implementation cost, and it can be larger or smaller than what a given sample size happens to be able to detect. Setting MDE by what's statistically convenient, rather than by what effect size actually matters, can quietly bake a blind spot into the test before it even starts."
+    },
+    {
+      "id": "mde-vs-observed",
+      "type": "interpretation",
+      "heading": "MDE vs. the effect a test actually observes",
+      "body": "MDE is set before the test runs, from baseline, sample, power and significance alone — it has no knowledge of what the variant will actually do. The observed uplift comes only after the test runs, from real conversion data. An observed uplift smaller than the MDE doesn't mean there's no real effect; it can just as easily mean a real, smaller effect exists but this test wasn't sized to detect it reliably. Reading a below-MDE result as proof of 'no effect' skips over that possibility — the honest read is that the test was underpowered for an effect that size, not that the effect isn't there."
+    },
+    {
+      "id": "mde-vs-sample-size",
+      "type": "comparison-note",
+      "heading": "This is the inverse of the Sample Size Calculator",
+      "body": "Both tools solve the identical two-proportion equation — the [Sample Size Calculator](/calculators/sample-size-calculator) asks how much traffic is needed to detect a chosen effect, and this one asks the reverse: given the traffic actually available, what effect can be detected. They're kept as separate tools because people arrive with different questions ('how many visitors do I need' versus 'what can I even find with what I've got'), not because the underlying math differs. Feeding the MDE this calculator returns back into the Sample Size Calculator as its MDE input should reproduce roughly the same sample size that was entered here."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Reading a 20% MDE as a 20-percentage-point change. It's a relative lift — on a 5% baseline, a 20% relative MDE means detecting a move to about 6%, roughly 1 percentage point, not 20 of them.",
+        "Treating MDE as the uplift the test is expected to produce. It's the smallest effect the test can reliably detect, not a forecast of what the variant will actually do.",
+        "Concluding 'no real effect' from an observed uplift below the MDE. It can just as easily mean a real, smaller effect exists that this sample size wasn't sized to catch reliably.",
+        "Raising the MDE purely to shrink the required sample and finish the test faster, without weighing that a higher MDE also means smaller, genuinely valuable effects will go undetected."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "sample-size-calculator", "name": "Sample Size Calculator", "desc": "Solves the same equation for the opposite unknown — required sample for a chosen MDE, instead of MDE for a given sample." },
+    { "slug": "test-duration-estimator", "name": "Test Duration Estimator Calculator", "desc": "Converts a required sample size into an estimated calendar duration at current traffic — the natural next step after sizing a test." },
+    { "slug": "ab-test", "name": "A/B Test Significance Calculator", "desc": "Where the observed uplift actually gets tested once the experiment runs, a different number from the MDE planned in advance." }
+  ],
+  "faq": [
+    {
+      "id": "what-does-mde-calculate",
+      "q": "What does the Minimum Detectable Effect Calculator actually calculate?",
+      "a": "It computes the smallest relative lift a test can reliably detect, given a baseline conversion rate, the sample available per variant, statistical power, and significance level. It solves the same two-proportion formula the Sample Size Calculator uses, for the opposite unknown — instead of asking how much traffic a chosen effect needs, it asks what effect a given amount of traffic can actually find. The result is reported as a relative MDE (a percentage lift over baseline), matching the convention the Sample Size Calculator's own MDE input uses, not an absolute percentage-point change. It's a planning figure computed before a test runs, not a measurement of what any specific test actually produced."
+    },
+    {
+      "id": "relative-vs-percentage-points",
+      "q": "Is a 20% MDE the same as a 20 percentage point change?",
+      "a": "No — a 20% MDE means a 20% relative lift over the baseline, not a 20-point absolute move, and confusing the two produces a wildly different picture of what's being detected. On a 5% baseline, a 20% relative MDE means detecting a true rate of about 6% — a 1-percentage-point absolute move, not 20 points. In this calculator's own worked example, a 5% baseline with 5,000 samples per variant returns a 24.42% MDE, which corresponds to detecting roughly 6.22%, an absolute shift of about 1.22 percentage points. Reading the output as percentage points instead of a relative lift overstates the actual effect size by an order of magnitude."
+    },
+    {
+      "id": "sample-size-mde-tradeoff",
+      "q": "Does a smaller MDE mean the test needs more or less traffic?",
+      "a": "More. A smaller MDE means the test is being asked to detect a smaller, subtler effect, which statistically requires a larger sample to tell apart from random noise reliably. The relationship isn't linear either — cutting the target MDE in half roughly quadruples the sample needed, since required sample scales with the inverse square of the effect size. That tradeoff cuts both ways: setting a large MDE to keep a test short and cheap also means smaller, real effects will go completely undetected, while chasing a very small MDE for maximum sensitivity can require traffic or runtime the business doesn't have. Neither end of that tradeoff is automatically the right choice."
+    },
+    {
+      "id": "observed-below-mde",
+      "q": "If my observed uplift is below the MDE, does that mean there's no real effect?",
+      "a": "Not necessarily. MDE and observed uplift are two different numbers from two different moments — MDE is a planning threshold set before the test runs, based on baseline, sample size, power and significance alone; observed uplift is what the actual data showed once the test ran. An observed uplift smaller than the MDE can mean there's genuinely no effect, but it can just as easily mean a real, smaller effect exists that this particular sample size wasn't sized to detect reliably. Treating a below-MDE result as definitive proof of 'no effect' skips that second possibility. The more accurate read is that the test was underpowered for an effect of that size, not that the effect doesn't exist."
+    },
+    {
+      "id": "mde-vs-business-value",
+      "q": "Is MDE the same as the smallest effect I'd consider worth shipping?",
+      "a": "Not automatically, even though the two get conflated often. MDE is a statistical property of the test's setup — what a given sample size, power and significance level can detect. The smallest effect worth shipping is a business judgment about value versus implementation cost, and it doesn't have to match what happens to be statistically detectable with the traffic on hand. Setting MDE purely by what's convenient to test for, rather than by what effect size actually matters commercially, can leave a real blind spot: an effect below that MDE might be genuinely valuable to the business and still go entirely undetected by a test that was never sized to find it."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Minimum Detectable Effect (MDE) Calculator",
+    "seoDescription": "Calculate the relative MDE a test can detect from baseline rate, sample size, power and significance, with the relative-vs-percentage-point distinction made explicit.",
+    "canonicalPath": "/calculators/minimum-detectable-effect",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "review",
+  "qaNotes": "DEEP depth (Batch 04). Implementation note: this calculator was not previously live (catalog status: recommended, no compute function, not in LIVE_CALCULATOR_SLUGS) - implemented per explicit instruction, as a scoped promotion using the existing generic architecture (no bespoke component), same pattern as logo-churn in the prior batch. REVIEW/BLOCK FLAG (per instruction 0/7, same category as ab-test.json's own pre-existing flag): calculator-catalog.json's own exampleOutput for CALC-MINIMUM-DETECTABLE-EFFECT states mde '25.30%' for exampleInput {baselineRate:0.05, samplePerVariant:5000, power:80, significanceLevel:95}. The catalog's bare formula string (sqrt(2*(za+zb)^2*p(1-p)/n)) computes only the ABSOLUTE effect (independently verified at 1.2212%, not 25.30%); dividing by baseline to get the RELATIVE MDE - the convention that makes this calculator the true mathematical inverse of sample-size-calculator's own already-shipped 'mde is a RELATIVE lift' convention (see that function's own code comment) - gives 24.4238%, close to but still not exactly matching the catalog's 25.30%. Did NOT edit calculator-catalog.json. Used the independently-verified 24.42% in this content and in the live implementation, per the same precedent ab-test.json already established for a stale catalog exampleOutput. Round-trip verified programmatically: feeding this calculator's MDE output back into sample-size-calculator's own MDE input reproduces the original sample size within Math.ceil rounding tolerance, across 5 cases spanning low/moderate/high baseline and every supported power/significance combination (see test-calculators.mjs's dedicated minimum-detectable-effect test block - NOT run through the generic per-slug loop, since that loop's tolerance would fail against the stale catalog value even though the implementation is correct). Directionality independently verified: n=1000/5000/20000/100000 at baseline 5%/power 80/sig 95 gives MDE 54.61%/24.42%/12.21%/5.46% respectively - strictly decreasing, confirmed via a dedicated monotonicity test. Core boundaries kept explicit across definition/limitations/interpretation/three FAQs: MDE != expected uplift, MDE != observed effect (a below-MDE observed result means 'underpowered for that effect,' not 'no effect'), MDE != automatically the business value threshold. Relative-vs-percentage-point distinction (the single most requested fix) demonstrated with the exact canonical numbers (24.42% relative = ~1.22 points on a 5% baseline = ~6.22% target), not an invented example. External source: Statsig's experimentation glossary definition of MDE ('the smallest change in a metric that an experiment can reliably detect') - a recognized experimentation-documentation source; DIME Wiki (World Bank) was the first choice but returned HTTP 403 on fetch, so not cited to avoid citing content not actually verified. Related Calculators verified live: sample-size-calculator, test-duration-estimator, ab-test - srm-check (catalog's own relatedCalculators) is not live, not linked. qaStatus set to 'review' (not 'ready') because of the catalog exampleOutput mismatch, matching ab-test.json's own precedent exactly. 5 FAQs, 100-150 words each, independently word-counted."
+}
