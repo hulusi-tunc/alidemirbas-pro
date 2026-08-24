@@ -1,0 +1,50 @@
+{
+  "_description": "Search-time aliases - a query matching `alias` should resolve to `targetId`'s document, never create a separate result. Currently populated only by the 5 merged journeys (journey-merged-id-contract.json is the source of truth this list is generated from, never re-decided here).",
+  "aliases": [
+    {
+      "alias": "CON-37",
+      "aliasSlugLowercased": "con-37",
+      "targetId": "journey:CMS-208",
+      "targetSlug": "delivery-recovery",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "source": "production/journey-merged-id-contract.json"
+    },
+    {
+      "alias": "CMS-209",
+      "aliasSlugLowercased": "cms-209",
+      "targetId": "journey:CON-36",
+      "targetSlug": "channel-contactability-state",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "source": "production/journey-merged-id-contract.json"
+    },
+    {
+      "alias": "CTL-239",
+      "aliasSlugLowercased": "ctl-239",
+      "targetId": "journey:OWN-57",
+      "targetSlug": "multi-party-approval-aggregation",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "source": "production/journey-merged-id-contract.json"
+    },
+    {
+      "alias": "CTL-240",
+      "aliasSlugLowercased": "ctl-240",
+      "targetId": "journey:OWN-54",
+      "targetSlug": "ownership-change-obligation-transfer",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "source": "production/journey-merged-id-contract.json"
+    },
+    {
+      "alias": "RET-25",
+      "aliasSlugLowercased": "ret-25",
+      "targetId": "journey:RSK-192",
+      "targetSlug": "risk-signal",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "source": "production/journey-merged-id-contract.json"
+    }
+  ]
+}

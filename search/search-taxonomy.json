@@ -1,0 +1,100 @@
+{
+  "_description": "Controlled vocabularies for every dimension in search-document.types.ts, plus the exact mapping tables used to derive cross-corpus normalized dimensions from each corpus's own real taxonomy. No value here was invented without a source - every list below states where it came from.",
+  "entityTypes": {
+    "values": ["ab-test", "journey", "calculator", "lab-product", "blog-article"],
+    "excludedFromSearch": {
+      "static-navigational": {
+        "pages": ["home", "about", "stack", "contact"],
+        "decision": "NOT included as search documents",
+        "reasoning": "These are always-visible global nav items on a small (~7-page) personal/portfolio site, not discoverable content a search feature is meant to surface - a search for 'contact' returning the nav-accessible Contact page adds no value over the nav link that's already on screen. Revisit only if the site grows enough static pages that global nav stops being sufficient (not the case today)."
+      },
+      "calculator-index-and-blog-index": {
+        "pages": ["/calculators", "/blog", "/lab", "/lab/ab-testing/library", "/lab/journeys"],
+        "decision": "NOT included as their own search documents",
+        "reasoning": "These are browse/index surfaces, not content - a search result pointing at 'the calculator index page' is worse than pointing directly at the specific calculator/test/journey the query actually wants. The index pages remain reachable via each entity's own type facet (see search-facets.json) rather than as a search result themselves."
+      }
+    }
+  },
+  "categoryMap": {
+    "_description": "Cross-corpus normalizedCategory - a shared vocabulary that groups each corpus's own real category values by underlying business area. A category maps to normalizedCategory only when the mapping is unambiguous from the category NAME itself, not a semantic guess - see 'unmapped' below for every value deliberately left unmapped.",
+    "shared": ["cart-and-checkout", "acquisition-and-onboarding", "pricing-and-monetization", "search-and-discovery", "advertising-and-media", "crm-and-lifecycle", "retention-and-engagement", "saas-and-b2b", "unit-economics", "experimentation-and-testing", "mobile"],
+    "abTestCategoryMap": {
+      "Cart & Checkout": "cart-and-checkout",
+      "Category & Listing": "search-and-discovery",
+      "Dashboard": null,
+      "Forms & Signup": "acquisition-and-onboarding",
+      "Home & Landing": "acquisition-and-onboarding",
+      "Mobile App": "mobile",
+      "Pricing": "pricing-and-monetization",
+      "Product Detail Page": "search-and-discovery",
+      "SaaS & B2B": "saas-and-b2b",
+      "Search & Filtering": "search-and-discovery",
+      "Thank You": "cart-and-checkout",
+      "UI Elements": null
+    },
+    "abTestCategoryMapNote": "Dashboard and UI Elements deliberately map to null (unmapped) - both are UI-location descriptors, not business-area descriptors, and forcing them into the shared list would be a guess, not a real correspondence.",
+    "calculatorCategoryMap": {
+      "advertising": "advertising-and-media",
+      "acquisition": "acquisition-and-onboarding",
+      "ecommerce": "cart-and-checkout",
+      "lifecycle-retention": "retention-and-engagement",
+      "crm-email": "crm-and-lifecycle",
+      "mobile-growth": "mobile",
+      "saas": "saas-and-b2b",
+      "unit-economics": "unit-economics",
+      "cro-funnel": "experimentation-and-testing",
+      "experimentation": "experimentation-and-testing"
+    },
+    "journeyCategoryMap": {
+      "_description": "Journeys use 26 fine-grained categories (src/canonical/*.ts's own CategoryId union) - too granular for a 1:1 mapping table to stay honest without guessing. Instead, journeys get normalizedCategory ONLY from their own lifecycleStage-derived value where that already correlates cleanly (retention journeys -> retention-and-engagement, acquisition journeys -> acquisition-and-onboarding), applied at generation time by build-search-index.mjs, not hand-listed here per category. Categories with no clean lifecycle correlation get normalizedCategory: []."
+    }
+  },
+  "surfaces": {
+    "_description": "A/B test's own 14-value Surface enum (src/lib/ab-test-view.ts SURFACES, verified against all 211 records - all 14 values are actually used). No other corpus has a real surface concept, so this stays [] elsewhere.",
+    "values": ["pdp", "plp", "home", "cart", "checkout", "search", "filters", "form", "pricing", "saas", "mobile", "thankyou", "dashboard", "generic-ui"]
+  },
+  "funnelStages": {
+    "_description": "Journey's own 5-value LifecycleStage (src/lib/journey-taxonomy.ts, ported verbatim in build-search-index.mjs). Every journey resolves to exactly one of these (cross-lifecycle is a real, meaningful value for the ~85% of journeys not anchored to one stage - see the file's own comment: only 4 of 26 categories map to a stage).",
+    "values": ["acquisition-qualification", "activation-onboarding", "engagement-retention", "ending-closure", "cross-lifecycle"],
+    "abTestStageMap": {
+      "_description": "A/B tests get funnelStage ONLY where their own surface/category maps unambiguously - not forced onto all 211.",
+      "checkout": "engagement-retention",
+      "cart": "engagement-retention",
+      "thankyou": "ending-closure",
+      "form": "acquisition-qualification",
+      "home": "acquisition-qualification",
+      "note": "surfaces not listed here (pdp, plp, search, filters, pricing, saas, mobile, dashboard, generic-ui) deliberately get funnelStage: [] - none of them map unambiguously to one lifecycle stage without guessing."
+    }
+  },
+  "businessObjectives": {
+    "_description": "Ported VERBATIM from src/lib/journey-taxonomy.ts's Goal type and GOAL_RULES regex table (same order, same patterns) - applied uniformly to every corpus's own title+description text by build-search-index.mjs, not a separate taxonomy invented per corpus. 'review-required' is that file's own real fallback, preserved rather than hidden.",
+    "values": [
+      "eligibility-qualification", "consent-permission", "identity-verification", "expiry-renewal",
+      "cancellation-termination", "suspension-restoration", "revocation-access-change", "ownership-transfer",
+      "merge-consolidation", "reconciliation-correction", "recovery-retry", "escalation-exception",
+      "delivery-confirmation", "compensation-remedy", "change-versioning", "scheduling-commitment",
+      "decision-approval", "risk-compliance", "data-integrity", "progression-milestone", "review-required"
+    ]
+  },
+  "intents": {
+    "_description": "Query-intent taxonomy. Each entity TYPE gets a fixed, deterministic default intent set (not per-document authoring) - see the mapping below. These are RANKING SIGNALS (search-ranking-contract.json), never a hard single-result filter - a query classified as 'calculate' intent should still surface a highly-relevant journey/test if one exists, just weighted lower.",
+    "values": ["learn", "calculate", "find-example", "find-journey", "find-test", "use-tool", "browse", "compare"],
+    "defaultIntentByType": {
+      "ab-test": ["find-test", "find-example", "learn"],
+      "journey": ["find-journey", "learn"],
+      "calculator": ["calculate", "use-tool"],
+      "lab-product": ["use-tool", "browse"],
+      "blog-article": ["learn"]
+    },
+    "queryIntentDetectionNote": "See search-ranking-contract.json's queryIntentSignals for how an incoming query string itself gets classified into one or more of these 8 intents before ranking runs - that's a query-time classification, distinct from this per-document default set."
+  },
+  "abTestInternalFieldsExcludedFromTaxonomy": {
+    "_description": "Per the task's own explicit instruction: technically-real fields that carry no real user-facing filter value are excluded from the public taxonomy, not silently dropped from the source data (they're still available in the raw src/data/ab-tests.json for internal/authoring use).",
+    "setupType": { "values": ["control-vs-treatment", "option-vs-option", "unresolved", "variant-vs-variant"], "filterable": false, "searchable": false, "reasoning": "Describes HOW the experiment is structured (an authoring/methodology concept), not WHAT it's about - no realistic user query is 'find me a variant-vs-variant test'." },
+    "comparisonMode": { "values": ["element", "media", "structural"], "filterable": false, "searchable": false, "reasoning": "Same class of internal authoring concept as setupType." }
+  },
+  "journeyDerivedBehaviorsAsTags": {
+    "_description": "journey-view-model.json's own `derived.behaviors` field (already computed by the canonical pipeline, controlled vocabulary, real per-journey values) - used directly as search document `tags`, not re-derived.",
+    "values": ["backward-edge", "competition", "cross-journey-handoff", "external-handoff", "multi-exit", "no-re-entry", "preemption", "wait-timeout"]
+  }
+}

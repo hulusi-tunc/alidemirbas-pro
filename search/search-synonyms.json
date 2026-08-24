@@ -1,0 +1,34 @@
+{
+  "_description": "Controlled synonym dataset. Every entry is sourced from real, already-published corpus data (production/calculators/calculator-seo-map.json's own secondaryKeywords, or a calculator content file's own heroTitle) - none invented. Every entry carries type/confidence/source. Candidate pairs found in the source data but rejected as NOT real synonyms are listed separately in rejectedCandidates, with the reasoning, so the exclusion is auditable rather than silent.",
+  "synonyms": [
+    { "term": "CAC", "equivalents": ["Customer Acquisition Cost"], "type": "acronym-expansion", "confidence": "high", "source": "production/calculators/content/cac.json heroTitle + calculator-seo-map.json secondaryKeywords" },
+    { "term": "ROAS", "equivalents": ["Return on Ad Spend"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (roas)" },
+    { "term": "CTR", "equivalents": ["Click-Through Rate"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (ctr)" },
+    { "term": "CPC", "equivalents": ["Cost per Click"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (cpc)" },
+    { "term": "CPM", "equivalents": ["Cost per Mille", "Cost per 1,000 Impressions"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (cpm)" },
+    { "term": "CPA", "equivalents": ["Cost per Acquisition"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (cpa)" },
+    { "term": "CPA", "equivalents": ["Cost per Conversion"], "type": "naming-convention-overlap", "confidence": "medium", "source": "calculator-seo-map.json secondaryKeywords (cpa) - same formula (spend / conversions), a common alternate name rather than a formal acronym expansion" },
+    { "term": "CPL", "equivalents": ["Cost per Lead"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (cpl)" },
+    { "term": "LTV", "equivalents": ["Customer Lifetime Value", "Lifetime Value"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (ltv)" },
+    { "term": "AOV", "equivalents": ["Average Order Value"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (aov)" },
+    { "term": "AOV", "equivalents": ["Average Basket Size"], "type": "industry-alternate-term", "confidence": "medium", "source": "calculator-seo-map.json secondaryKeywords (aov)" },
+    { "term": "AOV", "equivalents": ["Revenue per Order"], "type": "formula-restatement", "confidence": "medium", "source": "calculator-seo-map.json secondaryKeywords (aov) - AOV = revenue / orders, this is that formula in words" },
+    { "term": "CR", "equivalents": ["Conversion Rate", "CVR"], "type": "acronym-expansion", "confidence": "high", "source": "calculator-seo-map.json secondaryKeywords (cr) for 'Conversion Rate'; 'CVR' is the same metric's other common acronym, verified against no conflicting corpus usage" },
+    { "term": "CTOR", "equivalents": ["Click-to-Open Rate"], "type": "acronym-expansion", "confidence": "high", "source": "production/calculators/content/ctor.json heroTitle" },
+    { "term": "MDE", "equivalents": ["Minimum Detectable Effect"], "type": "acronym-expansion", "confidence": "high", "source": "production/calculators/content/minimum-detectable-effect.json heroTitle" },
+    { "term": "NRR", "equivalents": ["Net Revenue Retention", "Net Dollar Retention"], "type": "acronym-expansion", "confidence": "high", "source": "production/calculators/content/nrr.json heroTitle + calculator-seo-map.json secondaryKeywords ('net dollar retention calculator')" },
+    { "term": "RPV", "equivalents": ["Revenue per Visitor"], "type": "acronym-expansion", "confidence": "high", "source": "production/calculators/content/revenue-per-visitor.json heroTitle" },
+    { "term": "Revenue per Recipient", "equivalents": ["Revenue per Email"], "type": "industry-alternate-term", "confidence": "medium", "source": "calculator-seo-map.json secondaryKeywords (revenue-per-recipient)" },
+    { "term": "A/B Test", "equivalents": ["AB Test", "A B Test", "Split Test"], "type": "spelling-variant", "confidence": "high", "source": "common notation variants of the same corpus-wide term - not from a single calculator record, applies site-wide (see search-typo-tolerance-contract in SEARCH-DESIGN-HANDOFF.md)" }
+  ],
+  "rejectedCandidates": {
+    "_description": "Pairs the source data juxtaposes (as a related/co-searched keyword) but which are NOT the same metric - excluded per the task's explicit warning against fabricating semantic synonyms.",
+    "entries": [
+      { "term": "MRR", "rejectedEquivalent": "ARR", "reason": "ARR = MRR x 12 - a related, derived metric, not the same quantity. calculator-seo-map.json lists 'arr calculator' as a co-searched secondary keyword for mrr, which is a relatedness signal (see search-relations.json), not a synonym." },
+      { "term": "MRR", "rejectedEquivalent": "MRR Growth Rate", "reason": "A rate of change of MRR is a different metric (a percentage) from MRR itself (a currency amount) - listed as a secondary keyword for discoverability, not interchangeability." },
+      { "term": "DAU/MAU Stickiness", "rejectedEquivalent": "DAU/WAU Stickiness", "reason": "Different denominator (Monthly vs Weekly active users) produces a genuinely different ratio and a genuinely different number for the same underlying DAU - calculator-seo-map.json lists 'dau/wau stickiness calculator' as an adjacent/confusable search term precisely because it's easy to conflate, not because they're the same metric." },
+      { "term": "LTV", "rejectedEquivalent": "ARPU", "reason": "Explicitly named as a non-synonym pair in this task's own brief - ARPU (Average Revenue Per User, typically per period) and LTV (a lifetime-horizon projection) answer different questions even though both are revenue-per-user metrics." },
+      { "term": "CTR", "rejectedEquivalent": "Conversion Rate", "reason": "Explicitly named as a non-synonym pair in this task's own brief - CTR measures clicks/impressions, Conversion Rate measures conversions/visits (or /clicks) - different funnel stages, different denominators." }
+    ]
+  }
+}

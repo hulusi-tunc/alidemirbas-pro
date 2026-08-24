@@ -1,0 +1,2862 @@
+{
+  "_description": "Filterable dimensions with real, computed document counts - no facet label/UI here (design's job, see SEARCH-DESIGN-HANDOFF.md), just the semantic values and how many real documents each one covers. lowUtility:true marks a facet value with <=2 documents - still real, just not worth surfacing as a prominent filter chip at this corpus size.",
+  "type": {
+    "dimension": "type",
+    "distinctValues": 5,
+    "values": [
+      {
+        "value": "journey",
+        "documentCount": 255,
+        "lowUtility": false
+      },
+      {
+        "value": "ab-test",
+        "documentCount": 211,
+        "lowUtility": false
+      },
+      {
+        "value": "calculator",
+        "documentCount": 43,
+        "lowUtility": false
+      },
+      {
+        "value": "lab-product",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "blog-article",
+        "documentCount": 5,
+        "lowUtility": false
+      }
+    ]
+  },
+  "normalizedCategory": {
+    "dimension": "normalizedCategory",
+    "distinctValues": 11,
+    "values": [
+      {
+        "value": "acquisition-and-onboarding",
+        "documentCount": 74,
+        "lowUtility": false
+      },
+      {
+        "value": "search-and-discovery",
+        "documentCount": 72,
+        "lowUtility": false
+      },
+      {
+        "value": "cart-and-checkout",
+        "documentCount": 32,
+        "lowUtility": false
+      },
+      {
+        "value": "saas-and-b2b",
+        "documentCount": 18,
+        "lowUtility": false
+      },
+      {
+        "value": "mobile",
+        "documentCount": 15,
+        "lowUtility": false
+      },
+      {
+        "value": "pricing-and-monetization",
+        "documentCount": 12,
+        "lowUtility": false
+      },
+      {
+        "value": "retention-and-engagement",
+        "documentCount": 10,
+        "lowUtility": false
+      },
+      {
+        "value": "experimentation-and-testing",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "crm-and-lifecycle",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "advertising-and-media",
+        "documentCount": 7,
+        "lowUtility": false
+      },
+      {
+        "value": "unit-economics",
+        "documentCount": 4,
+        "lowUtility": false
+      }
+    ]
+  },
+  "surface": {
+    "dimension": "surface",
+    "distinctValues": 14,
+    "values": [
+      {
+        "value": "pdp",
+        "documentCount": 37,
+        "lowUtility": false
+      },
+      {
+        "value": "home",
+        "documentCount": 30,
+        "lowUtility": false
+      },
+      {
+        "value": "plp",
+        "documentCount": 23,
+        "lowUtility": false
+      },
+      {
+        "value": "form",
+        "documentCount": 23,
+        "lowUtility": false
+      },
+      {
+        "value": "generic-ui",
+        "documentCount": 23,
+        "lowUtility": false
+      },
+      {
+        "value": "checkout",
+        "documentCount": 14,
+        "lowUtility": false
+      },
+      {
+        "value": "saas",
+        "documentCount": 13,
+        "lowUtility": false
+      },
+      {
+        "value": "pricing",
+        "documentCount": 12,
+        "lowUtility": false
+      },
+      {
+        "value": "mobile",
+        "documentCount": 11,
+        "lowUtility": false
+      },
+      {
+        "value": "cart",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "filters",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "search",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "thankyou",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "dashboard",
+        "documentCount": 3,
+        "lowUtility": false
+      }
+    ]
+  },
+  "funnelStage": {
+    "dimension": "funnelStage",
+    "distinctValues": 5,
+    "values": [
+      {
+        "value": "cross-lifecycle",
+        "documentCount": 216,
+        "lowUtility": false
+      },
+      {
+        "value": "acquisition-qualification",
+        "documentCount": 63,
+        "lowUtility": false
+      },
+      {
+        "value": "engagement-retention",
+        "documentCount": 31,
+        "lowUtility": false
+      },
+      {
+        "value": "ending-closure",
+        "documentCount": 14,
+        "lowUtility": false
+      },
+      {
+        "value": "activation-onboarding",
+        "documentCount": 10,
+        "lowUtility": false
+      }
+    ]
+  },
+  "businessObjective": {
+    "dimension": "businessObjective",
+    "distinctValues": 21,
+    "values": [
+      {
+        "value": "review-required",
+        "documentCount": 220,
+        "lowUtility": false
+      },
+      {
+        "value": "risk-compliance",
+        "documentCount": 50,
+        "lowUtility": false
+      },
+      {
+        "value": "cancellation-termination",
+        "documentCount": 28,
+        "lowUtility": false
+      },
+      {
+        "value": "recovery-retry",
+        "documentCount": 27,
+        "lowUtility": false
+      },
+      {
+        "value": "identity-verification",
+        "documentCount": 24,
+        "lowUtility": false
+      },
+      {
+        "value": "eligibility-qualification",
+        "documentCount": 21,
+        "lowUtility": false
+      },
+      {
+        "value": "ownership-transfer",
+        "documentCount": 17,
+        "lowUtility": false
+      },
+      {
+        "value": "expiry-renewal",
+        "documentCount": 16,
+        "lowUtility": false
+      },
+      {
+        "value": "reconciliation-correction",
+        "documentCount": 15,
+        "lowUtility": false
+      },
+      {
+        "value": "delivery-confirmation",
+        "documentCount": 13,
+        "lowUtility": false
+      },
+      {
+        "value": "change-versioning",
+        "documentCount": 13,
+        "lowUtility": false
+      },
+      {
+        "value": "progression-milestone",
+        "documentCount": 11,
+        "lowUtility": false
+      },
+      {
+        "value": "decision-approval",
+        "documentCount": 9,
+        "lowUtility": false
+      },
+      {
+        "value": "consent-permission",
+        "documentCount": 9,
+        "lowUtility": false
+      },
+      {
+        "value": "escalation-exception",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "merge-consolidation",
+        "documentCount": 7,
+        "lowUtility": false
+      },
+      {
+        "value": "revocation-access-change",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "suspension-restoration",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "data-integrity",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "scheduling-commitment",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "compensation-remedy",
+        "documentCount": 3,
+        "lowUtility": false
+      }
+    ]
+  },
+  "metric": {
+    "dimension": "metric",
+    "distinctValues": 475,
+    "values": [
+      {
+        "value": "Dönüşüm Oranı (CR)",
+        "documentCount": 87,
+        "lowUtility": false
+      },
+      {
+        "value": "Sepete Ekleme Oranı",
+        "documentCount": 36,
+        "lowUtility": false
+      },
+      {
+        "value": "İade Oranı",
+        "documentCount": 31,
+        "lowUtility": false
+      },
+      {
+        "value": "Sayfa Terk Oranı",
+        "documentCount": 29,
+        "lowUtility": false
+      },
+      {
+        "value": "Ziyaretçi Başına Gelir (RPV)",
+        "documentCount": 29,
+        "lowUtility": false
+      },
+      {
+        "value": "Kaydırma Derinliği",
+        "documentCount": 29,
+        "lowUtility": false
+      },
+      {
+        "value": "Sayfa Yüklenme Süresi",
+        "documentCount": 25,
+        "lowUtility": false
+      },
+      {
+        "value": "Ana Aksiyon Tamamlama Oranı",
+        "documentCount": 25,
+        "lowUtility": false
+      },
+      {
+        "value": "Erişilebilirlik",
+        "documentCount": 24,
+        "lowUtility": false
+      },
+      {
+        "value": "Form Tamamlama Oranı",
+        "documentCount": 22,
+        "lowUtility": false
+      },
+      {
+        "value": "Sayfada Kalma Süresi",
+        "documentCount": 17,
+        "lowUtility": false
+      },
+      {
+        "value": "Destek Talebi",
+        "documentCount": 15,
+        "lowUtility": false
+      },
+      {
+        "value": "Hemen Çıkma Oranı",
+        "documentCount": 14,
+        "lowUtility": false
+      },
+      {
+        "value": "Ortalama Doldurma Süresi",
+        "documentCount": 14,
+        "lowUtility": false
+      },
+      {
+        "value": "Tıklama Oranı (CTR)",
+        "documentCount": 12,
+        "lowUtility": false
+      },
+      {
+        "value": "Ortalama Sepet Tutarı",
+        "documentCount": 10,
+        "lowUtility": false
+      },
+      {
+        "value": "Çıkış Oranı",
+        "documentCount": 10,
+        "lowUtility": false
+      },
+      {
+        "value": "Destek Talebi Sayısı",
+        "documentCount": 10,
+        "lowUtility": false
+      },
+      {
+        "value": "Liste → Ürün Tıklama Oranı",
+        "documentCount": 10,
+        "lowUtility": false
+      },
+      {
+        "value": "Form Başlama Oranı",
+        "documentCount": 10,
+        "lowUtility": false
+      },
+      {
+        "value": "Sipariş Tamamlama Oranı",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "Geri Dönüş Oranı",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "Aksiyon Tamamlama Oranı",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "Karar Süresi",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "Ödeme Adımı Terk Oranı",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "Brüt Marj",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "Nitelikli Fırsat Sayısı (SQL)",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "Terk Oranı",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "Doğrulama Hatası Oranı",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "İade veya İptal Oranı",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "Filtre Kullanım Oranı",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "Alan Terk Oranı",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "Fırsat Kapanış Oranı",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "Nitelikli Talep Oranı",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "Ortalama Sepet Tutarı (AOV)",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Sepet Terk Oranı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Form Doldurma Süresi",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Adım Bazlı Terk Oranı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "CTA Tıklama Oranı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Görülen Ürün Sayısı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Yanlış Tıklama Oranı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Aksiyon Sonrası Dökülme Oranı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Referans Etkileşim Oranı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Tekrar Satın Alma Oranı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Ortalama Sepet veya Plan Tutarı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "İade veya İtiraz Sayısı",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Genel Dönüşüm Oranı (CR)",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Kategori Tıklama Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Menü Tıklama Derinliği",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Oturum Süresi",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "İptal / İade Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Haber Ver Kayıt Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Alan Bazlı Hata Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Alan Bazlı Terk Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Güven Algısı (anket)",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Aksiyon Sonrası Tamamlama Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "İlgili Destek Talebi",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Aktivasyon Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Yedi Gün Elde Tutma",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Ürün Detay Geçiş Oranı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "7. Gün Elde Tutma",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Ürün Sorusu Sayısı",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Marka Algısı (anket)",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "Ziyaretçi Başına Gelir",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Adımda Geçirilen Süre",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Tamamlama Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Hata / Reddedilme Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Sipariş Sonrası İptal",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Tamamlama Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Adım Terk Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Hatalı Seçim Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Tekrar Ziyaret Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Pop-up Yanıt Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Ürün Sayfası Geri Dönüş Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Ana Görev Tamamlama Süresi",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Kayıt Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Yanlışlıkla Kapatma Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Veri Kaybı Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Alan Doldurma Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "İptal veya Düzeltme Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Kaynak Bazlı Dönüşüm Farkı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Oturum Devam Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Oturum Terk Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Ortalama Plan Değeri",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Plan Seçim Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Karşılaştırma Etkileşim Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Taksit Seçim Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Beden Seçim Tamamlama",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Öneri Kabul Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Sıralama Değiştirme Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Paket Seçim Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Ücretsiz Kayıt Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Tıklama Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Kullanıcı Başına Gelir (ARPU)",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Satış Ekibi Ön Eleme Süresi",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Yükseltme Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Keşif Derinliği",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Tıklama Süresi",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Sıfır Sonuç Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Aranan Ürüne Ulaşma Süresi",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Akış Tamamlama Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Sipariş Bilgisi Görünürlüğü (anket)",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Buton Tıklama Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Toplam Aksiyon Tamamlama Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Bağlantı Tıklama Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Duyurulan Aksiyonun Tamamlanma Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Sohbet Başlatma Oranı",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "Marka Algısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adım Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Adımına Geçiş",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kupon Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kampanya Katılımı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Checkout Tamamlama Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yeni Kullanıcı Kaydı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tekrar Satın Alma",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adım Bazlı Terk",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Checkout Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Form Hata Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adres Adımı Tamamlama",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Checkout Tamamlama",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Hatalı Adres / Teslimat Hatası",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adet Değişim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adet Alanı Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sepetten Silme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Öneri Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödemeye Geçiş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kargo Maliyeti",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Yöntemi Seçim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adım Tamamlama Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adım Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kod Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Alan Başına Terk",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Hata Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sepete Geri Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tekrar Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Varsayılan Değiştirme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Algılanan Süre (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Gerçek İşlem Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Hata Sonrası Destek Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Başarı Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Adımına Ulaşma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kampanya Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Şikâyet/Destek Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kategori Görüntülenme",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ürün Görüntüleme Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Performansı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yanlış Tıklama / Geri Dönüş",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kart Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Listeden Sepete Ekleme",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Tamamlama Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Liste Sayfasında Süre",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Karşılaştırma Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Benzersiz Ürün Görüntüleme",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tekrar Görüntüleme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ürüne Geri Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Listede Kalma Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kategori Geri Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Görülen Kategori Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Teslimat Vaadi Tutma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İptal veya İade Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Geç Teslimatlı Ürün Satışı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlan Detayına Geçiş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Harita Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Görülen Kayıt Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yeni Kullanıcı Başına Net Gelir",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yeni Kullanıcı Dönüşümü (CR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İkinci Sipariş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kategori Sayfasından Satın Alma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ürün Detayına Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Aksiyon Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kurulum Tamamlama Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "7 Günlük Aktif Kullanım",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kartı Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Widget Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kayıp Widget Şikâyeti",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ayarları Sıfırlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Özellik Deneme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Özelliği Tekrar Kullanma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İpucu Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Boş Bırakılan Alan Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Gönderim Kalitesi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İsteğe Bağlı Alan Doldurma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Üst İçerik Görüntülenme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yanlış Dokunma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Adres/Alan Doğruluk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Operasyonel Yük",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kayıt Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İkinci Oturum Giriş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kayıt Sonrası Aktivasyon Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Giriş Kaynaklı Destek Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "E-posta Erişilebilirlik Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Giriş Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kod Teslim ve Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Deneme Başarı Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Şifre Sıfırlama Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kayıt Sonrası Geri Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İletişim İzni Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Destek İçerik Görülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Metin Özgünlük Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Alıcı Yanıt Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kullanıcı Başına Toplam Tutar",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ortalama Seçilen Tutar",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Serbest Giriş Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Nitelikli Talep Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Toplam Form Gönderimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Talep Başına Nitelik Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Satış Ekibi Eleme Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Isındırma Sorusu Yanıtlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Toplam Süre",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Talep Niteliği",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kayıt Sonrası Şikâyet",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Alt CTA Tıklama Payı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Video İzlenme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kurumsal Talep Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İletişim Talebi Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Adım Terk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Alt Bölüm Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Örnek Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Navigasyon Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Aranan Bölüme Ulaşma Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Toplam Kabul Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Anlık Kabul Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Şikâyet veya Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İzin İptal Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Başlık Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Güvence Görülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bölüm Görülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Nitelikli Fırsat Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Toplam Kayıt Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kayıt Başına Nitelik Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Satış Ekibi İş Yükü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ziyaretçi Başına Net Gelir",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İade İşlem Maliyeti",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Dil Değiştirme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Dil Bazlı Dönüşüm Farkı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Referans Görülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Devam Etme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Teklif Kabul Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Yüklenme Algısı (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlgili Bloğa Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Genel İlk Aksiyon Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yanlış Blok Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfada Karar Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İkon Tıklama Oranı (CTR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kategori Giriş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Diğer Servis Tıklaması",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Navigasyon Verimliliği",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Misafirden Üyeye Geçiş",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Uygulama Silme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İzin Kabul Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bildirim Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Oturum Tamamlama",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bildirimi Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kampanya Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Geçiş Hızı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Anasayfa Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sepete Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yeni Kullanıcı Dönüşümü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Şerit Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Çok Satanlar Tıklaması",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Anasayfa Çıkış Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kurtarma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "E-bülten Çıkış Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Uygulama Kurulum Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Web Dönüşüm Oranı (CR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Uygulama 7 Gün Retention",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tanıtılan Özellik Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Oturum Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İpucu Atlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Net İzin Kabul Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sistem Penceresi Kabul Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Hazırlık Ekranı Geçiş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kalıcı Reddetme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Önerilen Adımın Tamamlanma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Değerli Eyleme Ulaşma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Alakasız Öneri Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Uygulama Terk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Profil Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Doldurulan Ortalama Alan Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Gösterge Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Genel Oturum Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İptal veya Plan Düşürme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Talep Kalitesi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Dönem İptal Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yıllık Plan Seçim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme İtirazı veya İade Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Fiyat Alanı Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödeme Adımı Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Abonelik Geçiş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Fiyat Kaynaklı Destek Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Güven Kaynaklı Destek Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Orta Plan Seçim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Çekici-Alternatif Seçilme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "En Pahalı Plan Satışı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Önerilen Plan Seçim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "En Ucuz Plan Seçim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Fiyat Okuma Netliği (oturum kaydı)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Marka Algısı Anketi (varsa)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Görsel Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Beden Tablosu Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ürün İnceleme Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yorum Bölümüne Tıklama",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yeniden Satın Alma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Benzer Ürün Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Organik Trafik",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Fiyat Şeffaflığı Şikâyeti",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Beden Tablosu Açılma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Müşteri Hizmetleri Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yanlış Beden Kaynaklı İade",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Geri Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Girdi Terk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yorum Bölümü Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Ağırlığı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Moderasyon Yükü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yorum Okuma Derinliği",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yorum Bölümü Çıkış Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Görüntüleme Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Marka Güven Skoru",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Brüt Gelir / Ziyaretçi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Fiyat Şikâyeti / Destek",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bölüm Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfada Geçirilen Süre",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Avantaj Alanı Etkileşimi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Destek Temas Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "SSS Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İletişim Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Destek Çağrı Hacmi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Galeri Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İncelenen Görsel Sayısı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Açıklama Görülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Stok Geldiğinde Dönüşüm Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Alternatif Ürün Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bildirim Şikâyeti",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Özelleştirme Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Teslimat Süresi Algısı (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ürün Detay Görüntüleme Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Pahalı Ürün Algısı (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Deneme → Ücretli Geçiş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Demo Talep Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yıllık Plan Payı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İptal Talebi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Form Dönüşüm Oranı (CR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Modal Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Plan Seçim Dağılımı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Plan Düşürme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İptal Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Talep Formu Dönüşümü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Satış Döngüsü Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ortalama Sözleşme Bedeli",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ücretliye Geçiş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Değere Ulaşma Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Deneme Terk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Üçüncü Ay Devam Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Form Gönderim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Spam / Geçersiz Talep Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Aboneliği İptal Etme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bildirim Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Site İçi Arama Kullanımı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yan İçerik Kaynaklı Aksiyon Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Yenileme Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama → Ürün Tıklama",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama Başarı Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama Başlatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Sonuca Ulaşma Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sıfır Sonuçlu Arama",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sıfır Sonuç Kurtarma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Yeniden Arama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Genel Arama Dönüşümü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama Dönüşüm Oranı (CR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlk Sonuca Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sıfır Etkileşimli Arama",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Menü Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfa Başına Görüntüleme",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kategori Sayfası Girişi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kategori Kapsama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama Kullanımı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Liste Terk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama Sonucu Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Arama Tekrarı Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sonuç Terk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Klasik Filtre Kullanımı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ek Satın Alma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ek Sipariş Ortalama Tutarı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Hesap Oluşturma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sipariş Netliği (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "E-posta Onay Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Paylaşım Başlatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Referans Dönüşüm Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ödül Talep Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sosyal Paylaşım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sipariş Bilgisi Görünürlüğü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tıklama Sonrası Dökülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Birincil Buton Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İkincil Buton Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Birincil Aksiyon Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İkincil Aksiyon Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tıklanabilir Öğe Etkileşim Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bölüm Bazlı Etkileşim",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Nihai Dönüşüm Oranı (CR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ara Adım → Sonuç Geçiş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Aksiyon Kalitesi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlgili İşlev Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Asıl Akış Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Akışa Geri Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kısayol Kullanım Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Hatalı İşlem Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İşlem Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ortalama Tamamlama Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Çubuk Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kapatma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Çubuk Görülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "İlgili Bölüm Ziyaret Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Rozet Yoksayma Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Uygulama veya Site Terk Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Destek Yanıt Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Ana Buton Görünürlüğü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Nitelikli Sohbet Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Destek Yükü",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sayfada Kalma/Geri Dönüş Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Dış Bağlantı Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kafa Karışıklığı (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Geri Tuşu Kullanımı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Banner Tıklama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Kaybolan Teklif Farkındalığı (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Tıklama Sonrası Tamamlama Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Seçim Tamamlama Süresi",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Seçim Sonrası Değiştirme/İptal Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Diğer Seçeneklerin Görülme Oranı",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Memnuniyet (anket)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "A/B Test Significance (z-test)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Activation Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "AOV",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Bounce Rate (email)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Break-Even Point",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "CAC Payback Period",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "CAC",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Cart Abandonment Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Complaint Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Confidence Interval",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Contribution Margin",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "CPA",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "CPC",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "CPL",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "CPM",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Conversion Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Click-to-Open Rate (CTOR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "CTR (ads)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "D1 Retention",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "DAU/MAU Stickiness",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Delivery Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Web Engagement Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Multi-Step Funnel Analysis",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Gross Margin",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "List Growth Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Logo Churn",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "LTV:CAC Ratio",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "LTV",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Marketing ROI",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Minimum Detectable Effect (MDE)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "MRR",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Net Revenue Retention (NRR)",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Open Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Profit Margin",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Retention Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Revenue per Recipient",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Revenue per Visitor",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "ROAS",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Rule of 40",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "SaaS Quick Ratio",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Sample Size",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Test Duration Estimator",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "Unsubscribe Rate",
+        "documentCount": 1,
+        "lowUtility": true
+      }
+    ]
+  },
+  "abTestNativeCategory": {
+    "dimension": "category (ab-test native)",
+    "distinctValues": 12,
+    "values": [
+      {
+        "value": "Product Detail Page",
+        "documentCount": 36,
+        "lowUtility": false
+      },
+      {
+        "value": "Home & Landing",
+        "documentCount": 30,
+        "lowUtility": false
+      },
+      {
+        "value": "Category & Listing",
+        "documentCount": 23,
+        "lowUtility": false
+      },
+      {
+        "value": "Forms & Signup",
+        "documentCount": 23,
+        "lowUtility": false
+      },
+      {
+        "value": "Cart & Checkout",
+        "documentCount": 22,
+        "lowUtility": false
+      },
+      {
+        "value": "UI Elements",
+        "documentCount": 20,
+        "lowUtility": false
+      },
+      {
+        "value": "SaaS & B2B",
+        "documentCount": 13,
+        "lowUtility": false
+      },
+      {
+        "value": "Search & Filtering",
+        "documentCount": 13,
+        "lowUtility": false
+      },
+      {
+        "value": "Mobile App",
+        "documentCount": 12,
+        "lowUtility": false
+      },
+      {
+        "value": "Pricing",
+        "documentCount": 12,
+        "lowUtility": false
+      },
+      {
+        "value": "Thank You",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "Dashboard",
+        "documentCount": 3,
+        "lowUtility": false
+      }
+    ]
+  },
+  "calculatorNativeCategory": {
+    "dimension": "category (calculator native)",
+    "distinctValues": 10,
+    "values": [
+      {
+        "value": "crm-email",
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "advertising",
+        "documentCount": 7,
+        "lowUtility": false
+      },
+      {
+        "value": "ecommerce",
+        "documentCount": 6,
+        "lowUtility": false
+      },
+      {
+        "value": "experimentation",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "saas",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "unit-economics",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "mobile-growth",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "cro-funnel",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "acquisition",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "lifecycle-retention",
+        "documentCount": 1,
+        "lowUtility": true
+      }
+    ]
+  },
+  "journeyDerivedBehaviorTags": {
+    "dimension": "tags (journey derived.behaviors)",
+    "distinctValues": 8,
+    "values": [
+      {
+        "value": "cross-journey-handoff",
+        "documentCount": 227,
+        "lowUtility": false
+      },
+      {
+        "value": "wait-timeout",
+        "documentCount": 146,
+        "lowUtility": false
+      },
+      {
+        "value": "multi-exit",
+        "documentCount": 135,
+        "lowUtility": false
+      },
+      {
+        "value": "backward-edge",
+        "documentCount": 125,
+        "lowUtility": false
+      },
+      {
+        "value": "external-handoff",
+        "documentCount": 68,
+        "lowUtility": false
+      },
+      {
+        "value": "competition",
+        "documentCount": 12,
+        "lowUtility": false
+      },
+      {
+        "value": "no-re-entry",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "preemption",
+        "documentCount": 2,
+        "lowUtility": true
+      }
+    ]
+  }
+}

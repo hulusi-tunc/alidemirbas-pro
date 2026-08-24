@@ -1,0 +1,51 @@
+{
+  "_description": "Deterministic ranking contract - the exact signals and weights search/headless-search-prototype.mjs implements, tested against search/search-query-fixtures.json. No ML, no embeddings, no external service - a scored, explainable pipeline a future UI can call as-is or reimplement identically in a different language.",
+  "pipeline": [
+    "1. Normalize the query (see search-typo-tolerance-contract in SEARCH-DESIGN-HANDOFF.md - lowercase, strip diacritics/punctuation, collapse whitespace).",
+    "2. Resolve aliases: if the normalized query exactly matches an entry in search-aliases.json's `alias` or `aliasSlugLowercased`, retarget the query to that alias's `targetId` and continue scoring normally against the target document (not a special-cased short-circuit - the target still competes on its own merits, it just starts from the alias match signal below).",
+    "3. Expand synonyms: for each token in the query, look up search-synonyms.json; if a match is found, add the equivalents as additional query tokens for matching purposes only (never for display).",
+    "4. Classify query intent (see queryIntentSignals below) - zero or more of the 8 intents from search-taxonomy.json.",
+    "5. Score every document (see signals below), sum, apply content-type balancing, sort descending, return."
+  ],
+  "signals": [
+    { "signal": "exact-title-match", "weight": 100, "description": "normalized query string equals normalized document title exactly" },
+    { "signal": "alias-match", "weight": 95, "description": "query resolved via search-aliases.json to this document" },
+    { "signal": "acronym-exact-match", "weight": 90, "description": "normalized query exactly equals a keyword in the document's own `keywords[]` (covers acronyms like 'CAC', 'ROAS', journey ids like 'ACC-71', ab-test ids like 'AB-001')" },
+    { "signal": "title-prefix-match", "weight": 60, "description": "normalized document title starts with the normalized query" },
+    { "signal": "title-token-match", "weight": 12, "perMatchedToken": true, "description": "each query token (post-synonym-expansion) found as a whole word in the title" },
+    { "signal": "keyword-match", "weight": 8, "perMatchedToken": true, "description": "each query token found in keywords[]" },
+    { "signal": "category-match", "weight": 6, "perMatchedToken": true, "description": "each query token found in category[] or normalizedCategory[] (case-insensitive substring)" },
+    { "signal": "surface-or-stage-match", "weight": 5, "perMatchedToken": true, "description": "each query token found in surface[] or funnelStage[]" },
+    { "signal": "metric-match", "weight": 7, "perMatchedToken": true, "description": "each query token found in metric[] (post-synonym-expansion, so 'return on ad spend' matches a metric field of 'ROAS')" },
+    { "signal": "intent-match", "weight": 4, "description": "the document's own default intent set (search-taxonomy.json's defaultIntentByType) intersects the query's classified intent(s)" },
+    { "signal": "searchtext-match", "weight": 2, "perMatchedToken": true, "description": "each query token found anywhere in searchText - the lowest-weight signal, catches genuine full-text relevance without letting a long searchText dominate a short, precise title/keyword match" },
+    { "signal": "static-type-boost", "weight": "see boostByType below", "description": "a small, fixed per-type nudge - NOT a substitute for relevance, just breaks ties toward the type most likely to be the primary target of a well-matched query" }
+  ],
+  "boostByType": {
+    "calculator": 1.15,
+    "ab-test": 1.0,
+    "journey": 1.0,
+    "lab-product": 1.05,
+    "blog-article": 0.95,
+    "reasoning": "calculator gets a small edge because it's the most 'answer a specific question fast' type on the site (matches the calculate/use-tool intents), and lab-product gets a small edge because it's the entry point to an entire corpus, useful when a query is genuinely ambiguous between browsing and a specific item. blog-article is nudged slightly down only because there are just 5 of them and a title/keyword match against 520 other documents is already a strong enough signal without a boost. None of these differences are large enough to override a real relevance gap - see the content-type balancing note below for what actually prevents one type from monopolizing results."
+  },
+  "queryIntentSignals": {
+    "_description": "Query-time intent classification - lightweight keyword heuristics, not a hardcoded single-result mapping (per the task's own instruction that these must function as ranking signals, not forced routing).",
+    "rules": [
+      { "intent": "calculate", "triggers": ["calculate", "calculator", "formula", "how to calculate", "what is a good"] },
+      { "intent": "find-test", "triggers": ["a/b test", "ab test", "split test", "test idea", "experiment"] },
+      { "intent": "find-journey", "triggers": ["journey", "lifecycle", "state machine", "flow"] },
+      { "intent": "learn", "triggers": ["what is", "why", "how", "guide", "explain"] },
+      { "intent": "use-tool", "triggers": ["tool", "builder", "plugin", "dashboard"] },
+      { "intent": "compare", "triggers": ["vs", "versus", "difference between", "compare"] },
+      { "intent": "browse", "triggers": ["all", "list of", "examples of"] }
+    ],
+    "note": "find-example has no dedicated trigger list - it's produced as a secondary intent whenever 'find-test' or 'find-journey' fires, since both corpora are themselves collections of examples. A query can classify into multiple intents at once (e.g. 'cart abandonment test' -> find-test + find-example); all classified intents contribute to intent-match scoring, none suppress the others."
+  },
+  "contentTypeBalancing": {
+    "_description": "Prevents one type from monopolizing a broad query's results (task's own example: a 'conversion' search shouldn't return 10/10 journeys) WITHOUT overriding genuine relevance gaps.",
+    "rule": "After scoring and sorting, if the top 10 results contain more than 6 documents of the same type AND at least one lower-ranked document of a different type scores within 30% of the 10th-place score, promote that document above the 30%-threshold cutoff into the top 10 (a soft diversity floor, not a hard reshuffle). If no other-type document is within 30%, leave the ranking as-is - relevance wins over diversity when the gap is real.",
+    "verifiedAgainstFixtures": "search-query-fixtures.json includes cases designed to exercise this rule (broad terms like 'conversion', 'checkout') - see search/headless-search-prototype.mjs's own test output for whether the rule actually fired on those queries in this corpus."
+  },
+  "tieBreaking": "equal total score -> higher boostByType wins -> alphabetical by title (deterministic, never random) as the final fallback."
+}
