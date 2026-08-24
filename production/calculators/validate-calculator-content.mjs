@@ -31,6 +31,15 @@ const APPROVED_BATCH = [
   // runtime implementation (calc-registry.ts + LIVE_CALCULATOR_SLUGS),
   // the other four were already live
   "cpa", "cart-abandonment", "ctor", "saas-quick-ratio", "dau-mau-stickiness",
+  // Final Expansion: 12 calculators - Group A (CPM, CPL, Activation Rate,
+  // Funnel Analysis Multistep, Profit Margin, Engagement Rate - runtime
+  // already live) and Group B (Delivery Rate, Bounce Rate Email,
+  // Unsubscribe Rate, Complaint Rate, List Growth Rate, Revenue per
+  // Recipient - new runtime implementation required in calc-registry.ts +
+  // LIVE_CALCULATOR_SLUGS)
+  "cpm", "cpl", "activation-rate", "funnel-analysis-multistep", "profit-margin",
+  "engagement-rate", "delivery-rate", "bounce-rate-email", "unsubscribe-rate",
+  "complaint-rate", "list-growth-rate", "revenue-per-recipient",
 ];
 
 const errors = [];

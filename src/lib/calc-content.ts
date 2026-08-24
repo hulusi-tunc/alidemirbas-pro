@@ -35,6 +35,18 @@ import cartAbandonment from "../../production/calculators/content/cart-abandonme
 import ctor from "../../production/calculators/content/ctor.json";
 import saasQuickRatio from "../../production/calculators/content/saas-quick-ratio.json";
 import dauMauStickiness from "../../production/calculators/content/dau-mau-stickiness.json";
+import cpm from "../../production/calculators/content/cpm.json";
+import cpl from "../../production/calculators/content/cpl.json";
+import activationRate from "../../production/calculators/content/activation-rate.json";
+import funnelAnalysisMultistep from "../../production/calculators/content/funnel-analysis-multistep.json";
+import profitMargin from "../../production/calculators/content/profit-margin.json";
+import engagementRate from "../../production/calculators/content/engagement-rate.json";
+import deliveryRate from "../../production/calculators/content/delivery-rate.json";
+import bounceRateEmail from "../../production/calculators/content/bounce-rate-email.json";
+import unsubscribeRate from "../../production/calculators/content/unsubscribe-rate.json";
+import complaintRate from "../../production/calculators/content/complaint-rate.json";
+import listGrowthRate from "../../production/calculators/content/list-growth-rate.json";
+import revenuePerRecipient from "../../production/calculators/content/revenue-per-recipient.json";
 
 export type ContentSection = {
   id: string;
@@ -119,6 +131,18 @@ const CONTENT_BY_SLUG: Record<string, CalcContent> = {
   ctor: ctor as CalcContent,
   "saas-quick-ratio": saasQuickRatio as CalcContent,
   "dau-mau-stickiness": dauMauStickiness as CalcContent,
+  cpm: cpm as CalcContent,
+  cpl: cpl as CalcContent,
+  "activation-rate": activationRate as CalcContent,
+  "funnel-analysis-multistep": funnelAnalysisMultistep as CalcContent,
+  "profit-margin": profitMargin as CalcContent,
+  "engagement-rate": engagementRate as CalcContent,
+  "delivery-rate": deliveryRate as CalcContent,
+  "bounce-rate-email": bounceRateEmail as CalcContent,
+  "unsubscribe-rate": unsubscribeRate as CalcContent,
+  "complaint-rate": complaintRate as CalcContent,
+  "list-growth-rate": listGrowthRate as CalcContent,
+  "revenue-per-recipient": revenuePerRecipient as CalcContent,
 };
 
 /* EN only, by design (instruction 46) - TR pages fall back to the

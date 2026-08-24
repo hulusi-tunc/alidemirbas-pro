@@ -1,7 +1,52 @@
 {
-  "introPairs": [],
+  "introPairs": [
+    {
+      "a": "bounce-rate-email",
+      "b": "delivery-rate",
+      "similarity": 0.5
+    },
+    {
+      "a": "cpc",
+      "b": "cpl",
+      "similarity": 0.44
+    }
+  ],
   "sectionHeadingOverlap": [],
   "identicalSectionSequences": [
+    {
+      "sequence": "formula>worked-example>interpretation>comparison-note>common-mistakes",
+      "slugs": [
+        "activation-rate",
+        "cart-abandonment",
+        "contribution-margin",
+        "ctor",
+        "d1-retention",
+        "dau-mau-stickiness",
+        "funnel-analysis-multistep",
+        "open-rate",
+        "profit-margin",
+        "revenue-per-recipient",
+        "revenue-per-visitor",
+        "rule-of-40",
+        "saas-quick-ratio"
+      ]
+    },
+    {
+      "sequence": "formula>worked-example>interpretation>comparison-note",
+      "slugs": [
+        "bounce-rate-email",
+        "complaint-rate",
+        "cpa",
+        "cpc",
+        "cpl",
+        "cpm",
+        "ctr",
+        "delivery-rate",
+        "engagement-rate",
+        "list-growth-rate",
+        "unsubscribe-rate"
+      ]
+    },
     {
       "sequence": "formula>worked-example>interpretation>trust-checks>interpretation>comparison-note>common-mistakes",
       "slugs": [
@@ -11,33 +56,11 @@
       ]
     },
     {
-      "sequence": "formula>worked-example>interpretation>comparison-note>common-mistakes",
-      "slugs": [
-        "cart-abandonment",
-        "contribution-margin",
-        "ctor",
-        "d1-retention",
-        "dau-mau-stickiness",
-        "open-rate",
-        "revenue-per-visitor",
-        "rule-of-40",
-        "saas-quick-ratio"
-      ]
-    },
-    {
       "sequence": "definition>formula>worked-example>methodology>assumptions>limitations>interpretation>comparison-note>common-mistakes",
       "slugs": [
         "confidence-interval-calculator",
         "minimum-detectable-effect",
         "test-duration-estimator"
-      ]
-    },
-    {
-      "sequence": "formula>worked-example>interpretation>comparison-note",
-      "slugs": [
-        "cpa",
-        "cpc",
-        "ctr"
       ]
     },
     {
@@ -51,43 +74,56 @@
   "repeatedHeadings": [
     {
       "heading": "Worked example",
-      "count": 28,
+      "count": 40,
       "slugs": [
         "ab-test",
+        "activation-rate",
         "aov",
+        "bounce-rate-email",
         "break-even-point",
         "cac-payback-period",
         "cac",
         "cart-abandonment",
+        "complaint-rate",
         "confidence-interval-calculator",
         "contribution-margin",
         "cpa",
         "cpc",
+        "cpl",
+        "cpm",
         "cr",
         "ctor",
         "ctr",
         "d1-retention",
         "dau-mau-stickiness",
+        "delivery-rate",
+        "engagement-rate",
+        "funnel-analysis-multistep",
         "gross-margin",
+        "list-growth-rate",
         "logo-churn",
         "ltv-cac-ratio",
         "marketing-roi",
         "minimum-detectable-effect",
         "mrr",
         "open-rate",
+        "profit-margin",
         "retention-rate",
+        "revenue-per-recipient",
         "revenue-per-visitor",
         "roas",
         "rule-of-40",
         "saas-quick-ratio",
-        "test-duration-estimator"
+        "test-duration-estimator",
+        "unsubscribe-rate"
       ]
     },
     {
       "heading": "Common mistakes",
-      "count": 28,
+      "count": 32,
       "slugs": [
         "ab-test",
+        "activation-rate",
         "aov",
         "break-even-point",
         "cac-payback-period",
@@ -99,6 +135,7 @@
         "ctor",
         "d1-retention",
         "dau-mau-stickiness",
+        "funnel-analysis-multistep",
         "gross-margin",
         "logo-churn",
         "ltv-cac-ratio",
@@ -108,7 +145,9 @@
         "mrr",
         "nrr",
         "open-rate",
+        "profit-margin",
         "retention-rate",
+        "revenue-per-recipient",
         "revenue-per-visitor",
         "roas",
         "rule-of-40",

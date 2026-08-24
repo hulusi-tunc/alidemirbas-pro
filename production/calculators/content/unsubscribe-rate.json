@@ -1,0 +1,68 @@
+{
+  "calculatorId": "CALC-UNSUBSCRIBE-RATE",
+  "slug": "unsubscribe-rate",
+  "contentDepth": "light",
+  "intro": "Unsubscribe rate is the share of delivered emails that led a recipient to opt out of future sends. Enter unsubscribes and delivered emails to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How Unsubscribe Rate is calculated",
+      "body": "Unsubscribe Rate = Unsubscribes ÷ Delivered Emails — [the same unsubscribes-over-delivered shape used to define the metric](https://count.co/metric/email-unsubscribe-rate), not sent emails. Using sent instead of delivered as the denominator inflates the rate, since it counts bounced messages — which no one could have unsubscribed from — as if they were part of the audience that chose not to."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Unsubscribes", "value": "20" },
+        { "label": "Delivered", "value": "10,000" }
+      ],
+      "output": { "label": "Unsubscribe Rate", "value": "0.20%" },
+      "body": "20 ÷ 10,000 = 0.20%. This counts explicit opt-outs from this specific send — it doesn't capture recipients who simply stopped opening emails without ever clicking unsubscribe, which is a different, quieter form of disengagement."
+    },
+    {
+      "id": "unsubscribes-vs-silent-disengagement",
+      "type": "interpretation",
+      "heading": "Unsubscribe rate only counts the recipients who acted",
+      "body": "An unsubscribe is a deliberate action — someone clicked a link to formally opt out. Plenty of disengaged recipients never take that step: they stop opening, stop clicking, and just let messages accumulate unread instead. A low unsubscribe rate isn't proof a list is healthy; it can just mean disengaged recipients are staying quiet rather than actively opting out, a pattern that shows up in a falling open rate long before it shows up here."
+    },
+    {
+      "id": "unsubscribe-vs-complaint-rate",
+      "type": "comparison-note",
+      "heading": "Unsubscribe Rate vs. Complaint Rate",
+      "body": "Both are ways a recipient can signal they don't want an email, but they're very different signals to the sending ecosystem. Unsubscribe Rate reflects a recipient using the intended, expected opt-out mechanism. [Complaint Rate](/calculators/complaint-rate) reflects a recipient clicking \"Report spam\" instead — a much stronger negative signal to mailbox providers, since it's the mechanism they use to judge whether a sender should be trusted at all. A high unsubscribe rate paired with a low complaint rate is a far healthier pattern than the reverse, even if both numbers happen to be similar in size."
+    }
+  ],
+  "related": [
+    { "slug": "complaint-rate", "name": "Spam Complaint Rate Calculator", "desc": "A stronger negative signal than an unsubscribe - a recipient reporting the email as spam instead of using the opt-out link." },
+    { "slug": "list-growth-rate", "name": "Email List Growth Rate Calculator", "desc": "The net effect of unsubscribes (among other factors) on the size of the list over time." },
+    { "slug": "open-rate", "name": "Open Rate Calculator", "desc": "A quieter disengagement signal - a falling open rate often shows up well before recipients formally unsubscribe." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-unsubscribe-rate",
+      "q": "What is Unsubscribe Rate?",
+      "a": "Unsubscribe rate is the percentage of delivered emails that resulted in a recipient formally opting out of future sends, calculated as unsubscribes divided by delivered emails. Delivered, not sent, is the correct denominator — bounced messages were never actually received, so no one could have unsubscribed from them, and including them in the total would understate the real rate. An unsubscribe is a deliberate, active choice, distinct from the much larger and quieter group of recipients who simply stop engaging without ever clicking the opt-out link. A rising unsubscribe rate on an otherwise stable list is often a direct response to a specific send - a change in frequency, topic, or tone - worth reviewing."
+    },
+    {
+      "id": "how-to-calculate-unsubscribe-rate",
+      "q": "How do you calculate Unsubscribe Rate?",
+      "a": "Divide unsubscribes by delivered emails: Unsubscribe Rate = Unsubscribes ÷ Delivered. A campaign delivered to 10,000 recipients with 20 unsubscribes has an unsubscribe rate of 20 ÷ 10,000 = 0.20%. Both numbers need to come from the same send and the same tracking window, and unsubscribes should never exceed delivered, since every unsubscribe implies the message was actually received first. Using sent instead of delivered as the denominator is a common mistake that artificially lowers the rate by counting bounced messages in the total. Most email service providers calculate and report this figure automatically for every campaign sent, using the correct delivered-based denominator by default."
+    },
+    {
+      "id": "unsubscribe-vs-complaint-faq",
+      "q": "Is Unsubscribe Rate the same as Complaint Rate?",
+      "a": "No, and the difference matters for sender reputation. Unsubscribe Rate reflects a recipient using the intended opt-out mechanism — a normal, expected outcome at some rate for any list. Complaint Rate reflects a recipient clicking \"Report spam\" instead, which mailbox providers weigh far more heavily when deciding whether to trust future sends from that sender. A recipient who unsubscribes is telling you they're done; a recipient who complains is telling mailbox providers you shouldn't have been sending in the first place — the two carry very different consequences even though both mean the recipient didn't want the email. Making the unsubscribe link easy to find is a simple way to help recipients pick the lower-stakes option before the spam button starts to look like their only way out."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Unsubscribe Rate Calculator",
+    "seoDescription": "Calculate email unsubscribe rate from unsubscribes and delivered emails, and see how it differs from the more damaging Complaint Rate.",
+    "canonicalPath": "/calculators/unsubscribe-rate",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "LIGHT depth (Final Expansion round). NEW runtime implementation - unsubscribe-rate was not previously live; added to calc-registry.ts (unsubscribe-rate: unsubscribes/delivered), LIVE_CALCULATOR_SLUGS, test-calculators.mjs. Formula/example independently verified: 20/10000=0.002=0.20%, matches calculator-catalog.json's exampleOutput exactly; denominator (delivered, not sent) independently verified against Count.co's own unsubscribe-rate definition page, which explicitly warns against using sent instead of delivered. Metric-specific section (unsubscribes-vs-silent-disengagement) is a genuine, independently-derived interpretation risk (not directly sourced, but a straightforward logical consequence of what an unsubscribe actually requires - a deliberate click) rather than a generic disclaimer. Comparison-note (Unsubscribe Rate vs Complaint Rate) via numerator/denominator/business-question framing - this exact pairing was explicitly named in this round's own cannibalization-audit list; written independently, no shared sentences with complaint-rate.json. Runtime cross-field validation added: unsubscribes > delivered is now blocked (CROSS_FIELD_CHECKS['unsubscribe-rate'], reusing the exceeds_delivered error code since the semantic constraint is identical to open-rate's). External source: Count.co's own Email Unsubscribe Rate definition page (same unsubscribes/delivered formula this calculator implements). Related Calculators verified live: complaint-rate, list-growth-rate, open-rate. 3 FAQs (within 2-4 LIGHT range), 100-150 words each, independently word-counted."
+}

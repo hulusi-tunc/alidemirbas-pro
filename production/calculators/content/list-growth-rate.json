@@ -1,0 +1,69 @@
+{
+  "calculatorId": "CALC-LIST-GROWTH-RATE",
+  "slug": "list-growth-rate",
+  "contentDepth": "light",
+  "intro": "Email list growth rate is the net percentage change in list size over a period, from new subscribers minus unsubscribes. Enter new subscribers, unsubscribes, and the starting list size to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How List Growth Rate is calculated",
+      "body": "List Growth Rate = (New Subscribers − Unsubscribes) ÷ Starting List Size. This calculator's formula is net of unsubscribes only — it does not subtract bounces or spam complaints from the new-subscriber count. Some other definitions of list growth rate do include those as additional losses; check which version a benchmark or report is using before comparing it against this result."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "New subscribers", "value": "500" },
+        { "label": "Unsubscribes", "value": "300" },
+        { "label": "Starting list size", "value": "10,000" }
+      ],
+      "output": { "label": "List Growth Rate", "value": "2.00%" },
+      "body": "(500 − 300) ÷ 10,000 = 2.00%. Because the numerator is a net figure, this can also come out negative: 100 new subscribers against 500 unsubscribes on the same 10,000-person list gives (100 − 500) ÷ 10,000 = −4.00%, a genuinely shrinking list, not an error to be blocked."
+    },
+    {
+      "id": "which-losses-are-counted",
+      "type": "interpretation",
+      "heading": "Not every list growth rate definition counts the same losses",
+      "body": "[Some published definitions of list growth rate build the loss side of the formula from unsubscribes, bounces, and spam complaints together, not unsubscribes alone](https://count.co/metric/list-growth-rate). This calculator deliberately uses the narrower unsubscribes-only version, matching the two inputs it actually asks for. That's not a mistake in either direction — it's a genuine methodology choice, and it means a rate computed here isn't directly comparable to one computed under a broader bounces-and-complaints-included formula without accounting for the difference."
+    },
+    {
+      "id": "list-growth-vs-unsubscribe-rate",
+      "type": "comparison-note",
+      "heading": "List Growth Rate vs. Unsubscribe Rate",
+      "body": "List Growth Rate is a net, list-wide figure over a period — it nets new subscribers against unsubscribes to show whether the list as a whole is expanding or shrinking. [Unsubscribe Rate](/calculators/unsubscribe-rate) is a single-send figure — the share of one campaign's delivered emails that produced an opt-out, with a different denominator (delivered emails for that send, not the list's starting size). A campaign can have a normal, low unsubscribe rate while the list still shrinks overall, if new-subscriber acquisition isn't keeping pace with the unsubscribes accumulating across many sends."
+    }
+  ],
+  "related": [
+    { "slug": "unsubscribe-rate", "name": "Unsubscribe Rate Calculator", "desc": "One of the components behind list growth - the per-send opt-out rate, rather than this calculator's net, list-wide view." },
+    { "slug": "bounce-rate-email", "name": "Email Bounce Rate Calculator", "desc": "A loss some list growth rate definitions include and this one deliberately doesn't - worth checking before comparing rates." },
+    { "slug": "delivery-rate", "name": "Email Delivery Rate Calculator", "desc": "A healthy, growing list still needs to actually be reaching recipients - delivery rate is the check on that." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-list-growth-rate",
+      "q": "What is Email List Growth Rate?",
+      "a": "List growth rate is the net percentage change in an email list's size over a period, calculated as (new subscribers minus unsubscribes) divided by the starting list size. A positive rate means the list grew; a negative rate means more people left than joined, and the list shrank. This calculator's version nets new subscribers against unsubscribes specifically — some other published definitions of list growth rate also subtract bounces and spam complaints from the new-subscriber total, which is a genuine methodology difference worth checking before comparing rates across sources. Tracking this figure over consecutive periods reveals a growth trend that a single snapshot can't - whether the list is accelerating, plateauing, or steadily shrinking."
+    },
+    {
+      "id": "how-to-calculate-list-growth-rate",
+      "q": "How do you calculate List Growth Rate?",
+      "a": "Subtract unsubscribes from new subscribers, then divide by the starting list size: List Growth Rate = (New Subscribers − Unsubscribes) ÷ Starting List Size. A list that starts at 10,000, gains 500 new subscribers, and loses 300 to unsubscribes has a growth rate of (500 − 300) ÷ 10,000 = 2.00%. All three figures need to describe the same time period. Unlike most rate calculators in this set, the result here can legitimately be negative — a list losing more subscribers than it gains is a real, valid outcome, not a data error. Most email platforms track new subscribers and unsubscribes automatically, so pulling this figure typically just means comparing list-size reports across two dates."
+    },
+    {
+      "id": "list-growth-rate-negative",
+      "q": "Can List Growth Rate be negative?",
+      "a": "Yes, and it's a meaningful result rather than an error. Because the formula nets new subscribers against unsubscribes, a period where unsubscribes outnumber new subscribers produces a negative rate, correctly reflecting a shrinking list. For example, 100 new subscribers against 500 unsubscribes on a 10,000-person list gives (100 − 500) ÷ 10,000 = −4.00%. This calculator doesn't clamp the result at zero, since a negative number is the honest answer when a list is losing people faster than it's gaining them. A shrinking list is worth investigating rather than ignoring, since sustained negative growth eventually reduces the total audience a sender can reach with future campaigns."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Email List Growth Rate Calculator",
+    "seoDescription": "Calculate net email list growth rate from new subscribers, unsubscribes, and starting list size, including how negative growth is handled.",
+    "canonicalPath": "/calculators/list-growth-rate",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "LIGHT depth (Final Expansion round). NEW runtime implementation - list-growth-rate was not previously live; added to calc-registry.ts (list-growth-rate: (newSubscribers-unsubscribes)/listStart), LIVE_CALCULATOR_SLUGS, test-calculators.mjs. Formula/example independently verified: (500-300)/10000=0.02=2.00%, matches calculator-catalog.json's exampleOutput exactly. Negative case independently verified via node one-liner: (100-500)/10000=-0.04=-4.00%, confirmed the compute function does not clamp at zero (div() is a plain arithmetic helper, no Math.max floor) - this round's own explicit instruction was 'negatif buyume gecerli bir sonuctur, hata degildir - runtime bunu engellememeli', confirmed correct with NO cross-field check added for this slug (deliberate - CROSS_FIELD_CHECKS has no entry for list-growth-rate). Methodology-variance section (which-losses-are-counted) is a genuine, sourced finding: fetched count.co/metric/list-growth-rate directly and confirmed its own published formula nets new subscribers against unsubscribes+bounces+complaints together, while this calculator's catalog formula (and its own two-input UI) only asks for unsubscribes - stated honestly as a real 'which definition' methodology difference rather than silently picking one without disclosure, per this round's own explicit warning about the industry variance on this specific metric. Comparison-note (List Growth Rate vs Unsubscribe Rate) via numerator/denominator/business-question framing (net list-wide vs per-send), matching this round's suggested pairing. External source: Count.co's own List Growth Rate metric definition page (fetched directly, quoted formula). Related Calculators verified live: unsubscribe-rate, bounce-rate-email, delivery-rate. 3 FAQs (within 2-4 LIGHT range), 100-150 words each, independently word-counted."
+}

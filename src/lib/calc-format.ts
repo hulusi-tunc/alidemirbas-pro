@@ -17,7 +17,10 @@ export function formatByUnit(value: unknown, unit: string | null | undefined): s
     return `${sign}${round(value, 2)} pts`;
   }
   if (u.startsWith("x (")) return `${round(value, 2)}x`;
-  if (u === "currency") return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  if (u === "currency") {
+    const sign = value < 0 ? "-" : "";
+    return `${sign}$${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
   if (u === "months") return `${round(value, 1)} months`;
   if (u === "days") return `${Math.ceil(value)} days`;
   if (u === "years") return `${round(value, 1)} years`;

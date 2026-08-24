@@ -55,6 +55,14 @@ const REGISTRY: Record<string, ComputeFn> = {
   // deliverability and open-rate noise, per calc-catalog.json's own
   // formulaPlainEnglish for this slug.
   ctor: ({ clicks, opens }) => ({ ctor: div(clicks, opens) }),
+  "delivery-rate": ({ delivered, sent }) => ({ deliveryRate: div(delivered, sent) }),
+  "bounce-rate-email": ({ bounced, sent }) => ({ bounceRate: div(bounced, sent) }),
+  "unsubscribe-rate": ({ unsubscribes, delivered }) => ({ unsubRate: div(unsubscribes, delivered) }),
+  "complaint-rate": ({ complaints, delivered }) => ({ complaintRate: div(complaints, delivered) }),
+  "list-growth-rate": ({ newSubscribers, unsubscribes, listStart }) => ({
+    listGrowthRate: div(newSubscribers - unsubscribes, listStart),
+  }),
+  "revenue-per-recipient": ({ revenue, emailsSent }) => ({ rpr: div(revenue, emailsSent) }),
   "activation-rate": ({ activatedUsers, installs }) => ({
     activationRate: div(activatedUsers, installs),
   }),

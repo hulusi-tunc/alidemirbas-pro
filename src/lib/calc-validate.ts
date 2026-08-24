@@ -9,7 +9,7 @@ import type { CalcField } from "@/lib/calc-catalog";
 
 export type ValidationError =
   | "required" | "invalid" | "negative" | "not_an_option"
-  | "exceeds_delivered" | "exceeds_mau" | "exceeds_carts_created" | "must_be_positive";
+  | "exceeds_delivered" | "exceeds_mau" | "exceeds_carts_created" | "exceeds_sent" | "must_be_positive";
 
 export type ValidationResult =
   | { ok: true; values: Record<string, number | string> }
@@ -68,6 +68,41 @@ const CROSS_FIELD_CHECKS: Record<string, (values: Record<string, number | string
     }
     return {};
   },
+  // Delivered/bounced are both slices of the same sent count - neither
+  // can exceed it (the calculator's own documented validationRule for
+  // delivery-rate: "delivered should not exceed sent"; bounce-rate-email
+  // carries the same structural constraint against the same denominator).
+  "delivery-rate": (values) => {
+    const { delivered, sent } = values;
+    if (typeof delivered === "number" && typeof sent === "number" && delivered > sent) {
+      return { delivered: "exceeds_sent" };
+    }
+    return {};
+  },
+  "bounce-rate-email": (values) => {
+    const { bounced, sent } = values;
+    if (typeof bounced === "number" && typeof sent === "number" && bounced > sent) {
+      return { bounced: "exceeds_sent" };
+    }
+    return {};
+  },
+  // Unsubscribes and complaints are both counted among delivered emails
+  // specifically (not sent) - neither can exceed the delivered count they
+  // were drawn from.
+  "unsubscribe-rate": (values) => {
+    const { unsubscribes, delivered } = values;
+    if (typeof unsubscribes === "number" && typeof delivered === "number" && unsubscribes > delivered) {
+      return { unsubscribes: "exceeds_delivered" };
+    }
+    return {};
+  },
+  "complaint-rate": (values) => {
+    const { complaints, delivered } = values;
+    if (typeof complaints === "number" && typeof delivered === "number" && complaints > delivered) {
+      return { complaints: "exceeds_delivered" };
+    }
+    return {};
+  },
 };
 
 export function validateInputs(inputs: CalcField[], raw: Record<string, string>, slug?: string): ValidationResult {
@@ -122,6 +157,7 @@ export const errorMessage = (error: ValidationError, lang: "en" | "tr"): string 
     exceeds_delivered: { en: "Can't exceed delivered", tr: "Teslim edilenden fazla olamaz" },
     exceeds_mau: { en: "Can't exceed monthly active users", tr: "Aylık aktif kullanıcıyı geçemez" },
     exceeds_carts_created: { en: "Can't exceed carts created", tr: "Oluşturulan sepeti geçemez" },
+    exceeds_sent: { en: "Can't exceed sent", tr: "Gönderilenden fazla olamaz" },
     must_be_positive: { en: "Must be greater than zero", tr: "Sıfırdan büyük olmalı" },
   };
   return messages[error][lang];
