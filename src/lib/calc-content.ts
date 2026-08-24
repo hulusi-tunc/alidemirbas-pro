@@ -25,6 +25,11 @@ import testDurationEstimator from "../../production/calculators/content/test-dur
 import contributionMargin from "../../production/calculators/content/contribution-margin.json";
 import minimumDetectableEffect from "../../production/calculators/content/minimum-detectable-effect.json";
 import confidenceIntervalCalculator from "../../production/calculators/content/confidence-interval-calculator.json";
+import marketingRoi from "../../production/calculators/content/marketing-roi.json";
+import revenuePerVisitor from "../../production/calculators/content/revenue-per-visitor.json";
+import openRate from "../../production/calculators/content/open-rate.json";
+import ruleOf40 from "../../production/calculators/content/rule-of-40.json";
+import d1Retention from "../../production/calculators/content/d1-retention.json";
 
 export type ContentSection = {
   id: string;
@@ -99,6 +104,11 @@ const CONTENT_BY_SLUG: Record<string, CalcContent> = {
   "contribution-margin": contributionMargin as CalcContent,
   "minimum-detectable-effect": minimumDetectableEffect as CalcContent,
   "confidence-interval-calculator": confidenceIntervalCalculator as CalcContent,
+  "marketing-roi": marketingRoi as CalcContent,
+  "revenue-per-visitor": revenuePerVisitor as CalcContent,
+  "open-rate": openRate as CalcContent,
+  "rule-of-40": ruleOf40 as CalcContent,
+  "d1-retention": d1Retention as CalcContent,
 };
 
 /* EN only, by design (instruction 46) - TR pages fall back to the

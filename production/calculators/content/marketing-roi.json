@@ -1,0 +1,89 @@
+{
+  "calculatorId": "CALC-MARKETING-ROI",
+  "slug": "marketing-roi",
+  "contentDepth": "standard",
+  "intro": "Marketing ROI nets marketing cost out of the revenue it produced, so it answers whether the spend actually paid for itself. Enter attributed revenue and marketing cost to get the percentage.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How Marketing ROI is calculated",
+      "body": "Marketing ROI = (Revenue − Cost) ÷ Cost, shown as a percentage — [the same revenue-minus-cost-over-cost shape Salesforce uses to define marketing ROI](https://www.salesforce.com/marketing/analytics/roi-guide/). Cost subtracts out of the numerator first, which is what separates this from a plain revenue-to-spend ratio: the result already nets out what was spent before expressing the return."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Revenue attributed to marketing", "value": "$5,000" },
+        { "label": "Marketing cost", "value": "$1,000" }
+      ],
+      "output": { "label": "Marketing ROI", "value": "400.00%" },
+      "body": "($5,000 − $1,000) ÷ $1,000 = 400.00%. Net profit on this spend was $4,000 — four times the $1,000 cost, on top of getting that $1,000 back. That's a different statement than saying revenue was four times spend; ROI already has the cost subtracted out before the ratio is taken."
+    },
+    {
+      "id": "roi-vs-roas",
+      "type": "comparison-note",
+      "heading": "Marketing ROI vs. ROAS",
+      "body": "These two numbers come from the same revenue and cost, but they're not the same quantity — ROI (as a decimal) always equals [ROAS](/calculators/roas) minus 1, since ROAS is revenue ÷ cost and ROI is (revenue − cost) ÷ cost. In the worked example, 5,000 ÷ 1,000 gives a 5.00x ROAS, while (5,000 − 1,000) ÷ 1,000 gives a 400% ROI — the same underlying result, described as a gross revenue multiple in one case and a net-of-cost percentage in the other. Reading '5x ROAS' and '400% ROI' as similar-sized numbers is a common mistake; they describe the identical outcome from two different reference points."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "What Marketing ROI tells you, and what it doesn't",
+      "body": "Marketing ROI tells you whether attributed revenue covered the marketing cost and by how much — a straightforward answer to 'did this spend pay for itself.' It doesn't tell you whether the business as a whole was profitable. The cost in this formula is marketing cost specifically; it has no visibility into cost of goods sold, fulfillment, or any other expense behind what was sold. A 400% marketing ROI on a product with thin margins can still leave less real profit than a lower ROI on a high-margin one, because this ratio never sees that cost at all — only the marketing spend it was actually computed against."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Reading Marketing ROI and ROAS as roughly the same size. A 400% ROI and a 5x ROAS from the same numbers look like very different magnitudes at a glance, even though they describe the identical result.",
+        "Treating Marketing ROI as overall business profitability. It only nets out marketing cost — product cost, fulfillment, and other expenses aren't in the formula, so a strong ROI doesn't confirm the business made money on what was sold.",
+        "Changing what counts as \"cost\" between calculations. Comparing an ROI computed from media spend alone against one that also folds in agency and creative fees moves the number for reasons that have nothing to do with performance.",
+        "Attributing revenue from a broader window or channel mix than the cost actually covers. Revenue and cost need to describe the same marketing activity, or the ratio doesn't measure what it appears to."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "roas", "name": "ROAS Calculator", "desc": "The gross revenue-to-spend multiple behind the same numbers — mathematically ROI plus 1, expressed as a ratio instead of a net-of-cost percentage." },
+    { "slug": "profit-margin", "name": "Profit Margin Calculator", "desc": "Nets out total business costs, not just marketing spend — the number that actually reflects overall profitability." },
+    { "slug": "cac", "name": "CAC Calculator", "desc": "Cost to acquire one customer — a per-customer efficiency view that complements ROI's per-dollar-of-cost view." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-marketing-roi",
+      "q": "What is Marketing ROI?",
+      "a": "Marketing ROI is the net return a marketing campaign generated relative to what it cost, calculated as (revenue − cost) ÷ cost and expressed as a percentage. It's a profitability-flavored efficiency metric: unlike a plain revenue-to-spend ratio, ROI subtracts the cost out of the numerator first, so the result already reflects the net gain rather than the gross return. A 400% ROI means the campaign generated four times its cost in net profit, on top of recovering the original spend. Marketing ROI is specific to marketing cost, though — it has no visibility into product cost, fulfillment, or other business expenses, so it answers whether the marketing spend paid for itself, not whether the business as a whole was profitable on what was sold."
+    },
+    {
+      "id": "how-to-calculate-marketing-roi",
+      "q": "How do you calculate Marketing ROI?",
+      "a": "Subtract cost from revenue, then divide by cost: Marketing ROI = (Revenue − Cost) ÷ Cost. A campaign that generated $5,000 in attributed revenue from $1,000 in marketing cost has an ROI of ($5,000 − $1,000) ÷ $1,000 = 400.00%. Both numbers need to describe the same marketing activity and time period — revenue attributed to a broader channel mix than the cost actually covers produces a ratio that overstates performance. Cost should also stay consistently defined between calculations; comparing one ROI computed from media spend alone against another that also includes agency or creative fees moves the result for reasons unrelated to how the campaigns actually performed."
+    },
+    {
+      "id": "roi-vs-roas-faq",
+      "q": "Is Marketing ROI the same as ROAS?",
+      "a": "They're mathematically linked but not the same number. ROAS is revenue ÷ cost, a gross multiple; Marketing ROI is (revenue − cost) ÷ cost, a net-of-cost percentage — as a decimal, ROI always equals ROAS minus 1, since subtracting cost from the numerator before dividing is the same as subtracting 1 from the ratio afterward. A campaign with a 5.00x ROAS has exactly a 400% ROI from the same revenue and cost; the two aren't competing answers, they're the identical result read from different reference points. Use ROAS when comparing gross revenue efficiency across campaigns; use ROI when the question is specifically whether the spend generated a net profit above its own cost."
+    },
+    {
+      "id": "negative-marketing-roi",
+      "q": "Can Marketing ROI be negative?",
+      "a": "Yes. A negative Marketing ROI means the campaign generated less revenue than it cost — for example, $800 in attributed revenue from $1,000 in marketing cost gives (800 − 1,000) ÷ 1,000 = −20%. That's a real, valid result: it means the campaign lost money on marketing cost alone, before any other business expense is even considered. Unlike ROAS, which can never go below 0x since both revenue and spend are non-negative, ROI can go below −100% in principle if a campaign somehow produced negative attributed revenue, though in practice a −100% ROI (zero revenue against the full cost) is usually the practical floor. Any ROI below 0% means the marketing spend didn't recover its own cost."
+    },
+    {
+      "id": "high-roi-business-profitable",
+      "q": "Does a high Marketing ROI mean the campaign was profitable for the business overall?",
+      "a": "Not necessarily. Marketing ROI only nets out the marketing cost entered into the calculation — it has no visibility into cost of goods sold, fulfillment, payment processing, or any other expense behind what was actually sold. A campaign can post a strong 400% marketing ROI and still contribute less real profit than a lower-ROI campaign, if the product being sold carries thin margins once those other costs are counted. Marketing ROI answers a narrower question: did the marketing spend itself generate a net gain. Whether the business made money overall depends on margin and every other cost this ratio was never built to see, which is a separate calculation from the marketing-cost-only number this page computes."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Marketing ROI Calculator",
+    "seoDescription": "Calculate marketing ROI from revenue and cost, and see the exact mathematical relationship between ROI and ROAS.",
+    "canonicalPath": "/calculators/marketing-roi",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "STANDARD depth (Batch 05). Formula/example independently verified: (5000-1000)/1000=4.0=400.00%, matches calculator-catalog.json's exampleOutput exactly. Comparison-note against ROAS required per calculator-seo-map.json's own flagged cannibalizationRisks entry for this pair - written independently from roas.json's own existing 'roas-vs-roi' comparison-note (no shared sentences), and goes further with a precise, independently-verified mathematical relationship (ROI-as-decimal = ROAS - 1, since (R-C)/C = R/C - 1) rather than just restating 'different denominators.' Critical boundary kept explicit in interpretation/common-mistakes/two FAQs: Marketing ROI here nets out marketing cost only, not COGS/fulfillment/other business costs, so it is not the same as overall business profitability - the same fundamental limitation ROAS has, but via a different mechanism (ROI already subtracts marketing cost, ROAS doesn't subtract any cost at all). Negative-ROI edge case (revenue < cost, calculator's own documented edgeCase) covered with a verified example (-20%). External source: Salesforce's own Marketing ROI definition page (same (revenue-cost)/cost formula this calculator implements). Related Calculators verified live: roas, profit-margin, cac (catalog's own relatedCalculators list also includes incremental-roas, which is not live and not linked). No unsupported benchmark. 5 FAQs, 100-150 words each, independently word-counted."
+}

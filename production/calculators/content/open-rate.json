@@ -1,0 +1,89 @@
+{
+  "calculatorId": "CALC-OPEN-RATE",
+  "slug": "open-rate",
+  "contentDepth": "standard",
+  "intro": "Open rate is the share of successfully delivered emails that got opened. Enter opens and delivered to get the rate — and see why that number can run higher than it looks.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How Open Rate is calculated",
+      "body": "Open Rate = Opens ÷ Delivered, shown as a percentage — [the same opens-over-delivered shape Campaign Monitor uses](https://www.campaignmonitor.com/resources/knowledge-base/how-to-calculate-email-open-rates/), where delivered means emails that actually reached an inbox, with bounces already excluded. Delivered, not sent, is the denominator: an email that bounced was never in a position to be opened, so counting it would understate the rate for reasons that have nothing to do with the email itself."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Opens", "value": "2,500" },
+        { "label": "Delivered", "value": "10,000" }
+      ],
+      "output": { "label": "Open Rate", "value": "25.00%" },
+      "body": "2,500 ÷ 10,000 = 25.00%. A quarter of the emails that actually landed in an inbox were opened — though as the next section covers, \"opened\" doesn't mean quite what it used to."
+    },
+    {
+      "id": "why-open-rate-looks-inflated",
+      "type": "interpretation",
+      "heading": "Why open rate can run higher than real engagement",
+      "body": "[Apple's Mail Privacy Protection downloads remote content in the background as soon as an email is received](https://support.apple.com/guide/mail/protect-email-privacy-mlhlp1205/mac), not when someone actually views it, and hides from senders whether the recipient ever opened the message at all. Every Apple Mail user with this on registers as an open the moment the email lands, whether they ever looked at it or not — since it launched in 2021 and its share of inboxes has grown, open rate as a whole has drifted upward for reasons that have nothing to do with subject lines or send times getting better. It's still a real, useful number; it's just no longer a clean read on genuine attention the way it once was."
+    },
+    {
+      "id": "open-rate-vs-ctor",
+      "type": "comparison-note",
+      "heading": "Open Rate vs. CTOR and CTR",
+      "body": "Open Rate, click-to-open rate, and email [CTR](/calculators/ctr) all divide by something different. Open Rate is opens over delivered — did the message register as opened at all. CTOR is clicks over opens — of the people who opened, how many then clicked. Email CTR is clicks over delivered — of everyone the message reached, how many clicked, independent of whether an open was ever recorded. With Mail Privacy Protection inflating recorded opens, CTOR's denominator (opens) is inflated right along with it, while CTR's denominator (delivered) isn't affected at all — which is part of why clicks, not opens, are increasingly treated as the steadier engagement signal."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Treating an open rate near or above 100% as a tracking error. It's a real signal that a large share of the list is on Apple Mail with privacy protection on, not proof the number is broken.",
+        "Assuming opens can never exceed delivered. Proxy pre-fetching can legitimately push recorded opens above the delivered count in some tracking setups — an unusual result, not automatically an invalid one.",
+        "Reading a rising open rate over time as improving engagement without checking whether Apple Mail Privacy Protection adoption grew over the same period, which inflates the metric independent of anything about the emails themselves.",
+        "Using open rate alone to judge subject line or send-time performance. Clicks reflect a deliberate action Mail Privacy Protection doesn't touch, which is why they're a steadier signal than opens for that specific question."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "ctr", "name": "CTR Calculator", "desc": "What happened after the open — clicks aren't affected by Apple's privacy pre-fetching the way recorded opens are." },
+    { "slug": "cr", "name": "Conversion Rate Calculator", "desc": "What happened after the click — the next step in the chain from an opened email to an actual result." },
+    { "slug": "roas", "name": "ROAS Calculator", "desc": "Whether the revenue an email campaign eventually drove was worth what it cost to send and produce." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-open-rate",
+      "q": "What is Open Rate?",
+      "a": "Open rate is the percentage of successfully delivered emails that were recorded as opened, calculated as opens divided by delivered emails. Delivered means the email actually reached an inbox — bounced messages are excluded from the denominator, since they were never in a position to be opened in the first place. Open rate is one of the oldest email engagement metrics, but it's become a noisier signal in recent years: privacy features on major mail clients, most notably Apple Mail, can register an email as opened automatically on delivery, before a recipient ever looks at it. It's still tracked and reported everywhere, but reading it as a precise measure of genuine attention requires knowing that limitation."
+    },
+    {
+      "id": "how-to-calculate-open-rate",
+      "q": "How do you calculate Open Rate?",
+      "a": "Divide opens by delivered emails: Open Rate = Opens ÷ Delivered. A campaign that delivered 10,000 emails and recorded 2,500 opens has an open rate of 2,500 ÷ 10,000 = 25.00%. Delivered, not sent, is the correct denominator — bounced emails never reached an inbox, so including them in the total would understate the rate for reasons unrelated to how the campaign actually performed. Most email platforms calculate and report this automatically, so it rarely needs to be computed by hand, but the formula matters for understanding what the number does and doesn't capture, especially once privacy features that auto-register opens are factored in."
+    },
+    {
+      "id": "why-open-rate-inflated-faq",
+      "q": "Why can Open Rate be inflated or even exceed 100%?",
+      "a": "The most common cause is Apple's Mail Privacy Protection, which downloads an email's remote content — including the tracking pixel that registers an open — as soon as the message is delivered, regardless of whether the recipient ever actually looks at it. Since a large and growing share of inboxes use Apple Mail with this feature on, a meaningful portion of \"opens\" reflects automatic pre-fetching, not genuine attention. Separately, proxy pre-fetching by mail servers can in some tracking setups push recorded opens above the delivered count entirely, which is a real, valid signal about how the infrastructure handled the message, not evidence the tracking itself is broken."
+    },
+    {
+      "id": "open-rate-vs-ctor-faq",
+      "q": "Is Open Rate the same as CTOR?",
+      "a": "No. Open rate divides opens by delivered emails — everyone the message reached, whether they opened it or not. Click-to-open rate (CTOR) divides clicks by opens — only the people who registered as having opened the email, checking how many of them then clicked something inside it. Because Mail Privacy Protection inflates the number of recorded opens, it also inflates CTOR's denominator, which can make CTOR look artificially low even when actual click behavior hasn't changed. Email CTR — clicks divided by delivered — sidesteps that problem entirely, since its denominator doesn't depend on whether an open was recorded at all."
+    },
+    {
+      "id": "good-open-rate",
+      "q": "What is a good Open Rate?",
+      "a": "There's no universal good open rate — it depends on list quality, industry, send frequency, and how much of the list uses mail clients with automatic open-tracking like Apple Mail, all of which shift the number for reasons unrelated to how good the email actually was. A well-maintained, engaged list can post a strong open rate that a purchased or stale list never will, regardless of subject line quality. Given how much Mail Privacy Protection alone can shift this number upward, the most reliable comparison is your own list's open rate over time, or against a segment with a similar mail-client mix, rather than an external benchmark that has no idea what your list looks like."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Open Rate Calculator",
+    "seoDescription": "Calculate email open rate from opens and delivered, and see why Apple Mail Privacy Protection can push the number above what it used to mean.",
+    "canonicalPath": "/calculators/open-rate",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "STANDARD depth (Batch 05). Formula/example independently verified: 2500/10000=0.25=25.00%, matches calculator-catalog.json's exampleOutput exactly. Metric-specific section (why-open-rate-looks-inflated) built directly from this calculator's own two documented validationRules/edgeCases (Apple MPP flagged near/above 100%; opens > delivered legitimately possible via proxy pre-fetching, not clamped) - both stated accurately as calculator behavior, not invented. Comparison-note (Open Rate vs CTOR vs CTR) written independently from ctr.json's own existing 'ctr-vs-ctor' comparison-note (different specific claim - this one centers on how MPP inflates CTOR's denominator specifically, ctr.json's centers on the advertising-vs-email CTR denominator difference) - no shared sentences. No universal 'good open rate' benchmark - good-open-rate FAQ and its own section both name the actual variables (list quality, mail-client mix, MPP adoption) rather than a generic 'it depends' non-answer. External sources: Campaign Monitor's own open rate formula/denominator definition, and Apple's own official Mail support documentation on Mail Privacy Protection (support.apple.com/guide/mail/protect-email-privacy-mlhlp1205/mac) - a primary/official source, not a third-party ESP blog, for the specific inflation mechanism claim. Related Calculators: ctr, cr, roas verified live - forms a real user-journey chain (opened -> clicked -> converted -> revenue) per instruction 14's own guidance, since catalog's own relatedCalculators list for this slug is almost entirely non-live CRM/email-specific slugs (ctor, bounce-rate-email, delivery-rate, unsubscribe-rate, complaint-rate, list-growth-rate, revenue-per-recipient - none live) with no viable same-domain alternative. 5 FAQs, 100-150 words each, independently word-counted."
+}
