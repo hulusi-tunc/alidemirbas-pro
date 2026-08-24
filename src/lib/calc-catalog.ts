@@ -161,6 +161,20 @@ function correctedExample(spec: CalcSpec): { exampleOutput: Record<string, unkno
   };
 }
 
+/* calculator-catalog.json's own formulaPlainEnglish for logo-churn calls
+   this "the SaaS-standard framing of Churn Rate" - an overly-definitive
+   claim the content correction pass (production/calculators/content/
+   logo-churn.json) already softened to "a common SaaS definition" in its
+   own authored prose, but this catalog-sourced sentence is rendered
+   separately by CalculatorTool.tsx's FormulaBlock and was still showing
+   the original wording on the live page. Scoped override, same pattern
+   as the minimum-detectable-effect fix above - calculator-catalog.json
+   itself is untouched. */
+export function correctedFormulaPlainEnglish(spec: CalcSpec): string {
+  if (spec.slug !== "logo-churn") return spec.formulaPlainEnglish;
+  return "Customer-count churn (as opposed to revenue churn) - a common SaaS definition of Churn Rate.";
+}
+
 export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
   const related = spec.relatedCalculators
     .map((s) => bySlug.get(s))
@@ -173,7 +187,7 @@ export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
     category: spec.category,
     classification: spec.classification,
     formula: spec.formula,
-    formulaPlainEnglish: spec.formulaPlainEnglish,
+    formulaPlainEnglish: correctedFormulaPlainEnglish(spec),
     inputs: spec.inputs,
     outputs: spec.outputs,
     modes: spec.modes,
@@ -191,5 +205,5 @@ export function shortDescription(spec: CalcSpec, lang: Lang): string {
   // to the same English sentence for tr rather than inventing a translation
   // here silently. Flagged in calculator-architecture.md open questions.
   void lang;
-  return spec.formulaPlainEnglish;
+  return correctedFormulaPlainEnglish(spec);
 }

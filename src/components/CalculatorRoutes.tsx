@@ -12,7 +12,7 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { copy } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
-import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS } from "@/lib/calc-catalog";
+import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS, correctedFormulaPlainEnglish } from "@/lib/calc-catalog";
 import { getContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
@@ -58,7 +58,7 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
   // seoDescription (EN only, 13 calculators) - prefer it over the
   // Phase 2 fallback (spec name + formulaPlainEnglish) when present.
   const title = content ? content.seo.seoTitle : spec ? spec.name : textTool!.title[lang];
-  const description = content ? content.seo.seoDescription : spec ? spec.formulaPlainEnglish : textTool!.desc[lang];
+  const description = content ? content.seo.seoDescription : spec ? correctedFormulaPlainEnglish(spec) : textTool!.desc[lang];
   return {
     title: `${title} - Ali Demirbaş`,
     description,
@@ -105,7 +105,7 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
                     className="rounded-lg border border-line p-4 transition-colors hover:border-ink-900"
                   >
                     <p className="font-medium text-ink-950">{spec.name}</p>
-                    <p className="mt-1 text-sm text-neutral-600">{spec.formulaPlainEnglish}</p>
+                    <p className="mt-1 text-sm text-neutral-600">{correctedFormulaPlainEnglish(spec)}</p>
                   </Link>
                 ))}
               </div>
@@ -148,7 +148,7 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   // (instruction 24) - prefer it in the hero when it exists; it's
   // written specifically to sit above the calculator, unlike
   // formulaPlainEnglish which is documentation prose.
-  const desc = content ? content.intro : spec ? spec.formulaPlainEnglish : textTool!.desc[lang];
+  const desc = content ? content.intro : spec ? correctedFormulaPlainEnglish(spec) : textTool!.desc[lang];
 
   // Section order below: Hero -> Calculator -> short desc/formula area ->
   // FAQ -> Related calculators. Text tools (UTM builder, character
