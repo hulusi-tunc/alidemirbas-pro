@@ -7,9 +7,13 @@
 import { isEnumUnit, isPercentUnit, parseEnumOptions, parseField } from "@/lib/calc-format";
 import type { CalcField } from "@/lib/calc-catalog";
 
+export type ValidationError =
+  | "required" | "invalid" | "negative" | "not_an_option"
+  | "exceeds_delivered" | "exceeds_mau" | "exceeds_carts_created" | "must_be_positive";
+
 export type ValidationResult =
   | { ok: true; values: Record<string, number | string> }
-  | { ok: false; errors: Record<string, "required" | "invalid" | "negative" | "not_an_option" | "exceeds_delivered" | "exceeds_mau"> };
+  | { ok: false; errors: Record<string, ValidationError> };
 
 // The one genuinely optional input in the whole live batch: MRR Growth
 // Rate can't be computed without a prior period, but MRR/ARR themselves
@@ -28,7 +32,7 @@ const OPTIONAL_FIELDS: Record<string, string[]> = { mrr: ["priorMrr"] };
    accepted opens > delivered would let the UI show a result the content
    explicitly says can't happen. Returns field -> error for any field that
    fails; empty object means no cross-field problem. */
-const CROSS_FIELD_CHECKS: Record<string, (values: Record<string, number | string>) => Partial<Record<string, "exceeds_delivered" | "exceeds_mau">>> = {
+const CROSS_FIELD_CHECKS: Record<string, (values: Record<string, number | string>) => Partial<Record<string, ValidationError>>> = {
   "open-rate": (values) => {
     const { opens, delivered } = values;
     if (typeof opens === "number" && typeof delivered === "number" && opens > delivered) {
@@ -52,11 +56,23 @@ const CROSS_FIELD_CHECKS: Record<string, (values: Record<string, number | string
     }
     return {};
   },
+  // A cart can't produce more completed purchases than carts were
+  // started - completedPurchases is structurally bounded by
+  // cartsCreated for the same stage/window (the calculator's own
+  // documented validationRule: "completedPurchases should not exceed
+  // cartsCreated").
+  "cart-abandonment": (values) => {
+    const { cartsCreated, completedPurchases } = values;
+    if (typeof cartsCreated === "number" && typeof completedPurchases === "number" && completedPurchases > cartsCreated) {
+      return { completedPurchases: "exceeds_carts_created" };
+    }
+    return {};
+  },
 };
 
 export function validateInputs(inputs: CalcField[], raw: Record<string, string>, slug?: string): ValidationResult {
   const values: Record<string, number | string> = {};
-  const errors: Record<string, "required" | "invalid" | "negative" | "not_an_option"> = {};
+  const errors: Record<string, ValidationError> = {};
   const optional = new Set(slug ? OPTIONAL_FIELDS[slug] ?? [] : []);
 
   for (const field of inputs) {
@@ -77,6 +93,13 @@ export function validateInputs(inputs: CalcField[], raw: Record<string, string>,
 
     const parsed = parseField(rawVal, { asDecimalPercent: isPercentUnit(field.unit) });
     if (!parsed.ok) errors[field.key] = parsed.error;
+    // Catalog-driven, not a per-slug special case (see calc-catalog.ts's
+    // withPositivity): a field the catalog itself marks ">0" is a
+    // denominator or count that's mathematically undefined at zero, not
+    // just non-negative - 0 parses fine but must still be rejected here,
+    // same class of problem as CROSS_FIELD_CHECKS below (a state the
+    // compute layer can't produce a meaningful result for).
+    else if (field.strictlyPositive && parsed.value === 0) errors[field.key] = "must_be_positive";
     else values[field.key] = parsed.value;
   }
 
@@ -90,17 +113,16 @@ export function validateInputs(inputs: CalcField[], raw: Record<string, string>,
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, values };
 }
 
-export const errorMessage = (
-  error: "required" | "invalid" | "negative" | "not_an_option" | "exceeds_delivered" | "exceeds_mau",
-  lang: "en" | "tr"
-): string => {
-  const messages: Record<string, { en: string; tr: string }> = {
+export const errorMessage = (error: ValidationError, lang: "en" | "tr"): string => {
+  const messages: Record<ValidationError, { en: string; tr: string }> = {
     required: { en: "Required", tr: "Zorunlu" },
     invalid: { en: "Enter a number", tr: "Bir sayı girin" },
     negative: { en: "Must be zero or more", tr: "Sıfır veya daha büyük olmalı" },
     not_an_option: { en: "Choose an option", tr: "Bir seçenek seçin" },
     exceeds_delivered: { en: "Can't exceed delivered", tr: "Teslim edilenden fazla olamaz" },
     exceeds_mau: { en: "Can't exceed monthly active users", tr: "Aylık aktif kullanıcıyı geçemez" },
+    exceeds_carts_created: { en: "Can't exceed carts created", tr: "Oluşturulan sepeti geçemez" },
+    must_be_positive: { en: "Must be greater than zero", tr: "Sıfırdan büyük olmalı" },
   };
   return messages[error][lang];
 };
