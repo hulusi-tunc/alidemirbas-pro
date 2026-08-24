@@ -18,7 +18,16 @@ import { formatByUnit } from "@/lib/calc-format";
 
 export type CalcUnit = string;
 
-export type CalcField = { key: string; label: string; unit: CalcUnit | null };
+export type CalcField = {
+  key: string;
+  label: string;
+  unit: CalcUnit | null;
+  /** True when the catalog's own acceptedRanges marks this field ">0" -
+      a denominator or count that's mathematically undefined at zero, not
+      just "can't be negative" (see toRuntimeSpec below and its own
+      comment on why this is enforced generically rather than per-slug). */
+  strictlyPositive?: boolean;
+};
 
 export type CalcMode = {
   id: string;
@@ -47,12 +56,13 @@ export type CalcSpec = {
   relatedCalculators: string[];
   formulaFamily: string;
   aliases: string[];
+  acceptedRanges?: Record<string, string>;
   modes?: CalcMode[];
   formulaDisplay?: string;
   examplesByMode?: Record<string, { input: Record<string, unknown>; output: Record<string, unknown> }>;
 };
 
-const CATALOG = catalogJson.calculators as CalcSpec[];
+const CATALOG = catalogJson.calculators as unknown as CalcSpec[];
 
 /* First production batch (Phase 2): all 18 P0 + the 14 P1s selected in
    calculator-architecture.md, PLUS two already-shipped legacy calculators
@@ -181,6 +191,22 @@ export function correctedFormulaPlainEnglish(spec: CalcSpec): string {
   return "Customer-count churn (as opposed to revenue churn) - a common SaaS definition of Churn Rate.";
 }
 
+/* Marks each flat (non-mode) input strictlyPositive when the catalog's
+   own acceptedRanges says that field must be ">0" - a real, existing
+   distinction Phase 1 already encoded (">0" for a denominator/count that's
+   mathematically undefined at zero, ">=0" for one where zero is a valid
+   value) that the generic client-side validator never actually read, so
+   submitting 0 for e.g. CPA's "conversions" or Cart Abandonment's "carts
+   created" silently passed per-field validation and only surfaced later
+   as a bare "-" result (formatByUnit's non-finite fallback) with no
+   field-level error telling the user why. Scoped to spec.inputs only -
+   multi-mode calculators' per-mode inputs (ab-test, funnel, sample-size)
+   are untouched here, since acceptedRanges isn't itself keyed by mode. */
+function withPositivity(inputs: CalcField[], acceptedRanges: Record<string, string> | undefined): CalcField[] {
+  if (!acceptedRanges) return inputs;
+  return inputs.map((f) => (acceptedRanges[f.key] === ">0" ? { ...f, strictlyPositive: true } : f));
+}
+
 export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
   const related = spec.relatedCalculators
     .map((s) => bySlug.get(s))
@@ -194,7 +220,7 @@ export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
     classification: spec.classification,
     formula: spec.formula,
     formulaPlainEnglish: correctedFormulaPlainEnglish(spec),
-    inputs: spec.inputs,
+    inputs: withPositivity(spec.inputs, spec.acceptedRanges),
     outputs: spec.outputs,
     modes: spec.modes,
     formulaDisplay,
