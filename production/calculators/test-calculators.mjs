@@ -20,6 +20,8 @@ const LIVE_SLUGS = [
   "cart-abandonment", "confidence-interval-calculator", "test-duration-estimator",
   "profit-margin", "engagement-rate",
   "logo-churn", "ctor",
+  "delivery-rate", "bounce-rate-email", "unsubscribe-rate",
+  "complaint-rate", "list-growth-rate", "revenue-per-recipient",
 ];
 
 let pass = 0, fail = 0;

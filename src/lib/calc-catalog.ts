@@ -103,6 +103,16 @@ export const LIVE_CALCULATOR_SLUGS: readonly string[] = [
   // exampleOutput (clicks:400, opens:2500 -> 16.00%) was independently
   // re-verified, no known-invalid data here.
   "ctor",
+  // Final expansion (12-calculator round): the 6 CRM/email calculators
+  // below are the only ones needing a runtime promotion - cpm, cpl,
+  // activation-rate, funnel-analysis-multistep, profit-margin, and
+  // engagement-rate were all already live (see calc-registry.ts, no
+  // changes needed to their existing compute functions, all
+  // independently re-verified against the catalog's own examples).
+  // Each of these 6 catalog exampleInput/exampleOutput pairs was
+  // independently re-verified too - no known-invalid data.
+  "delivery-rate", "bounce-rate-email", "unsubscribe-rate",
+  "complaint-rate", "list-growth-rate", "revenue-per-recipient",
 ];
 
 const bySlug = new Map(CATALOG.map((c) => [c.slug, c]));

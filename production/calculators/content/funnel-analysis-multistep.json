@@ -1,0 +1,92 @@
+{
+  "calculatorId": "CALC-FUNNEL-ANALYSIS-MULTISTEP",
+  "slug": "funnel-analysis-multistep",
+  "contentDepth": "standard",
+  "heroTitle": "Multi-Step Funnel Analysis Calculator",
+  "intro": "This calculator breaks a funnel into as many steps as you need and computes the conversion and drop-off between each one, plus the overall conversion from first step to last. Enter at least two stages to get started.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How each part of the funnel is calculated",
+      "body": "Step Conversion = Current Stage ÷ Previous Stage. Step Drop-off = 1 − (Current Stage ÷ Previous Stage). Overall Conversion = Final Stage ÷ First Stage — [the same current-over-previous shape Amplitude uses for step-level funnel conversion, and started-minus-completed-over-started for drop-off](https://amplitude.com/explore/analytics/funnel-drop-off). Every step's rate is computed only from the two stages immediately on either side of it — a change three steps upstream doesn't directly move a step's own conversion number, only the counts feeding into it."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Visit", "value": "10,000" },
+        { "label": "Add to cart", "value": "1,800" },
+        { "label": "Checkout", "value": "900" },
+        { "label": "Purchase", "value": "620" }
+      ],
+      "output": { "label": "Overall conversion", "value": "6.20%" },
+      "body": "Visit → Add to cart: 18.00%. Add to cart → Checkout: 50.00%. Checkout → Purchase: 68.89%. Overall, Purchase ÷ Visit = 620 ÷ 10,000 = 6.20%. The overall number alone hides where the funnel actually lost the most people — here, it's the very first step, not checkout."
+    },
+    {
+      "id": "reading-a-stage-that-rises",
+      "type": "interpretation",
+      "heading": "When a later stage counts more than the one before it",
+      "body": "A step showing more than 100% conversion means a later stage counted more entities than the stage before it — the calculator flags this on the result rather than silently treating it as a normal rate. In a strict single-cohort funnel this usually signals a data or attribution problem: double-counting, a broader date range on the later stage, or two different definitions of the same event. It isn't automatically impossible, though — different cohort definitions or measurement windows between stages can produce it legitimately in some setups. Either way, this contract measures whatever counts are entered for each stage; it doesn't independently verify that later stages are genuinely a subset of earlier ones."
+    },
+    {
+      "id": "funnel-vs-cart-abandonment",
+      "type": "comparison-note",
+      "heading": "Funnel Analysis vs. Cart Abandonment Rate",
+      "body": "[Cart Abandonment Rate](/calculators/cart-abandonment) is a fixed two-point ratio: carts started versus completed purchases, at one specific stage boundary. This funnel calculator can model that same boundary as one step among many, but it's built for the full path — visit, add to cart, checkout, purchase, or however many stages a specific funnel actually has — not just the cart-to-purchase gap. Use Cart Abandonment Rate when the checkout-stage number itself is the question; use this calculator when the question is where along the whole path the funnel is actually losing people."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Reading the overall conversion rate as if it explains the funnel. It only tells you the ratio between the first and last stage — the step-by-step breakdown is what actually shows where people are lost.",
+        "Comparing step conversion rates across funnels with a different number of stages, or different stage definitions, as if they're measuring the same journey.",
+        "Treating a stage count higher than the previous stage as a normal result without checking for double-counting, a broader date range, or a different event definition behind that stage's number.",
+        "Mixing measurement windows across stages - counting one stage over a 7-day window and another over 30 days produces conversion numbers that don't describe one coherent cohort."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "cart-abandonment", "name": "Cart Abandonment Rate Calculator", "desc": "A fixed, single-stage version of one step this funnel calculator can also model - carts started versus completed purchases." },
+    { "slug": "cr", "name": "Conversion Rate Calculator", "desc": "A single first-to-last ratio without the step-by-step breakdown - useful when only the endpoint matters, not where the drop-off happened." },
+    { "slug": "revenue-per-visitor", "name": "Revenue per Visitor Calculator", "desc": "What the traffic entering this funnel was worth on average, blending everything the step breakdown shows separately." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-funnel-analysis",
+      "q": "What is multi-step funnel analysis?",
+      "a": "Multi-step funnel analysis breaks a user journey into a sequence of stages — such as visit, add to cart, checkout, and purchase — and measures the conversion rate and drop-off between each consecutive pair, plus the overall conversion from the first stage to the last. Unlike a single conversion rate, which only compares two endpoints, a multi-step funnel shows exactly where along the path people are lost, not just how many made it through overall. This calculator supports 2 to 10 stages, so it can model anything from a simple two-step signup flow to a longer e-commerce or onboarding journey."
+    },
+    {
+      "id": "how-to-calculate-funnel-conversion",
+      "q": "How do you calculate step conversion and drop-off?",
+      "a": "Step conversion is the current stage's count divided by the previous stage's count. Step drop-off is 1 minus that same ratio. Overall conversion is the final stage's count divided by the first stage's count. In the worked example, 1,800 people reaching \"Add to cart\" out of 10,000 who reached \"Visit\" gives an 18.00% step conversion and an 82.00% drop-off for that step. Each step's rate only depends on the two stages immediately next to it — it doesn't reference any other stage in the funnel, so a change further upstream or downstream doesn't directly move that one step's own number."
+    },
+    {
+      "id": "stage-count-rises",
+      "q": "What does it mean if a later stage has more people than the one before it?",
+      "a": "It usually signals a data problem — double-counting, a broader date range applied to the later stage, or two stages that were actually measuring different events despite sharing a funnel. The calculator flags this directly on the affected step rather than silently displaying a conversion rate above 100% as if it were routine. It isn't always an error, though: different cohort definitions or measurement windows between stages can occasionally produce this legitimately. Either way, the calculator computes exactly what's entered for each stage — it doesn't independently confirm that a later stage's count is truly a subset of an earlier one."
+    },
+    {
+      "id": "minimum-stages",
+      "q": "How many stages does this calculator need?",
+      "a": "At least two, and up to ten. Two stages is functionally the same shape as a simple conversion rate calculation — one ratio between a starting count and an ending count. The value of a multi-step funnel comes from adding more stages in between, since that's what reveals which specific transition is losing the most people, rather than just the aggregate first-to-last number. There's no requirement to use every stage a real journey has; a funnel with the 3 or 4 stages that matter most for diagnosis is often more useful than every micro-step logged in the underlying data. Adding stages that never see meaningful drop-off mostly adds noise to the table without adding diagnostic value."
+    },
+    {
+      "id": "zero-at-a-stage",
+      "q": "What happens if a stage's count is zero?",
+      "a": "That step's conversion becomes undefined, since dividing by a zero-count previous stage has no meaningful result - the calculator won't display it as a real percentage. Any step downstream of a zero-count stage is also not meaningfully computable in the usual sense, since the funnel effectively broke at that earlier point. A zero count partway through a funnel is often itself the finding worth investigating - it can mean genuinely no one reached that stage, or it can mean the stage wasn't tracked for that period, which are two very different explanations worth ruling between. A zero at the very first stage is a special case too - with nothing to divide by anywhere downstream, none of the funnel's rates can be computed at all."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Multi-Step Funnel Analysis Calculator",
+    "seoDescription": "Break a funnel into stages and calculate step conversion, drop-off, and overall conversion, and see where the biggest loss actually happens.",
+    "canonicalPath": "/calculators/funnel-analysis-multistep",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "STANDARD depth (Final Expansion round). Formula/example independently verified against the array-based canonical example: stepConversions [1800/10000=18.00%, 900/1800=50.00%, 620/900=68.89%], dropOffByStage [82.00%, 50.00%, 31.11%], overallConversion 620/10000=6.20% - all match calculator-catalog.json's exampleOutput exactly. Runtime already live (funnel-analysis-multistep compute function and FunnelInputs/FunnelResults UI pre-existing, unchanged) - only content/SEO layer was missing, EXCEPT one real UI gap found and fixed this round: the catalog's own validationRule ('a stage count higher than the previous stage is allowed but should be visually flagged as a likely data error, not silently accepted') was not implemented - FunnelResults previously rendered a >100% step conversion with no visual distinction from a normal rate. Fixed in CalculatorTool.tsx: a step where the conversion rate exceeds 100% now shows an inline amber flag next to the percentage. Metric-specific section (reading-a-stage-that-rises) documents this exact behavior, sourced against Amplitude's own funnel drop-off definition for the base formulas (amplitude.com/explore/analytics/funnel-drop-off - Amplitude's own page did not address the rises-above-previous-stage case directly, so that specific claim is derived from the catalog's own validationRule, not attributed to Amplitude). Comparison-note (Funnel Analysis vs Cart Abandonment) explains the genuine relationship (this tool can model cart-abandonment's own single boundary as one step among several) without duplicating cart-abandonment.json's own content - no shared sentences. common-mistakes item 4 (mixed measurement windows across stages) is a real, calculator-specific data-integrity risk. Worked-example section uses the schema's existing inputs[]/output shape adapted for 4 stages plus overall conversion as the headline output, consistent with how other array-input calculators in this corpus (none currently published) would need to represent worked examples. Related Calculators verified live: cart-abandonment, cr, revenue-per-visitor (catalog's own relatedCalculators list: cr, cart-abandonment - both used; revenue-per-visitor added as a third genuinely relevant live calculator). 5 FAQs, 100-150 words each, independently word-counted."
+}

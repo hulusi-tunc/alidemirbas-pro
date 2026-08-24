@@ -1,0 +1,89 @@
+{
+  "calculatorId": "CALC-PROFIT-MARGIN",
+  "slug": "profit-margin",
+  "contentDepth": "standard",
+  "intro": "Profit margin is the share of revenue left over after all costs are subtracted, expressed as a percentage. Enter revenue and total cost to get the margin.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How Profit Margin is calculated",
+      "body": "Profit Margin = (Revenue − Cost) ÷ Revenue — [the same revenue-minus-cost-over-revenue shape Xero uses to define profit margin](https://www.xero.com/us/guides/what-is-profit-margin/). Cost here is meant as the fully loaded figure — everything spent to run the business, not just the cost of the specific goods sold — which is what separates this from Gross Margin's narrower cost base."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Revenue", "value": "$100,000" },
+        { "label": "Cost", "value": "$55,000" }
+      ],
+      "output": { "label": "Profit Margin", "value": "45.00%" },
+      "body": "($100,000 − $55,000) ÷ $100,000 = 45.00%. Of every dollar this business brought in, 45 cents remained after subtracting the cost entered here — the actual percentage depends entirely on how completely that cost figure captures everything the business spent."
+    },
+    {
+      "id": "margin-vs-markup",
+      "type": "interpretation",
+      "heading": "Profit margin is not the same thing as markup",
+      "body": "[Margin divides profit by revenue; markup divides the same profit by cost](https://www.accountingcoach.com/blog/gross-margin-markup) — two different denominators applied to the identical dollar figure. A product selling for $10 with an $8 cost has a $2 profit: divided by the $10 selling price, that's a 20% margin; divided by the $8 cost, that's a 25% markup. The two numbers will never match except at 0%, and mixing them up in pricing decisions — assuming a 25% markup delivers a 25% margin — systematically understates how much of the selling price is actually profit."
+    },
+    {
+      "id": "profit-margin-vs-gross-margin",
+      "type": "comparison-note",
+      "heading": "Profit Margin vs. Gross Margin",
+      "body": "Both divide a profit figure by revenue, but the cost each one subtracts is different in scope. [Gross Margin](/calculators/gross-margin) subtracts only the cost of goods sold — production or delivery cost specifically. Profit Margin, as this calculator computes it, subtracts fully loaded cost — every expense behind running the business, not just the goods themselves. A business can post a strong Gross Margin while its Profit Margin is thin or negative, if overhead, salaries, and other costs outside COGS are eating into what Gross Margin left on the table. The two numbers answer \"how profitable is a product\" and \"how profitable is the business\" respectively, not the same question at different precision."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Confusing margin with markup. A 25% markup on cost and a 25% margin on revenue are different numbers computed from different denominators — they don't describe the same profitability.",
+        "Treating Profit Margin and Gross Margin as interchangeable. Gross Margin subtracts only cost of goods sold; Profit Margin here subtracts every cost, a much wider net.",
+        "Reading a negative margin as a calculation error. If cost exceeds revenue, a negative profit margin is a real, valid result showing the business lost money on what this calculation covers.",
+        "Comparing profit margins across businesses without checking what each one's \"cost\" actually includes. A partial cost figure inflates margin relative to one that's genuinely fully loaded."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "gross-margin", "name": "Gross Margin Calculator", "desc": "Subtracts only cost of goods sold, a narrower cost base than this calculator's fully loaded cost figure." },
+    { "slug": "marketing-roi", "name": "Marketing ROI Calculator", "desc": "A net return specifically on marketing spend, not overall business profitability the way Profit Margin measures it." },
+    { "slug": "contribution-margin", "name": "Contribution Margin Calculator", "desc": "Subtracts variable costs specifically - a different cost slice again, sitting between Gross Margin and this calculator's fully loaded figure." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-profit-margin",
+      "q": "What is Profit Margin?",
+      "a": "Profit margin is the percentage of revenue remaining after subtracting cost, calculated as (revenue minus cost) divided by revenue. As this calculator computes it, cost is meant to be fully loaded — every expense behind running the business, not just the cost of the specific goods sold — which is what distinguishes it from Gross Margin's narrower, cost-of-goods-only calculation. A 45% profit margin means 45 cents of every revenue dollar remained after that full cost was subtracted. The accuracy of the result depends entirely on how completely the cost figure entered actually captures total spend. A margin near zero or negative signals the business is barely covering its full costs, or losing money outright, once every expense is accounted for."
+    },
+    {
+      "id": "how-to-calculate-profit-margin",
+      "q": "How do you calculate Profit Margin?",
+      "a": "Subtract cost from revenue, then divide by revenue: Profit Margin = (Revenue − Cost) ÷ Revenue. A business with $100,000 in revenue and $55,000 in total cost has a profit margin of ($100,000 − $55,000) ÷ $100,000 = 45.00%. Both figures need to cover the same time period and the same scope of the business — revenue from a full quarter divided by cost from only part of it produces a margin that doesn't accurately describe either period. What counts as \"cost\" should also stay consistent between calculations, since a partial cost figure inflates the resulting margin. Most accounting and finance platforms calculate this automatically from a profit-and-loss statement, so it rarely needs to be computed from raw figures by hand."
+    },
+    {
+      "id": "margin-vs-markup-faq",
+      "q": "Is profit margin the same as markup?",
+      "a": "No. Margin divides profit by revenue (the selling price); markup divides the same profit by cost. A product selling for $10 with an $8 cost has a $2 profit — a 20% margin ($2 ÷ $10) but a 25% markup ($2 ÷ $8), from the identical transaction. The two will never be equal except at 0%, and using markup as a stand-in for margin in pricing decisions understates how much of the selling price is actually retained as profit, since markup's smaller denominator (cost) always produces a larger percentage than margin's larger denominator (revenue) for the same profit. Retailers commonly price using markup and report performance using margin, so a business fluent in one needs to actively translate before comparing it against the other."
+    },
+    {
+      "id": "negative-profit-margin",
+      "q": "Can Profit Margin be negative?",
+      "a": "Yes. If cost exceeds revenue, the numerator (revenue minus cost) is negative, producing a negative profit margin — a real, valid result showing the business lost money over whatever period and cost scope was entered, not a calculation error. A negative margin is worth investigating, but the formula itself handles it correctly: there's no floor at zero, and clamping a negative result to 0% would hide a real loss rather than reporting it accurately. A negative result is common for early-stage or heavily investing businesses that are intentionally spending ahead of revenue, and doesn't automatically mean the business model itself is broken — it means this specific period's costs outpaced this specific period's revenue."
+    },
+    {
+      "id": "profit-margin-vs-gross-margin-faq",
+      "q": "How is Profit Margin different from Gross Margin?",
+      "a": "Gross Margin subtracts only the cost of goods sold — the direct cost of producing or delivering what was sold. Profit Margin, as this calculator computes it, subtracts fully loaded cost, meaning every business expense, not just COGS. A company can post a strong Gross Margin on its products while its Profit Margin is thin or negative overall, if overhead, salaries, and other costs outside COGS consume what Gross Margin left behind. The two metrics are answering different questions — product-level profitability versus whole-business profitability — not the same question with different precision. Both are legitimate, useful numbers; the mistake is treating either one as a complete picture of profitability on its own."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Profit Margin Calculator",
+    "seoDescription": "Calculate profit margin from revenue and cost, and see how it differs from markup and from the narrower cost base Gross Margin uses.",
+    "canonicalPath": "/calculators/profit-margin",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "STANDARD depth (Final Expansion round). Formula/example independently verified: (100000-55000)/100000=0.45=45.00%, matches calculator-catalog.json's exampleOutput exactly. Runtime already live (profit-margin compute function pre-existing, unchanged) - only content/SEO layer was missing (this was a legacy calculator with no Phase 4 content at all before this round). Metric-specific section (margin-vs-markup) is a genuinely distinct, real confusion risk beyond the flagged gross-margin cannibalization - sourced against AccountingCoach's own margin-vs-markup distinction, independently verified with the $10/$8 example (20% margin vs 25% markup). Comparison-note (Profit Margin vs Gross Margin) required per calculator-seo-map.json's own flagged cannibalizationRisks entry for this pair - written independently from gross-margin.json's own existing content (no shared sentences), scoped via the fully-loaded-cost-vs-COGS-only distinction the catalog's own validationRule states ('cost here is fully loaded (all costs), unlike Gross/Contribution Margin's partial cost bases'). Negative-margin edge case (calculator's own documented edgeCase: 'cost > revenue -> negative margin is valid') covered explicitly in common-mistakes and its own FAQ, with an explicit no-floor-at-zero statement. External sources: Xero's own profit margin formula definition, and AccountingCoach's own margin-vs-markup distinction (a recognized accounting education authority). Related Calculators verified live: gross-margin, marketing-roi, contribution-margin (catalog's own relatedCalculators list matches exactly). 5 FAQs, 100-150 words each, independently word-counted."
+}

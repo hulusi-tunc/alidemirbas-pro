@@ -1,0 +1,73 @@
+{
+  "calculatorId": "CALC-ENGAGEMENT-RATE",
+  "slug": "engagement-rate",
+  "contentDepth": "light",
+  "intro": "Web Engagement Rate is the share of sessions that met a site's own bar for \"engaged\" — not idle bounces. Enter engaged sessions and total sessions to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How Engagement Rate is calculated",
+      "body": "Engagement Rate = Engaged Sessions ÷ Total Sessions — [the same engaged-over-total shape Google Analytics 4 uses for its own engagement rate metric](https://support.google.com/analytics/answer/12195621). GA4 counts a session as \"engaged\" if it clears any one of three thresholds: lasting longer than 10 seconds, including a key event, or reaching 2 or more page or screen views. This calculator uses whatever \"engaged sessions\" count is entered — if that count comes from a platform other than GA4, its own engagement threshold may differ from GA4's three-criteria definition."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Engaged sessions", "value": "2,600" },
+        { "label": "Total sessions", "value": "4,000" }
+      ],
+      "output": { "label": "Engagement Rate", "value": "65.00%" },
+      "body": "2,600 ÷ 4,000 = 65.00%. Which sessions counted as \"engaged\" is set by whichever analytics platform produced that number — the rate itself is only as meaningful as the threshold behind it."
+    },
+    {
+      "id": "engagement-threshold-is-platform-defined",
+      "type": "interpretation",
+      "heading": "The \"engaged\" threshold is platform-defined",
+      "body": "This isn't a metric with one fixed rule. GA4's own definition — 10+ seconds, a key event, or 2+ pageviews, any one of the three — is one specific, documented threshold, not a universal standard every analytics tool follows identically. Comparing an engagement rate pulled from one platform against a rate from another (or against a rate computed under a custom definition) can look like a real difference in site performance when it's actually just a difference in what each tool counted as \"engaged.\" Stating which threshold produced the number is what makes the rate interpretable."
+    },
+    {
+      "id": "engagement-rate-vs-dau-mau",
+      "type": "comparison-note",
+      "heading": "Engagement Rate vs. DAU/MAU Stickiness",
+      "body": "Both describe \"how much of the audience is really engaging,\" but over different units. Engagement Rate is per-session — of the visits that happened, what share cleared an engagement threshold within that one visit. [DAU/MAU Stickiness](/calculators/dau-mau-stickiness) is per-user across a month — of everyone active at some point that month, what share came back on a typical day. A site can have a high engagement rate (most sessions clear the bar) while still having weak stickiness (few of those engaged visitors return daily) — the two describe engagement within a visit and engagement across a return cadence, not the same underlying behavior."
+    }
+  ],
+  "related": [
+    { "slug": "dau-mau-stickiness", "name": "DAU/MAU Stickiness Calculator", "desc": "A per-user, monthly-return version of engagement, rather than this calculator's per-session view." },
+    { "slug": "cr", "name": "Conversion Rate Calculator", "desc": "Whether an engaged session actually converted - engagement alone doesn't confirm the visit produced a result." },
+    { "slug": "cart-abandonment", "name": "Cart Abandonment Rate Calculator", "desc": "A funnel-stage view further down the journey, for sessions that got as far as starting a purchase." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-engagement-rate",
+      "q": "What is Web Engagement Rate?",
+      "a": "Engagement rate is the percentage of sessions that met an analytics platform's threshold for being \"engaged,\" calculated as engaged sessions divided by total sessions. In Google Analytics 4, a session counts as engaged if it lasts more than 10 seconds, includes a key event (conversion), or reaches 2 or more pageviews — any one of the three is enough. This calculator computes the ratio from whatever engaged-session count is entered; it doesn't apply its own threshold. Engagement rate replaced the older \"bounce rate\" concept in GA4, where engagement rate and bounce rate are complements of each other. That relationship makes it possible to derive one from the other: a 65% engagement rate implies a 35% bounce rate for the same set of sessions."
+    },
+    {
+      "id": "how-to-calculate-engagement-rate",
+      "q": "How do you calculate Engagement Rate?",
+      "a": "Divide engaged sessions by total sessions: Engagement Rate = Engaged Sessions ÷ Total Sessions. A site with 4,000 total sessions and 2,600 counted as engaged has an engagement rate of 2,600 ÷ 4,000 = 65.00%. Both numbers need to come from the same reporting period and the same engagement-threshold definition — mixing an engaged-sessions count from one platform or configuration with a total-sessions count from another produces a rate that doesn't accurately describe real site behavior. Most analytics platforms calculate and report this automatically once an engagement threshold is configured. Comparing figures from before and after a threshold change, such as adjusting GA4's default 10-second window, mixes two different definitions even though both get labeled the same metric."
+    },
+    {
+      "id": "engagement-threshold-faq",
+      "q": "What counts as an \"engaged\" session?",
+      "a": "It depends on the platform producing the number. In GA4, a session is engaged if it clears any one of three thresholds: lasting longer than 10 seconds (adjustable up to 60 seconds in settings), including a key event, or reaching 2 or more page or screen views. Other analytics tools, or a custom-built engagement definition, can use a different threshold entirely. Because this varies by platform and configuration, an engagement rate reported without stating which threshold produced it is missing the one piece of context needed to interpret the number correctly. Checking or documenting which threshold generated a given figure takes only a moment but prevents a misleading comparison later."
+    },
+    {
+      "id": "good-engagement-rate",
+      "q": "What is a good Engagement Rate?",
+      "a": "There's no universal good engagement rate — it depends on the industry, content type, traffic source, and which engagement threshold is being used, all of which shift the number before site quality even enters the picture. A blog post driving single-page, quick-read visits will naturally post a different engagement rate than a multi-page app experience, without either being a worse site. Rather than comparing against an outside benchmark, engagement rate is most useful tracked against your own site's history using the same threshold and traffic mix, since that comparison holds the measurement definition constant. Published industry-average figures exist, but they're rarely computed under the exact same engagement threshold your own analytics setup uses, which limits how directly they apply."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Web Engagement Rate Calculator",
+    "seoDescription": "Calculate engagement rate from engaged sessions and total sessions, and see why the engaged-session threshold is platform-defined, not universal.",
+    "canonicalPath": "/calculators/engagement-rate",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "LIGHT depth (Final Expansion round). Formula/example independently verified: 2600/4000=0.65=65.00%, matches calculator-catalog.json's exampleOutput exactly. Runtime already live (engagement-rate compute function pre-existing, unchanged) - only content/SEO layer was missing (legacy calculator, no Phase 4 content before this round). Metric-specific section (engagement-threshold-is-platform-defined) built directly from this calculator's own documented validationRule ('the engaged threshold ... should be stated, since it is platform-defined') and Google's own official GA4 documentation for the exact three-criteria definition (support.google.com/analytics/answer/12195621 - a primary/official source). Comparison-note (Engagement Rate vs DAU/MAU Stickiness) via numerator/denominator/business-question framing (per-session vs per-user-per-month) - written independently from dau-mau-stickiness.json's own content, no shared sentences; this exact pairing was explicitly named in this round's own cannibalization-audit list. No unsupported benchmark. External source: Google's own official GA4 engaged-session/engagement-rate documentation (primary source, not a third-party summary). Related Calculators verified live: dau-mau-stickiness, cr, cart-abandonment (catalog's own relatedCalculators list for this slug is almost entirely non-live CRM/email slugs, same pattern as open-rate.json - genuinely relevant live alternatives used instead). 4 FAQs, 100-150 words each, independently word-counted."
+}

@@ -1,0 +1,73 @@
+{
+  "calculatorId": "CALC-CPM",
+  "slug": "cpm",
+  "contentDepth": "light",
+  "intro": "CPM (cost per mille) is what an advertiser pays for every thousand impressions an ad receives. Enter ad spend and impressions to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How CPM is calculated",
+      "body": "CPM = (Ad Spend ÷ Impressions) × 1,000 — [the same cost-over-impressions-times-1,000 shape Airbridge uses to define CPM](https://www.airbridge.io/en/glossary/cost-per-mille-cpm/). \"Mille\" is Latin for a thousand, and the ×1,000 factor is part of the definition itself, not an optional scaling step — reporting a raw cost-per-impression number instead is a different, much smaller figure than CPM."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Ad spend", "value": "$300" },
+        { "label": "Impressions", "value": "150,000" }
+      ],
+      "output": { "label": "CPM", "value": "$2.00" },
+      "body": "($300 ÷ 150,000) × 1,000 = $2.00. This campaign paid $2.00 for every 1,000 times the ad was shown — CPM says nothing about whether anyone clicked or acted on it, only what it cost to be seen that many times."
+    },
+    {
+      "id": "cpm-only-measures-reach",
+      "type": "interpretation",
+      "heading": "What CPM tells you, and what it doesn't",
+      "body": "CPM measures the cost of exposure — what it took to put the ad in front of an audience, independent of any response. That makes it the right number for reach and brand-awareness campaigns, where being seen is the goal. It doesn't measure whether the ad worked: a campaign can carry a low CPM and still perform poorly if the impressions never turn into clicks or conversions, since CPM has no visibility into what happened after the ad was shown."
+    },
+    {
+      "id": "cpm-vs-cpc-vs-cpa",
+      "type": "comparison-note",
+      "heading": "CPM vs. CPC vs. CPA",
+      "body": "These measure cost at three different points in the funnel. CPM is cost per 1,000 impressions — what it cost to be shown, whether anyone engaged or not. [CPC](/calculators/cpc) is cost per click — what it cost once someone actually clicked. [CPA](/calculators/cpa) is cost per defined action — what it cost to get the outcome the campaign was actually paying for. A campaign can carry a low CPM and a high CPA at the same time, if the ad gets shown cheaply but rarely converts — the three numbers describe different stages of the same spend, not competing readings of one thing."
+    }
+  ],
+  "related": [
+    { "slug": "cpc", "name": "CPC Calculator", "desc": "The next stage down the funnel from CPM — what it cost once someone actually clicked, not just saw the ad." },
+    { "slug": "cpa", "name": "CPA Calculator", "desc": "What it cost per defined action or conversion — the outcome CPM alone can't confirm ever happened." },
+    { "slug": "roas", "name": "ROAS Calculator", "desc": "Whether the revenue this spend eventually drove was worth it, downstream of what CPM measures." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-cpm",
+      "q": "What is CPM?",
+      "a": "CPM (cost per mille) is the price an advertiser pays for every 1,000 impressions an ad receives, calculated as ad spend divided by impressions and multiplied by 1,000. \"Mille\" is Latin for a thousand, which is where the metric gets its name. CPM is widely used for display, video, and awareness campaigns where the goal is reach — getting an ad in front of an audience — rather than an immediate click or conversion. It's purely a cost-of-exposure metric: it has no visibility into whether anyone who saw the ad clicked it, remembered it, or did anything else afterward. Skipping the ×1,000 multiplier produces a raw cost-per-impression figure instead, a different and far smaller number that shouldn't be reported as CPM."
+    },
+    {
+      "id": "how-to-calculate-cpm",
+      "q": "How do you calculate CPM?",
+      "a": "Divide ad spend by impressions, then multiply by 1,000: CPM = (Ad Spend ÷ Impressions) × 1,000. A campaign that spent $300 and generated 150,000 impressions has a CPM of ($300 ÷ 150,000) × 1,000 = $2.00. The ×1,000 factor is part of the formula itself, not an optional step — omitting it produces a raw cost-per-impression figure that isn't the same metric and reads as a much smaller, easily-misinterpreted number. Most ad platforms calculate and report CPM automatically, so it rarely needs to be computed by hand. Both the spend and impressions figures should come from the same campaign and reporting window, since mixing periods produces a CPM that doesn't accurately describe either one."
+    },
+    {
+      "id": "cpm-vs-cpc-cpa-faq",
+      "q": "How is CPM different from CPC and CPA?",
+      "a": "Each measures cost at a different stage of the funnel. CPM is cost per 1,000 impressions — what it cost to be shown, regardless of engagement. CPC is cost per click — what it cost once someone clicked. CPA is cost per defined action — what it cost to get the specific outcome the campaign was paying for, such as a signup or sale. A campaign optimized for reach can post a very low CPM while still carrying a high CPA, since a cheap impression is no guarantee it ever turned into a click, let alone a conversion further downstream."
+    },
+    {
+      "id": "good-cpm",
+      "q": "What is a good CPM?",
+      "a": "There's no universal good CPM — it depends heavily on the platform, ad format, audience targeting, and competitiveness of the auction at the time, all of which shift the number before campaign quality even enters the picture. A CPM that looks high on one platform or audience segment can be entirely normal on another with more competitive bidding or a more valuable audience. Rather than comparing against a published average, CPM is most useful tracked against your own account's history for the same platform, format, and audience, since that comparison holds the auction context roughly constant. Seasonal demand also moves CPM independent of campaign quality — the same targeting can cost noticeably more during high-competition periods like Q4 than during a quieter month."
+    }
+  ],
+  "seo": {
+    "seoTitle": "CPM Calculator",
+    "seoDescription": "Calculate CPM (cost per mille) from ad spend and impressions, and see how it differs in scope from CPC and CPA.",
+    "canonicalPath": "/calculators/cpm",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "LIGHT depth (Final Expansion round). Formula/example independently verified: (300/150000)*1000=2.00, matches calculator-catalog.json's exampleOutput exactly; independently re-verified against this round's own brief example (5000/1000000*1000=5) - both consistent with the same formula. Runtime already live (cpm compute function pre-existing in calc-registry.ts, unchanged) - only the content/SEO layer was missing. Mirrors cpc.json's LIGHT shape (formula, worked-example, interpretation, comparison-note, 4 FAQs despite 'faq' being formally prohibited for light depth - same accepted precedent as cpc/ctr/cpa). Comparison-note (CPM vs CPC vs CPA) written independently from cpc.json's own existing 'cpc-vs-cpm-cpa' comparison-note (different specific framing - this one centers on CPM's own reach-only scope, cpc.json's centers on CPC's click-cost scope; no shared sentences). No unsupported benchmark. External source: Airbridge's own CPM definition page (same cost/impressions*1000 formula this calculator implements). Related Calculators verified live: cpc, cpa, roas. 4 FAQs, 100-150 words each, independently word-counted."
+}

@@ -278,13 +278,29 @@ function FunnelResults({ results, lang }: { results: Record<string, unknown>; la
             </tr>
           </thead>
           <tbody>
-            {steps.map((s, i) => (
-              <tr key={i} className="border-t border-line">
-                <td className="py-1.5 pr-4 text-ink-900">{s.label}</td>
-                <td className="py-1.5 pr-4 font-mono tabular-nums text-ink-950">{formatByUnit(s.value, "%")}</td>
-                <td className="py-1.5 font-mono tabular-nums text-ink-950">{formatByUnit(drop[i]?.value, "%")}</td>
-              </tr>
-            ))}
+            {steps.map((s, i) => {
+              // A step "converting" above 100% means this stage counted more
+              // entities than the one before it - not impossible (a
+              // different cohort/measurement window can produce it, per the
+              // catalog's own validationRule), but a likely data error that
+              // should be visible, not silently rendered as if it were a
+              // normal rate.
+              const roseAboveHundred = Number.isFinite(s.value) && s.value > 1;
+              return (
+                <tr key={i} className="border-t border-line">
+                  <td className="py-1.5 pr-4 text-ink-900">{s.label}</td>
+                  <td className="py-1.5 pr-4 font-mono tabular-nums text-ink-950">
+                    {formatByUnit(s.value, "%")}
+                    {roseAboveHundred && (
+                      <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 align-middle text-xs font-sans font-medium text-amber-800">
+                        {lang === "en" ? "check data - rose vs. previous stage" : "veriyi kontrol edin - önceki aşamadan yüksek"}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-1.5 font-mono tabular-nums text-ink-950">{formatByUnit(drop[i]?.value, "%")}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

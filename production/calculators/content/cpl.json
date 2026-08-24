@@ -1,0 +1,73 @@
+{
+  "calculatorId": "CALC-CPL",
+  "slug": "cpl",
+  "contentDepth": "light",
+  "intro": "CPL (cost per lead) is what a campaign paid, on average, for each lead it generated. Enter total spend and leads to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How CPL is calculated",
+      "body": "CPL = Total Spend ÷ Number of Leads — [the same spend-over-leads shape Wall Street Prep uses to define Cost Per Lead](https://www.wallstreetprep.com/knowledge/cost-per-lead-cpl/). A lead here means whatever action the campaign is counting as a lead — a form fill, a demo request, a newsletter signup — not necessarily a qualified or sales-ready prospect."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Total spend", "value": "$2,000" },
+        { "label": "Leads", "value": "100" }
+      ],
+      "output": { "label": "CPL", "value": "$20.00" },
+      "body": "$2,000 ÷ 100 = $20.00 per lead. That figure says nothing about lead quality — a campaign generating cheap, unqualified leads can post a lower CPL than one generating fewer, better-fit leads, without the cheaper number reflecting better performance."
+    },
+    {
+      "id": "cpl-doesnt-measure-quality",
+      "type": "interpretation",
+      "heading": "CPL measures cost, not lead quality",
+      "body": "CPL only counts how many leads a given spend produced, with no visibility into what happened to those leads afterward. A campaign can drive down CPL by loosening what counts as a lead — accepting a newsletter signup instead of a demo request, for instance — while making pipeline quality worse in the process. A lower CPL is only a genuine improvement if the lead definition and downstream conversion behavior stayed the same; otherwise it can just be measuring a cheaper, less valuable action."
+    },
+    {
+      "id": "cpl-vs-cpa-vs-cac",
+      "type": "comparison-note",
+      "heading": "CPL vs. CPA vs. CAC",
+      "body": "These sit at different points in the same pipeline. CPL is cost per lead — an early-funnel signal of interest, before any sale has happened. [CPA](/calculators/cpa) is cost per defined action or conversion for a specific channel or campaign, which can be set to a lead, a trial, or a sale depending on what's being measured. [CAC](/calculators/cac) is the company-wide average cost to acquire one paying customer, across every channel and the overhead behind them. A campaign can post a cheap CPL that never turns into paying customers, which is exactly why CPL alone can't answer whether the spend was worth it — that requires following the lead through to CAC."
+    }
+  ],
+  "related": [
+    { "slug": "cpa", "name": "CPA Calculator", "desc": "A broader cost-per-action metric that can be set to leads, trials, or sales — CPL is one specific case of it." },
+    { "slug": "cac", "name": "CAC Calculator", "desc": "The company-wide cost to acquire one paying customer, downstream of what a lead actually converts into." },
+    { "slug": "cr", "name": "Conversion Rate Calculator", "desc": "What share of leads (or visitors) actually convert — the number that tells you whether cheap leads were worth generating." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-cpl",
+      "q": "What is CPL?",
+      "a": "CPL (cost per lead) is the average amount spent to generate one lead from a marketing campaign, calculated as total spend divided by the number of leads generated. A \"lead\" is whatever action the campaign counts as one — a form submission, a demo request, a newsletter signup — and that definition is set by whoever is running the campaign, not by a universal standard. CPL is an early-funnel metric: it measures how much it cost to generate interest, with no visibility into whether that interest ever turned into a qualified prospect or a paying customer. Because the lead definition varies this much between campaigns, two CPL figures aren't really comparable unless both are measuring the same underlying action."
+    },
+    {
+      "id": "how-to-calculate-cpl",
+      "q": "How do you calculate CPL?",
+      "a": "Divide total spend by the number of leads generated: CPL = Total Spend ÷ Leads. A campaign that spent $2,000 and generated 100 leads has a CPL of $2,000 ÷ 100 = $20.00. Both numbers need to describe the same campaign and time period — spend from a full month divided by leads counted over only part of it produces a CPL that doesn't accurately describe either period. The lead definition also needs to stay fixed between comparisons: a CPL computed against newsletter signups isn't comparable to one computed against demo requests, even if both get labeled \"leads.\" Most ad and marketing platforms track and report this figure automatically once a lead-generation event is configured."
+    },
+    {
+      "id": "cpl-vs-cpa-cac-faq",
+      "q": "How is CPL different from CPA and CAC?",
+      "a": "CPL sits earliest in the funnel — cost per lead, before any sale has happened. CPA is cost per defined action for a specific channel or campaign, which can be set to a lead, a trial, or a sale depending on what's being tracked, making it broader than CPL specifically. CAC is a company-wide average cost to acquire one paying customer, covering every acquisition channel plus the sales and marketing overhead behind them. A campaign can show a cheap CPL while the company's overall CAC stays high, since CPL never has to account for how many of those leads actually became customers, or what it cost to close them."
+    },
+    {
+      "id": "good-cpl",
+      "q": "What is a good CPL?",
+      "a": "There's no universal good CPL — it depends on the lead definition being used, the industry, the deal size, and how much a converted lead is actually worth to the business, all of which shift the number for reasons unrelated to campaign quality. A $20 CPL on demo requests in an enterprise B2B business can be excellent, while the same $20 CPL on a low-value newsletter signup in a different business can be a poor trade. Rather than comparing against an outside benchmark, CPL is most useful measured against what a lead at that definition typically converts into, or tracked over time within the same campaign and lead definition."
+    }
+  ],
+  "seo": {
+    "seoTitle": "CPL Calculator",
+    "seoDescription": "Calculate cost per lead (CPL) from spend and leads, and see how it differs in scope from CPA and CAC further down the funnel.",
+    "canonicalPath": "/calculators/cpl",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "LIGHT depth (Final Expansion round). Formula/example independently verified: 2000/100=20.00, matches calculator-catalog.json's exampleOutput exactly; independently re-verified against this round's own brief example (10000/250=40) - both consistent. Runtime already live (cpl compute function pre-existing in calc-registry.ts, unchanged) - only content/SEO layer was missing. Mirrors cpc.json/cpa.json's LIGHT shape, 4 FAQs (same accepted deviation precedent). Comparison-note (CPL vs CPA vs CAC) explains the funnel-stage boundary without turning the page into a comparison article, per this round's own explicit warning against that - one focused section, not a running theme through every heading. No unsupported benchmark. External source: Wall Street Prep's own Cost Per Lead definition page (same spend/leads formula this calculator implements, and the CPL-vs-CAC funnel-stage distinction). Related Calculators verified live: cpa, cac, cr. 4 FAQs, 100-150 words each, independently word-counted."
+}
