@@ -1,0 +1,36 @@
+{
+  "_description": "hreflang / language-parity status per family, verified against the real implementation (src/lib/seo.ts#pageAlternates, consumed by ~24 files) - not assumed. Per the task's own instruction: report SUPPORTED / PARTIAL / NOT IMPLEMENTED, never fabricate a hreflang pair for content that has no real translation.",
+  "mechanism": "Single shared helper, src/lib/seo.ts#pageAlternates(path, lang): returns { canonical, languages: { en, tr, 'x-default': en } }. No hand-authored <link rel=alternate hreflang> tags exist anywhere - it's entirely Next.js's Metadata.alternates API, fed by this one function. Used consistently on ~24 files (every static page, and every dynamic-route metadata builder except journey-merged and, before this round's fix, blog-article).",
+  "families": {
+    "home": { "status": "SUPPORTED", "note": "Real EN/TR content pair, both maintained in copy.ts" },
+    "about": { "status": "SUPPORTED", "note": "Real EN/TR content pair" },
+    "lab-index": { "status": "SUPPORTED", "note": "Real EN/TR content pair" },
+    "lab-product": { "status": "SUPPORTED", "note": "Real EN/TR content pair for both ab-testing and dashboard-builder product pages" },
+    "ab-test-library-index": { "status": "SUPPORTED", "note": "Real EN/TR chrome pair; underlying row data is shared (see ab-test-library-detail note on body-language)" },
+    "ab-test-library-detail": {
+      "status": "SUPPORTED (mechanically) but with a real content-language caveat",
+      "note": "Both /lab/ab-testing/library/{slug} and /tr/lab/ab-testing/library/{slug} exist, resolve, and hreflang-reference each other correctly - the URL pair is real, not fake. BUT: both routes render the identical Turkish question/hypothesis/KPI/guardrail body text (src/data/ab-tests.json has no per-language field), under EN-locale English-authored seoTitle/seoDescription on the EN route. So the EN route's <html lang=\"en\">, <title>, and <meta description> are English, while its H1 and full page body are Turkish. This is not a broken hreflang pair (the mechanism is correct and mechanically sound) - it is a content-authoring gap: 211 English translations of the question/hypothesis/whatToTest/guardrails fields do not exist yet. Flagged, not fixed - authoring 211 translations is real content work explicitly out of this round's scope (\"Bu turda ... final SEO metinlerini üretmek zorunda değilsin\")."
+    },
+    "journey-library-index": { "status": "SUPPORTED", "note": "Real EN/TR chrome pair" },
+    "journey-library-detail": {
+      "status": "SUPPORTED (mechanically), by design English-only in body content",
+      "note": "Both language routes exist and hreflang-reference each other correctly. The library's own TR copy explicitly states its content is English-only (copy.tr.lab.page.intro: 'Kütüphane içeriği İngilizce yazıldı' - 'the library's content was written in English'), and journey.name/journey.purpose/node text carry no language field at all - so this is a DOCUMENTED, deliberate choice (a domain-neutral technical library kept in one language), not an oversight the way the A/B test case is. Distinguishing this from the AB case matters: here there is no partially-translated-looking situation, just consistent English content wrapped in either English or Turkish chrome."
+    },
+    "journey-merged": { "status": "NOT IMPLEMENTED (by design)", "note": "journeyMetadata()'s merged branch sets only `canonical` (pointing at the survivor), no `languages` block - correct, since this is a noindex soft-redirect page, not a page that should advertise itself as having a translated counterpart." },
+    "calculator-index": { "status": "SUPPORTED" },
+    "calculator-detail": { "status": "SUPPORTED", "note": "Phase-4 editorial content is EN-only by explicit design (documented in calc-content.ts) - the TR route still exists and serves TR chrome + spec-level fallback content (formulaPlainEnglish etc.), so the hreflang pair points at a real, non-empty page, not a 404 or an empty shell. Out of scope for this round." },
+    "utility": { "status": "SUPPORTED" },
+    "blog-index": { "status": "SUPPORTED", "note": "TR route renders the same shell with an intentional empty state (0 posts) - a real, non-404 page, so the hreflang pair is legitimate even though it currently has no TR articles behind it." },
+    "blog-article": {
+      "status": "FIXED THIS ROUND - was NOT IMPLEMENTED correctly (a confirmed bug), now correctly NOT IMPLEMENTED",
+      "before": "generateMetadata called pageAlternates(path, 'en') unconditionally, which unconditionally builds and emits a `tr` entry in the hreflang languages block pointing at https://alidemirbas.com.tr/tr/blog/{slug} - a URL that 404s, since no src/app/tr/blog/[slug] route exists and nothing links to one (confirmed: src/app/(en)/blog/[slug]/page.tsx's own comment explicitly documents the routing decision but the metadata call didn't follow it).",
+      "after": "generateMetadata now emits canonical-only (`{ alternates: { canonical: ... } }`, no `languages` key) for blog articles specifically - matching the exact precedent already established in this same codebase for the journey-merged case, so this fix introduces zero new patterns, it just applies an existing one consistently.",
+      "fileChanged": "src/app/(en)/blog/[slug]/page.tsx",
+      "riskLevel": "very low - metadata-only change, no rendered UI/JSX touched, verified with tsc/build/existing validators"
+    },
+    "stack": { "status": "SUPPORTED" },
+    "contact": { "status": "SUPPORTED" },
+    "catchall": { "status": "NOT APPLICABLE", "note": "404 handler, no content to translate-pair" }
+  },
+  "summaryVerdict": "hreflang is broadly SUPPORTED and implemented through one well-factored shared helper - the only real defect found (blog-article's fake TR alternate) is fixed this round. The two remaining language-quality items (AB test body Turkish-under-English-shell, journey-library's documented English-only design) are content-authoring/product decisions, not hreflang plumbing defects, and are reported rather than fixed per this round's scope."
+}

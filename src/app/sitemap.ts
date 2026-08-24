@@ -3,6 +3,7 @@ import { JOURNEY_ROWS } from "@/lib/canonical-view";
 import { getAllBlogPosts } from "@/lib/blog";
 import { SITE_URL } from "@/lib/seo";
 import { ALL_TOOL_SLUGS } from "@/lib/calc-catalog";
+import { ALL_AB_TEST_SLUGS } from "@/lib/ab-test-view";
 
 // Ported from the cv site's sitemap.ts. "/content" (Insights, the LinkedIn
 // post archive) is deliberately not in this list - it was decided the new
@@ -15,7 +16,12 @@ const routes = [
   // never in the sitemap despite being indexable, real, EN+TR content.
   "/calculators",
   ...ALL_TOOL_SLUGS.map((slug) => `/calculators/${slug}`),
-  // Every canonical journey is its own page now. The 4 retired ids that
+  // The A/B Test Library index, plus all 211 scenario detail pages - same
+  // gap as the calculators one above: real, live, indexable, metadata-
+  // complete pages (AbTestRoutes.tsx) that were never in this list at all.
+  "/lab/ab-testing/library",
+  ...ALL_AB_TEST_SLUGS.map((slug) => `/lab/ab-testing/library/${slug}`),
+  // Every canonical journey is its own page now. The 5 retired ids that
   // resolve into a survivor are deliberately absent: they are noindex, and a
   // sitemap entry would ask for exactly the indexing they decline.
   ...JOURNEY_ROWS.map((j) => `/lab/journeys/${j.slug}`),

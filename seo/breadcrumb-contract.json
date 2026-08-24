@@ -1,0 +1,35 @@
+{
+  "_description": "Semantic/data breadcrumb contract, derived from real URL nesting (src/app route tree), not invented. This is NOT a UI design - no visual spec here. The point is a single trail-data function each page family can call once, so the visible breadcrumb component (a future design deliverable) and the BreadcrumbList JSON-LD (see structured-data-contract.json) both read from the same source and can never drift apart.",
+  "designNote": "None of the route families in this site currently render a real structured breadcrumb component - what exists today (calculator-detail, ab-test-library-detail, journey-library-detail) is a single 'back' link (an ArrowLeft + one label pointing at the immediate parent index), not a multi-level trail. This contract defines the FULL trail each page could show; a future design pass decides how much of it to render visually (the existing back-link pattern may be kept for 1-level-back UI while the JSON-LD carries the full trail - that's a legitimate design choice this file doesn't preempt).",
+  "families": {
+    "home": { "trail": [], "note": "root - no breadcrumb" },
+    "about": { "trail": [{ "name": "Home", "path": "/" }, { "name": "About", "path": "/about" }] },
+    "lab-index": { "trail": [{ "name": "Home", "path": "/" }, { "name": "Lab", "path": "/lab" }] },
+    "lab-product": {
+      "trail": "[{ Home, / }, { Lab, /lab }, { <project name>, <its own path> }]",
+      "instances": [
+        { "project": "A/B Test Playbook", "trail": [{ "name": "Home", "path": "/" }, { "name": "Lab", "path": "/lab" }, { "name": "A/B Test Playbook", "path": "/lab/ab-testing" }] },
+        { "project": "Marketing Dashboard Builder", "trail": [{ "name": "Home", "path": "/" }, { "name": "Lab", "path": "/lab" }, { "name": "Marketing Dashboard Builder", "path": "/lab/dashboard-builder" }] }
+      ]
+    },
+    "ab-test-library-index": {
+      "trail": [{ "name": "Home", "path": "/" }, { "name": "Lab", "path": "/lab" }, { "name": "A/B Test Playbook", "path": "/lab/ab-testing" }, { "name": "A/B Test Library", "path": "/lab/ab-testing/library" }],
+      "note": "Nested under the product page in the trail, matching the real URL nesting (/lab/ab-testing/library)"
+    },
+    "ab-test-library-detail": {
+      "trail": "[{ Home, / }, { Lab, /lab }, { A/B Test Playbook, /lab/ab-testing }, { A/B Test Library, /lab/ab-testing/library }, { <record's own label>, /lab/ab-testing/library/{slug} }]",
+      "labelSource": "the record's seoTitle (English, short) is a better breadcrumb-crumb label than the raw Turkish question (r.question) - unlike H1, a breadcrumb crumb should stay short and match the page's own <title> register, so this is the one place seoTitle should be reused as the leaf label even though H1 uses r.question."
+    },
+    "journey-library-index": { "trail": [{ "name": "Home", "path": "/" }, { "name": "Lab", "path": "/lab" }, { "name": "Canonical Journey Library", "path": "/lab/journeys" }], "note": "No separate product/marketing page exists for journeys the way ab-testing has one - the library IS the entry point, so it nests directly under Lab, not under an intermediate product page." },
+    "journey-library-detail": { "trail": "[{ Home, / }, { Lab, /lab }, { Canonical Journey Library, /lab/journeys }, { <journey.name>, /lab/journeys/{slug} }]", "labelSource": "journey.name (already short and unique, works as both H1 and breadcrumb leaf)" },
+    "journey-merged": { "trail": "same shape as journey-library-detail, but the leaf points at the SURVIVOR's own slug/name (matching this family's canonical rule) - not the retired id", "note": "Low priority since this page is noindex; included for completeness/consistency only." },
+    "calculator-index": { "trail": [{ "name": "Home", "path": "/" }, { "name": "Calculators", "path": "/calculators" }] },
+    "calculator-detail": { "trail": "[{ Home, / }, { Calculators, /calculators }, { <spec.name>, /calculators/{slug} }]", "labelSource": "spec.name (the catalog's own short tool name, same string already used for the H1 fallback and the index/related-card labels per CalculatorRoutes.tsx's own documented convention) - NOT content.seo.heroTitle or content.seo.seoTitle, to stay consistent with the one existing convention this codebase already has for 'every non-H1 reference to a calculator uses spec.name'." },
+    "utility": { "trail": "[{ Home, / }, { Calculators, /calculators }, { <tool title>, /calculators/{slug} }]", "note": "Same trail shape as calculator-detail, even though utility tools aren't calculators - they share the route family and the index page they're listed on." },
+    "blog-index": { "trail": [{ "name": "Home", "path": "/" }, { "name": "Blog", "path": "/blog" }] },
+    "blog-article": { "trail": "[{ Home, / }, { Blog, /blog }, { <post.title>, /blog/{slug} }]" },
+    "stack": { "trail": [{ "name": "Home", "path": "/" }, { "name": "Stack", "path": "/stack" }] },
+    "contact": { "trail": [{ "name": "Home", "path": "/" }, { "name": "Contact", "path": "/contact" }] }
+  },
+  "breadcrumbListStructuredDataMapping": "Each trail entry above maps 1:1 to a schema.org BreadcrumbList itemListElement: { '@type': 'ListItem', position: <1-indexed>, name: <trail entry's name>, item: `${SITE_URL}${trail entry's path (or the TR-prefixed path on the TR route)}` }. This is a pure data transform of the same trail array - no separate authoring needed once the trail-producing function exists."
+}

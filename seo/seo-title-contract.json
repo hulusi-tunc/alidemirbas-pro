@@ -1,0 +1,68 @@
+{
+  "_description": "Per-page-family <title> contract, derived from what's ACTUALLY implemented and tested against real data - not the illustrative templates in the task brief, which do not match any of the three real title formats already in production. All three real formats are kept as-is (each is deliberate, tested, and free of duplicates on its own dataset); this file documents them as the contract going forward rather than replacing them with one forced template.",
+  "globalNote": "Brand suffix is NOT applied uniformly on purpose. Static pages and calculators append ' - Ali Demirbaş' (10-45 low-volume pages, brand repetition in SERPs is fine at that scale). The 211-page A/B test library and 255-page journey library deliberately do NOT append the person's name - see rejectedNaiveTemplate below for why forcing it there would be a real defect, not an improvement.",
+  "families": {
+    "home": { "purpose": "Site identity", "primaryKeywordSource": "n/a - brand/identity page", "entitySource": "n/a", "suffixPrefix": "none (already the brand)", "maxLength": 60, "fallback": "n/a - single static instance", "duplicatePreventionRule": "n/a - 1 instance", "currentValue": "\"Ali Demirbaş - Growth Marketer\" (EN) / same text TR - set on the layout, verified in src/app/(en)/layout.tsx and src/app/tr/layout.tsx", "verdict": "KEEP - concise, accurate, no change needed" },
+    "about": { "purpose": "Bio/credibility page", "primaryKeywordSource": "n/a", "entitySource": "copy.{lang}.about.metaTitle", "suffixPrefix": "brand already in the source string", "maxLength": 60, "fallback": "n/a - 1 instance", "duplicatePreventionRule": "n/a", "currentValue": "\"About - Ali Demirbaş\" / \"Hakkımda - Ali Demirbaş\"", "verdict": "KEEP" },
+    "lab-index": { "purpose": "Portfolio/index of open-source projects", "primaryKeywordSource": "n/a", "entitySource": "hardcoded string in page.tsx", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a - 1 instance", "duplicatePreventionRule": "n/a", "currentValue": "\"Lab - Ali Demirbaş\"", "verdict": "KEEP" },
+    "lab-product": { "purpose": "Marketing/landing page for one open-source Claude Code plugin or tool", "primaryKeywordSource": "the plugin's own name (copy.abTesting.metaTitle / getDashboardBuilderContent().title)", "entitySource": "same", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a - 2 instances, both authored", "duplicatePreventionRule": "n/a at this count (2 instances, verified distinct)", "currentValue": "\"A/B Test Playbook - Ali Demirbaş\"; dashboard-builder equivalent", "verdict": "KEEP" },
+    "ab-test-library-index": { "purpose": "Catalog/browse page for the 211-scenario library", "primaryKeywordSource": "hardcoded T[lang].title in AbTestRoutes.tsx", "entitySource": "same", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a - 1 instance", "duplicatePreventionRule": "n/a", "currentValue": "\"A/B Test Library - Ali Demirbaş\" (verify exact string against T[lang].title at implementation time - not independently re-quoted here since it wasn't cited verbatim by the audit agent)", "verdict": "KEEP" },
+    "ab-test-library-detail": {
+      "purpose": "One A/B test scenario's own page - the search-facing rewrite of a Turkish internal question/hypothesis pair",
+      "primaryKeywordSource": "src/data/ab-tests.json record's own `seoTitle` field (211/211 populated, English, editorially authored)",
+      "entitySource": "the record's `question` (English seoTitle is a rewrite of the Turkish question's intent, not a translation - e.g. AB-001 question 'CTA buton rengi dönüşümü etkiler mi?' -> seoTitle 'CTA Button Color A/B Test Example on the Cart Page')",
+      "suffixPrefix": "NONE - deliberately no brand suffix",
+      "maxLengthTarget": 60,
+      "fallback": "r.question (Turkish) if seoTitle is ever null - never happens today (0/211), but the live code (AbTestRoutes.tsx) already has this fallback so a future new record without a seoTitle degrades gracefully instead of rendering undefined",
+      "duplicatePreventionRule": "already validated: 0 exact duplicates, 1 near-duplicate pair at similarity>=0.8 (verified via production/validate-seo-metadata.mjs check 17, which passed - the one near pair is flagged needsSeoReview)",
+      "verdict": "KEEP - already production-quality and independently validated by a 23-check validator (production/validate-seo-metadata.mjs). This round's contribution is confirming it, not rewriting it.",
+      "knownGap": "H1 (r.question) is Turkish; seoTitle is English - see seo/hreflang-and-language-status.json. This is a title/H1 relationship issue, not a title-contract defect on its own."
+    },
+    "lab-product-note": "no separate entry needed for dashboard-builder vs ab-testing - both fall under lab-product above, verified distinct.",
+    "journey-library-index": { "purpose": "Catalog/browse page for the 255-journey canonical library", "primaryKeywordSource": "hardcoded string in page.tsx", "entitySource": "same", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a - 1 instance", "duplicatePreventionRule": "n/a", "currentValue": "\"Canonical Journey Library - Ali Demirbaş\"", "verdict": "KEEP" },
+    "journey-library-detail": {
+      "purpose": "One canonical journey's own page",
+      "primaryKeywordSource": "journey.name (unique across all 255, 0 duplicates, length 35-87 chars median 62, per production/journey-seo-contract.json's own audit)",
+      "entitySource": "journey.id (a short code like ACQ-01, prefixed onto the title) + journey.name",
+      "suffixPrefix": "\" - Canonical Journey Library\" / \" - Canonical Journey Kütüphanesi\" (a sub-brand suffix, not the person's own name)",
+      "maxLengthTarget": 60,
+      "fallback": "n/a - journey.name exists and is complete on all 255 records (production/journey-seo-contract.json titleSource.status: COMPLETE)",
+      "duplicatePreventionRule": "journey.name is already unique across all 255 (0 duplicates, verified in the pre-existing audit contract); the ID prefix adds a second layer of uniqueness even in the hypothetical case two names collided",
+      "currentLiveConstruction": "`${detail.id} ${detail.name} - ${suffix}` (JourneyRoutes.tsx:38), e.g. for ACC-71: \"ACC-71 Entitlement Qualification - Canonical Journey Library\"",
+      "differsFromAuditedArtifact": "production/journey-seo-metadata.json independently authored its own seoTitle per record WITHOUT the ID prefix (e.g. \"Entitlement Qualification Lifecycle Journey Example\" for the same ACC-71) - a genuinely different, also-valid construction that is NOT what's live. Not reconciled this round (would mean editing JourneyRoutes.tsx, out of scope) - flagged as a decision the content owner should make: keep the ID-prefixed live version (more scannable in a 255-page corpus, doubles as a de-facto uniqueness guarantee) or switch to the shorter authored version (reads more like a normal search result, matches the illustrative template style in the original task brief more closely). Recommendation: keep the ID-prefixed live version - it's already working, already unique, and the ID prefix is a genuine navigational aid across a 255-page library that a shorter title would lose.",
+      "verdict": "KEEP the live construction as this round's stated contract"
+    },
+    "journey-merged": { "purpose": "Soft-redirect page for a retired journey id", "primaryKeywordSource": "n/a - noindex, not meant to rank", "entitySource": "n/a", "suffixPrefix": "n/a", "maxLength": null, "fallback": "n/a", "duplicatePreventionRule": "n/a - noindex", "currentValue": "\"${merged.from} → ${detail.id} - ${suffix}\", e.g. \"CON-37 → CMS-208 - Canonical Journey Library\"", "verdict": "KEEP - not a ranking page, title just needs to be honest to a human landing there from an old link" },
+    "calculator-index": { "purpose": "Catalog/browse page for the 43 live calculators", "primaryKeywordSource": "hardcoded T[lang].title", "entitySource": "same", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a - 1 instance", "duplicatePreventionRule": "n/a", "currentValue": "\"Marketing Calculators - Ali Demirbaş\"", "verdict": "KEEP" },
+    "calculator-detail": {
+      "purpose": "One calculator's own tool+content page",
+      "primaryKeywordSource": "content.seo.seoTitle (Phase-4 editorial content, all 43 live calculators have this)",
+      "entitySource": "the calculator's own metric name",
+      "suffixPrefix": "\" - Ali Demirbaş\"",
+      "maxLengthTarget": 60,
+      "fallback": "spec.name if no Phase-4 content exists (does not currently apply - all 43 have content)",
+      "duplicatePreventionRule": "already audited across 5+ prior batches this session (cannibalization comparison-notes for every flagged pair: CPA/CPL, CPA/CPM, CTOR/CTR, CTOR/Open-Rate, Delivery/Bounce, Unsubscribe/Complaint, Activation/Conversion, Engagement/DAU-MAU, Profit-Margin/ROI, RPR/RPV; see production/calculators/calculator-content-similarity-report.json)",
+      "verdict": "KEEP AS-IS - explicitly out of scope for rewrite per this round's own instruction (\"Calculator corpus'taki mevcut metadata'yı bozma\")"
+    },
+    "utility": { "purpose": "Free-standing text tool (UTM builder, character counter), not a calculator", "primaryKeywordSource": "TEXT_TOOLS[].title[lang]", "entitySource": "same", "suffixPrefix": "\" - Ali Demirbaş\" (shares calculatorDetailMetadata)", "maxLength": 60, "fallback": "n/a", "duplicatePreventionRule": "n/a - 2 instances, distinct", "verdict": "KEEP" },
+    "blog-index": { "purpose": "Article listing", "primaryKeywordSource": "hardcoded string", "entitySource": "same", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a", "duplicatePreventionRule": "n/a", "currentValue": "\"Blog - Ali Demirbaş\"", "verdict": "KEEP" },
+    "blog-article": { "purpose": "One long-form article", "primaryKeywordSource": "post.title (src/lib/blog-posts.ts, 5 real posts)", "entitySource": "same", "suffixPrefix": "\" - Ali Demirbaş\"", "maxLength": 60, "fallback": "n/a - all 5 posts have a title", "duplicatePreventionRule": "5 posts, manually verified distinct titles", "verdict": "KEEP" },
+    "stack": { "purpose": "Tools-used page", "primaryKeywordSource": "copy.{lang}.stack.metaTitle", "entitySource": "same", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a", "duplicatePreventionRule": "n/a", "verdict": "KEEP" },
+    "contact": { "purpose": "Contact page", "primaryKeywordSource": "copy.{lang}.contact.metaTitle", "entitySource": "same", "suffixPrefix": "brand suffix", "maxLength": 60, "fallback": "n/a", "duplicatePreventionRule": "n/a", "verdict": "KEEP" }
+  },
+  "rejectedNaiveTemplates": {
+    "note": "The task brief's own suggested templates were tested against real data and rejected - kept here as a record of why, per the brief's own instruction to not accept them blindly.",
+    "calculator": {
+      "brief": "{Metric Name} Calculator: {Intent/Formula} | Ali Demirbaş",
+      "reality": "content.seo.seoTitle is a fully custom editorial string (e.g. \"Email Delivery Rate Calculator\", \"Revenue per Recipient Calculator\"), joined with \" - Ali Demirbaş\" (hyphen, not pipe). Forcing a colon+formula-fragment into every one of 43 titles would either truncate awkwardly or force artificial phrasing onto calculators whose formula doesn't compress into a title fragment cleanly (e.g. multi-step funnel analysis, confidence interval)."
+    },
+    "abTest": {
+      "brief": "{Test Question / Topic}: A/B Test Example | Ali Demirbaş",
+      "reality": "Real seoTitle values read as normal English phrases, not question-colon constructions (\"CTA Button Color A/B Test Example on the Cart Page\", not \"Does CTA button color affect conversion?: A/B Test Example\"), and never carry a brand suffix at all - see families.ab-test-library-detail above for why that's deliberate at this page count."
+    },
+    "journey": {
+      "brief": "{Journey Name}: Lifecycle Marketing Journey | Ali Demirbaş",
+      "reality": "Real live titles are \"{ID} {Name} - Canonical Journey Library\" (en dash, not colon; ID-prefixed; library-branded, not person-branded, and not literally \"Lifecycle Marketing Journey\"). The task brief's exact phrase never appears anywhere in the real data or the real rendering code."
+    }
+  }
+}

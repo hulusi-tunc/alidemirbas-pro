@@ -1,0 +1,29 @@
+{
+  "_description": "Audit of src/app/sitemap.ts against the real route inventory (seo/site-route-inventory.json), plus the contract going forward.",
+  "audit": {
+    "onlyCanonicalIndexableUrlsEnter": "YES for everything already in the routes[] array - no alias, query-param, or duplicate URL was found entering the sitemap.",
+    "aliasesExcluded": "YES - the calculator catalog's 34 non-live candidate slugs never enter ALL_TOOL_SLUGS (the sitemap's own source), so they can't leak in.",
+    "mergedJourneyIdsExcluded": "YES, correctly - JOURNEY_ROWS (the sitemap's source) is JOURNEYS.map(...), which never includes the 5 MERGED_INTO entries. Verified: the 5 merged/noindex journey pages have zero sitemap entries.",
+    "noindexUrlsLeaking": "NO leaks found in what's currently listed - the one family that IS noindex (journey-merged) is correctly absent.",
+    "allCalculatorsPresent": "YES - /calculators + all 43 live calculator slugs + 2 utility tool slugs, via ALL_TOOL_SLUGS (verified in every prior calculator batch this session, re-confirmed this round).",
+    "abTestDetailsPresent": "NO - CONFIRMED BUG, fixed this round. /lab/ab-testing/library and all 211 /lab/ab-testing/library/{slug} pages were entirely absent from routes[] before this fix, despite being real, live, indexable, metadata-complete pages (confirmed by two independent audit passes this round).",
+    "journeyDetailsPresent": "YES - all 255 live journeys via JOURNEY_ROWS.map(...).",
+    "blogArticlesPresent": "YES - all 5 EN-only articles via getAllBlogPosts('en').map(...), correctly emitting only the EN URL with no alternates block (blog has no TR counterpart).",
+    "labProductPagesPresent": "YES - /lab/ab-testing and /lab/dashboard-builder are both static entries in routes[]."
+  },
+  "fixAppliedThisRound": {
+    "file": "src/app/sitemap.ts",
+    "change": "Added \"/lab/ab-testing/library\" as a static entry, and ...ALL_AB_TEST_SLUGS.map((slug) => `/lab/ab-testing/library/${slug}`) as a spread entry, mirroring the exact existing pattern already used for ALL_TOOL_SLUGS (calculators) and JOURNEY_ROWS (journeys) two lines above/below it in the same file.",
+    "riskLevel": "very low - additive only, same tested pattern reused verbatim, no existing entry touched, verified with tsc/build.",
+    "notPushed": "Committed locally per this round's explicit no-deploy instruction; not pushed to origin."
+  },
+  "familySegmentation": {
+    "recommendation": "NOT NEEDED",
+    "reasoning": "Total entries after the fix: roughly (9 static top-level + 1 calculator-index + 45 calculator/utility + 1 ab-test-library-index + 211 ab-test-library-detail + 255 journey-library-detail) x2 languages, plus 5 EN-only blog articles = comfortably under 5,000 URLs (Google's per-sitemap soft limit is 50,000 URLs / 50MB uncompressed). A single sitemap.xml stays well within limits - splitting into a sitemap index + per-family sitemaps would be pure complexity with no present benefit. Revisit only if the A/B test or journey libraries grow by roughly an order of magnitude."
+  },
+  "perEntryMetadataAudit": {
+    "lastModified": "hardcoded to build time (`now = new Date()`) for every single entry today - this makes lastmod meaningless as a freshness signal (every entry looks equally 'just changed' on every deploy, regardless of whether that page's content actually changed). Not fixed this round (would need per-record last-touched dates, which none of the current data sources track) - flagged as a real, low-urgency improvement: Google treats an inaccurate/always-current lastmod as a weak signal it may start ignoring, so this isn't harmful today, just not useful.",
+    "changeFrequency": "hardcoded 'monthly' everywhere - reasonably honest given how infrequently any of these pages actually change; no fix needed.",
+    "priority": "home=1, journey details=0.4, everything else=0.7 - a coarse but defensible hierarchy (home > general pages > the largest, most granular detail-page family). Google has stated it mostly ignores sitemap priority as a ranking signal, so this is low-stakes; no change recommended."
+  }
+}

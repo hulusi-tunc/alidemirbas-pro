@@ -1,0 +1,22 @@
+{
+  "_description": "Audit of src/app/robots.ts (verbatim, 17 lines) against production vs preview behavior and against what's actually indexable.",
+  "currentImplementation": {
+    "rules": [
+      { "userAgent": "*", "allow": "/" },
+      { "userAgent": ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "PerplexityBot"], "allow": "/", "note": "explicitly redundant with the wildcard rule today - the file's own comment states this is intentional, so a future tightening of the wildcard rule can't silently cut off AI-crawler visibility without a second, explicit decision" }
+    ],
+    "sitemap": "${SITE_URL}/sitemap.xml - built from the same SITE_URL constant everywhere else, no hardcoded domain drift"
+  },
+  "productionVsPreviewBehavior": {
+    "finding": "robots.ts is a single, static, environment-agnostic file - it does not read NODE_ENV, VERCEL_ENV, or any other environment signal, and always emits the same allow-everything ruleset regardless of where it's deployed.",
+    "risk": "if this app is ever deployed to a Vercel PREVIEW URL (a *.vercel.app deployment, e.g. for a PR), that preview deployment's own /robots.txt would ALSO say 'allow: /' for a domain that isn't the real site - meaning a crawler that discovers a preview URL (via a stray external link, a shared PR comment, etc.) is technically permitted to index it. This is a real, generic risk common to any Next.js app without environment-aware robots handling - not something specific to a bug introduced this round, and not urgent (Vercel preview URLs are unguessable/unlinked by default, and this repo's own SITE_URL/canonical strategy already means a preview deployment's pages would all self-canonicalize to the PRODUCTION domain per pageAlternates() - so even if a preview page got crawled, Google would see its own canonical tag pointing away from itself, at the real page). Documented as a defense-in-depth recommendation, not a blocker: gate robots.ts's ruleset on `process.env.VERCEL_ENV === 'production'` (Vercel's own env var, no new config needed) so preview deployments emit `disallow: '/'` instead.",
+    "notFixedThisRound": "This is a genuine code change to robots.ts with a real (if secondary) safety benefit and near-zero risk to production behavior, but it wasn't verified against this specific Vercel project's env-var configuration this round, so it's reported rather than applied speculatively."
+  },
+  "accidentalBlockCheck": {
+    "finding": "NONE - the current ruleset allows everything, so by construction it cannot be accidentally blocking any valuable route. The opposite risk (over-permissive, not over-restrictive) is the only one that exists today, covered above."
+  },
+  "robotsTxtVsMetaRobotsDistinction": {
+    "confirmed": "This codebase does NOT conflate the two. robots.ts (this file, robots.txt) sets crawl PERMISSION only, uniformly allow-everything, with zero path-level disallow rules. The one real noindex requirement in the whole site (the 5 journey-merged pages) is correctly implemented as a per-page `robots: { index: false, follow: true }` Metadata field (a <meta name=\"robots\"> tag / X-Robots-Tag), NOT as a robots.txt disallow rule - which is the technically correct choice, since a robots.txt disallow would prevent Google from crawling the page at all (so it could never see and honor the self-canonicalizing link to the survivor), whereas a noindex meta tag lets Google crawl, see the canonical, and correctly fold the page's signals into the survivor without ever showing the merged page itself in results."
+  },
+  "verdict": "robots.ts is correctly implemented for what it does today (universal allow + correct sitemap pointer + no meta/robots.txt conflation). One real, low-urgency hardening recommendation (environment-gated ruleset for preview deployments) is documented, not applied."
+}

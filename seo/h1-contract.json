@@ -1,0 +1,37 @@
+{
+  "_description": "H1 is NOT treated as the same string as <title> anywhere that matters in this codebase - confirmed by direct code reading, not assumed. This file states the H1 source and its relationship to <title> per family, and verifies uniqueness on the two large programmatic corpora.",
+  "families": {
+    "home": { "h1Source": "Site.tsx hero heading (copy.{lang}.hero.line1/line2)", "titleH1Relationship": "unrelated strings - <title> is an identity statement, H1 is a value-prop tagline", "fallback": "n/a" },
+    "about": { "h1Source": "copy.{lang}.about.title (\"Professional Profile\" / \"Profesyonel Profil\")", "titleH1Relationship": "different strings - title says 'About - Ali Demirbaş', H1 says 'Professional Profile'", "fallback": "n/a" },
+    "lab-index": { "h1Source": "copy.{lang}.lab.title (\"Things I've been building\")", "titleH1Relationship": "different - title 'Lab - Ali Demirbaş', H1 is a natural sentence", "fallback": "n/a" },
+    "lab-product": { "h1Source": "copy.abTesting.title (a natural-language pitch, e.g. \"An A/B test engine that won't let you skip the guardrail.\"); dashboard-builder equivalent from its own content object", "titleH1Relationship": "different - title is SERP-optimized ('A/B Test Playbook - Ali Demirbaş'), H1 is the marketing hook", "fallback": "n/a" },
+    "ab-test-library-index": { "h1Source": "hardcoded H1 in AbTestRoutes.tsx (e.g. 'A/B Test Library' / TR equivalent)", "titleH1Relationship": "similar/overlapping (both name the library) but not identical strings", "fallback": "n/a" },
+    "ab-test-library-detail": {
+      "h1Source": "r.question - the record's ORIGINAL TURKISH QUESTION (e.g. \"CTA buton rengi dönüşümü etkiler mi?\"), rendered identically on both the EN and TR routes",
+      "titleH1Relationship": "DIVERGENT, not just 'different phrasing' - <title> is r.seoTitle, an English rewrite of the same idea (\"CTA Button Color A/B Test Example on the Cart Page\"); H1 is the raw Turkish source question. This is a real, corpus-wide (211 pages) language mismatch between the SERP-facing title and the on-page heading, confirmed by direct code read (AbTestRoutes.tsx). See seo/hreflang-and-language-status.json for the full analysis and why this round does not fix it (would require authoring 211 English question translations - real content work, not a contract/plumbing fix, and explicitly out of this round's 'don't write hundreds of final texts' scope).",
+      "uniquenessVerified": "211/211 unique `question` values used as H1 (same uniqueness guarantee as slug, since both derive from the same source record)",
+      "fallback": "n/a - question is required on every record"
+    },
+    "journey-library-index": { "h1Source": "hardcoded H1 in page component (\"Canonical Journey Library\")", "titleH1Relationship": "same core phrase, title adds the brand/library suffix redundantly - acceptable at 1 instance", "fallback": "n/a" },
+    "journey-library-detail": {
+      "h1Source": "journey.name (e.g. \"Anonymous intent → known identity → qualified entry\")",
+      "titleH1Relationship": "related but not identical - <title> is \"{id} {name} - Canonical Journey Library\" (adds the ID prefix and suffix), H1 is just {name}. This is a normal, healthy title/H1 split (title adds SERP context, H1 stays clean for the reader) - not a defect.",
+      "uniquenessVerified": "255/255 unique journey.name values (0 duplicates, per production/journey-seo-contract.json's own audit, independently corroborated by this round's own duplicate check - see seo/duplication-cannibalization-audit.json)",
+      "fallback": "n/a - name exists on every canonical journey record by schema"
+    },
+    "journey-merged": { "h1Source": "the SURVIVOR journey's own journey.name, with the merge banner rendered above it as separate prose, not part of the H1", "titleH1Relationship": "title names both the retired id and the survivor id; H1 is just the survivor's name", "fallback": "n/a" },
+    "calculator-index": { "h1Source": "hardcoded T[lang].title (\"Marketing Calculators\")", "titleH1Relationship": "same core phrase as title minus the brand suffix", "fallback": "n/a" },
+    "calculator-detail": {
+      "h1Source": "content?.heroTitle ?? spec.name - the Phase-4 content's OPTIONAL heroTitle override, falling back to the catalog's own short tool name (CalculatorRoutes.tsx:146, documented inline: 'heroTitle is an optional Phase 4 override for the H1 only ... everything else on the site (breadcrumbs, index listing, related-card labels) keeps using spec.name')",
+      "titleH1Relationship": "DELIBERATELY DECOUPLED from <title> (which uses content.seo.seoTitle) - the two are allowed to differ, and do differ on at least one live calculator (funnel-analysis-multistep: <title> 'Multi-Step Funnel Analysis Calculator', H1 also 'Multi-Step Funnel Analysis Calculator' via its own heroTitle override - a case where they were deliberately made to match because the catalog's default short name ('Funnel Analysis') would have undersold what the page covers). Most of the other 42 calculators have no heroTitle override, so H1 = spec.name (the catalog's short name) while <title> = content.seo.seoTitle (the longer, SERP-tuned name) - e.g. Delivery Rate: H1 'Delivery Rate Calculator' (spec.name) vs <title> 'Email Delivery Rate Calculator' (seoTitle). This split is intentional and pre-existing, confirmed working correctly across every batch this session.",
+      "uniquenessVerified": "43/43 unique (audited every batch this session via cross-page checks)",
+      "fallback": "spec.name always exists; textTool.title[lang] for the 2 utility tools"
+    },
+    "utility": { "h1Source": "TEXT_TOOLS[].title[lang]", "titleH1Relationship": "same string used for both H1 and <title> base (before the brand suffix)", "fallback": "n/a" },
+    "blog-index": { "h1Source": "hardcoded H1 in BlogPage.tsx", "titleH1Relationship": "similar to title minus brand suffix", "fallback": "n/a" },
+    "blog-article": { "h1Source": "post.title", "titleH1Relationship": "same string used for both H1 and <title> base (before the brand suffix) - <title> = `${post.title} - Ali Demirbaş`", "uniquenessVerified": "5/5 unique", "fallback": "n/a" },
+    "stack": { "h1Source": "copy.{lang}.stack.title", "titleH1Relationship": "same string minus brand suffix", "fallback": "n/a" },
+    "contact": { "h1Source": "copy.{lang}.contact.title (a full sentence, \"Let's collaborate on something great.\")", "titleH1Relationship": "different - title is 'Contact - Ali Demirbaş', H1 is a natural invitation sentence", "fallback": "n/a" }
+  },
+  "designNote": "H1 uniqueness on the two large programmatic families (211 A/B tests, 255 journeys) is guaranteed by the same field that guarantees slug uniqueness - there is no separate H1-specific dedup risk beyond what's already covered by slug uniqueness checks. This holds as long as no future authoring step generates an H1 independently of the record's own question/name field."
+}

@@ -141,7 +141,12 @@ check(10, "primary/secondary intent present and from the right set", badIntent =
 /* ---------------------------------------------------- 11 canonical path */
 let badPath = 0;
 for (const r of all) {
-  const expectedPrefix = r.library === "ab" ? "/lab/ab-testing/" : "/lab/journeys/";
+  // The live route for an A/B test detail page is /lab/ab-testing/library/{slug}
+  // (AbTestRoutes.tsx:31 - pageAlternates(`/lab/ab-testing/library/${slug}`, lang)),
+  // not /lab/ab-testing/{slug}. This prefix used to omit the /library/ segment,
+  // which meant this check was failing all 211 A/B records against the wrong
+  // expectation - the data's own canonicalPath field was already correct.
+  const expectedPrefix = r.library === "ab" ? "/lab/ab-testing/library/" : "/lab/journeys/";
   const expected = `${expectedPrefix}${r.slug}`;
   if (r.canonicalPath !== expected) { add("error", "invalid_canonical_path", r.id, `canonicalPath is "${r.canonicalPath}", expected "${expected}"`); badPath++; }
   if (/^https?:\/\//i.test(r.canonicalPath)) { add("error", "canonical_has_origin", r.id, "canonicalPath must be a path, not an absolute URL"); badPath++; }

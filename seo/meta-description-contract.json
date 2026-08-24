@@ -1,0 +1,49 @@
+{
+  "_description": "Per-page-family meta description contract. Same discipline as the title contract: document what's real, flag what's a genuine content gap (NEEDS-COPY), don't invent copy to fill it.",
+  "globalRules": {
+    "targetLength": "140-155 chars (established convention from the calculator content batches this session); tolerated 120-165",
+    "noKeywordStuffing": "every family below sources its description from a real sentence/field describing the actual page, never a keyword list",
+    "noFabricatedStats": "descriptions must only state numbers/claims the page itself substantiates (e.g. '211 scenarios' is fine because the library really has 211; a claim like 'proven to increase conversion' would not be, and none currently exist - production/validate-seo-metadata.mjs's checks 14-15 actively assert this for the AB/journey corpus)",
+    "noSameSentenceRepeatedAcrossFamily": "checked programmatically for the two large corpora (AB: 0 exact duplicate descriptions among 211; journey: 0 exact duplicate descriptions among 255, both via production/validate-seo-metadata.mjs check 7)"
+  },
+  "families": {
+    "home": { "descriptionSource": "hardcoded, editorial", "templateStrategy": "n/a - 1 instance", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "currentValue": "\"Data-driven growth for mobile products. Mobile App Growth Lead at Aksigorta; previously Vodafone, Getir and Wingie Enuygun Group.\" (127 chars, slightly under target - acceptable, it's an identity statement not a search-optimization target)", "verdict": "KEEP" },
+    "about": { "descriptionSource": "copy.{lang}.about.metaDesc", "templateStrategy": "editorial", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a - 1 instance", "verdict": "KEEP" },
+    "lab-index": { "descriptionSource": "hardcoded", "templateStrategy": "editorial", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" },
+    "lab-product": { "descriptionSource": "copy.abTesting.metaDesc / getDashboardBuilderContent().sub", "templateStrategy": "editorial, one sentence stating what the plugin/tool does", "targetLength": "140-155", "fallback": "n/a - 2 instances, both authored", "uniquenessRule": "n/a at this count", "verdict": "KEEP" },
+    "ab-test-library-index": { "descriptionSource": "hardcoded T[lang].intro", "templateStrategy": "editorial, states the count (211) and what a row shows", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" },
+    "ab-test-library-detail": {
+      "descriptionSource": "src/data/ab-tests.json record's own `seoDescription` field (211/211 populated, English, editorially authored - e.g. AB-001: \"An experiment idea that varies only the cart CTA button color against the surrounding palette. See the setup, the tested element and the click-rate metric.\")",
+      "templateStrategy": "already fully authored per-record, not template-generated - each description names the specific element under test and the metric used, sourced from the record's own hypothesis/whatToTest/primaryKpi fields (per production/ab-test-seo-metadata.json's `sourceBasis` field, which is populated on every record)",
+      "targetLength": "already validated against 120-165 tolerance (production/validate-seo-metadata.mjs check 9)",
+      "fallback": "r.hypothesis.slice(0,155) if seoDescription is ever null - never happens today (0/211)",
+      "uniquenessRule": "0 exact duplicates (check 7), near-duplicate threshold 0.75 Jaccard on stemmed tokens (check 18) - passed, 0 unflagged near pairs",
+      "verdict": "KEEP - production-quality, independently validated"
+    },
+    "journey-library-index": { "descriptionSource": "hardcoded string in page.tsx", "templateStrategy": "editorial, states count (255) and categories (26)", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" },
+    "journey-library-detail": {
+      "descriptionSource": "LIVE: journey.purpose (raw field). AUDITED-BUT-NOT-WIRED: production/journey-seo-metadata.json's own `seoDescription` field, independently authored per journey.",
+      "genuineGap": "journey.purpose is internal documentation prose written for people maintaining the 255-journey state-machine library (e.g. 'Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.') - grammatically fine, but written in an internal/technical register, not as a public search snippet. production/journey-seo-contract.json's own pre-existing audit already reached this exact conclusion and marked descriptionSource.status = 'NEEDS-COPY' for all 255 records, independent of this round's work.",
+      "templateStrategy": "NOT a template gap - a per-record authoring gap. production/journey-seo-metadata.json already HAS a properly-authored alternative for every one of the 255 records (e.g. ACC-71: 'See how a journey decides whether a right actually exists, keeping granted, denied and pending apart from being eligible or having paid toward it.' - verified 146 chars, well-formed, plain-language, matches the target range) - this is not missing content that needs writing from scratch, it's ALREADY-WRITTEN content that is not yet imported into JourneyRoutes.tsx's journeyMetadata() function.",
+      "targetLength": "140-155 for the authored alternative (already validated, production/validate-seo-metadata.mjs check 9)",
+      "fallback": "journey.purpose (current live behavior)",
+      "uniquenessRule": "the authored alternative has 0 exact duplicates and passed near-duplicate checks; journey.purpose (current live field) is separately confirmed unique across all 255 by production/journey-seo-contract.json's own descriptionSource.note",
+      "verdict": "NEEDS-COPY status is CORRECT and unchanged by this round for the CONTRACT layer (the authored alternative already exists and is validated) - but WIRING it into the live journeyMetadata() function is explicitly out of scope this round (that function lives in JourneyRoutes.tsx, a component file). This is the single highest-value, lowest-risk follow-up: swap `description: detail.purpose` for a lookup into production/journey-seo-metadata.json (or its data folded into src/canonical the way ab-tests.json already carries its own seoDescription inline). Flagged as a real blocker to closing this specific gap, NOT a blocker to this round's SEO-ARCHITECTURE-READY verdict, since the contract itself is complete and correct."
+    },
+    "journey-merged": { "descriptionSource": "detail.purpose (the survivor's own purpose text)", "templateStrategy": "n/a - noindex page, not meant to rank", "targetLength": "n/a", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" },
+    "calculator-index": { "descriptionSource": "hardcoded T[lang].intro", "templateStrategy": "editorial", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" },
+    "calculator-detail": {
+      "descriptionSource": "content.seo.seoDescription (Phase-4 editorial content, all 43 live calculators)",
+      "templateStrategy": "fully custom per calculator, states the formula/what the tool answers - independently sourced and cited per calculator across the prior batches this session",
+      "targetLength": "140-155, verified per-file in every prior batch (validate-calculator-seo.mjs)",
+      "fallback": "correctedFormulaPlainEnglish(spec) if no Phase-4 content exists (does not currently apply)",
+      "uniquenessRule": "cross-page similarity checked by production/calculators/validate-calculator-content.mjs on every batch",
+      "verdict": "KEEP AS-IS - out of scope for rewrite per this round's instruction"
+    },
+    "utility": { "descriptionSource": "TEXT_TOOLS[].desc[lang]", "templateStrategy": "editorial, one sentence", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a - 2 instances", "verdict": "KEEP" },
+    "blog-index": { "descriptionSource": "hardcoded string", "templateStrategy": "editorial", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" },
+    "blog-article": { "descriptionSource": "post.excerpt (src/lib/blog-posts.ts)", "templateStrategy": "editorial, one-sentence summary authored per article", "targetLength": "140-155 (not independently re-measured this round - out of scope, only 5 articles, pre-existing)", "fallback": "n/a", "uniquenessRule": "5 posts, manually distinct topics", "verdict": "KEEP" },
+    "stack": { "descriptionSource": "copy.{lang}.stack.metaDesc", "templateStrategy": "editorial", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" },
+    "contact": { "descriptionSource": "copy.{lang}.contact.metaDesc", "templateStrategy": "editorial", "targetLength": "140-155", "fallback": "n/a", "uniquenessRule": "n/a", "verdict": "KEEP" }
+  }
+}
