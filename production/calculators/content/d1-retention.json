@@ -1,0 +1,90 @@
+{
+  "calculatorId": "CALC-D1-RETENTION",
+  "slug": "d1-retention",
+  "contentDepth": "standard",
+  "intro": "D-N retention tracks one specific signup or install cohort forward to a chosen day and checks what share came back. Enter the day, how many returned, and the cohort's original size to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How Day-N Retention is calculated",
+      "body": "Day-N Retention = Users returned on Day N ÷ Original cohort size — [the same returned-users-over-original-cohort shape mobile analytics platforms like Tenjin use to define retention rate](https://tenjin.com/glossary/retention-rate-rr/). \"Day N\" names which day is being measured (day 1, day 7, day 14, day 30 are all common choices) but isn't itself part of the arithmetic — the calculation is the same division regardless of which day is selected; only which day's returning users get counted changes."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Day N", "value": "Day 7" },
+        { "label": "Users returned on Day 7", "value": "1,800" },
+        { "label": "Original cohort size", "value": "10,000" }
+      ],
+      "output": { "label": "Day-7 Retention", "value": "18.00%" },
+      "body": "1,800 ÷ 10,000 = 18.00%. This calculator's canonical example measures day 7, not day 1, despite the tool's name — that's intentional: \"Day N\" is a selectable input here, and the calculation and result are always specific to whichever day gets chosen."
+    },
+    {
+      "id": "day-n-nuance",
+      "type": "interpretation",
+      "heading": "Why D1, D7, and D30 aren't comparable to each other",
+      "body": "[Each retention interval measures a different part of the user lifecycle](https://tenjin.com/glossary/retention-rate-rr/): day-1 retention reflects first impressions and onboarding, while day-30 retention reflects whether a lasting habit formed. A cohort can post strong D1 retention and weak D30 retention, or the reverse, without either number being wrong — they're answering different questions about the same users, not two readings of the same thing. Reporting a retention figure without naming which day it measures strips out the one piece of context that makes the number interpretable at all."
+    },
+    {
+      "id": "d1-retention-vs-retention-rate",
+      "type": "comparison-note",
+      "heading": "D-N Retention vs. Retention Rate",
+      "body": "These sound alike but measure different populations. [Retention Rate](/calculators/retention-rate) looks at a business's entire customer base over a calendar period — customers at period end, minus anyone newly acquired during it, over customers at period start — with no tie to when any individual customer signed up. D-N Retention instead follows one specific cohort, everyone who joined on the same day, and checks what share came back exactly N days later. Retention Rate answers \"did we hold onto the customers we already had this period\"; D-N Retention answers \"did the people who joined together on day zero come back by a specific day\" — a cohort-aging question Retention Rate's period-over-period math was never built to answer."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Comparing a D1 retention figure directly against a D30 figure as if a higher or lower number means better or worse performance. They measure different points in the user lifecycle, not the same thing at different scales.",
+        "Treating \"Day N\" as part of the formula's math rather than a label for which day's returners are being counted. Selecting a different day changes which users get counted in the numerator, not the division itself.",
+        "Comparing D-N retention across cohorts from very different acquisition sources without accounting for it. A paid-UA cohort and an organic cohort can have very different baseline retention for reasons unrelated to any product change between them.",
+        "Mixing \"returned on day N\" with \"returned by day N\" between tools or reports. Some platforms count only the exact day; others count cumulatively through that day — comparing figures computed under different conventions produces numbers that aren't actually measuring the same thing."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "retention-rate", "name": "Retention Rate Calculator", "desc": "A whole-customer-base, period-over-period view — not tied to any single signup cohort's age the way D-N Retention is." },
+    { "slug": "activation-rate", "name": "Activation Rate Calculator", "desc": "What happens before day N even starts — whether new users reach a first meaningful action at all." },
+    { "slug": "dau-mau-stickiness", "name": "DAU/MAU Stickiness Calculator", "desc": "A rolling engagement-frequency view across the whole active base, independent of any one cohort's install date." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-d1-retention",
+      "q": "What is D1 (or D-N) Retention?",
+      "a": "D-N retention measures the share of a specific signup or install cohort that came back exactly N days after joining, calculated as users returned on day N divided by the original cohort size. D1 means day one, D7 means day seven, D30 means day thirty — the day is a selectable measurement point, not a fixed part of the metric's name. A cohort of 10,000 new users with 1,800 returning on day seven has an 18% D7 retention rate. It's a cohort-based metric: everyone in the denominator joined on the same day, which is what distinguishes it from retention measured across a whole customer base over a calendar period."
+    },
+    {
+      "id": "how-to-calculate-d1-retention",
+      "q": "How do you calculate D-N Retention?",
+      "a": "Divide the number of users who returned on day N by the original cohort size: Day-N Retention = Users returned on Day N ÷ Original cohort size. A cohort of 10,000 users with 1,800 returning on day seven has a D7 retention of 1,800 ÷ 10,000 = 18.00%. The day selected doesn't change the arithmetic — it only changes which day's returning users get counted in the numerator. Both figures need to describe the same cohort: mixing a returned-users count from one signup group with the original size of a different one produces a rate that doesn't describe any real cohort's behavior."
+    },
+    {
+      "id": "why-not-comparable",
+      "q": "Why can't D1 and D30 retention be compared directly?",
+      "a": "Because they measure different stages of the same users' relationship with the product, not the same thing at different points on one scale. D1 retention reflects how well the first session and onboarding landed; D30 retention reflects whether a habit actually formed weeks later. A cohort can post a strong D1 number from a compelling first impression and still see D30 fall off if nothing brought users back afterward, or the reverse — a slow start that built into a habit. Treating a gap between the two as automatically good or bad skips over the fact that they're answering genuinely different questions about the cohort."
+    },
+    {
+      "id": "does-day-change-formula",
+      "q": "Does selecting a different Day N change the formula?",
+      "a": "No. The formula is always the same division — users returned on the selected day, divided by the original cohort size — regardless of whether day 1, day 7, day 14, or day 30 is chosen. What changes is only which day's returning users get counted in the numerator; the cohort size in the denominator stays the same original count either way. This matters because it's easy to assume a longer measurement window changes how the rate itself is computed, when in practice \"day N\" is simply naming which snapshot of the same cohort is being measured, not altering the calculation."
+    },
+    {
+      "id": "d1-retention-vs-retention-rate-faq",
+      "q": "How is D-N Retention different from Retention Rate?",
+      "a": "Retention Rate looks at an entire customer base over a calendar period, comparing customers at the end of the period (minus new ones acquired during it) to customers at the start — with no connection to when any individual customer signed up. D-N Retention instead follows one specific cohort, everyone who joined the same day, and checks what fraction came back exactly N days later. A business can have a strong overall Retention Rate this quarter while a specific cohort's D30 retention looks weak, since the two metrics are answering different questions about different populations, not two versions of the same number."
+    }
+  ],
+  "seo": {
+    "seoTitle": "D1 Retention Calculator",
+    "seoDescription": "Calculate D1, D7, D14, or D30 retention from a signup cohort, and see why retention on different days measures different things.",
+    "canonicalPath": "/calculators/d1-retention",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "STANDARD depth (Batch 05). Formula/example independently verified: 1800/10000=0.18=18.00%, matches calculator-catalog.json's exampleOutput exactly. Worked example explicitly and honestly flags that the canonical example measures day 7 (not day 1) since day is a selectable input in this calculator's own exampleInput (day:7) despite the tool being named 'D1 Retention' - addressed directly rather than silently glossed over, consistent with the task's warning against output-semantics mismatches like the prior Break-Even/MDE errors. Metric-specific section (day-n-nuance) built from this calculator's own documented validationRule ('the day value must be shown in the result - D1 and D30 numbers are never comparable to each other') and independently verified against Tenjin's own stated rationale (different lifecycle stages, not one comparable scale). Comparison-note (D-N Retention vs Retention Rate) via numerator/denominator/business-question framing - genuinely warranted despite no flagged cannibalizationRisks entry in calculator-seo-map.json, because retention-rate.json's own catalog relatedCalculators lists d1-retention first, both share formulaFamily 'retention', and the near-identical naming (retention rate vs day-N retention) creates real, foreseeable confusion the task's own comparison-boundary rule is meant to prevent - no shared sentences with retention-rate.json's own content. Common-mistakes item 4 (on-day-N vs by-day-N convention differences across tools) is a real, calculator-specific methodology risk, not a generic caution. External source: Tenjin (tenjin.com/glossary/retention-rate-rr/), a recognized mobile-analytics platform, fetched and quoted directly for both the formula shape and the different-interval-different-story rationale (adjust.com was attempted first for the same research and returned HTTP 429 twice; not cited since it could not be verified by fetching). Related Calculators verified live: retention-rate, activation-rate, dau-mau-stickiness (catalog's own relatedCalculators list also includes reactivation-rate, customer-lifetime, repeat-purchase-rate, none of which are live). No unsupported 'good D1 retention' benchmark - good-d1-retention keyword from calculator-seo-map.json's secondaryKeywords intentionally not answered with a number; day-n-nuance section addresses it by explaining why a flat benchmark wouldn't be meaningful without more context than this page can supply. 5 FAQs, 100-150 words each, independently word-counted."
+}

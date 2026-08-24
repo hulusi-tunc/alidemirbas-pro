@@ -21,6 +21,11 @@ const APPROVED_BATCH = [
   // Confidence Interval (DEEP) - ARR and GRR were blocked (no standalone
   // calculator exists; both are aliases/outputs of already-shipped mrr/nrr)
   "contribution-margin", "minimum-detectable-effect", "confidence-interval-calculator",
+  // Batch 05: Marketing ROI, Revenue per Visitor, Open Rate, Rule of 40,
+  // D1 Retention (all STANDARD) - selected via a programmatic audit of
+  // calculator-catalog.json against every already-shipped slug plus the
+  // ARR/GRR aliases blocked in Batch 04
+  "marketing-roi", "revenue-per-visitor", "open-rate", "rule-of-40", "d1-retention",
 ];
 
 const errors = [];

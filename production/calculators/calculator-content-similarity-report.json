@@ -19,6 +19,16 @@
       ]
     },
     {
+      "sequence": "formula>worked-example>interpretation>comparison-note>common-mistakes",
+      "slugs": [
+        "contribution-margin",
+        "d1-retention",
+        "open-rate",
+        "revenue-per-visitor",
+        "rule-of-40"
+      ]
+    },
+    {
       "sequence": "formula>worked-example>interpretation>comparison-note",
       "slugs": [
         "cpc",
@@ -36,7 +46,7 @@
   "repeatedHeadings": [
     {
       "heading": "Worked example",
-      "count": 18,
+      "count": 23,
       "slugs": [
         "ab-test",
         "aov",
@@ -48,19 +58,24 @@
         "cpc",
         "cr",
         "ctr",
+        "d1-retention",
         "gross-margin",
         "logo-churn",
         "ltv-cac-ratio",
+        "marketing-roi",
         "minimum-detectable-effect",
         "mrr",
+        "open-rate",
         "retention-rate",
+        "revenue-per-visitor",
         "roas",
+        "rule-of-40",
         "test-duration-estimator"
       ]
     },
     {
       "heading": "Common mistakes",
-      "count": 19,
+      "count": 24,
       "slugs": [
         "ab-test",
         "aov",
@@ -70,15 +85,20 @@
         "confidence-interval-calculator",
         "contribution-margin",
         "cr",
+        "d1-retention",
         "gross-margin",
         "logo-churn",
         "ltv-cac-ratio",
         "ltv",
+        "marketing-roi",
         "minimum-detectable-effect",
         "mrr",
         "nrr",
+        "open-rate",
         "retention-rate",
+        "revenue-per-visitor",
         "roas",
+        "rule-of-40",
         "sample-size-calculator",
         "test-duration-estimator"
       ]
