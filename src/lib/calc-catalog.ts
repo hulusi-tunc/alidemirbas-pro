@@ -13,6 +13,8 @@
 import catalogJson from "../../production/calculators/calculator-catalog.json";
 import type { Lang } from "@/lib/content";
 import { TEXT_TOOL_SLUGS } from "@/lib/text-tools";
+import { getCompute } from "@/lib/calc-registry";
+import { formatByUnit } from "@/lib/calc-format";
 
 export type CalcUnit = string;
 
@@ -126,11 +128,45 @@ export type RuntimeCalcSpec = {
   related: { slug: string; name: string }[];
 };
 
+/* calculator-catalog.json's own exampleOutput/formulaDisplay for
+   minimum-detectable-effect is known-stale against this calculator's
+   actual RELATIVE-MDE implementation (calc-registry.ts): the catalog's
+   static exampleOutput says mde "25.30%" for the canonical example, and
+   its formulaDisplay shows only the ABSOLUTE effect formula with no
+   division by baseline rate - neither matches what the live calculator
+   actually returns (24.42%, a relative lift). Documented in
+   production/calculators/content/minimum-detectable-effect.json's
+   qaNotes; NOT hand-edited in the catalog file itself. Both values are
+   corrected here instead, at the runtime-presentation layer, so the
+   compact FormulaBlock/ExampleBlock every live calculator page renders
+   (CalculatorTool.tsx) never shows the known-wrong catalog value - the
+   corrected example is derived by running the same validated compute
+   function the live calculator itself uses, not a hardcoded number, so
+   it self-corrects if the implementation or example input ever changes.
+   Scoped to this one slug only - no other calculator's catalog-sourced
+   example or formula display is touched. */
+function correctedExample(spec: CalcSpec): { exampleOutput: Record<string, unknown>; formulaDisplay?: string } {
+  if (spec.slug !== "minimum-detectable-effect") {
+    return { exampleOutput: spec.exampleOutput, formulaDisplay: spec.formulaDisplay };
+  }
+  const compute = getCompute(spec.slug);
+  const computed = compute?.(spec.exampleInput);
+  const exampleOutput = computed && typeof computed.mde === "number" && Number.isFinite(computed.mde)
+    ? { mde: formatByUnit(computed.mde, "%") }
+    : spec.exampleOutput; // fall back to catalog's value only if the compute function is ever unavailable
+  return {
+    exampleOutput,
+    formulaDisplay:
+      "Relative minimum detectable effect = √(2 × (z-values for power and significance, summed)² × Baseline rate × (1 − Baseline rate) ÷ Sample size) ÷ Baseline rate",
+  };
+}
+
 export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
   const related = spec.relatedCalculators
     .map((s) => bySlug.get(s))
     .filter((s): s is CalcSpec => Boolean(s) && LIVE_CALCULATOR_SLUGS.includes(s!.slug))
     .map((s) => ({ slug: s.slug, name: s.name }));
+  const { exampleOutput, formulaDisplay } = correctedExample(spec);
   return {
     slug: spec.slug,
     name: spec.name,
@@ -141,10 +177,10 @@ export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
     inputs: spec.inputs,
     outputs: spec.outputs,
     modes: spec.modes,
-    formulaDisplay: spec.formulaDisplay,
+    formulaDisplay,
     examplesByMode: spec.examplesByMode,
     exampleInput: spec.exampleInput,
-    exampleOutput: spec.exampleOutput,
+    exampleOutput,
     related,
   };
 }
