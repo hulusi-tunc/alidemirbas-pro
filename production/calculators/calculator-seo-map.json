@@ -4172,7 +4172,7 @@
           "placement": "supporting-section"
         }
       ],
-      "contentDepth": "standard",
+      "contentDepth": "deep",
       "seoPriority": "B",
       "titlePattern": "{Metric Name} Calculator",
       "canonicalPath": "/calculators/test-duration-estimator",

@@ -1,8 +1,9 @@
 /* Server-side loader for Phase 4 editorial content
-   (production/calculators/content/{slug}.json). EN only, for the 13
-   approved calculators - see calculator-content-architecture.md. Not
-   imported by any "use client" file, same server/client boundary
-   discipline as calc-catalog.ts. */
+   (production/calculators/content/{slug}.json). EN only, for the 18
+   approved calculators (13 original + the CPC/MRR/Logo Churn/Break-Even
+   Point/Test Duration Estimator batch) - see
+   calculator-content-architecture.md. Not imported by any "use client"
+   file, same server/client boundary discipline as calc-catalog.ts. */
 import cr from "../../production/calculators/content/cr.json";
 import roas from "../../production/calculators/content/roas.json";
 import ctr from "../../production/calculators/content/ctr.json";
@@ -16,6 +17,11 @@ import retentionRate from "../../production/calculators/content/retention-rate.j
 import nrr from "../../production/calculators/content/nrr.json";
 import abTest from "../../production/calculators/content/ab-test.json";
 import sampleSizeCalculator from "../../production/calculators/content/sample-size-calculator.json";
+import cpc from "../../production/calculators/content/cpc.json";
+import mrr from "../../production/calculators/content/mrr.json";
+import logoChurn from "../../production/calculators/content/logo-churn.json";
+import breakEvenPoint from "../../production/calculators/content/break-even-point.json";
+import testDurationEstimator from "../../production/calculators/content/test-duration-estimator.json";
 
 export type ContentSection = {
   id: string;
@@ -82,6 +88,11 @@ const CONTENT_BY_SLUG: Record<string, CalcContent> = {
   nrr: nrr as CalcContent,
   "ab-test": abTest as CalcContent,
   "sample-size-calculator": sampleSizeCalculator as CalcContent,
+  cpc: cpc as CalcContent,
+  mrr: mrr as CalcContent,
+  "logo-churn": logoChurn as CalcContent,
+  "break-even-point": breakEvenPoint as CalcContent,
+  "test-duration-estimator": testDurationEstimator as CalcContent,
 };
 
 /* EN only, by design (instruction 46) - TR pages fall back to the

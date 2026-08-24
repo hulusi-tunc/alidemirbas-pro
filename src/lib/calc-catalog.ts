@@ -71,6 +71,13 @@ export const LIVE_CALCULATOR_SLUGS: readonly string[] = [
   "cart-abandonment", "confidence-interval-calculator", "test-duration-estimator",
   // legacy-only migration (already shipped, not in the 32-item batch)
   "profit-margin", "engagement-rate",
+  // added for the Content Standard batch that shipped its own page
+  // (calculator-catalog.json's own "status: recommended" for this id
+  // predates this batch and was never a gate here - LIVE_CALCULATOR_SLUGS
+  // always has been the actual gate, same as mrr/break-even-point/
+  // test-duration-estimator above, all of which shipped live with that
+  // same stale "recommended" status)
+  "logo-churn",
 ];
 
 const bySlug = new Map(CATALOG.map((c) => [c.slug, c]));

@@ -3,64 +3,91 @@
   "sectionHeadingOverlap": [],
   "identicalSectionSequences": [
     {
-      "sequence": "definition>formula>interpretation>common-mistakes",
+      "sequence": "formula>worked-example>interpretation>trust-checks>interpretation>comparison-note>common-mistakes",
       "slugs": [
-        "aov",
         "cac-payback-period",
-        "cr",
-        "retention-rate"
+        "cac",
+        "roas"
       ]
     },
     {
-      "sequence": "definition>formula>comparison-note>interpretation>common-mistakes",
+      "sequence": "formula>worked-example>interpretation>comparison-note",
       "slugs": [
-        "cac",
-        "gross-margin",
-        "roas"
+        "cpc",
+        "ctr"
+      ]
+    },
+    {
+      "sequence": "formula>worked-example>definition>comparison-note>interpretation>common-mistakes",
+      "slugs": [
+        "logo-churn",
+        "mrr"
       ]
     }
   ],
   "repeatedHeadings": [
     {
-      "heading": "Common mistakes",
-      "count": 12,
+      "heading": "Worked example",
+      "count": 15,
       "slugs": [
         "ab-test",
         "aov",
+        "break-even-point",
+        "cac-payback-period",
+        "cac",
+        "cpc",
+        "cr",
+        "ctr",
+        "gross-margin",
+        "logo-churn",
+        "ltv-cac-ratio",
+        "mrr",
+        "retention-rate",
+        "roas",
+        "test-duration-estimator"
+      ]
+    },
+    {
+      "heading": "Common mistakes",
+      "count": 16,
+      "slugs": [
+        "ab-test",
+        "aov",
+        "break-even-point",
         "cac-payback-period",
         "cac",
         "cr",
         "gross-margin",
+        "logo-churn",
         "ltv-cac-ratio",
         "ltv",
+        "mrr",
         "nrr",
         "retention-rate",
         "roas",
-        "sample-size-calculator"
-      ]
-    },
-    {
-      "heading": "The formula",
-      "count": 5,
-      "slugs": [
-        "aov",
-        "cac",
-        "cr",
-        "gross-margin",
-        "roas"
+        "sample-size-calculator",
+        "test-duration-estimator"
       ]
     },
     {
       "heading": "Reading the number",
-      "count": 8,
+      "count": 5,
       "slugs": [
         "aov",
         "cac-payback-period",
-        "cac",
-        "cr",
         "gross-margin",
         "ltv",
-        "retention-rate",
+        "retention-rate"
+      ]
+    },
+    {
+      "heading": "Before you trust this result",
+      "count": 5,
+      "slugs": [
+        "cac-payback-period",
+        "cac",
+        "ltv-cac-ratio",
+        "ltv",
         "roas"
       ]
     }

@@ -1,0 +1,96 @@
+{
+  "calculatorId": "CALC-MRR",
+  "slug": "mrr",
+  "contentDepth": "standard",
+  "intro": "MRR (monthly recurring revenue) is the normalized monthly value of a subscription business's active recurring revenue. Enter your current MRR, and last period's MRR if you have it, to also see ARR and growth rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How MRR, ARR and growth rate are calculated",
+      "body": "This calculator takes the MRR figure you've already built from your own subscription ledger — the sum of every active subscription's value, normalized to a monthly amount — and derives two things from it: ARR (current MRR × 12) and, if you enter a prior period's MRR, the growth rate between the two: (Current MRR − Prior MRR) ÷ Prior MRR. It doesn't compute MRR from individual line items itself, so an annual contract still needs to be divided by 12 before it goes into the Current MRR field, not entered at its full annual value."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Current MRR", "value": "$50,000" },
+        { "label": "Prior period MRR", "value": "$45,000" }
+      ],
+      "output": { "label": "MRR Growth Rate", "value": "+11.11%" },
+      "body": "MRR grew from $45,000 to $50,000, an 11.11% increase over the period. At the current run rate, ARR is $50,000 × 12 = $600,000 — a projection of what the year looks like if this month's recurring revenue held steady, not a record of what was actually billed or collected over the past twelve months."
+    },
+    {
+      "id": "what-counts-as-mrr",
+      "type": "definition",
+      "heading": "What should count as MRR",
+      "body": "MRR is recurring subscription value only. One-time setup fees, onboarding charges, professional services, and hardware sold alongside a subscription don't belong in it, since they don't recur next month regardless of what the subscription itself does. Discounts reduce the MRR a subscription contributes for as long as they apply. Upgrades and downgrades change a customer's MRR contribution starting the period the change takes effect, not retroactively. Annual and multi-year contracts get divided down to their monthly-equivalent value before being summed — a $12,000 annual contract contributes $1,000 to MRR, not $12,000 in the month it was signed. [CFI's own definition](https://corporatefinanceinstitute.com/resources/valuation/monthly-recurring-revenue-mrr/) notes MRR isn't a GAAP or IFRS recognized figure — it's a normalized operating metric, not a substitute for recognized revenue."
+    },
+    {
+      "id": "mrr-vs-arr",
+      "type": "comparison-note",
+      "heading": "MRR vs. ARR",
+      "body": "ARR here is simply current MRR × 12 — an annualized read of this month's recurring run rate, not a forecast and not a sum of actual contract values signed over the year. In a stable subscription business with little month-to-month swing, that projection tracks reasonably close to what the year actually looks like. In a business with fast expansion, heavy churn, or a lot of usage-based revenue layered on top of subscriptions, one month's MRR ×12 can diverge meaningfully from real annual revenue, so treat ARR as a run-rate snapshot of the month it was taken from, not a guarantee of what the next twelve months will bring in."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "What MRR growth tells you, and what it doesn't",
+      "body": "MRR growth tells you the recurring revenue base is getting bigger (or smaller) period over period — a top-line trend, tracked the same way whether it came from new customers, expansion, or price changes. It doesn't tell you whether the business is profitable: MRR has no cost data in it at all, so a fast-growing MRR line sitting next to negative margins is entirely possible. It also doesn't tell you the customer count moved in the same direction — MRR can rise while the customer base shrinks, if the customers who stayed are spending enough more to offset who left, or fall while customer count holds steady, if existing accounts downgrade. Reading MRR growth alone without [NRR](/calculators/nrr) or a churn number next to it hides which of those actually happened."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Entering an annual contract's full value into a monthly MRR field instead of the normalized monthly-equivalent — a $12,000 annual deal is $1,000 of MRR, not $12,000 in the signing month.",
+        "Treating MRR as cash collected. A prepaid annual contract can put a full year's cash in the bank in month one while contributing only 1/12th of that to MRR each month — the two numbers move on completely different schedules.",
+        "Including one-time fees like onboarding or setup charges in the MRR total, which inflates the recurring base with revenue that won't repeat next month.",
+        "Reading MRR growth as proof of new-customer growth. The SaaS Quick Ratio and Logo Churn calculators split out how much of that movement came from new business versus expansion versus loss — MRR growth alone doesn't say which."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "nrr", "name": "Net Revenue Retention (NRR) Calculator", "desc": "Splits MRR movement among existing customers into expansion, contraction and churn — the detail MRR's own growth rate doesn't show." },
+    { "slug": "saas-quick-ratio", "name": "SaaS Quick Ratio Calculator", "desc": "Weighs new and expansion MRR against churned and contracted MRR to show whether growth is outrunning losses, not just the net total." },
+    { "slug": "logo-churn", "name": "Logo Churn Calculator", "desc": "Customer-count churn — whether MRR growth came with a shrinking or growing customer base, which MRR alone doesn't reveal." },
+    { "slug": "rule-of-40", "name": "Rule of 40 Calculator", "desc": "Pairs a revenue growth rate like MRR's with profit margin, since MRR growth by itself says nothing about profitability." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-mrr",
+      "q": "What is MRR?",
+      "a": "MRR (monthly recurring revenue) is the total value of a subscription business's active recurring revenue, normalized to a monthly figure. It's the core top-line metric for subscription businesses because it strips out one-time revenue and annual-contract timing quirks, leaving a single comparable number for what the business can expect to bill again next month from customers already on the books. MRR is not a formally recognized accounting figure under GAAP or IFRS — it's an operating metric investors and SaaS teams track month to month to read growth trends, not a substitute for recognized revenue on a financial statement. Two companies with identical GAAP revenue in a given month can report very different MRR if one recognizes annual contracts differently or includes more one-time fees in its reported total."
+    },
+    {
+      "id": "how-to-calculate-mrr",
+      "q": "How do you calculate MRR?",
+      "a": "Sum every active subscription's value after normalizing each one to a monthly amount — an annual contract worth $1,200 contributes $100 to MRR, not $1,200. This calculator takes that already-normalized Current MRR figure as an input rather than building it line by line, then derives ARR as Current MRR × 12, and growth rate as (Current MRR − Prior MRR) ÷ Prior MRR when a prior period is entered. A business going from $45,000 to $50,000 in MRR has an 11.11% growth rate. Growth rate is only calculated when a prior period is provided and greater than zero — with no prior period entered, the calculator shows MRR and ARR alone rather than a 0% or undefined growth figure that would misrepresent a comparison that was never actually made."
+    },
+    {
+      "id": "what-counts-as-mrr-faq",
+      "q": "What counts as MRR, and what doesn't?",
+      "a": "Recurring subscription value counts; anything that doesn't repeat next month doesn't. One-time setup fees, onboarding charges, professional services, and hardware bundled with a subscription are excluded, since none of them bill again on their own. Discounts reduce the MRR a discounted subscription contributes for as long as the discount applies, rather than counting the undiscounted list price. Upgrades and downgrades change a customer's contribution starting the period the change takes effect. Annual and multi-year contracts are converted to their monthly-equivalent value before being added in — this is the normalization step that makes MRR from different contract lengths comparable to each other, and skipping it is one of the most common ways an MRR figure ends up overstated."
+    },
+    {
+      "id": "mrr-times-12-arr",
+      "q": "Is ARR always just MRR times 12?",
+      "a": "As a calculation, yes — this calculator and most SaaS reporting define ARR as current MRR × 12. As a forecast of the next twelve months, not necessarily. That multiplication annualizes one month's run rate, which holds up well in a stable subscription business with predictable renewals and modest month-to-month swings. In a business with fast expansion, high churn, seasonal usage-based revenue on top of subscriptions, or a recent pricing change that hasn't fully rolled through the base yet, one month's MRR ×12 can sit noticeably above or below what actually gets billed over the following year. Treat ARR as a snapshot of current run rate annualized, not a guaranteed annual revenue figure."
+    },
+    {
+      "id": "mrr-growth-profitability",
+      "q": "Does growing MRR mean the business is profitable?",
+      "a": "No. MRR is a revenue metric with no cost data in it at all — it has no visibility into hosting costs, payroll, customer support, or any other expense, so a business can post strong MRR growth while losing money every month, and the MRR chart alone won't show it. MRR growth also doesn't confirm the customer count is growing: revenue can rise through price increases or expansion revenue from existing accounts even as new-customer additions slow or churn increases, and it can fall while the customer count holds steady if accounts downgrade. Reading MRR next to a margin figure and a churn or retention number gives a much fuller picture than the growth rate does by itself."
+    }
+  ],
+  "seo": {
+    "seoTitle": "MRR Calculator",
+    "seoDescription": "Calculate MRR, ARR and MRR growth rate, with the boundary on what counts as recurring revenue and what doesn't.",
+    "canonicalPath": "/calculators/mrr",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "STANDARD depth (Batch 03). Calculator takes an already-aggregated Current MRR (and optional Prior MRR) as input and derives ARR (x12) and growth rate - it does not itself normalize individual subscription line items, so the formula section and what-counts-as-mrr section are explicit that normalization (annual-contract division, discount handling, upgrade/downgrade timing) happens before the number is entered, not inside the tool. Growth-rate optionality (only computed when priorMrr > 0) matches calc-registry.ts exactly, stated in the how-to-calculate FAQ rather than left implicit. MRR vs ARR framed as 'x12 in this tool, a run-rate projection whose accuracy depends on stability' per instruction - not a universal 'ARR = MRR x12 always' claim, and not a blanket 'never interchangeable' either. No unsupported growth-rate benchmark anywhere (no 'healthy MRR growth is X%'). Two boundaries kept explicit in both interpretation and FAQ: MRR != profitability (no cost data at all) and MRR growth != customer-count growth (can move opposite directions via price/expansion/downgrade). External source: Corporate Finance Institute's own MRR page (different URL and distinct claim from the customer-churn-vs-revenue-churn page cited on retention-rate.json/logo-churn.json). Related Calculators verified live: nrr, saas-quick-ratio, logo-churn, rule-of-40. 5 FAQs, 100-150 words each, independently word-counted."
+}

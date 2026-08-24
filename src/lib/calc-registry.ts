@@ -59,6 +59,14 @@ const REGISTRY: Record<string, ComputeFn> = {
     return { retentionRate, churnRate: Number.isFinite(retentionRate) ? 1 - retentionRate : NaN };
   },
 
+  // Customer-count churn, not revenue churn (Phase 1's own formulaPlainEnglish
+  // for this slug). Deliberately independent from "retention-rate"'s
+  // churnRate output above - same shape (lost / start), but this one is the
+  // calculator whose whole reason to exist is the logo/account-count framing.
+  "logo-churn": ({ lostCustomers, startCustomers }) => ({
+    logoChurn: div(lostCustomers, startCustomers),
+  }),
+
   "cart-abandonment": ({ cartsCreated, completedPurchases }) => ({
     abandonmentRate: div(cartsCreated - completedPurchases, cartsCreated),
   }),
