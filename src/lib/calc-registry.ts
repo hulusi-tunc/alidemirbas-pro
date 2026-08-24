@@ -155,6 +155,22 @@ const REGISTRY: Record<string, ComputeFn> = {
     return { pointEstimate: p, lowerBound: p - margin, upperBound: p + margin };
   },
 
+  // Solves the same two-proportion equation as sample-size-calculator, for
+  // the opposite unknown: given a sample size, what relative lift can this
+  // test actually detect. Reports RELATIVE MDE (absolute effect / baseline
+  // rate), the exact mathematical inverse of sample-size-calculator's own
+  // `mde` input convention above - not the catalog's bare formula string,
+  // which stops at the absolute effect. Verified to round-trip against
+  // sample-size-calculator within rounding tolerance across multiple
+  // baseline/power/significance combinations (see test-calculators.mjs).
+  "minimum-detectable-effect": ({ baselineRate, samplePerVariant, power, significanceLevel }) => {
+    const zAlpha = Z_ALPHA_TWO_TAILED[String(significanceLevel)] ?? 1.96;
+    const zBeta = Z_BETA_ONE_TAILED[String(power)] ?? 0.8416;
+    const p = baselineRate;
+    const absoluteMde = Math.sqrt((2 * Math.pow(zAlpha + zBeta, 2) * p * (1 - p)) / samplePerVariant);
+    return { mde: div(absoluteMde, p) };
+  },
+
   "sample-size-calculator": ({ baselineRate, mde, power, significanceLevel }) => {
     // Phase 1's own validationRules flagged this as ambiguous (relative vs
     // absolute MDE) without picking one - implementation surfaced the gap

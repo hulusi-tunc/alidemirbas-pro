@@ -1,0 +1,114 @@
+{
+  "calculatorId": "CALC-CONFIDENCE-INTERVAL-CALCULATOR",
+  "slug": "confidence-interval-calculator",
+  "contentDepth": "deep",
+  "intro": "This calculator builds a confidence interval around one observed conversion rate — the range that rate likely sits in, given how much data it's based on. Enter conversions, visitors and a confidence level to get it.",
+  "sections": [
+    {
+      "id": "definition",
+      "type": "definition",
+      "heading": "What this calculator actually computes",
+      "body": "This is a confidence interval for a single observed proportion — one conversion rate from one sample, not a difference between two rates, not a mean, and not a ratio metric. Conversions and visitors go in, and the interval comes out around that one rate. Comparing two separate groups (control versus variant) is a different statistical question, answered directly by the [A/B Test Significance Calculator](/calculators/ab-test), not by this tool."
+    },
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How the interval is calculated",
+      "body": "Observed rate ± z-value × standard error, where the observed rate is conversions ÷ visitors and the standard error is √(rate × (1 − rate) ÷ visitors) — [the normal-approximation interval NIST's own Dataplot reference documents](https://itl.nist.gov/div898/software/dataplot/refman1/auxillar/propconf.htm) for a binomial proportion. The z-value comes from the confidence level chosen (1.96 for 95%, for example). This is an approximation, not an exact interval — see Assumptions below for when it holds up and when it doesn't."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Conversions", "value": "250" },
+        { "label": "Visitors", "value": "5,000" },
+        { "label": "Confidence level", "value": "95%" }
+      ],
+      "output": { "label": "Observed rate", "value": "5.00%" },
+      "body": "The observed rate is 250 ÷ 5,000 = 5.00%, with a 95% confidence interval of roughly 4.40% to 5.60% — a margin of about ±0.60 percentage points either side of the point estimate. That range reflects sampling uncertainty from a finite sample, not a claim that the true rate is exactly 5.00%."
+    },
+    {
+      "id": "width-directionality",
+      "type": "methodology",
+      "heading": "What makes the interval wider or narrower",
+      "body": "More visitors narrow the interval — at a 5% rate and 95% confidence, 500 visitors gives roughly a 3.8-point-wide interval, 5,000 gives about 1.2 points, and 50,000 gives about 0.4 points. A higher confidence level widens it in the other direction — at 5,000 visitors and 250 conversions, a 90% interval runs about 1.0 points wide, 95% about 1.2 points, and 99% about 1.6 points. More data narrows the range; demanding more confidence widens it, since a wider net is needed to be more sure of catching the true rate."
+    },
+    {
+      "id": "assumptions",
+      "type": "assumptions",
+      "heading": "When the normal approximation holds up",
+      "body": "This is the normal (Wald) approximation, not an exact binomial interval — NIST's own documentation notes its coverage properties are weaker than other methods and its use \"should be restricted to cases with relatively large sample sizes where [the observed rate] is not near 0 or 1.\" This calculator's own validation logic flags results where conversions × (1 − rate) or visitors × (1 − rate) falls below roughly 5, the same territory where the approximation is known to become unreliable — treat an interval built from a very small sample or a rate near the extremes with real caution, not as a precise range."
+    },
+    {
+      "id": "frequentist-meaning",
+      "type": "limitations",
+      "heading": "What \"95% confidence\" actually means",
+      "body": "A 95% confidence interval does not mean there's a 95% probability the true rate falls inside this specific computed range. [The correct interpretation is about the procedure, not this one interval](https://en.wikipedia.org/wiki/Confidence_interval): repeat this sampling and interval-building process many times, and roughly 95% of the resulting intervals would contain the true rate. Once one specific interval is computed, the true rate either is or isn't inside it — there's no probability left to state about that single, already-computed range. The 95% describes the method's long-run reliability, not this one result."
+    },
+    {
+      "id": "single-rate-not-difference",
+      "type": "interpretation",
+      "heading": "There's no \"crossing zero\" here",
+      "body": "This interval sits around one conversion rate, which is always between 0% and 100% — there's no meaningful \"does it cross zero\" question the way there would be for a confidence interval around a difference between two rates. A narrow interval also isn't automatically a business-important result: it says the estimate is precise, not that the underlying rate is good, bad, or different enough from some other number to matter. Precision and practical significance are separate questions — a tightly estimated 5% conversion rate still needs its own context (cost, margin, what it's being compared against) to say whether 5% itself is a meaningful number."
+    },
+    {
+      "id": "ci-vs-significance",
+      "type": "comparison-note",
+      "heading": "This isn't the A/B significance test",
+      "body": "This calculator estimates uncertainty around one observed rate. The [A/B Test Significance Calculator](/calculators/ab-test) answers a different question — whether two separately observed rates differ by more than chance would explain. Building two of these intervals, one for control and one for variant, and eyeballing whether they overlap is a common but imprecise substitute for that direct test: overlapping ranges don't strictly rule out a real difference, and non-overlapping ranges aren't the same statistical statement as a computed p-value. Neither tool is \"better\" — they answer related but genuinely different questions about the same underlying data."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Reading a 95% confidence interval as \"95% probability the true rate is in this range.\" The 95% describes the method's reliability across repeated sampling, not the odds for this one already-computed interval.",
+        "Comparing two groups by building separate confidence intervals and checking whether they overlap, instead of using the A/B Test Significance Calculator's direct two-proportion test — the overlap check is a rougher, less precise substitute for the real comparison.",
+        "Trusting the interval when the sample is very small or the rate sits near 0% or 100%. The normal approximation this calculator uses is documented to lose accuracy exactly in that territory.",
+        "Treating a narrow interval as proof the result is practically important. Precision and business significance are different questions — a tightly estimated rate can still be too small, or too costly to act on, to matter."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "ab-test", "name": "A/B Test Significance Calculator", "desc": "Directly tests whether two observed rates differ by more than chance, instead of estimating uncertainty around one rate at a time." },
+    { "slug": "sample-size-calculator", "name": "Sample Size Calculator", "desc": "Works out how much traffic a test needs in advance — a narrower confidence interval here is one consequence of collecting that much data." },
+    { "slug": "minimum-detectable-effect", "name": "Minimum Detectable Effect (MDE) Calculator", "desc": "The smallest effect a given sample size can reliably detect, a related planning question to how wide this interval turns out." }
+  ],
+  "faq": [
+    {
+      "id": "what-does-ci-calculate",
+      "q": "What does the Confidence Interval Calculator actually compute?",
+      "a": "It computes a confidence interval around one observed conversion rate — the range that rate is likely to sit in, given the sample it's based on. The inputs are conversions, visitors and a confidence level; the output is the observed rate plus a lower and upper bound. This is a single-sample, single-proportion interval, not a comparison between two groups, not a mean, and not a ratio metric. If the actual question is whether two separately observed rates differ from each other, that's a different calculation entirely, handled by the A/B Test Significance Calculator — this tool only ever describes uncertainty around one rate at a time, however many times it's run."
+    },
+    {
+      "id": "what-does-95-confidence-mean",
+      "q": "What does \"95% confidence\" actually mean?",
+      "a": "It does not mean there's a 95% probability the true rate falls inside this specific computed interval — that's a common but incorrect reading. The correct interpretation is about the method, not this one result: if this same sampling and interval-building process were repeated many times, roughly 95% of the resulting intervals would contain the true rate. Once a specific interval has actually been computed from real data, the true rate either is or isn't inside it; there's no remaining probability to assign to that fixed, already-known range. The 95% is a statement about how reliable the procedure is across repeated use, not a probability attached to any single interval it produces."
+    },
+    {
+      "id": "what-makes-interval-wider",
+      "q": "What makes the confidence interval wider or narrower?",
+      "a": "More visitors narrow it, and a higher confidence level widens it. At a 5% observed rate and 95% confidence, 500 visitors produces an interval roughly 3.8 percentage points wide, while 50,000 visitors narrows that to about 0.4 points — more data pins down the estimate more precisely. Separately, at a fixed sample size, asking for 99% confidence instead of 90% widens the interval, since being more certain of capturing the true rate requires casting a wider net. Both effects move independently: a huge sample at a demanding confidence level can still produce a wider interval than a smaller sample at a looser one, depending on which effect dominates."
+    },
+    {
+      "id": "use-ci-for-significance",
+      "q": "Can I use this to check if two rates are significantly different?",
+      "a": "Not directly, though it's tempting. This calculator only ever estimates uncertainty around one rate; checking whether two rates differ requires a comparison built for that purpose, like the A/B Test Significance Calculator's two-proportion test. Building separate intervals for two groups and checking whether they overlap is a rough approximation people sometimes use instead, but it's a weaker signal than the real test — overlapping intervals don't definitively rule out a true difference, and non-overlapping ones aren't the same statistical claim as a computed p-value. If the actual question is \"do these two groups differ,\" the direct significance test answers it more precisely than comparing two single-rate intervals by eye."
+    },
+    {
+      "id": "narrow-interval-business-significance",
+      "q": "Does a narrow confidence interval mean the result matters for the business?",
+      "a": "No. A narrow interval means the rate is estimated precisely — the sample was large enough to pin the number down tightly — but precision says nothing about whether that number itself is good, bad, or worth acting on. A tightly estimated 2% conversion rate can still be too low to be commercially viable, and a wide interval around a promising rate doesn't mean the promise is fake, only that more data is needed to be sure of it. Practical or business significance requires weighing the actual point estimate against cost, margin, and what it's being compared to — questions this interval, on its own, was never built to answer."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Confidence Interval Calculator",
+    "seoDescription": "Calculate a confidence interval for one observed conversion rate, with the correct frequentist interpretation and the boundary with A/B significance testing.",
+    "canonicalPath": "/calculators/confidence-interval-calculator",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "DEEP depth (Batch 04). Statistical model independently determined from calc-registry.ts, not assumed: single-sample, single-proportion normal (Wald) approximation interval (pointEstimate ± z*sqrt(p(1-p)/visitors)) - NOT a difference of proportions, NOT a mean, NOT a ratio metric. This scoping is stated explicitly in definition/comparison-note/first FAQ specifically because instruction 6 warned against writing a generic 'confidence interval for everything' page. Formula and canonical example independently verified: conversions=250, visitors=5000, confidenceLevel=95 -> pointEstimate=5.00%, lowerBound=4.40%, upperBound=5.60%, matches calculator-catalog.json's exampleOutput exactly - no mismatch, no REVIEW flag. Width directionality independently verified both directions: sample size (n=500/5000/50000 at p=0.05,conf=95 -> width 3.821/1.208/0.382pp) and confidence level (90%/95%/99% at n=5000,conversions=250 -> width 1.014/1.208/1.588pp), both strictly monotonic in the expected direction. Section 6A's critical distinction (95% confidence is a statement about the repeated-sampling procedure, not a 95% probability the true rate is in this one computed interval) stated correctly in its own limitations section AND restated as its own common-mistakes item, sourced from Wikipedia's confidence-interval article (a strong secondary source, used because two better-tier candidates - DIME Wiki and Penn State STAT 415 - returned HTTP 403/503 on fetch and were not cited unverified). Null-value handling (6D) resolved correctly for what this calculator actually computes: since it's a single proportion (always in [0,1], never negative), there is no 'does it cross zero' question the way a difference-CI would have - stated explicitly rather than forcing in a zero-crossing narrative that doesn't apply to this metric type. CI vs. p-value/significance comparison-note required per calculator-seo-map.json's own flagged cannibalizationRisks entry for this exact pair (with ab-test) - framed as 'different questions,' not 'CI is better,' with the overlap-check caveat stated as an imprecise substitute rather than an equivalent method. Practical-vs-statistical significance (6E) covered in interpretation, a common-mistakes item, and its own FAQ. External sources: NIST's Dataplot reference manual (formula + the exact 'restricted to cases with relatively large sample sizes where p-hat is not near 0 or 1' caveat, which independently corroborates this calculator's own validationRules threshold) - distinct URL and distinct claim from ab-test.json's own NIST citation (the two-sample proportion test page, itl.nist.gov/div898/handbook/prc/section3/prc33.htm); and Wikipedia's Confidence Interval article for the frequentist-interpretation claim specifically. Related Calculators verified live: ab-test, sample-size-calculator, minimum-detectable-effect - bayesian-probability-to-beat and multi-variant-test-significance (catalog's own relatedCalculators) are not live, not linked. No unsupported benchmark. 5 FAQs, 100-150 words each, independently word-counted."
+}

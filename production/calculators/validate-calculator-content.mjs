@@ -17,6 +17,10 @@ const APPROVED_BATCH = [
   // Batch 03: CPC (LIGHT), MRR / Logo Churn / Break-Even Point (STANDARD),
   // Test Duration Estimator (DEEP)
   "cpc", "mrr", "logo-churn", "break-even-point", "test-duration-estimator",
+  // Batch 04: Contribution Margin (STANDARD), Minimum Detectable Effect /
+  // Confidence Interval (DEEP) - ARR and GRR were blocked (no standalone
+  // calculator exists; both are aliases/outputs of already-shipped mrr/nrr)
+  "contribution-margin", "minimum-detectable-effect", "confidence-interval-calculator",
 ];
 
 const errors = [];

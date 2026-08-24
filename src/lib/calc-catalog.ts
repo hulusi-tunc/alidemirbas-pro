@@ -78,6 +78,13 @@ export const LIVE_CALCULATOR_SLUGS: readonly string[] = [
   // test-duration-estimator above, all of which shipped live with that
   // same stale "recommended" status)
   "logo-churn",
+  // same promotion pattern as logo-churn above, for the ARR/GRR/
+  // Contribution Margin/MDE/Confidence Interval content batch - see
+  // calc-registry.ts's own comment on this slug for the relative-MDE
+  // convention decision (catalog's exampleOutput is stale, documented in
+  // production/calculators/content/minimum-detectable-effect.json's
+  // qaNotes, not edited here)
+  "minimum-detectable-effect",
 ];
 
 const bySlug = new Map(CATALOG.map((c) => [c.slug, c]));

@@ -22,6 +22,9 @@ import mrr from "../../production/calculators/content/mrr.json";
 import logoChurn from "../../production/calculators/content/logo-churn.json";
 import breakEvenPoint from "../../production/calculators/content/break-even-point.json";
 import testDurationEstimator from "../../production/calculators/content/test-duration-estimator.json";
+import contributionMargin from "../../production/calculators/content/contribution-margin.json";
+import minimumDetectableEffect from "../../production/calculators/content/minimum-detectable-effect.json";
+import confidenceIntervalCalculator from "../../production/calculators/content/confidence-interval-calculator.json";
 
 export type ContentSection = {
   id: string;
@@ -93,6 +96,9 @@ const CONTENT_BY_SLUG: Record<string, CalcContent> = {
   "logo-churn": logoChurn as CalcContent,
   "break-even-point": breakEvenPoint as CalcContent,
   "test-duration-estimator": testDurationEstimator as CalcContent,
+  "contribution-margin": contributionMargin as CalcContent,
+  "minimum-detectable-effect": minimumDetectableEffect as CalcContent,
+  "confidence-interval-calculator": confidenceIntervalCalculator as CalcContent,
 };
 
 /* EN only, by design (instruction 46) - TR pages fall back to the
