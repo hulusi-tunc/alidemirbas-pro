@@ -1,7 +1,7 @@
 {
   "_description": "Output of search/search-validator.mjs - regenerate by re-running that script.",
   "summary": {
-    "pass": 21,
+    "pass": 34,
     "fail": 0,
     "totalDocuments": 520
   },

@@ -1,0 +1,65 @@
+{
+  "_description": "Part 3 corpus coverage audit - source dataset vs. search-index.json, verified programmatically against the real repo (set-difference checks, not estimated). Regenerate the underlying numbers by re-running search/build-search-index.mjs then diffing source ids against search-index.json - the checks in search/search-validator.mjs (check 1.1, 'source corpus coverage') assert this table's own numbers stay true.",
+  "corpora": [
+    {
+      "corpus": "A/B Tests",
+      "sourceOfTruth": "src/data/ab-tests.json (211 records, primary source - not a projection of anything else)",
+      "sourceCount": 211,
+      "searchableCount": 211,
+      "excludedCount": 0,
+      "exclusionReason": "none - every record has a real slug, question, and hypothesis; no draft/placeholder/duplicate records exist in the source",
+      "verification": "set(source ids) == set(index ids) confirmed via direct diff - 0 missing, 0 extra"
+    },
+    {
+      "corpus": "Journeys",
+      "sourceOfTruth": "production/journey-view-model.json (regenerated fresh this round via scripts/dump-canonical.mjs from src/canonical/*.ts - confirmed byte-identical to the already-committed file, i.e. genuinely in sync, not stale) + production/journey-merged-id-contract.json for the 5 merged ids",
+      "sourceCount": 260,
+      "sourceCountNote": "255 active journeys + 5 merged/retired ids that resolve to a survivor - both counts real, from the canonical dataset's own MERGED_INTO map (src/canonical/index.ts)",
+      "searchableCount": 255,
+      "excludedCount": 5,
+      "exclusionReason": "The 5 merged/retired journey ids (CON-37, CMS-209, CTL-239, CTL-240, RET-25) are NOT given their own search document - this follows the EXISTING SEO contract (seo/canonical-contract.json's journey-merged entry, and the underlying production/journey-merged-id-contract.json, both from the prior SEO round) which already decided these are noindex, self-canonicalizing soft-redirects to their survivor. The search layer reuses that decision rather than re-inventing one - a query for a retired id resolves via search/search-aliases.json to the survivor's document, it never produces a separate, independently-ranked result for the retired id. This is the correct behavior, not an accidental omission.",
+      "verification": "set(255 active source ids) == set(255 index ids) confirmed via direct diff - 0 missing, 0 extra. Separately confirmed: 0 of the 5 merged ids have their own search document (search-validator.mjs check 6)."
+    },
+    {
+      "corpus": "Calculators",
+      "sourceOfTruth": "production/calculators/content/*.json (43 files = the LIVE_CALCULATOR_SLUGS set, cross-referenced against production/calculators/calculator-catalog.json's 77-candidate full catalog and calculator-seo-map.json for keywords)",
+      "sourceCount": 43,
+      "sourceCountNote": "43 is the LIVE count, not the full catalog (77 candidates total, 34 not yet promoted to a live route - see seo/site-seo-manifest.json's own calculator-detail entry). The 34 non-live candidates are correctly NOT searchable, since they have no real route to send a search result to.",
+      "searchableCount": 43,
+      "excludedCount": 34,
+      "exclusionReason": "34 catalog candidates have no live route (no content file, no page) - correctly excluded, since a search result must resolve to a real page (Part 11's own requirement). Not an oversight; this is the same LIVE_CALCULATOR_SLUGS gate the site's own routing uses.",
+      "verification": "set(43 content-file slugs) == set(43 index ids) confirmed via direct diff - 0 missing, 0 extra. Filename == internal slug field confirmed for all 43 (0 mismatches)."
+    },
+    {
+      "corpus": "Lab Products",
+      "sourceOfTruth": "src/lib/content.ts's copy.en.lab.projects (6 real entries, hand-transcribed into search/build-search-index.mjs since the source is a TS `as const` literal, not JSON - see that file's own header comment)",
+      "sourceCount": 6,
+      "searchableCount": 6,
+      "excludedCount": 0,
+      "exclusionReason": "none - all 6 real Lab project cards are searchable, including the 3 that link off-site (Numerspace, Google Ads Change History Explorer, claude-lifecycle) - see seo round's finding that these have no on-site page; they're still legitimate, real internal search results (external:true, indexable:false for SEO purposes, but searchable - see SEARCH-DESIGN-HANDOFF.md's own note on why 'indexable' and 'searchable' are different questions)",
+      "verification": "hand-transcription checked against the full content.ts read from this session's own earlier full read of that file - all 6 name/slug/desc/tags/links fields verified verbatim"
+    },
+    {
+      "corpus": "Blog Posts",
+      "sourceOfTruth": "src/lib/blog-posts.ts's BLOG_POSTS array (5 real, authored articles - hand-transcribed for the same reason as Lab Products above)",
+      "sourceCount": 5,
+      "searchableCount": 5,
+      "excludedCount": 0,
+      "exclusionReason": "none",
+      "verification": "hand-transcription checked against the full file read this session"
+    }
+  ],
+  "totals": { "sourceCount": 525, "searchableCount": 520, "excludedCount": 5 },
+  "duplicateChecks": {
+    "duplicateSearchIds": 0,
+    "duplicateUrls": 0,
+    "duplicateSlugsWithinAnyOneCorpus": 0,
+    "orphanResults": "0 - every search document's url was independently re-derived from the same slug/id fields the real Next.js routes (generateStaticParams) are built from, for calculators/ab-tests/journeys/blog; the 3 internal Lab product URLs (/lab/ab-testing, /lab/dashboard-builder, /lab/journeys) were independently confirmed live and indexable in the prior SEO round's audit.",
+    "missingUrls": 0,
+    "missingTitles": 0,
+    "missingDescriptions": 0,
+    "invalidTypes": 0,
+    "staleRecords": "none detected - production/journey-view-model.json was regenerated fresh this round via scripts/dump-canonical.mjs and confirmed byte-identical to the already-committed file (0 git diff), i.e. genuinely in sync with src/canonical/*.ts, not a stale snapshot",
+    "emptyKeywordsBeforeFix": "5 documents (all 5 blog articles) had keywords:[] in the previous round's generator output - a real, unintentional gap, not a deliberate design choice (ab-test/journey/calculator/lab-product documents all had real keyword sources; blog articles simply weren't given one). Fixed this round - see build-search-index.mjs's blog-article keyword derivation (topic + category, both real sourced fields already on each post)."
+  }
+}

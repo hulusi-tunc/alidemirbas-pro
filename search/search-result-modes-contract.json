@@ -1,0 +1,18 @@
+{
+  "_description": "Part 10 - both result-presentation modes as DATA CONTRACTS derived from the same search() output (search/headless-search-prototype.mjs), not a decision about which one an eventual UI uses (see SEARCH-DESIGN-HANDOFF.md's DESIGN FREEDOM section - 'grouped vs flat' is explicitly a free design choice). This file only guarantees both are mechanically derivable from one ranking pass, with no extra ranking logic needed for either.",
+  "sharedInput": "Both modes below consume the exact same ranked array search() already returns (id/type/title/score/explain, ordered by score desc, ties broken by boostByType then title alphabetical - see headless-search-prototype.mjs's own sort comparator). Neither mode re-ranks or re-scores anything; they are two different PROJECTIONS of one ranked list, computed in plain code, not two separate search passes.",
+  "modes": {
+    "ranked": {
+      "description": "A single flat list, in the exact order search() returns - the whole result set is one relevance ordering, ignoring type.",
+      "derivation": "results.slice(0, limit) - identity, no transformation.",
+      "whenThisIsTheHonestAnswer": "Any single-type-dominant query (see search-query-fixtures.json's 'pricing'/'onboarding'/'search results' fixtures, all verified to be legitimately single-type) renders identically under both modes anyway - grouping by type on a query that only matches one type produces exactly one group, which is visually indistinguishable from a flat list."
+    },
+    "grouped": {
+      "description": "The same ranked list, partitioned by `type` into up to 5 buckets (calculator/ab-test/journey/lab-product/blog-article), each bucket keeping its own internal relevance order from the ranked list - NOT re-sorted or re-scored per group.",
+      "derivation": "A stable partition: for each type present in results, in the order that type's HIGHEST-scoring result first appears in the ranked list (i.e. group order = order of first appearance, not alphabetical or a fixed type priority - this preserves 'what matters most' at the group level too, consistent with the single ranked list's own ordering), collect all results of that type keeping their relative order.",
+      "emptyGroupHandling": "A type with zero matching results simply doesn't appear as a group - never rendered as an empty section with a 'no results' placeholder (that's a per-type non-event, not a state - the contract's actual no-result states are defined in search-empty-states-contract.json for the WHOLE-QUERY case, not per-type)."
+    }
+  },
+  "crossCorpusDiversity": "The content-type balancing already implemented in scoreDocument()'s applyContentTypeBalancing() (promotes one qualifying result of an under-represented type into the top 10 if one type would otherwise take all 10 slots and a near-threshold candidate of another type exists - see headless-search-prototype.mjs) runs BEFORE either projection above, on the single ranked list - so both 'ranked' and 'grouped' modes inherit the same diversity guarantee automatically, with no extra logic needed in either projection.",
+  "notDecided": "Whether a design shows 5 fixed group headers, collapses low-count groups, uses tabs instead of stacked sections, caps items shown per group with a 'see all N' expansion, or picks 'ranked' as the sole default with grouping only in an advanced view - all open design choices this file deliberately does not make."
+}

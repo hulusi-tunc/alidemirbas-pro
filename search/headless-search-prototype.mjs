@@ -38,6 +38,25 @@ function tokenize(s) {
 function isNoiseToken(t) {
   return /^\d{1,2}$/.test(t);
 }
+// Additive Turkish-character folding. EMPIRICALLY VERIFIED (not assumed):
+// normalize()'s NFD-decompose-then-strip-combining-marks step already
+// folds ö/ü/ş/ğ/ç to o/u/s/g/c as a side effect, because those 5 letters
+// have a canonical NFD decomposition into base-letter + combining mark in
+// Unicode (confirmed by testing normalize('şık çiçek öğün üzüm') ->
+// 'sık cicek ogun uzum' before this fold was added). Turkish dotless ı
+// (and capital İ, which .toLowerCase() already handles) is the ONE real
+// gap - it has no NFD decomposition, so it survives normalize() as a
+// distinct character and needs its own explicit fold. This is why the
+// fold table below is only one entry, not six - the other five were a
+// false assumption in this file's own first draft, corrected after
+// actually running the test instead of trusting the assumption.
+function foldTurkish(t) {
+  return t.replace(/ı/g, "i");
+}
+function tokenVariants(t) {
+  const folded = foldTurkish(t);
+  return folded === t ? [t] : [t, folded];
+}
 
 /* ---------------------------------------------------------------- aliases */
 function resolveAlias(query) {
@@ -68,6 +87,10 @@ function expandTokensWithSynonyms(tokens, rawQueryNorm) {
   // whole-query synonym match (handles multi-word terms like "return on ad spend")
   if (synonymMap.has(rawQueryNorm)) for (const eq of synonymMap.get(rawQueryNorm)) for (const t of eq.split(/\s+/)) expanded.add(t);
   for (const t of tokens) if (synonymMap.has(t)) for (const eq of synonymMap.get(t)) for (const w of eq.split(/\s+/)) expanded.add(w);
+  // Turkish dotless-ı folding (see foldTurkish's own comment) - additive,
+  // both directions, so a query typed either with or without Turkish
+  // characters matches indexed text typed the other way.
+  for (const t of [...expanded]) for (const v of tokenVariants(t)) expanded.add(v);
   return [...expanded];
 }
 
@@ -118,12 +141,20 @@ function scoreDocument(doc, queryNorm, tokens, expandedTokens, queryIntents) {
   if (doc.keywords.some((k) => normalize(k) === queryNorm)) { score += 90; explain.push("acronym-exact-match"); }
   if (titleNorm.startsWith(queryNorm) && queryNorm.length > 2) { score += 60; explain.push("title-prefix-match"); }
 
-  const titleTokens = new Set(tokenize(doc.title));
+  // Every document-side token set below is expanded with its own Turkish-
+  // folded variants too (not just the query side) - a query already typed
+  // in plain ASCII ("orani") needs the document's own "ı"-bearing token
+  // ("oranı") folded down to match it, the reverse of what expandTokens-
+  // WithSynonyms does for the query. Folding both sides is what makes the
+  // match direction-independent.
+  const foldSet = (tokens) => new Set(tokens.flatMap((t) => tokenVariants(t)));
+
+  const titleTokens = foldSet(tokenize(doc.title));
   let titleWeighted = 0, titleHits = 0;
   for (const t of expandedTokens) if (!isNoiseToken(t) && titleTokens.has(t)) { titleWeighted += 12 * idfWeight(t); titleHits++; }
   if (titleHits) { score += titleWeighted; explain.push(`title-token-match(${titleHits})`); }
 
-  const kwTokens = new Set(doc.keywords.flatMap(tokenize));
+  const kwTokens = foldSet(doc.keywords.flatMap(tokenize));
   let kwWeighted = 0, kwHits = 0;
   for (const t of expandedTokens) if (!isNoiseToken(t) && kwTokens.has(t)) { kwWeighted += 8 * idfWeight(t); kwHits++; }
   if (kwHits) { score += kwWeighted; explain.push(`keyword-match(${kwHits})`); }
@@ -138,15 +169,26 @@ function scoreDocument(doc, queryNorm, tokens, expandedTokens, queryIntents) {
   for (const t of expandedTokens) if (surfStageTokens.has(t)) surfHits++;
   if (surfHits) { score += 5 * surfHits; explain.push(`surface-or-stage-match(${surfHits})`); }
 
+  // metric field values (KPI labels like "CTA", "Oranı", "Test") are drawn
+  // from the same recurring vocabulary as keywords (doc.metric IS the same
+  // kpiLabels array folded into doc.keywords for ab-test/calculator docs -
+  // see build-search-index.mjs), so a generic recurring KPI-name token
+  // deserves the same IDF dampening keyword-match already gets, not a flat
+  // per-hit score. Found by testing real Turkish-language queries against
+  // the ab-test corpus: a document whose own question/hypothesis literally
+  // WAS the query text (all 4 tokens hit in searchText) was ranking below
+  // documents that only shared one generic KPI-label word ("CTA") with no
+  // IDF dampening applied - the same class of problem idfWeight() was
+  // already built to solve for title/keyword, just not wired here yet.
   const metricTokens = new Set(doc.metric.flatMap(tokenize));
-  let metricHits = 0;
-  for (const t of expandedTokens) if (metricTokens.has(t)) metricHits++;
-  if (metricHits) { score += 7 * metricHits; explain.push(`metric-match(${metricHits})`); }
+  let metricWeighted = 0, metricHits = 0;
+  for (const t of expandedTokens) if (metricTokens.has(t)) { metricWeighted += 7 * idfWeight(t); metricHits++; }
+  if (metricHits) { score += metricWeighted; explain.push(`metric-match(${metricHits})`); }
 
   const docIntents = ranking_defaultIntentByType(doc.type);
   if (queryIntents.some((i) => docIntents.includes(i))) { score += 4; explain.push("intent-match"); }
 
-  const searchTextTokens = new Set(tokenize(doc.searchText));
+  const searchTextTokens = foldSet(tokenize(doc.searchText));
   let stHits = 0;
   for (const t of expandedTokens) if (searchTextTokens.has(t)) stHits++;
   if (stHits) { score += 2 * stHits; explain.push(`searchtext-match(${stHits})`); }
