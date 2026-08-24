@@ -14,6 +14,9 @@ const sourcesDoc = read("calculator-content-sources.json");
 const APPROVED_BATCH = [
   "cr", "roas", "ctr", "cac", "ltv", "ltv-cac-ratio", "cac-payback-period",
   "aov", "gross-margin", "retention-rate", "nrr", "ab-test", "sample-size-calculator",
+  // Batch 03: CPC (LIGHT), MRR / Logo Churn / Break-Even Point (STANDARD),
+  // Test Duration Estimator (DEEP)
+  "cpc", "mrr", "logo-churn", "break-even-point", "test-duration-estimator",
 ];
 
 const errors = [];

@@ -1,0 +1,74 @@
+{
+  "calculatorId": "CALC-CPC",
+  "slug": "cpc",
+  "contentDepth": "light",
+  "intro": "CPC (cost per click) tells you the average price paid for each click on an ad. Enter total spend and clicks below to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How CPC is calculated",
+      "body": "CPC is total spend divided by clicks. Spend $500 on a campaign that gets 250 clicks and the average CPC is $500 ÷ 250 = $2.00. Every platform reports this the same way — [Google Ads' own definition](https://support.google.com/google-ads/answer/14074) is total cost of clicks divided by total number of clicks — so the formula itself rarely varies; what varies between campaigns is the price the auction settles on for each one."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Total spend", "value": "$500" },
+        { "label": "Clicks", "value": "250" }
+      ],
+      "output": { "label": "CPC", "value": "$2.00" },
+      "body": "$2.00 is what this campaign paid on average for a click — some individual clicks cost more, some less, and CPC is the blended rate across all 250. It says nothing on its own about whether those clicks were worth $2.00 each; that depends on what happened after someone clicked."
+    },
+    {
+      "id": "interpretation",
+      "type": "interpretation",
+      "heading": "What CPC tells you, and what it doesn't",
+      "body": "CPC tells you how efficiently a campaign is buying traffic — the price paid per visitor, isolated from everything that happened after the click. That makes it useful for comparing bidding strategies, ad groups, or keywords against each other on acquisition cost alone. It doesn't tell you whether that traffic was any good. A lower CPC isn't automatically a better campaign: clicks can be cheap because they're low-intent, off-target, or from an audience unlikely to ever convert, and a bidding change that cuts CPC in half can just as easily cut the [conversion rate](/calculators/cr) in half too. CPC is a cost-efficiency read on acquiring a click, not a verdict on the traffic's value — that requires looking past CPC at what the clicks actually did."
+    },
+    {
+      "id": "cpc-vs-cpm-cpa",
+      "type": "comparison-note",
+      "heading": "CPC vs. CPM vs. CPA",
+      "body": "These three answer different questions about the same spend. CPC is cost per click — what one visit to the site cost. [CPM](/calculators/cpm) is cost per thousand impressions — what it cost to be shown, whether anyone clicked or not. [CPA](/calculators/cpa) is cost per defined conversion action — what it cost to get the outcome that was actually being paid for, whatever that's set to be. A campaign can carry a low CPC and a high CPA at the same time if plenty of people click but few of them convert, which is exactly why comparing bids across campaigns on CPC alone can favor the wrong one."
+    }
+  ],
+  "related": [
+    { "slug": "cpm", "name": "CPM Calculator", "desc": "Cost per thousand impressions — what it cost to be shown, a different denominator from CPC's per-click view." },
+    { "slug": "cpa", "name": "CPA Calculator", "desc": "Cost per defined conversion action — the number that actually reflects whether cheap clicks turned into anything." },
+    { "slug": "ctr", "name": "CTR Calculator", "desc": "Share of impressions that turned into a click at all, upstream of what each of those clicks then cost." },
+    { "slug": "cr", "name": "Conversion Rate Calculator", "desc": "What happened after the click — the number that tells you whether a low CPC was actually a good trade." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-cpc",
+      "q": "What is CPC?",
+      "a": "CPC (cost per click) is the average amount an advertiser pays each time someone clicks an ad, calculated as total spend divided by total clicks. It's a bidding and reporting metric used across search, social and display advertising to measure how much traffic acquisition costs at the click level. CPC only covers the transaction of paying for a click — it has no visibility into what that visitor did afterward, whether they converted, or what the business ultimately made from them. Platforms report both a maximum CPC bid (the most an advertiser is willing to pay) and an actual or average CPC (what was really charged, often less than the max bid), so the same account can show more than one CPC figure depending on which one is being read."
+    },
+    {
+      "id": "how-to-calculate-cpc",
+      "q": "How do you calculate CPC?",
+      "a": "Divide total spend by total clicks: CPC = Spend ÷ Clicks. A campaign that spent $500 and received 250 clicks has a CPC of $500 ÷ 250 = $2.00. Both numbers need to cover the same campaign and date range — spend from a full month divided by clicks from only part of it produces a CPC that doesn't describe either period accurately. Most ad platforms calculate and display this automatically, so it rarely needs to be computed by hand, but the underlying formula explains why CPC moves the way it does: raising a bid to win more competitive auctions pushes the average up, while a shift toward less contested keywords or placements pulls it back down without spend or clicks necessarily changing much."
+    },
+    {
+      "id": "lower-cpc-better",
+      "q": "Does a lower CPC always mean a better campaign?",
+      "a": "No. CPC only measures what a click cost, not what it was worth, so a lower number can reflect cheaper access to a worse audience rather than a more efficient campaign. Broadening targeting, loosening keyword match types, or shifting budget toward lower-competition placements will usually pull CPC down, but that traffic can carry lower purchase intent or be less relevant to what's being sold, which shows up later as a weaker conversion rate. That's not a rule that lower CPC is bad either — sometimes cheaper clicks convert just as well. The point is that CPC by itself can't tell the difference, so a change in CPC needs to be read alongside conversion rate or cost per acquisition before deciding whether it actually helped."
+    },
+    {
+      "id": "good-cpc",
+      "q": "What is a good CPC?",
+      "a": "There's no universal good CPC — it depends on the platform, the auction's competitiveness, the audience being targeted, the geography, and where the ad is placed, all of which shift what a click costs before performance even enters the picture. A CPC that looks high for one keyword or industry can be entirely normal for another with more competitive bidding or higher customer value. Rather than comparing against a published average, CPC is most useful measured against your own account's history in the same campaign type, or against what a click needs to cost for the resulting conversions to be worth acquiring — a number your own margins and conversion rate determine, not a benchmark pulled from somewhere else."
+    }
+  ],
+  "seo": {
+    "seoTitle": "CPC Calculator",
+    "seoDescription": "Calculate cost per click from spend and clicks, and see how CPC differs from CPM and CPA.",
+    "canonicalPath": "/calculators/cpc",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "LIGHT depth (Batch 03), mirrors the ctr.json shape (formula, worked-example, interpretation, comparison-note) with independent prose - no shared sentences reused. Core claim boundary: CPC is a traffic-acquisition cost-efficiency read, not a profitability or quality signal - a lower CPC is neither automatically better nor automatically worse, stated explicitly in interpretation and the lower-cpc-better FAQ (own section, not folded into good-cpc, since the two ask different things: 'is lower better' vs 'what number is good'). No benchmark section or number - platform/auction/audience/geography context preserved in both interpretation and the good-cpc FAQ, consistent with instruction's no-universal-benchmark rule. External source: Google Ads Help's own Average CPC definition (support.google.com/google-ads/answer/14074) - same total-cost/total-clicks formula this calculator implements. Related Calculators authored here, verified live: cpm, cpa, ctr, cr. This page has FAQ despite calculator-content-slots.json listing 'faq' as prohibited for light depth - same accepted deviation already shipped on ctr.json (see that page's own qaNotes and the pre-existing validator error list); FAQ is a hard requirement (2-4 for LIGHT) per this batch's own instructions and Phase 4's slot classification for 'faq' predates that instruction. 4 FAQs, 100-150 words each, independently word-counted."
+}

@@ -1,0 +1,96 @@
+{
+  "calculatorId": "CALC-LOGO-CHURN",
+  "slug": "logo-churn",
+  "contentDepth": "standard",
+  "intro": "Logo churn is the share of your customer base that left over a period, counted by customer, not by revenue. Enter customers lost and customers at period start to get the rate.",
+  "sections": [
+    {
+      "id": "formula",
+      "type": "formula",
+      "heading": "How Logo Churn is calculated",
+      "body": "Logo Churn = Customers Lost ÷ Customers at Period Start. Lose 12 customers out of 240 you started the period with and logo churn is 12 ÷ 240 = 5.00%. This counts accounts, not dollars — a customer paying $50 a month and one paying $5,000 a month count exactly the same in this formula, which is what separates it from a revenue-weighted churn figure. [Corporate Finance Institute's own treatment of the distinction](https://corporatefinanceinstitute.com/resources/valuation/customer-churn-vs-revenue-churn) uses this same customers-lost-over-starting-customers formula for customer churn."
+    },
+    {
+      "id": "worked-example",
+      "type": "worked-example",
+      "heading": "Worked example",
+      "inputs": [
+        { "label": "Customers lost", "value": "12" },
+        { "label": "Customers at period start", "value": "240" }
+      ],
+      "output": { "label": "Logo Churn", "value": "5.00%" },
+      "body": "5.00% of the customers this business had at the start of the period were gone by the end. It's silent on how much revenue those 12 accounts represented — that's a separate question this number was never built to answer."
+    },
+    {
+      "id": "what-counts-as-churn",
+      "type": "definition",
+      "heading": "What counts as a lost customer here",
+      "body": "This calculator takes \"customers lost\" as a count you supply, not a definition it enforces — it doesn't distinguish a formal cancellation from a lapsed non-renewal or an account gone inactive without ever calling to cancel. That definition is a business decision made before the number goes in, and it needs to stay the same from one period to the next. A business that counts only explicit cancellations in one quarter and adds silently-inactive accounts the next will see its logo churn jump for reasons that have nothing to do with actual customer behavior changing."
+    },
+    {
+      "id": "logo-vs-revenue-churn",
+      "type": "comparison-note",
+      "heading": "Logo churn is not revenue churn",
+      "body": "Logo churn counts customers; revenue churn counts dollars. Losing your smallest account and losing your largest account move logo churn by the exact same amount, while they can move revenue churn — the churned-MRR side of [NRR and GRR](/calculators/nrr) — by very different amounts. The two numbers regularly diverge in the same period: a SaaS business can lose several small accounts (high logo churn) while its revenue mostly holds because expansion elsewhere offsets the loss, or lose one large account (low logo churn) that still guts revenue retention. Neither number is the \"real\" churn — they answer different questions, and a business relying on only one can miss what the other would have shown."
+    },
+    {
+      "id": "churn-retention-relationship",
+      "type": "interpretation",
+      "heading": "How this relates to Retention Rate",
+      "body": "Logo Churn and [Retention Rate](/calculators/retention-rate) are complementary — churn = 1 − retention — only when both numbers describe the same starting population over the same period, using a consistent definition of what counts as \"lost.\" That holds when \"customers lost\" means customers who were part of the starting cohort and didn't remain by period end. It breaks if a customer who signed up and canceled within the same period gets counted as \"lost\" without ever being part of \"customers at period start,\" or if the two numbers come from different date ranges. Treat the 100% identity as something to verify for your own data, not something to assume automatically holds."
+    },
+    {
+      "id": "common-mistakes",
+      "type": "common-mistakes",
+      "heading": "Common mistakes",
+      "items": [
+        "Multiplying monthly churn by 12 to get an annual figure. Churn compounds on a shrinking base, so a 5% monthly churn is closer to 1 − (0.95)^12 ≈ 46% annualized, not 60% — the naive multiplication overstates it substantially at typical monthly rates.",
+        "Comparing a monthly logo churn rate directly against another company's or another period's annual figure. The two aren't the same unit until one is converted to match the other's period length.",
+        "Treating logo churn and revenue churn as interchangeable, or reporting one while implying it reflects the other. A low logo churn can sit next to a high revenue churn number if the accounts that left were disproportionately large.",
+        "Counting a customer who signed up and canceled inside the same period as part of \"customers lost\" without them ever having been in \"customers at period start\" — this breaks the churn-equals-one-minus-retention relationship and quietly changes what the rate is actually measuring."
+      ]
+    }
+  ],
+  "related": [
+    { "slug": "retention-rate", "name": "Retention Rate Calculator", "desc": "Logo Churn's complement under a matching population and period — the two should be checked against each other, not assumed to always add to 100%." },
+    { "slug": "nrr", "name": "Net Revenue Retention (NRR) Calculator", "desc": "The dollar-weighted view of the same losses — where revenue churn can tell a different story than logo churn on the same customer base." },
+    { "slug": "d1-retention", "name": "D1 Retention Calculator", "desc": "A cohort-level, day-one retention read rather than a period-over-period account count — a different population and time frame than Logo Churn." },
+    { "slug": "mrr", "name": "MRR Calculator", "desc": "The recurring revenue base that logo churn erodes from the customer-count side, without saying by how much." }
+  ],
+  "faq": [
+    {
+      "id": "what-is-logo-churn",
+      "q": "What is logo churn?",
+      "a": "Logo churn is the percentage of customers a business had at the start of a period who were no longer customers by the end of it, counted by account rather than by revenue. It's the SaaS-standard framing of customer churn — \"logo\" refers to counting company or account logos, not dollar amounts. A logo churn of 5% means 5 out of every 100 starting customers left during the period, regardless of what any of them were paying. It's a headcount metric, which makes it useful for understanding how many relationships a business is failing to keep, separate from how much revenue those departures represented. A business can have low logo churn and still lose significant revenue if the few accounts that left were unusually large ones."
+    },
+    {
+      "id": "how-to-calculate-logo-churn",
+      "q": "How do you calculate logo churn?",
+      "a": "Divide customers lost during the period by customers you had at the start of it: Logo Churn = Customers Lost ÷ Customers at Period Start. Losing 12 customers out of a starting base of 240 gives 12 ÷ 240 = 5.00%. Both numbers need to describe the same population and period — customers lost from a broader definition (say, including free-trial drop-offs) divided against a starting count of paying customers only will produce a rate that doesn't cleanly describe either group. What counts as \"lost\" (a formal cancellation, a lapsed non-renewal, sustained inactivity) is a definition your business sets and needs to apply consistently period over period, since the formula itself doesn't encode that policy."
+    },
+    {
+      "id": "logo-vs-revenue-churn-faq",
+      "q": "Is logo churn the same as revenue churn?",
+      "a": "No. Logo churn counts customers lost as a share of starting customers; revenue churn counts the dollar value lost as a share of starting recurring revenue, which is what feeds Gross Revenue Retention's complement. They can move in opposite directions in the same period — losing several small accounts pushes logo churn up while barely denting revenue if larger accounts stayed and expanded, and losing one very large account can spike revenue churn while logo churn barely moves. Neither number substitutes for the other: logo churn tells you about relationship count, revenue churn tells you about dollar impact, and a business tracking only one can be blindsided by what the other would have shown about the same period."
+    },
+    {
+      "id": "annualize-logo-churn",
+      "q": "Can I just multiply monthly logo churn by 12 to get an annual rate?",
+      "a": "No, and doing so overstates the real annual figure. Churn compounds against a shrinking base each period, so a constant 5% monthly churn works out to roughly 1 − (1 − 0.05)^12 ≈ 46% churned over a year, not the 60% a flat multiplication implies. The gap between the naive and compounded figures grows as the monthly rate increases. This compounding math also assumes the monthly rate stays constant all year, which real businesses rarely do exactly, so treat any annualized estimate as an approximation rather than an exact forecast. The safer approach is measuring monthly and annual churn separately from actual data rather than deriving one from the other by simple arithmetic."
+    },
+    {
+      "id": "good-logo-churn",
+      "q": "What is a good logo churn rate?",
+      "a": "There's no universal good logo churn rate — it depends heavily on customer segment, contract length, price point, and how the business defines a lost customer, all of which vary enough that a single benchmark number rarely applies across companies. A consumer subscription with a low price point typically tolerates a much higher churn rate than an enterprise contract business, without either one being unhealthy for its own segment. Rather than chasing a published figure, logo churn is most meaningfully read against your own trend over time and alongside revenue churn from the same period — a rising logo churn with flat revenue churn tells a very different story than both rising together, and neither is visible from logo churn alone."
+    }
+  ],
+  "seo": {
+    "seoTitle": "Logo Churn Calculator",
+    "seoDescription": "Calculate customer (logo) churn from customers lost and starting customers, and see how it differs from revenue churn.",
+    "canonicalPath": "/calculators/logo-churn",
+    "index": true,
+    "follow": true
+  },
+  "qaStatus": "ready",
+  "qaNotes": "STANDARD depth (Batch 03). Implementation note: logo-churn was not previously a live route (calculator-catalog.json listed status: recommended, no compute function, not in LIVE_CALCULATOR_SLUGS) - implemented as part of this batch per explicit instruction (compute fn added to calc-registry.ts, slug added to LIVE_CALCULATOR_SLUGS and test-calculators.mjs, math-verified against the existing exampleInput/exampleOutput: 12/240=5.00%, plus a new zero-startCustomers edge-case test). No calculator logic invented beyond the catalog's own formula (lostCustomers / startCustomers). Core boundary kept explicit in formula/comparison-note/interpretation/two FAQs: this is customer-count churn, never described as or conflated with revenue churn (NRR/GRR's churned-MRR side). Retention+Churn=100% stated as conditional on same population/period/definition, not a universal identity - the what-counts-as-churn section explains why (same-period signup-then-cancel breaks it). Monthly-to-annual naive multiplication explicitly corrected with the compounding formula (1-(1-monthly)^12), independently verified: 1-0.95^12=0.4596 (~46%), not 5%x12=60%. No universal 'healthy churn' benchmark. External source: Corporate Finance Institute's customer-churn-vs-revenue-churn page - same URL retention-rate.json already cites, but a distinct claim (the customer-churn formula itself, not the retention-rate/churn-rate complement claim retention-rate.json uses it for) and independently reworded, per the established cross-page-citation precedent (see cac-payback-period/aov's shared CFI citations). Related Calculators verified live: retention-rate, nrr, d1-retention, mrr. retention-rate.json itself left unmodified per instruction. 5 FAQs, 100-150 words each, independently word-counted."
+}

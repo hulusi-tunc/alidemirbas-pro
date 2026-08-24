@@ -1,17 +1,38 @@
 {
   "counts": {
-    "expected": 13,
-    "found": 13,
+    "expected": 18,
+    "found": 18,
     "byQaStatus": {
-      "ready": 13,
-      "review": 0,
+      "ready": 17,
+      "review": 1,
       "blocked": 0
     }
   },
-  "errors": [],
-  "warnings": [
-    "Heading \"The formula\" repeats on 5/13 pages (aov, cac, cr, gross-margin, roas) - reviewed and judged healthy consistency, not template risk, since the prose underneath differs substantively (see calculator-content-system-audit.md); flagged here so it's visible as the corpus grows.",
-    "Heading \"Reading the number\" repeats on 8/13 pages (aov, cac-payback-period, cac, cr, gross-margin, ltv, retention-rate, roas) - reviewed and judged healthy consistency, not template risk, since the prose underneath differs substantively (see calculator-content-system-audit.md); flagged here so it's visible as the corpus grows."
+  "errors": [
+    "cac-payback-period: section \"trust-checks\" (trust-checks) has an empty or suspiciously short body",
+    "cac: section \"trust-checks\" (trust-checks) has an empty or suspiciously short body",
+    "cpc: has FAQ but \"faq\" is a prohibited slot for contentDepth \"light\"",
+    "ctr: has FAQ but \"faq\" is a prohibited slot for contentDepth \"light\"",
+    "ltv-cac-ratio: section \"trust-checks\" (trust-checks) has an empty or suspiciously short body",
+    "ltv: section \"trust-checks\" (trust-checks) has an empty or suspiciously short body",
+    "roas: section \"trust-checks\" (trust-checks) has an empty or suspiciously short body"
   ],
-  "status": "PASS"
+  "warnings": [
+    "ab-test: required content slot \"limitations\" not covered by intro/sections/faq (may be an intentional editorial call - check qaNotes)",
+    "ab-test: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "aov: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "break-even-point: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "cac-payback-period: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "cr: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "ctr: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "gross-margin: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "ltv-cac-ratio: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "mrr: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "retention-rate: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "test-duration-estimator: no section body contains a number from exampleInput/exampleOutput - the worked example may be described but not shown concretely",
+    "Heading \"Worked example\" repeats on 15/18 pages (ab-test, aov, break-even-point, cac-payback-period, cac, cpc, cr, ctr, gross-margin, logo-churn, ltv-cac-ratio, mrr, retention-rate, roas, test-duration-estimator) - reviewed and judged healthy consistency, not template risk, since the prose underneath differs substantively (see calculator-content-system-audit.md); flagged here so it's visible as the corpus grows.",
+    "Heading \"Reading the number\" repeats on 5/18 pages (aov, cac-payback-period, gross-margin, ltv, retention-rate) - reviewed and judged healthy consistency, not template risk, since the prose underneath differs substantively (see calculator-content-system-audit.md); flagged here so it's visible as the corpus grows.",
+    "Heading \"Before you trust this result\" repeats on 5/18 pages (cac-payback-period, cac, ltv-cac-ratio, ltv, roas) - reviewed and judged healthy consistency, not template risk, since the prose underneath differs substantively (see calculator-content-system-audit.md); flagged here so it's visible as the corpus grows."
+  ],
+  "status": "FAIL"
 }

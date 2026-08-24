@@ -1791,27 +1791,26 @@
     },
     {
       "slug": "test-duration-estimator",
-      "contentDepth": "standard",
+      "contentDepth": "deep",
       "required": [
         "definition",
         "formulaExplanation",
         "howToCalculate",
         "workedExample",
         "interpretation",
-        "commonMistakes",
-        "relatedMetrics",
-        "comparisonLinks"
-      ],
-      "optional": [
-        "goodValue",
-        "benchmarks",
-        "faq"
-      ],
-      "prohibited": [
         "methodology",
         "assumptions",
-        "limitations"
-      ]
+        "limitations",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks",
+        "faq"
+      ],
+      "optional": [
+        "benchmarks",
+        "goodValue"
+      ],
+      "prohibited": []
     },
     {
       "slug": "srm-check",

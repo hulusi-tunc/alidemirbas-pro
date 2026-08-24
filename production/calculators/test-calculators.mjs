@@ -19,6 +19,7 @@ const LIVE_SLUGS = [
   "dau-mau-stickiness", "d1-retention", "saas-quick-ratio", "rule-of-40",
   "cart-abandonment", "confidence-interval-calculator", "test-duration-estimator",
   "profit-margin", "engagement-rate",
+  "logo-churn",
 ];
 
 let pass = 0, fail = 0;
@@ -115,6 +116,8 @@ const edgeCases = [
   { label: "mrr: negative-growth (contraction) is valid, not clamped", fn: () => getCompute("mrr")({ currentMrr: 40000, priorMrr: 50000 }).mrrGrowthRate, assertEqual: -0.2 },
   { label: "gross-margin: cost exceeding revenue gives a negative margin, not clamped to 0", fn: () => getCompute("gross-margin")({ revenue: 100, cogs: 150 }).grossMargin, assertEqual: -0.5 },
   { label: "d1-retention: decimal inputs still compute a valid rate", fn: () => getCompute("d1-retention")({ usersReturnedOnDayN: 333, cohortSize: 1000 }).retentionN, assertClose: 0.333 },
+  { label: "logo-churn: zero customers at period start -> NaN, not Infinity", fn: () => getCompute("logo-churn")({ lostCustomers: 5, startCustomers: 0 }).logoChurn, assertNaN: true },
+  { label: "test-duration-estimator: raw day count is rounded UP to a full week", fn: () => getCompute("test-duration-estimator")({ requiredSamplePerVariant: 29827, dailyTrafficPerVariant: 1000 }).days, assertEqual: 35 },
 ];
 for (const ec of edgeCases) {
   const v = ec.fn();

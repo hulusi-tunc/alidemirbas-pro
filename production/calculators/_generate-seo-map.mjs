@@ -38,7 +38,18 @@ const STANDARD_OVERRIDES = new Set([
 // daily traffic, rounded up to a week) - nowhere near the distributional
 // reasoning ab-test/sample-size-calculator/confidence-interval-calculator
 // need. See calculator-content-rule-audit.json's depthModel entry.
-const DEPTH_OVERRIDES = { "test-duration-estimator": "standard" };
+//
+// Reversed for the CPC/MRR/Logo Churn/Break-Even/Test Duration content
+// batch: the raw arithmetic is simple, but the implementation carries
+// enough assumptions worth stating explicitly (50/50 allocation, daily-
+// traffic convention, round-up-to-a-full-week rule, no sequential-testing/
+// peeking support) that STANDARD's prohibition on methodology/assumptions/
+// limitations sections would force those caveats into a definition or
+// interpretation section instead of naming them as what they are. Content
+// depth reclassified back to the category default (deep) for this slug
+// only - explicit editorial call for this batch, not a re-run of the
+// blanket rule elsewhere.
+const DEPTH_OVERRIDES = {};
 function contentDepth(c) {
   if (DEPTH_OVERRIDES[c.slug]) return DEPTH_OVERRIDES[c.slug];
   if (c.modes) return "deep";
