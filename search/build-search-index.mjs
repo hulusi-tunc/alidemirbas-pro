@@ -117,6 +117,33 @@ for (const j of journeys) {
   const { identity, entry, graph, relationships, derived } = j;
   const exitHeadlines = graph.nodes.filter((n) => n.kind === "exit").slice(0, 5).map((n) => n.headline);
   const handoffTargets = (relationships.handoffs ?? []).map((h) => h.to);
+  // journeyRelationRefs: Part 17's related-content readiness finding - a
+  // REAL, explicit, source-authored relation signal (journey-view-model.json's
+  // own relationships.handoffs/distinctFrom) that was already being read for
+  // handoffTargets above but only folded into free-text searchText, never
+  // exposed as a structured, resolvable field. 94% of journeys (239/255) have
+  // at least one handoff edge - a vastly stronger, more complete signal than
+  // the shared-category-only secondary relation search-relations.json
+  // currently computes for journeys (11% coverage, 29/255). Only internal,
+  // resolvable targets are kept (relationships.handoffs/distinctFrom can
+  // also point at "external:xxx" conceptual targets - a handoff to a system
+  // or process not modeled as its own journey document - those are excluded
+  // here the same way any non-resolvable reference is excluded elsewhere in
+  // this file, so this field never points at a non-existent document).
+  // Deliberately NOT wired into search-relations.json's relatedPrimary/
+  // relatedSecondary this round - per the task brief's explicit "do not
+  // publish automatic related-content links this round", this is prepared,
+  // available, source-backed data for a FUTURE round to compute from, not a
+  // new recommendation being surfaced now - see search-related-content-
+  // readiness-report.json for the full evaluation this stems from.
+  const journeyRelationRefs = {
+    handoffs: (relationships.handoffs ?? [])
+      .filter((h) => !h.isExternal && journeyById.has(h.to))
+      .map((h) => ({ targetId: `journey:${h.to}` })),
+    distinctFrom: (relationships.distinctFrom ?? [])
+      .filter((df) => journeyById.has(df.journey))
+      .map((df) => ({ targetId: `journey:${df.journey}`, because: df.because })),
+  };
   const stage = lifecycleStageOf(identity.category);
   const normalizedFromStage = JOURNEY_STAGE_TO_NORMALIZED[stage];
   const handoffText = handoffTargets.length ? `Hands off to ${handoffTargets.join(", ")}` : null;
@@ -148,7 +175,8 @@ for (const j of journeys) {
     canonical: `${SITE_URL}/lab/journeys/${identity.slug}`,
     searchAliases: [],
     boost: {},
-    source: { file: ["production/journey-view-model.json"], fields: ["identity", "entry.trigger", "graph.nodes[exit]", "relationships.handoffs", "derived.behaviors"] },
+    source: { file: ["production/journey-view-model.json"], fields: ["identity", "entry.trigger", "graph.nodes[exit]", "relationships.handoffs", "relationships.distinctFrom", "derived.behaviors"] },
+    journeyRelationRefs,
   });
 }
 
@@ -165,6 +193,8 @@ for (const m of mergedContract.records) {
     targetSlug: survivor.identity.slug,
     resultVisibility: "target-only",
     type: "merged-journey",
+    provenance: "source-derived",
+    provenanceDetail: "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
     source: "production/journey-merged-id-contract.json",
   });
   const targetDoc = docs.find((d) => d.id === `journey:${m.resolvedJourneyId}`);
@@ -218,6 +248,106 @@ for (const slug of liveCalcSlugs) {
     boost: {},
     source: { file: ["production/calculators/calculator-catalog.json", "production/calculators/calculator-seo-map.json", `${calcContentDir}/${slug}.json`], fields: ["name", "category", "formulaPlainEnglish", "relatedCalculators", "primaryKeyword", "secondaryKeywords", "seo.seoTitle", "seo.seoDescription", "intro"] },
   });
+}
+
+/* ============================================== CALCULATOR ACRONYM ALIASES
+   Deterministic, source-derived - not hand-curated per calculator. A
+   calculator's own catalog `name` is checked for the "{ACRONYM} Calculator"
+   shape; if it matches, its own calculator-seo-map.json secondaryKeywords
+   are scanned for a "{full name} calculator" entry (excluding the generic
+   "{acronym} formula"/"how to calculate {acronym}"/"{acronym} example"/
+   "what is {acronym}"/"average {acronym}" boilerplate every calculator
+   carries) - if one exists, that's a real, source-derived alias, not an
+   invented one. Same extraction logic already manually verified against
+   the corpus in the prior round (13 pairs found, 2 rejected as artifacts -
+   see search-synonyms.json's own history) - now implemented directly in
+   the generator instead of hand-transcribed, so it re-derives correctly
+   if calculator-seo-map.json or the catalog ever changes. */
+/* Gate: a secondaryKeyword's base phrase is only accepted as a 1:1 alias if
+   the initials of its own words (letters only, punctuation/digits stripped)
+   literally spell the acronym - this is the actual test for "is this really
+   just the acronym spelled out", not a generic SEO-related-keyword list.
+   Verified against the real corpus to correctly ACCEPT genuine expansions
+   ("customer acquisition cost" -> CAC, "cost per click" -> CPC, "cost per
+   mille" -> CPM, "return on ad spend" -> ROAS, "average order value" -> AOV)
+   and correctly REJECT related-but-NOT-identical SEO keywords that a naive
+   "ends with calculator" filter would have wrongly turned into hard aliases:
+   "arr calculator" (ARR is a different, though related, metric from MRR -
+   this exact non-identity was already established in search-synonyms.json's
+   own rejectedCandidates), "mrr growth rate calculator" (a derived rate, not
+   MRR itself), "cost per conversion calculator" (CPA's own secondaryKeyword,
+   but "conversion" is context-dependent and not guaranteed identical to
+   "acquisition" - kept as a softer synonym instead, not a hard alias),
+   "ltv (simple model) calculator" (a modifier phrase, not an alternate name),
+   "revenue per order calculator" / "average basket size calculator" (AOV's
+   own secondaryKeywords, but these are softer synonym candidates, not
+   guaranteed-identical alternate names for AOV itself). */
+function acronymInitialsMatch(basePhrase, acronym) {
+  const acr = acronym.replace(/[^a-zA-Z]/g, "").toLowerCase();
+  const words = basePhrase.replace(/[^a-zA-Z\s]/g, "").trim().split(/\s+/).filter(Boolean);
+  if (words.length < 2) return false; // a single-word base is never a spelled-out acronym
+  const initials = words.map((w) => w[0]).join("").toLowerCase();
+  return initials === acr;
+}
+for (const slug of liveCalcSlugs) {
+  const spec = catalogBySlug.get(slug);
+  const seo = seoMapBySlug.get(slug);
+  if (!spec) continue;
+  const acronymMatch = /^([A-Z][A-Za-z0-9/]{1,10})\s+Calculator$/.exec(spec.name);
+  const heroMatch = /^(.+?)\s*\(([A-Z][A-Za-z0-9/]{1,10})\)/.exec(spec.name); // catalog name rarely has this shape, kept for symmetry
+  const contentHero = rj(`${calcContentDir}/${slug}.json`).heroTitle;
+  const contentHeroMatch = contentHero && /^(.+?)\s*\(([A-Z][A-Za-z0-9/]{1,10})\)/.exec(contentHero);
+  const targetDoc = docs.find((d) => d.id === `calculator:${slug}`);
+  if (!targetDoc) continue;
+
+  // Case 1: content.json's own heroTitle spells out "{Full Name} ({ACRONYM})"
+  // verbatim - the strongest possible provenance (source-derived): the
+  // author's own parenthetical notation is an explicit, unambiguous claim
+  // that fullName IS the expansion of acr, so both sides are pushed.
+  // An alias equal to the target's own slug/id (case-insensitively) is
+  // redundant - it already matches directly via the document's own slug/
+  // title, and search-validator.mjs's check 8 correctly rejects an alias
+  // that collides with a real document's own id/slug, so it's skipped here
+  // rather than generated and then failing validation.
+  const hasAliasCI = (alias) => alias.toLowerCase() === slug.toLowerCase() || targetDoc.searchAliases.some((a) => a.toLowerCase() === alias.toLowerCase());
+  if (contentHeroMatch) {
+    const [, fullName, acr] = contentHeroMatch;
+    for (const alias of [acr, fullName.trim()]) {
+      if (hasAliasCI(alias)) continue;
+      aliases.push({ alias, targetId: targetDoc.id, provenance: "source-derived", provenanceDetail: `content/${slug}.json heroTitle spells this out verbatim: "${contentHero}"`, resultVisibility: "target-only" });
+      targetDoc.searchAliases.push(alias);
+    }
+  }
+  // Case 1b: calculator-catalog.json's own name field uses the same
+  // "{Full Name} ({ACRONYM})" pattern (e.g. "Net Revenue Retention (NRR)
+  // Calculator") for a few slugs where content.json's heroTitle doesn't
+  // carry it - same provenance strength, different source file.
+  if (heroMatch) {
+    const [, fullName, acr] = heroMatch;
+    for (const alias of [acr, fullName.trim()]) {
+      if (hasAliasCI(alias)) continue;
+      aliases.push({ alias, targetId: targetDoc.id, provenance: "source-derived", provenanceDetail: `calculator-catalog.json name spells this out verbatim: "${spec.name}"`, resultVisibility: "target-only" });
+      targetDoc.searchAliases.push(alias);
+    }
+  }
+  // Case 2: catalog name is "{ACRONYM} Calculator" (e.g. "ROAS Calculator") -
+  // the acronym itself is already a direct title token match, so no alias
+  // entry is needed for THAT; what's worth an alias is the acronym's own
+  // full-name EXPANSION, if calculator-seo-map.json's secondaryKeywords
+  // spell it out as "{expansion} calculator".
+  if (acronymMatch && !heroMatch) {
+    const [, acr] = acronymMatch;
+    const kws = (seo?.secondaryKeywords ?? []).map((k) => k.keyword);
+    for (const kw of kws) {
+      if (!kw.endsWith(" calculator")) continue;
+      const base = kw.slice(0, -" calculator".length).trim();
+      if (base.toLowerCase() === acr.toLowerCase()) continue;
+      if (!acronymInitialsMatch(base, acr)) continue;
+      if (hasAliasCI(base)) continue;
+      aliases.push({ alias: base, targetId: targetDoc.id, provenance: "source-derived", provenanceDetail: `calculator-seo-map.json secondaryKeywords for ${slug}: "${kw}"`, resultVisibility: "target-only" });
+      targetDoc.searchAliases.push(base);
+    }
+  }
 }
 
 /* =============================================================== LAB PRODUCTS
@@ -290,7 +420,7 @@ for (const p of BLOG_POSTS) {
     title: p.title,
     summary: truncate(p.excerpt, 400),
     searchText,
-    keywords: [],
+    keywords: uniq([p.topic]), // real, sourced field (the post's own topic) - was empty in the prior round, a real gap, not a deliberate omission (see search-coverage-report.json)
     category: [p.category],
     normalizedCategory: [],
     surface: [],
@@ -434,7 +564,12 @@ writeFileSync(path.join(ROOT, "search/search-relations.json"), JSON.stringify({
 }, null, 2) + "\n");
 
 writeFileSync(path.join(ROOT, "search/search-aliases.json"), JSON.stringify({
-  _description: "Search-time aliases - a query matching `alias` should resolve to `targetId`'s document, never create a separate result. Currently populated only by the 5 merged journeys (journey-merged-id-contract.json is the source of truth this list is generated from, never re-decided here).",
+  _description: "Document-level aliases only - a query matching `alias` resolves to ONE specific document (`targetId`), never creates a separate result of its own. This is deliberately narrower than search-synonyms.json: an alias here is a guaranteed 1:1 name-for-the-same-entity mapping (an acronym literally naming one calculator, or a retired journey id pointing at its one survivor); a many-to-many or corpus-wide term equivalence (e.g. 'A/B Test'/'AB Test'/'Split Test', which apply across 211 different documents, not one) belongs in search-synonyms.json instead - see that file's own note on where the boundary is and why the two are not the same concept.",
+  provenanceClasses: {
+    "source-derived": "the alias string is literally present in the target document's own authored content (a heroTitle's parenthetical acronym, a calculator-seo-map.json secondaryKeyword, an existing SEO/production contract file) - the strongest, fully-auditable class.",
+    "deterministic-abbreviation": "mechanically derivable by a stated, disclosed rule from the target's own name (not currently used for any entry below - every alias found this round was already source-derived; kept as a defined class for future entries that are ruled, not typed by a human, and don't happen to be spelled out verbatim anywhere).",
+    "manually-authored": "a human judgment call, not extractable from any source file - used only where the reasoning is disclosed and the mapping is unambiguous and well-established (see search-synonyms.json's own manually-authored entries for the only cases like this in this round; none exist in this alias file - every alias here is source-derived)."
+  },
   aliases,
 }, null, 2) + "\n");
 

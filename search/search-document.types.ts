@@ -127,4 +127,20 @@ export type SearchDocument = {
       for the actual values and the signals this composes with. */
   boost: Record<string, number>;
   source: SourceProvenance;
+  /** Journey-only, OPTIONAL type-specific field (absent on the other 4
+      types - no forced universal field, per Part 2). Deterministic,
+      source-backed relation references read directly from journey-view-
+      model.json's own relationships.handoffs/distinctFrom (94%/65% of
+      journeys carry at least one real edge - see search-related-content-
+      readiness-report.json for the full coverage evaluation this stems
+      from). Only internally-resolvable targets are kept (relationships can
+      also reference "external:xxx" conceptual targets with no journey
+      document of their own - those are filtered out, never left dangling).
+      Deliberately NOT yet consumed by search-relations.json's
+      relatedPrimary/relatedSecondary - prepared data for a future round,
+      not a related-content recommendation being published this round. */
+  journeyRelationRefs?: {
+    handoffs: { targetId: string }[];
+    distinctFrom: { targetId: string; because: string }[];
+  };
 };

@@ -14506,7 +14506,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-72"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-06",
+          "because": "Eligibility asks whether the rules would permit this. Entitlement asks whether it has been granted. ACQ-06's own guardrail names the difference; this journey is the state on the other side of it."
+        }
       ]
     }
   },
@@ -14559,8 +14573,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -14610,8 +14633,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-74"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -14661,7 +14693,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-80"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-78",
+          "because": "Suspension restricts a right that still exists and is designed to come back. This is the right ending, which is why it reconciles obligations rather than holding them."
+        }
       ]
     }
   },
@@ -14712,7 +14758,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-86"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-56",
+          "because": "Approval is a business decision taken in advance about a subject. Authorization is a runtime decision taken at the moment of the attempt, and being approved for something does not authorise every action within it."
+        }
       ]
     }
   },
@@ -14765,7 +14825,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-77"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-71",
+          "because": "The entitlement is the right. The credential is an artifact that presents it. Treating the artifact as the right means revoking a token looks like removing a benefit."
+        }
       ]
     }
   },
@@ -14815,8 +14889,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-85"
+        },
+        {
+          "targetId": "journey:ACC-76"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -14866,7 +14952,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-79"
+        },
+        {
+          "targetId": "journey:ACC-74"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-65",
+          "because": "Grace continues a right whose validity has ended. Suspension restricts a right that is still valid. One is continuity after an ending; the other is a hold before one."
+        }
       ]
     }
   },
@@ -14916,7 +15022,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-68",
+          "because": "TIM-68 reverses a transition within a window and asks what side effects can be undone. This rebuilds a capability set from scratch against current conditions, with no assumption that the previous set is the target."
+        }
       ]
     }
   },
@@ -14970,7 +15086,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-74",
+          "because": "ACC-74 ends a right and stops future use. This removes the technical resource behind it, which is a separate operation with its own failure modes and its own reasons to wait."
+        }
       ]
     }
   },
@@ -15025,7 +15155,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-05"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-02",
+          "because": "ACQ-02 starts from something the person declared. Here nothing has been declared, so identity and permission both have to be established rather than read."
+        }
       ]
     }
   },
@@ -15078,7 +15222,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-05"
+        },
+        {
+          "targetId": "journey:ACQ-09"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-09",
+          "because": "This journey decides where interest goes. ACQ-09 is one of the places it can go, and owns the bounded window that follows - keeping both here would put the same window in two state machines."
+        }
       ]
     }
   },
@@ -15131,7 +15292,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-08",
+          "because": "ACQ-08 fires when a destination has been reached and acquisition is finished. This fires while everything is still in progress and only the ranking has changed."
+        }
       ]
     }
   },
@@ -15186,7 +15357,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-08"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-05",
+          "because": "ACQ-05 reacts to a qualification state that has already changed. This one runs at the moment of the act, before any state has been decided, and its output is a routing decision rather than a state."
+        }
       ]
     }
   },
@@ -15242,7 +15427,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-10",
+          "because": "ACQ-10 handles a decision the other side made. This handles a decision our own qualification made, which can be reversed by new information without anyone changing their mind."
+        }
       ]
     }
   },
@@ -15295,7 +15490,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-05",
+          "because": "Qualification asks whether we want this relationship. Eligibility asks whether the rules permit a specific action, which can flip repeatedly while qualification never moves."
+        }
       ]
     }
   },
@@ -15351,7 +15556,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-03"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-10",
+          "because": "Nobody said no here. Decay is the absence of continuing evidence, and it must not be recorded as a decision the person never made."
+        }
       ]
     }
   },
@@ -15404,7 +15623,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-03",
+          "because": "Escalation re-ranks journeys that are all still live. This one ends a class of them, because the objective they shared has been met."
+        }
       ]
     }
   },
@@ -15458,7 +15687,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-03"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-07",
+          "because": "Decay retires an intent state that has gone stale. This spends a deliberately fixed window trying to advance one, and only then closes it."
+        }
       ]
     }
   },
@@ -15513,7 +15756,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-07"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:ACQ-05"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-07",
+          "because": "Someone decided something here. Where the recorded reason turns out to be silence rather than a decision, this journey hands it to decay instead of treating it as one."
+        }
       ]
     }
   },
@@ -15565,7 +15828,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-13"
+        },
+        {
+          "targetId": "journey:ACT-12"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-19",
+          "because": "This routes on the work required, which is usually readable from the account itself. ACT-19 fires only where a named role or use-case is missing and the answer would change the path."
+        }
       ]
     }
   },
@@ -15621,8 +15901,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-16"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -15676,7 +15965,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-12"
+        },
+        {
+          "targetId": "journey:ACT-11"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-14",
+          "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere."
+        }
       ]
     }
   },
@@ -15731,7 +16037,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-16"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-13",
+          "because": "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction."
+        }
       ]
     }
   },
@@ -15783,7 +16103,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-17"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-16",
+          "because": "The same event can drive both, and they do opposite work. ACT-16 stops what onboarding still had queued; this one speaks to the person about what they just did."
+        }
       ]
     }
   },
@@ -15835,8 +16169,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-17"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -15890,7 +16233,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-18"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-12",
+          "because": "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup."
+        }
       ]
     }
   },
@@ -15945,7 +16302,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-17"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-14",
+          "because": "ACT-14 is pre-activation and triggered by help-seeking. This is post-activation and triggered by silence, where the most common correct answer is that nothing is wrong."
+        }
       ]
     }
   },
@@ -15999,8 +16370,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-12"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16055,7 +16435,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-12"
+        },
+        {
+          "targetId": "journey:ACQ-03"
+        },
+        {
+          "targetId": "journey:ACQ-05"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-07",
+          "because": "Decay retires an intent state that is no longer credible. This tries to restart a relationship that had already started, and it only applies where money never changed hands."
+        }
       ]
     }
   },
@@ -16106,7 +16506,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-202"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-41",
+          "because": "FBK-41 decides whether it is appropriate to ask somebody for something. This decides whether a business event creates an obligation to tell somebody something - the requirement comes from the event and the rules, not from the recipient's receptiveness."
+        }
       ]
     }
   },
@@ -16159,8 +16573,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-203"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16210,7 +16633,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:CMS-204"
+        },
+        {
+          "targetId": "journey:CMS-210"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-35",
+          "because": "CON-35 owns consent and permission as authoritative state, and propagates changes to it. This evaluates that state for one message's actual purpose - it can suppress a channel the recipient has permitted, and permit one they have not, where mandatory-delivery rules say so."
+        }
       ]
     }
   },
@@ -16260,8 +16703,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-205"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16310,8 +16762,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-202"
+        },
+        {
+          "targetId": "journey:CMS-206"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16362,7 +16826,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-208"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CMS-207",
+          "because": "This is the handover to a provider - accepted, refused or unanswered. CMS-207 is what the channel later reports about whether it reached anyone. A message can be accepted and never delivered, and the two states must be separately visible."
+        }
       ]
     }
   },
@@ -16415,8 +16893,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-210"
+        },
+        {
+          "targetId": "journey:CMS-208"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16470,7 +16960,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-36"
+        },
+        {
+          "targetId": "journey:CMS-203"
+        },
+        {
+          "targetId": "journey:CMS-210"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-124",
+          "because": "OPS-124 is the generic retryable-failure and backoff mechanism. This decides what a communication failure means - whether the address is dead, whether another channel may carry this purpose, and whether the message is even still worth delivering. It uses that retry machinery rather than being it."
+        }
       ]
     }
   },
@@ -16521,8 +17031,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16572,7 +17094,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-32",
+          "because": "This creates authorisation. CON-32 records how someone would like authorised communication done, which is a different fact and must never be able to create this one."
+        }
       ]
     }
   },
@@ -16622,8 +17154,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-33"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16670,8 +17211,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -16718,7 +17264,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-33",
+          "because": "A frequency preference changes how much rather than what, which means recalculating a cadence across classes rather than adapting individual queued actions."
+        }
       ]
     }
   },
@@ -16769,7 +17325,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-40"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-31",
+          "because": "CON-31 creates a permission. This changes one that exists, and the difference that matters is that a change can be a withdrawal, which has to be enforced before it has been agreed anywhere else."
+        }
       ]
     }
   },
@@ -16826,7 +17396,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-202"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-35",
+          "because": "One is about capability and the other about authorisation. They are stored separately precisely so that a bounce can never look like an opt-out."
+        }
       ]
     }
   },
@@ -16878,7 +17462,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-39",
+          "because": "A cooldown is one reason among the nine this journey holds. It has its own journey because its release is time-based and its scope is deliberately partial, which the general mechanism does not assume."
+        }
       ]
     }
   },
@@ -16930,8 +17524,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-38"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -16982,7 +17585,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-35",
+          "because": "CON-35 propagates a state it knows to be right. This one runs when nobody knows which state is right, which is why it starts by closing rather than by deciding."
+        }
       ]
     }
   },
@@ -17035,7 +17652,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-71",
+          "because": "ACC-71 qualifies an entitlement - what somebody may do. This establishes who is accountable for the entity itself. An administrator can hold every entitlement the owner holds and still not be the party answerable for it."
+        }
       ]
     }
   },
@@ -17087,7 +17718,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CTL-234"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CTL-233",
+          "because": "This validates that a transfer may be proposed at all. CTL-233 validates that it is still valid when somebody finally accepts it, which is a different question asked against a different state of the world."
+        }
       ]
     }
   },
@@ -17138,8 +17783,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CTL-234"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17188,7 +17842,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-54"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TRM-104",
+          "because": "TRM-104 transfers a primary relationship and its dependencies during account consolidation. This is the ownership control boundary specifically - establishing an accountable controller before removing the previous one, which is a sequencing requirement rather than a dependency migration."
+        }
       ]
     }
   },
@@ -17239,7 +17907,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CTL-236"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CTL-232",
+          "because": "A transfer moves accountability permanently to somebody else. A delegation lends bounded authority while the owner stays the owner, stays accountable, and can revoke it. Treating one as the other moves control nobody moved."
+        }
       ]
     }
   },
@@ -17291,8 +17973,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CTL-237"
+        },
+        {
+          "targetId": "journey:CTL-237"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17341,7 +18035,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-54"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-74",
+          "because": "ACC-74 handles entitlement loss for a party losing rights. This decides which of a party's rights were borrowed and which were their own - and its whole difficulty is that removing the wrong set locks somebody out of an account they independently administer."
+        }
       ]
     }
   },
@@ -17392,8 +18100,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-88"
+        },
+        {
+          "targetId": "journey:CTL-232"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17443,8 +18166,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DAT-222"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17494,8 +18226,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DAT-223"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17547,8 +18294,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DAT-224"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17599,7 +18358,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DAT-225"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-121",
+          "because": "OPS-121 runs a unit of async work and reports whether it finished. This mutates production data from a validated set, so its outcomes are per-record rather than per-job and its defining requirement is that re-running it does not create a second copy of everything that already worked."
+        }
       ]
     }
   },
@@ -17652,7 +18425,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DAT-222"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-126",
+          "because": "OPS-126 preserves completed work in a composite processing job and retries the failed part. This works at record grain against production data, where a retry can create a duplicate row, a correction can silently alter a record that was already right, and the unresolved scope has to stay linked to the original import."
+        }
       ]
     }
   },
@@ -17703,7 +18490,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DAT-227"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DAT-227",
+          "because": "This proves the mapping can work. DAT-227 runs it and checks what actually arrived. A mapping that passes design review can still lose relationships at volume, and a mapping that never existed cannot be discovered mid-run."
+        }
       ]
     }
   },
@@ -17753,7 +18557,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DAT-230"
+        },
+        {
+          "targetId": "journey:DAT-228"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DAT-228",
+          "because": "This produces a verified target population. DAT-228 changes which system answers - a separate act, with live traffic depending on it, and its own recovery path."
+        }
       ]
     }
   },
@@ -17805,8 +18626,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DAT-230"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17855,7 +18688,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DAT-230"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-118",
+          "because": "INT-118 backfills what an integration missed while it was disconnected, and reconciles against a partner system. This repairs a historical gap from any source, and its defining problem is suppressing the real-time side effects those events would have triggered - a question a reconnect backfill answers differently."
+        }
       ]
     }
   },
@@ -17905,8 +18755,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -17959,7 +18821,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-182"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-02",
+          "because": "A submission journey qualifies something that arrived. This exists only where a deterministic rule cannot produce the answer and an authorized person must - which is why its first substantive check is whether policy could already decide it."
+        }
       ]
     }
   },
@@ -18011,7 +18887,28 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-183"
+        },
+        {
+          "targetId": "journey:DEC-189"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-189",
+          "because": "This moves ownership within the same authority level, because someone is unavailable, conflicted or too slow. Escalation moves it to a different or higher authority, because the current level cannot decide the question at all."
+        },
+        {
+          "targetId": "journey:OWN-51",
+          "because": "OWN-51 routes work to whoever can do it. This routes a decision to whoever is authorized to make it - availability is not eligibility here, and a decision made by an unauthorized reviewer looks valid and is void."
+        }
       ]
     }
   },
@@ -18061,7 +18958,36 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-182"
+        },
+        {
+          "targetId": "journey:DEC-189"
+        },
+        {
+          "targetId": "journey:DEC-184"
+        },
+        {
+          "targetId": "journey:DEC-185"
+        },
+        {
+          "targetId": "journey:DEC-187"
+        },
+        {
+          "targetId": "journey:DEC-186"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-84",
+          "because": "IDN-84 recovers from a verification that failed - a mechanical outcome with retry and remediation routes. This is a person exercising judgment against criteria, where the failure mode is deciding outside your authority rather than failing a check."
+        }
       ]
     }
   },
@@ -18114,7 +19040,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-189"
+        },
+        {
+          "targetId": "journey:DEC-183"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-49",
+          "because": "FBK-49 resolves missing data blocking a process generally. This is evidence a named reviewer needs to answer a specific open question - it is scoped by the decision rather than by the record, and it ends by resuming a review rather than by unblocking a pipeline."
+        }
       ]
     }
   },
@@ -18168,7 +19111,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-188"
+        },
+        {
+          "targetId": "journey:DEC-190"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-187",
+          "because": "This carries a whole authorized scope into execution. DEC-187 exists because a partitioned scope raises a separate problem - which parts may proceed, and whether the action can be half-done at all."
+        }
       ]
     }
   },
@@ -18219,7 +19179,25 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FBK-47"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-47",
+          "because": "This is the first decision's rejection outcome. FBK-47 is the appeal or reconsideration lifecycle, which exists only where policy grants that right - and this journey hands to it rather than performing it."
+        },
+        {
+          "targetId": "journey:OWN-59",
+          "because": "OWN-59 handles an approval rejected inside a work-ownership flow and asks whether a revision may be resubmitted. This is the decision-case rejection with its full reason taxonomy, and its three separate exits: correctable, reapplicable, and appealable."
+        }
       ]
     }
   },
@@ -18270,7 +19248,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-189"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-185",
+          "because": "DEC-185 executes an authorization whose scope is whole. This has to partition a scope first, and then answer a question DEC-185 never faces: whether the action can be half-done at all."
+        }
       ]
     }
   },
@@ -18321,8 +19313,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-190"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -18372,7 +19376,34 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-183"
+        },
+        {
+          "targetId": "journey:DEC-184"
+        },
+        {
+          "targetId": "journey:DEC-182"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-182",
+          "because": "DEC-182 moves ownership at the same authority level because someone cannot take it. This moves the case to a different or higher authority because the current level cannot decide the question at all."
+        },
+        {
+          "targetId": "journey:OWN-55",
+          "because": "OWN-55 escalates responsibility for work that is stuck. This escalates decision authority specifically - the case is not stuck, it is in front of someone who is not permitted to answer it."
+        }
       ]
     }
   },
@@ -18424,7 +19455,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:REM-157"
+        },
+        {
+          "targetId": "journey:DEC-183"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-58",
+          "because": "OWN-58 asks whether a material change after approval needs re-approval, inside a work-ownership flow. This owns the decision record's history: what supersedes what, what was already executed, and what a new decision does not undo."
+        }
       ]
     }
   },
@@ -18475,7 +19526,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DOC-212"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RSK-195",
+          "because": "RSK-195 owns the compliance requirement itself - whether an obligation is met. This owns the artifact lifecycle a requirement may need: which document, generated how, issued when, signed by whom. A compliance requirement can be satisfied without any document, and most documents exist for reasons that are not compliance."
+        }
       ]
     }
   },
@@ -18527,8 +19592,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DOC-213"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -18577,8 +19654,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DOC-216"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -18629,8 +19715,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CMS-208"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -18683,7 +19778,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DOC-216"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-183",
+          "because": "DEC-183 is somebody exercising judgment against criteria. This is collecting authorized marks against a fixed artifact - nobody is deciding anything on the merits, and its failure modes are version binding, incomplete sets and expiry rather than authority to conclude."
+        }
       ]
     }
   },
@@ -18737,7 +19846,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DOC-220"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-161",
+          "because": "SUB-161 makes a continuing relationship active. This makes a document effective, which may be what triggers that - but a document can be effective without creating a relationship, and a relationship can activate without any document."
+        }
       ]
     }
   },
@@ -18789,8 +19915,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -18840,7 +19975,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DOC-211"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DOC-219",
+          "because": "Expiry is time running out on terms the document itself set. Revocation is an authority withdrawing it. Nobody decided the first, somebody decided the second, and they carry different consequences for what was relied on meanwhile."
+        }
       ]
     }
   },
@@ -18890,7 +20042,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DOC-211"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DOC-217",
+          "because": "An amendment replaces a document with a successor that carries the same purpose forward. Revocation withdraws it with nothing behind it - there may be no successor, and the reason is a decision rather than a change of terms."
+        }
       ]
     }
   },
@@ -18940,7 +20106,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DOC-215"
+        },
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-118",
+          "because": "A generic sync conflict asks which record is newer. This asks which version is authoritative, which turns on issuance authority, lineage and effective semantics - and it must additionally establish which version each signature actually binds to, a question recency cannot answer."
+        }
       ]
     }
   },
@@ -18993,7 +20179,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-43",
+          "because": "This ends when a request has been made or refused. FBK-43 begins only if something actually comes back, and most requests do not produce one."
+        }
       ]
     }
   },
@@ -19046,7 +20242,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-31"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-45",
+          "because": "FBK-45 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it."
+        }
       ]
     }
   },
@@ -19098,8 +20308,26 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FBK-45"
+        },
+        {
+          "targetId": "journey:FBK-44"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -19149,7 +20377,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FBK-46"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-26",
+          "because": "RET-26 starts from a recorded failure and asks what response is owed. This starts from someone's account of an experience and asks whether a failure exists at all - which most often it does not."
+        }
       ]
     }
   },
@@ -19200,8 +20442,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FBK-42"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -19255,8 +20506,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-51"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -19308,7 +20568,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-46",
+          "because": "An issue is something that went wrong. An appeal contests something we did on purpose, which means the subject under review is our own decision and it has to remain intact to be reviewable."
+        }
       ]
     }
   },
@@ -19358,7 +20632,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-32",
+          "because": "CON-32 records how someone wants to be communicated with. This records what they are trying to achieve, which shapes product and journey decisions rather than message delivery."
+        }
       ]
     }
   },
@@ -19411,7 +20695,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-13",
+          "because": "ACT-13 is scoped to activation specifically and owns resuming onboarding. This applies to any named process, most of which have nothing to do with onboarding."
+        }
       ]
     }
   },
@@ -19461,7 +20755,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-21",
+          "because": "RET-21 recalculates engagement from behaviour on a defined cadence. This accumulates heterogeneous signals - feedback, outcomes, friction, contributions - and only reassesses a state where the evidence justifies it."
+        }
       ]
     }
   },
@@ -19514,7 +20818,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-136"
+        },
+        {
+          "targetId": "journey:TIM-62"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-132",
+          "because": "An attempt is one try at discharging an obligation. It can fail without the obligation changing at all, which is exactly why they are two entities."
+        }
       ]
     }
   },
@@ -19565,7 +20886,30 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-136"
+        },
+        {
+          "targetId": "journey:FIN-133"
+        },
+        {
+          "targetId": "journey:FIN-134"
+        },
+        {
+          "targetId": "journey:FIN-135"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-114",
+          "because": "INT-114 is the generic shape of an external operation. This carries financial semantics the generic version has no room for: an obligation behind it, an authorization that is not money, and an unknown state whose safe response is to investigate rather than retry."
+        }
       ]
     }
   },
@@ -19618,8 +20962,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-136"
+        },
+        {
+          "targetId": "journey:FIN-140"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -19670,7 +21026,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:TIM-65"
+        },
+        {
+          "targetId": "journey:TIM-62"
+        },
+        {
+          "targetId": "journey:ACC-78"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-124",
+          "because": "OPS-124 is a generic technical retry against a transient fault. This makes a business recovery decision: what to ask the customer for, whether an alternative route exists, and what happens to the obligation if none of it works."
+        }
       ]
     }
   },
@@ -19723,7 +21099,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-136"
+        },
+        {
+          "targetId": "journey:FIN-134"
+        },
+        {
+          "targetId": "journey:OPS-125"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-140",
+          "because": "Here one attempt's outcome is unknown and the provider can answer it. FIN-140 is where several records exist and disagree, which needs comparison and correction rather than a question."
+        }
       ]
     }
   },
@@ -19775,8 +21171,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-79"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -19827,7 +21232,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:FIN-138"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-138",
+          "because": "Approving a refund authorises the movement. FIN-138 performs it and confirms the money arrived, which fails independently and more often than the decision does."
+        }
       ]
     }
   },
@@ -19880,8 +21305,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-140"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -19932,7 +21366,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RSK-192"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-47",
+          "because": "FBK-47 reviews a decision we made, under our own process. A chargeback is adjudicated by a card scheme or a regulator with power to move funds regardless of what we conclude, and missing its deadline decides it against us whatever the evidence says."
+        }
       ]
     }
   },
@@ -19984,7 +21432,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-135",
+          "because": "FIN-135 has one attempt and no answer, and the provider can supply one. Here every system has an answer and they disagree, which needs comparison, an authority rule and an explicit adjustment."
+        }
       ]
     }
   },
@@ -20037,7 +21495,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-142"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-131",
+          "because": "FIN-131 creates an obligation to pay. This creates an obligation to deliver. They arise from the same event and fail independently - a paid order can be unfulfillable, and a delivered one can go unpaid."
+        }
       ]
     }
   },
@@ -20089,7 +21561,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-150"
+        },
+        {
+          "targetId": "journey:FUL-143"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-143",
+          "because": "This asks whether something exists. FUL-143 claims it. Between the two, someone else can take it - which is why the reading and the claim are separate steps and the claim is the one that counts."
+        }
       ]
     }
   },
@@ -20141,8 +21630,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-142"
+        },
+        {
+          "targetId": "journey:FUL-145"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -20192,7 +21693,33 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-146"
+        },
+        {
+          "targetId": "journey:FUL-147"
+        },
+        {
+          "targetId": "journey:FUL-149"
+        },
+        {
+          "targetId": "journey:FUL-145"
+        },
+        {
+          "targetId": "journey:FUL-150"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-130",
+          "because": "OPS-130 asks whether a technical job produced the state it claimed. This runs the operational execution of a real delivery obligation, where the outcome is measured in scope satisfied rather than in a state existing."
+        }
       ]
     }
   },
@@ -20244,7 +21771,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-144"
+        },
+        {
+          "targetId": "journey:FUL-146"
+        },
+        {
+          "targetId": "journey:FUL-150"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-146",
+          "because": "An exception is something going wrong with the ability to fulfill. A delay is the same obligation arriving later. Where an exception only changes timing, it hands to FUL-146 rather than resolving as one."
+        }
       ]
     }
   },
@@ -20296,8 +21843,26 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-144"
+        },
+        {
+          "targetId": "journey:FUL-145"
+        },
+        {
+          "targetId": "journey:FUL-150"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -20348,7 +21913,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-149"
+        },
+        {
+          "targetId": "journey:FUL-148"
+        },
+        {
+          "targetId": "journey:FUL-146"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-114",
+          "because": "INT-114 is the generic shape of an external operation. This carries delivery semantics that shape has no room for: a recipient who may refuse, an attempt that is not an outcome, and intermediate tracking updates that look like results and are not."
+        }
       ]
     }
   },
@@ -20400,8 +21985,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-147"
+        },
+        {
+          "targetId": "journey:REM-151"
+        },
+        {
+          "targetId": "journey:FUL-145"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -20452,8 +22052,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-151"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -20502,7 +22111,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-137"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-137",
+          "because": "Stopping a delivery and returning money are different decisions with different authority. Coupling them either refunds what was delivered or delivers what was refunded, and this journey hands the financial question to the lifecycle that owns it."
+        }
       ]
     }
   },
@@ -20555,7 +22178,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:IDN-84"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-85",
+          "because": "Verification asks whether a claim is true. Authentication asks whether whoever is present right now controls it. A verified claim from last year says nothing about who is at the keyboard."
+        }
       ]
     }
   },
@@ -20608,7 +22248,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-84"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-49",
+          "because": "FBK-49 is missing data - a value we do not hold. This is missing confidence - we may hold the value and have not established that it is true. The routes to resolving them share nothing."
+        }
       ]
     }
   },
@@ -20661,8 +22318,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -20712,8 +22378,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -20764,7 +22442,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-86"
+        },
+        {
+          "targetId": "journey:IDN-87"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-75",
+          "because": "This establishes who is present. ACC-75 decides what they may do. A successful authentication is an input to that decision and never a substitute for it."
+        }
       ]
     }
   },
@@ -20816,8 +22511,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-75"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -20866,7 +22570,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-88"
+        },
+        {
+          "targetId": "journey:IDN-90"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-90",
+          "because": "This weighs whether failures mean anything. IDN-90 starts from a material compromise signal and contains first. The route between them exists, and it is deliberately a decision rather than a default."
+        }
       ]
     }
   },
@@ -20918,7 +22639,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-90"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-81",
+          "because": "Verification establishes that a claim is true. Recovery establishes that this requester is entitled to regain control of a specific account, which a true claim about their identity does not by itself demonstrate."
+        }
       ]
     }
   },
@@ -20970,8 +22708,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -21021,7 +22764,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-79"
+        },
+        {
+          "targetId": "journey:ACC-79"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-78",
+          "because": "Suspension restricts for a stated business reason and expects to be resolved by that reason going away. This restricts on incomplete evidence about an adversary, which is why it opens an investigation rather than a review."
+        }
       ]
     }
   },
@@ -21073,7 +22836,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INC-252"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RSK-192",
+          "because": "RSK-192 assesses risk evidence about one actor or transaction. This asks whether failures across many unrelated entities plausibly share an operational cause - a question about the system rather than about anybody using it."
+        }
       ]
     }
   },
@@ -21123,8 +22900,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INC-253"
+        },
+        {
+          "targetId": "journey:INC-255"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21174,7 +22963,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INC-254"
+        },
+        {
+          "targetId": "journey:INC-256"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INC-256",
+          "because": "Mitigation reduces impact while the cause remains. INC-256 acts on the cause and asks whether the service actually came back. A system can be fully mitigated and entirely unfixed, and reporting the first as the second stops the second happening."
+        }
       ]
     }
   },
@@ -21225,8 +23031,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -21276,8 +23087,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:INC-256"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21329,8 +23152,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INC-257"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21380,7 +23212,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INC-253"
+        },
+        {
+          "targetId": "journey:INC-258"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-27",
+          "because": "RET-27 buffers one relationship's recovery signal before concluding the relationship is healthy. This applies the same principle to a shared operational failure - same discipline, different entity, and here a relapse returns a population to an incident rather than a person to a risk state."
+        }
       ]
     }
   },
@@ -21430,8 +23279,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-157"
+        },
+        {
+          "targetId": "journey:INC-259"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21483,8 +23344,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21534,7 +23404,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INC-251",
+          "because": "INC-251 correlates failures happening now into one incident. This compares incidents across time to ask whether the same systemic weakness keeps producing them - a question about the prevention strategy rather than about any one response."
+        }
       ]
     }
   },
@@ -21584,7 +23471,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-113",
+          "because": "This establishes that an integration works at all. INT-113 handles one that worked and has started to stop, which is a question about evidence over a window rather than about setup."
+        }
       ]
     }
   },
@@ -21635,8 +23532,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INT-116"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21687,8 +23593,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INT-116"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21740,7 +23658,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INT-115"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-115",
+          "because": "This owns the operation from submission until an outcome exists. INT-115 owns what happens to local state once one does, and most operations pass through both."
+        }
       ]
     }
   },
@@ -21792,8 +23724,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:INT-119"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21843,7 +23787,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INT-118"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-113",
+          "because": "Degradation is an integration working badly and still working. This is one that cannot be relied on to work at all, which changes what is safe to send rather than how much."
+        }
       ]
     }
   },
@@ -21896,7 +23860,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-113",
+          "because": "This applies only where the integration has genuinely failed. An integration that is merely slow or backlogged is still working, and queueing more against it adds to the backlog that is already the problem - that case is a separate canonical problem and is deliberately not handled here."
+        }
       ]
     }
   },
@@ -21946,8 +23924,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INT-119"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -21998,7 +23988,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-40",
+          "because": "CON-40 is a permission conflict and fails closed by suppressing communication. This is a general data conflict, where the safe state is holding the mutation rather than stopping outbound messaging."
+        }
       ]
     }
   },
@@ -22051,7 +24055,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-116",
+          "because": "INT-116 is about our integration to a provider failing. This is about the provider itself being unavailable, where an alternate path may exist and the question is what our product can still do."
+        }
       ]
     }
   },
@@ -22104,7 +24122,33 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OPS-122"
+        },
+        {
+          "targetId": "journey:OPS-123"
+        },
+        {
+          "targetId": "journey:OPS-130"
+        },
+        {
+          "targetId": "journey:OPS-124"
+        },
+        {
+          "targetId": "journey:OPS-127"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-130",
+          "because": "This ends when the job reports an outcome. OPS-130 begins there and asks whether the business state the job existed to create actually appeared, which is a separate question with its own answer."
+        }
       ]
     }
   },
@@ -22156,7 +24200,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OPS-129"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-117",
+          "because": "INT-117 holds work because an integration has failed and cannot accept it. Here the dependency may be perfectly healthy and our own capacity is behind - queueing more against it makes the backlog worse rather than protecting anything."
+        }
       ]
     }
   },
@@ -22208,8 +24269,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -22262,7 +24332,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OPS-130"
+        },
+        {
+          "targetId": "journey:OPS-127"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-127",
+          "because": "Retry is automated recovery while it can still work. Dead-lettering is what happens once it has run out, and it produces a human obligation rather than another attempt."
+        }
       ]
     }
   },
@@ -22313,8 +24400,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -22364,8 +24456,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OPS-124"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -22418,7 +24522,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-124",
+          "because": "Retry is the automated stage and ends when its budget does. This begins there, and what it produces is a diagnosis and an owner rather than another attempt."
+        }
       ]
     }
   },
@@ -22470,8 +24591,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -22522,7 +24648,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-118",
+          "because": "INT-118 repairs a gap in what we received from outside during an outage. This drains work we already hold and could not process. One is missing information; the other is unfinished work."
+        }
       ]
     }
   },
@@ -22574,8 +24714,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -22625,7 +24770,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-52"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-52",
+          "because": "This decides where the work belongs. OWN-52 decides whether the person it landed on has taken it, which is a different state and frequently a different answer."
+        }
       ]
     }
   },
@@ -22677,8 +24836,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-51"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:OWN-53"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -22728,7 +24902,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-52",
+          "because": "OWN-52 establishes that someone has taken responsibility. This establishes that they can actually discharge it, which fails independently and more quietly."
+        }
       ]
     }
   },
@@ -22783,8 +24971,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CTL-237"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:OWN-53"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -22836,7 +25039,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-54"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-54",
+          "because": "Escalation is usually a request for a decision, not a handover. Where it does move ownership, it hands to OWN-54 to do that properly rather than doing it as a side effect."
+        }
       ]
     }
   },
@@ -22888,7 +25111,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-185"
+        },
+        {
+          "targetId": "journey:OWN-59"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-57",
+          "because": "This is one decision by one authority. OWN-57 exists because combining several decisions requires an aggregation policy that this journey never has to consult."
+        }
       ]
     }
   },
@@ -22944,8 +25187,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:DEC-185"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -22996,8 +25254,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:OWN-59"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -23049,8 +25322,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-56"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -23100,7 +25382,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-56"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-54",
+          "because": "Ownership is who does the work; authority is who may decide. They change independently, and an approver leaving does not move a case any more than a case moving changes who may approve it."
+        }
       ]
     }
   },
@@ -23151,7 +25453,25 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-82"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REL-98",
+          "because": "This establishes that a relationship exists. REL-98 defines what a link between two entities is allowed to share, which is a separate decision that many relationships answer with nothing."
+        },
+        {
+          "targetId": "journey:SUB-161",
+          "because": "SUB-161 creates a relationship that carries a term - an effective date, a renewal model and terms that can lapse. This creates a structural link between two entities, which can exist indefinitely without any of those. An employee belongs to an organisation here; the organisation's contract is created there, and the two end for different reasons on different days."
+        }
       ]
     }
   },
@@ -23202,7 +25522,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-54"
+        },
+        {
+          "targetId": "journey:ACC-73"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-166",
+          "because": "This changes what the entities' structural relationship means - the type of membership, the direction of a parent-child link, the basis on which a representative acts. SUB-166 changes the authorized terms a continuing relationship runs under - the plan, the tier, the scope, the price. Someone can become a contractor instead of an employee with their subscription untouched, and move from Basic to Pro without their relationship to the organisation changing at all."
+        }
       ]
     }
   },
@@ -23252,7 +25589,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-170",
+          "because": "SUB-170 ends a term: a subscription, contract, policy or membership reaches cancellation, non-renewal, expiry, termination or lapse, and what stops is what the term was granting. This ends a structural link between two entities, and what stops is what depended on the link. An employee leaving an organisation ends the link and not the organisation's contract; a contract expiring ends the term and leaves the employee where they were."
+        }
       ]
     }
   },
@@ -23302,7 +25649,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-60"
+        },
+        {
+          "targetId": "journey:ACC-73"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-89",
+          "because": "A role change alters what someone may do. An identity attribute change alters who they are on record. Treating a role change as an identity change rebuilds the person and loses their history."
+        }
       ]
     }
   },
@@ -23354,7 +25718,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REL-96",
+          "because": "This propagates downward through defined dependencies. REL-96 derives upward through an aggregation policy. They are opposite directions with different rules, and neither is the inverse of the other."
+        }
       ]
     }
   },
@@ -23405,8 +25783,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -23455,7 +25842,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REL-98"
+        },
+        {
+          "targetId": "journey:TRM-101"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REL-98",
+          "because": "Linking is one of the outcomes this assessment can reach. It is a separate journey because a link has its own semantics and its own sharing rules, which the assessment does not decide."
+        }
       ]
     }
   },
@@ -23503,8 +25910,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -23553,7 +25965,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REL-98",
+          "because": "A link connects two records that already exist separately. A split creates that separation where it did not exist, which means deciding what each side gets - and what neither side may simply be given a copy of."
+        }
       ]
     }
   },
@@ -23606,7 +26032,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-51",
+          "because": "OWN-51 routes work that has never had an owner. This handles an entity that had a required relationship and lost it, which means inherited deadlines and obligations are already running against it."
+        }
       ]
     }
   },
@@ -23657,7 +26100,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-44",
+          "because": "FBK-44 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it."
+        }
       ]
     }
   },
@@ -23709,7 +26166,30 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-157"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:REM-153"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REM-153",
+          "because": "This grants permission for a resource to come back. REM-153 tracks whether it actually does, which fails independently and often."
+        }
       ]
     }
   },
@@ -23762,8 +26242,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-154"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -23812,8 +26301,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -23864,7 +26365,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-158"
+        },
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-144",
+          "because": "FUL-144 executes an original fulfillment obligation. This creates a second one whose entire purpose is to resolve a specific defect in the first, which changes whether it is charged for and what it has to be verified against."
+        }
       ]
     }
   },
@@ -23916,7 +26434,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-158"
+        },
+        {
+          "targetId": "journey:REM-157"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REM-155",
+          "because": "A replacement sends a different instance of the thing. A correction fixes the instance that exists, or performs the service again - which is why it has no allocation question and does have an original outcome that must not be overwritten."
+        }
       ]
     }
   },
@@ -23968,7 +26506,30 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-156"
+        },
+        {
+          "targetId": "journey:REM-155"
+        },
+        {
+          "targetId": "journey:REM-152"
+        },
+        {
+          "targetId": "journey:FIN-137"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-137",
+          "because": "This decides which remedy applies. FIN-137 runs only if that decision is a refund, and then decides whether the refund is owed - a separate eligibility with separate rules."
+        }
       ]
     }
   },
@@ -24020,7 +26581,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-157"
+        },
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-46",
+          "because": "FBK-46 owns an issue's ownership and closure lifecycle. This verifies that a specific chosen remedy produced its intended business outcome - a narrower question, and one that can fail while the case is being managed perfectly well."
+        }
       ]
     }
   },
@@ -24072,7 +26650,30 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:FIN-137"
+        },
+        {
+          "targetId": "journey:ACC-71"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REM-157",
+          "because": "REM-157 chooses what satisfies the obligation. This decides whether the impact of the failure warrants something beyond that. A credit does not deliver the thing that was owed, and treating it as the remedy leaves someone holding money and the same broken outcome."
+        }
       ]
     }
   },
@@ -24122,8 +26723,26 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-151"
+        },
+        {
+          "targetId": "journey:REM-158"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -24175,7 +26794,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-23"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-22",
+          "because": "This reacts to a state that has already been recalculated. RET-22 reacts to one specific expected thing not happening, which may or may not move the state at all."
+        }
       ]
     }
   },
@@ -24228,8 +26861,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-23"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -24283,7 +26925,30 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACT-18"
+        },
+        {
+          "targetId": "journey:ACT-13"
+        },
+        {
+          "targetId": "journey:RET-26"
+        },
+        {
+          "targetId": "journey:RET-27"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-24",
+          "because": "This asks what is wrong. RET-24 asks how much is wrong and how hard to push back, and it can run on a relationship whose cause is already known and being fixed."
+        }
       ]
     }
   },
@@ -24337,8 +27002,23 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-28"
+        },
+        {
+          "targetId": "journey:RET-23"
+        },
+        {
+          "targetId": "journey:RET-30"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -24391,8 +27071,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-159"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -24445,7 +27134,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-23"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-21",
+          "because": "An improving engagement state is one input to this. RET-21 updates a state; this decides whether an improvement should be believed yet, which is a different question with a waiting period in it."
+        }
       ]
     }
   },
@@ -24499,7 +27202,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-30"
+        },
+        {
+          "targetId": "journey:SUB-167"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-29",
+          "because": "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event."
+        }
       ]
     }
   },
@@ -24552,8 +27272,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -24609,7 +27334,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-27"
+        },
+        {
+          "targetId": "journey:SUB-167"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-27",
+          "because": "This asks whether the intervention worked. RET-27 asks whether the improvement lasts, and takes over once this one has a positive answer."
+        }
       ]
     }
   },
@@ -24659,7 +27401,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-242"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RLT-242",
+          "because": "This asks whether a target may take the change. RLT-242 gets it into a state where it can. Ineligible and unprepared are different problems with different owners - one is a decision, the other is work."
+        }
       ]
     }
   },
@@ -24712,8 +27468,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-243"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -24764,8 +27529,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-244"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -24817,7 +27591,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-249"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RLT-243",
+          "because": "RLT-243 decides whether to proceed. This performs the change and establishes what state the target actually reached, which is where the accepted-applied-verified distinction lives."
+        }
       ]
     }
   },
@@ -24869,7 +27657,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:RLT-246"
+        },
+        {
+          "targetId": "journey:RLT-250"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RLT-249",
+          "because": "This is population progression - whether the next cohort may begin. RLT-249 is one target that could not take the change while the rollout is otherwise fine. Merging them turns every unreachable device into a reason to stop, or every real regression into a target exception."
+        }
       ]
     }
   },
@@ -24920,8 +27728,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-245"
+        },
+        {
+          "targetId": "journey:RLT-247"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -24972,7 +27792,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-248"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RLT-248",
+          "because": "This chooses the recovery. RLT-248 performs a rollback and verifies it. Choosing wrong here is irreversible in the other direction - a rollback across a migrated schema cannot be undone by rolling forward again."
+        }
       ]
     }
   },
@@ -25024,8 +27858,13 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -25077,7 +27916,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-246"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RLT-245",
+          "because": "RLT-245 governs whether the population progresses. This governs one target that fell out of it. One unreachable device is not a broken release, and treating it as one stops a rollout that was working."
+        }
       ]
     }
   },
@@ -25130,8 +27983,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-246"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -25182,7 +28044,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-181",
+          "because": "This applies rules. DEC-181 opens a workflow for judgment where no rule produces the answer - which is why this journey's third outcome is to hand over rather than to guess."
+        }
       ]
     }
   },
@@ -25238,7 +28114,28 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RSK-193"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-90",
+          "because": "IDN-90 handles a specific suspicion - that an account is in someone else's hands - and runs a containment and recovery path for it. This is the general evidence lifecycle: most of what it sees clears, and its main job is not over-reacting."
+        },
+        {
+          "targetId": "journey:RSK-194",
+          "because": "This weighs uncertainty: how reliable the evidence is and what it supports, with no rule needing to have been broken for the question to be worth asking. RSK-194 starts only where an identifiable policy appears to have been breached, and tests that rule against the evidence and the version that governed it. A signal does not become a violation candidate by looking risky - without a governing rule to test, there is nothing for RSK-194 to decide."
+        }
       ]
     }
   },
@@ -25291,7 +28188,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-78",
+          "because": "This determines what restriction the risk justifies and holds the release condition. ACC-78 applies and restores the access state. One is the reason, the other is the door."
+        }
       ]
     }
   },
@@ -25345,7 +28256,28 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RSK-193"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-186",
+          "because": "DEC-186 handles what follows an authorized rejection. This determines whether a violation occurred at all and which consequence the policy defines - it may never reach a decision case, and most of its outcomes are corrections rather than refusals."
+        },
+        {
+          "targetId": "journey:RSK-192",
+          "because": "RSK-192 evaluates risk evidence without requiring any rule to have been broken, and most of what it sees clears. This starts from an identifiable governing rule and asks whether it was actually breached, judged against the version in force at the time. Risk evidence alone never opens a case here; it opens one there."
+        }
       ]
     }
   },
@@ -25399,7 +28331,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-82",
+          "because": "IDN-82 orchestrates collecting a verification and resuming what it blocked. This owns the compliance requirement as a business state - which requirement applies, whether existing evidence already satisfies it, and what happens when it cannot be met. It uses that collection mechanism rather than reimplementing one."
+        }
       ]
     }
   },
@@ -25451,7 +28397,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RSK-193",
+          "because": "RSK-193 restricts because evidence of risk warrants it, and releases on evidence. A hold pauses because a policy or compliance question is open, and releases when that question is answered - the trigger, the authority and the release condition are all different."
+        }
       ]
     }
   },
@@ -25502,7 +28462,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:RSK-198"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-181",
+          "because": "This defines what a policy exception is and whether one may even be sought - which rule, what scope, whose authority. Where the answer needs judgment it uses the decision engine rather than being one."
+        }
       ]
     }
   },
@@ -25554,7 +28534,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RSK-197",
+          "because": "RSK-197 establishes that a deviation is authorized. This is the runtime question - is it valid for this action, this entity, right now, and has it already been used up. An exception granted correctly and applied wrongly is still an unauthorized deviation."
+        }
       ]
     }
   },
@@ -25608,7 +28598,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RSK-192",
+          "because": "A limit is a constraint the entity was told about and is entitled to consume. Routing it into risk assessment puts ordinary heavy users in front of a fraud analyst, and produces a risk history for behaviour that was permitted."
+        }
       ]
     }
   },
@@ -25660,7 +28667,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-79"
+        },
+        {
+          "targetId": "journey:RSK-193"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RSK-191",
+          "because": "RSK-191 evaluates one action at its decision point. This propagates a change across work already in flight, where the hard question is not what the rule says but which states the new rule is entitled to reach."
+        }
       ]
     }
   },
@@ -25711,7 +28738,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-142",
+          "because": "FUL-142 asks whether an accepted obligation can be resourced at all. This asks which specific times a resource can be committed to, for a requester who has not committed to anything yet."
+        }
       ]
     }
   },
@@ -25763,7 +28800,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-143",
+          "because": "FUL-143 allocates a resource to an obligation that already exists. This protects capacity for a commitment that does not exist yet and may never - most holds end in expiry rather than in a booking."
+        }
       ]
     }
   },
@@ -25816,7 +28863,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-171"
+        },
+        {
+          "targetId": "journey:SCH-174"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-141",
+          "because": "FUL-141 creates a generic fulfillment obligation. This creates a commitment to a specific time on both sides - which is why it revalidates capacity at the moment of confirming and why its failure mode is contention rather than eligibility."
+        }
       ]
     }
   },
@@ -25868,8 +28932,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -25920,7 +28993,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-174"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-166",
+          "because": "SUB-166 changes the terms of a continuing relationship. This moves one specific occurrence to a different time or resource, and its whole difficulty is contention for the replacement - which terms changes never have."
+        }
       ]
     }
   },
@@ -25972,7 +29059,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-180"
+        },
+        {
+          "targetId": "journey:FIN-137"
+        },
+        {
+          "targetId": "journey:FIN-131"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-150",
+          "because": "FUL-150 cancels what remains of a generic fulfillment obligation. This ends a specific future time commitment, which releases capacity someone else can use and turns on timing relative to the appointment rather than on remaining scope."
+        }
       ]
     }
   },
@@ -26023,8 +29130,29 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-180"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:SCH-178"
+        },
+        {
+          "targetId": "journey:SCH-176"
+        },
+        {
+          "targetId": "journey:SCH-179"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -26076,8 +29204,26 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-157"
+        },
+        {
+          "targetId": "journey:SCH-175"
+        },
+        {
+          "targetId": "journey:SCH-180"
+        },
+        {
+          "targetId": "journey:SCH-175"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -26127,7 +29273,33 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-180"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:SCH-178"
+        },
+        {
+          "targetId": "journey:SCH-171"
+        },
+        {
+          "targetId": "journey:FIN-131"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-22",
+          "because": "RET-22 reads a pattern of expected usage not happening across a relationship. This is the non-occurrence of one specific confirmed booking at one specific time, and it is established by exclusion rather than by observing a trend."
+        }
       ]
     }
   },
@@ -26178,7 +29350,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-175"
+        },
+        {
+          "targetId": "journey:REM-157"
+        },
+        {
+          "targetId": "journey:FIN-137"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-145",
+          "because": "FUL-145 handles a generic fulfillment exception. This carries the scheduling-specific recovery: the same time with a different provider, a different time with the same commitment, and the rule that the customer is never recorded as the cause."
+        }
       ]
     }
   },
@@ -26230,7 +29422,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SUB-162"
+        },
+        {
+          "targetId": "journey:ACC-71"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REL-91",
+          "because": "REL-91 links two entities: a person to an organisation, a parent account to a child, a representative to the entity they act for. Such a link has no term, nothing to renew and nothing to lapse. What is created here has all three, and it is frequently attached to a link REL-91 created rather than replacing it."
+        }
       ]
     }
   },
@@ -26283,8 +29492,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACC-71"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -26336,7 +29554,30 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:SUB-164"
+        },
+        {
+          "targetId": "journey:SUB-168"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-164",
+          "because": "This produces a decision. SUB-164 makes the new term exist, which depends on payment, confirmation and eligibility that this journey does not touch. A relationship can be decided-to-renew and still not renew."
+        }
       ]
     }
   },
@@ -26388,7 +29629,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SUB-165"
+        },
+        {
+          "targetId": "journey:ACC-73"
+        },
+        {
+          "targetId": "journey:SUB-170"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-163",
+          "because": "SUB-163 decides. This executes, and it is where renewals actually fail - on payment, on eligibility that moved, on a resource that is no longer available. A decision is not a term."
+        }
       ]
     }
   },
@@ -26440,7 +29701,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:SUB-164"
+        },
+        {
+          "targetId": "journey:SUB-170"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-134",
+          "because": "FIN-134 classifies the payment failure and tries to collect. This decides what the relationship is while that happens - in grace, restricted, pending or lapsing - which is a question about the contract rather than about the money."
+        }
       ]
     }
   },
@@ -26493,7 +29774,34 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:ACC-73"
+        },
+        {
+          "targetId": "journey:FIN-131"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-73",
+          "because": "This changes the commercial relationship - the plan, the tier, the scope, the contractual terms. ACC-73 applies whatever entitlement delta results. One is what was agreed; the other is what is switched on."
+        },
+        {
+          "targetId": "journey:REL-92",
+          "because": "This changes the authorized terms a continuing relationship runs under. REL-92 changes what the structural relationship between the entities means. A tier change leaves the person exactly as related to the organisation as they were, and a membership type changing leaves the plan exactly as it was priced."
+        }
       ]
     }
   },
@@ -26544,7 +29852,30 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:SUB-170"
+        },
+        {
+          "targetId": "journey:SUB-168"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-168",
+          "because": "This decides that the relationship will end and when. SUB-168 checks, at that date, whether the decision still applies to the relationship as it then is - which is a different question with a different failure mode."
+        }
       ]
     }
   },
@@ -26594,7 +29925,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SUB-170"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-167",
+          "because": "SUB-167 decides the end. This is the guard between that decision and its execution, months later, against a relationship that may have been renewed, upgraded or resubscribed in between."
+        }
       ]
     }
   },
@@ -26646,7 +29991,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:SUB-170"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-78",
+          "because": "This is the commercial relationship's suspension state. ACC-78 is what happens to capability and access as a result. A relationship can be suspended for reasons that restrict nothing, and access can be suspended without the contract changing at all."
+        }
       ]
     }
   },
@@ -26698,7 +30060,25 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TRM-106",
+          "because": "A subscription, contract or membership ends here. TRM-106 closes the account relationship entirely. Most people who leave a plan keep their account, and chaining the two treats cancelling a subscription as asking to be removed."
+        },
+        {
+          "targetId": "journey:REL-93",
+          "because": "REL-93 ends a structural link between two entities, and what stops is what depended on the link existing. This ends a term, and what stops is what the term was granting. Someone can leave an organisation while the subscription they paid for personally keeps running, and a policy can expire while the person stays exactly as related to the organisation as before."
+        }
       ]
     }
   },
@@ -26751,7 +30131,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:TIM-62"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:TIM-64"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-63",
+          "because": "A deadline is a moment by which something must be done. An expiry is a moment at which something stops being valid. The first can pass with the obligation intact; the second cannot."
+        }
       ]
     }
   },
@@ -26803,8 +30203,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-51"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -26857,7 +30269,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:TIM-64"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-64",
+          "because": "This runs while the outcome can still change. TIM-64 runs at the moment it stops being able to. Keeping them apart is what makes expiring and expired different states rather than the same one announced twice."
+        }
       ]
     }
   },
@@ -26908,8 +30334,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:TIM-69"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -26960,7 +30395,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-06"
+        },
+        {
+          "targetId": "journey:TIM-64"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-67",
+          "because": "Grace is a specific degraded continuity after validity ends, with a recovery condition. TIM-67 is the generic mechanism for any temporary state, most of which are not degradations of anything."
+        }
       ]
     }
   },
@@ -27012,7 +30464,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-56"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-67",
+          "because": "An exception departs from a standing policy and carries an authority who granted it. A temporary state is a lifecycle position; it does not necessarily contradict anything."
+        }
       ]
     }
   },
@@ -27063,8 +30529,20 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:ACQ-06"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27115,8 +30593,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-157"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27168,8 +30655,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-05"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27220,7 +30716,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-64",
+          "because": "An expiry is one specific scheduled transition with entity-specific consequences. This is the general mechanism, and every other scheduled change - a plan change at period end, a future cancellation, a scheduled restriction - runs through it."
+        }
       ]
     }
   },
@@ -27272,7 +30778,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:TRM-102"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TRM-103",
+          "because": "Account consolidation unifies business structure and leaves the people distinct. This consolidates the representations of one entity, which is a decision about identity and carries a far higher evidence bar."
+        }
       ]
     }
   },
@@ -27325,8 +30845,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27377,8 +30906,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27428,7 +30966,21 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REL-100"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TRM-101",
+          "because": "Changing which primary a dependent hangs from moves a relationship. It consolidates nothing and neither party's identity changes."
+        }
       ]
     }
   },
@@ -27480,7 +31032,28 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OWN-54",
+          "because": "OWN-54 moves ownership of one work item now. This moves a role and everything it carries at a future effective point, which is why both actors are revalidated when that point arrives rather than when it was scheduled."
+        },
+        {
+          "targetId": "journey:REL-94",
+          "because": "REL-94 changes one person's role. This moves a role from one person to another, which means two actors to validate and a set of open work that has to travel intact."
+        }
       ]
     }
   },
@@ -27533,7 +31106,24 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:TRM-107"
+        },
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-29",
+          "because": "RET-29 completes a subscription cancellation - a commercial relationship ending. An account can be closed with subscriptions running, and a subscription can be cancelled with the account intact."
+        }
       ]
     }
   },
@@ -27584,8 +31174,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27636,8 +31235,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27688,7 +31296,27 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-82"
+        },
+        {
+          "targetId": "journey:TRM-110"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TRM-106",
+          "because": "Closing an account ends a relationship and requests nothing about data. A deletion request concerns data and says nothing about whether the relationship continues. Either can happen without the other."
+        }
       ]
     }
   },
@@ -27740,8 +31368,17 @@
         "entry.trigger",
         "graph.nodes[exit]",
         "relationships.handoffs",
+        "relationships.distinctFrom",
         "derived.behaviors"
       ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:OWN-55"
+        }
+      ],
+      "distinctFrom": []
     }
   },
   {
@@ -27920,7 +31557,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/aov",
-    "searchAliases": [],
+    "searchAliases": [
+      "average order value"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -28189,7 +31828,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/cac",
-    "searchAliases": [],
+    "searchAliases": [
+      "Customer Acquisition Cost"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -28519,7 +32160,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/cpa",
-    "searchAliases": [],
+    "searchAliases": [
+      "cost per acquisition"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -28585,7 +32228,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/cpc",
-    "searchAliases": [],
+    "searchAliases": [
+      "cost per click"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -28651,7 +32296,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/cpl",
-    "searchAliases": [],
+    "searchAliases": [
+      "cost per lead"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -28717,7 +32364,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/cpm",
-    "searchAliases": [],
+    "searchAliases": [
+      "cost per mille"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -28856,7 +32505,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/ctor",
-    "searchAliases": [],
+    "searchAliases": [
+      "Click-to-Open Rate"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -29739,7 +33390,10 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/minimum-detectable-effect",
-    "searchAliases": [],
+    "searchAliases": [
+      "MDE",
+      "Minimum Detectable Effect"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -29872,7 +33526,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/nrr",
-    "searchAliases": [],
+    "searchAliases": [
+      "Net Revenue Retention"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -30276,7 +33932,9 @@
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/roas",
-    "searchAliases": [],
+    "searchAliases": [
+      "return on ad spend"
+    ],
     "boost": {},
     "source": {
       "file": [
@@ -30943,7 +34601,9 @@
     "title": "LTV:CAC alone doesn't tell you when to scale",
     "summary": "A 3:1 ratio is the industry shorthand for \"healthy.\" It's a fine sanity check and a bad scaling signal on its own - here's what to look at alongside it.",
     "searchText": "LTV:CAC alone doesn't tell you when to scale. A 3:1 ratio is the industry shorthand for \"healthy.\" It's a fine sanity check and a bad scaling signal on its own - here's what to look at alongside it.. Growth Metrics. Unit Economics. The ratio hides its own denominator, Marginal CAC, not average CAC, Payback period is the faster warning light, What to check before increasing spend",
-    "keywords": [],
+    "keywords": [
+      "Unit Economics"
+    ],
     "category": [
       "Growth Metrics"
     ],
@@ -30989,7 +34649,9 @@
     "title": "Reading D1/D7/D30 retention without fooling yourself",
     "summary": "The most common retention-reporting mistake isn't a bad number - it's comparing cohorts that were never comparable to begin with.",
     "searchText": "Reading D1/D7/D30 retention without fooling yourself. The most common retention-reporting mistake isn't a bad number - it's comparing cohorts that were never comparable to begin with.. Growth Metrics. Retention. A curve, not a single number, Cohort contamination is the usual culprit, Day-of-week and seasonality distort short windows, What a healthy curve looks like",
-    "keywords": [],
+    "keywords": [
+      "Retention"
+    ],
     "category": [
       "Growth Metrics"
     ],
@@ -31035,7 +34697,9 @@
     "title": "Why your ROAS looks different on every ad platform",
     "summary": "Same campaign, same spend, three different ROAS numbers depending on which platform's dashboard you're reading. The formula isn't the problem - the attribution window is.",
     "searchText": "Why your ROAS looks different on every ad platform. Same campaign, same spend, three different ROAS numbers depending on which platform's dashboard you're reading. The formula isn't the problem - the attribution window is.. Growth Metrics. Advertising. ROAS is simple; attribution isn't, Click windows vs. view windows, Last-click vs. multi-touch, Pick one source of truth for cross-channel comparison",
-    "keywords": [],
+    "keywords": [
+      "Advertising"
+    ],
     "category": [
       "Growth Metrics"
     ],
@@ -31081,7 +34745,9 @@
     "title": "What actually belongs in a lifecycle journey vs. a one-off campaign",
     "summary": "Not every recurring message needs a journey behind it, and not every journey should be built like a campaign. The difference is what decides whether someone enters.",
     "searchText": "What actually belongs in a lifecycle journey vs. a one-off campaign. Not every recurring message needs a journey behind it, and not every journey should be built like a campaign. The difference is what decides whether someone enters.. Lifecycle & CRM. Lifecycle Marketing. The entry condition is the whole difference, Journeys are for conditions that recur; campaigns are for moments, The trap: journeys that never exit anyone, A quick test before you build one",
-    "keywords": [],
+    "keywords": [
+      "Lifecycle Marketing"
+    ],
     "category": [
       "Lifecycle & CRM"
     ],
@@ -31127,7 +34793,9 @@
     "title": "The guardrail metric most A/B tests forget",
     "summary": "A test can win on its primary metric and still be a net loss for the business. Guardrails exist to catch exactly that - and they're the first thing a rushed test setup skips.",
     "searchText": "The guardrail metric most A/B tests forget. A test can win on its primary metric and still be a net loss for the business. Guardrails exist to catch exactly that - and they're the first thing a rushed test setup skips.. Experimentation. A/B Testing. Winning the metric you're watching isn't the same as winning, A guardrail is a metric that must not get worse, Pick the guardrail before you see results, not after, One exception to \"don't peek early\"",
-    "keywords": [],
+    "keywords": [
+      "A/B Testing"
+    ],
     "category": [
       "Experimentation"
     ],

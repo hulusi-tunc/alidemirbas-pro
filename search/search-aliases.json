@@ -1,5 +1,10 @@
 {
-  "_description": "Search-time aliases - a query matching `alias` should resolve to `targetId`'s document, never create a separate result. Currently populated only by the 5 merged journeys (journey-merged-id-contract.json is the source of truth this list is generated from, never re-decided here).",
+  "_description": "Document-level aliases only - a query matching `alias` resolves to ONE specific document (`targetId`), never creates a separate result of its own. This is deliberately narrower than search-synonyms.json: an alias here is a guaranteed 1:1 name-for-the-same-entity mapping (an acronym literally naming one calculator, or a retired journey id pointing at its one survivor); a many-to-many or corpus-wide term equivalence (e.g. 'A/B Test'/'AB Test'/'Split Test', which apply across 211 different documents, not one) belongs in search-synonyms.json instead - see that file's own note on where the boundary is and why the two are not the same concept.",
+  "provenanceClasses": {
+    "source-derived": "the alias string is literally present in the target document's own authored content (a heroTitle's parenthetical acronym, a calculator-seo-map.json secondaryKeyword, an existing SEO/production contract file) - the strongest, fully-auditable class.",
+    "deterministic-abbreviation": "mechanically derivable by a stated, disclosed rule from the target's own name (not currently used for any entry below - every alias found this round was already source-derived; kept as a defined class for future entries that are ruled, not typed by a human, and don't happen to be spelled out verbatim anywhere).",
+    "manually-authored": "a human judgment call, not extractable from any source file - used only where the reasoning is disclosed and the mapping is unambiguous and well-established (see search-synonyms.json's own manually-authored entries for the only cases like this in this round; none exist in this alias file - every alias here is source-derived)."
+  },
   "aliases": [
     {
       "alias": "CON-37",
@@ -8,6 +13,8 @@
       "targetSlug": "delivery-recovery",
       "resultVisibility": "target-only",
       "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
       "source": "production/journey-merged-id-contract.json"
     },
     {
@@ -17,6 +24,8 @@
       "targetSlug": "channel-contactability-state",
       "resultVisibility": "target-only",
       "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
       "source": "production/journey-merged-id-contract.json"
     },
     {
@@ -26,6 +35,8 @@
       "targetSlug": "multi-party-approval-aggregation",
       "resultVisibility": "target-only",
       "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
       "source": "production/journey-merged-id-contract.json"
     },
     {
@@ -35,6 +46,8 @@
       "targetSlug": "ownership-change-obligation-transfer",
       "resultVisibility": "target-only",
       "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
       "source": "production/journey-merged-id-contract.json"
     },
     {
@@ -44,7 +57,86 @@
       "targetSlug": "risk-signal",
       "resultVisibility": "target-only",
       "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
       "source": "production/journey-merged-id-contract.json"
+    },
+    {
+      "alias": "average order value",
+      "targetId": "calculator:aov",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for aov: \"average order value calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "Customer Acquisition Cost",
+      "targetId": "calculator:cac",
+      "provenance": "source-derived",
+      "provenanceDetail": "content/cac.json heroTitle spells this out verbatim: \"Customer Acquisition Cost (CAC) Calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "cost per acquisition",
+      "targetId": "calculator:cpa",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for cpa: \"cost per acquisition calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "cost per click",
+      "targetId": "calculator:cpc",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for cpc: \"cost per click calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "cost per lead",
+      "targetId": "calculator:cpl",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for cpl: \"cost per lead calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "cost per mille",
+      "targetId": "calculator:cpm",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for cpm: \"cost per mille calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "Click-to-Open Rate",
+      "targetId": "calculator:ctor",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-catalog.json name spells this out verbatim: \"Click-to-Open Rate (CTOR) Calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "MDE",
+      "targetId": "calculator:minimum-detectable-effect",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-catalog.json name spells this out verbatim: \"Minimum Detectable Effect (MDE) Calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "Minimum Detectable Effect",
+      "targetId": "calculator:minimum-detectable-effect",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-catalog.json name spells this out verbatim: \"Minimum Detectable Effect (MDE) Calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "Net Revenue Retention",
+      "targetId": "calculator:nrr",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-catalog.json name spells this out verbatim: \"Net Revenue Retention (NRR) Calculator\"",
+      "resultVisibility": "target-only"
+    },
+    {
+      "alias": "return on ad spend",
+      "targetId": "calculator:roas",
+      "provenance": "source-derived",
+      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for roas: \"return on ad spend calculator\"",
+      "resultVisibility": "target-only"
     }
   ]
 }

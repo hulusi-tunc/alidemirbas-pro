@@ -43,6 +43,16 @@
         "file": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
         "fields": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
       }
+    },
+    "journeyRelationRefs": {
+      "type": "object",
+      "description": "journey-type-specific, OPTIONAL (not in `required` - present only on journey documents, per Part 2's 'no forced universal fields'). Deterministic, source-backed relation references from journey-view-model.json's own relationships.handoffs/distinctFrom - prepared for a future related-content computation (see search-related-content-readiness-report.json), NOT itself consumed by search-relations.json's relatedPrimary/relatedSecondary this round.",
+      "required": ["handoffs", "distinctFrom"],
+      "additionalProperties": false,
+      "properties": {
+        "handoffs": { "type": "array", "items": { "type": "object", "required": ["targetId"], "additionalProperties": false, "properties": { "targetId": { "type": "string", "pattern": "^journey:[a-zA-Z0-9._-]+$" } } } },
+        "distinctFrom": { "type": "array", "items": { "type": "object", "required": ["targetId", "because"], "additionalProperties": false, "properties": { "targetId": { "type": "string", "pattern": "^journey:[a-zA-Z0-9._-]+$" }, "because": { "type": "string", "minLength": 1 } } } }
+      }
     }
   }
 }
