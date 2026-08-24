@@ -48,6 +48,13 @@ const REGISTRY: Record<string, ComputeFn> = {
     engagementRate: div(engagedSessions, totalSessions),
   }),
   "open-rate": ({ opens, delivered }) => ({ openRate: div(opens, delivered) }),
+  // Click-to-Open Rate: clicks over opens, not clicks over delivered (that's
+  // email CTR, a different metric - see the catalog's own validationRule on
+  // this slug). Deliberately independent from ctr's clicks/impressions and
+  // open-rate's opens/delivered - CTOR isolates content/offer quality from
+  // deliverability and open-rate noise, per calc-catalog.json's own
+  // formulaPlainEnglish for this slug.
+  ctor: ({ clicks, opens }) => ({ ctor: div(clicks, opens) }),
   "activation-rate": ({ activatedUsers, installs }) => ({
     activationRate: div(activatedUsers, installs),
   }),

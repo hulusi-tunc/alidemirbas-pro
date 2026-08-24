@@ -87,6 +87,12 @@ export const LIVE_CALCULATOR_SLUGS: readonly string[] = [
   // production/calculators/content/minimum-detectable-effect.json's
   // qaNotes, not edited here)
   "minimum-detectable-effect",
+  // Batch 06 (CPA/Cart Abandonment/CTOR/SaaS Quick Ratio/DAU-MAU
+  // Stickiness): the only one of the five needing a runtime promotion -
+  // the other four were already live. CTOR's own catalog exampleInput/
+  // exampleOutput (clicks:400, opens:2500 -> 16.00%) was independently
+  // re-verified, no known-invalid data here.
+  "ctor",
 ];
 
 const bySlug = new Map(CATALOG.map((c) => [c.slug, c]));

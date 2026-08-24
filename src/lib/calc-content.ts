@@ -30,6 +30,11 @@ import revenuePerVisitor from "../../production/calculators/content/revenue-per-
 import openRate from "../../production/calculators/content/open-rate.json";
 import ruleOf40 from "../../production/calculators/content/rule-of-40.json";
 import d1Retention from "../../production/calculators/content/d1-retention.json";
+import cpa from "../../production/calculators/content/cpa.json";
+import cartAbandonment from "../../production/calculators/content/cart-abandonment.json";
+import ctor from "../../production/calculators/content/ctor.json";
+import saasQuickRatio from "../../production/calculators/content/saas-quick-ratio.json";
+import dauMauStickiness from "../../production/calculators/content/dau-mau-stickiness.json";
 
 export type ContentSection = {
   id: string;
@@ -109,6 +114,11 @@ const CONTENT_BY_SLUG: Record<string, CalcContent> = {
   "open-rate": openRate as CalcContent,
   "rule-of-40": ruleOf40 as CalcContent,
   "d1-retention": d1Retention as CalcContent,
+  cpa: cpa as CalcContent,
+  "cart-abandonment": cartAbandonment as CalcContent,
+  ctor: ctor as CalcContent,
+  "saas-quick-ratio": saasQuickRatio as CalcContent,
+  "dau-mau-stickiness": dauMauStickiness as CalcContent,
 };
 
 /* EN only, by design (instruction 46) - TR pages fall back to the
