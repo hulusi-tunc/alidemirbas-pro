@@ -1,0 +1,44 @@
+{
+  "_description": "Corpus-level duplicate/cannibalization audit across every real page family, combining this round's own checks with the pre-existing, still-passing validators for the two large programmatic corpora.",
+  "duplicateSeoTitle": {
+    "abTestLibrary211": "0 exact duplicates (production/validate-seo-metadata.mjs check 6, currently passing)",
+    "journeyLibrary255": "0 exact duplicates (same check, same run, passing)",
+    "calculators43": "0 exact duplicates (audited every prior batch this session via production/calculators/validate-calculator-content.mjs)",
+    "staticAndProductPages": "16 static/product page titles read directly this round (home, about, lab-index, ab-testing product, dashboard-builder product, ab-test-library-index, journey-library-index, calculator-index, blog-index, stack, contact) x2 languages - all visibly distinct strings, no duplicates found",
+    "crossFamily": "no title string is reused verbatim across two different families - the two large corpora use their own distinct vocabulary (question/scenario phrasing vs journey names) from the static pages' identity/brand phrasing"
+  },
+  "duplicateH1": {
+    "abTestLibrary211": "211/211 unique (H1 = r.question, same field slug uniqueness already guarantees)",
+    "journeyLibrary255": "255/255 unique (H1 = journey.name, independently confirmed unique by production/journey-seo-contract.json's own audit)",
+    "calculators43": "43/43 unique (audited every prior batch)",
+    "staticPages": "distinct per family, confirmed by direct read"
+  },
+  "duplicateDescription": {
+    "abTestLibrary211": "0 exact duplicates (check 7, passing)",
+    "journeyLibrary255": "0 exact duplicates (check 7, same run)",
+    "calculators43": "0 exact duplicates (prior batches)"
+  },
+  "nearDuplicateTitlePattern": {
+    "abAndJourney": "checked via Jaccard similarity on stemmed tokens at threshold 0.8 (titles) / 0.75 (descriptions) - production/validate-seo-metadata.mjs checks 17-18, both passing (1 near-title pair exists across the whole 466-record corpus and it's already flagged needsSeoReview)",
+    "cannibalizationClusters": "checked by clustering on library+secondaryIntent and flagging any cluster where two members have unflagged title similarity >= 0.6 - check 22, passing (0 of 324 clusters unresolved). This is the closest existing equivalent to a same-intent-competing-routes check for the two large corpora, and it already runs on every validator invocation."
+  },
+  "sameIntentCompetingRoutes": {
+    "labProductVsLibraryIndex_abTesting": {
+      "pages": ["/lab/ab-testing (product/marketing page)", "/lab/ab-testing/library (searchable data catalog)"],
+      "verdict": "NOT competing",
+      "evidence": "Product page: install instructions (3 methods), 3-box testing framework, 5 numbered principles, one worked example, FAQ - a plugin landing page. Library index: a row count, an intro sentence, and a filterable/searchable table of 211 scenarios - no install instructions, no framework, no FAQ. Confirmed via direct file read (AbTestingPage.tsx vs AbTestRoutes.tsx) - the two share vocabulary (guardrails, KPI, hypothesis - unavoidable, it's the same subject) but have structurally and functionally distinct content, matching the task's own product-vs-library intent distinction (capability/methodology vs examples/browse)."
+    },
+    "journeyLibrary_noSeparateProductPage": {
+      "finding": "Unlike A/B testing, the journey library has NO separate 'product/marketing' page distinct from its own index - /lab/journeys IS both the entry point and the browse/search surface. There is nothing for it to cannibalize against within this site.",
+      "verdict": "N/A - no competing pair exists"
+    },
+    "activationVsConversionEtc_calculators": {
+      "note": "All calculator-corpus cannibalization pairs (CPA/CPL, CPA/CPM, CTOR/CTR, CTOR/Open-Rate, Delivery/Bounce, Unsubscribe/Complaint, Activation/Conversion, Engagement/DAU-MAU, Profit-Margin/ROI, Revenue-per-Recipient/Revenue-per-Visitor) were identified and resolved with explicit comparison-note content sections in prior batches this session - not re-audited from scratch here since the task explicitly puts the 43 live calculators out of scope for rewrite this round. Cross-referenced only to confirm none of the NEW work this round (sitemap/canonical/hreflang fixes) touched calculator content.",
+      "verdict": "already resolved, out of this round's scope"
+    }
+  },
+  "canonicalConflict": {
+    "finding": "NONE found - every family's canonical is self-referencing except journey-merged (deliberately points at its survivor, by design) - see seo/canonical-contract.json. No two live, indexable pages claim the same canonical URL."
+  },
+  "verdict": "No new duplicate/cannibalization issues found. The two large corpora already carry their own working validator with duplicate/near-duplicate/cannibalization-cluster checks (production/validate-seo-metadata.mjs); this round's own cross-family read confirms nothing outside those two corpora collides with them or with each other."
+}

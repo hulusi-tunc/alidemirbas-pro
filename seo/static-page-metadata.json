@@ -1,0 +1,31 @@
+{
+  "_description": "Title/meta/H1 status for every static page and Lab product page, per the task's section 15. Every one of these already has real, live, working metadata - confirmed by direct read, not proposed from scratch. Where content itself is thin, that's flagged NEEDS-COPY rather than papered over with invented marketing language.",
+  "pages": {
+    "home": {
+      "exists": true,
+      "currentTitle": "\"Ali Demirbaş - Growth Marketer\" (set on the layout, both languages, TR text: same)",
+      "currentDescription": "EN: \"Data-driven growth for mobile products. Mobile App Growth Lead at Aksigorta; previously Vodafone, Getir and Wingie Enuygun Group.\" / TR equivalent",
+      "h1": "hero.line1 + hero.line2 (\"Growth you can measure. Products that keep users.\")",
+      "verdict": "PRODUCTION-READY, no change needed",
+      "minorNote": "EN home page.tsx has no metadata export of its own (inherits the layout's), while TR home page.tsx duplicates the same object explicitly - functionally identical output, just an inconsistent authoring pattern. Not worth touching for a cosmetic authoring-style difference with zero user-facing effect."
+    },
+    "about": { "exists": true, "currentTitle": "\"About - Ali Demirbaş\" / \"Hakkımda - Ali Demirbaş\"", "currentDescription": "\"Digital Marketing · Analytics · Growth Strategy\" (both langs, translated)", "h1": "\"Professional Profile\" / \"Profesyonel Profil\"", "verdict": "PRODUCTION-READY" },
+    "lab-index": { "exists": true, "currentTitle": "\"Lab - Ali Demirbaş\"", "currentDescription": "\"Open-source projects from real marketing, growth and lifecycle work: a lifecycle journey generator, a CRM journey archive, an A/B test playbook and marketing dashboard tools.\"", "h1": "\"Things I've been building\"", "verdict": "PRODUCTION-READY" },
+    "lab-product:ab-testing": { "exists": true, "currentTitle": "\"A/B Test Playbook - Ali Demirbaş\"", "currentDescription": "\"211 real growth-test scenarios for Claude Code: what to test, which KPI to track, what not to do.\"", "h1": "\"An A/B test engine that won't let you skip the guardrail.\"", "verdict": "PRODUCTION-READY - substantial real content (install guide, 3-box framework, 5 principles, worked example, 6-item FAQ)" },
+    "lab-product:dashboard-builder": {
+      "exists": true,
+      "currentTitle": "`${content.title} - Ali Demirbaş`",
+      "currentDescription": "`${content.sub}`",
+      "h1": "content.title",
+      "verdict": "METADATA is production-ready (real title/description strings exist and render correctly) but the CONTENT BEHIND it is NEEDS-COPY",
+      "needsCopyDetail": "src/lib/skill-pages/dashboard-builder.tsx's own file comment states every field is either copied verbatim from the one-line copy.lab.projects entry or a generic, non-product-specific instruction: whatItDoes is one sentence + the project's tag list, howItWorks is unset, installSteps are 3 generic steps ('clone the repo', 'open it in Claude Code', 'follow the repo's setup steps' - no dashboard-builder-specific walkthrough), faq is an explicitly empty array. This is a real content gap, not a metadata gap - the <title>/<meta description>/H1 that DO exist are accurate to what's genuinely on the page today, they just describe a thin page. Left as NEEDS-COPY rather than inventing a fuller product narrative that the repo doesn't substantiate."
+    },
+    "ab-test-library-index": { "exists": true, "currentTitle": "hardcoded in AbTestRoutes.tsx (not independently re-quoted verbatim this round - see production/validate-seo-metadata.mjs's own passing checks for the underlying 211-record corpus this page indexes)", "verdict": "PRODUCTION-READY" },
+    "journey-library-index": { "exists": true, "currentTitle": "\"Canonical Journey Library - Ali Demirbaş\"", "currentDescription": "\"255 domain-neutral lifecycle state machines across 26 categories, filterable by category and by what the trigger is allowed to conclude.\"", "verdict": "PRODUCTION-READY" },
+    "calculators-index": { "exists": true, "currentTitle": "\"Marketing Calculators - Ali Demirbaş\"", "verdict": "PRODUCTION-READY, out of scope for rewrite" },
+    "blog-index": { "exists": true, "currentTitle": "\"Blog - Ali Demirbaş\"", "currentDescription": "\"Writing on growth, CRM and lifecycle marketing.\"", "verdict": "PRODUCTION-READY - 5 real, substantial articles behind it" },
+    "stack": { "exists": true, "currentTitle": "\"Stack - Ali Demirbaş\"", "currentDescription": "\"The tools Ali Demirbaş instruments, queries and optimizes growth with every day.\"", "verdict": "PRODUCTION-READY" },
+    "contact": { "exists": true, "currentTitle": "\"Contact - Ali Demirbaş\"", "currentDescription": "\"Reach Ali Demirbaş by email or connect on LinkedIn.\"", "verdict": "PRODUCTION-READY" }
+  },
+  "summary": "Every static and Lab-product page already has real, working, non-placeholder metadata. The ONLY genuine content gap in this whole category is dashboard-builder's thin product copy (NEEDS-COPY, not a metadata problem) - everything else needed zero proposed changes."
+}

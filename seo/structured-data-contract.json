@@ -1,0 +1,41 @@
+{
+  "_description": "Structured data strategy, built from an audit of what's actually implemented today plus Google's current (as of this session's knowledge) structured-data policy for each candidate type. No schema is recommended just because it's technically possible - each verdict states what real, already-visible-on-page data would back it, or why it's rejected.",
+  "currentImplementation": {
+    "location": "src/components/JsonLd.tsx, rendered once from each root layout (src/app/(en)/layout.tsx, src/app/tr/layout.tsx) - i.e. identical on every single page of the site",
+    "typesEmitted": ["Person", "WebSite"],
+    "note": "Person carries name/url/image/jobTitle/worksFor/email/knowsAbout/sameAs, all substantiated elsewhere on the site (About's bio, footer/contact links). WebSite carries url/name/inLanguage/publisher (referencing Person via @id). No SearchAction (correct - the site has no working search endpoint to point one at). This is a deliberately small, fully-substantiated implementation, not a placeholder - keep it as the site-wide baseline."
+  },
+  "candidateTypes": {
+    "WebSite": { "verdict": "REQUIRED", "status": "already implemented, keep as-is", "scope": "site-wide, once" },
+    "Person": { "verdict": "REQUIRED", "status": "already implemented, keep as-is", "scope": "site-wide, once" },
+    "BreadcrumbList": {
+      "verdict": "RECOMMENDED",
+      "scope": "every page family with real hierarchy depth - see seo/breadcrumb-contract.json for the exact trail per family",
+      "reasoning": "Purely structural (position/name/url), no data has to be invented, Google still actively supports breadcrumb rich results in search snippets. Should reuse the exact same trail data the visible breadcrumb UI reads (see seo/breadcrumb-contract.json's own note on this - one source of truth for both).",
+      "exclusion": "home (root, no meaningful trail above it) and catchall (404, not indexed)"
+    },
+    "Article / BlogPosting": {
+      "verdict": "RECOMMENDED for blog-article ONLY",
+      "scope": "the 5 blog articles",
+      "reasoning": "Real author (Person, already modeled and referenceable via @id), real datePublished (post.date exists on every post), real headline/description (post.title/post.excerpt). This is exactly the kind of page BlogPosting schema is for.",
+      "rejectedFor": "ab-test-library-detail, journey-library-detail - these are structured data RECORDS (a test scenario, a state-machine definition), not articles. Marking them up as Article/BlogPosting would misrepresent the content type to Google, which is a form of structured-data misuse the task explicitly warns against and Google's own guidelines explicitly prohibit (markup must accurately describe the page content)."
+    },
+    "SoftwareApplication / WebApplication": {
+      "verdict": "NOT APPROPRIATE",
+      "scope": "calculator-detail (43), lab-product (2), utility (2)",
+      "reasoning": "This schema's actual search-result value (a rich result showing rating/price) requires aggregateRating and/or offers data. None of these pages have a real rating or price - the calculators are free, unrated tools, and the Lab projects are open-source repos, not App Store listings. Adding SoftwareApplication with no rating/offers is inert markup at best; fabricating a rating or price to make it 'complete' is explicitly the kind of misuse the task instructs against ('yanlış Product/Offer schema ekleme'). Revisit only if a genuine rating mechanism is ever added to the site."
+    },
+    "FAQPage": {
+      "verdict": "NOT RECOMMENDED under current Google policy, even though real FAQ content exists",
+      "scope": "calculator-detail (43 pages carry real, substantial FAQ content already)",
+      "reasoning": "As of Google's August 2023 Search Central policy change, FAQPage rich-result eligibility in the main search results was restricted to well-known, authoritative government and health websites - for a general marketing/tools site like this one, adding FAQPage schema no longer produces a visible rich snippet. It's not harmful to add, but it has no current upside, so this round does not recommend spending implementation effort on it. Revisit if Google's policy changes again.",
+      "note": "This directly answers the task's own instruction to weigh 'Google'ın güncel structured-data politikalarını dikkate al' rather than adding schema just because content exists to back it."
+    },
+    "ItemList": {
+      "verdict": "RECOMMENDED, with a realistic expectation set",
+      "scope": "ab-test-library-index, journey-library-index, calculator-index, blog-index",
+      "reasoning": "Each of these pages IS a real list of real items with real urls/names, so ItemList markup would be accurate, not fabricated. Realistic expectation: Google's actual visible use of a generic ItemList (outside of specific carousel-eligible content types like Recipe/Course/Product) is limited - this is a low-risk correctness signal, not a promise of a new rich-result surface. Worth doing because it's cheap and honest, not oversold as a growth lever."
+    }
+  },
+  "explicitlyOutOfScope": "No new schema type is proposed beyond the candidates the task itself listed - this round does not introduce Dataset, HowTo, Course, or any other type not in the brief's own candidate list, per the task's own 'no schema spam, no new schema types' instruction."
+}

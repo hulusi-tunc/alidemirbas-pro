@@ -1,0 +1,66 @@
+{
+  "_description": "Site-wide canonical + hreflang rules, per page family. The mechanism is already unified site-wide: pageAlternates(path, lang) in src/lib/seo.ts, which every route family uses except the journey-merged case (documented below). This file states the CONTRACT that mechanism should keep satisfying, not a new mechanism.",
+  "siteUrl": "https://alidemirbas.com.tr",
+  "globalRules": {
+    "canonicalDomain": "https://alidemirbas.com.tr (SITE_URL, src/lib/seo.ts:6) - never a Vercel preview domain. Verified: no other domain string is used for canonical/OG/hreflang construction anywhere in src/.",
+    "trailingSlash": "never - next.config.ts sets no trailingSlash option, defaulting to false; every URL built by pageAlternates()/sitemap.ts is trailing-slash-free, so this is a real, consistent, already-enforced convention, not a new rule.",
+    "queryParameterBehavior": "no route family in this site persists filter/search state to the URL (confirmed for A/B library, journey library, and blog - all client-side useState, zero useSearchParams/router.push usage anywhere in the corpus). Query strings therefore never need canonicalizing away; if one is ever added ad hoc (UTM tracking params on an inbound link, for example) the existing self-referencing canonical already strips it, since canonical is always built from the route's own known path, never from the request URL.",
+    "trailingSlashBehavior": "same as trailingSlash above - Next's own default redirect handles a stray trailing slash before it reaches a page's canonical logic.",
+    "mergedContentBehavior": "see journey-library-detail's dedicated entry below - the only page family in the corpus with a 'this URL exists but isn't the canonical one' situation."
+  },
+  "perFamily": [
+    {
+      "pageType": "home",
+      "canonicalSource": "self",
+      "selfCanonical": true,
+      "aliasBehavior": "none",
+      "note": "Set once on the layout via pageAlternates('', lang), not on the page - EN home page.tsx exports no metadata of its own; TR home page.tsx duplicates the layout's object instead of inheriting silently. Functionally correct either way (same output), flagged as a minor consistency inconsistency, not a defect."
+    },
+    { "pageType": "about", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    { "pageType": "lab-index", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    { "pageType": "lab-product", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none", "note": "Applies to both /lab/ab-testing and /lab/dashboard-builder." },
+    { "pageType": "ab-test-library-index", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    {
+      "pageType": "ab-test-library-detail",
+      "canonicalSource": "self",
+      "selfCanonical": true,
+      "aliasBehavior": "none - all 211 slugs verified unique, no alias/duplicate/merge concept exists for this library (unlike journeys)",
+      "note": "Canonical is built correctly in the live route: pageAlternates(`/lab/ab-testing/library/${slug}`, lang) (AbTestRoutes.tsx:31), full /library/ segment included. The pre-existing production/ab-test-seo-metadata.json audit artifact's own canonicalPath field matches this exactly for all 211 records (independently verified). production/validate-seo-metadata.mjs's check #11 was itself asserting the WRONG expected prefix (missing /library/) and therefore failing all 211 records against a spec bug, not a data bug - fixed this round, see seo/SEO-AUDIT-NOTES.md."
+    },
+    { "pageType": "journey-library-index", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    {
+      "pageType": "journey-library-detail",
+      "canonicalSource": "self",
+      "selfCanonical": true,
+      "aliasBehavior": "none for the 255 live journeys - each slug unique",
+      "note": "Do not break this: the merged-ID contract below is a SEPARATE, deliberate exception living in the same route file, not a variant of this entry."
+    },
+    {
+      "pageType": "journey-merged",
+      "canonicalSource": "the SURVIVOR journey's canonical URL, not self",
+      "selfCanonical": false,
+      "aliasBehavior": "5 known ids (con-37, cms-209, ctl-239, ctl-240, ret-25) resolve via src/canonical/index.ts's MERGED_INTO map and 200-render the survivor's full content with a merge banner. Canonical points at the survivor: `${SITE_URL}${basePathFor(lang)}/${survivor.slug}`. No hreflang languages block is set for this case (only canonical) - confirmed live code (JourneyRoutes.tsx:34), matching production/journey-merged-id-contract.json's documented intent exactly. DO NOT change this to a hard 301/302 redirect without checking with the journey library's own maintainers first - the existing contract explicitly frames this as 'existing behavior only, no new redirect created,' i.e. a deliberate choice, not an oversight.",
+      "queryParameterBehavior": "n/a",
+      "trailingSlashBehavior": "n/a"
+    },
+    { "pageType": "calculator-index", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    {
+      "pageType": "calculator-detail",
+      "canonicalSource": "self",
+      "selfCanonical": true,
+      "aliasBehavior": "none - LIVE_CALCULATOR_SLUGS has zero duplicates (verified this round and in every prior calculator batch this session); the catalog's own 34 non-live candidate slugs never resolve to a route at all (dynamicParams enforcement via LIVE_CALCULATOR_SLUGS.includes check, not a redirect)"
+    },
+    { "pageType": "utility", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    { "pageType": "blog-index", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    {
+      "pageType": "blog-article",
+      "canonicalSource": "self",
+      "selfCanonical": true,
+      "aliasBehavior": "none",
+      "note": "hreflang was incorrectly claiming a TR alternate that doesn't exist - fixed this round (canonical-only now, no languages block), see seo/SEO-AUDIT-NOTES.md and site-route-inventory.json's hreflangBug entry."
+    },
+    { "pageType": "stack", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    { "pageType": "contact", "canonicalSource": "self", "selfCanonical": true, "aliasBehavior": "none" },
+    { "pageType": "catchall", "canonicalSource": "n/a - 404, no canonical needed", "selfCanonical": null, "aliasBehavior": "n/a" }
+  ]
+}

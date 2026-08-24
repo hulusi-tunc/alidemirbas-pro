@@ -1,0 +1,33 @@
+{
+  "_description": "Site-wide Open Graph / Twitter Card contract. Confirmed by direct grep across the whole src/ tree: ZERO openGraph or twitter fields exist anywhere in this codebase today (no root-layout default, no per-family override). This file defines the contract to implement, with a real, non-invented fallback hierarchy - it does not implement it (that's a code change beyond this round's contract-only scope for the shared metadata layer, and the per-family images described as NEEDS-DESIGN-ASSET literally don't exist as files yet).",
+  "currentState": "NOT IMPLEMENTED anywhere. grep -rn \"openGraph\\|twitter:\\|og:image\" src/ returns zero matches.",
+  "onlyRealImageAssetAvailable": "public/portrait.jpg (referenced today only as JsonLd's Person.image) - no purpose-built OG image (1200x630 or similar) exists anywhere in the repo. Every other file under public/ is an unrelated Next.js boilerplate icon (file.svg, globe.svg, next.svg, vercel.svg, window.svg).",
+  "fallbackHierarchy": [
+    "1. Per-page/per-record image, if a page family is later given one (none exist today - see needsDesignAsset below)",
+    "2. Site default OG image - DOES NOT EXIST YET. Until a real 1200x630 asset is designed and committed to public/, og:image should point at public/portrait.jpg rather than a fabricated path - it's the only real asset in the repository, even though its aspect ratio isn't ideal for a social card.",
+    "3. No og:image at all is preferable to a broken/404 image URL - if implementing before a real asset exists, omit og:image entirely rather than point at a path that returns 404 (most platforms fall back to their own default preview gracefully; a broken image URL looks worse than none)."
+  ],
+  "fieldsPerFamily": {
+    "note": "og:url and og:type='website' can be set identically everywhere via the same pageAlternates-adjacent mechanism (build og:url from the same canonical string already computed). og:title/og:description should literally reuse the same string already computed for <title>/<meta description> per family - no separate authoring pass needed, since the contracts in seo-title-contract.json and meta-description-contract.json already produce the right values for this purpose.",
+    "home": { "og:type": "website", "og:image": "site default (see fallbackHierarchy)", "needsDesignAsset": true },
+    "about": { "og:type": "profile (Open Graph supports this type; alternatively 'website' if simplicity is preferred - a design/product decision, not a technical requirement)", "og:image": "site default", "needsDesignAsset": true },
+    "lab-index": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false },
+    "lab-product": { "og:type": "website", "og:image": "site default, or a per-project image later", "needsDesignAsset": "NEEDS-DESIGN-ASSET for a per-project card (2 instances: ab-testing, dashboard-builder) - not a blocker, site default covers it until then" },
+    "ab-test-library-index": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false },
+    "ab-test-library-detail": { "og:type": "article (or website)", "og:image": "site default - a per-scenario generated card (showing the question + category) would be a genuinely valuable enhancement given the 211-page scale, but that's a template/generator asset, not a one-off design file - NEEDS-DESIGN-ASSET flagged for a reusable OG-image-generation template, not 211 individual images", "needsDesignAsset": true },
+    "journey-library-index": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false },
+    "journey-library-detail": { "og:type": "article (or website)", "og:image": "site default - same reasoning as ab-test-library-detail: a generated per-journey card (id + name + category) is the eventual right answer, not 255 hand-made images", "needsDesignAsset": true },
+    "journey-merged": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false, "note": "low priority - noindex page" },
+    "calculator-index": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false },
+    "calculator-detail": { "og:type": "website", "og:image": "site default, or a per-calculator generated card (metric name + example) later", "needsDesignAsset": "NEEDS-DESIGN-ASSET for a generated-template card across 43 calculators - not urgent, calculators are typically shared by direct link/embed rather than social card, but flagged for completeness" },
+    "utility": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false },
+    "blog-index": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false },
+    "blog-article": { "og:type": "article", "og:image": "site default until per-article cover images exist", "needsDesignAsset": "NEEDS-DESIGN-ASSET - only 5 articles today, a per-article cover image is realistic to hand-design at this scale, unlike the 211/255-page corpora above", "additionalFields": "article:published_time from post.date is a real, available field once openGraph.article is implemented" },
+    "stack": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false },
+    "contact": { "og:type": "website", "og:image": "site default", "needsDesignAsset": false }
+  },
+  "twitterCard": {
+    "recommendation": "twitter:card = 'summary_large_image' site-wide once a real OG image exists (summary_large_image degrades gracefully to a smaller preview if the image is missing/wrong aspect ratio, so it's safe to set even before per-family images exist); twitter:title/twitter:description can mirror og:title/og:description exactly - no separate authoring needed."
+  },
+  "implementationNote": "This is a contract, not a code change - implementing it means adding an `openGraph`/`twitter` block to the same metadata-builder functions already documented in seo-title-contract.json/meta-description-contract.json (pageAlternates could reasonably grow an `og` sibling function, or each per-family metadata builder could add the block inline). That's plumbing work for the next round; this round's job was confirming there is currently nothing to preserve/break and defining what correct looks like."
+}
