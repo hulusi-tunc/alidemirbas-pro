@@ -1,0 +1,37 @@
+{
+  "_description": "Part 12 - 6 distinct states this contract requires a future implementation to tell apart, none of them visually designed here (no copy, no layout - see SEARCH-DESIGN-HANDOFF.md's STATES section for the design-facing summary of this file). Each state below is defined by a deterministic condition computable from search()'s own return value plus the query string itself - nothing here requires guessing user intent.",
+  "states": {
+    "emptyQuery": {
+      "condition": "query.trim() === '' (before any normalization/tokenization runs at all).",
+      "distinctFrom": "noResults - this is 'the user hasn't typed/selected anything yet', not 'the user searched and got nothing'. A search surface opening with an empty query is its own state (e.g. could show recent/suggested content instead of a results list), never treated as a 0-result search.",
+      "suggestionSourcing": "N/A - there is no query to fail. If a design wants to show something in this state (e.g. popular calculators), that content must come from real, already-published data (search-facets.json's type counts, or a hand-curated static list from the site owner) - never search-ranked, since there's no query to rank against."
+    },
+    "noResults": {
+      "condition": "query.trim() !== '' AND search(query).results.length === 0, with NO filters active.",
+      "realExample": "search-query-fixtures.json's misspelling fixtures ('calclator', 'joruney') are the corpus's own documented real examples of this state - genuine typos with zero token overlap against any of the 520 documents.",
+      "suggestionSourcing": "Deterministic-only, per rule #12 in the task brief - a future implementation MAY suggest alternate queries, but only from real, already-indexed corpus data (e.g. the top N most-searched terms if analytics ever track that, or a static list of common entry points like calculator names), NEVER a query or content generated at runtime by an LLM or any non-deterministic process. If no safe deterministic source exists yet, showing no suggestions at all is the correct, honest fallback - not a fabricated one."
+    },
+    "filteredNoResults": {
+      "condition": "search(query).results.length > 0 for the UNFILTERED query, but the current facet selection reduces the filtered result set to 0.",
+      "distinctFrom": "noResults - the query itself is valid and has real matches; the ACTIVE FILTER COMBINATION is what produced zero, which is a different, fixable-by-the-user situation (remove/change a filter) rather than a bad query.",
+      "relationToFacetContract": "This is exactly the scenario search-facet-combination-contract.json's zeroResultCombinations.fallbackForAZeroResultSelection describes - see that file for the data-side handling (contextual facet counts as the primary prevention, this state as the fallback when it happens anyway).",
+      "suggestionSourcing": "Deterministic and safe: since the facets themselves are known, real data (search-facets.json), the only 'suggestion' needed here is procedural - name which currently-active filter(s) produced 0 when combined, computable by re-running the query with each active filter removed one at a time and reporting which removal(s) would yield >0 results. Not a content suggestion, a filter-state fact."
+    },
+    "partialResults": {
+      "condition": "search(query) returns >0 but well below what a full result set would be for a genuinely broad concept, OR a query resolves via an alias to a single document that differs from the literal typed query (a merged-journey id, or a calculator acronym alias) - the user gets a real, relevant answer, but not a literal 1:1 match to what they typed.",
+      "realExample": "Every one of the 5 merged-journey ids (CON-37, CMS-209, CTL-239, CTL-240, RET-25 - see search-aliases.json) is a real, live example: searching 'RET-25' correctly returns journey:RSK-192 (the survivor), not a 'RET-25' result, because RET-25 was retired per the existing SEO round's own merged-id decision (production/journey-merged-id-contract.json) - re-used here, not re-decided (rule #10).",
+      "distinguishingSignal": "search()'s own aliasResolved field is non-null whenever this happened via an alias - a design can check that field directly rather than inferring it from result content.",
+      "suggestionSourcing": "N/A - this state isn't a suggestion state, it's a disclosure state: the correct behavior is telling the user WHY the result differs from their literal query (e.g. 'RET-25 was merged into RSK-192'), using the exact, already-published, real explanation text the live journey page itself already shows for that merge - never inventing new copy for it."
+    },
+    "invalidQuery": {
+      "condition": "The query is non-empty but contains no matchable content after normalization - e.g. a string of pure punctuation ('???', '---'), a single non-noise-filtered stopword-like fragment, or a query that normalizes to an empty token list.",
+      "verified": "normalize('???') strips all punctuation to nothing, tokenize() on the result returns []; search() with zero tokens legitimately falls through to 0 results the same way noResults does, but the CAUSE is different (malformed input, not a real-but-unmatched query) and a future implementation may want to distinguish the two for clearer messaging - this state exists so that distinction has a name, even though the current headless prototype does not yet special-case it (documented, not silently assumed to already be handled)."
+    },
+    "veryBroadQuery": {
+      "condition": "search(query).results.length hits the full 10-result cap (or whatever limit is configured) AND the content-type-balancing check (applyContentTypeBalancing) found more than 6 of one type in the top 10 - i.e. a query broad enough that ranking alone isn't doing much discriminating work.",
+      "realExample": "search-query-fixtures.json's broad-concept fixtures ('conversion', 'checkout') are the corpus's own verified examples - both genuinely match dozens of documents across multiple types.",
+      "suggestionSourcing": "N/A for content suggestions (the query already has plenty of real results) - what this state is FOR is signaling to a UI that 'showing top 10 of a much larger set' framing (e.g. a 'see all results' affordance, or steering toward facets) may be more useful here than for a narrow query with 2 results - a presentation hint, not a data change."
+    }
+  },
+  "commonRule": "None of the 6 states above may be used to justify inventing search results, suggested queries, or explanatory copy that isn't traceable to real, already-published corpus/contract data - consistent with rules #7, #8, #12 and #14 in the task brief. Where no safe deterministic source exists for a given state's optional content (suggestions, popular-query lists), the correct behavior is to omit that content, not approximate it."
+}

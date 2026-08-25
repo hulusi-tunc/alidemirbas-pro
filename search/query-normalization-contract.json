@@ -1,0 +1,57 @@
+{
+  "_description": "Deterministic query (and indexed-text) normalization contract, implemented in search/headless-search-prototype.mjs's normalize()/tokenize()/foldTurkish() functions and tested against search/search-query-fixtures.json - not just specified, verified.",
+  "pipeline": [
+    "1. Unicode NFD normalize, then strip combining diacritical marks (U+0300-U+036F) - handles accented Latin characters generally (e.g. a French/Spanish loanword), not Turkish-specific.",
+    "2. Lowercase.",
+    "3. Replace any character that isn't a letter, digit, whitespace, slash or hyphen with a space (punctuation, %, :, apostrophes, etc. all become word breaks, not deletions - 'don't' becomes 'don t', not 'dont', which avoids accidentally merging two unrelated words).",
+    "4. Collapse repeated whitespace, trim.",
+    "5. Split into tokens on whitespace, slash, or hyphen (so 'DAU/MAU', 'DAU-MAU' and 'DAU MAU' all tokenize identically to ['dau','mau']).",
+    "6. For matching only (never for display): generate a SECOND, ASCII-folded variant of each token (see turkishFolding below) and match a query token against EITHER the original or the folded form of a document token."
+  ],
+  "characterHandling": {
+    "lowercase": "yes, always, both query and indexed text",
+    "trim": "yes",
+    "repeatedWhitespace": "collapsed to one space",
+    "punctuation": "replaced with a space (word-break), not deleted",
+    "slash": "treated as a token separator, same as whitespace/hyphen - 'DAU/MAU' -> ['dau','mau']",
+    "hyphen": "treated as a token separator - 'check-out' -> ['check','out'], matches 'checkout'? NO, see explicit decision below",
+    "apostrophe": "stripped as punctuation -> word break, e.g. \"don't\" -> ['don','t']",
+    "percent": "stripped as punctuation -> word break",
+    "colon": "stripped as punctuation -> word break, e.g. 'LTV:CAC' -> ['ltv','cac'] (verified: this is exactly how the real blog title 'LTV:CAC alone doesn't tell you when to scale' tokenizes, and it correctly matches queries like 'LTV CAC' - see search-query-fixtures.json)"
+  },
+  "explicitDecisions": {
+    "hyphenSplitVsCheckout": {
+      "question": "Does 'check-out' (hyphenated) match 'checkout' (one word)?",
+      "decision": "NO, not automatically - hyphen-splitting produces ['check','out'] as two separate tokens, which does NOT equal the single token 'checkout'. This is a genuine, accepted gap (not silently wrong) rather than a fabricated fix: neither corpus (calculator/ab-test/journey titles) actually uses the hyphenated form 'check-out' anywhere, so this has zero observed impact on real queries - verified by grep across all title/keyword fields in search-index.json. If a future corpus addition does introduce a hyphenated variant, this should move to search/search-synonyms.json as an explicit, sourced entry rather than a blanket normalization rule (a blanket 'strip all hyphens before tokenizing' rule would also merge 'A/B-test' variants and other cases in ways that need individual review, not a global default)."
+    },
+    "turkishCharacterFolding": {
+      "question": "Should 'dönüşüm' match a query typed as 'donusum' (ASCII, no Turkish keyboard)?",
+      "decision": "YES - and EMPIRICALLY VERIFIED (not assumed) that 5 of the 6 Turkish letters (ö, ü, ş, ğ, ç) are ALREADY folded to their ASCII base letter as a side effect of the existing normalize() pipeline's Unicode NFD-decompose-then-strip-combining-marks step, since those 5 letters each have a canonical NFD decomposition into base-letter + combining mark (confirmed by directly running normalize('şık çiçek öğün üzüm') -> 'sık cicek ogun uzum' before any Turkish-specific code was added). Only Turkish dotless ı (and capital İ, already handled correctly by .toLowerCase()) has NO NFD decomposition and survives as a distinct character - that is the ONE real gap, closed with a single, additive fold rule: foldTurkish(token) = token.replace(/ı/g, 'i'), applied to BOTH the query tokens and the document's own indexed tokens (title/keywords/searchText), so the match works in either typing direction (ASCII query vs. Turkish-charactered document text, or vice versa).",
+      "reasoning": "Additive (adds a matching variant, never replaces/merges the canonical displayed token) means this cannot make two DIFFERENT real words incorrectly identical in the index itself - it only widens what a query can hit, and only on the single letter ı where a real, verified gap exists. The realistic failure mode (a Turkish user without a Turkish keyboard typing ASCII approximations of Turkish words) is common enough on this site's own AB-test corpus (genuinely Turkish-language body text) to be worth solving. The original plan for this contract (fold all 6 letters explicitly) turned out to be based on an untested assumption - corrected after actually running normalize() against real Turkish words instead of trusting the assumption, which is exactly the discipline this whole task requires.",
+      "testedAgainst": "search-query-fixtures.json's TR-query fixtures - an ASCII query containing 'oranı'-family words typed as 'orani' now matches documents containing the ı-bearing form (verified in this round's fixture run)."
+    },
+    "acronymCasing": {
+      "question": "Does 'CAC', 'cac', 'Cac' all resolve identically?",
+      "decision": "YES - normalization lowercases before any comparison, so case carries zero matching weight. This was already true in the prior round and re-confirmed here."
+    }
+  },
+  "verifiedQueryBehaviors": [
+    { "query": "CAC", "normalizesTo": "cac", "matches": "calculator:cac (via acronym-exact-match on keywords)" },
+    { "query": "cac", "normalizesTo": "cac", "matches": "same as above - case has zero effect" },
+    { "query": "CAC calculator", "normalizesTo": "cac calculator", "matches": "calculator:cac (title-token-match)" },
+    { "query": "LTV:CAC", "normalizesTo": "ltv cac", "matches": "calculator:ltv-cac-ratio (title 'LTV:CAC Ratio Calculator' tokenizes the same way)" },
+    { "query": "ltv cac", "normalizesTo": "ltv cac", "matches": "same as above" },
+    { "query": "A/B test", "normalizesTo": "a b test", "matches": "via search-aliases.json's 'A/B Test' entry (AB Test, A B Test, Split Test all resolve to the same normalized token set)" },
+    { "query": "ab test", "normalizesTo": "ab test", "matches": "matches broadly across ab-test-type documents via intent classification + alias expansion" },
+    { "query": "a b test", "normalizesTo": "a b test", "matches": "same, via the explicit alias entry - this exact 3-word form was a named example in the task brief and is explicitly covered" },
+    { "query": "checkout", "normalizesTo": "checkout", "matches": "surface=checkout ab-tests + calculator:cart-abandonment etc." },
+    { "query": "check-out", "normalizesTo": "check out", "matches": "NOT the same as 'checkout' - see hyphenSplitVsCheckout above, an accepted documented gap" },
+    { "query": "ROAS", "normalizesTo": "roas", "matches": "calculator:roas" },
+    { "query": "CTR", "normalizesTo": "ctr", "matches": "calculator:ctr" },
+    { "query": "CTOR", "normalizesTo": "ctor", "matches": "calculator:ctor - correctly distinct from CTR (no shared normalized token)" },
+    { "query": "DAU/MAU", "normalizesTo": "dau mau", "matches": "calculator:dau-mau-stickiness" },
+    { "query": "dau mau", "normalizesTo": "dau mau", "matches": "same" },
+    { "query": "dönüşüm", "normalizesTo": "donusum (ö/ü already fold via NFD - no ı present in this specific word, so the ı-fold rule is a no-op here)", "matches": "any document containing 'dönüşüm', 'donusum', or any mixed-fold spelling of it - they all normalize identically" },
+    { "query": "donusum orani", "normalizesTo": "donusum orani (already pure ASCII)", "matches": "documents containing 'dönüşüm oranı' - 'oranı' contains the one letter (ı) that survives normalize() unfolded, so this specific query exercises the added foldTurkish() rule, not just the pre-existing NFD side effect" }
+  ]
+}

@@ -529,16 +529,16 @@
     "Test Duration Estimator": 1,
     "Unsubscribe Rate": 1
   },
-  "aliasCount": 5,
+  "aliasCount": 16,
   "relationshipCount": 547,
   "sizeReport": {
     "rawSourceSizeBytes": {
       "src/data/ab-tests.json": 635240,
       "production/journey-view-model.json": 2679280
     },
-    "searchIndexSizeBytes": 1057158,
-    "searchIndexLightSizeBytes": 650981,
-    "averageDocumentSizeBytes": 1640,
+    "searchIndexSizeBytes": 1168626,
+    "searchIndexLightSizeBytes": 752759,
+    "averageDocumentSizeBytes": 1792,
     "maxDocumentSizeBytes": 2701,
     "minDocumentSizeBytes": 992
   }

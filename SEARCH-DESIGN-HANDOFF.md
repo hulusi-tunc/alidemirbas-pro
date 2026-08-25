@@ -1,84 +1,100 @@
 # Search / Discovery Design Handoff
 
-Semantic requirements only — no pixels, no layout, no component names. The data layer (`search/`) is production-ready; this is what the designer needs to know about it before drawing anything.
+Semantic and behavioral requirements only — no pixels, no layout, no component names. The `search/` data and logic layer is design-ready; this is what a designer/implementer needs to know before drawing or building anything. Every claim below is backed by a file in `search/` (or `seo/`) that carries the full real numbers and reasoning — this document summarizes, it doesn't replace them.
 
-## 1. Result types that exist
+## DATA AVAILABLE
 
-Five, each with real, distinct content behind it:
+Five real result types, 520 searchable documents total (see `search/search-coverage-report.json` for the full source-vs-searchable audit):
 
-| Type | Count | What a result actually is |
+| Type | Searchable count | Source of truth |
 |---|---|---|
-| `calculator` | 43 | A live, interactive tool page with a formula and a result |
-| `ab-test` | 211 | An experiment idea: a question, a hypothesis, a KPI, guardrails |
-| `journey` | 255 | A lifecycle state machine (trigger → nodes → exits), not a linear article |
-| `lab-product` | 6 | A project — 3 link to real on-site pages, 3 link off-site (GitHub, numerspace.com) |
-| `blog-article` | 5 | A long-form article with sections |
+| `calculator` | 43 (of 77 full catalog — 34 not yet live) | `production/calculators/content/*.json` |
+| `ab-test` | 211 | `src/data/ab-tests.json` |
+| `journey` | 255 (of 260 — 5 merged/retired ids resolve via alias to a survivor, never their own document) | `production/journey-view-model.json` |
+| `lab-product` | 6 (3 link on-site, 3 link off-site) | `src/lib/content.ts` |
+| `blog-article` | 5 | `src/lib/blog-posts.ts` |
 
-There is no `about`/`stack`/`contact` result type — those static nav pages are deliberately excluded from search (see `search/search-taxonomy.json`'s own `excludedFromSearch` note: they're always one click away in global nav, so a search result pointing at them adds nothing a nav click doesn't already give).
+Every document guarantees `title`, `summary` (1-2 sentences), `type`, `url`, `canonical` — see `search/search-document.schema.json` / `search-document.types.ts` for the full contract. Type-specific fields beyond that (never forced onto types they don't apply to — Part 2's "no forced universal fields"): `metric` (calculator/ab-test), `surface` (ab-test only), `journeyRelationRefs` (journey only — see RELATED CONTENT below). A card never needs `searchText` (internal matching field, not display copy, up to 2000 chars).
 
-## 2. Minimum fields a result card needs
+16 document-level **aliases** (`search/search-aliases.json`) — guaranteed 1:1 name variants (e.g. "customer acquisition cost" → the CAC calculator, or a retired journey id → its survivor), every one source-derived and disclosed with its provenance. 8 corpus/type-scoped **synonyms** (`search/search-synonyms.json`) — softer, potentially-not-identical equivalences (e.g. CTR ↔ "Click-Through Rate"), kept deliberately separate from aliases; 7 candidate pairs were tested and explicitly rejected (e.g. MRR ≠ ARR) rather than silently assumed.
 
-Every result, regardless of type, guarantees: `title`, `summary` (1-2 sentences, already short), `type`, `url`. That's enough for a bare-minimum card. Beyond that, per type:
+**Related content**: `search/search-relations.json` gives every calculator (43/43) and blog post (5/5) full, explicit, source-backed related items already. Journeys got a real upgrade this round — `journeyRelationRefs` (handoffs + distinctFrom, sourced from journey-view-model.json's own `relationships` field) now covers 89% of journeys (227/255) with real "what happens next" edges — prepared, available data, **not yet wired into a published "Related Journeys" recommendation** (see `search/search-related-content-readiness-report.json`). Ab-tests have no explicit relatedness source field in `src/data/ab-tests.json` — only shared-category matching (104/211), a real source-data limitation, not a missing SearchDocument field.
 
-- **calculator**: has `metric` (its own name/acronym) — worth showing if the card design wants a quick "what number does this give you" hint.
-- **ab-test**: has `category` (e.g. "Cart & Checkout") and `surface` (e.g. "checkout") — a card showing "AB-001 · Cart & Checkout" alongside the title is a real, sourced pattern already used on the live page itself.
-- **journey**: has `category`/`categoryTitle` and an `id` (e.g. "ACC-71") that's part of the title string already.
-- **lab-product**: has `external: true/false` — the card needs *some* visual cue that 3 of the 6 results leave the site (opens GitHub / numerspace.com) vs. 3 stay on-site. Not prescribing how, just flagging that the distinction is real and matters (a user shouldn't be surprised to land on an external domain).
-- **blog-article**: has no extra fields beyond the shared ones — a plain title + summary card is enough.
+## SEARCH BEHAVIOR
 
-A card should never need `searchText` (it's the internal matching field, not display copy — often 500-2000 characters, not meant to be read as-is).
+Query normalization (`search/query-normalization-contract.json`, fully tested, not just specified): lowercase, NFD-diacritic-strip, punctuation/slash/hyphen all become token breaks, Turkish `ı` gets an explicit ASCII fold (the other 5 Turkish letters already fold via standard Unicode decomposition — verified empirically, not assumed). `"DAU/MAU"`, `"DAU-MAU"`, `"dau mau"` all tokenize identically. `"check-out"` does **not** automatically match `"checkout"` — a disclosed, zero-real-impact gap, not silently wrong.
 
-## 3. Facets that exist today (real, computed counts)
+Alias resolution happens before ranking — a query matching an alias string resolves straight to its one target document (`aliasResolved` in the search() response), never producing a duplicate/competing result.
 
-See `search/search-facets.json` for the actual numbers. Filterable dimensions with real document counts behind every value:
+## RANKING
 
-- `type` (5 values, the table above)
-- `normalizedCategory` (11 shared values, cross-corpus — e.g. "cart-and-checkout" covers calculator + ab-test + journey documents together)
-- `surface` (14 values, ab-test only)
-- `funnelStage` (5 values, journey-only in practice, though not exclusively)
-- `businessObjective` (21 values — flagged: `review-required` is currently the single largest bucket at ~42% of documents, since the taxonomy it's drawn from was designed for journeys and doesn't classify ab-test/calculator titles as precisely — see the final report's own note on this. Don't design this facet as if every value bucket is equally populated/reliable.)
-- `metric` (calculator/ab-test only — many distinct values, several with only 1-2 documents; `search-facets.json` flags these `lowUtility: true`)
+Deterministic, IDF-weighted scoring (`search/search-ranking-contract.json` + `search/headless-search-prototype.mjs`) — tested against the real 520-document corpus, not just written theoretically. A generic token that appears on many documents (e.g. "calculator", or a KPI label like "CTA" shared by dozens of ab-tests) is dampened relative to a rare, specific one — this was a real bug fixed this round: `metric`-field matches weren't IDF-dampened like title/keyword matches, letting a generic shared KPI-label token outrank a document whose own text was a near-verbatim match. Fixed and re-verified.
 
-A facet value with `lowUtility: true` (≤2 documents) is real, not a bug — just not worth a prominent filter chip at this corpus size. Fine to fold into an "other" bucket or omit from a compact filter UI; the data itself stays available for a "show all" expansion.
+Content-type balancing prevents one type from silently taking all 10 top slots on a genuinely cross-corpus query, without forcing diversity where none honestly exists (verified: "pricing" and "onboarding" have zero real cross-type matches in this corpus — an all-one-type result there is the correct, honest answer).
 
-## 4. Empty states
+**70 ranking fixtures** (`search/search-query-fixtures.json`) across exact-title, acronym, broad-concept, find-example/find-journey, metric/synonym-expansion, surface, mixed-intent, merged-journey-id, lab-product, blog, **tr-query**, **partial-word**, and **ambiguous-query** categories — 67 pass, 3 are disclosed, tested known gaps (no fuzzy/typo matching implemented by design; prefix-matching only anchors at the start of a title string). One finding disclosed rather than hidden: a Turkish-language query whose exact answer document has an English title still loses some ranking ground to generic same-token matches — narrowed by this round's IDF fix, not fully eliminated; see that fixture's own `reason` field for the full analysis.
 
-Three genuinely different empty-state situations, not one generic "no results":
+## FILTERS
 
-1. **Zero matches at all** — a query that hits nothing. Real, will happen (see the misspelling fixtures in `search/search-query-fixtures.json` — "calclator", "joruney" currently return nothing, since no fuzzy-matching is implemented; see §8 below).
-2. **A merged-journey lookup** — a query that resolves via `search/search-aliases.json` to a survivor document. This is NOT an empty state, but it IS a state worth designing for explicitly: the result the user gets is for a *different* id than they typed (e.g. searching "RET-25" returns the "risk-signal" journey, not a "RET-25" result). A one-line "RET-25 was merged into RSK-192" note near that result (the exact copy the live journey page itself already shows) avoids confusing the user about why their exact query didn't produce an exact-named result.
-3. **A query resolved to only one type** — not an empty state at all, just a single-type result list (see §5). Don't force a "no results in other categories" message here; it's simply not always a diverse-corpus query, and inventing an apology for that would be worse than saying nothing.
+9 real facet dimensions with computed counts (`search/search-facets.json`): `type`, `normalizedCategory`, `surface`, `funnelStage`, `businessObjective`, `metric`, `tags`, plus each corpus's own native `category`. **Semantics** (`search/search-facet-combination-contract.json`): OR within one facet, AND across different facets — the standard convention. Most facet dimensions are single-valued per document; `metric` and `tags` are genuinely multi-valued (up to 5 and 11 values on one document respectively) and still use OR-within-facet by default.
 
-## 5. Mixed result lists are real and expected
+**Zero-result combinations are real and common** — computed directly: 38/55 type×normalizedCategory pairs, 56/70 type×surface pairs, 17/25 type×funnelStage pairs, and 74/105 type×businessObjective pairs are genuinely zero (e.g. `surface` is almost entirely ab-test-only). The data-layer recommendation is **contextual/dynamic facet counts** — recompute each facet's available values against the currently-filtered set, not the full 520-document corpus, so a filter combination that would return 0 is never presented as freely selectable. `businessObjective`'s `review-required` bucket is ~42% of all documents (the taxonomy was built for journeys, not ab-test/calculator titles) — don't design this facet assuming even distribution.
 
-A single query legitimately returns calculators, ab-tests, journeys, lab-products and blog-articles all at once (e.g. "conversion", "checkout" — verified against the real corpus, see `search/search-query-fixtures.json`'s broad-concept fixtures). The ranking contract (`search/search-ranking-contract.json`) includes a soft diversity rule so one type can't accidentally monopolize all 10 slots on a genuinely cross-corpus query — but it won't force diversity where none exists (e.g. "pricing" and "onboarding" verified to have zero real cross-type matches in this corpus; an all-one-type result list there is the honest answer, not a bug).
+## RESULT MODES
 
-## 6. Type grouping — possible, not required by the data
+Both "ranked" (one flat relevance-ordered list) and "grouped" (partitioned by type, each group internally keeping its own relevance order, group order = order of first appearance in the ranked list) are mechanical projections of the exact same `search()` output — see `search/search-result-modes-contract.json`. Neither re-ranks anything; picking one over the other (or offering both) is a free design choice with zero data cost either way.
 
-Nothing in the data model prevents a grouped-by-type layout ("Calculators", "A/B Tests", "Journeys" as separate sections) instead of one flat ranked list. Both are supportable from the same `search-index.json` + ranking output; this is purely a design call, not a data constraint.
+## STATES
 
-## 7. Related-content slots
+Six distinct states, each with a deterministic trigger condition (`search/search-empty-states-contract.json`) — not one generic "no results":
 
-`search/search-relations.json` gives every document with a real relation a `relatedPrimary` (0-3 items, score ≥ 1.0, usually from an explicit source like the calculator catalog's own `relatedCalculators` or a blog post's own `related[]` links) and `relatedSecondary` (0-3 items, score 0.3-1.0, computed from shared category/metric overlap). 181 of 520 documents have at least one relation edge — the other 339 (mostly ab-tests and journeys with no strong category/metric overlap to anything) legitimately have none. Design a related-content slot that can render 0-6 items, not one that assumes at least 1 always exists — and don't fabricate a "related" section on a document that has none; an absent slot is the honest state there.
+1. **Empty query** — nothing typed yet, distinct from a search that returned nothing.
+2. **No results** — a valid query, zero matches (real example: "calclator", "joruney" typos).
+3. **Filtered no results** — the unfiltered query has matches, the active filter combination doesn't (see FILTERS above).
+4. **Partial results** — an alias resolved the query to a different document than literally typed (e.g. a merged journey id) — a disclosure state, not an apology state; `search()`'s own `aliasResolved` field flags it directly.
+5. **Invalid query** — pure punctuation or a query that normalizes to zero tokens.
+6. **Very broad query** — hits the result cap with more than 6-of-one-type in the top 10 (e.g. "conversion", "checkout").
 
-Each related item carries its own `reasons[]` (e.g. `["shared-category", "shared-metric"]`) — worth surfacing as a short "why this" hint if the design has room (e.g. "same category" chip), but not required.
+Any optional suggestion content for these states must come from real, deterministic, already-indexed data — never fabricated at runtime by an LLM or any non-deterministic process. Where no safe source exists, showing nothing is the correct, honest fallback.
 
-## 8. Mobile / payload constraints
+## ACCESSIBILITY
 
-- `search/search-index.json` (full, includes `searchText` + `source` provenance) is **1.03 MB**.
-- `search/search-index-light.json` (same 520 documents, `searchText`/`source` dropped) is **636 KB**.
-- Both are almost certainly too large to ship to a mobile client as a single static download for client-side search. See `search/search-manifest.json`'s own `sizeReport` for exact per-document sizes (average ~2 KB, max documented there). This is a real constraint the eventual implementation needs to solve — server-side search (an API endpoint over this same index) is the straightforward answer; a client-side approach would need real pagination/chunking, not just shipping `search-index-light.json` wholesale to a phone. Not solved in this round (would be an implementation decision, out of scope for a data-layer round) — flagged so it isn't a surprise later.
+Standard WAI-ARIA Combobox-with-Listbox pattern (`search/search-accessibility-contract.json`) — not invented for this project. Focus moves to the input on open, returns to the trigger element on close (the most commonly-missed requirement for overlay search UIs). Arrow keys move `aria-activedescendant`, not real DOM focus, so typing keeps working while browsing results. Escape clears the query on first press, closes on the second (or first, if already empty). A live region announces result count and each of the 6 STATES above with distinct wording. Every facet control must be independently keyboard-reachable — none of this is implementation-specific.
 
-## 9. Typo tolerance — contract only, not implemented
+## ANALYTICS
 
-No fuzzy-matching library was added (explicitly out of scope this round — "dependency eklemeden"). The documented contract for a future implementation:
+6 events, GA4/GTM-shaped, contract only — no implementation exists yet anywhere in this codebase (verified: zero gtag/dataLayer/GTM references in `src/`): `site_search_open`, `site_search`, `site_search_result_click`, `site_search_filter`, `site_search_no_results`, `site_search_close` — full parameter list in `search/search-analytics-contract.json`. **Privacy finding**: raw typed query text can contain PII (a user's own name, etc.) even though the corpus itself has none — the contract recommends sending the already-computed **normalized** query string instead of the raw one, which preserves the real analytical value (finding corpus/synonym gaps) while removing capitalization/spacing that could make a query identifiable, at zero extra engineering cost (the pipeline already computes it).
 
-- Case-insensitive, diacritic-stripped (already implemented in `search/headless-search-prototype.mjs`'s `normalize()` — "İstanbul" and "istanbul" already match).
-- Punctuation/hyphen/slash-tolerant (already implemented — "DAU/MAU", "DAU-MAU", "DAU MAU" already normalize to the same tokens).
-- Turkish characters (ç, ş, ğ, ı, ö, ü) are NOT currently folded to their ASCII equivalents — only combining diacritics are stripped (NFD normalization). A future implementation should decide whether "sıcak"/"sicak" should match (currently they don't).
-- Acronym/spelling variants ("A/B Test" / "AB Test" / "a b test") are handled via `search/search-synonyms.json`, not fuzzy matching — already working.
-- Genuine misspellings ("calclator", "converion", "joruney") are the one real gap — `search/search-query-fixtures.json` documents this explicitly (2 fixtures marked as known gaps, not silently passing). A future implementation needs either a small edit-distance check or an external search service's built-in typo tolerance to close this; this round intentionally does not add either.
+## PERFORMANCE
 
-## 10. What this round does NOT include (by design, not oversight)
+Real, measured numbers, not estimates (`search/search-performance-report.json`): `search-index.json` (full, 520 docs) is **1141 KB raw / 150 KB gzip / 118 KB brotli**; `search-index-light.json` (same 520 docs, `searchText`/`source` dropped) is **735 KB raw / 89 KB gzip / 70 KB brotli**. Average document size ~1.8 KB. **Recommendation: lazy-loaded static client-side** — fetch `search-index-light.json` only when the search surface actually opens, not on every page load. At this corpus's real scale (520 documents), a server round-trip's own latency likely costs more perceived time than a one-time ~70-90 KB fetch, and no external paid search service (Algolia/Elastic/etc.) is remotely justified. Not a forced architecture change — a future implementation may choose server-side or hybrid if a real, then-current reason favors it (e.g. the corpus growing an order of magnitude).
 
-No search UI, no search box, no results page, no facet chips, no external search service (Algolia/Elastic/Meilisearch), no new npm dependency. The prototype (`search/headless-search-prototype.mjs`) is a CLI/module proof that the ranking contract is implementable deterministically — call it with `search(query)` and it returns ranked, explained results as plain data; it's not meant to run in a browser as-is.
+## SEO / SEARCH SEPARATION
+
+This search index is not Google's index (`search/search-seo-separation-contract.json`). If an internal results page (e.g. `/search?q=...`) is ever built, it **must default to NOINDEX** (`robots: { index: false, follow: true }` — the exact, already-proven mechanism this codebase uses for the 5 noindex journey-merged pages, reused here rather than reinvented), must never be added to `sitemap.ts`, and internal links must always point at a document's own real canonical URL — never at a `/search?q=...` URL that happens to resolve to it. This is the existing SEO round's own decision, applied here, not re-decided.
+
+---
+
+## DESIGN FREEDOM
+
+What a designer/implementer can change **without** touching any file in `search/`:
+
+- Modal, command-palette, or full dedicated page.
+- Card layout, row layout, typography, icons, spacing, color, motion.
+- Ranked list vs. grouped-by-type presentation (both are free — see RESULT MODES).
+- Facet presentation: chips, dropdowns, an accordion, a sidebar, a bottom sheet; which of the 9 facet dimensions a first version even exposes (launching with only `type` + `normalizedCategory` and adding more later is fine).
+- Empty/loading/no-result state copy and visual treatment (the 6 *states* themselves are fixed; the words and pixels are not).
+- Whether/how related-content slots render (0-6 items per document, per `search/search-relations.json` — design for the honest range, not a guaranteed minimum).
+- Analytics event *firing UI* (button placement, etc.) — the 6 event names/parameters are fixed, the triggering interactions' visual form is not.
+
+## DESIGN MUST NOT CHANGE
+
+What is data/logic-layer, not implementation detail — changing any of these means re-opening this contract, not a local UI tweak:
+
+- `SearchDocument` field semantics and the alias/synonym boundary (`search/search-document.schema.json`, `search-aliases.json`, `search-synonyms.json`).
+- The ranking algorithm's scoring logic and weights (`search/search-ranking-contract.json`) — tune only by re-testing against the 70 real fixtures, never by feel.
+- Canonical URLs and the merged-journey alias-resolution behavior (never surface a retired journey id as its own result).
+- Facet dimension meaning and AND/OR combination semantics (`search/search-facet-combination-contract.json`).
+- Analytics event names/parameters and the normalized-query privacy decision (`search/search-analytics-contract.json`).
+- The accessibility interaction contract (focus management, keyboard mapping, ARIA roles/live-region behavior — `search/search-accessibility-contract.json`) — visual styling is free, the underlying behavior is not.
+- The SEO/search separation rule (a results page defaults to NOINDEX, never added to the sitemap).

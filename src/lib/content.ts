@@ -353,9 +353,10 @@ export const copy = {
     notFound: {
       metaTitle: "Page not found - Ali Demirbaş",
       eyebrow: "404",
-      title: "This page took a wrong turn.",
-      body: "Whatever you were looking for isn't here - it may have moved, or the link was off.",
-      cta: "Back home",
+      title: "This page doesn't exist.",
+      body: "The link may be outdated, or the page may have moved.",
+      cta: "Back to home",
+      labLink: "Explore the Lab",
     },
     footer: {
       left: "Ali Demirbaş, 2026",
@@ -713,9 +714,10 @@ export const copy = {
     notFound: {
       metaTitle: "Sayfa bulunamadı - Ali Demirbaş",
       eyebrow: "404",
-      title: "Bu sayfa yanlış bir yola sapmış.",
-      body: "Aradığın şey burada değil - taşınmış olabilir ya da bağlantı hatalı.",
+      title: "Bu sayfa bulunamadı.",
+      body: "Bağlantı eski olabilir veya sayfa taşınmış olabilir.",
       cta: "Ana sayfaya dön",
+      labLink: "Lab'i keşfet",
     },
     footer: {
       left: "Ali Demirbaş, 2026",

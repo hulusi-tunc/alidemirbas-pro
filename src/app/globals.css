@@ -130,6 +130,27 @@
   --color-line-brand: var(--color-primary-600);
   --color-line-brand-subtle: var(--color-primary-200);
   --color-line-inverse: var(--color-ink-800); /* rules on a dark plate */
+  /* --- CONTACT PILOT (DESIGN-MIGRATION-PLAN.md §5 / PORTRAIT-DESIGN-SOURCE-
+     AUDIT.md §6) ------------------------------------------------------------
+     `--color-line-soft`: an alpha-based hairline/ring, for decorative
+     internal dividers AND (as of round 2) card/surface boundaries where the
+     Portrait-derived ring pattern is applied — not this token's job to be
+     the ONLY border option; `--color-line` still exists for anything that
+     needs a firmer edge.
+
+     REVISED IN ROUND 2, and the reversal is deliberate, not silent: round 1
+     derived this from `--color-ink-950` (navy) rather than the Mobbin
+     reference's own literal neutral-black alpha, reasoning that a neutral
+     grey would clash with this ramp's navy-tinted `ink-*` text — the same
+     clash documented above for `ink-subtle`/`ink-muted`. PORTRAIT-DESIGN-
+     SOURCE-AUDIT.md's real production evidence (§6/§7: `ring-1 ring-black/6`
+     on cards, `ring-black/10` on the nav, confirmed from portrait.so's own
+     served CSS/DOM, on a page whose own headings are ALSO hue-tinted —
+     `text-brand-blue-1000`, not neutral black) is direct counter-evidence:
+     a real, shipped product uses literal neutral-black alpha successfully
+     next to hue-tinted text. That's a tested fact, not aesthetic guessing,
+     so it overrides round 1's untested caution. Reverted to neutral black. */
+  --color-line-soft: rgb(0 0 0 / 0.08);
 
   /* Surfaces. */
   --color-surface: var(--color-paper); /* = paper */
@@ -211,6 +232,19 @@
   --radius-3xl: 10px;
   --radius-4xl: 10px;
 
+  /* --- CONTACT PILOT (DESIGN-MIGRATION-PLAN.md §5) -----------------------
+     `--radius-card`: a dedicated token for card-class surfaces, sourced
+     from the real Mobbin reference markup's 16px standard-card radius —
+     see DESIGN-MIGRATION-PLAN.md §0. Deliberately its OWN token rather
+     than raising `--radius-lg` (10px): raising `--radius-lg` itself would
+     silently round every existing `rounded-lg` call site site-wide, and
+     the Button's `rounded-none` is a separate, explicit opt-out that must
+     stay untouched by this. Generates `rounded-card` alongside the
+     existing scale, above its 10px ceiling by design (a ceiling on the
+     numbered steps, not on every future named token). First (only)
+     consumer: the Contact page's form-surface card, this pilot. */
+  --radius-card: 1rem; /* 16px */
+
   /* --- Elevation (restrained, never “floaty SaaS”) ---------------------- */
   --shadow-hairline: 0 0 0 1px rgb(10 16 32 / 0.06);
   --shadow-card:
@@ -242,6 +276,14 @@
      button's pixel fill uses this gentler cubic instead. */
   --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
 
+  /* --- CONTACT PILOT ROUND 2 (PORTRAIT-DESIGN-SOURCE-AUDIT.md §7) --------
+     Confirmed, real, from portrait.so's own served production CSS
+     (`--ease-out-smooth`) — not this project's own guess at a Portrait-like
+     curve. Generates `ease-out-smooth` alongside the existing named eases.
+     First (only) consumers: Contact page input focus and the quick-contact
+     pill links' hover transition, this round. */
+  --ease-out-smooth: cubic-bezier(0.26, 0.08, 0.25, 1);
+
   /* --- Hero port: type steps ------------------------------------------
      Brought over from the reference so the hero's `text-display-xl` and the
      artwork's reading steps render at the reference's own metrics rather than
@@ -268,6 +310,32 @@
   --text-5xl: 3rem; /* 48 */
   --text-5xl--line-height: 1.0833;
   --text-5xl--letter-spacing: -0.03em;
+
+  /* --- CONTACT PILOT ROUND 2: Portrait-derived fluid heading scale -------
+     (PORTRAIT-DESIGN-SOURCE-AUDIT.md §4/§7) — real, exact values read from
+     portrait.so's own served production CSS (`--text-h1-fluid` etc.), not
+     estimated from a screenshot. Named distinctly (`-fluid`, `h5`/`h6`) so
+     nothing here collides with this project's own `--text-display-xl` or
+     Tailwind's stock scale; both scales coexist. `h3`/`h4-fluid` etc. exist
+     in the real source too but aren't added here — only the steps this
+     pilot's Contact page actually uses. Confirmed real-DOM usage on
+     portrait.so: `<h1>`/`<h2>` there carry `font-medium` (500) with NO
+     separate font-family override — i.e. these headings use Portrait's
+     own default body sans at a bigger size/weight, not a distinct display
+     face. This project's Contact headings below follow the same
+     structural idea (one sans, weight/size does the work) using Geist. */
+  --text-h1-fluid: clamp(2.0273rem, 1.3279rem + 3.1085vw, 3.8147rem);
+  --text-h1-fluid--line-height: 1;
+  --text-h1-fluid--letter-spacing: -0.04em;
+  --text-h2-fluid: clamp(1.802rem, 1.313rem + 2.1734vw, 3.0518rem);
+  --text-h2-fluid--line-height: 1.04;
+  --text-h2-fluid--letter-spacing: -0.032em;
+  --text-h5: 1.5625rem;
+  --text-h5--line-height: 1.14;
+  --text-h5--letter-spacing: -0.0164em;
+  --text-h6: 1.25rem;
+  --text-h6--line-height: 1.2;
+  --text-h6--letter-spacing: -0.0131em;
 
   /* --- Hero port: colours ----------------------------------------------
      All new names, so nothing already written can shift under them.

@@ -1,0 +1,107 @@
+# Portrait Design Source Audit
+
+Discovery/audit only — **no code changed, nothing committed, Contact page untouched this round.** Scope: determine how much of Portrait's real design system is available from public source vs. requires production-CSS/visual inference, per the source-priority order given (1. public source code → 2. production DOM/CSS → 3. visual observation → 4. inference), and never presenting a lower-tier value where a higher-tier one exists.
+
+---
+
+## Answers to the 10 closing questions (read this first)
+
+1. **Was Portrait's website source found?** No. None of the 7 public repos in the `portraitgg` GitHub org is portrait.so's actual frontend application. One repo (`frontend-assignment-boilerplate`) is a **hiring-assignment starter kit** — real, but explicitly not the production app, and independently confirmed to contain only generic/unmodified scaffolding at the CSS and component level (see §2).
+2. **Which repo(s) are relevant?** `frontend-assignment-boilerplate` (Tailwind config partially informative — see §3) and `portrait-brand-kit` (logo assets only, not a design-token source). The other 5 repos (`portrait-hosting-app`, `portrait-sdk`, `portrait-contracts-public`, `portrait-ipfs-pinner`, `portrait-ipfs-authentication`) are protocol/infra code with zero UI relevance — confirmed by reading each one's file tree, not assumed from its name.
+3. **Licenses?** `frontend-assignment-boilerplate`: **no LICENSE file at all** (confirmed 404 on every common filename variant) → default copyright, all rights reserved, **no reuse permission despite being public**. `portrait-brand-kit`: explicit **"© 2025 Portrait Technology Inc. All rights reserved... may be used only for purposes expressly authorised"** — logo assets are proprietary brand IP, not a licensed component library. Neither repo's code or assets were copied into this project; both are cited for reference only.
+4. **Real font?** **Five** real, production, self-hosted font families, extracted directly from the live production CSS's own `@font-face` rules (not the boilerplate, which only used placeholder Inter — see §4): **Basier Circle** (400/500/600/700), **Switzer** (variable 100–900 + italic), **Open Runde** (400/500/600/700), **JetBrains Mono** (variable, code), **Junicode** (300–700, italic-only load — a serif used for a specific accent context, not body text).
+5. **Real typography system?** A Tailwind v4 project. Base sizes (`text-xs`…`text-7xl`) are Tailwind's *unmodified default* scale. On top of that, Portrait defines its **own bespoke fluid heading scale** — `--text-h1-fluid` through `--text-h6-fluid`, each a `clamp()` with its own letter-spacing tightening from ‑0.0131em (h6) to ‑0.05em (largest) — plus a fixed (non-fluid) h4–h6 set. A distinctive cross-font sizing ratio, `--text-junicode-with-basier: 1.25844em`, exists specifically for matching x-heights when the Junicode serif and Basier Circle sans appear together.
+6. **Real color/token system?** Confirmed, exact, from production CSS. A **true-neutral gray ramp** (`gray-10` through `gray-1000`, anchored `#f7f7f7`→`#141414`) — and this ramp is **byte-for-byte identical** to the one hand-declared in the boilerplate's `tailwind.config.js`, the one genuinely confirmable cross-source match. Beyond that, production carries a **separate, six-hue `brand-*` palette** (`brand-blue`, `brand-pink`, `brand-red`, `brand-orange`, `brand-yellow`, `brand-green`, each a 9–11-step ramp) that **does not appear in the boilerplate at all** — the boilerplate's own "blue" ramp turns out to be plain, unmodified Tailwind stock blue, not Portrait's real brand blue (`brand-blue` is a distinct cyan-leaning ramp, anchor `#06acf1`).
+7. **Real spacing/container system?** Radius and base spacing tokens are Tailwind v4's *unmodified defaults* (`--radius-2xl: 1rem`/16px, `--radius-3xl: 1.5rem`/24px, `--spacing: .25rem` base unit) — Portrait did not re-theme these numerically, it composes them deliberately per component (see §6). Primary container measure is `max-w-(--breakpoint-xl)` = **1280px** (used 10× on the homepage); `--breakpoint-2xl` (1536px) appears twice; a custom `--breakpoint-xs: 360px` exists (confirmed identical to the boilerplate's `xs: '360px'`, the second real cross-source match) alongside several one-off fixed pixel widths (300–500px) for narrow content blocks.
+8. **Which components' source was found?** None of Portrait's real components — the boilerplate's `Button.tsx` is a trivial, unstyled placeholder (`bg-white`, `rounded-md`, no brand treatment), not real production code. What *was* recovered, from production DOM+CSS (tier 2, not tier 1), is real applied **component grammar**: buttons are `rounded-full` (true pill), the primary nav is a `fixed`, inset (`pt-6`→`pt-8`→`pt-12` across breakpoints), `rounded-3xl` frosted capsule (`backdrop-blur-xl`, `bg-white/70`, `ring-1 ring-black/10`, with a distinct `data-[mode=dark]` variant), icon/feature card tiles use `rounded-2xl` (16px) with `shadow-md ring-1 ring-black/6`, and link-hover uses an animated underline pseudo-element rather than a color swap. See §7.
+9. **What still needs production-CSS/visual confirmation?** Real page-level composition and layout rhythm beyond the homepage (per-page section spacing/vertical rhythm was not exhaustively mapped this round — only container widths and a few component patterns were sampled); the FAQ/accordion visual treatment (only the motion tokens `--animate-accordion-open/close` were confirmed real — the visual shape wasn't located on the homepage); actual empty/loading/error states; and full responsive behavior below `sm`. These would need either fetching more production routes or a real browser/visual pass — not yet done this round since the brief asked for discovery only.
+10. **Confidence for reproducing Contact-page-relevant values?** **High** for anything already directly used in DESIGN-MIGRATION-PLAN.md/the Contact pilot that this audit also confirms independently — card radius (Portrait: 16px `rounded-2xl`; matches the Mobbin-sourced 16px `--radius-card` already shipped on Contact), pill buttons (Portrait: `rounded-full`; matches Mobbin's `999px` finding), alpha-based hairline borders (Portrait: `ring-1 ring-black/6` / `ring-black/10`; the *technique* matches what Contact's new `--color-line-soft` already does, though Portrait's own values use plain black alpha rather than a brand-ink-derived tint — noted as a real divergence, not silently reconciled). **Low/not applicable** for anything brand-specific to Portrait itself (its five-font stack, its `brand-*` hue palette, its fluid heading clamp values) — per the brief's own core rule, those are Portrait's content/brand identity, not a "visual system" to port, and nothing here proposes adopting them.
+
+---
+
+## 1. Repository discovery
+
+| Repo | Description (own) | Relevant? | Why |
+|---|---|---|---|
+| `portrait-hosting-app` | "Portrait Hosting App" | No | Confirmed by reading its own README: an Electron desktop node for the P2P hosting protocol (Waku). Zero mention of Next.js/Tailwind/CSS/fonts anywhere in it. |
+| `portrait-brand-kit` | "A brand kit for Portrait" | Partial | Logo assets only (SVG/PNG, `/assets/full/`, `/assets/symbol/`) — no color/type/spacing tokens. All-rights-reserved copyright notice (§3). |
+| `portrait-contracts-public` | "A public repo for the Portrait contracts" | No | Solidity smart contracts. |
+| `frontend-assignment-boilerplate` | "A Next.js boilerplate for our front-end assignments" | Partial | The one repo with a real `tailwind.config.js` + `globals.css` + a component. Confirmed (§2) to be a generic hiring-assignment scaffold, not the production app — but its custom `gray` ramp and `xs: 360px` breakpoint independently match real production values (§6/§7), so it is not worthless, just far from a full design system. |
+| `portrait-sdk` | (no description) | No | TypeScript SDK for protocol/identity resolution (ENS, Ethereum addresses). Read its own tree: `src/`, `dist/`, `test.js` — no UI code. |
+| `portrait-ipfs-pinner` | "Node script to store Portraits on an IPFS node" | No | Backend infra script. |
+| `portrait-ipfs-authentication` | "Basic authentication layer with MongoDB for Portrait's IPFS storage daemon" | No | Backend infra. |
+
+No repository named anything like "website", "web", "app", "frontend" (beyond the boilerplate) exists in this org — this was verified by listing the complete org repository page twice (7 repos both times, no further pagination), not inferred from a partial view.
+
+## 2. What `frontend-assignment-boilerplate` actually is (read, not assumed)
+
+Its own `README.md`, verbatim: *"This boilerplate is configured with: Typescript, Linting with ESLint, Formatting with Prettier, Storybook, Import aliases... At Portrait we work with Ethers, Wagmi and RainbowKit. They are pre-installed, but not configured."* — an internal starter handed to job candidates, not the deployed site.
+
+Confirms this directly:
+- `src/components/Button.tsx` is a **trivial placeholder** — `bg-white`, `text-black`, `rounded-md`, `hover:bg-gray-50` — no brand color, no distinctive geometry.
+- `src/styles/globals.css` is **verbatim, unmodified `create-next-app` boilerplate CSS** (the stock `--secondary-glow`/`--callout-rgb` radial-gradient template every fresh Next.js 13 pages-router project ships with) — zero Portrait-specific styling.
+- `package.json` name is literally `"portrait-frontend-assignment-boilerplate"`.
+
+**Conclusion: this repo is a real Portrait repo, genuinely public, but its CSS/component layer was never built out — only its `tailwind.config.js` theme extension carries anything worth cross-checking (§6/§7).**
+
+## 3. Licensing
+
+| Repo | License found | What that means |
+|---|---|---|
+| `frontend-assignment-boilerplate` | **None.** Checked `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `license` at repo root — all 404. | Public ≠ licensed. No open-source license means default copyright applies: all rights reserved by Portrait Technology Inc. **Nothing was copied from this repo into our project** — only its numeric token values (colors, breakpoint) were read and independently cross-checked against production, the same way one would read a competitor's public CSS in a browser. |
+| `portrait-brand-kit` | Explicit **"© 2025 Portrait Technology Inc. All rights reserved... Assets may be used only for purposes expressly authorised"** | Logo assets are proprietary brand IP. Not used, not referenced visually, not a source for this project's design tokens. |
+
+Separately: reading **production DOM/CSS** (portrait.so's own served `/_next/static/css/*.css` and HTML) is not a repository-license question at all — it's the same act as inspecting any public website's rendered output in a browser's dev tools, which is how the Mobbin reference was reverse-engineered too. No license file applies to a live webpage's computed styles; the only rule against it would be a claimed-content/branding rule, which this project already holds itself to (see §"What is never adopted" below).
+
+## 4. Real typography — exact tokens, exact sources
+
+| Design property | Portrait value | Exact source | Exact code/token | Confidence |
+|---|---|---|---|---|
+| Primary UI/display sans | **Basier Circle** (400/500/600/700) | Production CSS `/_next/static/css/f259c708be9f8dd9.css` | `@font-face{font-family:__basierCircle_9ca3f5;...font-weight:400\|500\|600\|700}` | Confirmed (tier 2) |
+| Secondary sans (variable) | **Switzer** (var. 100–900, + italic) | same file | `@font-face{font-family:__switzer_c2a0a8;...font-weight:100 900}` + italic face; `--font-sans:var(--font-switzer),ui-sans-serif...` | Confirmed (tier 2) |
+| Rounded sans | **Open Runde** (400/500/600/700, woff2+otf) | same file | `@font-face{font-family:__openRunde_7f842d;...}` ×8 (4 weights × 2 formats) | Confirmed (tier 2) |
+| Monospace (code) | **JetBrains Mono** (var. 100–900 + italic) | same file | `@font-face{font-family:__jetbrainsMono_7b1267;...}`; `--font-mono:var(--font-jetbrains-mono),ui-monospace,...` | Confirmed (tier 2) |
+| Accent serif (italic only) | **Junicode** (300–700, italic-only face loaded) | Production CSS `/_next/static/css/5550b9da97aba13b.css` | `@font-face{font-family:__junicode_353c7d;...font-style:italic}` | Confirmed (tier 2) — only the italic cut is loaded site-wide, so it's used sparingly/decoratively, not as a body font |
+| Cross-font size match | Junicode set at 1.25844em relative to Basier Circle, to equalize x-height when both appear together | Production CSS | `--text-junicode-with-basier:1.25844em;--text-junicode-with-basier--line-height:0` | Confirmed (tier 2) |
+| Base font-size scale | Tailwind v4 **unmodified default** (`xs` .75rem → `7xl` 4.5rem) | Production CSS `:root{}` | `--text-xs:.75rem` … `--text-7xl:4.5rem` (stock Tailwind v4 values) | Confirmed (tier 2) — explicitly **not** customized at this layer |
+| Bespoke fixed headings | `h4` 1.9531rem/1.1/‑0.02048em, `h5` 1.5625rem/1.14/‑0.0164em, `h6` 1.25rem/1.2/‑0.0131em | Production CSS | `--text-h4`, `--text-h5`, `--text-h6` (+ `--line-height`/`--letter-spacing` each) | Confirmed (tier 2) |
+| Bespoke fluid headings | `h1-lg-fluid` clamp(2.2807rem, 1.3073rem + 4.3264vw, 4.7684rem)/1/‑0.05em, down to `h6-fluid` clamp(1.125rem, 1.0761rem + .2174vw, 1.25rem)/1.2/‑0.0131em | Production CSS | `--text-h1-lg-fluid` … `--text-h6-fluid`, each with its own `--line-height`/`--letter-spacing` | Confirmed (tier 2) — a genuine 6(+1)-step fluid scale, tracking tightening as size grows |
+| Boilerplate's own claim (superseded) | Inter, system-ui fallback stack | `frontend-assignment-boilerplate/tailwind.config.js` | `fontFamily.sans: '"Inter", system-ui, ...'` | **Confirmed wrong for production** — kept in the table only to show tier-1 source was checked and tier-2 correctly overrode it, per the source-priority rule |
+
+## 5. What this means for "the real font"
+
+There is no single "the Portrait font." Production actually ships a **5-family type system**, each with a distinct role (UI sans, secondary/variable sans, rounded sans, code mono, accent italic serif) — a materially richer and more specific system than anything inferable from the boilerplate or from visual guesswork alone. Per this task's own core rule (adopt the *system*, not the brand's actual assets): **none of these five font files are proposed for use in this project** — Basier Circle and Switzer are commercial licensed fonts, not ours to embed. What is genuinely reusable as a *pattern*, not an asset, is the idea of pairing a workhorse UI sans with one deliberate accent face for specific emphasis moments — which is a decision for a future round, not asserted here as something to copy.
+
+## 6. Real color/token system — exact tokens, exact sources
+
+| Design property | Portrait value | Exact source | Exact code/token | Confidence |
+|---|---|---|---|---|
+| Neutral/gray ramp | `gray-10 #f7f7f7` → `gray-1000 #141414` (13 steps) | Production CSS `:root{}` | `--color-gray-10:#f7f7f7;--color-gray-25:#eee;--color-gray-50:#dedede;...--color-gray-1000:#141414` | Confirmed (tier 2) |
+| Same ramp, cross-checked | Byte-identical to boilerplate's hand-authored `gray` scale | `frontend-assignment-boilerplate/tailwind.config.js` | `gray:{25:'#EEEEEE',50:'#DEDEDE',100:'#C7C7C7',...,1000:'#141414'}` | **Confirmed match across both tiers** — the one fully corroborated color value in this audit |
+| Real brand blue | `brand-blue` ramp, 50→1000, anchor `#06acf1` (cyan-leaning) | Production CSS | `--color-brand-blue-50:#eff9ff` … `--color-brand-blue-1000:#08304c` | Confirmed (tier 2) |
+| Boilerplate's "blue" (superseded) | Plain, unmodified Tailwind stock blue (`#eff6ff`…`#1e3a8a`) + 2 custom endpoints | `frontend-assignment-boilerplate/tailwind.config.js` | `colors.blue` = `require('tailwindcss/colors').blue` verbatim, plus hand-added `25`/`1000` | **Confirmed NOT the real brand blue** — kept to show tier-1 was checked and correctly did not win |
+| Full brand palette | Six hues, each a 9–11-step ramp: `brand-blue`, `brand-pink`, `brand-red`, `brand-orange`, `brand-yellow`, `brand-green` | Production CSS | e.g. `--color-brand-pink-500:#ff21cf`, `--color-brand-green-500:#09de48`, etc. | Confirmed (tier 2) — **absent entirely from the boilerplate**, so tier 1 alone would have completely missed this |
+| Decorative multi-brand gradient | Linear gradient across 6 brand hues | Production CSS | `--background-image-rainbow-gradient:linear-gradient(90deg,#26c0ff,#e600c2 20%,#ff494e 40%,#ffa13e 60%,#ffc837 80%,#00cc3d)` | Confirmed (tier 2) |
+| Border/ring convention | Alpha-based, not solid color: `ring-1 ring-black/10` (nav, light), `ring-white/8` (nav, dark), `ring-black/6` (feature cards) | Production HTML (applied classes) | literal class strings, see §7 | Confirmed (tier 2, DOM-applied, not just declared) |
+| Radius scale | Tailwind v4 **unmodified default**: `xs` .125rem(2px) → `4xl` 2rem(32px) | Production CSS | `--radius-xs:.125rem;...--radius-2xl:1rem;--radius-3xl:1.5rem;--radius-4xl:2rem` | Confirmed (tier 2) — not re-themed numerically; Portrait's distinctiveness is in *which* step each component uses (§7), not in custom numbers |
+| Dark-mode mechanism | **Not** `prefers-color-scheme` (0 occurrences in production CSS) — a manual, scoped `data-[mode=dark]` attribute variant, applied per-component-group (e.g. `data-[mode=dark]/nav:...`), not a site-wide theme toggle | Production CSS + HTML | `data-[mode=dark]:before:bg-[#0a0a0a]/80`, `group-data-[mode=dark]/nav:bg-white/8`, etc. | Confirmed (tier 2) — important nuance: this is contextual (nav adapts to what's behind it), not a global light/dark mode users can toggle |
+
+## 7. Real component grammar (from production DOM, tier 2 — no component source exists at tier 1)
+
+Extracted from actual applied `class="..."` strings on real elements in portrait.so's served homepage HTML — this is what Portrait's components *do*, even without their source:
+
+- **Buttons**: `rounded-full` (true pill, 999px) on every real `<button>` sampled — consistent with what the Mobbin reference markup already showed (999px pill buttons) that this repo's Contact pilot deliberately did **not** adopt (Button.tsx's square identity, flagged as R3, still an open decision).
+- **Primary nav**: `fixed top-0`, inset from the viewport edge and growing with breakpoint (`pt-6` → `min-[680px]:pt-8` → `2xl:pt-12`, i.e. 24px→32px→48px), a `rounded-3xl` (24px) frosted capsule: `backdrop-blur-xl`, `bg-white/70`, `shadow-sm`, `ring-1 ring-black/10`, with a `data-[mode=dark]` variant (`bg-[#0a0a0a]/80`, `ring-white/8`). The **same floating frosted-pill-nav pattern** the Mobbin reference showed, now confirmed in a second, independent, live production codebase — not a coincidence worth ignoring, but still not adopted this round (no page in this pilot touched chrome/nav).
+- **Feature/icon card tiles**: `rounded-2xl` (16px) + `shadow-md ring-1 ring-black/6`, brand-tinted variants use `bg-brand-{hue}-100 text-brand-{hue}-900`. **16px card radius, independently confirmed from a second real source** — matches the Mobbin-sourced `--radius-card: 1rem` already shipped in this project's Contact pilot.
+- **Text input** (username-claim widget): base classes include `rounded-lg` (8px) but the same element also carries a later `rounded-full` utility that wins the cascade — the actual rendered input is a pill, `caret-gray-900`/`dark:caret-white`, `placeholder-gray-300`.
+- **Link hover**: not a color swap — an absolutely-positioned `after:` pseudo-element underline (`h-0.5`, `rounded-xs`, `bg-current`, `opacity-[0.18]` at rest → `opacity-100` on a custom `hocus:` variant, i.e. hover-or-focus combined) that fades in rather than the text color changing.
+- **Container measure**: `max-w-(--breakpoint-xl)` = 1280px used 10× on the homepage (the dominant content measure); `--breakpoint-2xl` (1536px) twice; assorted fixed narrow widths (300–500px) for compact blocks/widgets.
+- **Motion tokens actually declared** (not all confirmed visually applied on the homepage): `--ease-out-smooth:cubic-bezier(.26,.08,.25,1)`; dropdown in/out .15s `cubic-bezier(.16,1,.3,1)`; slide-down/up .6s, same easing; fade-in/out .15s; shake .8s; **accordion-open/close .2s `ease-out`** — this last one is real and named, though this audit did not locate the actual accordion's visual shape on the homepage to confirm structure (tier 3 not yet done — see item 9 above).
+
+## 8. What is never adopted from any of this (holding the brief's own boundary)
+
+Per the same core rule already applied to the Mobbin reference: Portrait's actual **content, copy, logo, illustrations, and its specific five-font family choices / brand hue values** are not proposed for reuse anywhere. What this audit treats as legitimate "visual system" signal — because it is now independently confirmed from **two separate real production codebases** (Mobbin's real page source, Portrait's real production CSS/DOM) rather than one — is narrower and more defensible than either source alone: **pill-shaped buttons, a floating frosted/blurred inset capsule nav, ~16px as the standard card-radius sweet spot, and alpha-based (not solid) hairline borders/rings.** These four points now have cross-source corroboration; nothing else in this audit is claimed at that strength.
+
+---
+
+**No code was changed, no commit was made, Contact page was not touched this round** — this document is discovery/audit only, per the brief.

@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import CalculatorTool from "@/components/CalculatorTool";
 import CalculatorContent from "@/components/CalculatorContent";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
 import { SiteFooter, SiteHeader } from "@/components/Site";
+import { Section } from "@/components/ui/Section";
+import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { CalculatorLibrary, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { copy } from "@/lib/content";
@@ -24,9 +27,30 @@ import { pageAlternates } from "@/lib/seo";
    this file no longer owns any calculator data of its own. */
 export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/tr/calculators");
 
+// SEO metadata copy (page <title>/<meta description>) — UNCHANGED by this
+// round's visual pass. `calculatorIndexMetadata()` below still reads from
+// this exact object. The visible hero below now uses its own,
+// Portrait-composition copy (`HERO`) instead — the two are intentionally
+// decoupled, so the already-indexed <title>/description text is never
+// touched even though the on-page H1/sub copy changed. Same separation
+// this codebase already draws elsewhere (a calculator detail page's
+// `heroTitle` override vs. its own `seoTitle`).
 const T = {
   en: { title: "Marketing Calculators", intro: "Quick, correct formulas for the numbers marketing teams check daily. No account, no tracking of your inputs." },
   tr: { title: "Pazarlama Hesaplayıcıları", intro: "Pazarlama ekiplerinin günlük kontrol ettiği rakamlar için hızlı ve doğru formüller. Hesap gerektirmez, girdileriniz izlenmez." },
+};
+
+const HERO = {
+  en: {
+    eyebrow: "Calculators",
+    title: "Growth math, without the spreadsheet.",
+    sub: "A collection of practical calculators covering growth, acquisition, retention, experimentation and unit economics - no account, no tracking of your inputs.",
+  },
+  tr: {
+    eyebrow: "Hesaplayıcılar",
+    title: "Excel'e gerek kalmadan büyüme matematiği.",
+    sub: "Büyüme, edinme, elde tutma, deneysel test ve birim ekonomisini kapsayan pratik hesaplayıcılardan oluşan bir koleksiyon - hesap gerektirmez, girdileriniz izlenmez.",
+  },
 };
 
 const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
@@ -67,65 +91,107 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
   };
 }
 
+/* PORTRAIT PILOT (this round). Reuses the exact server-computes-data /
+   client-filters architecture already approved for Blog
+   (BlogPage.tsx -> BlogLibrary.tsx): the full 43-calculator catalog is
+   still rendered into the initial server HTML via `CalculatorLibrary`
+   (real hrefs, real text, present before any client hydration — nothing
+   about server-rendered discoverability changes), and category counts
+   below are computed once from the real, unmodified `CATEGORY_LABEL`
+   map and `getAllLiveSpecs()` — no category is invented, none is
+   hidden. TEXT_TOOLS (UTM Builder, Character Counter) are NOT part of
+   the searchable/filterable set: they carry no `category` field in the
+   real data model, and forcing them into the calculator taxonomy would
+   be exactly the kind of invented category this round's brief warns
+   against — they render as their own small, always-visible "Other
+   tools" list below, the same secondary-list treatment already approved
+   on Lab's index for Numerspace. */
+function calcSearchText(name: string, description: string, categoryLabel: string, aliases: string[]) {
+  return [name, description, categoryLabel, ...aliases].join(" ").toLowerCase();
+}
+
 export function CalculatorIndexPage({ lang }: { lang: Lang }) {
-  const t = T[lang];
+  const hero = HERO[lang];
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
   const specs = getAllLiveSpecs();
 
-  const byCategory = new Map<string, typeof specs>();
-  for (const s of specs) {
-    if (!byCategory.has(s.category)) byCategory.set(s.category, []);
-    byCategory.get(s.category)!.push(s);
-  }
+  const categoryCounts = new Map<string, number>();
+  for (const s of specs) categoryCounts.set(s.category, (categoryCounts.get(s.category) ?? 0) + 1);
+
+  const entries: CalcEntry[] = specs.map((spec) => {
+    const categoryLabel = CATEGORY_LABEL[spec.category]?.[lang] ?? spec.category;
+    const description = correctedFormulaPlainEnglish(spec);
+    return {
+      slug: spec.slug,
+      name: spec.name,
+      description,
+      categoryLabel,
+      searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
+      href: `${base}/${spec.slug}`,
+    };
+  });
+
+  // `id` is the display label itself (not the raw category key) — the
+  // only join key CalculatorLibrary needs, and every label is already
+  // unique across the real 10-category taxonomy, so this stays a plain
+  // 1:1 mapping with no separate id scheme to keep in sync.
+  const categoryFacets: CategoryFacet[] = [...categoryCounts.entries()]
+    .map(([cat, count]) => ({ id: CATEGORY_LABEL[cat]?.[lang] ?? cat, label: CATEGORY_LABEL[cat]?.[lang] ?? cat, count }))
+    .sort((a, b) => b.count - a.count);
 
   return (
     <>
       <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? "/tr/calculators" : "/calculators"} />
       <main>
-        <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-16 md:pb-20">
-          <div className="altor-container">
-            <p className="altor-eyebrow text-white/50">{lang === "en" ? "Calculators" : "Hesaplayıcılar"}</p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-white sm:text-5xl">{t.title}</h1>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70">{t.intro}</p>
-          </div>
-        </section>
-        <div className="altor-container py-16">
-          {[...byCategory.entries()].map(([cat, list]) => (
-            <div key={cat} id={`cat-${cat}`} className="mb-10 scroll-mt-24">
-              <h2 className="mb-3 text-sm font-medium tracking-wide text-neutral-500 uppercase">
-                {CATEGORY_LABEL[cat]?.[lang] ?? cat}
+        {/* Light, open composition — same LOCKED reasoning as Contact/
+            Stack/Blog/Lab: no dark band, no gradient. `pb-14!`/`md:pb-13!`
+            applied from the start (not as a later correction) — the
+            exact values the Stack/Blog/Lab polish rounds converged on,
+            reused here per this round's own "don't create a dead zone
+            between hero and library" instruction. */}
+        <Section tone="paper" size="md" className="pb-14! md:pb-13!">
+          <PortraitContainer>
+            <p className="altor-eyebrow mb-4 text-ink-400">{hero.eyebrow}</p>
+            <h1 className="max-w-md text-h1-fluid font-medium text-ink-950">{hero.title}</h1>
+            <p className="mt-3 max-w-md text-lg leading-relaxed text-ink-950/65">{hero.sub}</p>
+          </PortraitContainer>
+        </Section>
+
+        <Section tone="paper" size="md" className="md:pt-13!">
+          <PortraitContainer>
+            <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
+
+            {/* "Other tools" — compact, always-visible, unfiltered (see
+                this function's own top comment). Same visual treatment
+                Lab's index already established for its own secondary
+                list (a plain divider + row, not a card). */}
+            <div className="mt-14">
+              <h2 className="border-b border-line-soft pb-2 text-base font-medium tracking-tight text-ink-950">
+                {lang === "en" ? "Other tools" : "Diğer araçlar"}
               </h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {list.map((spec) => (
+              <div className="flex flex-col divide-y divide-line-soft">
+                {TEXT_TOOLS.map((tool) => (
                   <Link
-                    key={spec.slug}
-                    href={`${base}/${spec.slug}`}
-                    className="rounded-lg border border-line p-4 transition-colors hover:border-ink-900"
+                    key={tool.slug}
+                    href={`${base}/${tool.slug}`}
+                    className="group flex flex-col gap-1 py-4 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
                   >
-                    <p className="font-medium text-ink-950">{spec.name}</p>
-                    <p className="mt-1 text-sm text-neutral-600">{correctedFormulaPlainEnglish(spec)}</p>
+                    <span className="flex items-center gap-1.5 text-[15px] font-medium text-ink-950 transition-colors group-hover:text-ink-600">
+                      {tool.title[lang]}
+                      <ArrowUpRight
+                        aria-hidden
+                        className="size-3.5 shrink-0 text-ink-950/40 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      />
+                    </span>
+                    <span className="text-sm text-ink-950/65 sm:max-w-md sm:text-right">{tool.desc[lang]}</span>
                   </Link>
                 ))}
               </div>
             </div>
-          ))}
-
-          <div className="mb-10">
-            <h2 className="mb-3 text-sm font-medium tracking-wide text-neutral-500 uppercase">
-              {lang === "en" ? "Text tools" : "Metin araçları"}
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {TEXT_TOOLS.map((tool) => (
-                <Link key={tool.slug} href={`${base}/${tool.slug}`} className="rounded-lg border border-line p-4 transition-colors hover:border-ink-900">
-                  <p className="font-medium text-ink-950">{tool.title[lang]}</p>
-                  <p className="mt-1 text-sm text-neutral-600">{tool.desc[lang]}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
+          </PortraitContainer>
+        </Section>
       </main>
       <SiteFooter t={c} lang={lang} />
     </>
