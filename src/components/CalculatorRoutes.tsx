@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import CalculatorTool from "@/components/CalculatorTool";
 import CalculatorContent from "@/components/CalculatorContent";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
 import { SiteFooter, SiteHeader } from "@/components/Site";
-import { Section } from "@/components/ui/Section";
-import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { CalculatorLibrary, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
+import { CalculatorLibrary, CategoryIcon, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
-import { copy } from "@/lib/content";
+import { copy, EMAIL } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
 import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS, correctedFormulaPlainEnglish } from "@/lib/calc-catalog";
 import { getContent } from "@/lib/calc-content";
@@ -110,10 +108,124 @@ function calcSearchText(name: string, description: string, categoryLabel: string
   return [name, description, categoryLabel, ...aliases].join(" ").toLowerCase();
 }
 
+/* Bespoke dark header/footer for this page only — matches a user-supplied
+   mockup (warm near-black #171614/#141311, full real site nav) that is
+   visually unrelated to both the Portrait system (Contact/Stack/Blog/
+   Lab/404, still using the shared light `SiteHeader`) and to the About
+   page's own separate "Portfolio" conversion. Built locally rather than
+   changing `Site.tsx`'s shared `SiteHeader`/`SiteFooter` — those are
+   reused unmodified by every other page, including this file's own
+   `CalculatorDetailPage` below. Nav labels/hrefs come from `copy[lang]
+   .nav` (the same real data `SiteHeader` itself reads), not restated. */
+function CalcHeader({ lang }: { lang: Lang }) {
+  const t = copy[lang];
+  const home = lang === "en" ? "/" : "/tr";
+  const navItems = [
+    { label: t.nav.about, href: t.nav.aboutHref },
+    { label: t.nav.lab, href: t.nav.labHref },
+    { label: t.nav.calculators, href: t.nav.calculatorsHref },
+    { label: t.nav.blog, href: t.nav.blogHref },
+    { label: t.nav.stack, href: t.nav.stackHref },
+    { label: t.nav.contact, href: t.nav.contactHref },
+  ];
+  return (
+    <header style={{ background: "#171614" }}>
+      <div className="mx-auto flex h-18 max-w-320 items-center justify-between px-6 sm:px-12">
+        <Link href={home} className="text-[15px] font-semibold tracking-tight text-white">Ali Demirbaş</Link>
+        <nav className="hidden items-center gap-8 text-sm md:flex" style={{ color: "rgba(255,255,255,0.7)" }}>
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="transition-colors hover:text-white"
+              style={item.href === t.nav.calculatorsHref ? { color: "#ffffff" } : undefined}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="flex items-center gap-6">
+          <Link href={lang === "en" ? "/tr/calculators" : "/calculators"} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>
+            {t.nav.lang}
+          </Link>
+          <a
+            href={`mailto:${EMAIL}`}
+            className="hidden h-10 items-center bg-white px-4 text-sm font-medium sm:inline-flex"
+            style={{ color: "#171614" }}
+          >
+            {t.nav.cta}
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function CalcFooter({ lang }: { lang: Lang }) {
+  const t = copy[lang];
+  const home = lang === "en" ? "/" : "/tr";
+  const quickLinks = [
+    { label: t.footer.home, href: home },
+    { label: t.nav.about, href: t.nav.aboutHref },
+    { label: t.nav.lab, href: t.nav.labHref },
+    { label: t.nav.calculators, href: t.nav.calculatorsHref },
+    { label: t.nav.blog, href: t.nav.blogHref },
+    { label: t.nav.stack, href: t.nav.stackHref },
+    { label: t.nav.contact, href: t.nav.contactHref },
+  ];
+  const labProjects = copy[lang].lab.projects.map((p) => ({ label: p.name, href: p.links[0].href }));
+  return (
+    <footer style={{ background: "#141311", color: "#ffffff" }} className="border-t border-white/10 pt-16 pb-8">
+      <div className="mx-auto max-w-320 px-6 sm:px-12">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+          <div>
+            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>{t.footer.quickLinks}</p>
+            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
+              {quickLinks.map((l) => (
+                <li key={l.href}><Link href={l.href} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>{l.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>{t.footer.projects}</p>
+            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
+              {labProjects.map((l) => {
+                const external = l.href.startsWith("http");
+                return (
+                  <li key={l.href}>
+                    <a href={l.href} {...(external ? { target: "_blank", rel: "noreferrer" } : {})} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>
+                      {l.label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div>
+            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>Connect</p>
+            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
+              <li><a href="mailto:mehmetalidemirbas@gmail.com" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>mehmetalidemirbas@gmail.com</a></li>
+              <li><a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>LinkedIn</a></li>
+              <li><a href="https://github.com/ali-demirbas" target="_blank" rel="noreferrer" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+          <div className="flex items-center gap-3">
+            <span>{t.footer.left}</span><span aria-hidden>·</span><span>{t.footer.right}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer" className="transition-colors hover:text-white">LinkedIn</a>
+            <a href="https://github.com/ali-demirbas" target="_blank" rel="noreferrer" className="transition-colors hover:text-white">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export function CalculatorIndexPage({ lang }: { lang: Lang }) {
   const hero = HERO[lang];
-  const c = copy[lang];
-  const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
   const specs = getAllLiveSpecs();
 
@@ -128,6 +240,7 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
       name: spec.name,
       description,
       categoryLabel,
+      categoryKey: spec.category,
       searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
       href: `${base}/${spec.slug}`,
     };
@@ -142,59 +255,47 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
     .sort((a, b) => b.count - a.count);
 
   return (
-    <>
-      <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? "/tr/calculators" : "/calculators"} />
+    <div style={{ background: "#faf9f6", color: "#201f1c" }} className="min-h-screen">
+      <CalcHeader lang={lang} />
       <main>
-        {/* Light, open composition — same LOCKED reasoning as Contact/
-            Stack/Blog/Lab: no dark band, no gradient. `pb-14!`/`md:pb-13!`
-            applied from the start (not as a later correction) — the
-            exact values the Stack/Blog/Lab polish rounds converged on,
-            reused here per this round's own "don't create a dead zone
-            between hero and library" instruction. */}
-        <Section tone="paper" size="md" className="pb-14! md:pb-13!">
-          <PortraitContainer>
-            <p className="altor-eyebrow mb-4 text-ink-400">{hero.eyebrow}</p>
-            <h1 className="max-w-md text-h1-fluid font-medium text-ink-950">{hero.title}</h1>
-            <p className="mt-3 max-w-md text-lg leading-relaxed text-ink-950/65">{hero.sub}</p>
-          </PortraitContainer>
-        </Section>
+        <section className="pt-22 pb-10">
+          <div className="mx-auto max-w-320 px-6 sm:px-12">
+            <p className="mb-4 text-xs font-medium tracking-[0.12em] uppercase" style={{ color: "#9c978c" }}>{hero.eyebrow}</p>
+            <h1 className="max-w-md text-[2.75rem] leading-[1.1] font-medium tracking-tight" style={{ color: "#141311" }}>{hero.title}</h1>
+            <p className="mt-3 max-w-md text-lg leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{hero.sub}</p>
+          </div>
+        </section>
 
-        <Section tone="paper" size="md" className="md:pt-13!">
-          <PortraitContainer>
+        <section className="pt-3 pb-24">
+          <div className="mx-auto max-w-320 px-6 sm:px-12">
             <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
 
-            {/* "Other tools" — compact, always-visible, unfiltered (see
-                this function's own top comment). Same visual treatment
-                Lab's index already established for its own secondary
-                list (a plain divider + row, not a card). */}
-            <div className="mt-14">
-              <h2 className="border-b border-line-soft pb-2 text-base font-medium tracking-tight text-ink-950">
+            {/* "Other tools" — same white-card grammar as the main grid,
+                always visible/unfiltered (see calcSearchText's own top
+                comment on why TEXT_TOOLS stay outside the taxonomy). */}
+            <div className="mt-16">
+              <h2 className="mb-5 border-b pb-2.5 text-base font-medium tracking-tight" style={{ color: "#141311", borderColor: "#e8e5df" }}>
                 {lang === "en" ? "Other tools" : "Diğer araçlar"}
               </h2>
-              <div className="flex flex-col divide-y divide-line-soft">
-                {TEXT_TOOLS.map((tool) => (
+              <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+                {TEXT_TOOLS.map((tool, i) => (
                   <Link
                     key={tool.slug}
                     href={`${base}/${tool.slug}`}
-                    className="group flex flex-col gap-1 py-4 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+                    className="flex flex-col gap-2.5 rounded-[10px] border border-[#e8e5df] bg-white p-6.5 transition-[border-color,box-shadow] duration-150 hover:border-[#cfcabf] hover:shadow-[0_1px_3px_rgba(20,19,17,0.06)]"
                   >
-                    <span className="flex items-center gap-1.5 text-[15px] font-medium text-ink-950 transition-colors group-hover:text-ink-600">
-                      {tool.title[lang]}
-                      <ArrowUpRight
-                        aria-hidden
-                        className="size-3.5 shrink-0 text-ink-950/40 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                      />
-                    </span>
-                    <span className="text-sm text-ink-950/65 sm:max-w-md sm:text-right">{tool.desc[lang]}</span>
+                    <CategoryIcon categoryKey="tools" index={i + 1} />
+                    <span className="text-base font-semibold tracking-tight" style={{ color: "#141311" }}>{tool.title[lang]}</span>
+                    <span className="text-sm leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{tool.desc[lang]}</span>
                   </Link>
                 ))}
               </div>
             </div>
-          </PortraitContainer>
-        </Section>
+          </div>
+        </section>
       </main>
-      <SiteFooter t={c} lang={lang} />
-    </>
+      <CalcFooter lang={lang} />
+    </div>
   );
 }
 

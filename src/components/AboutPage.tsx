@@ -1,255 +1,300 @@
 import Image from "next/image";
 import Link from "next/link";
+import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 
-import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
-import { Section } from "@/components/ui/Section";
-import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { Reveal } from "@/components/ui/Reveal";
-import { copy, type Lang } from "@/lib/content";
+import { AboutTimeline, type TimelineJob } from "@/components/ui/AboutTimeline";
+import type { Lang } from "@/lib/content";
 
-/* About page — PORTRAIT PILOT, continuing the locked visual system from
-   Contact/Stack/Blog/Lab/Calculators (PORTRAIT-DESIGN-SOURCE-AUDIT.md
-   remains this round's source of truth).
+/* About page — converted from a user-supplied "Portfolio" mockup
+   (Space Grotesk / IBM Plex Mono, teal-sage palette, vertical timeline
+   with a Simple/Detailed toggle). This is a DELIBERATE one-off: unlike
+   every other page on this site (Contact/Stack/Blog/Lab/Calculators/
+   404/Home), it does NOT use the shared Portrait system
+   (SiteHeader/SiteFooter/PortraitContainer/Section/ink-950 tokens) or
+   Geist — the mockup specifies its own colors/fonts, and reproducing
+   them exactly means not forcing them through the other pages' tokens.
+   Nothing here touches globals.css, Site.tsx or any other shared
+   primitive; every other page keeps its exact current look.
 
-   CONTENT AUDIT (done before any redesign, per this round's own
-   instruction) — everything below is REPOSITIONED existing content.ts
-   copy, not invented. See this round's own report for the full
-   before/after list; summarized here at the point each decision is made:
+   FONTS: loaded here via next/font/google, scoped to this page's own
+   wrapper (`spaceGrotesk.variable`/`plexMono.variable` classNames) —
+   not applied at the root layout, so Geist and every other page are
+   unaffected.
 
-   - HERO H1: `content.ts`'s own `about.title` ("Professional Profile" /
-     "Profesyonel Profil") is the kind of generic headline this round's
-     own brief explicitly asks not to default to. The strongest EXISTING
-     positioning line already on this page is `about.sub` ("Digital
-     Marketing · Analytics · Growth Strategy") — already real, already
-     used as this page's own metaDesc — promoted to the H1 role here;
-     `about.title` is retired from display (not deleted from content.ts,
-     which this file does not touch).
-   - HERO SUPPORTING COPY: `about.lead`, verbatim, unchanged.
-   - "What I work on": `DOMAINS` below are not invented — each label is
-     lifted directly from words already in the real timeline job titles
-     and `about.body` (see that constant's own comment for the exact
-     source phrase per label).
-   - EXPERIENCE: `about.timeline` — every company, role, period and
-     description is unchanged, same discriminated union
-     (single/group) AboutPage.tsx already used. Only the per-row COMPANY
-     LOGO images are dropped (see `TimelineEntry`'s own comment) — the
-     company name itself (`item.co`) is real text, unchanged, still
-     shown.
-   - LAB BRIDGE: `BRIDGE` below is new, short editorial copy this
-     round's own brief explicitly asked for ("a restrained link toward
-     Lab is appropriate") — not a biographical claim, just a transition
-     sentence connecting real, already-shipped Lab projects to this
-     person's real growth/lifecycle work. Kept local to this file, same
-     as Stack/Blog/Lab's own local UI-copy objects — content.ts's `about`
-     object is not touched. */
+   CONTENT: the hero copy, the "8+ years building..." line and each
+   job's `info`/`bottom` text are the mockup's own copy, used as given.
+   The FACTS underneath (dates, titles, companies) are real - matched
+   against `content.ts`'s own `about.timeline` (kept as this site's
+   source of truth for the raw facts; not imported here since this
+   page's copy is phrased differently by design) - the mockup's own
+   year-only date ranges are a deliberate simplification of the more
+   precise month-level periods `content.ts` carries. TR copy below is a
+   direct translation of the same EN copy (not separately invented),
+   using this site's own already-established TR job titles
+   (`content.ts`'s `about.timeline` TR entries) so the two languages
+   describe the same real roles consistently.
 
-type Timeline = (typeof copy)["en"]["about"]["timeline"];
-type Entry = Timeline[number];
+   NAV: the mockup's own header is a bare, unlinked wordmark and its
+   footer carries no site navigation or language switch at all. Wiring
+   the wordmark to home and adding a small EN/TR link is the one
+   necessary addition beyond the mockup itself - without it this page
+   would be a dead end with no way back into the rest of the site or to
+   its own translation, which no other page on this site does. */
 
-const DOMAINS = {
-  // Each label is a real word/phrase already present in this page's own
-  // content.ts data - not a separately-authored skills list:
-  //   Growth            -> appears in 3 of 6 real job titles
-  //   Lifecycle & CRM    -> "Lifecycle Marketing Specialist" x2, "CRM
-  //                        Analytics Executive" (real titles)
-  //   Analytics          -> about.body: "My experience spans analytics..."
-  //   Acquisition        -> about.body: "...user acquisition..."
-  //   Mobile Growth      -> Aksigorta's real title: "Mobile App Growth Lead"
-  //   Digital Marketing  -> Albayrak/Doğuş Oto's real titles: "Digital
-  //                        Marketing Specialist"
-  en: ["Growth", "Lifecycle & CRM", "Analytics", "Acquisition", "Mobile Growth", "Digital Marketing"],
-  tr: ["Büyüme", "Yaşam Döngüsü ve CRM", "Analitik", "Kullanıcı Kazanımı", "Mobil Büyüme", "Dijital Pazarlama"],
-} as const;
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-space-grotesk",
+});
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono-plex",
+});
+
+const JOBS: Record<Lang, TimelineJob[]> = {
+  en: [
+    {
+      dates: "2026–Present",
+      title: "Mobile App Growth Lead",
+      company: "Aksigorta",
+      info: "Mobile app growth for one of Turkey's largest insurers — user acquisition, engagement, and an app-first growth strategy.",
+      bottom: "Owning the app growth roadmap end-to-end. And we're just getting started...",
+    },
+    {
+      dates: "2024–2026",
+      title: "Growth Marketing Lead",
+      company: "Vodafone",
+      info: "Growth marketing across digital channels for one of the world's largest telecom brands.",
+      bottom: "Data-driven acquisition and lifecycle programs working as one growth engine.",
+    },
+    {
+      dates: "2023–2024",
+      title: "Growth – CRM Analytics Executive",
+      company: "Getir",
+      info: "CRM analytics and growth initiatives for the pioneer of rapid commerce.",
+      bottom: "Retention and LTV, optimized at rapid-commerce speed.",
+    },
+    {
+      dates: "2021–2023",
+      title: "Lifecycle Marketing",
+      company: "Wingie Enuygun Group",
+      info: "Lifecycle and CRM programs for a leading online travel platform.",
+      bottom: "Owned lifecycle and CRM end-to-end across the group's travel brands.",
+      subs: [
+        { dates: "2023", title: "Experienced Lifecycle Marketing Specialist (Growth)" },
+        { dates: "2021–2023", title: "Lifecycle Marketing Specialist (Growth)" },
+      ],
+    },
+    {
+      dates: "2020–2021",
+      title: "Digital Marketing Specialist",
+      company: "Albayrak Grubu",
+      info: "Digital marketing campaigns across group companies.",
+    },
+    {
+      dates: "2019–2020",
+      title: "Jr. Digital Marketing Specialist",
+      company: "Doğuş Oto",
+      info: "Digital marketing execution for one of Turkey's leading automotive dealer groups.",
+    },
+  ],
+  tr: [
+    {
+      dates: "2026–Günümüz",
+      title: "Mobil Uygulama Büyüme Lideri",
+      company: "Aksigorta",
+      info: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyümesi — kullanıcı kazanımı, etkileşim ve app-first bir büyüme stratejisi.",
+      bottom: "Uçtan uca app growth roadmap'ini yönetiyorum. Ve daha yeni başlıyoruz...",
+    },
+    {
+      dates: "2024–2026",
+      title: "Büyüme Pazarlaması Lideri",
+      company: "Vodafone",
+      info: "Dünyanın en büyük telekom markalarından biri için dijital kanallarda büyüme pazarlaması.",
+      bottom: "Veriye dayalı kullanıcı kazanımı ve lifecycle programları, tek bir growth motoru gibi çalışıyor.",
+    },
+    {
+      dates: "2023–2024",
+      title: "Büyüme – CRM Analitiği Uzmanı",
+      company: "Getir",
+      info: "Hızlı ticaretin öncüsü için CRM analitiği ve büyüme girişimleri.",
+      bottom: "Hızlı ticaret temposunda elde tutma ve LTV optimizasyonu.",
+    },
+    {
+      dates: "2021–2023",
+      title: "Yaşam Döngüsü Pazarlama",
+      company: "Wingie Enuygun Group",
+      info: "Önde gelen bir çevrimiçi seyahat platformu için lifecycle ve CRM programları.",
+      bottom: "Grubun seyahat markaları genelinde lifecycle ve CRM'i uçtan uca yönettim.",
+      subs: [
+        { dates: "2023", title: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
+        { dates: "2021–2023", title: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
+      ],
+    },
+    {
+      dates: "2020–2021",
+      title: "Dijital Pazarlama Uzmanı",
+      company: "Albayrak Grubu",
+      info: "Grup şirketleri genelinde dijital pazarlama kampanyaları.",
+    },
+    {
+      dates: "2019–2020",
+      title: "Jr. Dijital Pazarlama Uzmanı",
+      company: "Doğuş Oto",
+      info: "Türkiye'nin önde gelen otomotiv bayi gruplarından biri için dijital pazarlama uygulamaları.",
+    },
+  ],
+};
 
 const T = {
   en: {
-    workOn: "What I work on",
-    bridgeText: "The Lab has the open-source tools and experiments built out of this work.",
-    bridgeLink: "Explore the Lab",
-    labHref: "/lab",
+    wordmark: "Ali Demirbaş",
+    heroPrefix: "I drive ",
+    heroCode: "growth()",
+    heroSuffix: " with data, build lifecycle programs that retain, and turn marketing into measurable outcomes.",
+    introPrefix: "Currently, I'm Mobile App Growth Lead at ",
+    company: "Aksigorta",
+    companyHref: "https://www.aksigorta.com.tr",
+    introSuffix: ", driving user acquisition and engagement for one of Turkey's largest insurers.",
+    contact: (
+      <>
+        <a href="mailto:mehmetalidemirbas@gmail.com">Email me</a>, or shout over on{" "}
+        <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer">LinkedIn</a>.
+      </>
+    ),
+    h2: "Over eight years bridging data and marketing into measurable growth.",
+    subLines: ["8+ years building.", "Growth, lifecycle, and analytics.", "From startups to enterprises."],
+    toggle: { simple: "Simple", detailed: "Detailed", at: "at", bottomLine: "Bottom Line" },
+    footerEmailLabel: "Email",
+    langLabel: "TR",
+    langHref: "/tr/about",
   },
   tr: {
-    workOn: "Üzerinde çalıştıklarım",
-    bridgeText: "Lab'de bu çalışmalardan doğan açık kaynak araçlar ve deneyler var.",
-    bridgeLink: "Lab'i keşfet",
-    labHref: "/tr/lab",
+    wordmark: "Ali Demirbaş",
+    heroPrefix: "Veriyle ",
+    heroCode: "growth()",
+    heroSuffix: " sağlıyor, elde tutan lifecycle programları kuruyor ve pazarlamayı ölçülebilir sonuçlara dönüştürüyorum.",
+    introPrefix: "Şu anda, Türkiye'nin en büyük sigorta şirketlerinden birinde ",
+    company: "Aksigorta",
+    companyHref: "https://www.aksigorta.com.tr",
+    introSuffix: "'da Mobil Uygulama Büyüme Lideri olarak kullanıcı kazanımını ve etkileşimi yönetiyorum.",
+    contact: (
+      <>
+        <a href="mailto:mehmetalidemirbas@gmail.com">Bana e-posta at</a>, ya da{" "}
+        <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer">LinkedIn</a>&apos;de bul beni.
+      </>
+    ),
+    h2: "Sekiz yılı aşkın süredir veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
+    subLines: ["8+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lardan kurumsala."],
+    toggle: { simple: "Basit", detailed: "Detaylı", at: "@", bottomLine: "Özet" },
+    footerEmailLabel: "E-posta",
+    langLabel: "EN",
+    langHref: "/about",
   },
 } as const;
 
-// Ties a middle dot to the word BEFORE it with a non-breaking space, so a
-// line-wrap can never strand "·" alone at the start of a line - the text
-// itself (`about.sub`) is untouched, only where the browser is allowed to
-// break it.
-function withNbspDots(s: string) {
-  return s.replace(/ · /g, " · ");
-}
-
-function Intro({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    // Light, open composition — same LOCKED reasoning as every other
-    // Portrait-pilot page. `pb-14!`/`md:pb-13!`: the tightened
-    // hero-to-content rhythm the Stack/Blog/Lab polish rounds converged
-    // on, applied from the start this round.
-    <Section tone="paper" size="md" className="pb-14! md:pb-13!">
-      <PortraitContainer>
-        <Reveal>
-          <p className="altor-eyebrow mb-4 text-ink-400">{t.about.eyebrow}</p>
-          {/* H1 = the repositioned `about.sub` — see this file's own top
-              comment for the reasoning. */}
-          <h1 className="max-w-md text-h1-fluid font-medium text-ink-950">{withNbspDots(t.about.sub)}</h1>
-          <p className="mt-3 max-w-md text-lg leading-relaxed text-ink-950/65">{t.about.lead}</p>
-        </Reveal>
-      </PortraitContainer>
-    </Section>
-  );
-}
-
-function WorkOn({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const domains = DOMAINS[lang];
-  return (
-    // `md:pt-13!` pairs with Intro's own `md:pb-13!` above.
-    <Section tone="paper" size="md" className="md:pt-13!">
-      <PortraitContainer>
-        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
-          <div>
-            <Reveal>
-              <p className="max-w-xl text-lg leading-relaxed text-ink-950/65">{t.about.body}</p>
-            </Reveal>
-            <Reveal delay={90} className="mt-10">
-              <p className="altor-eyebrow mb-4 text-ink-400">{T[lang].workOn}</p>
-              {/* Plain text list, divided by rules, not pills/icon cards -
-                  per this round's own "avoid skill cards, icon clouds"
-                  instruction. */}
-              <ul className="flex flex-wrap">
-                {domains.map((d, i) => (
-                  <li
-                    key={d}
-                    className={`border-line-soft py-1 text-sm font-medium text-ink-950 ${i === 0 ? "pr-6" : "border-l px-6 last:pr-0"}`}
-                  >
-                    {d}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </div>
-
-          {/* Real, already-used personal photo (also the home hero's
-              portrait plate) - restyled to the locked Portrait surface
-              grammar (`rounded-card`, `ring-line-soft`) rather than the
-              old offset-frame + blue-tint treatment. Not added because
-              "this is an About page" - it already existed and is kept
-              because a real, restrained personal photo genuinely serves
-              this page's own "personal but restrained" goal; grayscale
-              is kept (an editorial choice, not the old tint effect). */}
-          <Reveal delay={140}>
-            <div className="mx-auto w-full max-w-sm overflow-hidden rounded-card ring-1 ring-line-soft">
-              <div className="relative aspect-4/5">
-                <Image
-                  src="/portrait.jpg"
-                  alt="Ali Demirbaş"
-                  fill
-                  sizes="(min-width: 1024px) 24rem, (min-width: 640px) 20rem, 90vw"
-                  className="object-cover grayscale"
-                />
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </PortraitContainer>
-    </Section>
-  );
-}
-
-const rowClass = "flex flex-col gap-1 border-t border-line-soft py-6 first:border-t-0 first:pt-0 md:flex-row md:gap-6";
-
-function TimelineEntry({ item }: { item: Entry }) {
-  // Company logos DROPPED here (see this file's own top comment) - the
-  // company name is real text (`item.co`), unchanged, still shown; only
-  // the decorative per-row image is gone, matching Stack's own
-  // established "text carries the identity" precedent.
-  if (item.kind === "group") {
-    return (
-      <div className={rowClass}>
-        <span className="shrink-0 text-sm text-ink-950/65 tabular-nums md:w-16">{item.year}</span>
-        <div>
-          <h3 className="text-base font-medium tracking-tight text-ink-950">{item.co}</h3>
-          <p className="mt-0.5 text-sm text-ink-950/65">{item.span}</p>
-          <div className="mt-4 flex flex-col gap-4 border-l border-line-soft pl-6">
-            {item.roles.map((r) => (
-              <div key={r.role}>
-                <h4 className="text-sm font-medium tracking-tight text-ink-950">{r.role}</h4>
-                <p className="mt-0.5 text-xs text-ink-950/65 tabular-nums">{r.period}</p>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-950/65">{r.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={rowClass}>
-      <span className="shrink-0 text-sm text-ink-950/65 tabular-nums md:w-16">{item.year}</span>
-      <div>
-        <h3 className="text-base font-medium tracking-tight text-ink-950">{item.role}</h3>
-        <p className="mt-0.5 text-sm text-ink-950/65">
-          {item.co} <span aria-hidden>·</span> <span className="tabular-nums">{item.period}</span>
-        </p>
-        <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-950/65">{item.desc}</p>
-      </div>
-    </div>
-  );
-}
-
-function Experience({ t }: { t: (typeof copy)[Lang] }) {
-  const timeline = t.about.timeline as Timeline;
-  const lang = t === copy.en ? "en" : "tr";
-  return (
-    <Section id="experience" tone="soft" size="md">
-      <PortraitContainer>
-        <h2 className="text-h2-fluid font-medium text-ink-950">{t.about.experience}</h2>
-        <div className="mt-8">
-          {timeline.map((item, i) => (
-            <Reveal key={item.co + item.year} delay={i * 50}>
-              <TimelineEntry item={item} />
-            </Reveal>
-          ))}
-        </div>
-
-        {/* Building/Lab bridge - see this file's own top comment. */}
-        <Reveal delay={timeline.length * 50}>
-          <p className="mt-10 max-w-xl border-t border-line-soft pt-8 text-sm leading-relaxed text-ink-950/65">
-            {T[lang].bridgeText}{" "}
-            <Link
-              href={T[lang].labHref}
-              className="font-medium text-ink-900 underline decoration-line-soft underline-offset-4 transition-colors hover:text-ink-600"
-            >
-              {T[lang].bridgeLink}
-            </Link>
-          </p>
-        </Reveal>
-      </PortraitContainer>
-    </Section>
-  );
-}
-
 export default function AboutPage({ lang }: { lang: Lang }) {
-  const t = copy[lang];
+  const t = T[lang];
   const home = lang === "en" ? "/" : "/tr";
-  const langHref = lang === "en" ? "/tr/about" : "/about";
+  const jobs = JOBS[lang];
+  const year = new Date().getFullYear();
+
   return (
-    <>
-      <SiteHeader t={t} anchorBase={home} langHref={langHref} />
-      <main>
-        <Intro t={t} />
-        <WorkOn t={t} lang={lang} />
-        <Experience t={t} />
-        {/* FinalCta is a shared component (Site.tsx, ~11 page families) —
-            consumed exactly as before, not modified. */}
-        <FinalCta t={t} />
+    <div
+      className={`about-portfolio ${spaceGrotesk.variable} ${plexMono.variable} min-h-screen [font-family:var(--font-space-grotesk)] antialiased`}
+      style={{ background: "#dcedee", color: "#22333a" }}
+    >
+      {/* Scoped to this page only — the mockup's own link/selection
+          styling (see this file's own top comment on why this page
+          doesn't share the rest of the site's tokens). */}
+      <style>{`
+        .about-portfolio a { color: #22333a; text-decoration-thickness: 1.5px; text-underline-offset: 4px; text-decoration-color: #7c9296; }
+        .about-portfolio a:hover { text-decoration-color: #22333a; }
+        .about-portfolio ::selection { background: #22333a; color: #dcedee; }
+      `}</style>
+      <a
+        href="#about-main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2"
+      >
+        Skip to content
+      </a>
+
+      <header className="flex items-center justify-center gap-3 px-8 pt-9">
+        <Link
+          href={home}
+          className="rounded-xl px-6 py-3 text-xl font-bold tracking-tight no-underline"
+          style={{ background: "#e7f3f4", boxShadow: "0 2px 10px rgba(34,51,58,0.06)" }}
+        >
+          {t.wordmark}
+        </Link>
+        <Link
+          href={t.langHref}
+          className="rounded-xl px-3 py-3 text-sm font-medium no-underline"
+          style={{ background: "#e7f3f4", boxShadow: "0 2px 10px rgba(34,51,58,0.06)" }}
+        >
+          {t.langLabel}
+        </Link>
+      </header>
+
+      <section className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-6 pt-12 sm:px-10 md:grid-cols-[minmax(0,1.1fr)_minmax(240px,0.9fr)] md:gap-12 md:pt-16">
+        <h1 className="text-balance text-[clamp(2rem,5.2vw,4.5rem)] leading-[1.12] font-bold tracking-tight">
+          {t.heroPrefix}
+          <code className="font-normal [font-family:var(--font-mono-plex)]">{t.heroCode}</code>
+          {t.heroSuffix}
+        </h1>
+        <Image
+          src="/portrait.jpg"
+          alt="Ali Demirbaş"
+          width={640}
+          height={800}
+          className="w-full contrast-[1.02] grayscale mix-blend-multiply"
+        />
+      </section>
+
+      <main id="about-main" className="mx-auto max-w-[1280px] px-6 sm:px-10">
+        <section className="max-w-[620px] pt-16 md:ml-[44%] md:pt-18">
+          <p className="m-0 text-lg leading-relaxed sm:text-xl">
+            {t.introPrefix}
+            <a href={t.companyHref} target="_blank" rel="noreferrer">{t.company}</a>
+            {t.introSuffix}
+          </p>
+          <p className="mt-6 text-lg leading-relaxed sm:text-xl">{t.contact}</p>
+        </section>
+
+        <section className="pt-20 md:pt-28">
+          <h2 className="max-w-[22ch] text-[clamp(1.75rem,4.2vw,3.5rem)] leading-[1.18] font-bold tracking-tight">
+            {t.h2}
+          </h2>
+        </section>
+
+        <section className="pt-16 pb-8 md:pt-24">
+          <div className="max-w-[620px] md:ml-[44%]">
+            <p className="text-xl leading-relaxed font-medium sm:text-2xl">
+              {t.subLines.map((line, i) => (
+                <span key={line}>
+                  {line}
+                  {i < t.subLines.length - 1 && <br />}
+                </span>
+              ))}
+            </p>
+          </div>
+          <AboutTimeline jobs={jobs} labels={t.toggle} />
+        </section>
       </main>
-      <SiteFooter t={t} lang={lang} />
-    </>
+
+      <footer
+        className="mx-auto flex max-w-[1280px] flex-wrap items-baseline justify-between gap-4 px-6 py-8 sm:px-10"
+        style={{ borderTop: "2px solid #b9d4d6" }}
+      >
+        <p className="m-0 text-sm" style={{ color: "#45585c" }}>
+          © {year} {t.wordmark} 👋
+        </p>
+        <div className="flex gap-6 text-sm">
+          <a href="mailto:mehmetalidemirbas@gmail.com">{t.footerEmailLabel}</a>
+          <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer">LinkedIn</a>
+        </div>
+      </footer>
+    </div>
   );
 }
