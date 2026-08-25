@@ -130,6 +130,17 @@
   --color-line-brand: var(--color-primary-600);
   --color-line-brand-subtle: var(--color-primary-200);
   --color-line-inverse: var(--color-ink-800); /* rules on a dark plate */
+  /* --- CONTACT PILOT (DESIGN-MIGRATION-PLAN.md §5) -----------------------
+     `--color-line-soft`: an alpha-based hairline, for decorative internal
+     dividers (not a surface's outer boundary — that stays `--color-line`).
+     The Mobbin reference this token is sourced from uses a NEUTRAL-black
+     alpha (`rgb(0 0 0 / 0.06–0.16)`); tried verbatim first, and it read
+     slightly cooler/duller next to this ramp's navy-tinted `ink-*` text —
+     the same clash already documented above for `ink-subtle`/`ink-muted`.
+     Derived from `--color-ink-950` instead so the alpha tints toward the
+     same navy as the text around it. First (only) consumer: the Contact
+     page's info-block dividers — not yet promoted past this one page. */
+  --color-line-soft: rgb(5 8 15 / 0.08);
 
   /* Surfaces. */
   --color-surface: var(--color-paper); /* = paper */
@@ -210,6 +221,19 @@
   --radius-2xl: 10px;
   --radius-3xl: 10px;
   --radius-4xl: 10px;
+
+  /* --- CONTACT PILOT (DESIGN-MIGRATION-PLAN.md §5) -----------------------
+     `--radius-card`: a dedicated token for card-class surfaces, sourced
+     from the real Mobbin reference markup's 16px standard-card radius —
+     see DESIGN-MIGRATION-PLAN.md §0. Deliberately its OWN token rather
+     than raising `--radius-lg` (10px): raising `--radius-lg` itself would
+     silently round every existing `rounded-lg` call site site-wide, and
+     the Button's `rounded-none` is a separate, explicit opt-out that must
+     stay untouched by this. Generates `rounded-card` alongside the
+     existing scale, above its 10px ceiling by design (a ceiling on the
+     numbered steps, not on every future named token). First (only)
+     consumer: the Contact page's form-surface card, this pilot. */
+  --radius-card: 1rem; /* 16px */
 
   /* --- Elevation (restrained, never “floaty SaaS”) ---------------------- */
   --shadow-hairline: 0 0 0 1px rgb(10 16 32 / 0.06);
