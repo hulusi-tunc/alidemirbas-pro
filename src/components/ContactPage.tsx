@@ -4,6 +4,7 @@ import { CalEmbed } from "@/components/CalEmbed";
 import { ContactForm } from "@/components/ContactForm";
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { Section } from "@/components/ui/Section";
+import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
 import { Reveal } from "@/components/ui/Reveal";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
@@ -56,7 +57,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
     // bölümdeki boşluğu azalt" — the intro and the form should feel like
     // one composition, not two blocks separated by a generous SaaS gutter.
     <Section tone="paper" size="md">
-      <div className="mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-12">
+      <PortraitContainer>
         {/* gap-14/lg:gap-20 -> gap-10/lg:gap-14: the two columns were
             reading as disconnected at the wider gap. Still enough to
             separate them, not enough to feel like two unrelated blocks. */}
@@ -152,7 +153,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
             </div>
           </Reveal>
         </div>
-      </div>
+      </PortraitContainer>
     </Section>
   );
 }
@@ -162,7 +163,7 @@ function Schedule({ t }: { t: (typeof copy)[Lang] }) {
     // size="md" (was "lg"): less dead vertical space before/after this
     // section — same reasoning as Composition above.
     <Section tone="soft" size="md">
-      <div className="mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-12">
+      <PortraitContainer>
         <Reveal>
           <h2 className="text-h2-fluid font-medium text-ink-900">{t.contact.scheduleTitle}</h2>
           <p className="mt-2 text-base text-ink-500">{t.contact.scheduleSub}</p>
@@ -181,7 +182,7 @@ function Schedule({ t }: { t: (typeof copy)[Lang] }) {
             <CalEmbed />
           </div>
         </Reveal>
-      </div>
+      </PortraitContainer>
     </Section>
   );
 }
