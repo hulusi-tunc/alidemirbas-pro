@@ -18,12 +18,16 @@ import { getAllBlogPosts, getBlogFacets } from "@/lib/blog";
    real, non-empty facet set, while `/tr/blog` correctly still hits the
    honest empty state. Both are exercised in this round's screenshots.
 
-   IA (search, grid/list toggle, filter sidebar, editorial cards) is
-   UNCHANGED — it already matched the previously-supplied blog reference's
-   information architecture almost exactly before this round (see
-   DESIGN-MIGRATION-PLAN.md §4.2's own finding). Only the VISUAL LANGUAGE
-   changed, to Portrait's — see BlogLibrary.tsx/BlogCard.tsx for the
-   detailed per-control translation. */
+   EDITORIAL REFINEMENT ROUND: the filter-sidebar/grid-list-toggle/sort-
+   control IA from the earlier Portrait pass was itself the thing this
+   round's brief flagged - it read as a filtered CMS archive rather than
+   a personal editorial publication, at a scale (5 real posts) that never
+   needed that much interface. BlogLibrary.tsx and BlogCard.tsx now carry
+   a lightweight category-tab + search toolbar, a featured-newest-post
+   slot, and the BlogCover.tsx editorial cover system in place of the old
+   sidebar/toggle/pastel-placeholder shell - see each file's own comment
+   for the detail. This file's own hero/H1 treatment is unchanged beyond
+   the vertical-rhythm tightening noted below. */
 const T = {
   en: {
     eyebrow: "Blog",
@@ -58,17 +62,18 @@ export default function BlogPage({ lang }: { lang: Lang }) {
             band — same LOCKED reasoning as Contact/Stack: Portrait's real
             production is light/low-noise throughout.
 
-            POLISH ROUND: `md:pb-16!` shrinks this section's own bottom
-            padding at `md:` and up ONLY — mobile is untouched, per this
-            round's explicit "375px ritmi zaten iyi, mümkün olduğunca
-            değiştirme" instruction. Paired with the matching `md:pt-16!`
-            on BlogLibrary's own top padding (see that file), this cuts
-            the measured real gap between the H1 and the search field from
-            224px to ~128px at both 1440 and 820 (a ~43% reduction) while
-            leaving the 144px mobile gap exactly as it was. */}
-        {/* Centered per this round's site-wide request ("tüm başlıkları
-            ortala") - was left-aligned (`max-w-md`, no `mx-auto`). */}
-        <Section tone="paper" size="md" className="md:pb-16!">
+            EDITORIAL REFINEMENT ROUND: `pb-8!/md:pb-10!` (was `md:pb-16!`,
+            mobile untouched at the default) - the brief flagged this hero
+            as leaving "a very large amount of empty space" underneath the
+            headline; no subtitle was added (the headline already explains
+            the page, per that same brief), so the fix is purely tightening
+            this section's own bottom padding. Paired with BlogLibrary's
+            matching `pt-8!/md:pt-10!` (this file's other hero -> toolbar
+            gap contributor), the combined hero-to-content gap is smaller
+            at every breakpoint now, not just at `md:` as the previous
+            pass left it. Still `size="md"`, still centered - just less
+            dead air below the H1. */}
+        <Section tone="paper" size="md" className="pb-8! md:pb-10!">
           <PortraitContainer>
             <div className="mx-auto max-w-2xl text-center">
               <p className="altor-eyebrow mb-4 text-ink-400">{t.eyebrow}</p>

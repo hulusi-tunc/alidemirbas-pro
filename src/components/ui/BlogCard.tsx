@@ -1,35 +1,31 @@
 import Link from "next/link";
-import type { BlogPost } from "@/lib/blog";
+import { ArrowRight } from "lucide-react";
+
+import { BlogCover, COVERS, categoryAccent, type CoverSpec } from "./BlogCover";
 import { HoverLift } from "./HoverLift";
+import type { BlogPost } from "@/lib/blog";
 
-/* Reusable editorial card - visual area, date, title, category/topic.
-   The visual is a small deterministic geometric pattern derived from the
-   post's own category string (picks among this site's existing token
-   colors), not a stock photo or an invented cover-image asset - there is
-   no cover-image pipeline yet, and this reads as an intentional
-   treatment rather than a missing image. `list` renders a flatter row
-   for the List view; `grid` (default) renders the full card.
+/* Editorial article card — REFINEMENT ROUND. Replaces the old pastel
+   gradient placeholder rectangle (read as a missing image) with the
+   BlogCover system, drops the grid/list variant split (list view is
+   gone site-wide per this round's brief), lightens the card shell
+   (rounded-card + a hairline border, not a ring + shadow-sm "floating
+   SaaS card"), gives titles more size/room, and swaps the grey rounded
+   category pill for a small dot + text indicator matching the cover's
+   own accent - the same colour language, not a second badge system.
 
-   PORTRAIT PILOT: unlike Contact's form surface (a single, non-repeating
-   content zone, de-carded this round), a grid of repeating article
-   previews is the same shape as Portrait's own real confirmed pattern for
-   repeating tiles - `rounded-2xl` + `ring-1 ring-black/6` + a restrained
-   shadow, applied at rest (PORTRAIT-DESIGN-SOURCE-AUDIT.md §6/§7). The
-   `grid` variant below gets that treatment (`rounded-card`, `ring-line-
-   soft`, `shadow-sm`); the `list` variant stays a flatter row with a
-   hairline divider, now on the LOCKED neutral-alpha token instead of the
-   old opaque one. */
+   `featured` renders the same card content at a larger scale for the
+   single newest-post slot on the default (unfiltered) view - see
+   BlogLibrary.tsx for where that slot is chosen. It is still one
+   component, not a forked "FeaturedCard": the brief's whole point is one
+   system with real hierarchy, not two unrelated card designs. */
 
-const PATTERNS = [
-  "bg-[radial-gradient(circle_at_30%_30%,var(--color-primary-200)_0%,transparent_55%)] bg-primary-50",
-  "bg-[radial-gradient(circle_at_70%_30%,var(--color-sand-200)_0%,transparent_55%)] bg-sand-50",
-  "bg-[linear-gradient(135deg,var(--color-ink-100)_0%,transparent_60%)] bg-paper-soft",
-];
-
-function patternFor(seed: string) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return PATTERNS[h % PATTERNS.length];
+function fallbackCover(category: string): CoverSpec {
+  // Any post without a hand-authored entry in COVERS (a future post,
+  // before someone writes its own cover spec) still gets a real,
+  // non-empty cover rather than a blank rectangle - the category name
+  // itself, in that category's real accent, with no invented diagram.
+  return { lines: [category.split(" ")[0].toUpperCase()], tag: category, accent: categoryAccent(category), diagram: "ratio" };
 }
 
 function formatDate(iso: string, lang: "en" | "tr") {
@@ -41,62 +37,59 @@ export function BlogCard({
   post,
   href,
   lang,
-  variant = "grid",
+  featured = false,
 }: {
   post: BlogPost;
   href: string;
   lang: "en" | "tr";
-  variant?: "grid" | "list";
+  featured?: boolean;
 }) {
-  if (variant === "list") {
-    return (
-      <Link
-        href={href}
-        className="flex items-center gap-4 border-b border-line-soft py-4 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-ink-300"
-      >
-        <span aria-hidden className={`size-14 shrink-0 rounded-card ${patternFor(post.category)}`} />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium text-ink-950">{post.title}</span>
-          <span className="mt-0.5 flex items-center gap-2 text-xs text-ink-950/65">
-            <span>{formatDate(post.date, lang)}</span>
-            {post.category && (
-              <>
-                <span aria-hidden>·</span>
-                <span>{post.category}</span>
-              </>
-            )}
-          </span>
-        </span>
-      </Link>
-    );
-  }
+  const spec = COVERS[post.slug] ?? fallbackCover(post.category);
+  const accent = categoryAccent(post.category);
+  const dotClass =
+    accent === "experimentation" ? "bg-primary-600" : accent === "growth" ? "bg-neutral-600" : "bg-ink-700";
 
   return (
-    <HoverLift distance={3}>
+    <HoverLift distance={2}>
       <Link
         href={href}
-        className="group flex h-full flex-col overflow-hidden rounded-card bg-paper ring-1 ring-line-soft shadow-sm transition-shadow duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:shadow-[var(--shadow-card-hover)]"
+        className={`group flex h-full overflow-hidden rounded-card border border-line-soft transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-line-strong ${
+          featured ? "flex-col md:flex-row" : "flex-col"
+        }`}
       >
-        {/* POLISH ROUND: the decorative media zone was over-dominant
-            relative to the title/metadata below it, specifically at
-            tablet's 2-column width. Card width/radius/border/shadow/text
-            are all unchanged — only this zone's own height, via aspect
-            ratio, and only from `sm:` up (mobile/1-column stays the
-            original 16/10, not flagged as an issue). `sm:aspect-[2/1]`
-            (16/8) is a 20% height reduction at tablet's 2-column width;
-            `lg:aspect-video` (16/9, Tailwind's own built-in ratio) is a
-            ~10% reduction at desktop's 3-column width - "a smaller
-            reduction," per this round's own instruction, not the same
-            cut applied twice. */}
-        <span aria-hidden className={`aspect-[16/10] sm:aspect-[2/1] lg:aspect-video w-full ${patternFor(post.category)}`} />
-        <span className="flex flex-1 flex-col gap-2 p-5">
-          <span className="text-xs text-ink-950/65">{formatDate(post.date, lang)}</span>
-          <span className="text-base font-medium tracking-tight text-ink-950">{post.title}</span>
-          {post.category && (
-            <span className="mt-auto w-fit rounded-full bg-paper-soft px-2.5 py-1 text-xs text-ink-950/65 ring-1 ring-line-soft">
-              {post.category}
+        <span
+          className={`block shrink-0 overflow-hidden transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01] ${
+            featured ? "aspect-[16/10] md:aspect-auto md:w-[46%]" : "aspect-[16/10]"
+          }`}
+        >
+          <BlogCover spec={spec} size={featured ? "featured" : "grid"} />
+        </span>
+        <span className={`flex flex-1 flex-col gap-2 ${featured ? "p-6 sm:p-8" : "p-5"}`}>
+          <span className="flex items-center gap-1.5 text-xs text-ink-500">
+            <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${dotClass}`} />
+            {post.category}
+          </span>
+          <span
+            className={`font-semibold tracking-tight text-ink-950 transition-colors duration-[var(--duration-fast)] group-hover:text-primary-700 ${
+              featured ? "text-2xl leading-[1.15] sm:text-[1.75rem]" : "text-lg leading-[1.2]"
+            }`}
+          >
+            {post.title}
+          </span>
+          {featured && post.excerpt && (
+            <span className="line-clamp-2 max-w-[52ch] text-[15px] leading-relaxed text-ink-950/65">
+              {post.excerpt}
             </span>
           )}
+          <span className="mt-auto flex items-center gap-3 pt-2 text-xs text-ink-400">
+            <span>{formatDate(post.date, lang)}</span>
+            {featured && (
+              <span className="ml-auto flex items-center gap-1 font-medium text-ink-950 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5">
+                {lang === "tr" ? "Yazıyı oku" : "Read article"}
+                <ArrowRight aria-hidden className="size-3.5" />
+              </span>
+            )}
+          </span>
         </span>
       </Link>
     </HoverLift>
