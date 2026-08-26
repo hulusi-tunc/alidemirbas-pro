@@ -12,7 +12,7 @@ import { SiteFooter, SiteHeader } from "@/components/Site";
 import { CalculatorLibrary, CategoryIcon, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
-import { copy, EMAIL } from "@/lib/content";
+import { copy } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
 import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS, correctedFormulaPlainEnglish } from "@/lib/calc-catalog";
 import { getContent } from "@/lib/calc-content";
@@ -109,59 +109,14 @@ function calcSearchText(name: string, description: string, categoryLabel: string
   return [name, description, categoryLabel, ...aliases].join(" ").toLowerCase();
 }
 
-/* Bespoke dark header/footer for this page only — matches a user-supplied
-   mockup (warm near-black #171614/#141311, full real site nav) that is
-   visually unrelated to both the Portrait system (Contact/Stack/Blog/
-   Lab/404, still using the shared light `SiteHeader`) and to the About
-   page's own separate "Portfolio" conversion. Built locally rather than
-   changing `Site.tsx`'s shared `SiteHeader`/`SiteFooter` — those are
-   reused unmodified by every other page, including this file's own
-   `CalculatorDetailPage` below. Nav labels/hrefs come from `copy[lang]
-   .nav` (the same real data `SiteHeader` itself reads), not restated. */
-function CalcHeader({ lang }: { lang: Lang }) {
-  const t = copy[lang];
-  const home = lang === "en" ? "/" : "/tr";
-  const navItems = [
-    { label: t.nav.about, href: t.nav.aboutHref },
-    { label: t.nav.lab, href: t.nav.labHref },
-    { label: t.nav.calculators, href: t.nav.calculatorsHref },
-    { label: t.nav.blog, href: t.nav.blogHref },
-    { label: t.nav.stack, href: t.nav.stackHref },
-    { label: t.nav.contact, href: t.nav.contactHref },
-  ];
-  return (
-    <header style={{ background: "#171614" }}>
-      <div className="mx-auto flex h-18 max-w-320 items-center justify-between px-6 sm:px-12">
-        <Link href={home} className="text-[15px] font-semibold tracking-tight text-white">Ali Demirbaş</Link>
-        <nav className="hidden items-center gap-8 text-sm md:flex" style={{ color: "rgba(255,255,255,0.7)" }}>
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="transition-colors hover:text-white"
-              style={item.href === t.nav.calculatorsHref ? { color: "#ffffff" } : undefined}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-6">
-          <Link href={lang === "en" ? "/tr/calculators" : "/calculators"} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>
-            {t.nav.lang}
-          </Link>
-          <a
-            href={`mailto:${EMAIL}`}
-            className="hidden h-10 items-center bg-white px-4 text-sm font-medium sm:inline-flex"
-            style={{ color: "#171614" }}
-          >
-            {t.nav.cta}
-          </a>
-        </div>
-      </div>
-    </header>
-  );
-}
-
+/* Bespoke dark FOOTER for this page only — matches a user-supplied mockup
+   (warm near-black #141311, full real site nav). The matching bespoke
+   dark HEADER this comment used to describe was removed per explicit
+   request ("header siyah, ikinci görseldeki gibi olsun" — dark headers
+   should match the shared light SiteHeader every other page uses);
+   CalculatorIndexPage now renders SiteHeader directly, same as
+   CalculatorDetailPage below already did. The footer wasn't part of
+   that request and is unchanged. */
 function CalcFooter({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
@@ -257,7 +212,15 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
 
   return (
     <div style={{ background: "#faf9f6", color: "#201f1c" }} className="min-h-screen">
-      <CalcHeader lang={lang} />
+      {/* Was a bespoke black CalcHeader (#171614) - replaced with the
+          shared light SiteHeader per explicit request to match every
+          other page's header. CalcFooter below is unchanged - only the
+          header was flagged. */}
+      <SiteHeader
+        t={copy[lang]}
+        anchorBase={lang === "en" ? "/" : "/tr"}
+        langHref={lang === "en" ? "/tr/calculators" : "/calculators"}
+      />
       <main>
         <section className="relative overflow-hidden pt-22 pb-10">
           {/* Same soft, multi-tone blue wash as the Contact page hero, per
@@ -278,10 +241,10 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
             <div className="absolute -top-16 right-[5%] size-[30rem] rounded-full bg-primary-500/25 blur-3xl" />
             <div className="absolute top-[45%] left-[35%] size-[26rem] rounded-full bg-primary-100/70 blur-3xl" />
           </div>
-          <div className="relative mx-auto max-w-320 px-6 sm:px-12">
+          <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
             <p className="mb-4 text-xs font-medium tracking-[0.12em] uppercase" style={{ color: "#9c978c" }}>{hero.eyebrow}</p>
-            <h1 className="max-w-md text-[2.75rem] leading-[1.1] font-medium tracking-tight" style={{ color: "#141311" }}>{hero.title}</h1>
-            <p className="mt-3 max-w-md text-lg leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{hero.sub}</p>
+            <h1 className="mx-auto max-w-xl text-[2.75rem] leading-[1.1] font-medium tracking-tight" style={{ color: "#141311" }}>{hero.title}</h1>
+            <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{hero.sub}</p>
           </div>
         </section>
 
