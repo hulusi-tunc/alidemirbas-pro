@@ -343,6 +343,91 @@ export const copy = {
       ],
       repoLink: "View on GitHub",
       demoLink: "Live demo",
+      /* PRODUCT-PAGE STORYTELLING COPY (this round). The keys above are
+         untouched - metaTitle/metaDesc/title/sub/install/framework/
+         principles/example/faq are the same verified strings the page
+         already shipped, still sourced from the plugin's own README/
+         methodology docs. Everything below is new copy written for the
+         redesigned composition, and every number in it is derived from
+         the real dataset at build time (see ab-test-marketing.ts), not
+         typed in here. */
+      product: {
+        heroCtaLibrary: "Explore the library",
+        heroProof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
+        brief: {
+          label: "Scenario brief",
+          control: "Control",
+          variant: "Variant",
+          testedSlot: "Tested element",
+          testedSlotValue: "Coupon code field",
+          sideA: "Coupon field open in the cart, a directly visible box",
+          sideB: "Coupon field hidden behind an “I have a discount code” link",
+          primaryKpi: "Primary KPI",
+          primaryKpiValue: "Revenue Per Visitor (RPV)",
+          guardrail: "Guardrail",
+          guardrailValue: "Coupon Usage Rate must not collapse",
+        },
+        scale: {
+          scenarios: "scenarios",
+          surfaces: "product surfaces",
+          categories: "categories",
+          guardrails: "guardrail rules",
+        },
+        story1: {
+          eyebrow: "Coverage",
+          title: "Start from the surface you're actually on.",
+          body: "The library isn't a flat list of tips. Every scenario is filed against the product surface it belongs to — a product page test and a checkout test fail in different ways — so you narrow by where the problem is before anyone argues about what to change.",
+          caption: "Scenarios by surface",
+        },
+        story2: {
+          eyebrow: "Discipline",
+          title: "One variable, or it isn't a test.",
+          body: "Every scenario names the single slot that changes and holds the rest of the page identical. Most of the library ships with the control and the variant already written out, so there's no room to quietly change two things and call the result a finding.",
+          caption: "Control vs variant",
+          diffNote: "Everything else on the page stays identical.",
+          sidesNote: "scenarios ship with the two sides already written",
+        },
+        story3: {
+          eyebrow: "Guardrails",
+          title: "Every scenario ships with what must not break.",
+          body: "A guardrail is the metric that has to hold while the primary one improves — margin, refund rate, coupon usage, accessibility. They aren't optional here: no scenario in the library carries fewer than five.",
+          caption: "What not to do",
+          ledgerNote: "guardrail rules across the library",
+        },
+        library: {
+          eyebrow: "The library",
+          title: "{count} experiments. One place to find the next one.",
+          body: "Filed by category and surface, searchable, and readable without installing anything. Each entry carries the variable under test, the primary KPI and the guardrails.",
+          cta: "Explore all tests",
+          filterLabel: "Browse by category",
+        },
+        how: {
+          eyebrow: "How it works",
+          title: "Find it, build it, read it.",
+          body: "Three steps — and the third is the one most tests get wrong.",
+          steps: [
+            { title: "Find the opportunity", body: "Narrow by the surface you're working on, then pick from the scenarios already filed against it." },
+            { title: "Design the experiment", body: "The scenario hands you the hypothesis, one primary KPI and the guardrails. Exactly one variable moves." },
+            { title: "Read the result", body: "Decide with the statistics, not the chart. A double-digit lift can still be noise." },
+          ],
+          step1: { label: "Surface", matches: "scenarios on this surface" },
+          step2: { hypothesis: "Hypothesis", kpi: "Primary KPI", guardrail: "Guardrail" },
+          step3: {
+            control: "Control",
+            variant: "Variant",
+            uplift: "Relative uplift",
+            pValue: "p-value",
+            verdict: "Significant at 95%?",
+            verdictValue: "No — keep running",
+            note: "A worked example from this site's own Significance calculator: a +16% lift that doesn't clear the bar.",
+            calculators: "Run it on your own numbers",
+            test: "two-proportion z-test",
+          },
+        },
+        rulesEyebrow: "The rules",
+        installEyebrow: "Install",
+        faqEyebrow: "Questions",
+      },
     },
     finalCta: {
       title: "Let's talk growth.",
@@ -704,6 +789,86 @@ export const copy = {
       ],
       repoLink: "GitHub'da görüntüle",
       demoLink: "Canlı demo",
+      /* Bkz. EN tarafındaki not: yukarıdaki anahtarlar değişmedi, aşağıdaki
+         blok bu turun yeni ürün sayfası kurgusu için yazıldı. İçindeki her
+         sayı gerçek veri setinden derleme anında türetiliyor. */
+      product: {
+        heroCtaLibrary: "Kütüphaneyi keşfet",
+        heroProof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
+        brief: {
+          label: "Senaryo brifi",
+          control: "Kontrol",
+          variant: "Varyant",
+          testedSlot: "Test edilen öğe",
+          testedSlotValue: "Kupon kodu alanı",
+          sideA: "Kupon kodu alanı sepette açık, doğrudan görünür bir kutu",
+          sideB: "Kupon alanı “İndirim kodum var” bağlantısı arkasında gizli",
+          primaryKpi: "Birincil KPI",
+          primaryKpiValue: "Ziyaretçi Başına Gelir (RPV)",
+          guardrail: "Guardrail",
+          guardrailValue: "Kupon Kullanım Oranı çökmemeli",
+        },
+        scale: {
+          scenarios: "senaryo",
+          surfaces: "ürün yüzeyi",
+          categories: "kategori",
+          guardrails: "guardrail kuralı",
+        },
+        story1: {
+          eyebrow: "Kapsam",
+          title: "Gerçekten üzerinde olduğun yüzeyden başla.",
+          body: "Kütüphane düz bir ipucu listesi değil. Her senaryo ait olduğu ürün yüzeyine göre dosyalanmış — bir ürün sayfası testiyle bir ödeme testi farklı biçimlerde bozulur — böylece neyin değişeceği tartışılmadan önce sorunun nerede olduğuna göre daraltıyorsun.",
+          caption: "Yüzeye göre senaryolar",
+        },
+        story2: {
+          eyebrow: "Disiplin",
+          title: "Tek değişken, yoksa o bir test değil.",
+          body: "Her senaryo değişen tek alanı adlandırır ve sayfanın geri kalanını aynı tutar. Kütüphanenin büyük bölümü kontrol ve varyant yazılmış hâlde gelir; böylece sessizce iki şeyi değiştirip sonuca “bulgu” demenin yeri kalmaz.",
+          caption: "Kontrol / varyant",
+          diffNote: "Sayfadaki diğer her şey aynı kalır.",
+          sidesNote: "senaryo iki tarafı yazılmış hâlde geliyor",
+        },
+        story3: {
+          eyebrow: "Guardrail'ler",
+          title: "Her senaryo, bozulmaması gerekenle birlikte gelir.",
+          body: "Guardrail, birincil metrik iyileşirken yerinde kalması gereken metriktir — marj, iade oranı, kupon kullanımı, erişilebilirlik. Burada opsiyonel değiller: kütüphanedeki hiçbir senaryo beşten azıyla gelmiyor.",
+          caption: "Yapılmaması gerekenler",
+          ledgerNote: "kütüphane genelinde guardrail kuralı",
+        },
+        library: {
+          eyebrow: "Kütüphane",
+          title: "{count} deney. Bir sonrakini bulacağın tek yer.",
+          body: "Kategoriye ve yüzeye göre dosyalanmış, aranabilir ve hiçbir şey kurmadan okunabilir. Her kayıt test edilen değişkeni, birincil KPI'ı ve guardrail'leri taşır.",
+          cta: "Testlerin tamamını keşfet",
+          filterLabel: "Kategoriye göre gez",
+        },
+        how: {
+          eyebrow: "Nasıl çalışır",
+          title: "Bul, kur, oku.",
+          body: "Üç adım — ve çoğu testin yanlış yaptığı adım üçüncüsü.",
+          steps: [
+            { title: "Fırsatı bul", body: "Üzerinde çalıştığın yüzeye göre daralt, sonra o yüzeye dosyalanmış senaryolardan seç." },
+            { title: "Deneyi tasarla", body: "Senaryo sana hipotezi, tek bir birincil KPI'ı ve guardrail'leri verir. Tam olarak tek değişken hareket eder." },
+            { title: "Sonucu oku", body: "Grafikle değil istatistikle karar ver. Çift haneli bir artış hâlâ gürültü olabilir." },
+          ],
+          step1: { label: "Yüzey", matches: "senaryo bu yüzeyde" },
+          step2: { hypothesis: "Hipotez", kpi: "Birincil KPI", guardrail: "Guardrail" },
+          step3: {
+            control: "Kontrol",
+            variant: "Varyant",
+            uplift: "Göreli artış",
+            pValue: "p-değeri",
+            verdict: "%95'te anlamlı mı?",
+            verdictValue: "Hayır — devam et",
+            note: "Bu sitenin kendi Anlamlılık hesaplayıcısından işlenmiş bir örnek: eşiği geçemeyen %16'lık bir artış.",
+            calculators: "Kendi sayılarınla çalıştır",
+            test: "iki oranlı z-testi",
+          },
+        },
+        rulesEyebrow: "Kurallar",
+        installEyebrow: "Kurulum",
+        faqEyebrow: "Sorular",
+      },
     },
     finalCta: {
       title: "Büyümeyi konuşalım.",
