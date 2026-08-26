@@ -321,7 +321,7 @@ function prettyFormula(formula: string, inputs: RuntimeCalcSpec["inputs"]): stri
   return out;
 }
 
-function FormulaBlock({
+export function FormulaBlock({
   spec,
   activeFormula,
   activeModeId,

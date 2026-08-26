@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import CalculatorTool from "@/components/CalculatorTool";
+import { BreakEvenSliderTool } from "@/components/ui/BreakEvenSliderTool";
 import CalculatorContent from "@/components/CalculatorContent";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
@@ -352,8 +353,17 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
             <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{desc}</p>
           </div>
         </section>
-        <div className="altor-container max-w-2xl py-12">
-          {spec && <CalculatorTool spec={toRuntimeSpec(spec)} lang={lang} />}
+        {/* break-even-point gets a wider container - its slider tool is a
+            2-column layout (see BreakEvenSliderTool's own top comment on
+            why it's a one-off, not a change to every calculator's own
+            CalculatorTool). Every other calculator keeps the existing
+            max-w-2xl single-column tool unchanged. */}
+        <div className={`altor-container py-12 ${spec?.slug === "break-even-point" ? "max-w-4xl" : "max-w-2xl"}`}>
+          {spec && spec.slug === "break-even-point" ? (
+            <BreakEvenSliderTool spec={toRuntimeSpec(spec)} lang={lang} />
+          ) : (
+            spec && <CalculatorTool spec={toRuntimeSpec(spec)} lang={lang} />
+          )}
           {textTool?.slug === "utm-builder" && <UtmBuilder lang={lang} />}
           {textTool?.slug === "character-counter" && <CharacterCounter lang={lang} />}
         </div>
