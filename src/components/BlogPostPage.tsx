@@ -25,7 +25,9 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
     <>
       <SiteHeader t={c} anchorBase={home} langHref={base} />
       <main>
-        <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-14">
+        {/* pt-40 -> pt-24: SiteHeader is now a real, solid header, not an
+            absolute overlay - see its own comment in Site.tsx. */}
+        <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-14">
           <div className="altor-container max-w-2xl">
             <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white">
               <ArrowLeft aria-hidden className="size-3.5" />
