@@ -10,6 +10,9 @@ import { ALL_AB_TEST_SLUGS } from "@/lib/ab-test-view";
 // site won't carry that section at all.
 const routes = [
   "", "/about", "/lab", "/lab/journeys", "/lab/ab-testing", "/lab/dashboard-builder", "/stack", "/contact", "/blog",
+  // The Journey Builder product page. /lab/journeys above is the LIBRARY;
+  // this is the product page in front of it, added this round.
+  "/lab/claude-lifecycle",
   // The Marketing Calculators index, plus every live calculator/text-tool
   // route - previously missing from this list entirely, meaning the whole
   // /calculators section (index + every individual calculator page) was
