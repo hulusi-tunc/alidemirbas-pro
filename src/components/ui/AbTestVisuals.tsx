@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 
 import {
   AB_SCALE,
@@ -7,6 +7,7 @@ import {
   FEATURED,
   SURFACE_COUNTS,
   SURFACE_MAX,
+  canvasRows,
   spreadCards,
 } from "@/lib/ab-test-marketing";
 import { copy, type Lang } from "@/lib/content";
@@ -497,6 +498,130 @@ export function StatCalculatorLinks({ lang }: { lang: Lang }) {
           <ArrowUpRight aria-hidden className="size-3.5 text-ink-400" />
         </Link>
       ))}
+    </div>
+  );
+}
+
+/* ====================================================================
+   VISUAL-10 — Hero Product Canvas         (Section 01, replaces the
+   hero's split layout after a second Peerbie reference: centred text,
+   then the product itself filling the full width in perspective and
+   running off the bottom of the section.)
+
+   What it shows is the REAL library browser - the same facet sidebar,
+   search field and result rows that /lab/ab-testing/library actually
+   renders - populated with eight real records, one per category, plus
+   the scenario brief floating over it. So the hero's claim ("a
+   searchable library of 211 scenarios") and the hero's image are the
+   same thing, which is the entire point of the composition.
+
+   Perspective is CSS only (`rotateX` on a wrapper), so the text stays
+   real DOM text: selectable, translatable, indexable. Below `lg` the
+   tilt is dropped entirely and the sidebar is hidden - a tilted,
+   scaled-down browser at 375px would be unreadable, and the brief is
+   to simplify rather than shrink. */
+
+function CanvasChip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-xs bg-paper-soft px-2 py-0.5 font-mono text-[10px] text-ink-500">
+      {children}
+    </span>
+  );
+}
+
+export function HeroProductCanvas({ lang }: { lang: Lang }) {
+  const rows = canvasRows(lang);
+  const t = copy[lang].abTesting.product;
+  const searchPlaceholder = lang === "en" ? "Search 211 scenarios…" : "211 senaryoda ara…";
+
+  return (
+    <div className="relative">
+      {/* The tilt. `perspective` on the parent + `rotateX` on the child,
+          origin at the top so the canvas leans away from the reader and
+          its lower edge runs past the section's bottom crop. */}
+      <div className="lg:[perspective:2200px]">
+        <div className="origin-top lg:[transform:rotateX(9deg)_scale(1.02)]">
+          <div className="mx-auto max-w-[1120px] overflow-hidden rounded-t-2xl border border-line-soft bg-paper shadow-[0_40px_90px_-30px_rgba(3,17,63,0.35)]">
+            {/* window chrome + search, as the real library page has */}
+            <div className="flex items-center gap-3 border-b border-line-soft bg-paper-soft/70 px-4 py-3">
+              <span aria-hidden className="flex gap-1.5">
+                <span className="size-2.5 rounded-full bg-ink-200" />
+                <span className="size-2.5 rounded-full bg-ink-200" />
+                <span className="size-2.5 rounded-full bg-ink-200" />
+              </span>
+              <span className="ml-2 flex min-w-0 flex-1 items-center gap-2 rounded-full border border-line-soft bg-paper px-3.5 py-1.5">
+                <Search aria-hidden className="size-3.5 shrink-0 text-ink-300" />
+                <span className="truncate text-xs text-ink-400">{searchPlaceholder}</span>
+              </span>
+              <span className="hidden shrink-0 font-mono text-[11px] text-ink-400 tabular-nums sm:block">
+                {AB_SCALE.scenarios}
+              </span>
+            </div>
+
+            <div className="flex">
+              {/* facet rail — real surfaces, real counts (hidden < lg) */}
+              <aside className="hidden w-52 shrink-0 border-r border-line-soft p-4 lg:block">
+                <p className="font-mono text-[10px] tracking-wider text-ink-400 uppercase">
+                  {t.how.step1.label}
+                </p>
+                <div className="mt-3 flex flex-col gap-1">
+                  {SURFACE_COUNTS.slice(0, 9).map((s, i) => (
+                    <span
+                      key={s.surface}
+                      className={`flex items-center justify-between rounded-sm px-2 py-1.5 text-[12px] ${
+                        i === 0
+                          ? "bg-primary-50 font-medium text-primary-700"
+                          : "text-ink-500"
+                      }`}
+                    >
+                      <span className="truncate">{surfaceLabel(s.surface, lang)}</span>
+                      <span className="font-mono text-[10px] tabular-nums">{s.count}</span>
+                    </span>
+                  ))}
+                </div>
+              </aside>
+
+              {/* result rows — real records */}
+              <div className="min-w-0 flex-1">
+                {rows.map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex items-center gap-4 border-b border-line-soft px-4 py-3.5 last:border-0 sm:px-5"
+                  >
+                    <span className="hidden w-16 shrink-0 font-mono text-[11px] text-ink-400 tabular-nums sm:block">
+                      {r.id}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] font-medium text-ink-950">
+                        {r.title}
+                      </span>
+                      <span className="mt-0.5 block truncate text-[11px] text-ink-400">
+                        {r.category}
+                      </span>
+                    </span>
+                    <span className="hidden shrink-0 sm:block">
+                      <CanvasChip>{r.surface}</CanvasChip>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* The scenario brief, floating over the canvas — the product's
+          output sitting on top of the product's index. Desktop only:
+          at small widths it would cover the rows it is meant to explain,
+          and the brief already has its own full section below. */}
+      {/* bottom-36 clears the section's own crop (-mb-24/md:-mb-32), so the
+          card reads as a whole object floating over a canvas that continues
+          past the fold - rather than being sliced through its own content. */}
+      <div className="pointer-events-none absolute -right-2 bottom-36 hidden w-[23rem] xl:block">
+        <div className="rotate-[-1.5deg]">
+          <ExperimentBrief lang={lang} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -143,3 +143,33 @@ export const FEATURED = (() => {
     guardrailCount: r.guardrails.length,
   } as const;
 })();
+
+/* ---- Rows for the hero's library-browser canvas ---------------------- */
+
+/* Eight real records, one per category, for the hero's full-width
+   product canvas. Same title-source rule as spreadCards: the record's
+   own English `seoTitle` for EN, its native `question` for TR. */
+const CANVAS_IDS = [
+  "AB-127", "AB-072", "AB-004", "AB-049",
+  "AB-114", "AB-163", "AB-103", "AB-176",
+] as const;
+
+export type CanvasRow = {
+  id: string;
+  title: string;
+  category: string;
+  surface: string;
+};
+
+export function canvasRows(lang: Lang): CanvasRow[] {
+  return CANVAS_IDS.map((id) => {
+    const r = TESTS.find((x) => x.id === id);
+    if (!r) throw new Error(`ab-test-marketing: canvas id ${id} is no longer in the dataset`);
+    return {
+      id: r.id,
+      title: (lang === "en" ? r.seoTitle : r.question) ?? r.question,
+      category: r.category,
+      surface: r.surface,
+    };
+  });
+}

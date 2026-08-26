@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/ProductPage";
 import {
   CoverageMap,
-  ExperimentBrief,
   GuardrailLedger,
   HowStepDesign,
   HowStepFind,
+  HeroProductCanvas,
   HowStepRead,
   LibrarySpread,
   StatCalculatorLinks,
@@ -63,73 +63,70 @@ const libraryHref = (lang: Lang) =>
   lang === "en" ? "/lab/ab-testing/library" : "/tr/lab/ab-testing/library";
 
 /* ---- 01 · Hero -------------------------------------------------------
-   The dark band this site's Lab pages already use, but re-proportioned:
-   text is the narrower column and the product brief is the wider one. */
+   Recomposed after a second Peerbie reference (peerbie.com/custom-workflow's
+   own hero): centred text, ONE primary CTA, the three real steps as inline
+   checkmarks, and then the product itself filling the full width in
+   perspective and running off the bottom edge.
+
+   Light ground, not the dark band this page used before: the site's other
+   pages moved to the soft multi-tone blue wash this round, and the
+   reference's own hero is light. The wash is the same treatment and the
+   same `primary-*` tokens as Contact / Calculators / Stack, so this reads
+   as one system rather than a fourth hero style.
+
+   The section crops its own bottom (`overflow-hidden` + a negative bottom
+   margin on the canvas), which is what produces the "the product continues
+   past the fold" effect rather than a screenshot sitting in a box. */
 function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.abTesting;
   const p = c.product;
   return (
-    <section
-      data-tone="dark"
-      className="relative isolate overflow-hidden bg-ink-950 pt-20 pb-20 md:pt-24 md:pb-28"
-    >
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
-      />
-      <PortraitContainer>
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.1fr)] lg:gap-16">
-          <div>
-            <Reveal>
-              <p className="altor-eyebrow mb-5 text-white/45">{c.eyebrow}</p>
-              <h1 className="max-w-xl text-h1-fluid font-medium text-white">{c.title}</h1>
-            </Reveal>
-            <Reveal delay={90} className="mt-6">
-              <p className="max-w-xl text-lg leading-relaxed text-white/70">{c.sub}</p>
-            </Reveal>
-            <Reveal delay={140} className="mt-8">
-              <div className="flex flex-wrap gap-2.5">
-                <Link
-                  href={libraryHref(lang)}
-                  className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-ink-950 transition-colors duration-[var(--duration-fast)] hover:bg-white/90"
-                >
-                  {p.heroCtaLibrary}
-                  <ArrowRight aria-hidden className="size-4" />
-                </Link>
-                <a
-                  href={REPO}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-11 items-center gap-2 rounded-full border border-white/20 px-5 text-sm text-white/80 transition-colors duration-[var(--duration-fast)] hover:border-white/40 hover:text-white"
-                >
-                  {c.repoLink}
-                  <ArrowUpRight aria-hidden className="size-3.5" />
-                </a>
-              </div>
-            </Reveal>
-            {/* proof line — only claims the repo/content already make */}
-            <Reveal delay={180} className="mt-7">
-              <ul className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] text-white/45">
-                {p.heroProof.map((item, i) => (
-                  <li key={item} className="flex items-center gap-3">
-                    {i > 0 && <span aria-hidden className="size-1 rounded-full bg-white/25" />}
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </div>
+    <section className="relative isolate overflow-hidden bg-paper pt-16 pb-0 md:pt-20">
+      {/* same soft blue wash as the other pages, same token ramp */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-[12%] size-[36rem] rounded-full bg-primary-300/30 blur-3xl" />
+        <div className="absolute -top-24 right-[8%] size-[30rem] rounded-full bg-primary-500/18 blur-3xl" />
+        <div className="absolute top-[38%] left-[38%] size-[28rem] rounded-full bg-primary-100/60 blur-3xl" />
+      </div>
 
-          {/* VISUAL-01 — the product's own output, dominating the hero */}
-          <Reveal delay={120} className="min-w-0">
-            <ExperimentBrief lang={lang} />
+      <PortraitContainer>
+        <div className="relative mx-auto max-w-3xl text-center">
+          <Reveal>
+            <p className="altor-eyebrow mb-5 text-ink-400">{c.eyebrow}</p>
+            <h1 className="text-h1-fluid font-medium text-ink-950">{c.title}</h1>
+          </Reveal>
+          <Reveal delay={90} className="mt-6">
+            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+          </Reveal>
+          <Reveal delay={140} className="mt-9 flex justify-center">
+            <Link
+              href={libraryHref(lang)}
+              className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors duration-[var(--duration-fast)] hover:bg-primary-600"
+            >
+              {p.heroCtaLibrary}
+              <ArrowRight aria-hidden className="size-4" />
+            </Link>
+          </Reveal>
+          {/* the three real steps, doubling as the reference's checkmark row */}
+          <Reveal delay={180} className="mt-7">
+            <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5">
+              {p.how.steps.map((s) => (
+                <li key={s.title} className="flex items-center gap-2 text-[13px] text-ink-600">
+                  <CheckCircle2 aria-hidden className="size-4 text-primary-600" />
+                  {s.title}
+                </li>
+              ))}
+            </ul>
           </Reveal>
         </div>
       </PortraitContainer>
+
+      {/* VISUAL-10 — the product, full width, cropped by the section */}
+      <Reveal delay={220} className="relative mt-14 md:mt-16">
+        <div className="-mb-24 px-5 sm:px-8 md:-mb-32 lg:px-12">
+          <HeroProductCanvas lang={lang} />
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -288,7 +285,19 @@ function Install({ t }: { t: (typeof copy)[Lang] }) {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-16">
           <div>
             <ProductHeading eyebrow={c.product.installEyebrow} title={c.install.title} />
-            <Reveal delay={80} className="mt-6">
+            {/* The repo and demo links. They used to sit in the hero; the
+                hero is now a single-CTA composition, so they live here -
+                the section that is actually about getting the plugin. */}
+            <Reveal delay={80} className="mt-6 flex flex-col gap-3">
+              <a
+                href={REPO}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700"
+              >
+                {c.repoLink}
+                <ArrowUpRight aria-hidden className="size-3.5" />
+              </a>
               <a
                 href={DEMO}
                 target="_blank"
