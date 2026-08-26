@@ -54,19 +54,21 @@ function Hero({ c }: { c: SkillProductContent }) {
         aria-hidden
         className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
       />
-      <div className="altor-container">
+      {/* Centered per this round's site-wide request ("tüm başlıkları
+          ortala") - was left-aligned. */}
+      <div className="altor-container text-center">
         <Reveal>
           <p className="altor-eyebrow mb-5 text-white/45">{c.eyebrow}</p>
-          <h1 className="max-w-3xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-display-xl text-transparent">
+          <h1 className="mx-auto max-w-3xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-display-xl text-transparent">
             {c.title}
           </h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="max-w-2xl text-xl leading-relaxed text-white/75">{c.sub}</p>
+          <p className="mx-auto max-w-2xl text-xl leading-relaxed text-white/75">{c.sub}</p>
         </Reveal>
         {c.primaryLinks.length > 0 && (
           <Reveal delay={140} className="mt-8">
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap justify-center gap-2.5">
               {c.primaryLinks.map((link) => (
                 <a
                   key={link.href}

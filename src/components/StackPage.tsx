@@ -58,22 +58,27 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
           compete with the tool-logo grid right below it. Same `primary-*`
           token ramp, same first-child/no-z-index technique (Section is
           already `position:relative`). */}
+      {/* Re-centered along with the title above (was `left-[15%]`, tucked
+          aside for the previous left-aligned heading) - now sits behind
+          the centered title instead of reading as an off-axis smudge. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-28 left-[15%] size-[22rem] rounded-full bg-primary-300/12 blur-3xl" />
+        <div className="absolute -top-28 left-1/2 size-[22rem] -translate-x-1/2 rounded-full bg-primary-300/12 blur-3xl" />
       </div>
       <PortraitContainer>
-        <Reveal>
+        {/* Centered per this round's site-wide request ("tüm başlıkları
+            ortala") - was left-aligned (`max-w-md`, no `mx-auto`). */}
+        <Reveal className="mx-auto max-w-2xl text-center">
           <p className="altor-eyebrow mb-4 text-ink-400">{t.stack.eyebrow}</p>
           {/* text-h1-fluid + font-medium: the exact LOCKED heading token
               from the approved Contact pilot (PORTRAIT-DESIGN-SOURCE-
               AUDIT.md §4/§7) — same real Portrait clamp/letter-spacing
               pair, reused rather than a page-specific variant. */}
-          <h1 className="max-w-md text-h1-fluid font-medium text-ink-950">{t.stack.title}</h1>
+          <h1 className="text-h1-fluid font-medium text-ink-950">{t.stack.title}</h1>
           {/* ink-950/65: the same heading-color-at-opacity technique
               locked in Contact round 3, reused verbatim for the same
               reason — it ties heading and supporting copy into one
               visual family instead of two different color steps. */}
-          <p className="mt-3 max-w-md text-lg leading-relaxed text-ink-950/65">{t.stack.sub}</p>
+          <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed text-ink-950/65">{t.stack.sub}</p>
         </Reveal>
       </PortraitContainer>
     </Section>

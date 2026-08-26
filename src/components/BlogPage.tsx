@@ -66,10 +66,14 @@ export default function BlogPage({ lang }: { lang: Lang }) {
             the measured real gap between the H1 and the search field from
             224px to ~128px at both 1440 and 820 (a ~43% reduction) while
             leaving the 144px mobile gap exactly as it was. */}
+        {/* Centered per this round's site-wide request ("tüm başlıkları
+            ortala") - was left-aligned (`max-w-md`, no `mx-auto`). */}
         <Section tone="paper" size="md" className="md:pb-16!">
           <PortraitContainer>
-            <p className="altor-eyebrow mb-4 text-ink-400">{t.eyebrow}</p>
-            <h1 className="max-w-md text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="altor-eyebrow mb-4 text-ink-400">{t.eyebrow}</p>
+              <h1 className="text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+            </div>
           </PortraitContainer>
         </Section>
         <BlogLibrary

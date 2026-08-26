@@ -15,60 +15,87 @@ export const copy = {
     lab: {
       label: "Lab",
       title: "Things I've been building",
-      intro: "A collection of open-source tools, experiments and side projects. Mostly marketing and growth, sometimes not.",
+      // REDESIGN ROUND (LabIndexPage.tsx): rewritten for the new title ->
+      // tags -> proof -> description -> CTA hierarchy. `tags` is now PURE
+      // semantic taxonomy (no numbers mixed in) and `proof` is a single,
+      // separately-rendered quantitative highlight - `null` where a
+      // project genuinely has none (Google Ads Explorer). Every number
+      // still traces to something already established real elsewhere in
+      // this codebase: 26/9 from claude-lifecycle's own README, 211 from
+      // the real ab-tests.json count, 11 from dashboard-builder's own
+      // templates, 75+ from numerspace.com's real tool count - none of
+      // that changed, only which of it surfaces on this page did. The
+      // Journey Library's proof still uses the {count}/{categories}
+      // template tokens (withCanonicalCount fills them at render), not a
+      // hardcoded "255" - same live-derivation discipline as its desc.
+      // Link labels are standardized site-wide per the new CTA system:
+      // "Explore project" for the one internal route each project has (a
+      // project with no internal page just skips it), "GitHub"/"Live
+      // demo" for external secondaries, "Visit Numerspace" for the one
+      // external-only product. `tags` is consumed ONLY by
+      // LabIndexPage.tsx (verified - not by SiteFooter or the header's
+      // LabNavDropdown, which only read name/desc/links), so this
+      // reshape doesn't touch either of those.
+      intro: "Open-source tools and experiments built around problems I kept running into. Mostly growth, lifecycle and analytics. Occasionally something else.",
       viewAll: "Explore the archive",
       projects: [
         {
           name: "Lifecycle Marketing Journey Builder",
           slug: "claude-lifecycle",
-          desc: "Looks at the customer data you already track and builds lifecycle journeys around what you can actually measure, segment and act on.",
-          tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"],
+          desc: "Turns the customer signals you already track into lifecycle journeys you can actually trigger, measure and improve.",
+          tags: ["Lifecycle", "CRM", "Claude Code"],
+          proof: "26 journey patterns",
           links: [
-            { label: "Explore the Journey Builder", href: "/lab/claude-lifecycle" },
-            { label: "View on GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
-            { label: "Try the demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+            { label: "Explore project", href: "/lab/claude-lifecycle" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+            { label: "Live demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
           ],
         },
         {
           name: "Canonical Journey Library",
           slug: "lifecycle-card-archive",
-          desc: "{count} domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
-          tags: ["CRM", "Lifecycle Marketing", "{count} journeys", "{categories} categories", "{rules} orchestration rules"],
-          links: [{ label: "Explore the library", href: "/lab/journeys" }],
+          desc: "A library of {count} reusable lifecycle journeys - from activation and retention to risk, consent, incidents and subscriptions.",
+          tags: ["Lifecycle", "Orchestration"],
+          proof: "{count} journeys · {categories} categories",
+          links: [{ label: "Explore project", href: "/lab/journeys" }],
         },
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
-          desc: "211 A/B test scenarios across real product journeys, with guidance on what to test, what to measure and what can invalidate the result.",
-          tags: ["Claude Code Plugin", "A/B Testing", "CRO", "211 scenarios"],
+          desc: "211 real-world A/B test scenarios with the hypothesis, primary metric, guardrails and statistical checks needed to run them properly.",
+          tags: ["Experimentation", "CRO", "Claude Code"],
+          proof: "211 scenarios",
           links: [
-            { label: "Explore the playbook", href: "/lab/ab-testing" },
-            { label: "View on GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
+            { label: "Explore project", href: "/lab/ab-testing" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
         },
         {
           name: "Marketing Dashboard Builder",
           slug: "dashboard-builder",
-          desc: "Takes messy exports from different marketing platforms, checks what can actually be compared, and turns the data into a decision-ready dashboard.",
-          tags: ["Claude Code Plugin", "Marketing Analytics", "11 dashboard templates", "17 tests"],
+          desc: "Turns messy marketing exports into validated, comparable metrics and decision-ready dashboards.",
+          tags: ["Analytics", "Data Quality", "Claude Code"],
+          proof: "11 dashboard templates",
           links: [
-            { label: "Explore the tool", href: "/lab/dashboard-builder" },
-            { label: "View on GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
+            { label: "Explore project", href: "/lab/dashboard-builder" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
           ],
         },
         {
           name: "Google Ads Change History Explorer",
           slug: "google-ads-change-history-dashboard",
-          desc: "Turns a Google Ads change-history export into a searchable dashboard - what changed, who changed it, when, and how significant it was.",
-          tags: ["Python", "Google Ads", "Offline Dashboard", "57 self-tests"],
-          links: [{ label: "View on GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
+          desc: "Turns Google Ads change history into a searchable dashboard - showing what changed, who changed it, when it happened and how significant it was.",
+          tags: ["Google Ads", "Analytics", "Python"],
+          proof: null,
+          links: [{ label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
         },
         {
           name: "Numerspace",
           slug: "numerspace",
-          desc: "75+ free calculator tools spanning finance, health, career, marketing and daily life - built for a fast, accurate answer, no account or paywall.",
-          tags: ["Web App", "Calculator Tools", "75+ tools", "EN/TR"],
-          links: [{ label: "Visit numerspace.com", href: "https://www.numerspace.com" }],
+          desc: "Free calculators for marketing, finance, health, career and everyday decisions - fast answers, no account or paywall.",
+          tags: ["Web App", "Calculators"],
+          proof: "75+ tools",
+          links: [{ label: "Visit Numerspace", href: "https://www.numerspace.com" }],
         },
       ],
       shell: {
@@ -559,60 +586,66 @@ export const copy = {
     lab: {
       label: "Lab",
       title: "Yaptığım şeyler",
-      intro: "Açık kaynak araçlar, deneyler ve yan projelerden oluşan bir koleksiyon. Çoğunlukla pazarlama ve growth, bazen değil.",
+      intro: "Sürekli karşılaştığım problemler etrafında kurulmuş açık kaynak araçlar ve deneyler. Çoğunlukla growth, lifecycle ve analitik. Bazen başka bir şey.",
       viewAll: "Arşivi keşfet",
       projects: [
         {
           name: "Lifecycle Pazarlama Journey Üretici",
           slug: "claude-lifecycle",
-          desc: "Zaten takip ettiğin müşteri verisine bakar, ölçebildiğin, segmentleyebildiğin ve aksiyon alabildiğin şeyler üzerine lifecycle journey'ler kurar.",
-          tags: ["Claude Code Eklentisi", "CRM", "Lifecycle Pazarlama", "26 journey deseni", "9 sektör"],
+          desc: "Zaten takip ettiğin müşteri sinyallerini, tetikleyebileceğin, ölçebileceğin ve geliştirebileceğin lifecycle journey'lere dönüştürür.",
+          tags: ["Lifecycle", "CRM", "Claude Code"],
+          proof: "26 journey deseni",
           links: [
-            { label: "Journey Builder'ı incele", href: "/tr/lab/claude-lifecycle" },
-            { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/claude-lifecycle" },
-            { label: "Demoyu dene", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
+            { label: "Projeyi keşfet", href: "/tr/lab/claude-lifecycle" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
+            { label: "Canlı demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
           ],
         },
         {
           name: "Canonical Journey Kütüphanesi",
           slug: "lifecycle-card-archive",
-          desc: "Sektörden bağımsız {count} lifecycle state machine - trigger, condition, wait, outcome, exit, handoff - ve belirli bir anda bir kişinin sahibinin hangi journey olduğunu belirleyen orkestrasyon kuralları.",
-          tags: ["CRM", "Lifecycle Pazarlama", "{count} journey", "{categories} kategori", "{rules} orkestrasyon kuralı"],
-          links: [{ label: "Arşivi keşfet", href: "/tr/lab/journeys" }],
+          desc: "Aktivasyon ve elde tutmadan risk, onay, olay ve aboneliğe kadar {count} yeniden kullanılabilir lifecycle journey'den oluşan bir kütüphane.",
+          tags: ["Lifecycle", "Orkestrasyon"],
+          proof: "{count} journey · {categories} kategori",
+          links: [{ label: "Projeyi keşfet", href: "/tr/lab/journeys" }],
         },
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
-          desc: "Gerçek ürün journey'leri üzerinden 211 A/B test senaryosu - ne test edileceği, ne ölçüleceği ve sonucu geçersiz kılabilecek şeyler konusunda rehberlikle birlikte.",
-          tags: ["Claude Code Eklentisi", "A/B Test", "CRO", "211 senaryo"],
+          desc: "Gerçek dünyadan 211 A/B test senaryosu - doğru çalıştırmak için gereken hipotez, birincil metrik, guardrail'ler ve istatistiksel kontrollerle birlikte.",
+          tags: ["Deneysel Test", "CRO", "Claude Code"],
+          proof: "211 senaryo",
           links: [
-            { label: "Playbook'u incele", href: "/tr/lab/ab-testing" },
-            { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/ab-test-playbook" },
+            { label: "Projeyi keşfet", href: "/tr/lab/ab-testing" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
         },
         {
           name: "Pazarlama Dashboard Üretici",
           slug: "dashboard-builder",
-          desc: "Farklı pazarlama platformlarından gelen dağınık exportları alır, gerçekten karşılaştırılabilir olanı kontrol eder ve veriyi karar-hazır bir dashboard'a çevirir.",
-          tags: ["Claude Code Eklentisi", "Pazarlama Analitiği", "11 dashboard şablonu", "17 test"],
+          desc: "Dağınık pazarlama exportlarını doğrulanmış, karşılaştırılabilir metriklere ve karar-hazır dashboard'lara çevirir.",
+          tags: ["Analitik", "Veri Kalitesi", "Claude Code"],
+          proof: "11 dashboard şablonu",
           links: [
-            { label: "Aracı incele", href: "/tr/lab/dashboard-builder" },
-            { label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/dashboard-builder" },
+            { label: "Projeyi keşfet", href: "/tr/lab/dashboard-builder" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
           ],
         },
         {
           name: "Google Ads Değişiklik Geçmişi Gezgini",
           slug: "google-ads-change-history-dashboard",
-          desc: "Google Ads değişiklik geçmişi export'unu aranabilir bir dashboard'a çevirir - ne değişti, kim değiştirdi, ne zaman ve ne kadar büyük bir değişiklikti.",
-          tags: ["Python", "Google Ads", "Çevrimdışı Dashboard", "57 self-test"],
-          links: [{ label: "GitHub'da görüntüle", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
+          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - ne değişti, kim değiştirdi, ne zaman oldu ve ne kadar önemliydi.",
+          tags: ["Google Ads", "Analitik", "Python"],
+          proof: null,
+          links: [{ label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
         },
         {
           name: "Numerspace",
           slug: "numerspace",
-          desc: "Finans, sağlık, kariyer, pazarlama ve günlük hayatı kapsayan 75+ ücretsiz hesaplama aracı - üyelik ya da ücret duvarı olmadan hızlı, doğru sonuç için kuruldu.",
-          tags: ["Web Uygulaması", "Hesaplama Araçları", "75+ araç", "EN/TR"],
-          links: [{ label: "numerspace.com'u ziyaret et", href: "https://www.numerspace.com" }],
+          desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar - hesap ya da ücret duvarı olmadan hızlı cevaplar.",
+          tags: ["Web Uygulaması", "Hesaplayıcılar"],
+          proof: "75+ araç",
+          links: [{ label: "Numerspace'i ziyaret et", href: "https://www.numerspace.com" }],
         },
       ],
       shell: {
