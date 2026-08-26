@@ -1,10 +1,20 @@
 // Ported from alidemirbas.com.tr/stack (the cv repo's stack-data.ts), verbatim.
-export type Tool = { name: string; domain: string; tag: { en: string; tr: string } };
+export type Tool = { name: string; domain: string; logo?: string; tag: { en: string; tr: string } };
 export type ToolGroup = { title: { en: string; tr: string }; tools: Tool[] };
 
 // Logos come from each tool's own domain (Google favicon service) so every
 // tile renders - even brands that aren't on icon sets.
 export const logoSrc = (domain: string) => `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
+// Data Studio (renamed to Looker Studio, then back to Data Studio) sits
+// behind Google's own auth-gated app shell, which the s2 favicon guesser
+// never manages to crawl - both `datastudio.google.com` and
+// `lookerstudio.google.com` come back 404 from that endpoint, which is
+// exactly the broken-image tile that got reported. Verified against the
+// domain's own real `<link rel="icon">` tag, which points at this stable
+// gstatic asset instead - so this one tool gets a direct `logo` override
+// rather than the derived-from-domain path every other tool uses.
+export const resolveLogo = (tool: Tool) => tool.logo ?? logoSrc(tool.domain);
 
 export const stackGroups: ToolGroup[] = [
   {
@@ -41,7 +51,7 @@ export const stackGroups: ToolGroup[] = [
   {
     title: { en: "BI / Data Visualization", tr: "BI / Veri Görselleştirme" },
     tools: [
-      { name: "Looker Studio", domain: "lookerstudio.google.com", tag: { en: "Data Visualisation", tr: "Veri Görselleştirme" } },
+      { name: "Data Studio", domain: "datastudio.google.com", logo: "https://www.gstatic.com/analytics-lego/svg/favicon_data_studio.png", tag: { en: "Data Visualisation", tr: "Veri Görselleştirme" } },
       { name: "Tableau", domain: "tableau.com", tag: { en: "Data Visualisation", tr: "Veri Görselleştirme" } },
       { name: "Power BI", domain: "powerbi.microsoft.com", tag: { en: "Business Intelligence", tr: "İş Zekası" } },
       { name: "Mixpanel", domain: "mixpanel.com", tag: { en: "Product Analytics", tr: "Ürün Analitiği" } },
@@ -93,7 +103,7 @@ export const stackPreviewNames = [
   "Google Tag Manager",
   "Adjust",
   "Mixpanel",
-  "Looker Studio",
+  "Data Studio",
   "Insider",
   "Braze",
 ];
