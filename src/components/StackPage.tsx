@@ -48,6 +48,19 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
     // cascade-order ambiguity the Button radius override already
     // documents elsewhere in this codebase.
     <Section tone="paper" size="md" className="pb-8! md:pb-12!">
+      {/* Same soft blue wash technique as Contact/Calculators heroes, per
+          explicit request ("üst kısmı öyle olsun ama yoğunluğu az olsun" -
+          same treatment, lower intensity). First pass (2 blobs at 25%/15%)
+          still read about as saturated as Contact per visible area, since
+          this section is much shorter (`pb-8!`) - the same blobs cover
+          more of it. Cut further: one small blob, low opacity, tucked in
+          the corner - a faint tint rather than a wash, so it doesn't
+          compete with the tool-logo grid right below it. Same `primary-*`
+          token ramp, same first-child/no-z-index technique (Section is
+          already `position:relative`). */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-28 left-[15%] size-[22rem] rounded-full bg-primary-300/12 blur-3xl" />
+      </div>
       <PortraitContainer>
         <Reveal>
           <p className="altor-eyebrow mb-4 text-ink-400">{t.stack.eyebrow}</p>

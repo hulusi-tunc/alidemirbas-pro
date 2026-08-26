@@ -277,59 +277,72 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
   ];
 
   return (
-    <footer className="border-t border-white/10 bg-ink-950 pt-16 pb-8 text-white">
+    // Restyled after a Slack-footer reference: light background (was a
+    // near-black `bg-ink-950` plate) with the wordmark on its own at the
+    // left and the link groups laid out as a row of bold-uppercase-header
+    // columns to its right, rather than stacked under a single dark band.
+    // `bg-paper-soft` (the site's own barely-there off-white tint, already
+    // used for the Contact form zone) - explicitly lighter than the old
+    // black footer, per request. Link/heading colors flip from
+    // white-on-dark to ink-on-light using the same token ramp.
+    <footer className="border-t border-line bg-paper-soft pt-16 pb-8">
       <div className="altor-container">
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
-          <div>
-            <p className="altor-eyebrow text-white/40">{t.footer.quickLinks}</p>
-            <ul className="mt-4 flex flex-col gap-3">
-              {quickLinks.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="text-sm text-white/70 transition-colors hover:text-white">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="altor-eyebrow text-white/40">{t.footer.projects}</p>
-            <ul className="mt-4 flex flex-col gap-3">
-              {t.lab.projects.map((project) => (
-                <li key={project.slug}>
-                  <a
-                    href={project.links[0].href}
-                    {...(project.links[0].href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="text-sm text-white/70 transition-colors hover:text-white"
-                  >
-                    {project.name}
+        <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-16">
+          <Link href={home} className="shrink-0 text-[15px] font-semibold tracking-tight text-ink-950">
+            Ali Demirbaş
+          </Link>
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:gap-16">
+            <div>
+              <p className="altor-eyebrow font-semibold tracking-wide text-ink-950 uppercase">{t.footer.quickLinks}</p>
+              <ul className="mt-4 flex flex-col gap-3">
+                {quickLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="altor-eyebrow font-semibold tracking-wide text-ink-950 uppercase">{t.footer.projects}</p>
+              <ul className="mt-4 flex flex-col gap-3">
+                {t.lab.projects.map((project) => (
+                  <li key={project.slug}>
+                    <a
+                      href={project.links[0].href}
+                      {...(project.links[0].href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+                      className="text-sm text-ink-600 transition-colors hover:text-ink-950"
+                    >
+                      {project.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="altor-eyebrow font-semibold tracking-wide text-ink-950 uppercase">{t.footer.connect}</p>
+              <ul className="mt-4 flex flex-col gap-3">
+                <li>
+                  <a href={`mailto:${EMAIL}`} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                    {EMAIL}
                   </a>
                 </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="altor-eyebrow text-white/40">{t.footer.connect}</p>
-            <ul className="mt-4 flex flex-col gap-3">
-              <li>
-                <a href={`mailto:${EMAIL}`} className="text-sm text-white/70 transition-colors hover:text-white">
-                  {EMAIL}
-                </a>
-              </li>
-              <li>
-                <a href={LINKEDIN} target="_blank" rel="noreferrer" className="text-sm text-white/70 transition-colors hover:text-white">
-                  LinkedIn
-                </a>
-              </li>
-              <li>
-                <a href={GITHUB} target="_blank" rel="noreferrer" className="text-sm text-white/70 transition-colors hover:text-white">
-                  GitHub
-                </a>
-              </li>
-            </ul>
+                <li>
+                  <a href={LINKEDIN} target="_blank" rel="noreferrer" className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                    LinkedIn
+                  </a>
+                </li>
+                <li>
+                  <a href={GITHUB} target="_blank" rel="noreferrer" className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                    GitHub
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-white/50 sm:flex-row">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-line pt-6 text-sm text-ink-400 sm:flex-row">
           <div className="flex items-center gap-3">
             <span>{t.footer.left}</span>
             <span aria-hidden>·</span>
@@ -338,13 +351,13 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
           <div className="flex items-center gap-4">
             <a
               href={LINKEDIN} target="_blank" rel="noreferrer" aria-label="LinkedIn"
-              className="text-white/50 transition-colors hover:text-white"
+              className="text-ink-400 transition-colors hover:text-ink-950"
             >
               <LinkedInMark className="size-4" />
             </a>
             <a
               href={GITHUB} target="_blank" rel="noreferrer" aria-label="GitHub"
-              className="text-white/50 transition-colors hover:text-white"
+              className="text-ink-400 transition-colors hover:text-ink-950"
             >
               <GitHubMark className="size-4" />
             </a>
