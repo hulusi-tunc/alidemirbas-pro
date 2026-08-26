@@ -1,9 +1,11 @@
+import Image from "next/image";
+
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { Section } from "@/components/ui/Section";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
 import { copy, type Lang } from "@/lib/content";
-import { stackGroups } from "@/lib/stack";
+import { logoSrc, stackGroups } from "@/lib/stack";
 
 /* Stack page — PORTRAIT PILOT (PORTRAIT-DESIGN-SOURCE-AUDIT.md is this
    round's source of truth, same as the approved Contact pilot; the tokens/
@@ -14,27 +16,13 @@ import { stackGroups } from "@/lib/stack";
    same groups, same tags, ported from the cv repo as before. Only the
    presentation layer changed.
 
-   STRUCTURAL DECISION — logos dropped: every tool tile used to carry a
-   small favicon image fetched from Google's favicon service
-   (`logoSrc(domain)`). Kept for the HOME PAGE'S `StackShowcase.tsx`
-   (unchanged — Home is out of scope this round) but DROPPED here: the
-   brief's own explicit goal is "highly scannable, professional... without
-   turning into a logo wall," and 36 real tools across 8 categories with a
-   third-party icon per row is closer to a logo wall than an inventory.
-   The tool's NAME is its real identity; a fetched favicon was always
-   decorative, never semantic content, so dropping it loses no real
-   information and removes a real fragility (an external image request
-   per row) besides.
-
-   IA DECISION: category sections (real groups, unchanged) each holding a
-   compact multi-column list of text-only rows (name + tag), not cards and
-   not a bento grid — with 8 categories and a range of 1-7 tools each
-   (see stack.ts), a card-per-tool layout would be far taller than useful
-   and a bento grid (already used for the curated 8-tool HOME preview)
-   would look arbitrary at 36 real, un-curated items. A dense, typographic
-   list is what actually reads fast for a recruiter scanning tool names -
-   closer to a well-set CV skills section (which is genuinely this
-   content's origin) than a SaaS feature grid. */
+   LOGOS RESTORED (per explicit later request, reversing the note that
+   used to live here): every tool card now carries its real favicon again
+   via the same `logoSrc(domain)` helper `StackShowcase.tsx` (Home) has
+   used all along — same real 36-tool data, same Google favicon service,
+   no new fetch mechanism. Presented as a 2-column card grid (icon tile +
+   name + tag), matching a user-supplied reference layout, rather than
+   the plain text rows this page used in between. */
 
 function Intro({ t }: { t: (typeof copy)[Lang] }) {
   return (
@@ -79,20 +67,21 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-function ToolRow({ name, tag }: { name: string; tag: string }) {
+function ToolCard({ name, domain, tag }: { name: string; domain: string; tag: string }) {
   return (
-    <div>
-      <p className="truncate text-sm font-medium text-ink-950">{name}</p>
-      {/* POLISH ROUND: `text-[13px]` at base (mobile), reverting to the
-          already-approved `text-xs` (12px) from `sm:` up — measured at
-          exactly 12px computed at 375px, i.e. already at the stated
-          floor rather than under it, but bumped 1px specifically on the
-          smallest viewport for a safer readability margin, per this
-          round's explicit "keep effective size >= ~11-12px" instruction.
-          Name hierarchy (`text-sm` above) and line-height are untouched -
-          no explicit line-height is set here, so it inherits the normal
-          ratio rather than adopting a larger fixed value. */}
-      <p className="mt-0.5 truncate text-[13px] sm:text-xs text-ink-950/65">{tag}</p>
+    <div className="flex items-center gap-4 rounded-card border border-line-soft bg-paper p-5">
+      {/* Real favicon, same `logoSrc(domain)` helper/domain-per-tool data
+          `StackShowcase.tsx` already uses on Home - not re-fetched or
+          re-derived here. `alt=""`: decorative next to the tool's own
+          visible name right beside it (unlike Home's grid, where the
+          logo is the ONLY label on a bare tile and needs its own alt). */}
+      <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-paper-soft ring-1 ring-line-soft">
+        <Image src={logoSrc(domain)} alt="" fill sizes="56px" className="object-contain p-3" />
+      </span>
+      <div className="min-w-0">
+        <p className="truncate text-base font-semibold tracking-tight text-ink-950">{name}</p>
+        <p className="mt-0.5 truncate text-sm text-ink-950/65">{tag}</p>
+      </div>
     </div>
   );
 }
@@ -101,27 +90,22 @@ function Groups({ lang }: { lang: Lang }) {
   return (
     <Section tone="paper" size="md">
       <PortraitContainer>
-        <div className="flex flex-col gap-12">
+        <div className="flex flex-col gap-10">
           {stackGroups.map((group, gi) => (
             <Reveal key={group.title.en} delay={gi * 40}>
-              {/* Category heading: a real wayfinding need across 8
-                  distinct groups and 36 tools (unlike Contact's 3-item
-                  reason list, where a divider read as an FAQ row and was
-                  removed) — kept here, but on the LOCKED neutral-alpha
-                  border token (`border-line-soft`) instead of the old
-                  opaque `border-line`, and `font-medium` (Portrait's own
-                  confirmed heading weight) instead of `font-semibold`. */}
-              <h2 className="border-b border-line-soft pb-2 text-base font-medium tracking-tight text-ink-950">
+              {/* Uppercase, tracked, muted eyebrow-style heading (matches
+                  a user-supplied reference layout) - no border, unlike
+                  the previous plain-list heading, since a bordered card
+                  grid underneath already gives its own visual separation. */}
+              <h2 className="text-xs font-semibold tracking-[0.08em] text-ink-400 uppercase">
                 {group.title[lang]}
               </h2>
-              {/* Compact multi-column row grid, not cards — see this
-                  file's own top comment for the IA reasoning. Columns
-                  step up with viewport width; a lone-tool category (e.g.
-                  "CRO / A-B Test / Experimentation", 1 real tool) simply
-                  renders one row without forcing decorative filler. */}
-              <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* 2-column card grid at sm+ (matches the reference), 1
+                  column on mobile. A lone-tool category (e.g. "CRO / A-B
+                  Test / Experimentation") simply renders one card. */}
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {group.tools.map((tool) => (
-                  <ToolRow key={tool.name} name={tool.name} tag={tool.tag[lang]} />
+                  <ToolCard key={tool.name} name={tool.name} domain={tool.domain} tag={tool.tag[lang]} />
                 ))}
               </div>
             </Reveal>
