@@ -5,7 +5,7 @@ import { Section } from "@/components/ui/Section";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
 import { copy, type Lang } from "@/lib/content";
-import { logoSrc, stackGroups } from "@/lib/stack";
+import { resolveLogo, stackGroups, type Tool } from "@/lib/stack";
 
 /* Stack page — PORTRAIT PILOT (PORTRAIT-DESIGN-SOURCE-AUDIT.md is this
    round's source of truth, same as the approved Contact pilot; the tokens/
@@ -18,11 +18,13 @@ import { logoSrc, stackGroups } from "@/lib/stack";
 
    LOGOS RESTORED (per explicit later request, reversing the note that
    used to live here): every tool card now carries its real favicon again
-   via the same `logoSrc(domain)` helper `StackShowcase.tsx` (Home) has
-   used all along — same real 36-tool data, same Google favicon service,
-   no new fetch mechanism. Presented as a 2-column card grid (icon tile +
-   name + tag), matching a user-supplied reference layout, rather than
-   the plain text rows this page used in between. */
+   via the same `resolveLogo(tool)` helper `StackShowcase.tsx` (Home) has
+   used all along — same real 36-tool data, mostly the same Google favicon
+   service, no new fetch mechanism (one exception: Data Studio, see
+   stack.ts's own comment on why it carries a direct `logo` override
+   instead of a derived-from-domain one). Presented as a 2-column card
+   grid (icon tile + name + tag), matching a user-supplied reference
+   layout, rather than the plain text rows this page used in between. */
 
 function Intro({ t }: { t: (typeof copy)[Lang] }) {
   return (
@@ -85,16 +87,16 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-function ToolCard({ name, domain, tag }: { name: string; domain: string; tag: string }) {
+function ToolCard({ name, tool, tag }: { name: string; tool: Tool; tag: string }) {
   return (
     <div className="flex items-center gap-4 rounded-card border border-line-soft bg-paper p-5">
-      {/* Real favicon, same `logoSrc(domain)` helper/domain-per-tool data
+      {/* Real favicon, same `resolveLogo(tool)` helper/domain-per-tool data
           `StackShowcase.tsx` already uses on Home - not re-fetched or
           re-derived here. `alt=""`: decorative next to the tool's own
           visible name right beside it (unlike Home's grid, where the
           logo is the ONLY label on a bare tile and needs its own alt). */}
       <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-paper-soft ring-1 ring-line-soft">
-        <Image src={logoSrc(domain)} alt="" fill sizes="56px" className="object-contain p-3" />
+        <Image src={resolveLogo(tool)} alt="" fill sizes="56px" className="object-contain p-3" />
       </span>
       <div className="min-w-0">
         <p className="truncate text-base font-semibold tracking-tight text-ink-950">{name}</p>
@@ -123,7 +125,7 @@ function Groups({ lang }: { lang: Lang }) {
                   Test / Experimentation") simply renders one card. */}
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {group.tools.map((tool) => (
-                  <ToolCard key={tool.name} name={tool.name} domain={tool.domain} tag={tool.tag[lang]} />
+                  <ToolCard key={tool.name} name={tool.name} tool={tool} tag={tool.tag[lang]} />
                 ))}
               </div>
             </Reveal>

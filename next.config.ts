@@ -5,9 +5,13 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   images: {
-    // Stack page tool logos come from Google's favicon service.
+    // Stack page tool logos come from Google's favicon service...
     remotePatterns: [
       { protocol: "https", hostname: "www.google.com", pathname: "/s2/favicons" },
+      // ...except Data Studio, whose real favicon that service can't crawl
+      // (see src/lib/stack.ts's own comment) - it gets a direct gstatic
+      // asset URL instead, so gstatic needs its own allow entry.
+      { protocol: "https", hostname: "www.gstatic.com", pathname: "/analytics-lego/svg/**" },
     ],
   },
 

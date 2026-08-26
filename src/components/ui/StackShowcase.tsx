@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { HoverLift } from "./HoverLift";
 import { Reveal } from "./Reveal";
 import { copy, type Lang } from "@/lib/content";
-import { logoSrc, stackGroups, stackPreview } from "@/lib/stack";
+import { resolveLogo, stackGroups, stackPreview, type Tool } from "@/lib/stack";
 
 /* Homepage Stack section - an editorial logo showcase (bento-style grid,
    varied cell sizes, monochrome-by-default logos) instead of the old
@@ -26,13 +26,13 @@ const PLACEMENT = [
   "md:col-start-3 md:row-start-3",
 ];
 
-function LogoCell({ name, domain, tag, className }: { name: string; domain: string; tag: string; className: string }) {
+function LogoCell({ name, tool, tag, className }: { name: string; tool: Tool; tag: string; className: string }) {
   return (
     <HoverLift distance={2} className={className}>
       <div className="group flex h-full flex-col items-center justify-center gap-3 border border-line bg-paper px-5 py-7 text-center transition-colors hover:border-neutral-400">
         <span className="relative h-9 w-full max-w-[7rem]">
           <Image
-            src={logoSrc(domain)}
+            src={resolveLogo(tool)}
             alt={name}
             fill
             sizes="7rem"
@@ -74,7 +74,7 @@ export function StackShowcase({ lang }: { lang: Lang }) {
 
           {tools.map((tool, i) => (
             <Reveal key={tool.name} delay={60 + i * 30} className={PLACEMENT[i] ?? ""}>
-              <LogoCell name={tool.name} domain={tool.domain} tag={tool.tag[lang]} className="h-full" />
+              <LogoCell name={tool.name} tool={tool} tag={tool.tag[lang]} className="h-full" />
             </Reveal>
           ))}
 
