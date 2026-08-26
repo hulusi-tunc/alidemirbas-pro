@@ -259,8 +259,26 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
     <div style={{ background: "#faf9f6", color: "#201f1c" }} className="min-h-screen">
       <CalcHeader lang={lang} />
       <main>
-        <section className="pt-22 pb-10">
-          <div className="mx-auto max-w-320 px-6 sm:px-12">
+        <section className="relative overflow-hidden pt-22 pb-10">
+          {/* Same soft, multi-tone blue wash as the Contact page hero, per
+              request ("bu sayfanın da üst kısmını contact sayfası gibi
+              mavı yapsana"). Several overlapping blurred circles, not one
+              gradient, for the same reason as Contact's own note - a
+              single blurred gradient reads as one flat color. Reuses the
+              site's global `primary-*` blue tokens (they exist site-wide
+              in globals.css, not scoped to the Portrait pages), even
+              though this page otherwise runs its own bespoke cream
+              palette - only this hero band gets the blue treatment, the
+              rest of the page (cards/facets/footer) is unchanged. First
+              child + no z-index: the section becomes `position:relative`
+              here, and the real heading/copy below paints over it as a
+              later sibling, same technique as Contact. */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -top-32 left-[8%] size-[34rem] rounded-full bg-primary-300/40 blur-3xl" />
+            <div className="absolute -top-16 right-[5%] size-[30rem] rounded-full bg-primary-500/25 blur-3xl" />
+            <div className="absolute top-[45%] left-[35%] size-[26rem] rounded-full bg-primary-100/70 blur-3xl" />
+          </div>
+          <div className="relative mx-auto max-w-320 px-6 sm:px-12">
             <p className="mb-4 text-xs font-medium tracking-[0.12em] uppercase" style={{ color: "#9c978c" }}>{hero.eyebrow}</p>
             <h1 className="max-w-md text-[2.75rem] leading-[1.1] font-medium tracking-tight" style={{ color: "#141311" }}>{hero.title}</h1>
             <p className="mt-3 max-w-md text-lg leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{hero.sub}</p>
