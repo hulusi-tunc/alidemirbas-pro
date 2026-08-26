@@ -7,8 +7,11 @@ import { Menu, X } from "lucide-react";
 type NavItem = { label: string; href: string };
 
 /* Below md, SiteHeader's own <nav> and CTA are both display:none with no
-   replacement - this is that replacement. A full-screen overlay rather than
-   a dropdown, on the same ink-950 ground as the header itself. */
+   replacement - this is that replacement. A full-screen dark overlay
+   rather than a dropdown, deliberately its own `bg-ink-950` regardless
+   of SiteHeader's own (now light) background - the trigger button's icon
+   switches from dark (resting, on the light header) to white (open, on
+   this dark overlay) to match. */
 export function MobileNav({
   items, langHref, langLabel, ctaHref, ctaLabel,
 }: { items: NavItem[]; langHref: string; langLabel: string; ctaHref: string; ctaLabel: string }) {
@@ -32,7 +35,7 @@ export function MobileNav({
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="relative z-50 grid size-10 -mr-2 place-items-center text-white"
+        className={`relative z-50 grid size-10 -mr-2 place-items-center ${open ? "text-white" : "text-ink-950"}`}
       >
         {open ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
       </button>

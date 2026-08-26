@@ -4,12 +4,19 @@ import { ArrowRight, ArrowUpRight, Sparkle } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
+import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
 import { LabProjectGrid } from "@/components/ui/LabProjectGrid";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
+import { withJourneyCount } from "@/lib/archive";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
+
+const HEADER_T = {
+  en: { viewAllLab: "View all projects" },
+  tr: { viewAllLab: "Tüm projeleri gör" },
+} as const;
 
 const GITHUB = "https://github.com/ali-demirbas";
 
@@ -28,6 +35,8 @@ export function SiteHeader({
   /** Language-switch target when the counterpart page isn't the home page. */
   langHref?: string;
 }) {
+  const lang: Lang = t === copy.en ? "en" : "tr";
+  const ht = HEADER_T[lang];
   const navItems = [
     { label: t.nav.about, href: t.nav.aboutHref },
     { label: t.nav.lab, href: t.nav.labHref },
@@ -36,28 +45,49 @@ export function SiteHeader({
     { label: t.nav.stack, href: t.nav.stackHref },
     { label: t.nav.contact, href: t.nav.contactHref },
   ];
+  // Real Lab projects (same data LabIndexPage/SiteFooter already use),
+  // resolved server-side - `withJourneyCount` is server-only, so the
+  // Canonical Journey Library's real {count} token is already filled in
+  // before this reaches the client-only LabNavDropdown below.
+  const labProjects = t.lab.projects.map((p) => ({
+    name: p.name,
+    desc: withJourneyCount(p.desc),
+    href: p.links[0].href,
+  }));
 
   return (
-    <header className="absolute inset-x-0 top-0 z-40">
-      <div className="altor-container flex h-[4.5rem] items-center justify-between">
-        <a href={anchorBase || "#top"} className="text-[15px] font-semibold tracking-tight text-white">
+    // Apollo.io-style header: a normal, solid, sticky bar (not an
+    // absolute transparent overlay) - a real fix, not just a restyle:
+    // the previous transparent+white-text header was designed to blend
+    // into Home's own dark hero band, but every other page (Contact/
+    // Stack/Blog/Lab/Calculators/404) has since moved to a light,
+    // no-dark-band composition, which made that white text effectively
+    // invisible there. A solid white bar reads correctly everywhere,
+    // including Home (see that page's own Hero, whose top padding was
+    // reduced to match - it no longer needs to reserve space under an
+    // overlay). `sticky` (not `fixed`) - it participates in the
+    // document's own top of flow rather than needing every page to
+    // manually offset its first section under it.
+    <header className="sticky top-0 z-40 border-b border-line-soft bg-paper/95 backdrop-blur-sm">
+      <div className="altor-container flex h-16 items-center justify-between">
+        <a href={anchorBase || "#top"} className="text-[15px] font-semibold tracking-tight text-ink-950">
           Ali Demirbaş
         </a>
-        <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
-          <Link className="transition-colors hover:text-white" href={t.nav.aboutHref}>{t.nav.about}</Link>
-          <Link className="transition-colors hover:text-white" href={t.nav.labHref}>{t.nav.lab}</Link>
-          <Link className="transition-colors hover:text-white" href={t.nav.calculatorsHref}>{t.nav.calculators}</Link>
-          <Link className="transition-colors hover:text-white" href={t.nav.blogHref}>{t.nav.blog}</Link>
-          <Link className="transition-colors hover:text-white" href={t.nav.stackHref}>{t.nav.stack}</Link>
-          <Link className="transition-colors hover:text-white" href={t.nav.contactHref}>{t.nav.contact}</Link>
+        <nav className="hidden items-center gap-8 text-sm text-ink-600 md:flex">
+          <Link className="transition-colors hover:text-ink-950" href={t.nav.aboutHref}>{t.nav.about}</Link>
+          <LabNavDropdown label={t.nav.lab} href={t.nav.labHref} viewAllLabel={ht.viewAllLab} projects={labProjects} />
+          <Link className="transition-colors hover:text-ink-950" href={t.nav.calculatorsHref}>{t.nav.calculators}</Link>
+          <Link className="transition-colors hover:text-ink-950" href={t.nav.blogHref}>{t.nav.blog}</Link>
+          <Link className="transition-colors hover:text-ink-950" href={t.nav.stackHref}>{t.nav.stack}</Link>
+          <Link className="transition-colors hover:text-ink-950" href={t.nav.contactHref}>{t.nav.contact}</Link>
         </nav>
         <div className="flex items-center gap-6">
-          <Link href={langHref ?? t.nav.langHref} className="text-sm text-white/70 transition-colors hover:text-white">
+          <Link href={langHref ?? t.nav.langHref} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
             {t.nav.lang}
           </Link>
           <a
             href={`mailto:${EMAIL}`}
-            className="hidden h-10 items-center bg-white px-4 text-sm font-medium text-ink-900 transition-colors hover:bg-neutral-100 sm:inline-flex"
+            className="hidden h-10 items-center rounded-full bg-ink-950 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-600 sm:inline-flex"
           >
             {t.nav.cta}
           </a>
@@ -79,7 +109,13 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
     <section
       id="top"
       data-tone="dark"
-      className="relative isolate flex min-h-[92svh] flex-col overflow-hidden bg-ink-950 pt-32 pb-12 lg:pt-36"
+      // pt-32/lg:pt-36 -> pt-16/lg:pt-20: SiteHeader is a normal, solid,
+      // sticky bar now (see its own comment) rather than an absolute
+      // overlay this section used to reserve extra top space under -
+      // the header takes its own real 4rem of layout height above this
+      // section, so this only needs a natural comfortable gap now, not
+      // overlay-compensation on top of that.
+      className="relative isolate flex min-h-[92svh] flex-col overflow-hidden bg-ink-950 pt-16 pb-12 lg:pt-20"
     >
       {/* quiet blue wash + vertical rules, the reference hero's ground */}
       <div

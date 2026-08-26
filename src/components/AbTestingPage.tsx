@@ -21,7 +21,12 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section
       data-tone="dark"
-      className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-16 md:pb-20"
+      // pt-40 -> pt-24: SiteHeader became a real, solid, in-flow header
+      // (Site.tsx's own comment) instead of an absolute transparent
+      // overlay - this section's own top padding no longer needs to
+      // also reserve room under that overlay, only its own comfortable
+      // gap after the header's real height.
+      className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-16 md:pb-20"
     >
       <div
         aria-hidden

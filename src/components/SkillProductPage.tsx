@@ -43,7 +43,9 @@ export type SkillProductContent = {
 
 function Hero({ c }: { c: SkillProductContent }) {
   return (
-    <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-40 pb-16 md:pb-20">
+    // pt-40 -> pt-24: SiteHeader is now a real, solid header, not an
+    // absolute overlay - see its own comment in Site.tsx.
+    <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-16 md:pb-20">
       <div
         aria-hidden
         className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
