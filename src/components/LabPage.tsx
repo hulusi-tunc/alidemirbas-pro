@@ -31,12 +31,9 @@ function JourneyBrowserFallback({ lang, t, basePath }: {
         <Search aria-hidden className="size-4 shrink-0 text-neutral-500" />
         <span className="text-sm text-neutral-500">{t.searchPlaceholder}</span>
       </div>
-      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="w-full border border-line bg-paper px-4 py-2.5 text-sm text-ink-900 opacity-60">
+      <div className="mt-3">
+        <div className="w-full border border-line bg-paper px-4 py-2.5 text-sm text-ink-900 opacity-60 sm:w-auto">
           {t.allGoals}
-        </div>
-        <div className="w-full border border-line bg-paper px-4 py-2.5 text-sm text-ink-900 opacity-60">
-          {t.allCategories}
         </div>
       </div>
       <p className="mt-4 text-sm text-ink-500 tabular-nums">

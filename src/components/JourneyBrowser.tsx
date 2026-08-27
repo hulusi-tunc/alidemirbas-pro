@@ -5,8 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 
 import JourneyRowCard from "@/components/JourneyRowCard";
-import { CATEGORY_OPTIONS, isCategoryId, type JourneyRow, type MergedRedirect } from "@/lib/canonical-view";
-import type { CategoryId } from "@/canonical/types";
+import type { JourneyRow, MergedRedirect } from "@/lib/canonical-view";
 import { GOALS, GOAL_LABEL, isGoalId, type Goal } from "@/lib/journey-taxonomy";
 import type { copy, Lang } from "@/lib/content";
 
@@ -15,21 +14,21 @@ import type { copy, Lang } from "@/lib/content";
    a journey's graph arrives on that journey's own route.
 
    Discovery architecture (post goal-vocabulary-audit): search is the primary
-   mechanism, Goal is the single primary taxonomy filter, Category is a
-   second, independent filter - both single-select, combined by intersection.
-   This replaces the earlier three-checkbox-facet design (Goal multi-select,
-   Lifecycle Stage, Trigger Evidence): Lifecycle Stage never fit this corpus
-   (255 independent entity state machines, not one customer's timeline, so
-   85% of it was "cross-lifecycle" and answered nothing) and is gone
-   entirely; Trigger Evidence stays real canonical metadata but is no longer
-   a visible filter. See production/journey-goal-vocabulary-audit for why.
+   mechanism, Goal is the single primary taxonomy filter. Category is not a
+   filter - it stays canonical metadata, shown on the card and searchable,
+   never a second facet to intersect with Goal. This replaces the earlier
+   three-checkbox-facet design (Goal multi-select, Lifecycle Stage, Trigger
+   Evidence): Lifecycle Stage never fit this corpus (255 independent entity
+   state machines, not one customer's timeline, so 85% of it was
+   "cross-lifecycle" and answered nothing) and is gone entirely; Trigger
+   Evidence stays real canonical metadata but is no longer a visible filter.
+   See production/journey-goal-vocabulary-audit for why.
 
-   Filter state lives in the URL (?q=&goal=&category=), read with
-   useSearchParams and written with useRouter, so it survives a refresh and
-   restores correctly on browser back/forward. Goal and Category changes push
-   a new history entry each (a discrete, meaningful state change); the search
-   query is debounced and written with replace so a history entry isn't
-   created per keystroke. */
+   Filter state lives in the URL (?q=&goal=), read with useSearchParams and
+   written with useRouter, so it survives a refresh and restores correctly on
+   browser back/forward. A Goal change pushes a new history entry (a
+   discrete, meaningful state change); the search query is debounced and
+   written with replace so a history entry isn't created per keystroke. */
 
 export default function JourneyBrowser({
   lang,
@@ -51,9 +50,6 @@ export default function JourneyBrowser({
   const urlQuery = searchParams.get("q") ?? "";
   const goalParam = searchParams.get("goal");
   const goal: Goal | null = goalParam && isGoalId(goalParam) ? goalParam : null;
-  const categoryParam = searchParams.get("category");
-  const category: CategoryId | null =
-    categoryParam && isCategoryId(categoryParam) ? categoryParam : null;
 
   // The search box is buffered locally so typing feels instant and doesn't
   // wait on a router round-trip; it stays in sync with the URL in both
@@ -95,7 +91,6 @@ export default function JourneyBrowser({
   }, [query]);
 
   const setGoal = (g: Goal | null) => setParams({ goal: g }, "push");
-  const setCategory = (c: CategoryId | null) => setParams({ category: c }, "push");
 
   const clearAll = () => {
     setQuery("");
@@ -111,9 +106,8 @@ export default function JourneyBrowser({
         .toLocaleLowerCase(lang)
         .includes(q);
     const byGoal = (j: JourneyRow) => goal === null || j.goal === goal;
-    const byCategory = (j: JourneyRow) => category === null || j.category === category;
 
-    const matched = allRows.filter((j) => byQuery(j) && byGoal(j) && byCategory(j));
+    const matched = allRows.filter((j) => byQuery(j) && byGoal(j));
 
     /* A merged id is not a journey and matches nothing, which would leave
        someone holding an old reference at a dead end. Answer with the journey
@@ -122,9 +116,9 @@ export default function JourneyBrowser({
     const survivor = hit ? allRows.filter((j) => j.id === hit.to) : null;
 
     return { rows: survivor ?? matched, mergedHit: hit };
-  }, [query, goal, category, lang, allRows, merged]);
+  }, [query, goal, lang, allRows, merged]);
 
-  const activeCount = (goal ? 1 : 0) + (category ? 1 : 0) + (query.trim() ? 1 : 0);
+  const activeCount = (goal ? 1 : 0) + (query.trim() ? 1 : 0);
 
   const removeFilterLabel = (label: string) => t.removeFilterLabel.replace("{label}", label);
 
@@ -150,13 +144,13 @@ export default function JourneyBrowser({
         ) : null}
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-3">
         <label className="block">
           <span className="sr-only">{t.goalLabel}</span>
           <select
             value={goal ?? ""}
             onChange={(e) => setGoal(e.target.value ? (e.target.value as Goal) : null)}
-            className="w-full border border-line bg-paper px-4 py-2.5 text-sm text-ink-900 outline-none transition-colors focus:border-blue-600"
+            className="w-full border border-line bg-paper px-4 py-2.5 text-sm text-ink-900 outline-none transition-colors focus:border-blue-600 sm:w-auto"
           >
             <option value="">{t.allGoals}</option>
             {GOALS.map((g) => (
@@ -166,50 +160,19 @@ export default function JourneyBrowser({
             ))}
           </select>
         </label>
-
-        <label className="block">
-          <span className="sr-only">{t.categoryLabel}</span>
-          <select
-            value={category ?? ""}
-            onChange={(e) => setCategory(e.target.value ? (e.target.value as CategoryId) : null)}
-            className="w-full border border-line bg-paper px-4 py-2.5 text-sm text-ink-900 outline-none transition-colors focus:border-blue-600"
-          >
-            <option value="">{t.allCategories}</option>
-            {CATEGORY_OPTIONS.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
-      {goal || category ? (
+      {goal ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {goal ? (
-            <button
-              type="button"
-              onClick={() => setGoal(null)}
-              aria-label={removeFilterLabel(GOAL_LABEL[goal][lang])}
-              className="flex items-center gap-1.5 border border-line bg-paper-soft px-2.5 py-1 text-xs font-medium text-ink-700 transition-colors hover:border-neutral-400"
-            >
-              {GOAL_LABEL[goal][lang]}
-              <X aria-hidden className="size-3" />
-            </button>
-          ) : null}
-          {category ? (
-            <button
-              type="button"
-              onClick={() => setCategory(null)}
-              aria-label={removeFilterLabel(
-                CATEGORY_OPTIONS.find((c) => c.id === category)?.title ?? category,
-              )}
-              className="flex items-center gap-1.5 border border-line bg-paper-soft px-2.5 py-1 text-xs font-medium text-ink-700 transition-colors hover:border-neutral-400"
-            >
-              {CATEGORY_OPTIONS.find((c) => c.id === category)?.title ?? category}
-              <X aria-hidden className="size-3" />
-            </button>
-          ) : null}
+          <button
+            type="button"
+            onClick={() => setGoal(null)}
+            aria-label={removeFilterLabel(GOAL_LABEL[goal][lang])}
+            className="flex items-center gap-1.5 border border-line bg-paper-soft px-2.5 py-1 text-xs font-medium text-ink-700 transition-colors hover:border-neutral-400"
+          >
+            {GOAL_LABEL[goal][lang]}
+            <X aria-hidden className="size-3" />
+          </button>
         </div>
       ) : null}
 

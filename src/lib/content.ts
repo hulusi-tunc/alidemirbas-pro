@@ -104,12 +104,10 @@ export const copy = {
       page: {
         title: "Canonical Journey Library",
         intro:
-          "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Search, or filter by goal and category - each entry is a graph, not a sequence.",
+          "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Search, or filter by goal - each entry is a graph, not a sequence.",
         searchPlaceholder: "Search journeys...",
         goalLabel: "Goal",
         allGoals: "All Goals",
-        categoryLabel: "Category",
-        allCategories: "All Categories",
         removeFilterLabel: "Remove {label} filter",
         clearAll: "Clear all",
         results: "journeys",
@@ -647,12 +645,10 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Ara, ya da goal ve kategoriye göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Ara, ya da goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
         searchPlaceholder: "Journey ara...",
         goalLabel: "Goal",
         allGoals: "Tüm Goal'ler",
-        categoryLabel: "Kategori",
-        allCategories: "Tüm kategoriler",
         removeFilterLabel: "{label} filtresini kaldır",
         clearAll: "Temizle",
         results: "journey",

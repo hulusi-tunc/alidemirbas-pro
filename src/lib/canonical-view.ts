@@ -41,23 +41,6 @@ export function withCanonicalCount(text: string): string {
 const CATEGORY_TITLE = new Map<CategoryId, string>(CATEGORIES.map((c) => [c.id, c.title]));
 const BY_SLUG = new Map<string, CanonicalJourney>(JOURNEYS.map((j) => [j.slug, j]));
 
-/** The Category filter's own value list - id and display title, in the same
-    order the canonical registry declares categories (already a considered
-    order: acquisition through incident, roughly the shape of a lifecycle
-    even though most individual journeys aren't lifecycle-anchored). */
-export type CategoryOption = { id: CategoryId; title: string };
-export const CATEGORY_OPTIONS: readonly CategoryOption[] = CATEGORIES.map((c) => ({
-  id: c.id,
-  title: c.title,
-}));
-
-const CATEGORY_ID_SET: ReadonlySet<string> = new Set(CATEGORIES.map((c) => c.id));
-
-/** Guards a query-param value before it's trusted as a Category filter. */
-export function isCategoryId(value: string): value is CategoryId {
-  return CATEGORY_ID_SET.has(value);
-}
-
 /** Where a journey's trigger evidence comes from. It is the second facet
     because it is the one property that changes what a journey is allowed to
     conclude, which is more useful to filter on than anything cosmetic would be. */
