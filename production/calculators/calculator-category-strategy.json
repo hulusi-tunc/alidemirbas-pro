@@ -32,7 +32,7 @@
     {
       "id": "crm-email",
       "name": "CRM & Email",
-      "catalogCalculatorCount": 8,
+      "catalogCalculatorCount": 9,
       "verdict": "maybe",
       "why": "8 catalog calculators, coherent audience (lifecycle/CRM marketers); reasonable hub candidate once deliverability calculators (bounce/complaint) ship."
     },

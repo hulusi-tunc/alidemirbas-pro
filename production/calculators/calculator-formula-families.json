@@ -4,144 +4,332 @@
     {
       "id": "conversion-rate",
       "shape": "conversions / opportunities",
-      "standaloneCalculators": ["cr"],
-      "foldedVariants": ["lead-conversion-rate", "visitor-to-lead-rate", "lead-to-customer-rate", "mql-to-sql-rate", "sql-to-customer-rate", "purchase-conversion-rate", "email-conversion-rate", "click-to-conversion-rate", "install-conversion-rate", "app-conversion-rate", "push-opt-in-rate", "trial-to-paid-conversion-rate", "free-to-paid-conversion-rate", "funnel-conversion-rate", "form-completion-rate", "landing-page-conversion-rate"],
-      "keptSeparate": ["activation-rate"],
+      "standaloneCalculators": [
+        "cr"
+      ],
+      "foldedVariants": [
+        "lead-conversion-rate",
+        "visitor-to-lead-rate",
+        "lead-to-customer-rate",
+        "mql-to-sql-rate",
+        "sql-to-customer-rate",
+        "purchase-conversion-rate",
+        "email-conversion-rate",
+        "click-to-conversion-rate",
+        "install-conversion-rate",
+        "app-conversion-rate",
+        "push-opt-in-rate",
+        "trial-to-paid-conversion-rate",
+        "free-to-paid-conversion-rate",
+        "funnel-conversion-rate",
+        "form-completion-rate",
+        "landing-page-conversion-rate"
+      ],
+      "keptSeparate": [
+        "activation-rate"
+      ],
       "decision": "This is the brief's own worked example. One universal Conversion Rate calculator with generic input labels (conversions/opportunities) already covers every industry naming of this ratio. 16 near-identical calculators were folded into it. Activation Rate is kept separate: 'activated' is a product-defined event (not a generic funnel step), and it anchors a distinct mobile-growth workflow rather than a relabeled CR."
     },
     {
       "id": "cost-per-unit",
       "shape": "spend / count of X",
-      "standaloneCalculators": ["cpc", "cpm", "cpa", "cpl", "cpi", "cpv"],
-      "foldedVariants": ["cost-per-conversion", "effective-cpm", "cost-per-mql", "cost-per-sql"],
-      "keptSeparate": ["cpe"],
+      "standaloneCalculators": [
+        "cpc",
+        "cpm",
+        "cpa",
+        "cpl",
+        "cpi",
+        "cpv"
+      ],
+      "foldedVariants": [
+        "cost-per-conversion",
+        "effective-cpm",
+        "cost-per-mql",
+        "cost-per-sql"
+      ],
+      "keptSeparate": [
+        "cpe"
+      ],
       "decision": "Same formula shape as conversion-rate's, but treated the opposite way: CPC and CPM already ship as separate named pages, and each of CPA/CPL/CPI/CPV is an independently-searched, independently-benchmarked paid-media buying model (advertisers literally choose 'CPC bidding' vs 'CPM bidding'). Kept as separate pages to match that existing convention and existing site URLs, not because the math differs. Cost per Conversion, eCPM, Cost per MQL/SQL are pure aliases with zero formula difference and fold in as labels. CPE stays calculator-educational because 'engagement' has no fixed definition across platforms."
     },
     {
       "id": "cac-cost-per-unit",
       "shape": "spend / customers",
-      "standaloneCalculators": ["cac", "blended-cac"],
-      "foldedVariants": ["paid-cac", "channel-cac"],
+      "standaloneCalculators": [
+        "cac",
+        "blended-cac"
+      ],
+      "foldedVariants": [
+        "paid-cac",
+        "channel-cac"
+      ],
       "keptSeparate": [],
       "decision": "Blended CAC kept as its own calculator-educational page for the same named-term reason as CPC/CPM (it is a distinct, commonly searched convention: all spend including $0 organic). Paid CAC and Channel CAC are just the existing generic CAC calculator used with a filtered input set - no new tool needed."
     },
     {
       "id": "rate-ratio",
       "shape": "event A / event B (generic ratio)",
-      "standaloneCalculators": ["ctr", "frequency", "video-completion-rate", "share-of-voice", "discount-rate", "return-rate", "shipping-cost-ratio", "sell-through-rate", "loyalty-participation-rate", "delivery-rate", "open-rate", "ctor", "bounce-rate-email", "unsubscribe-rate", "complaint-rate", "list-growth-rate", "dau-mau-stickiness", "uninstall-rate", "seat-utilization-rate", "bounce-rate-landing", "engagement-rate"],
-      "foldedVariants": ["video-view-rate", "click-to-call-rate", "markdown-rate", "email-ctr", "dau-wau-stickiness", "rewarded-video-completion-rate"],
-      "keptSeparate": ["refund-rate", "field-abandonment-rate", "exit-rate"],
+      "standaloneCalculators": [
+        "ctr",
+        "frequency",
+        "video-completion-rate",
+        "share-of-voice",
+        "discount-rate",
+        "return-rate",
+        "shipping-cost-ratio",
+        "sell-through-rate",
+        "loyalty-participation-rate",
+        "delivery-rate",
+        "open-rate",
+        "ctor",
+        "bounce-rate-email",
+        "unsubscribe-rate",
+        "complaint-rate",
+        "list-growth-rate",
+        "dau-mau-stickiness",
+        "uninstall-rate",
+        "seat-utilization-rate",
+        "bounce-rate-landing",
+        "engagement-rate"
+      ],
+      "foldedVariants": [
+        "video-view-rate",
+        "click-to-call-rate",
+        "markdown-rate",
+        "email-ctr",
+        "dau-wau-stickiness",
+        "rewarded-video-completion-rate"
+      ],
+      "keptSeparate": [
+        "refund-rate",
+        "field-abandonment-rate",
+        "exit-rate"
+      ],
       "decision": "The largest bucket, and the one most likely to look over-consolidated at a glance - it is not. 'Ratio of two counts' is an abstract shape, not a metric identity: CTR, Open Rate, Bounce Rate and Uplift Rate answer completely different business questions with completely different denominators and are each their own tool. Only true aliases (Video View-Through Rate = a labeled mode of Video Completion Rate, Email CTR = a labeled mode of CTR, DAU/WAU Stickiness = a second output of the DAU/MAU tool, Markdown Rate = Discount Rate, Click-to-Call Rate = a CTR mode, Rewarded Video Completion = the ads Video Completion tool) were folded. Refund Rate, Field Abandonment Rate and Exit Rate are calculator-educational rather than folded, because each is commonly confused with a same-shaped neighbor (Return Rate, Form Completion Rate, Bounce Rate respectively) and needs its own interpretation slot precisely to keep that distinction explicit, not blur it."
+    },
+    {
+      "id": "email-campaign-composite",
+      "shape": "several rate-ratios over one shared set of send counts",
+      "standaloneCalculators": [
+        "email-performance"
+      ],
+      "foldedVariants": [],
+      "keptSeparate": [],
+      "decision": "Its own family rather than a member of rate-ratio, which is the shape each of its eight metrics has individually. A rate-ratio calculator answers one question from two numbers; this one answers eight from ten, and the reason it exists is precisely that those eight share denominators - delivered feeds four of them, sent three - so asking for them on eight separate pages meant re-entering the same campaign's figures over and over. The eight metrics it computes (delivery-rate, open-rate, ctor, bounce-rate-email, unsubscribe-rate, complaint-rate, list-growth-rate, revenue-per-recipient) stay listed under rate-ratio: they are genuinely rate-ratios, they remain in the research catalog, and they are not foldedVariants in this file's sense - that field is reserved for candidates classified duplicate-variant, which these are not. What changed is which of them ship as their own page, and that is LIVE_CALCULATOR_SLUGS' decision to record, not this file's."
     },
     {
       "id": "average-value",
       "shape": "total / count",
-      "standaloneCalculators": ["aov", "units-per-transaction", "session-length-avg", "sessions-per-user", "arpu", "annual-contract-value", "arpdau"],
-      "foldedVariants": ["average-basket-size", "revenue-per-order", "purchase-frequency", "arpu-mobile", "arpa"],
+      "standaloneCalculators": [
+        "aov",
+        "units-per-transaction",
+        "session-length-avg",
+        "sessions-per-user",
+        "arpu",
+        "annual-contract-value",
+        "arpdau"
+      ],
+      "foldedVariants": [
+        "average-basket-size",
+        "revenue-per-order",
+        "purchase-frequency",
+        "arpu-mobile",
+        "arpa"
+      ],
       "keptSeparate": [],
       "decision": "Average Basket Size and Revenue per Order are pure AOV aliases. Purchase Frequency is already an LTV input, not a standalone page. Mobile ARPU is a cross-category duplicate of SaaS ARPU (same formula). ARPDAU is kept calculator-educational rather than folded into ARPU: same shape, but a different time window (daily vs monthly base) that changes the number by ~30x if confused - the distinction is the whole point of the page. ARPA is kept alongside ARPU (not folded) as one tool with an optional seats-per-account input, since the two diverge only when accounts are multi-seat."
     },
     {
       "id": "margin",
       "shape": "(revenue - cost) / revenue",
-      "standaloneCalculators": ["gross-margin", "contribution-margin", "profit-margin"],
-      "foldedVariants": ["net-margin"],
+      "standaloneCalculators": [
+        "gross-margin",
+        "contribution-margin",
+        "profit-margin"
+      ],
+      "foldedVariants": [
+        "net-margin"
+      ],
       "keptSeparate": [],
       "decision": "Gross Margin (COGS only), Contribution Margin (COGS + variable costs like shipping/payment fees) and Profit Margin (fully loaded) are genuinely different cost bases, not naming variants - each changes the answer. Net Margin is a pure alias of the already-shipped Profit Margin."
     },
     {
       "id": "break-even",
       "shape": "fixed cost or margin threshold",
-      "standaloneCalculators": ["break-even-point"],
-      "foldedVariants": ["break-even-roas", "break-even-cac"],
+      "standaloneCalculators": [
+        "break-even-point"
+      ],
+      "foldedVariants": [
+        "break-even-roas",
+        "break-even-cac"
+      ],
       "keptSeparate": [],
       "decision": "One Break-Even Calculator takes a shared gross-margin input and outputs break-even units, break-even CAC and break-even ROAS together, since a marketer asking one of these three questions usually wants all three."
     },
     {
       "id": "payback",
       "shape": "cost recovered / rate of recovery",
-      "standaloneCalculators": ["cac-payback-period"],
-      "foldedVariants": ["acquisition-payback", "payback-period-general"],
+      "standaloneCalculators": [
+        "cac-payback-period"
+      ],
+      "foldedVariants": [
+        "acquisition-payback",
+        "payback-period-general"
+      ],
       "keptSeparate": [],
       "decision": "Both variants are the identical formula with generic framing; no new calculator needed."
     },
     {
       "id": "ltv-model",
       "shape": "multiple legitimate models, not one formula",
-      "standaloneCalculators": ["ltv", "ltv-cac-ratio"],
-      "foldedVariants": ["ltv-mobile"],
+      "standaloneCalculators": [
+        "ltv",
+        "ltv-cac-ratio"
+      ],
+      "foldedVariants": [
+        "ltv-mobile"
+      ],
       "keptSeparate": [],
       "decision": "LTV is NOT a single-formula family - see calculator-architecture.md Phase 5 for the three documented models (simple/historic, margin-adjusted/predictive, ARPDAU-based mobile). Mobile LTV folds in as a third input-modeling mode of the existing LTV calculator, not a new page, because the underlying question is identical."
     },
     {
       "id": "retention",
       "shape": "retained / cohort, or its complement",
-      "standaloneCalculators": ["retention-rate", "reactivation-rate", "d1-retention", "logo-churn"],
-      "foldedVariants": ["churn-rate", "repeat-customer-rate", "renewal-rate", "win-back-rate", "d7-retention", "d30-retention"],
-      "keptSeparate": ["customer-lifetime", "repeat-purchase-rate"],
+      "standaloneCalculators": [
+        "retention-rate",
+        "reactivation-rate",
+        "d1-retention",
+        "logo-churn"
+      ],
+      "foldedVariants": [
+        "churn-rate",
+        "repeat-customer-rate",
+        "renewal-rate",
+        "win-back-rate",
+        "d7-retention",
+        "d30-retention"
+      ],
+      "keptSeparate": [
+        "customer-lifetime",
+        "repeat-purchase-rate"
+      ],
       "decision": "Churn Rate is the exact mathematical complement of Retention Rate (1 - retention) and becomes a second output field on one tool, not two pages. D7/D30 Retention fold into one parameterized N-Day Retention calculator (day is an input, not a URL). Renewal Rate and Win-Back Rate are pure aliases of Retention Rate and Reactivation Rate respectively. Logo Churn is kept as its own SaaS-labeled page for the same named-term reason as Blended CAC and CPC/CPM. Repeat Purchase Rate/Repeat Customer Rate is the flagged cross-category collision: the identical formula appeared once under e-commerce and once under lifecycle-retention research; only one calculator ships (repeat-purchase-rate), Repeat Customer Rate is its dup pointer."
     },
     {
       "id": "recurring-revenue",
       "shape": "sum or delta of subscription value",
-      "standaloneCalculators": ["mrr"],
-      "foldedVariants": ["arr", "mrr-growth-rate"],
+      "standaloneCalculators": [
+        "mrr"
+      ],
+      "foldedVariants": [
+        "arr",
+        "mrr-growth-rate"
+      ],
       "keptSeparate": [],
       "decision": "ARR (MRR x 12) and MRR Growth Rate are trivial derivations of the same MRR input; one tool, three output rows."
     },
     {
       "id": "revenue-retention",
       "shape": "starting MRR adjusted for expansion/contraction/churn",
-      "standaloneCalculators": ["nrr"],
-      "foldedVariants": ["grr", "net-dollar-retention", "revenue-churn", "expansion-revenue"],
+      "standaloneCalculators": [
+        "nrr"
+      ],
+      "foldedVariants": [
+        "grr",
+        "net-dollar-retention",
+        "revenue-churn",
+        "expansion-revenue"
+      ],
       "keptSeparate": [],
       "decision": "NRR and GRR are NOT duplicates of each other (GRR excludes expansion, NRR includes it - they answer different questions and both matter to a SaaS operator), but they share one input set, so both ship as outputs of a single Revenue Retention Calculator. Net Dollar Retention is a literal naming alias of NRR; Revenue Churn is GRR's complement; Expansion Revenue is one of the tool's input/output breakdown lines."
     },
     {
       "id": "efficiency-per-unit",
       "shape": "output / driving input, various definitions",
-      "standaloneCalculators": ["revenue-per-visitor", "inventory-turnover", "revenue-per-recipient", "saas-quick-ratio", "magic-number", "rule-of-40", "burn-multiple"],
-      "foldedVariants": ["revenue-per-email"],
+      "standaloneCalculators": [
+        "revenue-per-visitor",
+        "inventory-turnover",
+        "revenue-per-recipient",
+        "saas-quick-ratio",
+        "magic-number",
+        "rule-of-40",
+        "burn-multiple"
+      ],
+      "foldedVariants": [
+        "revenue-per-email"
+      ],
       "keptSeparate": [],
       "decision": "Each of these answers a distinct, independently named efficiency question with a different formula body; the shared 'family' label is organizational only, not a duplication signal. Revenue per Email is a literal alias of Revenue per Recipient."
     },
     {
       "id": "abandonment",
       "shape": "1 - (completed / started), at a named funnel stage",
-      "standaloneCalculators": ["cart-abandonment-rate"],
-      "foldedVariants": ["checkout-abandonment-rate"],
+      "standaloneCalculators": [
+        "cart-abandonment-rate"
+      ],
+      "foldedVariants": [
+        "checkout-abandonment-rate"
+      ],
       "keptSeparate": [],
       "decision": "Recommend widening the shipped Cart Abandonment calculator into a stage-labeled Abandonment Rate calculator (cart vs checkout vs browse as an input mode) rather than adding a second near-identical page."
     },
     {
       "id": "funnel",
       "shape": "N ordered stages, sequential conversion",
-      "standaloneCalculators": ["funnel-analysis-multistep"],
-      "foldedVariants": ["step-conversion-rate", "drop-off-rate"],
+      "standaloneCalculators": [
+        "funnel-analysis-multistep"
+      ],
+      "foldedVariants": [
+        "step-conversion-rate",
+        "drop-off-rate"
+      ],
       "keptSeparate": [],
       "decision": "This is a structurally different tool from the 2-input CR calculator (variable number of ordered stages, not a fixed pair), so it is genuinely new, not a duplicate - but its per-step and drop-off numbers are just output rows of the one multi-step tool, not separate pages."
     },
     {
       "id": "return-efficiency",
       "shape": "return / spend, or (return - spend) / spend",
-      "standaloneCalculators": ["roas", "marketing-roi", "incremental-roas"],
-      "foldedVariants": ["roi-general"],
+      "standaloneCalculators": [
+        "roas",
+        "marketing-roi",
+        "incremental-roas"
+      ],
+      "foldedVariants": [
+        "roi-general"
+      ],
       "keptSeparate": [],
       "decision": "ROAS (revenue/spend) and Marketing ROI ((revenue-cost)/cost) are commonly confused but mathematically different - kept separate on purpose, and each shipped page should say so. Incremental ROAS needs its own holdout-test explanation, kept calculator-educational. Generic Business ROI is a pure alias of Marketing ROI."
     },
     {
       "id": "significance-test",
       "shape": "compare two (or more) observed rates",
-      "standaloneCalculators": ["ab-test-significance", "confidence-interval-calculator"],
-      "foldedVariants": ["absolute-uplift", "conversion-difference"],
-      "keptSeparate": ["bayesian-probability-to-beat", "multi-variant-test-significance"],
+      "standaloneCalculators": [
+        "ab-test-significance",
+        "confidence-interval-calculator"
+      ],
+      "foldedVariants": [
+        "absolute-uplift",
+        "conversion-difference"
+      ],
+      "keptSeparate": [
+        "bayesian-probability-to-beat",
+        "multi-variant-test-significance"
+      ],
       "decision": "Absolute Uplift and its alias Conversion Difference become an added output field on the existing z-test tool. Bayesian Probability to Beat Control is a second, equally legitimate statistical method (not a duplicate formula) - Phase 5 flags this as a documented ambiguity rather than silently picking frequentist-only. A/B/n Multi-Variant Significance extends the same test with a multiple-comparison correction and may become a mode of the existing tool during implementation, but is catalogued separately because its correction changes the answer, not just the label."
     },
     {
       "id": "test-design",
       "shape": "solve the sample-size equation for a different unknown",
-      "standaloneCalculators": ["sample-size-calculator", "minimum-detectable-effect", "test-duration-estimator", "srm-check"],
-      "foldedVariants": ["required-runtime-weeks", "power-analysis"],
+      "standaloneCalculators": [
+        "sample-size-calculator",
+        "minimum-detectable-effect",
+        "test-duration-estimator",
+        "srm-check"
+      ],
+      "foldedVariants": [
+        "required-runtime-weeks",
+        "power-analysis"
+      ],
       "keptSeparate": [],
       "decision": "Sample Size and Minimum Detectable Effect share one underlying equation but solve for different unknowns (N given MDE, vs MDE given N) - both are genuinely useful standalone tools, not duplicates of each other. Power Analysis is the same equation family solved yet another way and is linked via relatedCalculators rather than shipped as a fourth page. Test Duration is a simple derivation (sample size / daily traffic) with its own weekly-cycle caveat. SRM Check answers a different question entirely (is the traffic split itself broken) and is not part of the sample-size equation at all despite living in the same test-design subcategory."
     }

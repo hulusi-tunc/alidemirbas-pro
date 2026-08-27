@@ -49,7 +49,15 @@ const STANDARD_OVERRIDES = new Set([
 // depth reclassified back to the category default (deep) for this slug
 // only - explicit editorial call for this batch, not a re-run of the
 // blanket rule elsewhere.
-const DEPTH_OVERRIDES = {};
+const DEPTH_OVERRIDES = {
+  /* The family heuristic below reads this as `rate-ratio` and would call it
+     LIGHT, which is right for a page that computes one ratio and wrong for
+     this one: it computes eight, and light prohibits the FAQ and
+     interpretation slots the page most needs (MPP-inflated opens, CTOR vs
+     Email CTR, the ~0.1% complaint threshold, negative list growth). An
+     explicit editorial call, which is what this map is for. */
+  "email-performance": "standard",
+};
 function contentDepth(c) {
   if (DEPTH_OVERRIDES[c.slug]) return DEPTH_OVERRIDES[c.slug];
   if (c.modes) return "deep";

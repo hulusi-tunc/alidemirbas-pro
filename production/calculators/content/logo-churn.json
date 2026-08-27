@@ -15,10 +15,19 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Customers lost", "value": "12" },
-        { "label": "Customers at period start", "value": "240" }
+        {
+          "label": "Customers lost",
+          "value": "12"
+        },
+        {
+          "label": "Customers at period start",
+          "value": "240"
+        }
       ],
-      "output": { "label": "Logo Churn", "value": "5.00%" },
+      "output": {
+        "label": "Logo Churn",
+        "value": "5.00%"
+      },
       "body": "5.00% of the customers this business had at the start of the period were gone by the end. It's silent on how much revenue those 12 accounts represented — that's a separate question this number was never built to answer."
     },
     {
@@ -52,10 +61,16 @@
     }
   ],
   "related": [
-    { "slug": "retention-rate", "name": "Retention Rate Calculator", "desc": "Logo Churn's complement under a matching population and period — the two should be checked against each other, not assumed to always add to 100%." },
-    { "slug": "nrr", "name": "Net Revenue Retention (NRR) Calculator", "desc": "The dollar-weighted view of the same losses — where revenue churn can tell a different story than logo churn on the same customer base." },
-    { "slug": "d1-retention", "name": "D1 Retention Calculator", "desc": "A cohort-level, day-one retention read rather than a period-over-period account count — a different population and time frame than Logo Churn." },
-    { "slug": "mrr", "name": "MRR Calculator", "desc": "The recurring revenue base that logo churn erodes from the customer-count side, without saying by how much." }
+    {
+      "slug": "retention-rate",
+      "name": "Retention Rate Calculator",
+      "desc": "Logo Churn's complement under a matching population and period — the two should be checked against each other, not assumed to always add to 100%."
+    },
+    {
+      "slug": "nrr",
+      "name": "Net Revenue Retention (NRR) Calculator",
+      "desc": "The dollar-weighted view of the same losses — where revenue churn can tell a different story than logo churn on the same customer base."
+    }
   ],
   "faq": [
     {

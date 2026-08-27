@@ -15,10 +15,19 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Ad spend", "value": "$1,000" },
-        { "label": "Attributed revenue", "value": "$5,000" }
+        {
+          "label": "Ad spend",
+          "value": "$1,000"
+        },
+        {
+          "label": "Attributed revenue",
+          "value": "$5,000"
+        }
       ],
-      "output": { "label": "ROAS", "value": "5.00x" },
+      "output": {
+        "label": "ROAS",
+        "value": "5.00x"
+      },
       "body": "For every $1 spent on this campaign, it generated $5 in attributed revenue. That's efficiency relative to spend, not profit — whether the $5,000 in revenue was actually worth having depends on margin, refunds, and everything else the ad spend itself doesn't touch."
     },
     {
@@ -57,7 +66,7 @@
       "id": "roas-vs-roi",
       "type": "comparison-note",
       "heading": "ROAS vs. ROI",
-      "body": "ROAS and [Marketing ROI](/calculators/marketing-roi) answer related but different questions. ROAS is attributed revenue relative to ad spend, how much revenue came back for what was spent on ads specifically. Marketing ROI is (revenue − cost) ÷ cost: it subtracts cost first, so it answers whether the spend was actually worth it, not just how much revenue it produced. A campaign can post a strong ROAS and a weak ROI at the same time. If margins are thin, a 5x ROAS can still mean a loss once the cost of what was sold is counted, since ROAS never sees that cost, only ad spend. Use ROAS to compare campaigns or channels against each other; use Marketing ROI when the question is whether the spend was worth it after real costs."
+      "body": "ROAS and Marketing ROI answer related but different questions. ROAS is attributed revenue relative to ad spend, how much revenue came back for what was spent on ads specifically. Marketing ROI is (revenue − cost) ÷ cost: it subtracts cost first, so it answers whether the spend was actually worth it, not just how much revenue it produced. A campaign can post a strong ROAS and a weak ROI at the same time. If margins are thin, a 5x ROAS can still mean a loss once the cost of what was sold is counted, since ROAS never sees that cost, only ad spend. Use ROAS to compare campaigns or channels against each other; use Marketing ROI when the question is whether the spend was worth it after real costs."
     },
     {
       "id": "common-mistakes",
@@ -72,10 +81,21 @@
     }
   ],
   "related": [
-    { "slug": "marketing-roi", "name": "Marketing ROI Calculator", "desc": "Profitability after real costs, not just revenue efficiency — the number to check when a strong ROAS still needs to prove it was worth it." },
-    { "slug": "break-even-point", "name": "Break-Even Point Calculator", "desc": "Computes the break-even units, CAC ceiling and ROAS floor your price and costs require, instead of relying on a benchmark that doesn't know your margins." },
-    { "slug": "cac", "name": "CAC Calculator", "desc": "Cost to acquire one customer — a per-customer view of spend efficiency that complements ROAS's per-dollar-of-revenue view." },
-    { "slug": "ltv-cac-ratio", "name": "LTV:CAC Ratio Calculator", "desc": "Whether a customer is worth more over their lifetime than it cost to acquire them, the longer-horizon question ROAS doesn't cover." }
+    {
+      "slug": "break-even-point",
+      "name": "Break-Even Point Calculator",
+      "desc": "Computes the break-even units, CAC ceiling and ROAS floor your price and costs require, instead of relying on a benchmark that doesn't know your margins."
+    },
+    {
+      "slug": "cac",
+      "name": "CAC Calculator",
+      "desc": "Cost to acquire one customer — a per-customer view of spend efficiency that complements ROAS's per-dollar-of-revenue view."
+    },
+    {
+      "slug": "ltv-cac-ratio",
+      "name": "LTV:CAC Ratio Calculator",
+      "desc": "Whether a customer is worth more over their lifetime than it cost to acquire them, the longer-horizon question ROAS doesn't cover."
+    }
   ],
   "faq": [
     {

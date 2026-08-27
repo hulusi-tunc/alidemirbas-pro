@@ -4,7 +4,7 @@
     "calculator-candidates.json",
     "calculator-formula-families.json"
   ],
-  "count": 77,
+  "count": 78,
   "calculators": [
     {
       "id": "CALC-ROAS",
@@ -2662,6 +2662,203 @@
       ]
     },
     {
+      "id": "CALC-EMAIL-PERFORMANCE",
+      "name": "Email Performance Calculator",
+      "slug": "email-performance",
+      "category": "crm-email",
+      "subcategory": "engagement",
+      "classification": "calculator",
+      "priority": "P0",
+      "status": "recommended",
+      "formula": "delivered / sent; bounced / sent; opens / delivered; clicks / opens; unsubscribes / delivered; complaints / delivered; (newSubscribers - unsubscribes) / listStart; revenue / sent",
+      "formulaPlainEnglish": "Eight email campaign metrics from one set of send numbers - deliverability, engagement, list health and revenue per email.",
+      "inputs": [
+        {
+          "key": "sent",
+          "label": "Emails sent",
+          "unit": "count"
+        },
+        {
+          "key": "delivered",
+          "label": "Delivered",
+          "unit": "count"
+        },
+        {
+          "key": "opens",
+          "label": "Opens",
+          "unit": "count"
+        },
+        {
+          "key": "clicks",
+          "label": "Clicks",
+          "unit": "count"
+        },
+        {
+          "key": "bounced",
+          "label": "Bounced",
+          "unit": "count"
+        },
+        {
+          "key": "unsubscribes",
+          "label": "Unsubscribes",
+          "unit": "count"
+        },
+        {
+          "key": "complaints",
+          "label": "Spam complaints",
+          "unit": "count"
+        },
+        {
+          "key": "revenue",
+          "label": "Revenue attributed",
+          "unit": "currency"
+        },
+        {
+          "key": "newSubscribers",
+          "label": "New subscribers",
+          "unit": "count"
+        },
+        {
+          "key": "listStart",
+          "label": "List size at period start",
+          "unit": "count"
+        }
+      ],
+      "outputs": [
+        {
+          "key": "deliveryRate",
+          "label": "Delivery Rate",
+          "unit": "%"
+        },
+        {
+          "key": "bounceRate",
+          "label": "Bounce Rate",
+          "unit": "%"
+        },
+        {
+          "key": "openRate",
+          "label": "Open Rate",
+          "unit": "%"
+        },
+        {
+          "key": "ctor",
+          "label": "Click-to-Open Rate",
+          "unit": "%"
+        },
+        {
+          "key": "unsubRate",
+          "label": "Unsubscribe Rate",
+          "unit": "%"
+        },
+        {
+          "key": "complaintRate",
+          "label": "Complaint Rate",
+          "unit": "%"
+        },
+        {
+          "key": "listGrowthRate",
+          "label": "List Growth Rate",
+          "unit": "%"
+        },
+        {
+          "key": "rpr",
+          "label": "Revenue per Recipient",
+          "unit": "currency"
+        }
+      ],
+      "inputUnits": {
+        "sent": "count",
+        "delivered": "count",
+        "opens": "count",
+        "clicks": "count",
+        "bounced": "count",
+        "unsubscribes": "count",
+        "complaints": "count",
+        "revenue": "currency",
+        "newSubscribers": "count",
+        "listStart": "count"
+      },
+      "outputUnits": {
+        "deliveryRate": "%",
+        "bounceRate": "%",
+        "openRate": "%",
+        "ctor": "%",
+        "unsubRate": "%",
+        "complaintRate": "%",
+        "listGrowthRate": "%",
+        "rpr": "currency"
+      },
+      "acceptedRanges": {
+        "sent": ">=0",
+        "delivered": ">=0",
+        "opens": ">=0",
+        "clicks": ">=0",
+        "bounced": ">=0",
+        "unsubscribes": ">=0",
+        "complaints": ">=0",
+        "revenue": ">=0",
+        "newSubscribers": ">=0",
+        "listStart": ">=0"
+      },
+      "validationRules": [
+        "every field is optional - a metric appears only once its own inputs are filled, and stays absent otherwise rather than showing a zero",
+        "each metric needs its own denominator > 0: sent for Delivery/Bounce/Revenue per Recipient, delivered for Open/Unsubscribe/Complaint, opens for CTOR, listStart for List Growth",
+        "Open Rate: Apple MPP and similar privacy features inflate opens - flag results near or above 100% as unreliable, not impossible",
+        "CTOR is clicks/opens, not clicks/delivered - that is Email CTR, a different metric; CTOR removes deliverability and open-rate noise from the content-quality question",
+        "Complaint Rate above ~0.1% puts sender reputation at risk - worth a threshold note, not a hard validation error",
+        "List Growth Rate can legitimately be negative when losses exceed gains - do not clamp"
+      ],
+      "edgeCases": [
+        "any denominator = 0 -> that one metric is undefined and shows '-', the other seven still compute",
+        "opens > delivered can legitimately occur due to proxy pre-fetching - do not clamp to 100%, but flag it",
+        "delivered > sent is a data error, not a valid state"
+      ],
+      "exampleInput": {
+        "sent": 10000,
+        "delivered": 9800,
+        "opens": 2450,
+        "clicks": 392,
+        "bounced": 200,
+        "unsubscribes": 20,
+        "complaints": 5,
+        "revenue": 2000,
+        "newSubscribers": 500,
+        "listStart": 10000
+      },
+      "exampleOutput": {
+        "deliveryRate": "98.00%",
+        "bounceRate": "2.00%",
+        "openRate": "25.00%",
+        "ctor": "16.00%",
+        "unsubRate": "0.20%",
+        "complaintRate": "0.05%",
+        "listGrowthRate": "4.80%",
+        "rpr": "0.20"
+      },
+      "relatedMetrics": [
+        "Revenue per Visitor",
+        "Conversion Rate"
+      ],
+      "relatedCalculators": [
+        "revenue-per-visitor",
+        "cr"
+      ],
+      "formulaFamily": "email-campaign-composite",
+      "aliases": [
+        "Email Campaign Metrics",
+        "Email Marketing Calculator",
+        "Open Rate",
+        "CTOR",
+        "Delivery Rate",
+        "Bounce Rate",
+        "Unsubscribe Rate",
+        "Complaint Rate",
+        "List Growth Rate",
+        "Revenue per Recipient"
+      ],
+      "formulaDisplay": "Delivery = Delivered ÷ Sent · Bounce = Bounced ÷ Sent · Open = Opens ÷ Delivered · CTOR = Clicks ÷ Opens · Unsubscribe = Unsubscribes ÷ Delivered · Complaint = Complaints ÷ Delivered · List growth = (New subscribers − Unsubscribes) ÷ List size at start · Revenue per recipient = Revenue ÷ Sent"
+    },
+    {
       "id": "CALC-DELIVERY-RATE",
       "name": "Delivery Rate Calculator",
       "slug": "delivery-rate",
@@ -4672,7 +4869,7 @@
       "modes": [
         {
           "id": "simple",
-          "label": "Simple",
+          "label": "Simple (historic)",
           "formula": "aov * purchaseFrequency * customerLifespan",
           "inputs": [
             {
@@ -4701,7 +4898,7 @@
         },
         {
           "id": "margin-adjusted",
-          "label": "Margin-adjusted (churn-based)",
+          "label": "Margin-adjusted (predictive)",
           "formula": "(aov * purchaseFrequency * grossMarginPct) / churnRate",
           "inputs": [
             {

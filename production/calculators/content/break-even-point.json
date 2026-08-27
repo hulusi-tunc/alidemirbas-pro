@@ -15,11 +15,23 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Fixed costs", "value": "$50,000" },
-        { "label": "Price per unit", "value": "$100" },
-        { "label": "Variable cost per unit", "value": "$40" }
+        {
+          "label": "Fixed costs",
+          "value": "$50,000"
+        },
+        {
+          "label": "Price per unit",
+          "value": "$100"
+        },
+        {
+          "label": "Variable cost per unit",
+          "value": "$40"
+        }
       ],
-      "output": { "label": "Break-Even Units", "value": "834" },
+      "output": {
+        "label": "Break-Even Units",
+        "value": "834"
+      },
       "body": "Contribution margin per unit is $100 − $40 = $60. Fixed costs of $50,000 ÷ $60 works out to 833.3, rounded up to 834 units — you can't sell a fraction of a unit, and 833 units alone would fall just short of covering the $50,000. That same $60 is also this business's unit-level CAC ceiling: spend more than $60 acquiring a single customer and that sale's contribution margin can't even cover the acquisition cost, let alone contribute anything toward the $50,000 in fixed costs. $100 ÷ $60 gives a contribution-margin ROAS floor of 1.67x — the ad-spend efficiency needed before fixed costs and other expenses are even considered, not an overall-business break-even ROAS."
     },
     {
@@ -54,10 +66,21 @@
     }
   ],
   "related": [
-    { "slug": "contribution-margin", "name": "Contribution Margin Calculator", "desc": "The per-unit or ratio building block break-even point is derived from — useful on its own for pricing and product-mix decisions." },
-    { "slug": "gross-margin", "name": "Gross Margin Calculator", "desc": "A different, broader cost base than contribution margin — the two are easy to conflate but subtract different things from revenue." },
-    { "slug": "roas", "name": "ROAS Calculator", "desc": "Actual return from real campaign spend, to compare against the break-even ROAS floor this calculator derives from cost structure alone." },
-    { "slug": "cac", "name": "CAC Calculator", "desc": "Real acquisition cost from actual spend and customers, to check against the break-even CAC ceiling this page computes." }
+    {
+      "slug": "gross-margin",
+      "name": "Gross Margin Calculator",
+      "desc": "A different, broader cost base than contribution margin — the two are easy to conflate but subtract different things from revenue."
+    },
+    {
+      "slug": "roas",
+      "name": "ROAS Calculator",
+      "desc": "Actual return from real campaign spend, to compare against the break-even ROAS floor this calculator derives from cost structure alone."
+    },
+    {
+      "slug": "cac",
+      "name": "CAC Calculator",
+      "desc": "Real acquisition cost from actual spend and customers, to check against the break-even CAC ceiling this page computes."
+    }
   ],
   "faq": [
     {

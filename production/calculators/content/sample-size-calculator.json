@@ -45,6 +45,18 @@
       ]
     }
   ],
+  "related": [
+    {
+      "slug": "ab-test",
+      "name": "A/B Test Significance (z-test) Calculator",
+      "desc": "The other end of the same test - this one sizes it before you run it, that one reads the result once you have."
+    },
+    {
+      "slug": "cr",
+      "name": "Conversion Rate Calculator",
+      "desc": "Where the baseline rate this calculator asks for comes from; a sample size is only as good as the baseline it was sized against."
+    }
+  ],
   "faq": [
     {
       "id": "power-choice",

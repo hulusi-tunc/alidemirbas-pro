@@ -30,43 +30,37 @@ const Z_BETA_ONE_TAILED: Record<string, number> = { "80": 0.8416, "90": 1.2816 }
 
 const REGISTRY: Record<string, ComputeFn> = {
   roas: ({ revenue, spend }) => ({ roas: div(revenue, spend) }),
-  "marketing-roi": ({ revenue, cost }) => ({ roi: div(revenue - cost, cost) }),
-  ctr: ({ clicks, impressions }) => ({ ctr: div(clicks, impressions) }),
   cpc: ({ spend, clicks }) => ({ cpc: div(spend, clicks) }),
   cpm: ({ spend, impressions }) => ({ cpm: div(spend, impressions) * 1000 }),
-  cpa: ({ spend, conversions }) => ({ cpa: div(spend, conversions) }),
-  cpl: ({ spend, leads }) => ({ cpl: div(spend, leads) }),
   cac: ({ spend, customers }) => ({ cac: div(spend, customers) }),
   aov: ({ revenue, orders }) => ({ aov: div(revenue, orders) }),
   "gross-margin": ({ revenue, cogs }) => ({ grossMargin: div(revenue - cogs, revenue) }),
-  "profit-margin": ({ revenue, cost }) => ({ profitMargin: div(revenue - cost, revenue) }),
-  "revenue-per-visitor": ({ revenue, visitors }) => ({ rpv: div(revenue, visitors) }),
-  "contribution-margin": ({ revenue, cogs, variableCosts }) => ({
-    contributionMargin: div(revenue - cogs - variableCosts, revenue),
-  }),
-  "engagement-rate": ({ engagedSessions, totalSessions }) => ({
-    engagementRate: div(engagedSessions, totalSessions),
-  }),
-  "open-rate": ({ opens, delivered }) => ({ openRate: div(opens, delivered) }),
-  // Click-to-Open Rate: clicks over opens, not clicks over delivered (that's
-  // email CTR, a different metric - see the catalog's own validationRule on
-  // this slug). Deliberately independent from ctr's clicks/impressions and
-  // open-rate's opens/delivered - CTOR isolates content/offer quality from
-  // deliverability and open-rate noise, per calc-catalog.json's own
-  // formulaPlainEnglish for this slug.
-  ctor: ({ clicks, opens }) => ({ ctor: div(clicks, opens) }),
-  "delivery-rate": ({ delivered, sent }) => ({ deliveryRate: div(delivered, sent) }),
-  "bounce-rate-email": ({ bounced, sent }) => ({ bounceRate: div(bounced, sent) }),
-  "unsubscribe-rate": ({ unsubscribes, delivered }) => ({ unsubRate: div(unsubscribes, delivered) }),
-  "complaint-rate": ({ complaints, delivered }) => ({ complaintRate: div(complaints, delivered) }),
-  "list-growth-rate": ({ newSubscribers, unsubscribes, listStart }) => ({
+  /* The eight email metrics, from one input set. Each is the same formula
+     the eight retired single-metric calculators used - open-rate, ctor,
+     delivery-rate, bounce-rate-email, unsubscribe-rate, complaint-rate,
+     list-growth-rate and revenue-per-recipient - not a re-derivation; only
+     the old revenue-per-recipient's `emailsSent` is renamed, to `sent`,
+     because it was always the same quantity delivery-rate already asked
+     for under that name.
+
+     Unlike every other entry here this one is partial by design: an absent
+     input yields NaN for the metrics that need it (div already does this
+     for a zero denominator) and the eight are independent, so seven still
+     compute while the eighth waits for its own field. EmailPerformanceTool
+     reads that NaN as "not answerable yet" rather than as an error. */
+  "email-performance": ({ sent, delivered, opens, clicks, bounced, unsubscribes, complaints, revenue, newSubscribers, listStart }) => ({
+    deliveryRate: div(delivered, sent),
+    bounceRate: div(bounced, sent),
+    openRate: div(opens, delivered),
+    // clicks over OPENS, not over delivered - that would be Email CTR, a
+    // different metric. CTOR isolates content and offer quality from
+    // deliverability and open-rate noise.
+    ctor: div(clicks, opens),
+    unsubRate: div(unsubscribes, delivered),
+    complaintRate: div(complaints, delivered),
     listGrowthRate: div(newSubscribers - unsubscribes, listStart),
+    rpr: div(revenue, sent),
   }),
-  "revenue-per-recipient": ({ revenue, emailsSent }) => ({ rpr: div(revenue, emailsSent) }),
-  "activation-rate": ({ activatedUsers, installs }) => ({
-    activationRate: div(activatedUsers, installs),
-  }),
-  "dau-mau-stickiness": ({ dau, mau }) => ({ stickiness: div(dau, mau) }),
   cr: ({ conversions, opportunities }) => ({ conversionRate: div(conversions, opportunities) }),
 
   "retention-rate": ({ startCustomers, endCustomers, acquiredCustomers }) => {
@@ -80,14 +74,6 @@ const REGISTRY: Record<string, ComputeFn> = {
   // calculator whose whole reason to exist is the logo/account-count framing.
   "logo-churn": ({ lostCustomers, startCustomers }) => ({
     logoChurn: div(lostCustomers, startCustomers),
-  }),
-
-  "cart-abandonment": ({ cartsCreated, completedPurchases }) => ({
-    abandonmentRate: div(cartsCreated - completedPurchases, cartsCreated),
-  }),
-
-  "d1-retention": ({ usersReturnedOnDayN, cohortSize }) => ({
-    retentionN: div(usersReturnedOnDayN, cohortSize),
   }),
 
   "ltv-cac-ratio": ({ ltv, cac }) => ({ ltvCacRatio: div(ltv, cac) }),
@@ -108,21 +94,11 @@ const REGISTRY: Record<string, ComputeFn> = {
     };
   },
 
-  mrr: ({ currentMrr, priorMrr }) => {
-    const out: ComputeOutputs = { mrr: currentMrr, arr: currentMrr * 12 };
-    if (Number.isFinite(priorMrr) && priorMrr > 0) out.mrrGrowthRate = div(currentMrr - priorMrr, priorMrr);
-    return out;
-  },
-
   nrr: ({ startingMrr, expansion, contraction, churnedMrr }) => {
     const nrr = div(startingMrr + expansion - contraction - churnedMrr, startingMrr);
     const grr = div(startingMrr - contraction - churnedMrr, startingMrr);
     return { nrr, grr };
   },
-
-  "saas-quick-ratio": ({ newMrr, expansionMrr, churnedMrr, contractionMrr }) => ({
-    quickRatio: div(newMrr + expansionMrr, churnedMrr + contractionMrr),
-  }),
 
   "rule-of-40": ({ revenueGrowthRate, profitMargin }) => ({
     // Inputs arrive as 0-1 decimals (parsed as "%" fields); Rule of 40 adds
@@ -163,29 +139,6 @@ const REGISTRY: Record<string, ComputeFn> = {
     };
   },
 
-  "confidence-interval-calculator": ({ conversions, visitors, confidenceLevel }) => {
-    const p = div(conversions, visitors);
-    const z = Z_ALPHA_TWO_TAILED[String(confidenceLevel)] ?? 1.96;
-    const margin = z * Math.sqrt((p * (1 - p)) / visitors);
-    return { pointEstimate: p, lowerBound: p - margin, upperBound: p + margin };
-  },
-
-  // Solves the same two-proportion equation as sample-size-calculator, for
-  // the opposite unknown: given a sample size, what relative lift can this
-  // test actually detect. Reports RELATIVE MDE (absolute effect / baseline
-  // rate), the exact mathematical inverse of sample-size-calculator's own
-  // `mde` input convention above - not the catalog's bare formula string,
-  // which stops at the absolute effect. Verified to round-trip against
-  // sample-size-calculator within rounding tolerance across multiple
-  // baseline/power/significance combinations (see test-calculators.mjs).
-  "minimum-detectable-effect": ({ baselineRate, samplePerVariant, power, significanceLevel }) => {
-    const zAlpha = Z_ALPHA_TWO_TAILED[String(significanceLevel)] ?? 1.96;
-    const zBeta = Z_BETA_ONE_TAILED[String(power)] ?? 0.8416;
-    const p = baselineRate;
-    const absoluteMde = Math.sqrt((2 * Math.pow(zAlpha + zBeta, 2) * p * (1 - p)) / samplePerVariant);
-    return { mde: div(absoluteMde, p) };
-  },
-
   "sample-size-calculator": ({ baselineRate, mde, power, significanceLevel }) => {
     // Phase 1's own validationRules flagged this as ambiguous (relative vs
     // absolute MDE) without picking one - implementation surfaced the gap
@@ -194,18 +147,16 @@ const REGISTRY: Record<string, ComputeFn> = {
     // "detect a 10% relative improvement"), converted to the absolute
     // effect the classic two-proportion formula needs. Documented in
     // calculator-architecture.md Phase 2, not left silently ambiguous.
+    // The minimum-detectable-effect calculator, which solved this same
+    // equation for the opposite unknown and shared this convention, was
+    // retired with the library trim - this is now the only place the
+    // relative-MDE convention is implemented.
     const zAlpha = Z_ALPHA_TWO_TAILED[String(significanceLevel)] ?? 1.96;
     const zBeta = Z_BETA_ONE_TAILED[String(power)] ?? 0.8416;
     const p = baselineRate;
     const absoluteMde = p * mde;
     const n = (2 * Math.pow(zAlpha + zBeta, 2) * p * (1 - p)) / Math.pow(absoluteMde, 2);
     return { samplePerVariant: Math.ceil(n) };
-  },
-
-  "test-duration-estimator": ({ requiredSamplePerVariant, dailyTrafficPerVariant }) => {
-    const rawDays = div(requiredSamplePerVariant, dailyTrafficPerVariant);
-    const days = Number.isFinite(rawDays) ? Math.ceil(rawDays / 7) * 7 : NaN; // round UP to a full week, Phase 2 §5 caveat
-    return { days };
   },
 
   "funnel-analysis-multistep": ({ stages: rawStages }) => {

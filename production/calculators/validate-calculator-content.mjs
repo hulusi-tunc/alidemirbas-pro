@@ -11,35 +11,28 @@ const catalog = read("calculator-catalog.json").calculators;
 const slots = read("calculator-content-slots.json").calculators;
 const seoMap = read("calculator-seo-map.json").calculators;
 const sourcesDoc = read("calculator-content-sources.json");
+/* The calculators that must each have exactly one content file - which is
+   now simply the live library (calc-catalog.ts LIVE_CALCULATOR_SLUGS), kept
+   in the same order. It used to be an append-only ledger of authoring
+   batches; that history is in git, and after the trim from 43 live
+   calculators to 19 a batch list would have described mostly files that no
+   longer exist. The invariant the checks below enforce is unchanged in both
+   directions: every live calculator has content, and no content file
+   survives its calculator. */
 const APPROVED_BATCH = [
-  "cr", "roas", "ctr", "cac", "ltv", "ltv-cac-ratio", "cac-payback-period",
-  "aov", "gross-margin", "retention-rate", "nrr", "ab-test", "sample-size-calculator",
-  // Batch 03: CPC (LIGHT), MRR / Logo Churn / Break-Even Point (STANDARD),
-  // Test Duration Estimator (DEEP)
-  "cpc", "mrr", "logo-churn", "break-even-point", "test-duration-estimator",
-  // Batch 04: Contribution Margin (STANDARD), Minimum Detectable Effect /
-  // Confidence Interval (DEEP) - ARR and GRR were blocked (no standalone
-  // calculator exists; both are aliases/outputs of already-shipped mrr/nrr)
-  "contribution-margin", "minimum-detectable-effect", "confidence-interval-calculator",
-  // Batch 05: Marketing ROI, Revenue per Visitor, Open Rate, Rule of 40,
-  // D1 Retention (all STANDARD) - selected via a programmatic audit of
-  // calculator-catalog.json against every already-shipped slug plus the
-  // ARR/GRR aliases blocked in Batch 04
-  "marketing-roi", "revenue-per-visitor", "open-rate", "rule-of-40", "d1-retention",
-  // Batch 06: CPA (LIGHT), Cart Abandonment Rate / CTOR / SaaS Quick
-  // Ratio / DAU-MAU Stickiness (all STANDARD) - CTOR required a new
-  // runtime implementation (calc-registry.ts + LIVE_CALCULATOR_SLUGS),
-  // the other four were already live
-  "cpa", "cart-abandonment", "ctor", "saas-quick-ratio", "dau-mau-stickiness",
-  // Final Expansion: 12 calculators - Group A (CPM, CPL, Activation Rate,
-  // Funnel Analysis Multistep, Profit Margin, Engagement Rate - runtime
-  // already live) and Group B (Delivery Rate, Bounce Rate Email,
-  // Unsubscribe Rate, Complaint Rate, List Growth Rate, Revenue per
-  // Recipient - new runtime implementation required in calc-registry.ts +
-  // LIVE_CALCULATOR_SLUGS)
-  "cpm", "cpl", "activation-rate", "funnel-analysis-multistep", "profit-margin",
-  "engagement-rate", "delivery-rate", "bounce-rate-email", "unsubscribe-rate",
-  "complaint-rate", "list-growth-rate", "revenue-per-recipient",
+  // Ads
+  "roas", "cpc", "cpm", "cac",
+  // Revenue & Unit Economics
+  "aov", "gross-margin", "break-even-point", "ltv", "ltv-cac-ratio", "cac-payback-period",
+  // Retention & SaaS
+  "retention-rate", "nrr", "logo-churn", "rule-of-40",
+  // Conversion & Funnel
+  "cr", "funnel-analysis-multistep",
+  // Experimentation
+  "ab-test", "sample-size-calculator",
+  // Email & CRM - one composite page replacing the eight single-metric
+  // email calculators that used to be listed here
+  "email-performance",
 ];
 
 const errors = [];
@@ -52,7 +45,7 @@ const contentSlugs = files.map((f) => f.replace(/\.json$/, ""));
 
 // --- coverage: exactly the approved 13, no more, no less ---
 for (const s of APPROVED_BATCH) if (!contentSlugs.includes(s)) err(`Missing content for approved calculator "${s}"`);
-for (const s of contentSlugs) if (!APPROVED_BATCH.includes(s)) err(`Unexpected content for "${s}" - not in the approved 13-calculator batch`);
+for (const s of contentSlugs) if (!APPROVED_BATCH.includes(s)) err(`Unexpected content for "${s}" - not a live calculator`);
 
 const catBySlug = new Map(catalog.map((c) => [c.slug, c]));
 const slotsBySlug = new Map(slots.map((s) => [s.slug, s]));
@@ -187,7 +180,20 @@ for (const { slug, data } of content) {
         err(`${slug}: benchmark section "${sec.id}" cites sourceId "${sec.benchmark.sourceId}" which doesn't exist in calculator-content-sources.json`);
       }
     }
-    if ((sec.type === "formula" || sec.type === "example") && sec.body && textContainsAnyNumber(sec.body, exampleNums)) anyExamplePresent = true;
+    /* Which sections can carry the worked example. "worked-example" was
+       missing here, which is why this fired on pages that show the example
+       perfectly well: the type exists in the schema and 16 of 19 pages use
+       it, but the check only ever looked at "formula" and "example". Its
+       structured `inputs`/`output` fields count too - that is the most
+       concrete form the example takes, more so than prose repeating it. */
+    if (sec.type === "formula" || sec.type === "example" || sec.type === "worked-example") {
+      const numeric = [
+        sec.body,
+        ...(sec.inputs || []).map((i) => i.value),
+        sec.output?.value,
+      ].filter(Boolean).join(" ");
+      if (numeric && textContainsAnyNumber(numeric, exampleNums)) anyExamplePresent = true;
+    }
   }
   // Mechanical worked-example check (Phase 4.5 fix for the type-credit
   // blind spot) - only enforced when the slot system actually requires

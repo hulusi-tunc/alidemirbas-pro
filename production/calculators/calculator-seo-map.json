@@ -1,6 +1,6 @@
 {
   "_description": "Phase 3: search-intent architecture for all 77 catalog calculators. Generated from calculator-catalog.json + calculator-formula-families.json + curated overrides (see _generate-seo-map.mjs) - never hand-edit this file directly.",
-  "count": 77,
+  "count": 78,
   "calculators": [
     {
       "calculatorId": "CALC-ROAS",
@@ -1931,6 +1931,106 @@
       "seoPriority": "C",
       "titlePattern": "{Metric Name} Calculator",
       "canonicalPath": "/calculators/repeat-purchase-rate",
+      "index": true,
+      "localizationStatus": {
+        "name": "tr-missing",
+        "formulaPlainEnglish": "tr-missing",
+        "example": "tr-missing",
+        "metadata": "tr-missing"
+      },
+      "cannibalizationRisks": [],
+      "futureGlossary": [],
+      "futureComparisons": [],
+      "doNotTarget": [
+        "unrelated formula-family aliases already folded into this page's own keyword set"
+      ]
+    },
+    {
+      "calculatorId": "CALC-EMAIL-PERFORMANCE",
+      "slug": "email-performance",
+      "primaryKeyword": "email performance calculator",
+      "primaryIntent": "tool",
+      "secondaryKeywords": [
+        {
+          "keyword": "email performance formula",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "how to calculate email performance",
+          "intent": "formula",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "email performance example",
+          "intent": "example",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is email performance",
+          "intent": "definition",
+          "placement": "supporting-section"
+        },
+        {
+          "keyword": "email campaign metrics calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "email marketing calculator calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "open rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "ctor calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "delivery rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "bounce rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "unsubscribe rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "complaint rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "list growth rate calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "revenue per recipient calculator",
+          "intent": "tool",
+          "placement": "same-page"
+        },
+        {
+          "keyword": "what is a good email performance",
+          "intent": "interpretation",
+          "placement": "supporting-section"
+        }
+      ],
+      "contentDepth": "standard",
+      "seoPriority": "A",
+      "titlePattern": "{Metric Name} Calculator",
+      "canonicalPath": "/calculators/email-performance",
       "index": true,
       "localizationStatus": {
         "name": "tr-missing",

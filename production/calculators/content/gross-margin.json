@@ -21,10 +21,19 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Revenue", "value": "$100,000" },
-        { "label": "Cost of goods sold", "value": "$40,000" }
+        {
+          "label": "Revenue",
+          "value": "$100,000"
+        },
+        {
+          "label": "Cost of goods sold",
+          "value": "$40,000"
+        }
       ],
-      "output": { "label": "Gross Margin", "value": "60.00%" },
+      "output": {
+        "label": "Gross Margin",
+        "value": "60.00%"
+      },
       "body": "A 60% gross margin means 60 cents of every revenue dollar remains after the direct cost of the goods sold, before any other cost is counted. If COGS ever exceeds revenue, the result is a valid negative margin, not an error, meaning the goods themselves are being sold at a loss before overhead is even factored in."
     },
     {
@@ -37,7 +46,7 @@
       "id": "margin-boundaries",
       "type": "comparison-note",
       "heading": "Gross margin only covers COGS",
-      "body": "This page calculates gross margin specifically — revenue minus the direct cost of goods, nothing else. [Contribution margin](/calculators/contribution-margin) goes a step further and also subtracts other variable costs like shipping and payment fees, so it's always equal to or lower than gross margin for the same order. [Profit margin](/calculators/profit-margin) goes further still and subtracts every cost the business has, fixed and variable. The three aren't interchangeable names for the same thing; they answer 'how much is left' after progressively wider cost bases."
+      "body": "This page calculates gross margin specifically — revenue minus the direct cost of goods, nothing else. Contribution margin goes a step further and also subtracts other variable costs like shipping and payment fees, so it's always equal to or lower than gross margin for the same order. Profit margin goes further still and subtracts every cost the business has, fixed and variable. The three aren't interchangeable names for the same thing; they answer 'how much is left' after progressively wider cost bases."
     },
     {
       "id": "interpretation",
@@ -58,9 +67,11 @@
     }
   ],
   "related": [
-    { "slug": "contribution-margin", "name": "Contribution Margin Calculator", "desc": "The next cost layer down - subtracts other variable costs like shipping and payment fees on top of COGS." },
-    { "slug": "profit-margin", "name": "Profit Margin Calculator", "desc": "The full picture - subtracts every cost the business has, fixed and variable, not just COGS." },
-    { "slug": "break-even-point", "name": "Break-Even Point Calculator", "desc": "Uses a per-unit margin figure like this one to work out how many units need to sell before fixed costs are covered." }
+    {
+      "slug": "break-even-point",
+      "name": "Break-Even Point Calculator",
+      "desc": "Uses a per-unit margin figure like this one to work out how many units need to sell before fixed costs are covered."
+    }
   ],
   "faq": [
     {

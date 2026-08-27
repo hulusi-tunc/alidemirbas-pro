@@ -15,10 +15,19 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Revenue Growth Rate", "value": "30%" },
-        { "label": "Profit Margin", "value": "15%" }
+        {
+          "label": "Revenue Growth Rate",
+          "value": "30%"
+        },
+        {
+          "label": "Profit Margin",
+          "value": "15%"
+        }
       ],
-      "output": { "label": "Rule of 40 Score", "value": "45 pts" },
+      "output": {
+        "label": "Rule of 40 Score",
+        "value": "45 pts"
+      },
       "body": "30 + 15 = 45 pts. Growth and profitability moved in opposite directions in isolation — 30% growth alone or 15% margin alone tell two separate stories — but added together they clear the named 40-point line this metric is built around."
     },
     {
@@ -31,7 +40,7 @@
       "id": "rule-of-40-vs-quick-ratio",
       "type": "comparison-note",
       "heading": "Rule of 40 vs. SaaS Quick Ratio",
-      "body": "Both are single-number SaaS health checks, but they measure different things. Rule of 40 sums two percentages — growth rate and profit margin — asking whether a company is balancing top-line growth against bottom-line profitability. [SaaS Quick Ratio](/calculators/saas-quick-ratio) divides new-plus-expansion MRR by lost MRR, asking a narrower question: is the revenue being added outpacing the revenue being lost, independent of profitability entirely. A company can score well on one and poorly on the other — a fast-growing, unprofitable business can post a strong Quick Ratio (growth outpacing churn) while still falling short on Rule of 40 if profit margin is deeply negative."
+      "body": "Both are single-number SaaS health checks, but they measure different things. Rule of 40 sums two percentages — growth rate and profit margin — asking whether a company is balancing top-line growth against bottom-line profitability. SaaS Quick Ratio divides new-plus-expansion MRR by lost MRR, asking a narrower question: is the revenue being added outpacing the revenue being lost, independent of profitability entirely. A company can score well on one and poorly on the other — a fast-growing, unprofitable business can post a strong Quick Ratio (growth outpacing churn) while still falling short on Rule of 40 if profit margin is deeply negative."
     },
     {
       "id": "common-mistakes",
@@ -45,11 +54,7 @@
       ]
     }
   ],
-  "related": [
-    { "slug": "saas-quick-ratio", "name": "SaaS Quick Ratio Calculator", "desc": "A narrower revenue-growth-versus-churn ratio, independent of profitability entirely — a different single-number SaaS health check." },
-    { "slug": "mrr", "name": "MRR Calculator", "desc": "The recurring revenue base that a company's growth rate is typically measured against." },
-    { "slug": "profit-margin", "name": "Profit Margin Calculator", "desc": "One of the two inputs Rule of 40 adds together — profitability on its own, without the growth side." }
-  ],
+  "related": [],
   "faq": [
     {
       "id": "what-is-rule-of-40",
