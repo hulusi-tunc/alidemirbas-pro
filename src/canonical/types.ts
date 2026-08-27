@@ -56,6 +56,42 @@ export type CategoryId =
   | "rollout"
   | "incident";
 
+/** The single primary discovery filter: what problem a journey solves, not
+    which domain it lives in. Derived from a full semantic re-audit of all
+    255 journeys (see production/journey-goal-vocabulary-audit for the
+    methodology and the id -> goal migration matrix) - each journey's own
+    node graph and purpose were read individually and matched against "what
+    would a practitioner be trying to solve", never inferred from keywords in
+    the name or purpose text at runtime. Every journey carries exactly one:
+    Goal is a single-select discovery filter, not a multi-label tag. */
+export type GoalId =
+  | "eligibility-qualification"
+  | "recovery-retry"
+  | "escalation-exception"
+  | "delivery-confirmation"
+  | "suspension-restoration"
+  | "progression-milestone"
+  | "reconciliation-correction"
+  | "access-entitlement-change"
+  | "cancellation-termination"
+  | "decision-approval"
+  | "data-integrity"
+  | "scheduling-commitment"
+  | "expiry-renewal"
+  | "ownership-transfer"
+  | "compensation-remedy"
+  | "change-versioning"
+  | "routing-assignment"
+  | "relationship-recovery-intervention"
+  | "consent-permission"
+  | "risk-compliance"
+  | "identity-verification"
+  | "relationship-hierarchy-structure"
+  | "merge-consolidation"
+  | "root-cause-diagnostic-correlation"
+  | "health-risk-signal-scoring"
+  | "readiness-revalidation";
+
 /** A journey id that was consolidated into another during review and is no
     longer canonical. Kept only so existing references resolve; never counted
     as a journey and never a valid handoff target. */
@@ -265,6 +301,9 @@ export interface CanonicalJourney {
   id: string;
   slug: string;
   category: CategoryId;
+  /** What problem this journey solves, as a single primary value - see
+      GoalId. Explicit canonical metadata, not derived at runtime. */
+  goal: GoalId;
   name: string;
   purpose: string;
   /** What the journey is about, which is what its exits and suppressions are

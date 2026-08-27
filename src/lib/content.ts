@@ -104,16 +104,13 @@ export const copy = {
       page: {
         title: "Canonical Journey Library",
         intro:
-          "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Filter by goal, lifecycle stage or what the trigger is allowed to conclude, or search - each entry is a graph, not a sequence.",
+          "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Search, or filter by goal and category - each entry is a graph, not a sequence.",
         searchPlaceholder: "Search journeys...",
-        goalLabel: "Goal / use case",
-        lifecycleStageLabel: "Lifecycle stage",
-        lifecycleStageHint:
-          "Only 4 of 26 categories are anchored to a point in the customer lifecycle - the rest run the same regardless of where someone is, so most journeys show as cross-lifecycle.",
-        evidenceLabel: "Trigger evidence",
-        filtersLabel: "Filters",
-        showMore: "Show more",
-        showLess: "Show less",
+        goalLabel: "Goal",
+        allGoals: "All Goals",
+        categoryLabel: "Category",
+        allCategories: "All Categories",
+        removeFilterLabel: "Remove {label} filter",
         clearAll: "Clear all",
         results: "journeys",
         empty: "Nothing matches those filters.",
@@ -129,14 +126,6 @@ export const copy = {
         backToLibrary: "All journeys",
         mergedNote:
           "{from} was merged into {to}. That id is no longer a journey of its own; what it covered lives here.",
-        evidence: {
-          authoritative: "authoritative",
-          declared: "declared",
-          behavioral: "behavioral",
-          inferred: "inferred",
-        },
-        evidenceHint:
-          "What the trigger is allowed to conclude. Authoritative evidence can establish an outcome; declared, behavioral and inferred evidence can prioritise work or ask for verification, and cannot conclude one.",
         canvas: {
           entry: "Entry",
           zoomIn: "Zoom in",
@@ -658,16 +647,13 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Amaca, yaşam döngüsü aşamasına veya trigger kanıtına göre filtrele ya da ara. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Ara, ya da goal ve kategoriye göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
         searchPlaceholder: "Journey ara...",
-        goalLabel: "Amaç / kullanım senaryosu",
-        lifecycleStageLabel: "Yaşam döngüsü aşaması",
-        lifecycleStageHint:
-          "26 kategoriden yalnızca 4'ü müşteri yaşam döngüsünde belirli bir noktaya bağlı - geri kalanı kişinin nerede olduğundan bağımsız aynı şekilde çalışır, bu yüzden çoğu journey yaşam döngüsünden bağımsız görünür.",
-        evidenceLabel: "Trigger kanıtı",
-        filtersLabel: "Filtreler",
-        showMore: "Daha fazla göster",
-        showLess: "Daha az göster",
+        goalLabel: "Goal",
+        allGoals: "Tüm Goal'ler",
+        categoryLabel: "Kategori",
+        allCategories: "Tüm kategoriler",
+        removeFilterLabel: "{label} filtresini kaldır",
         clearAll: "Temizle",
         results: "journey",
         empty: "Bu filtrelerle eşleşen kayıt yok.",
@@ -683,14 +669,6 @@ export const copy = {
         backToLibrary: "Tüm journey'ler",
         mergedNote:
           "{from}, {to} içine alındı. Bu ID artık ayrı bir journey değil; kapsadığı her şey burada.",
-        evidence: {
-          authoritative: "authoritative",
-          declared: "declared",
-          behavioral: "behavioral",
-          inferred: "inferred",
-        },
-        evidenceHint:
-          "Trigger'ın neyi sonuçlandırmasına izin verildiği. Authoritative kanıt bir sonuç kurabilir; declared, behavioral ve inferred kanıt işi önceliklendirebilir veya doğrulama isteyebilir, sonuç kuramaz.",
         canvas: {
           entry: "Giriş",
           zoomIn: "Yakınlaştır",

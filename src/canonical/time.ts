@@ -137,6 +137,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-61",
     slug: "deadline-tracking",
     category: "time",
+    goal: "escalation-exception",
     name: "Deadline created → track → complete, escalate or expire",
     purpose:
       "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
@@ -331,6 +332,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-62",
     slug: "due-state-change",
     category: "time",
+    goal: "escalation-exception",
     name: "Due-state change → recalculate priority → resolve or escalate",
     purpose:
       "Change what an unresolved obligation costs operationally when it becomes due or overdue, rather than only announcing that it has.",
@@ -483,6 +485,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-63",
     slug: "pre-expiry-window",
     category: "time",
+    goal: "expiry-renewal",
     name: "Expiry approaching → eligibility check → renew, complete or let expire",
     purpose:
       "Use the window before an expiry only where acting inside it could actually change what happens.",
@@ -650,6 +653,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-64",
     slug: "expiry-execution",
     category: "time",
+    goal: "expiry-renewal",
     name: "Expiry reached → validate current state → expire, extend or replace",
     purpose:
       "Check what the entity actually is at the moment the expiry fires, before applying anything the timer was written to apply.",
@@ -761,6 +765,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-65",
     slug: "grace-period",
     category: "time",
+    goal: "suspension-restoration",
     name: "Grace period entry → temporary continuity → recover or terminate",
     purpose:
       "Keep limited continuity while something recoverable is unresolved, without pretending the normal active state still exists.",
@@ -904,6 +909,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-66",
     slug: "temporary-exception",
     category: "time",
+    goal: "escalation-exception",
     name: "Temporary exception → validity window → revert or formalise",
     purpose:
       "Stop an exception granted for a reason from becoming a permanent state nobody remembers deciding on.",
@@ -1047,6 +1053,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-67",
     slug: "temporary-state-lifecycle",
     category: "time",
+    goal: "suspension-restoration",
     name: "Temporary state → explicit expiry → restore or transition",
     purpose:
       "Give any time-bound state a defined ending, and revalidate before returning anything to what it was.",
@@ -1189,6 +1196,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-68",
     slug: "reversal-window",
     category: "time",
+    goal: "suspension-restoration",
     name: "Reversible state → reversal window → confirm or restore",
     purpose:
       "Undo a transition within its window while restoring only what is independently still valid.",
@@ -1326,6 +1334,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-69",
     slug: "post-expiry-re-entry",
     category: "time",
+    goal: "eligibility-qualification",
     name: "Expired state → re-entry eligibility → renew, requalify or remain expired",
     purpose:
       "Decide how something expired can become valid again, through the mechanism that actually restores validity rather than by editing the expiry away.",
@@ -1437,6 +1446,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TIM-70",
     slug: "scheduled-transition-execution",
     category: "time",
+    goal: "scheduling-commitment",
     name: "Scheduled future transition → validate at execution → apply, cancel or recalculate",
     purpose:
       "Treat a scheduled transition as an intention recorded in the past, and check it against the present before applying it.",

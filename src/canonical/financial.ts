@@ -162,6 +162,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-131",
     slug: "financial-obligation-lifecycle",
     category: "financial",
+    goal: "reconciliation-correction",
     name: "Financial obligation created → due → satisfied or outstanding",
     purpose:
       "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
@@ -321,6 +322,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-132",
     slug: "payment-attempt-outcome",
     category: "financial",
+    goal: "delivery-confirmation",
     name: "Payment initiated → pending → success, failure or unknown",
     purpose:
       "Keep initiating a payment and knowing what happened to it as separate states, with a third state for not knowing.",
@@ -452,6 +454,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-133",
     slug: "authorization-capture-settlement",
     category: "financial",
+    goal: "progression-milestone",
     name: "Payment authorization → capture → settle or release",
     purpose:
       "Model the actual commitment of funds, where reserving, taking and receiving are three different things.",
@@ -630,6 +633,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-134",
     slug: "payment-failure-recovery",
     category: "financial",
+    goal: "recovery-retry",
     name: "Payment failure → classify → recover, alternate or exit",
     purpose:
       "Respond to the reason a payment actually failed, and keep the obligation alive while doing it.",
@@ -820,6 +824,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-135",
     slug: "unknown-payment-reconciliation",
     category: "financial",
+    goal: "reconciliation-correction",
     name: "Payment unknown → reconcile → confirm success or failure",
     purpose:
       "Find out what actually happened to a payment whose outcome we lost sight of, before anything is charged again.",
@@ -986,6 +991,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-136",
     slug: "obligation-satisfaction",
     category: "financial",
+    goal: "reconciliation-correction",
     name: "Financial obligation satisfied → reconcile balance → release dependent state",
     purpose:
       "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
@@ -1126,6 +1132,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-137",
     slug: "refund-request-decision",
     category: "financial",
+    goal: "eligibility-qualification",
     name: "Refund request → eligibility → approve, reject or review",
     purpose:
       "Turn a refund request into an authorised decision, without money moving on the request itself.",
@@ -1318,6 +1325,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-138",
     slug: "refund-execution",
     category: "financial",
+    goal: "delivery-confirmation",
     name: "Refund approved → execute → confirm or reconcile",
     purpose:
       "Move the money and confirm it arrived, keeping that separate from having decided it should.",
@@ -1460,6 +1468,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-139",
     slug: "financial-dispute",
     category: "financial",
+    goal: "risk-compliance",
     name: "Financial dispute or chargeback → evidence → decision → reconcile",
     purpose:
       "Run a transaction-level dispute through the authority that decides it, without treating the claim as a finding.",
@@ -1618,6 +1627,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-140",
     slug: "financial-reconciliation",
     category: "financial",
+    goal: "reconciliation-correction",
     name: "Financial reconciliation → detect mismatch → correct or escalate",
     purpose:
       "Restore financial consistency by explaining the difference and adjusting it, never by editing the record that is inconvenient.",

@@ -178,6 +178,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-251",
     slug: "incident-correlation",
     category: "incident",
+    goal: "root-cause-diagnostic-correlation",
     name: "Correlated failure detection → incident candidate → confirm or reject",
     purpose:
       "Establish whether several failures actually share a cause, before treating them as one thing.",
@@ -316,6 +317,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-252",
     slug: "incident-scope",
     category: "incident",
+    goal: "escalation-exception",
     name: "Incident confirmed → determine severity and blast radius → assign command",
     purpose:
       "Establish what is actually affected, how badly, and who is running the response.",
@@ -460,6 +462,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-253",
     slug: "incident-mitigation",
     category: "incident",
+    goal: "recovery-retry",
     name: "Incident → contain and mitigate → preserve critical operations",
     purpose:
       "Reduce the damage now, without pretending the cause has been dealt with.",
@@ -620,6 +623,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-254",
     slug: "incident-communication",
     category: "incident",
+    goal: "delivery-confirmation",
     name: "Incident communication → identify affected cohort → inform, update or close",
     purpose:
       "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
@@ -800,6 +804,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-255",
     slug: "root-cause-investigation",
     category: "incident",
+    goal: "root-cause-diagnostic-correlation",
     name: "Root cause investigation → hypothesis → confirm or reject → corrective action",
     purpose:
       "Find the thing that actually explains the incident, rather than the thing that was nearest to it.",
@@ -946,6 +951,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-256",
     slug: "incident-recovery",
     category: "incident",
+    goal: "recovery-retry",
     name: "Recovery action → restore service → verify or continue",
     purpose:
       "Act on the cause and then check the affected population, not the command's return code.",
@@ -1128,6 +1134,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-257",
     slug: "recovery-observation",
     category: "incident",
+    goal: "suspension-restoration",
     name: "Service restored → observation window → stable or relapse",
     purpose:
       "Hold the incident open long enough to know the recovery held.",
@@ -1268,6 +1275,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-258",
     slug: "incident-resolution",
     category: "incident",
+    goal: "cancellation-termination",
     name: "Incident resolution → close operational response → preserve residual cases",
     purpose:
       "Close the shared failure without closing the individual problems it caused.",
@@ -1436,6 +1444,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-259",
     slug: "post-incident-review",
     category: "incident",
+    goal: "root-cause-diagnostic-correlation",
     name: "Post-incident review → learn → corrective work → verify",
     purpose:
       "Turn what the incident showed into work somebody owns and somebody checks.",
@@ -1619,6 +1628,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INC-260",
     slug: "incident-recurrence",
     category: "incident",
+    goal: "root-cause-diagnostic-correlation",
     name: "Incident pattern recurrence → detect systemic weakness → escalate prevention",
     purpose:
       "Notice when the same weakness keeps producing incidents, and stop treating each one as new.",

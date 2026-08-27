@@ -7,8 +7,7 @@ import {
   byId,
   resolveJourneyId,
 } from "@/canonical";
-import type { CanonicalJourney, CanonicalNode, CategoryId } from "@/canonical/types";
-import { goalOf, lifecycleStageOf, type Goal, type LifecycleStage } from "@/lib/journey-taxonomy";
+import type { CanonicalJourney, CanonicalNode, CategoryId, GoalId } from "@/canonical/types";
 
 /* The read model the archive renders from.
 
@@ -42,6 +41,23 @@ export function withCanonicalCount(text: string): string {
 const CATEGORY_TITLE = new Map<CategoryId, string>(CATEGORIES.map((c) => [c.id, c.title]));
 const BY_SLUG = new Map<string, CanonicalJourney>(JOURNEYS.map((j) => [j.slug, j]));
 
+/** The Category filter's own value list - id and display title, in the same
+    order the canonical registry declares categories (already a considered
+    order: acquisition through incident, roughly the shape of a lifecycle
+    even though most individual journeys aren't lifecycle-anchored). */
+export type CategoryOption = { id: CategoryId; title: string };
+export const CATEGORY_OPTIONS: readonly CategoryOption[] = CATEGORIES.map((c) => ({
+  id: c.id,
+  title: c.title,
+}));
+
+const CATEGORY_ID_SET: ReadonlySet<string> = new Set(CATEGORIES.map((c) => c.id));
+
+/** Guards a query-param value before it's trusted as a Category filter. */
+export function isCategoryId(value: string): value is CategoryId {
+  return CATEGORY_ID_SET.has(value);
+}
+
 /** Where a journey's trigger evidence comes from. It is the second facet
     because it is the one property that changes what a journey is allowed to
     conclude, which is more useful to filter on than anything cosmetic would be. */
@@ -65,10 +81,9 @@ export type JourneyRow = {
   nodeCount: number;
   /** The exclusion group this journey competes in, where it competes at all. */
   competesIn: string | null;
-  /** Filter taxonomy audit's other two approved facets - see
-      lib/journey-taxonomy.ts and production/journey-filter-taxonomy-audit.md. */
-  lifecycleStage: LifecycleStage;
-  goal: Goal;
+  /** The single primary discovery filter - explicit canonical metadata, not
+      derived here. See src/canonical/types.ts and lib/journey-taxonomy.ts. */
+  goal: GoalId;
 };
 
 const triggerOf = (j: CanonicalJourney) => j.nodes.find((n) => n.kind === "trigger");
@@ -83,8 +98,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   evidence: (triggerOf(j)?.evidence.source ?? "authoritative") as EvidenceSource,
   nodeCount: j.nodes.length,
   competesIn: j.competition?.exclusionGroup ?? null,
-  lifecycleStage: lifecycleStageOf(j.category),
-  goal: goalOf(j),
+  goal: j.goal,
 }));
 
 /* ------------------------------------------------------------ merged ids */

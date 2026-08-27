@@ -139,6 +139,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-51",
     slug: "work-routing-to-responsibility",
     category: "ownership",
+    goal: "routing-assignment",
     name: "Work created → routing → assignment",
     purpose:
       "Get new work into the smallest responsibility scope that is genuinely valid, and refuse to invent one where the policy is silent.",
@@ -283,6 +284,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-52",
     slug: "assignment-to-accepted-responsibility",
     category: "ownership",
+    goal: "routing-assignment",
     name: "Assignment → acceptance → active responsibility",
     purpose:
       "Keep proposed responsibility and accepted responsibility as different states, so work nobody has taken is visible as such.",
@@ -429,6 +431,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-53",
     slug: "ownership-context-transfer",
     category: "ownership",
+    goal: "ownership-transfer",
     name: "Owner assignment → context transfer → work start",
     purpose:
       "Give a new owner what they need to continue an existing obligation, rather than an entity with their name on it.",
@@ -553,6 +556,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-54",
     slug: "ownership-change-obligation-transfer",
     category: "ownership",
+    goal: "ownership-transfer",
     name: "Ownership change → transfer obligations → continue",
     purpose:
       "Move responsibility for an active entity without losing anything that was already owed, without letting the clock restart, and without rewriting who did what before the change.",
@@ -792,6 +796,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-55",
     slug: "responsibility-escalation",
     category: "ownership",
+    goal: "escalation-exception",
     name: "Responsibility escalation → higher authority → resolution or return",
     purpose:
       "Move a blocker up to the level that can clear it, without the original owner putting the work down by raising it.",
@@ -988,6 +993,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-56",
     slug: "approval-request-review",
     category: "ownership",
+    goal: "decision-approval",
     name: "Approval request → review → approve, reject or request changes",
     purpose:
       "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
@@ -1135,6 +1141,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-57",
     slug: "multi-party-approval-aggregation",
     category: "ownership",
+    goal: "decision-approval",
     name: "Multi-party approval → aggregate required decisions → authorised or blocked",
     purpose:
       "Combine several genuinely independent approval decisions strictly according to the governing policy, and refuse to proceed where no policy defines how.",
@@ -1363,6 +1370,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-58",
     slug: "material-change-after-approval",
     category: "ownership",
+    goal: "decision-approval",
     name: "Material change after approval → impact check → re-approval or continue",
     purpose:
       "Work out whether an approval still covers what the subject has become, and re-open only the decisions whose basis stopped being true.",
@@ -1559,6 +1567,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-59",
     slug: "rejected-approval-revision-path",
     category: "ownership",
+    goal: "decision-approval",
     name: "Approval rejected → revision eligibility → resubmit or close",
     purpose:
       "Keep rejection from being either a dead end by default or a retry loop, and make sure a rejected version cannot quietly execute later.",
@@ -1700,6 +1709,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-60",
     slug: "decision-authority-change",
     category: "ownership",
+    goal: "decision-approval",
     name: "Decision authority change → revalidate pending decisions → transfer or continue",
     purpose:
       "Re-evaluate decisions against who is actually authorised now, without unapproving history or blindly moving what is pending.",

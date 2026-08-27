@@ -161,6 +161,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-101",
     slug: "entity-merge-execution",
     category: "terminal",
+    goal: "merge-consolidation",
     name: "Identity or entity merge → reconcile → consolidate → verify",
     purpose:
       "Consolidate records that represent one entity, after every dependent state has been reconciled under its own authority rule.",
@@ -346,6 +347,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-102",
     slug: "merge-conflict-resolution",
     category: "terminal",
+    goal: "merge-consolidation",
     name: "Merge conflict → safe state → resolve → continue or abort",
     purpose:
       "Fail safe wherever consolidating would require inventing an authority the system does not have.",
@@ -544,6 +546,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-103",
     slug: "account-consolidation",
     category: "terminal",
+    goal: "merge-consolidation",
     name: "Account consolidation → dependency reconciliation → unified relationship",
     purpose:
       "Unify business structure across accounts while every person involved stays a separate person.",
@@ -723,6 +726,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-104",
     slug: "primary-relationship-transfer",
     category: "terminal",
+    goal: "ownership-transfer",
     name: "Primary relationship transfer → validate new primary → transfer dependencies",
     purpose:
       "Move a dependent entity to a new primary, carrying only what the primary relationship actually governs.",
@@ -867,6 +871,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-105",
     slug: "responsibility-handover",
     category: "terminal",
+    goal: "ownership-transfer",
     name: "Role or responsibility handover → effective-time transfer → continue",
     purpose:
       "Move a role between two people at a defined moment, without changing anything before it or rewriting anything behind it.",
@@ -1036,6 +1041,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-106",
     slug: "account-closure-request",
     category: "terminal",
+    goal: "cancellation-termination",
     name: "Account closure request → validate → resolve blockers → close",
     purpose:
       "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
@@ -1232,6 +1238,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-107",
     slug: "closure-external-dependencies",
     category: "terminal",
+    goal: "cancellation-termination",
     name: "Account closure → reconcile external and commercial dependencies → finalize",
     purpose:
       "Make sure nothing that lives outside the account is assumed to have ended because the account did.",
@@ -1386,6 +1393,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-108",
     slug: "closure-wind-down",
     category: "terminal",
+    goal: "cancellation-termination",
     name: "Closure completed → wind-down → former or terminal account state",
     purpose:
       "Stop normal account activity while letting the obligations that outlive closure actually finish.",
@@ -1489,6 +1497,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-109",
     slug: "data-deletion-request",
     category: "terminal",
+    goal: "data-integrity",
     name: "Data deletion request → validate scope → hold, delete or retain required data",
     purpose:
       "Decide what a deletion request actually covers, and keep only what an authoritative retention obligation genuinely requires.",
@@ -1669,6 +1678,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "TRM-110",
     slug: "data-deletion-execution",
     category: "terminal",
+    goal: "data-integrity",
     name: "Data deletion execution → propagate → verify or reconcile failure",
     purpose:
       "Carry a deletion through every system it has to reach, and keep any part that did not arrive visible.",

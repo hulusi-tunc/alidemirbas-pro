@@ -169,6 +169,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-151",
     slug: "post-completion-issue",
     category: "remedy",
+    goal: "compensation-remedy",
     name: "Post-completion issue → validate → remedy route",
     purpose:
       "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
@@ -311,6 +312,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-152",
     slug: "return-authorization",
     category: "remedy",
+    goal: "eligibility-qualification",
     name: "Return request → eligibility → authorize, reject or review",
     purpose:
       "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
@@ -506,6 +508,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-153",
     slug: "return-transit",
     category: "remedy",
+    goal: "delivery-confirmation",
     name: "Return authorized → in transit, received, lost or expired",
     purpose:
       "Track whether an authorised return actually comes back, and hold the states where it might not have.",
@@ -668,6 +671,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-154",
     slug: "return-inspection",
     category: "remedy",
+    goal: "eligibility-qualification",
     name: "Returned item or deliverable → inspect → accept, reject or partial",
     purpose:
       "Judge what came back against the conditions it was authorised under, keeping receipt and acceptance apart.",
@@ -797,6 +801,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-155",
     slug: "replacement-remedy",
     category: "remedy",
+    goal: "compensation-remedy",
     name: "Replacement decision → allocate → fulfill → confirm",
     purpose:
       "Deliver a second time against the same promise, tied to the defect it exists to resolve.",
@@ -956,6 +961,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-156",
     slug: "correction-reperformance",
     category: "remedy",
+    goal: "compensation-remedy",
     name: "Reperformance or correction → execute → verify corrected outcome",
     purpose:
       "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
@@ -1087,6 +1093,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-157",
     slug: "remedy-selection",
     category: "remedy",
+    goal: "compensation-remedy",
     name: "Remedy selection → resolve obligation → financial handoff if needed",
     purpose:
       "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
@@ -1260,6 +1267,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-158",
     slug: "remedy-outcome-verification",
     category: "remedy",
+    goal: "compensation-remedy",
     name: "Remedy execution → verify outcome → close or continue recovery",
     purpose:
       "Check that the remedy actually satisfied the obligation, rather than that it was carried out.",
@@ -1415,6 +1423,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-159",
     slug: "compensation-decision",
     category: "remedy",
+    goal: "compensation-remedy",
     name: "Compensation decision → eligibility → grant or reject → deliver",
     purpose:
       "Decide separately whether impact warrants something beyond fixing the problem, and confirm it actually arrived.",
@@ -1627,6 +1636,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REM-160",
     slug: "post-remedy-recurrence",
     category: "remedy",
+    goal: "compensation-remedy",
     name: "Post-remedy reopen → validate recurrence → continue or new issue",
     purpose:
       "Tell a recurrence of the same problem apart from a new one, and from a remedy that never actually finished.",

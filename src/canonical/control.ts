@@ -185,6 +185,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-231",
     slug: "ownership-assignment",
     category: "control",
+    goal: "ownership-transfer",
     name: "Ownership assignment → validate authority → assign or reject",
     purpose:
       "Establish an accountable controller for an entity, by an explicit act rather than by inference.",
@@ -443,6 +444,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-232",
     slug: "transfer-request",
     category: "control",
+    goal: "ownership-transfer",
     name: "Ownership transfer request → validate → pending acceptance or reject",
     purpose:
       "Propose a future controller without disturbing the one the entity currently has.",
@@ -606,6 +608,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-233",
     slug: "transfer-acceptance",
     category: "control",
+    goal: "ownership-transfer",
     name: "Ownership transfer acceptance → revalidate → execute or expire",
     purpose:
       "Check that a transfer accepted today is still the transfer that was proposed.",
@@ -740,6 +743,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-234",
     slug: "ownership-cutover",
     category: "control",
+    goal: "ownership-transfer",
     name: "Ownership cutover → assign new owner → reconcile old owner",
     purpose:
       "Move control from one party to another without the entity being uncontrolled in between.",
@@ -858,6 +862,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-235",
     slug: "delegation-grant",
     category: "control",
+    goal: "access-entitlement-change",
     name: "Delegation request → define scope → grant or reject",
     purpose:
       "Let somebody act on an owner's behalf, inside a boundary, without moving anything.",
@@ -1042,6 +1047,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-236",
     slug: "temporary-delegation",
     category: "control",
+    goal: "expiry-renewal",
     name: "Temporary delegation → expire → revoke, extend or restore",
     purpose:
       "End borrowed authority at its boundary, checking first that the boundary still belongs to a delegation that exists.",
@@ -1234,6 +1240,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-237",
     slug: "delegation-revocation",
     category: "control",
+    goal: "access-entitlement-change",
     name: "Delegation revoked → remove delegated authority → preserve independent access",
     purpose:
       "Take back exactly what was lent, and nothing the delegate had of their own.",
@@ -1364,6 +1371,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CTL-238",
     slug: "owner-unavailable",
     category: "control",
+    goal: "ownership-transfer",
     name: "Owner unavailable or invalid → protect entity → recover ownership",
     purpose:
       "Hold an entity safely when its owner cannot act, without handing it to whoever is nearest.",

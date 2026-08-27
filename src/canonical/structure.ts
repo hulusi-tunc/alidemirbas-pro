@@ -144,6 +144,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-91",
     slug: "relationship-creation",
     category: "structure",
+    goal: "relationship-hierarchy-structure",
     name: "Entity relationship created → validate → activate or reject",
     purpose:
       "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
@@ -284,6 +285,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-92",
     slug: "relationship-change",
     category: "structure",
+    goal: "data-integrity",
     name: "Relationship change → recalculate rights and obligations → continue",
     purpose:
       "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
@@ -442,6 +444,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-93",
     slug: "relationship-end",
     category: "structure",
+    goal: "cancellation-termination",
     name: "Relationship end → remove future dependency → reconcile existing obligations",
     purpose:
       "Stop what a relationship was carrying forward without cancelling what it validly produced.",
@@ -563,6 +566,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-94",
     slug: "role-change-delta",
     category: "structure",
+    goal: "access-entitlement-change",
     name: "Role change → authority and capability delta → apply",
     purpose:
       "Move what someone may do next, by the difference between two roles, without disturbing what they did under the old one.",
@@ -677,6 +681,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-95",
     slug: "parent-state-propagation",
     category: "structure",
+    goal: "relationship-hierarchy-structure",
     name: "Parent state change → determine child impact → propagate selectively",
     purpose:
       "Let a parent's state reach only the children that genuinely depend on it, through a rule someone actually wrote.",
@@ -822,6 +827,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-96",
     slug: "parent-state-aggregation",
     category: "structure",
+    goal: "relationship-hierarchy-structure",
     name: "Child state change → recalculate aggregate parent state",
     purpose:
       "Derive a parent's state from its children through an explicit aggregation policy, recomputed from source rather than nudged by whichever child reported last.",
@@ -932,6 +938,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-97",
     slug: "duplicate-assessment",
     category: "structure",
+    goal: "merge-consolidation",
     name: "Duplicate entity detected → assess → keep separate, link or merge",
     purpose:
       "Assess whether two records are the same entity, and route the answer - without consolidating anything.",
@@ -1052,6 +1059,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-98",
     slug: "entity-link",
     category: "structure",
+    goal: "relationship-hierarchy-structure",
     name: "Entity link → shared context → preserve independent identity",
     purpose:
       "Record that two entities are related and let defined context cross between them, while both remain two entities.",
@@ -1159,6 +1167,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-99",
     slug: "entity-split",
     category: "structure",
+    goal: "relationship-hierarchy-structure",
     name: "Entity split required → create separate records → allocate history and state safely",
     purpose:
       "Separate what should never have been one record, or what must now be managed apart, without copying the things that do not divide.",
@@ -1297,6 +1306,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     id: "REL-100",
     slug: "orphaned-entity-resolution",
     category: "structure",
+    goal: "escalation-exception",
     name: "Required relationship missing → orphan state → resolve or reassign",
     purpose:
       "Make a missing required relationship an explicit, findable state rather than a null field that active work quietly runs against.",

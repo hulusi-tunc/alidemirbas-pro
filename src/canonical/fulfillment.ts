@@ -165,6 +165,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-141",
     slug: "fulfillment-request-acceptance",
     category: "fulfillment",
+    goal: "eligibility-qualification",
     name: "Fulfillment request → validate → accept, reject or hold",
     purpose:
       "Decide whether we are taking responsibility for delivering something, as a state distinct from having been asked.",
@@ -315,6 +316,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-142",
     slug: "fulfillment-availability",
     category: "fulfillment",
+    goal: "scheduling-commitment",
     name: "Accepted fulfillment → availability check → allocate, backorder or reject",
     purpose:
       "Establish whether the resources to satisfy an accepted obligation actually exist, in the scope and window that would serve it.",
@@ -472,6 +474,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-143",
     slug: "resource-allocation",
     category: "fulfillment",
+    goal: "scheduling-commitment",
     name: "Resource allocation → reserve → confirm, release or reallocate",
     purpose:
       "Bind specific capacity to one obligation until it is consumed or deliberately let go.",
@@ -656,6 +659,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-144",
     slug: "fulfillment-execution",
     category: "fulfillment",
+    goal: "progression-milestone",
     name: "Fulfillment execution → progress → complete, partial or fail",
     purpose:
       "Track what the obligation's scope actually reaches, rather than what an internal step reported.",
@@ -837,6 +841,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-145",
     slug: "fulfillment-exception",
     category: "fulfillment",
+    goal: "recovery-retry",
     name: "Fulfillment exception → diagnose → recover, substitute or fail",
     purpose:
       "Change only the part of an obligation the operational problem actually touches.",
@@ -1008,6 +1013,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-146",
     slug: "fulfillment-delay",
     category: "fulfillment",
+    goal: "scheduling-commitment",
     name: "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
     purpose:
       "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
@@ -1210,6 +1216,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-147",
     slug: "dispatch-and-delivery-tracking",
     category: "fulfillment",
+    goal: "delivery-confirmation",
     name: "Dispatch or handoff → track → delivered, failed or unknown",
     purpose:
       "Transfer execution to whoever performs the delivery while the obligation stays ours and stays open.",
@@ -1349,6 +1356,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-148",
     slug: "delivery-attempt-failure",
     category: "fulfillment",
+    goal: "recovery-retry",
     name: "Delivery attempt failed → reason → retry, correct, alternate or return",
     purpose:
       "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
@@ -1524,6 +1532,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-149",
     slug: "delivery-acceptance-finalization",
     category: "fulfillment",
+    goal: "delivery-confirmation",
     name: "Delivery confirmation → acceptance or issue window → finalize",
     purpose:
       "Separate arriving from being agreed to have arrived correctly, wherever that difference has business meaning.",
@@ -1660,6 +1669,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FUL-150",
     slug: "fulfillment-cancellation",
     category: "fulfillment",
+    goal: "cancellation-termination",
     name: "Fulfillment cancellation → stop future work → release resources → reconcile",
     purpose:
       "Stop what remains of an obligation while keeping everything that already happened.",

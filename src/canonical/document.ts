@@ -174,6 +174,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-211",
     slug: "document-requirement",
     category: "document",
+    goal: "eligibility-qualification",
     name: "Document requirement → determine artifact → create, reuse or waive",
     purpose:
       "Decide whether a new artifact is genuinely needed, or whether one already exists that answers the requirement.",
@@ -306,6 +307,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-212",
     slug: "document-draft",
     category: "document",
+    goal: "data-integrity",
     name: "Document draft → populate → validate → ready or blocked",
     purpose:
       "Build the contents from authoritative sources and prove they are complete before anything is issued.",
@@ -459,6 +461,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-213",
     slug: "document-issuance",
     category: "document",
+    goal: "change-versioning",
     name: "Ready document → issue → immutable issued version",
     purpose:
       "Freeze the artifact at a version that can be identified, referenced and never quietly changed.",
@@ -559,6 +562,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-214",
     slug: "document-distribution",
     category: "document",
+    goal: "delivery-confirmation",
     name: "Document distribution → send or provide access → confirm or fail",
     purpose:
       "Get a specific issued version to the party who should have it, without either fact touching the other.",
@@ -689,6 +693,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-215",
     slug: "signature-process",
     category: "document",
+    goal: "eligibility-qualification",
     name: "Signature request → await signatures → signed, declined or expired",
     purpose:
       "Collect the required signatures against one exact version, and know when they are actually all there.",
@@ -905,6 +910,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-216",
     slug: "document-effectiveness",
     category: "document",
+    goal: "progression-milestone",
     name: "Signed document → validate completion → effective or pending condition",
     purpose:
       "Establish when a document actually starts doing something, which is not when it was signed.",
@@ -1174,6 +1180,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-217",
     slug: "document-amendment",
     category: "document",
+    goal: "change-versioning",
     name: "Document change → new version or amendment → supersede prospectively",
     purpose:
       "Change an issued artifact by creating a successor, leaving what it replaces exactly as it was.",
@@ -1354,6 +1361,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-218",
     slug: "document-expiry",
     category: "document",
+    goal: "expiry-renewal",
     name: "Document expiry → revalidate requirement → renew, replace or close",
     purpose:
       "End future reliance on a time-limited artifact, and stop only what genuinely needs it to be current.",
@@ -1538,6 +1546,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-219",
     slug: "document-revocation",
     category: "document",
+    goal: "access-entitlement-change",
     name: "Document revocation or withdrawal → stop future reliance → reconcile",
     purpose:
       "Withdraw an artifact by an authority's decision, exactly as far as that decision reaches.",
@@ -1702,6 +1711,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-220",
     slug: "document-conflict",
     category: "document",
+    goal: "reconciliation-correction",
     name: "Document or record conflict → determine authoritative version → reconcile",
     purpose:
       "Work out which version actually governs, and explain the conflict rather than deleting it.",

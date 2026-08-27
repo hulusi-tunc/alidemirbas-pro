@@ -141,6 +141,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-81",
     slug: "identity-claim-verification",
     category: "identity",
+    goal: "identity-verification",
     name: "Identity claim → evidence → verified, rejected or more evidence",
     purpose:
       "Establish confidence in one specific identity claim, bound to the evidence that established it.",
@@ -334,6 +335,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-82",
     slug: "verification-dependency",
     category: "identity",
+    goal: "identity-verification",
     name: "Verification requirement → collect evidence → resume blocked process",
     purpose:
       "Hold a verification dependency as its own state, blocking only the process that needs it and releasing it only after everything else is rechecked.",
@@ -526,6 +528,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-83",
     slug: "document-validation",
     category: "identity",
+    goal: "eligibility-qualification",
     name: "Document submitted → validate → accept, reject or replace",
     purpose:
       "Keep uploading a document and satisfying a requirement as separate facts, and keep an acceptance bound to the requirement it was assessed against.",
@@ -690,6 +693,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-84",
     slug: "verification-failure-routing",
     category: "identity",
+    goal: "identity-verification",
     name: "Verification failure → reason → retry, remediate, review or exit",
     purpose:
       "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
@@ -843,6 +847,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-85",
     slug: "authentication-challenge",
     category: "identity",
+    goal: "identity-verification",
     name: "Authentication challenge → authenticate, step up or deny",
     purpose:
       "Establish that whoever is present controls the required identity, at the assurance the context demands.",
@@ -997,6 +1002,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-86",
     slug: "step-up-authentication",
     category: "identity",
+    goal: "identity-verification",
     name: "Step-up requirement → stronger authentication → resume or deny",
     purpose:
       "Raise identity assurance for a sensitive action, then check the action is still authorised before it runs.",
@@ -1117,6 +1123,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-87",
     slug: "authentication-failure-pattern",
     category: "identity",
+    goal: "risk-compliance",
     name: "Authentication failure pattern → security check → recover or restrict",
     purpose:
       "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
@@ -1228,6 +1235,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-88",
     slug: "account-recovery",
     category: "identity",
+    goal: "suspension-restoration",
     name: "Account recovery request → prove control → restore secure access",
     purpose:
       "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
@@ -1427,6 +1435,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-89",
     slug: "identity-attribute-change",
     category: "identity",
+    goal: "change-versioning",
     name: "Identity attribute change → verify if required → update → propagate",
     purpose:
       "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
@@ -1601,6 +1610,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-90",
     slug: "suspected-account-compromise",
     category: "identity",
+    goal: "escalation-exception",
     name: "Suspected account compromise → contain → verify → recover or clear",
     purpose:
       "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",

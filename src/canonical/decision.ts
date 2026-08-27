@@ -184,6 +184,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-181",
     slug: "decision-request",
     category: "decision",
+    goal: "decision-approval",
     name: "Decision request → validate → route, reject or hold",
     purpose:
       "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
@@ -430,6 +431,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-182",
     slug: "decision-assignment",
     category: "decision",
+    goal: "routing-assignment",
     name: "Decision case → assign reviewer → accept, reassign or escalate",
     purpose:
       "Put the case in front of someone who is actually authorized to decide it, and make that ownership explicit.",
@@ -619,6 +621,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-183",
     slug: "decision-review",
     category: "decision",
+    goal: "decision-approval",
     name: "Review started → evaluate evidence → decide or request more information",
     purpose:
       "Turn sufficient evidence into an authorized decision, within the scope the reviewer actually holds.",
@@ -862,6 +865,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-184",
     slug: "information-requirement",
     category: "decision",
+    goal: "recovery-retry",
     name: "More information required → collect → revalidate → resume review",
     purpose:
       "Pause a decision for the fact it is actually missing, without losing the review already done.",
@@ -1086,6 +1090,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-185",
     slug: "approval-execution",
     category: "decision",
+    goal: "decision-approval",
     name: "Approval decision → revalidate target → execute, hold or invalidate",
     purpose:
       "Carry an authorization into execution, having checked it still applies to what it was granted against.",
@@ -1318,6 +1323,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-186",
     slug: "rejection-outcome",
     category: "decision",
+    goal: "decision-approval",
     name: "Rejection decision → record reason → remediate, close or reapply",
     purpose:
       "Treat a refusal as the business outcome it is, and say what if anything the requester can do next.",
@@ -1481,6 +1487,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-187",
     slug: "partial-approval",
     category: "decision",
+    goal: "decision-approval",
     name: "Partial approval → split scope → execute approved, resolve remaining",
     purpose:
       "Make the authorized and unauthorized halves of one request explicit, so only the first can move.",
@@ -1643,6 +1650,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-188",
     slug: "approval-validity",
     category: "decision",
+    goal: "expiry-renewal",
     name: "Approval validity or expiry → revalidate → use, expire or renew review",
     purpose:
       "Answer, at the moment of use, whether an approval is still one - in time, in context and in count.",
@@ -1849,6 +1857,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-189",
     slug: "decision-escalation",
     category: "decision",
+    goal: "escalation-exception",
     name: "Decision escalation → higher authority → decide, return or reassign",
     purpose:
       "Move a case to an authority that can actually resolve it, carrying the work already done and predetermining nothing.",
@@ -2040,6 +2049,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DEC-190",
     slug: "decision-reconsideration",
     category: "decision",
+    goal: "change-versioning",
     name: "Decision superseded or reopened → revalidate → continue or new decision",
     purpose:
       "Let a decision be reconsidered without any part of the original being rewritten.",

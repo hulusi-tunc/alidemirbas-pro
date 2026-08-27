@@ -175,6 +175,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-241",
     slug: "change-eligibility",
     category: "rollout",
+    goal: "eligibility-qualification",
     name: "Change candidate → eligibility → ready or blocked",
     purpose:
       "Decide which targets a change may reach at all, before anyone starts preparing any of them.",
@@ -300,6 +301,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-242",
     slug: "change-preparation",
     category: "rollout",
+    goal: "readiness-revalidation",
     name: "Change preparation → resolve dependencies → ready or hold",
     purpose:
       "Get an eligible target into a state where the change can actually be applied to it.",
@@ -445,6 +447,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-243",
     slug: "scheduled-change",
     category: "rollout",
+    goal: "scheduling-commitment",
     name: "Change scheduled → wait → revalidate → execute or cancel",
     purpose:
       "Check, at the moment of execution, that the change scheduled earlier is still the right one for this target.",
@@ -607,6 +610,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-244",
     slug: "change-execution",
     category: "rollout",
+    goal: "delivery-confirmation",
     name: "Change execution → apply → verify, fail or unknown",
     purpose:
       "Establish that the target actually ended up in the state the change intended, rather than that a command was accepted.",
@@ -799,6 +803,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-245",
     slug: "staged-rollout",
     category: "rollout",
+    goal: "change-versioning",
     name: "Staged rollout → pilot cohort → health gate → expand or hold",
     purpose:
       "Widen a change only when the targets that already took it show it is safe to widen.",
@@ -990,6 +995,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-246",
     slug: "rollout-pause",
     category: "rollout",
+    goal: "recovery-retry",
     name: "Rollout pause → freeze expansion → diagnose → resume, roll back or end",
     purpose:
       "Stop the change spreading while the question of what to do about it is still open.",
@@ -1125,6 +1131,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-247",
     slug: "rollback-decision",
     category: "rollout",
+    goal: "recovery-retry",
     name: "Change failure threshold → rollback decision → execute or forward recover",
     purpose:
       "Decide whether going back is actually safer than going on, before anyone starts going back.",
@@ -1256,6 +1263,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-248",
     slug: "rollback-execution",
     category: "rollout",
+    goal: "recovery-retry",
     name: "Rollback execution → restore → verify stability",
     purpose:
       "Return the affected targets to a known-good state and prove that they actually work there.",
@@ -1436,6 +1444,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-249",
     slug: "target-change-failure",
     category: "rollout",
+    goal: "recovery-retry",
     name: "Individual target change failure → retry, isolate or remediate",
     purpose:
       "Recover one target that could not take the change, and notice when it stops being one target.",
@@ -1617,6 +1626,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "RLT-250",
     slug: "change-completion",
     category: "rollout",
+    goal: "progression-milestone",
     name: "Change completed → observe → close, reopen or deprecate previous version",
     purpose:
       "Wait long enough to know the change held, and keep what a recovery would need until it clearly does not.",

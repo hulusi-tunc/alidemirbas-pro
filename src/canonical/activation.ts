@@ -103,6 +103,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-11",
     slug: "onboarding-route-selection",
     category: "activation",
+    goal: "routing-assignment",
     name: "New entry → onboarding route → appropriate path",
     purpose:
       "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
@@ -226,6 +227,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-12",
     slug: "onboarding-progress-next-step",
     category: "activation",
+    goal: "progression-milestone",
     name: "Onboarding progress → next best setup step → activation",
     purpose:
       "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
@@ -386,6 +388,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-13",
     slug: "activation-blocker-resolution",
     category: "activation",
+    goal: "relationship-recovery-intervention",
     name: "Missing activation requirement → resolve blocker → resume",
     purpose:
       "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
@@ -599,6 +602,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-14",
     slug: "struggling-user-assistance",
     category: "activation",
+    goal: "relationship-recovery-intervention",
     name: "Struggling user detection → proactive assistance → recovery or exit",
     purpose:
       "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
@@ -853,6 +857,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-15",
     slug: "first-value-milestone",
     category: "activation",
+    goal: "progression-milestone",
     name: "First value milestone → recognition → next meaningful action",
     purpose:
       "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
@@ -941,6 +946,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-16",
     slug: "activation-stops-onboarding",
     category: "activation",
+    goal: "progression-milestone",
     name: "Activation achieved → stop onboarding → adoption handoff",
     purpose:
       "Make onboarding let go the moment activation is recorded, including the messages it has already queued.",
@@ -1056,6 +1062,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-17",
     slug: "early-adoption-to-stable-use",
     category: "activation",
+    goal: "progression-milestone",
     name: "Early adoption → usage depth → habit or stable use",
     purpose:
       "Carry an account from having produced value once to producing it repeatedly, measured against its own use-case.",
@@ -1159,6 +1166,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-18",
     slug: "adoption-stall-diagnosis",
     category: "activation",
+    goal: "relationship-recovery-intervention",
     name: "Adoption stall → diagnose missing value → recover or re-route",
     purpose:
       "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
@@ -1298,6 +1306,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-19",
     slug: "role-use-case-discovery",
     category: "activation",
+    goal: "routing-assignment",
     name: "Role or use-case discovery → relevant onboarding adaptation",
     purpose:
       "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
@@ -1429,6 +1438,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-20",
     slug: "dormant-non-customer-reactivation",
     category: "activation",
+    goal: "relationship-recovery-intervention",
     name: "Dormant non-customer reactivation → return → re-qualification or exit",
     purpose:
       "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did.",

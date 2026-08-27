@@ -149,6 +149,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-111",
     slug: "integration-connection-activation",
     category: "integration",
+    goal: "progression-milestone",
     name: "Integration connection → authenticate → validate → activate",
     purpose:
       "Make an integration active only once it has been proven to do the thing it exists for, rather than once a credential has been saved.",
@@ -297,6 +298,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-112",
     slug: "integration-authorization-change",
     category: "integration",
+    goal: "access-entitlement-change",
     name: "Integration credential or authorization change → revalidate → continue or degrade",
     purpose:
       "Recheck what an integration can still do whenever its authorization changes, rather than assuming valid credentials mean unchanged access.",
@@ -407,6 +409,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-113",
     slug: "integration-health-degradation",
     category: "integration",
+    goal: "recovery-retry",
     name: "Integration health degradation → diagnose → recover, degrade or escalate",
     purpose:
       "Scope a deteriorating integration to what is actually failing, and let recovery be established by evidence rather than by a metric returning to normal.",
@@ -545,6 +548,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-114",
     slug: "external-operation-outcome",
     category: "integration",
+    goal: "delivery-confirmation",
     name: "External request → pending outcome → confirm, fail or unknown",
     purpose:
       "Keep submitting an external operation and completing one as separate states, and let an unknown outcome stay unknown.",
@@ -657,6 +661,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-115",
     slug: "external-outcome-reconciliation",
     category: "integration",
+    goal: "reconciliation-correction",
     name: "External outcome → local state reconciliation → apply or investigate",
     purpose:
       "Apply an external outcome to local state only after establishing that it belongs here, has not already been applied, and still describes what is true.",
@@ -820,6 +825,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-116",
     slug: "integration-failure",
     category: "integration",
+    goal: "suspension-restoration",
     name: "Integration failure → stop unsafe operations → diagnose → restore",
     purpose:
       "Stop sending into an integration that cannot work, while keeping enough state to recover without repeating anything the provider may already have done.",
@@ -966,6 +972,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-117",
     slug: "failure-blocked-work-queue",
     category: "integration",
+    goal: "recovery-retry",
     name: "Integration failure → queue or hold work → recover → controlled resume",
     purpose:
       "Keep work that a failed integration blocked, but only where it can later be revalidated and safely resumed.",
@@ -1130,6 +1137,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-118",
     slug: "reconnect-backfill",
     category: "integration",
+    goal: "reconciliation-correction",
     name: "Integration reconnect → backfill → deduplicate → reconcile",
     purpose:
       "Close the gap an outage left in what we know, without recreating everything that would have happened if the events had arrived on time.",
@@ -1283,6 +1291,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-119",
     slug: "synchronization-conflict",
     category: "integration",
+    goal: "reconciliation-correction",
     name: "Synchronization conflict → determine authority → reconcile or hold",
     purpose:
       "Settle a cross-system disagreement using an explicit authority rule, and hold rather than guess where none exists.",
@@ -1418,6 +1427,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "INT-120",
     slug: "external-dependency-degradation",
     category: "integration",
+    goal: "suspension-restoration",
     name: "External dependency unavailable → degrade capability → alternate or recover",
     purpose:
       "Lose only the capability that actually depends on an unavailable provider, and keep every uncertain outcome uncertain.",

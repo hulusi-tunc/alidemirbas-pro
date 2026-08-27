@@ -181,6 +181,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-201",
     slug: "communication-obligation",
     category: "communication",
+    goal: "eligibility-qualification",
     name: "Business event → communication obligation → create or suppress",
     purpose:
       "Decide whether anyone is actually owed a message about what happened, before any message exists.",
@@ -316,6 +317,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-202",
     slug: "recipient-resolution",
     category: "communication",
+    goal: "routing-assignment",
     name: "Communication obligation → resolve recipient → ready, hold or fail",
     purpose:
       "Establish who is actually owed this, and where they can currently be reached.",
@@ -534,6 +536,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-203",
     slug: "communication-permission",
     category: "communication",
+    goal: "consent-permission",
     name: "Communication purpose → permission and preference check → allow, suppress or alternate",
     purpose:
       "Decide whether a working destination may carry this particular message, given what it is for.",
@@ -722,6 +725,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-204",
     slug: "channel-selection",
     category: "communication",
+    goal: "delivery-confirmation",
     name: "Channel selection → choose route → prepare message",
     purpose:
       "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
@@ -820,6 +824,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-205",
     slug: "send-revalidation",
     category: "communication",
+    goal: "readiness-revalidation",
     name: "Message prepared → revalidate state → send or suppress",
     purpose:
       "Check the message is still true immediately before it goes, and stop it if it is not.",
@@ -952,6 +957,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-206",
     slug: "send-attempt",
     category: "communication",
+    goal: "delivery-confirmation",
     name: "Send attempt → accepted, failed or unknown",
     purpose:
       "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
@@ -1103,6 +1109,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-207",
     slug: "delivery-outcome",
     category: "communication",
+    goal: "delivery-confirmation",
     name: "Delivery outcome → delivered, failed or unknown → update communication",
     purpose:
       "Derive the real delivery state from what the channel reports, attached to the exact attempt it concerns.",
@@ -1281,6 +1288,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-208",
     slug: "delivery-recovery",
     category: "communication",
+    goal: "recovery-retry",
     name: "Delivery failure → classify → retry, fallback or stop",
     purpose:
       "Respond to the failure that actually happened, without spreading it wider than the destination it belongs to.",
@@ -1499,6 +1507,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CMS-210",
     slug: "communication-closure",
     category: "communication",
+    goal: "delivery-confirmation",
     name: "Communication outcome → close obligation or escalate unreachable",
     purpose:
       "Close the obligation against what it actually required, and escalate the ones that could not be met.",

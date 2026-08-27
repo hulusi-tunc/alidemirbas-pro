@@ -83,6 +83,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-01",
     slug: "anonymous-intent-to-qualified-entry",
     category: "acquisition",
+    goal: "eligibility-qualification",
     name: "Anonymous intent → known identity → qualified entry",
     purpose:
       "Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.",
@@ -214,6 +215,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-02",
     slug: "captured-interest-to-destination",
     category: "acquisition",
+    goal: "routing-assignment",
     name: "Captured interest → qualification → appropriate destination",
     purpose:
       "Route first-party interest to the destination its own content justifies, instead of treating every capture as either a sales lead or a subscriber.",
@@ -331,6 +333,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-03",
     slug: "intent-escalation-handoff",
     category: "acquisition",
+    goal: "progression-milestone",
     name: "Intent escalation → higher-intent journey handoff",
     purpose:
       "Move ownership when someone in a low-intent lifecycle does something that no longer fits it, and make sure the journey being left behind actually goes quiet.",
@@ -452,6 +455,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-04",
     slug: "high-intent-human-or-automated-route",
     category: "acquisition",
+    goal: "escalation-exception",
     name: "High-intent action → qualification → human or automated route",
     purpose:
       "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
@@ -594,6 +598,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-05",
     slug: "qualification-state-change-routing",
     category: "acquisition",
+    goal: "eligibility-qualification",
     name: "Qualification state change → route, re-route or exit",
     purpose:
       "Treat qualification as a reversible state whose routing depends on why it changed, rather than a label applied once and trusted afterwards.",
@@ -787,6 +792,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-06",
     slug: "dynamic-eligibility-consequence",
     category: "acquisition",
+    goal: "eligibility-qualification",
     name: "Dynamic eligibility → eligible or ineligible → consequence",
     purpose:
       "Re-decide eligibility as the underlying data changes, and separate what it forbids next from what it does not undo.",
@@ -911,6 +917,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-07",
     slug: "intent-decay-cooldown",
     category: "acquisition",
+    goal: "expiry-renewal",
     name: "Intent decay → de-prioritise → cooldown or exit",
     purpose:
       "Let a recorded high-intent state expire when the evidence behind it goes stale, instead of pursuing someone on the strength of something they did once.",
@@ -1052,6 +1059,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-08",
     slug: "destination-reached-acquisition-suppression",
     category: "acquisition",
+    goal: "progression-milestone",
     name: "Commercial destination reached → acquisition suppression → lifecycle handoff",
     purpose:
       "Make acquisition give up ownership the moment the outcome it existed to cause is recorded, and stop what it has already queued.",
@@ -1168,6 +1176,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-09",
     slug: "bounded-education-progress-or-sunset",
     category: "acquisition",
+    goal: "progression-milestone",
     name: "Researching lead → bounded education → progress or sunset",
     purpose:
       "Give a legitimate but not-yet-ready lead a window of useful education that ends whether or not it worked.",
@@ -1281,6 +1290,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACQ-10",
     slug: "commercial-decline-reason-routing",
     category: "acquisition",
+    goal: "eligibility-qualification",
     name: "Explicit commercial decline → reason → terminal, cooldown or recycle",
     purpose:
       "Route a negative commercial outcome by its cause rather than filing every one of them under lost.",
