@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import type { CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
 
@@ -12,9 +13,14 @@ import type { Lang } from "@/lib/content";
    Reading order is the argument: breadcrumb, title, one line of what it does,
    the tool, the example that proves the tool, then what the number means,
    then the single thing not to get wrong, then when to reach for it and what
-   will fool you, then where to go next. Explanation gets lighter as it goes
-   down the page, so a reader who only wanted the number never has to scroll
-   past a wall to leave with it.
+   will fool you, then where to go next, and the FAQ last. Explanation gets
+   lighter as it goes down the page, so a reader who only wanted the number
+   never has to scroll past a wall to leave with it.
+
+   The FAQ sits below Related rather than above it, which is the order this
+   page has always used: Related is what somebody who just finished the
+   editorial columns tends to want next, and the FAQ is for the reader who
+   came with a specific question and is willing to scroll for it.
 
    Deliberately not all cards. The tool is contained because it is an
    interface and needs an edge; the worked example is a tinted strip because
@@ -30,6 +36,7 @@ const T = {
     whenToUse: "When to use it",
     misleads: "What can mislead you",
     related: "Related calculators",
+    faq: "Frequently asked questions",
   },
   tr: {
     back: "Pazarlama Hesaplayıcıları",
@@ -38,6 +45,7 @@ const T = {
     whenToUse: "Ne zaman kullanılır",
     misleads: "Sizi ne yanıltabilir",
     related: "İlgili hesaplayıcılar",
+    faq: "Sık sorulan sorular",
   },
 } as const;
 
@@ -147,6 +155,12 @@ export default function CalculatorDetailTemplate({
               </Link>
             ))}
           </div>
+        </section>
+      )}
+
+      {content.faq.length > 0 && (
+        <section className="mt-12">
+          <FaqAccordion title={t.faq} items={[...content.faq]} />
         </section>
       )}
     </div>
