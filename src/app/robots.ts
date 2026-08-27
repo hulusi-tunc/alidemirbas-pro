@@ -3,6 +3,12 @@ import { SITE_URL } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
+    /* Still `allow`, even though the whole site is noindex (see the root
+       layouts' own note): a crawler has to be able to FETCH a page to read
+       the noindex tag on it. Disallowing here would leave anything already
+       indexed stuck in the index with no way to learn it should come out.
+       The sitemap below stays for the same reason - it is what gets the
+       existing URLs re-crawled so the noindex is picked up. */
     rules: [
       { userAgent: "*", allow: "/" },
       // Explicit allow for the AI crawlers that power citations in AI

@@ -15,6 +15,17 @@ export const metadata: Metadata = {
   description:
     "Data-driven growth for mobile products. Mobile App Growth Lead at Aksigorta; previously Vodafone, Getir and Wingie Enuygun Group.",
   alternates: pageAlternates("", "en"),
+  /* SITE-WIDE NOINDEX. This is a demo site and is deliberately kept out of
+     search results; every page inherits this unless it sets its own
+     `robots`, and nothing does (see the note in robots.ts).
+
+     Deliberately NOT done with a robots.txt `Disallow` - that would be the
+     intuitive lever and the wrong one. Disallow stops a crawler from
+     FETCHING the page, which means it never sees this tag, so URLs already
+     in the index stay there (often as a bare title with "no information is
+     available"). Removal needs the opposite: keep the pages crawlable so
+     the noindex is actually read. */
+  robots: { index: false, follow: false },
 };
 
 /* One of two root layouts (see also tr/layout.tsx). Routes are duplicated

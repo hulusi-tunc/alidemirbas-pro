@@ -14,7 +14,7 @@ import type { Lang } from "@/lib/content";
    uses — reproducing it exactly means not forcing it through those
    pages' tokens. Nothing here touches globals.css or any shared
    primitive; `CalculatorRoutes.tsx`'s own `CalculatorDetailPage` (the
-   43 real calculator tool pages) is untouched and keeps its current
+   real calculator tool pages) is untouched and keeps its current
    look.
 
    REAL DATA ONLY, same discipline as before: `entries`/`categoryFacets`
@@ -23,7 +23,9 @@ import type { Lang } from "@/lib/content";
    holds no calculator data of its own. Search/filter logic (OR within
    the category facet, `.includes()` over name+description+category+
    aliases) is unchanged from the previous Portrait-styled version -
-   only the visual grammar changed. */
+   only the visual grammar changed. The facet list is now the six
+   library groups rather than the ten research categories; nothing about
+   how filtering works changed with it. */
 
 export type CalcEntry = {
   slug: string;
@@ -56,24 +58,22 @@ const T = {
   },
 } as const;
 
-// Real category key -> a deterministic OKLCH hue, matching the mockup's
-// own HUES map 1:1 (its keys were the display labels; these are the
-// underlying real keys from CalculatorRoutes.tsx's own CATEGORY_LABEL,
-// which don't change between EN/TR). "tools" is the one synthetic
-// bucket (UTM Builder/Character Counter carry no real category field —
-// see CalculatorRoutes.tsx's own note on why they're excluded from the
-// searchable taxonomy), matching the mockup's own "Tools" hue.
+// Library group key -> a deterministic OKLCH hue. Keyed by LibraryGroup
+// (calc-catalog.ts) since the trim to six groups, carrying over each
+// group's hue from whichever of the old ten categories it absorbed, so
+// the icons people already recognise don't all change colour: Ads keeps
+// advertising's 250, Revenue & Unit Economics keeps unit-economics' 75,
+// Retention & SaaS keeps saas' 280, Conversion & Funnel keeps cro-funnel's
+// 200. "tools" is the one synthetic bucket (UTM Builder/Character Counter
+// carry no spec at all — see CalculatorRoutes.tsx's own note on why they
+// sit outside the taxonomy).
 const CATEGORY_HUE: Record<string, number> = {
-  advertising: 250,
-  "crm-email": 225,
-  ecommerce: 160,
-  saas: 280,
+  ads: 250,
+  "revenue-unit-economics": 75,
+  "retention-saas": 280,
+  "conversion-funnel": 200,
   experimentation: 305,
-  "unit-economics": 75,
-  "cro-funnel": 200,
-  "mobile-growth": 340,
-  acquisition: 30,
-  "lifecycle-retention": 130,
+  "email-crm": 225,
   tools: 250,
 };
 

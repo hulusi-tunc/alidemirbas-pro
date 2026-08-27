@@ -21,10 +21,19 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Total revenue", "value": "$45,000" },
-        { "label": "Number of orders", "value": "900" }
+        {
+          "label": "Total revenue",
+          "value": "$45,000"
+        },
+        {
+          "label": "Number of orders",
+          "value": "900"
+        }
       ],
-      "output": { "label": "AOV", "value": "$50.00" },
+      "output": {
+        "label": "AOV",
+        "value": "$50.00"
+      },
       "body": "An AOV of $50 means the average completed order brought in $50 of revenue. The same $45,000 split across 450 orders instead of 900 would double AOV to $100 without a single dollar more actually being spent — AOV moves with order count as much as with revenue."
     },
     {
@@ -52,9 +61,16 @@
     }
   ],
   "related": [
-    { "slug": "revenue-per-visitor", "name": "Revenue per Visitor Calculator", "desc": "Blends AOV with conversion rate into one traffic-level revenue number, instead of an order-level one." },
-    { "slug": "ltv", "name": "LTV Calculator", "desc": "The customer-level question AOV doesn't answer — what a customer is worth across every order, not just one." },
-    { "slug": "gross-margin", "name": "Gross Margin Calculator", "desc": "What's actually left after an order's cost, for when the real question is profitability rather than order size." }
+    {
+      "slug": "ltv",
+      "name": "LTV Calculator",
+      "desc": "The customer-level question AOV doesn't answer — what a customer is worth across every order, not just one."
+    },
+    {
+      "slug": "gross-margin",
+      "name": "Gross Margin Calculator",
+      "desc": "What's actually left after an order's cost, for when the real question is profitability rather than order size."
+    }
   ],
   "faq": [
     {

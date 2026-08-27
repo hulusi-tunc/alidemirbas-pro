@@ -68,8 +68,8 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
     related: [
       { href: "/calculators/retention-rate", label: "Retention Rate Calculator" },
-      { href: "/calculators/d1-retention", label: "D1 Retention Calculator" },
-      { href: "/calculators/dau-mau-stickiness", label: "DAU/MAU Stickiness Calculator" },
+      { href: "/calculators/logo-churn", label: "Logo Churn Calculator" },
+      { href: "/calculators/nrr", label: "Net Revenue Retention (NRR) Calculator" },
     ],
   },
   {
@@ -101,8 +101,8 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
     related: [
       { href: "/calculators/roas", label: "ROAS Calculator" },
-      { href: "/calculators/marketing-roi", label: "Marketing ROI Calculator" },
-      { href: "/calculators/cpa", label: "CPA Calculator" },
+      { href: "/calculators/cac", label: "CAC Calculator" },
+      { href: "/calculators/cpc", label: "CPC Calculator" },
     ],
   },
   {
@@ -134,8 +134,8 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
     related: [
       { href: "/lab/journeys", label: "Canonical Journey Library" },
-      { href: "/calculators/cart-abandonment", label: "Cart Abandonment Calculator" },
-      { href: "/calculators/activation-rate", label: "Activation Rate Calculator" },
+      { href: "/calculators/funnel-analysis-multistep", label: "Multi-Step Funnel Analysis Calculator" },
+      { href: "/calculators/cr", label: "Conversion Rate Calculator" },
     ],
   },
   {

@@ -302,6 +302,40 @@ const specs = [
     ["Retention Rate", "LTV"]],
 
   // --- CRM & email ---
+  /* Composite. Replaces the eight single-metric email calculators that used
+     to sit below it: they asked for the same denominators over and over
+     (`delivered` alone was an input on four of them, `sent` on three), so
+     reading one campaign's numbers meant re-typing the same figures across
+     eight pages. One input set, eight metrics, each computed as soon as ITS
+     own inputs are present - which is why nothing here is a required field
+     and every acceptedRange is ">=0": there is no denominator the
+     calculator as a whole depends on, only per-metric ones, and those are
+     stated in validationRules instead. `sent` also stands in for the old
+     revenue-per-recipient's `emailsSent` - the same quantity under two
+     names, which is exactly the duplication this entry exists to remove. */
+  ["email-performance", "P0", ["Email Campaign Metrics", "Email Marketing Calculator", "Open Rate", "CTOR", "Delivery Rate", "Bounce Rate", "Unsubscribe Rate", "Complaint Rate", "List Growth Rate", "Revenue per Recipient"],
+    "delivered / sent; bounced / sent; opens / delivered; clicks / opens; unsubscribes / delivered; complaints / delivered; (newSubscribers - unsubscribes) / listStart; revenue / sent",
+    "Eight email campaign metrics from one set of send numbers - deliverability, engagement, list health and revenue per email.",
+    [["sent","Emails sent",CNT],["delivered","Delivered",CNT],["opens","Opens",CNT],["clicks","Clicks",CNT],
+     ["bounced","Bounced",CNT],["unsubscribes","Unsubscribes",CNT],["complaints","Spam complaints",CNT],
+     ["revenue","Revenue attributed",CUR],["newSubscribers","New subscribers",CNT],["listStart","List size at period start",CNT]],
+    [["deliveryRate","Delivery Rate",PCT],["bounceRate","Bounce Rate",PCT],["openRate","Open Rate",PCT],
+     ["ctor","Click-to-Open Rate",PCT],["unsubRate","Unsubscribe Rate",PCT],["complaintRate","Complaint Rate",PCT],
+     ["listGrowthRate","List Growth Rate",PCT],["rpr","Revenue per Recipient",CUR]],
+    { sent: ">=0", delivered: ">=0", opens: ">=0", clicks: ">=0", bounced: ">=0", unsubscribes: ">=0",
+      complaints: ">=0", revenue: ">=0", newSubscribers: ">=0", listStart: ">=0" },
+    ["every field is optional - a metric appears only once its own inputs are filled, and stays absent otherwise rather than showing a zero",
+     "each metric needs its own denominator > 0: sent for Delivery/Bounce/Revenue per Recipient, delivered for Open/Unsubscribe/Complaint, opens for CTOR, listStart for List Growth",
+     "Open Rate: Apple MPP and similar privacy features inflate opens - flag results near or above 100% as unreliable, not impossible",
+     "CTOR is clicks/opens, not clicks/delivered - that is Email CTR, a different metric; CTOR removes deliverability and open-rate noise from the content-quality question",
+     "Complaint Rate above ~0.1% puts sender reputation at risk - worth a threshold note, not a hard validation error",
+     "List Growth Rate can legitimately be negative when losses exceed gains - do not clamp"],
+    ["any denominator = 0 -> that one metric is undefined and shows '-', the other seven still compute",
+     "opens > delivered can legitimately occur due to proxy pre-fetching - do not clamp to 100%, but flag it",
+     "delivered > sent is a data error, not a valid state"],
+    { sent: 10000, delivered: 9800, opens: 2450, clicks: 392, bounced: 200, unsubscribes: 20, complaints: 5, revenue: 2000, newSubscribers: 500, listStart: 10000 },
+    { deliveryRate: "98.00%", bounceRate: "2.00%", openRate: "25.00%", ctor: "16.00%", unsubRate: "0.20%", complaintRate: "0.05%", listGrowthRate: "4.80%", rpr: "0.20" },
+    ["Revenue per Visitor", "Conversion Rate"]],
   ["delivery-rate", "P1", [], "delivered / sent", "Share of sent emails that were actually delivered.",
     [["delivered","Delivered",CNT],["sent","Sent",CNT]],
     [["deliveryRate","Delivery Rate",PCT]],
@@ -698,6 +732,7 @@ const MODES = {
 const FORMULA_DISPLAY = {
   "funnel-analysis-multistep": "Stage conversion = Next stage count ÷ Previous stage count",
   "ab-test-significance": "z-score = (Variant rate − Control rate) ÷ Standard error",
+  "email-performance": "Delivery = Delivered ÷ Sent · Bounce = Bounced ÷ Sent · Open = Opens ÷ Delivered · CTOR = Clicks ÷ Opens · Unsubscribe = Unsubscribes ÷ Delivered · Complaint = Complaints ÷ Delivered · List growth = (New subscribers − Unsubscribes) ÷ List size at start · Revenue per recipient = Revenue ÷ Sent",
   "confidence-interval-calculator": "Confidence interval = Observed rate ± (z-value × Standard error)",
   "bayesian-probability-to-beat": "Probability variant beats control, estimated from Beta distributions fitted to both observed conversion rates",
   "sample-size-calculator": "Sample size per variant = 2 × (z-values for power and significance, summed)² × Baseline rate × (1 − Baseline rate) ÷ (Baseline rate × Relative MDE)²",

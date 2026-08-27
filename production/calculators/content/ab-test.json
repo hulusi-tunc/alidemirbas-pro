@@ -21,12 +21,27 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Control visitors", "value": "5,000" },
-        { "label": "Control conversions", "value": "250" },
-        { "label": "Variant visitors", "value": "5,000" },
-        { "label": "Variant conversions", "value": "290" }
+        {
+          "label": "Control visitors",
+          "value": "5,000"
+        },
+        {
+          "label": "Control conversions",
+          "value": "250"
+        },
+        {
+          "label": "Variant visitors",
+          "value": "5,000"
+        },
+        {
+          "label": "Variant conversions",
+          "value": "290"
+        }
       ],
-      "output": { "label": "p-value", "value": "0.0768" },
+      "output": {
+        "label": "p-value",
+        "value": "0.0768"
+      },
       "body": "Control converts at 5.00%, variant at 5.80% — a 0.8 percentage point, 16% relative lift. The pooled standard error works out to about 0.0045, giving a z-score of 1.77 and a two-sided p-value of 0.0768. That's above the conventional 0.05 threshold, so this result is not significant at 95% confidence, even though the variant's raw rate is higher than control's."
     },
     {
@@ -39,7 +54,7 @@
       "id": "statistical-vs-practical-significance",
       "type": "interpretation",
       "heading": "Statistical significance vs. practical significance",
-      "body": "Statistical significance answers one narrow question: is the observed difference larger than plausible chance variation, given this sample size? It doesn't say the difference is causally proven, or that it's large enough to matter commercially — a significant 0.1 percentage point lift might not be worth shipping once added complexity is weighed in, while a real, commercially meaningful lift can fail to reach significance with too small a sample. Deciding whether to ship also depends on the effect size itself, not just its p-value, and the [confidence interval](/calculators/confidence-interval-calculator) around it, which shows how precisely that effect is actually known. A non-significant result doesn't mean 'no effect' either — it can just as easily mean the [sample size](/calculators/sample-size-calculator) wasn't large enough to detect the effect that's really there."
+      "body": "Statistical significance answers one narrow question: is the observed difference larger than plausible chance variation, given this sample size? It doesn't say the difference is causally proven, or that it's large enough to matter commercially — a significant 0.1 percentage point lift might not be worth shipping once added complexity is weighed in, while a real, commercially meaningful lift can fail to reach significance with too small a sample. Deciding whether to ship also depends on the effect size itself, not just its p-value, and the confidence interval around it, which shows how precisely that effect is actually known. A non-significant result doesn't mean 'no effect' either — it can just as easily mean the [sample size](/calculators/sample-size-calculator) wasn't large enough to detect the effect that's really there."
     },
     {
       "id": "assumptions",
@@ -51,7 +66,7 @@
       "id": "significance-vs-confidence-interval",
       "type": "comparison-note",
       "heading": "This is not the confidence interval calculator",
-      "body": "This page tests whether control and variant differ from each other. The [confidence interval calculator](/calculators/confidence-interval-calculator) answers a related but narrower question about a single observed rate — the range that rate is likely to sit in, without comparing it to anything else. You can use a confidence interval to eyeball whether two ranges overlap, but this significance test is the direct way to answer 'do these two differ,' and the two tools shouldn't be read as interchangeable ways of getting the same answer."
+      "body": "This page tests whether control and variant differ from each other. The confidence interval calculator answers a related but narrower question about a single observed rate — the range that rate is likely to sit in, without comparing it to anything else. You can use a confidence interval to eyeball whether two ranges overlap, but this significance test is the direct way to answer 'do these two differ,' and the two tools shouldn't be read as interchangeable ways of getting the same answer."
     },
     {
       "id": "common-mistakes",
@@ -67,9 +82,11 @@
     }
   ],
   "related": [
-    { "slug": "confidence-interval-calculator", "name": "Confidence Interval Calculator", "desc": "The range a single observed rate likely sits in - a narrower question than whether two rates differ." },
-    { "slug": "sample-size-calculator", "name": "Sample Size Calculator", "desc": "Works out how much traffic this test needs before it has a real chance of detecting the effect you're hoping for." },
-    { "slug": "test-duration-estimator", "name": "Test Duration Estimator Calculator", "desc": "Turns that required sample size into an actual number of days, given current traffic." }
+    {
+      "slug": "sample-size-calculator",
+      "name": "Sample Size Calculator",
+      "desc": "Works out how much traffic this test needs before it has a real chance of detecting the effect you're hoping for."
+    }
   ],
   "faq": [
     {

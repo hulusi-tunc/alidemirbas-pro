@@ -21,18 +21,30 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Customers at period start", "value": "1,000" },
-        { "label": "Customers at period end", "value": "1,050" },
-        { "label": "New customers acquired", "value": "150" }
+        {
+          "label": "Customers at period start",
+          "value": "1,000"
+        },
+        {
+          "label": "Customers at period end",
+          "value": "1,050"
+        },
+        {
+          "label": "New customers acquired",
+          "value": "150"
+        }
       ],
-      "output": { "label": "Retention Rate", "value": "90.00%" },
+      "output": {
+        "label": "Retention Rate",
+        "value": "90.00%"
+      },
       "body": "(1,050 − 150) ÷ 1,000 = 90% retention. Churn rate for this exact same population and period is reported as 10% (1 − 90%) — both numbers describe the 1,000 customers who were already there at the start."
     },
     {
       "id": "interpretation",
       "type": "interpretation",
       "heading": "Reading the number",
-      "body": "Retention rate is a period-level average — it tells you how a whole cohort of existing customers behaved over one stretch of time, not what happens to any individual customer or how retention trends across a customer's actual lifetime. For that finer-grained view, cohort retention (like [D1 retention](/calculators/d1-retention) in mobile) tracks the same group from a shared starting point instead of a rolling period, and answers a related but different question: not 'how many of my current customers stuck around this month,' but 'how many of the people who signed up on day zero are still here N days later.'"
+      "body": "Retention rate is a period-level average — it tells you how a whole cohort of existing customers behaved over one stretch of time, not what happens to any individual customer or how retention trends across a customer's actual lifetime. For that finer-grained view, cohort retention (like D1 retention in mobile) tracks the same group from a shared starting point instead of a rolling period, and answers a related but different question: not 'how many of my current customers stuck around this month,' but 'how many of the people who signed up on day zero are still here N days later.'"
     },
     {
       "id": "customer-vs-revenue-retention",
@@ -53,9 +65,16 @@
     }
   ],
   "related": [
-    { "slug": "nrr", "name": "Net Revenue Retention Calculator", "desc": "The revenue-based counterpart to this customer-count-based retention rate - not interchangeable with it." },
-    { "slug": "d1-retention", "name": "D1 Retention Calculator", "desc": "The cohort-based view this period-level retention rate can't give you - the same group tracked from a shared starting point." },
-    { "slug": "ltv", "name": "LTV Calculator", "desc": "Uses a churn rate like this one to derive an implied customer lifetime in its margin-adjusted model." }
+    {
+      "slug": "nrr",
+      "name": "Net Revenue Retention Calculator",
+      "desc": "The revenue-based counterpart to this customer-count-based retention rate - not interchangeable with it."
+    },
+    {
+      "slug": "ltv",
+      "name": "LTV Calculator",
+      "desc": "Uses a churn rate like this one to derive an implied customer lifetime in its margin-adjusted model."
+    }
   ],
   "faq": [
     {

@@ -15,10 +15,19 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Ad spend", "value": "$300" },
-        { "label": "Impressions", "value": "150,000" }
+        {
+          "label": "Ad spend",
+          "value": "$300"
+        },
+        {
+          "label": "Impressions",
+          "value": "150,000"
+        }
       ],
-      "output": { "label": "CPM", "value": "$2.00" },
+      "output": {
+        "label": "CPM",
+        "value": "$2.00"
+      },
       "body": "($300 ÷ 150,000) × 1,000 = $2.00. This campaign paid $2.00 for every 1,000 times the ad was shown — CPM says nothing about whether anyone clicked or acted on it, only what it cost to be seen that many times."
     },
     {
@@ -31,13 +40,20 @@
       "id": "cpm-vs-cpc-vs-cpa",
       "type": "comparison-note",
       "heading": "CPM vs. CPC vs. CPA",
-      "body": "These measure cost at three different points in the funnel. CPM is cost per 1,000 impressions — what it cost to be shown, whether anyone engaged or not. [CPC](/calculators/cpc) is cost per click — what it cost once someone actually clicked. [CPA](/calculators/cpa) is cost per defined action — what it cost to get the outcome the campaign was actually paying for. A campaign can carry a low CPM and a high CPA at the same time, if the ad gets shown cheaply but rarely converts — the three numbers describe different stages of the same spend, not competing readings of one thing."
+      "body": "These measure cost at three different points in the funnel. CPM is cost per 1,000 impressions — what it cost to be shown, whether anyone engaged or not. [CPC](/calculators/cpc) is cost per click — what it cost once someone actually clicked. CPA is cost per defined action — what it cost to get the outcome the campaign was actually paying for. A campaign can carry a low CPM and a high CPA at the same time, if the ad gets shown cheaply but rarely converts — the three numbers describe different stages of the same spend, not competing readings of one thing."
     }
   ],
   "related": [
-    { "slug": "cpc", "name": "CPC Calculator", "desc": "The next stage down the funnel from CPM — what it cost once someone actually clicked, not just saw the ad." },
-    { "slug": "cpa", "name": "CPA Calculator", "desc": "What it cost per defined action or conversion — the outcome CPM alone can't confirm ever happened." },
-    { "slug": "roas", "name": "ROAS Calculator", "desc": "Whether the revenue this spend eventually drove was worth it, downstream of what CPM measures." }
+    {
+      "slug": "cpc",
+      "name": "CPC Calculator",
+      "desc": "The next stage down the funnel from CPM — what it cost once someone actually clicked, not just saw the ad."
+    },
+    {
+      "slug": "roas",
+      "name": "ROAS Calculator",
+      "desc": "Whether the revenue this spend eventually drove was worth it, downstream of what CPM measures."
+    }
   ],
   "faq": [
     {

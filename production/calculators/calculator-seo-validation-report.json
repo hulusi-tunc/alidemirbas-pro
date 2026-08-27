@@ -1,13 +1,13 @@
 {
   "counts": {
-    "seoRecords": 77,
+    "seoRecords": 78,
     "byContentDepth": {
       "light": 23,
-      "standard": 45,
+      "standard": 46,
       "deep": 9
     },
     "bySeoPriority": {
-      "A": 18,
+      "A": 19,
       "B": 31,
       "C": 20,
       "D": 8
@@ -19,7 +19,9 @@
   },
   "errors": [],
   "warnings": [
-    "ltv: unusually broad secondary keyword set (11)"
+    "email-performance: unusually broad secondary keyword set (15)",
+    "ltv: unusually broad secondary keyword set (11)",
+    "Keyword \"ctor calculator\" targeted as same-page by both \"email-performance\" and \"ctor\""
   ],
   "status": "PASS"
 }

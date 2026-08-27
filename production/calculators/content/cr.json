@@ -21,10 +21,19 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Conversions", "value": "340" },
-        { "label": "Opportunities", "value": "8,000" }
+        {
+          "label": "Conversions",
+          "value": "340"
+        },
+        {
+          "label": "Opportunities",
+          "value": "8,000"
+        }
       ],
-      "output": { "label": "Conversion Rate", "value": "4.25%" },
+      "output": {
+        "label": "Conversion Rate",
+        "value": "4.25%"
+      },
       "body": "A conversion rate of 4.25% means roughly 1 in 24 opportunities completed the tracked action. The same 340 conversions would produce a very different rate against a narrower or wider opportunity count, which is why the opportunity definition matters as much as the conversion count itself."
     },
     {
@@ -37,13 +46,13 @@
       "id": "what-counts-as-conversion",
       "type": "interpretation",
       "heading": "What counts as a conversion?",
-      "body": "The tracked action changes by context — a purchase, a signup, a lead form, a trial start, an app install, an account activation — and the calculator doesn't assume which one applies; whatever event is entered as 'conversions' is what the rate describes. The denominator shifts the same way: sessions, unique visitors, ad clicks, leads or installs can all be the 'opportunity' side of the fraction, depending on the funnel stage being measured. A [cart abandonment rate](/calculators/cart-abandonment) and a checkout conversion rate can describe the same shoppers from opposite directions, using different denominators for the same funnel step. What has to stay fixed is the definition itself — the same conversion event and the same denominator, every time the rate is compared against another period or channel."
+      "body": "The tracked action changes by context — a purchase, a signup, a lead form, a trial start, an app install, an account activation — and the calculator doesn't assume which one applies; whatever event is entered as 'conversions' is what the rate describes. The denominator shifts the same way: sessions, unique visitors, ad clicks, leads or installs can all be the 'opportunity' side of the fraction, depending on the funnel stage being measured. A cart abandonment rate and a checkout conversion rate can describe the same shoppers from opposite directions, using different denominators for the same funnel step. What has to stay fixed is the definition itself — the same conversion event and the same denominator, every time the rate is compared against another period or channel."
     },
     {
       "id": "cr-vs-ctr",
       "type": "comparison-note",
       "heading": "CR and CTR measure different things",
-      "body": "[CTR](/calculators/ctr) measures whether someone clicked; conversion rate measures whether they completed the actual goal afterward, whether they arrived by a click or any other path. A high CTR with a low conversion rate usually means the ad or link earns attention it can't back up once someone lands — the traffic shows up, but doesn't do the thing being measured. The two aren't substitutes: a campaign can be strong on one and weak on the other, and neither number explains the other's result on its own."
+      "body": "CTR measures whether someone clicked; conversion rate measures whether they completed the actual goal afterward, whether they arrived by a click or any other path. A high CTR with a low conversion rate usually means the ad or link earns attention it can't back up once someone lands — the traffic shows up, but doesn't do the thing being measured. The two aren't substitutes: a campaign can be strong on one and weak on the other, and neither number explains the other's result on its own."
     },
     {
       "id": "common-mistakes",
@@ -58,9 +67,11 @@
     }
   ],
   "related": [
-    { "slug": "ctr", "name": "CTR Calculator", "desc": "The click-behavior step before this one — attention earned, not the goal completed." },
-    { "slug": "activation-rate", "name": "Activation Rate Calculator", "desc": "A specific, product-side conversion event — reaching a defined 'aha' action after signup." },
-    { "slug": "funnel-analysis-multistep", "name": "Funnel Analysis Calculator", "desc": "Chains several conversion rates together across a multi-step funnel instead of one isolated step." }
+    {
+      "slug": "funnel-analysis-multistep",
+      "name": "Funnel Analysis Calculator",
+      "desc": "Chains several conversion rates together across a multi-step funnel instead of one isolated step."
+    }
   ],
   "faq": [
     {

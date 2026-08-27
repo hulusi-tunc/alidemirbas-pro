@@ -7,14 +7,12 @@
 
    This module is safe to import from server components/page files. It is
    NOT imported by any "use client" file - CalculatorTool.tsx receives a
-   slim RuntimeCalcSpec as a prop instead, so the full 77-entry catalog
+   slim RuntimeCalcSpec as a prop instead, so the full 78-entry catalog
    (with its prose validationRules/edgeCases/aliases) never reaches the
    client bundle. See calc-registry.ts for the client-safe compute layer. */
 import catalogJson from "../../production/calculators/calculator-catalog.json";
 import type { Lang } from "@/lib/content";
 import { TEXT_TOOL_SLUGS } from "@/lib/text-tools";
-import { getCompute } from "@/lib/calc-registry";
-import { formatByUnit } from "@/lib/calc-format";
 
 export type CalcUnit = string;
 
@@ -64,55 +62,86 @@ export type CalcSpec = {
 
 const CATALOG = catalogJson.calculators as unknown as CalcSpec[];
 
-/* First production batch (Phase 2): all 18 P0 + the 14 P1s selected in
-   calculator-architecture.md, PLUS two already-shipped legacy calculators
-   (profit-margin, engagement-rate) that fall outside that batch but must
-   migrate too - leaving them on the old engine would mean two calculation
-   engines computing metrics independently, which Phase 2 explicitly
-   forbids. 32 + 2 = 34 live calculators. See calculator-architecture.md
-   "Phase 2" section for the full reasoning. */
+/* The live library. This array is the ONLY gate on what exists: the
+   `/calculators/[slug]` route prerenders exactly these (plus TEXT_TOOL_SLUGS)
+   and 404s on anything else, `getCalcSpec` refuses a slug that isn't here,
+   the index page lists these and nothing else, and every related-calculator
+   link - catalog-sourced or content-authored - is re-filtered through it.
+   Adding a slug here without a compute function in calc-registry.ts, or
+   removing one without removing its content file, is the failure mode to
+   watch for; both are checked by the calculator validators.
+
+   Trimmed from 43 to 19. The eight single-metric email calculators
+   (open-rate, ctor, delivery-rate, bounce-rate-email, unsubscribe-rate,
+   complaint-rate, list-growth-rate, revenue-per-recipient) are not gone so
+   much as merged: they asked for the same denominators over and over, so
+   they are now one `email-performance` page that computes all eight from a
+   single input set. The other 17 were removed outright as library scope,
+   not because anything was wrong with them - their compute functions,
+   catalog specs and content files were deleted with them rather than left
+   as unreferenced code. See calculator-architecture.md for the catalog's
+   own (unchanged, wider) research set: the catalog still describes 78
+   calculators; this list is the product decision about which ones ship. */
 export const LIVE_CALCULATOR_SLUGS: readonly string[] = [
-  // P0 (18)
-  "roas", "marketing-roi", "ctr", "cpc", "cpm", "cpa", "cpl", "cac", "aov",
-  "gross-margin", "retention-rate", "open-rate", "nrr", "ltv", "ltv-cac-ratio",
-  "cac-payback-period", "cr", "ab-test",
-  // P1 (14) - first-batch selection from calculator-architecture.md
-  "activation-rate", "mrr", "funnel-analysis-multistep", "sample-size-calculator",
-  "revenue-per-visitor", "contribution-margin", "break-even-point",
-  "dau-mau-stickiness", "d1-retention", "saas-quick-ratio", "rule-of-40",
-  "cart-abandonment", "confidence-interval-calculator", "test-duration-estimator",
-  // legacy-only migration (already shipped, not in the 32-item batch)
-  "profit-margin", "engagement-rate",
-  // added for the Content Standard batch that shipped its own page
-  // (calculator-catalog.json's own "status: recommended" for this id
-  // predates this batch and was never a gate here - LIVE_CALCULATOR_SLUGS
-  // always has been the actual gate, same as mrr/break-even-point/
-  // test-duration-estimator above, all of which shipped live with that
-  // same stale "recommended" status)
-  "logo-churn",
-  // same promotion pattern as logo-churn above, for the ARR/GRR/
-  // Contribution Margin/MDE/Confidence Interval content batch - see
-  // calc-registry.ts's own comment on this slug for the relative-MDE
-  // convention decision (catalog's exampleOutput is stale, documented in
-  // production/calculators/content/minimum-detectable-effect.json's
-  // qaNotes, not edited here)
-  "minimum-detectable-effect",
-  // Batch 06 (CPA/Cart Abandonment/CTOR/SaaS Quick Ratio/DAU-MAU
-  // Stickiness): the only one of the five needing a runtime promotion -
-  // the other four were already live. CTOR's own catalog exampleInput/
-  // exampleOutput (clicks:400, opens:2500 -> 16.00%) was independently
-  // re-verified, no known-invalid data here.
-  "ctor",
-  // Final expansion (12-calculator round): the 6 CRM/email calculators
-  // below are the only ones needing a runtime promotion - cpm, cpl,
-  // activation-rate, funnel-analysis-multistep, profit-margin, and
-  // engagement-rate were all already live (see calc-registry.ts, no
-  // changes needed to their existing compute functions, all
-  // independently re-verified against the catalog's own examples).
-  // Each of these 6 catalog exampleInput/exampleOutput pairs was
-  // independently re-verified too - no known-invalid data.
-  "delivery-rate", "bounce-rate-email", "unsubscribe-rate",
-  "complaint-rate", "list-growth-rate", "revenue-per-recipient",
+  // Ads
+  "roas", "cpc", "cpm", "cac",
+  // Revenue & Unit Economics
+  "aov", "gross-margin", "break-even-point", "ltv", "ltv-cac-ratio", "cac-payback-period",
+  // Retention & SaaS
+  "retention-rate", "nrr", "logo-churn", "rule-of-40",
+  // Conversion & Funnel
+  "cr", "funnel-analysis-multistep",
+  // Experimentation
+  "ab-test", "sample-size-calculator",
+  // Email & CRM
+  "email-performance",
+];
+
+/* The library's display taxonomy - seven groups, deliberately separate from
+   each spec's own `category` field. Those categories come from the Phase 1
+   research set and are cross-validated against calculator-candidates.json by
+   the catalog generator, so they answer "what kind of metric is this" across
+   all 78 researched calculators; this map answers the narrower product
+   question of where each of the 19 live ones belongs on the index page. They
+   genuinely disagree: CAC's research category is `acquisition` but it sits
+   with the ad-spend metrics here, and AOV/Gross Margin are `ecommerce` but
+   belong with unit economics. Rewriting the catalog's categories to match
+   would have made the generator's own cross-validation lie.
+
+   Text tools have no entry: they carry no spec at all and render as their
+   own list (see CalculatorRoutes). */
+export type LibraryGroup =
+  | "ads" | "revenue-unit-economics" | "retention-saas"
+  | "conversion-funnel" | "experimentation" | "email-crm";
+
+export const LIBRARY_GROUP: Record<string, LibraryGroup> = {
+  roas: "ads",
+  cpc: "ads",
+  cpm: "ads",
+  cac: "ads",
+  aov: "revenue-unit-economics",
+  "gross-margin": "revenue-unit-economics",
+  "break-even-point": "revenue-unit-economics",
+  ltv: "revenue-unit-economics",
+  "ltv-cac-ratio": "revenue-unit-economics",
+  "cac-payback-period": "revenue-unit-economics",
+  "retention-rate": "retention-saas",
+  nrr: "retention-saas",
+  "logo-churn": "retention-saas",
+  "rule-of-40": "retention-saas",
+  cr: "conversion-funnel",
+  "funnel-analysis-multistep": "conversion-funnel",
+  "ab-test": "experimentation",
+  "sample-size-calculator": "experimentation",
+  "email-performance": "email-crm",
+};
+
+/* Order on the index page. Not alphabetical and not by count - it follows
+   the funnel: what you spend, what it earns, whether they stay, whether
+   they convert, how you prove it, how you reach them. */
+export const LIBRARY_GROUP_ORDER: readonly LibraryGroup[] = [
+  "ads", "revenue-unit-economics", "retention-saas",
+  "conversion-funnel", "experimentation", "email-crm",
 ];
 
 const bySlug = new Map(CATALOG.map((c) => [c.slug, c]));
@@ -154,39 +183,6 @@ export type RuntimeCalcSpec = {
   related: { slug: string; name: string }[];
 };
 
-/* calculator-catalog.json's own exampleOutput/formulaDisplay for
-   minimum-detectable-effect is known-stale against this calculator's
-   actual RELATIVE-MDE implementation (calc-registry.ts): the catalog's
-   static exampleOutput says mde "25.30%" for the canonical example, and
-   its formulaDisplay shows only the ABSOLUTE effect formula with no
-   division by baseline rate - neither matches what the live calculator
-   actually returns (24.42%, a relative lift). Documented in
-   production/calculators/content/minimum-detectable-effect.json's
-   qaNotes; NOT hand-edited in the catalog file itself. Both values are
-   corrected here instead, at the runtime-presentation layer, so the
-   compact FormulaBlock/ExampleBlock every live calculator page renders
-   (CalculatorTool.tsx) never shows the known-wrong catalog value - the
-   corrected example is derived by running the same validated compute
-   function the live calculator itself uses, not a hardcoded number, so
-   it self-corrects if the implementation or example input ever changes.
-   Scoped to this one slug only - no other calculator's catalog-sourced
-   example or formula display is touched. */
-function correctedExample(spec: CalcSpec): { exampleOutput: Record<string, unknown>; formulaDisplay?: string } {
-  if (spec.slug !== "minimum-detectable-effect") {
-    return { exampleOutput: spec.exampleOutput, formulaDisplay: spec.formulaDisplay };
-  }
-  const compute = getCompute(spec.slug);
-  const computed = compute?.(spec.exampleInput);
-  const exampleOutput = computed && typeof computed.mde === "number" && Number.isFinite(computed.mde)
-    ? { mde: formatByUnit(computed.mde, "%") }
-    : spec.exampleOutput; // fall back to catalog's value only if the compute function is ever unavailable
-  return {
-    exampleOutput,
-    formulaDisplay:
-      "Relative minimum detectable effect = √(2 × (z-values for power and significance, summed)² × Baseline rate × (1 − Baseline rate) ÷ Sample size) ÷ Baseline rate",
-  };
-}
-
 /* calculator-catalog.json's own formulaPlainEnglish for logo-churn calls
    this "the SaaS-standard framing of Churn Rate" - an overly-definitive
    claim the content correction pass (production/calculators/content/
@@ -222,7 +218,6 @@ export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
     .map((s) => bySlug.get(s))
     .filter((s): s is CalcSpec => Boolean(s) && LIVE_CALCULATOR_SLUGS.includes(s!.slug))
     .map((s) => ({ slug: s.slug, name: s.name }));
-  const { exampleOutput, formulaDisplay } = correctedExample(spec);
   return {
     slug: spec.slug,
     name: spec.name,
@@ -233,10 +228,10 @@ export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
     inputs: withPositivity(spec.inputs, spec.acceptedRanges),
     outputs: spec.outputs,
     modes: spec.modes,
-    formulaDisplay,
+    formulaDisplay: spec.formulaDisplay,
     examplesByMode: spec.examplesByMode,
     exampleInput: spec.exampleInput,
-    exampleOutput,
+    exampleOutput: spec.exampleOutput,
     related,
   };
 }

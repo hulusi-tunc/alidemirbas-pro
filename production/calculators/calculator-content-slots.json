@@ -864,6 +864,30 @@
       ]
     },
     {
+      "slug": "email-performance",
+      "contentDepth": "standard",
+      "required": [
+        "definition",
+        "formulaExplanation",
+        "howToCalculate",
+        "workedExample",
+        "interpretation",
+        "commonMistakes",
+        "relatedMetrics",
+        "comparisonLinks"
+      ],
+      "optional": [
+        "goodValue",
+        "benchmarks",
+        "faq"
+      ],
+      "prohibited": [
+        "methodology",
+        "assumptions",
+        "limitations"
+      ]
+    },
+    {
       "slug": "delivery-rate",
       "contentDepth": "light",
       "required": [

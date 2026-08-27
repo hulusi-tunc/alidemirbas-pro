@@ -16,12 +16,27 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "Visit", "value": "10,000" },
-        { "label": "Add to cart", "value": "1,800" },
-        { "label": "Checkout", "value": "900" },
-        { "label": "Purchase", "value": "620" }
+        {
+          "label": "Visit",
+          "value": "10,000"
+        },
+        {
+          "label": "Add to cart",
+          "value": "1,800"
+        },
+        {
+          "label": "Checkout",
+          "value": "900"
+        },
+        {
+          "label": "Purchase",
+          "value": "620"
+        }
       ],
-      "output": { "label": "Overall conversion", "value": "6.20%" },
+      "output": {
+        "label": "Overall conversion",
+        "value": "6.20%"
+      },
       "body": "Visit → Add to cart: 18.00%. Add to cart → Checkout: 50.00%. Checkout → Purchase: 68.89%. Overall, Purchase ÷ Visit = 620 ÷ 10,000 = 6.20%. The overall number alone hides where the funnel actually lost the most people — here, it's the very first step, not checkout."
     },
     {
@@ -34,7 +49,7 @@
       "id": "funnel-vs-cart-abandonment",
       "type": "comparison-note",
       "heading": "Funnel Analysis vs. Cart Abandonment Rate",
-      "body": "[Cart Abandonment Rate](/calculators/cart-abandonment) is a fixed two-point ratio: carts started versus completed purchases, at one specific stage boundary. This funnel calculator can model that same boundary as one step among many, but it's built for the full path — visit, add to cart, checkout, purchase, or however many stages a specific funnel actually has — not just the cart-to-purchase gap. Use Cart Abandonment Rate when the checkout-stage number itself is the question; use this calculator when the question is where along the whole path the funnel is actually losing people."
+      "body": "Cart Abandonment Rate is a fixed two-point ratio: carts started versus completed purchases, at one specific stage boundary. This funnel calculator can model that same boundary as one step among many, but it's built for the full path — visit, add to cart, checkout, purchase, or however many stages a specific funnel actually has — not just the cart-to-purchase gap. Use Cart Abandonment Rate when the checkout-stage number itself is the question; use this calculator when the question is where along the whole path the funnel is actually losing people."
     },
     {
       "id": "common-mistakes",
@@ -49,9 +64,11 @@
     }
   ],
   "related": [
-    { "slug": "cart-abandonment", "name": "Cart Abandonment Rate Calculator", "desc": "A fixed, single-stage version of one step this funnel calculator can also model - carts started versus completed purchases." },
-    { "slug": "cr", "name": "Conversion Rate Calculator", "desc": "A single first-to-last ratio without the step-by-step breakdown - useful when only the endpoint matters, not where the drop-off happened." },
-    { "slug": "revenue-per-visitor", "name": "Revenue per Visitor Calculator", "desc": "What the traffic entering this funnel was worth on average, blending everything the step breakdown shows separately." }
+    {
+      "slug": "cr",
+      "name": "Conversion Rate Calculator",
+      "desc": "A single first-to-last ratio without the step-by-step breakdown - useful when only the endpoint matters, not where the drop-off happened."
+    }
   ],
   "faq": [
     {

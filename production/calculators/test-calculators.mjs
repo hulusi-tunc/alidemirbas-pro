@@ -11,17 +11,15 @@ import { getCompute } from "../../src/lib/calc-registry.ts";
 const catalog = JSON.parse(readFileSync(new URL("./calculator-catalog.json", import.meta.url))).calculators;
 
 const LIVE_SLUGS = [
-  "roas", "marketing-roi", "ctr", "cpc", "cpm", "cpa", "cpl", "cac", "aov",
-  "gross-margin", "retention-rate", "open-rate", "nrr", "ltv", "ltv-cac-ratio",
-  "cac-payback-period", "cr", "ab-test",
-  "activation-rate", "mrr", "funnel-analysis-multistep", "sample-size-calculator",
-  "revenue-per-visitor", "contribution-margin", "break-even-point",
-  "dau-mau-stickiness", "d1-retention", "saas-quick-ratio", "rule-of-40",
-  "cart-abandonment", "confidence-interval-calculator", "test-duration-estimator",
-  "profit-margin", "engagement-rate",
-  "logo-churn", "ctor",
-  "delivery-rate", "bounce-rate-email", "unsubscribe-rate",
-  "complaint-rate", "list-growth-rate", "revenue-per-recipient",
+  // Mirrors calc-catalog.ts LIVE_CALCULATOR_SLUGS. Every one of these is
+  // driven from the catalog's own exampleInput/exampleOutput below, so a
+  // calculator listed here without a compute function fails loudly.
+  "roas", "cpc", "cpm", "cac",
+  "aov", "gross-margin", "break-even-point", "ltv", "ltv-cac-ratio", "cac-payback-period",
+  "retention-rate", "nrr", "logo-churn", "rule-of-40",
+  "cr", "funnel-analysis-multistep",
+  "ab-test", "sample-size-calculator",
+  "email-performance",
 ];
 
 let pass = 0, fail = 0;
@@ -107,54 +105,12 @@ for (const slug of LIVE_SLUGS) {
   void ltvSpec;
 }
 
-// --- Batch 04: minimum-detectable-effect - deliberately NOT run through the
-// generic per-slug loop above. calculator-catalog.json's own exampleOutput
-// for this slug (mde: "25.30%") is stale against the RELATIVE-MDE
-// convention this implementation uses (documented in calc-registry.ts and
-// production/calculators/content/minimum-detectable-effect.json's
-// qaNotes) - the generic loop's 0.15-percentage-point tolerance for "%"
-// units would fail against that stale value even though the
-// implementation is correct. Verified here instead with a tighter,
-// independently-derived tolerance, plus round-trip and directionality
-// checks the generic loop doesn't do for any slug. ---
-{
-  const mdeCompute = getCompute("minimum-detectable-effect");
-  const sampleSizeCompute = getCompute("sample-size-calculator");
-
-  // Canonical catalog example (baselineRate 5%, samplePerVariant 5000,
-  // power 80, significanceLevel 95) - independently re-derived by hand
-  // (see chat) as 24.42%, not the catalog's stale 25.30%.
-  const canonical = mdeCompute({ baselineRate: 0.05, samplePerVariant: 5000, power: 80, significanceLevel: 95 });
-  check("minimum-detectable-effect.mde (canonical, independently verified)", canonical.mde, 24.42, "%");
-
-  // Round-trip: sample-size-calculator(baseline, relMDE, power, sig) -> n,
-  // then minimum-detectable-effect(baseline, n, power, sig) -> relMDE
-  // should reproduce the original relMDE within sample-size rounding
-  // tolerance (Math.ceil on n is the only source of drift). Five cases
-  // spanning low/moderate/high baseline, small/large MDE, and every
-  // supported power/significance combination.
-  const roundTripCases = [
-    { label: "low baseline 1%, relMDE 20%, power 80, sig 95", baselineRate: 0.01, mde: 0.20, power: 80, significanceLevel: 95 },
-    { label: "moderate baseline 10%, relMDE 15%, power 80, sig 95", baselineRate: 0.10, mde: 0.15, power: 80, significanceLevel: 95 },
-    { label: "baseline 5%, relMDE 10%, power 90, sig 99 (smaller MDE -> larger n)", baselineRate: 0.05, mde: 0.10, power: 90, significanceLevel: 99 },
-    { label: "baseline 5%, relMDE 30%, power 80, sig 90 (larger MDE -> smaller n)", baselineRate: 0.05, mde: 0.30, power: 80, significanceLevel: 90 },
-    { label: "high baseline 20%, relMDE 5%, power 80, sig 95", baselineRate: 0.20, mde: 0.05, power: 80, significanceLevel: 95 },
-  ];
-  for (const c of roundTripCases) {
-    const n = sampleSizeCompute({ baselineRate: c.baselineRate, mde: c.mde, power: c.power, significanceLevel: c.significanceLevel }).samplePerVariant;
-    const back = mdeCompute({ baselineRate: c.baselineRate, samplePerVariant: n, power: c.power, significanceLevel: c.significanceLevel }).mde;
-    check(`minimum-detectable-effect round-trip: ${c.label}`, back, c.mde * 100, "%");
-  }
-
-  // Directionality: same baseline/power/significance, larger sample ->
-  // smaller (monotonically decreasing) detectable relative MDE.
-  const samplesAscending = [1000, 5000, 20000, 100000];
-  const mdesForSamples = samplesAscending.map((n) => mdeCompute({ baselineRate: 0.05, samplePerVariant: n, power: 80, significanceLevel: 95 }).mde);
-  let monotonic = true;
-  for (let i = 1; i < mdesForSamples.length; i++) if (!(mdesForSamples[i] < mdesForSamples[i - 1])) monotonic = false;
-  if (monotonic) pass++;
-  else { fail++; failures.push(`minimum-detectable-effect directionality: expected strictly decreasing MDE as sample grows, got ${JSON.stringify(mdesForSamples)}`); }
-}
+/* The minimum-detectable-effect block that used to sit here - a canonical
+   check, a five-case round-trip against sample-size-calculator and a
+   directionality check - went with that calculator when the library was
+   trimmed. sample-size-calculator's own relative-MDE convention is still
+   exercised by the generic per-slug loop above, against the catalog's own
+   verified example. */
 
 // --- Phase 27: shared edge-case tests, applied where the calculator's own validationRules say they apply ---
 const edgeCases = [
@@ -164,11 +120,19 @@ const edgeCases = [
   { label: "retention-rate: 0 input is legitimate, not treated as missing", fn: () => getCompute("retention-rate")({ startCustomers: 100, endCustomers: 0, acquiredCustomers: 0 }).retentionRate, assertEqual: 0 },
   { label: "ab-test: zero conversions on both sides is still computable", fn: () => getCompute("ab-test")({ visitorsA: 1000, conversionsA: 0, visitorsB: 1000, conversionsB: 0 }).zScore, assertEqual: NaN, assertNaN: true },
   { label: "break-even-point: variable cost >= price -> NaN (no break-even exists)", fn: () => getCompute("break-even-point")({ fixedCosts: 1000, pricePerUnit: 10, variableCostPerUnit: 10 }).breakEvenUnits, assertNaN: true },
-  { label: "mrr: negative-growth (contraction) is valid, not clamped", fn: () => getCompute("mrr")({ currentMrr: 40000, priorMrr: 50000 }).mrrGrowthRate, assertEqual: -0.2 },
   { label: "gross-margin: cost exceeding revenue gives a negative margin, not clamped to 0", fn: () => getCompute("gross-margin")({ revenue: 100, cogs: 150 }).grossMargin, assertEqual: -0.5 },
-  { label: "d1-retention: decimal inputs still compute a valid rate", fn: () => getCompute("d1-retention")({ usersReturnedOnDayN: 333, cohortSize: 1000 }).retentionN, assertClose: 0.333 },
   { label: "logo-churn: zero customers at period start -> NaN, not Infinity", fn: () => getCompute("logo-churn")({ lostCustomers: 5, startCustomers: 0 }).logoChurn, assertNaN: true },
-  { label: "test-duration-estimator: raw day count is rounded UP to a full week", fn: () => getCompute("test-duration-estimator")({ requiredSamplePerVariant: 29827, dailyTrafficPerVariant: 1000 }).days, assertEqual: 35 },
+  // email-performance is the one calculator that is partial by design:
+  // these prove a metric whose own inputs are present computes even when
+  // most of the form is empty, and that a missing or zero denominator
+  // takes down only its own metric rather than the whole result set.
+  { label: "email-performance: a metric computes from its own two fields alone", fn: () => getCompute("email-performance")({ delivered: 9800, sent: 10000 }).deliveryRate, assertClose: 0.98 },
+  { label: "email-performance: an unrelated metric stays NaN while another computes", fn: () => getCompute("email-performance")({ delivered: 9800, sent: 10000 }).openRate, assertNaN: true },
+  { label: "email-performance: CTOR is clicks/opens, not clicks/delivered", fn: () => getCompute("email-performance")({ clicks: 392, opens: 2450, delivered: 9800 }).ctor, assertClose: 0.16 },
+  { label: "email-performance: zero denominator kills only its own metric", fn: () => getCompute("email-performance")({ opens: 100, delivered: 0, sent: 10000, bounced: 200 }).openRate, assertNaN: true },
+  { label: "email-performance: ...and the others still compute alongside it", fn: () => getCompute("email-performance")({ opens: 100, delivered: 0, sent: 10000, bounced: 200 }).bounceRate, assertClose: 0.02 },
+  { label: "email-performance: list growth goes negative when losses exceed gains", fn: () => getCompute("email-performance")({ newSubscribers: 100, unsubscribes: 300, listStart: 10000 }).listGrowthRate, assertClose: -0.02 },
+  { label: "email-performance: revenue per recipient divides by sent, not delivered", fn: () => getCompute("email-performance")({ revenue: 2000, sent: 10000, delivered: 9800 }).rpr, assertClose: 0.2 },
 ];
 for (const ec of edgeCases) {
   const v = ec.fn();

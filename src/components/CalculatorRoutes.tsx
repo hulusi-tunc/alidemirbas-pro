@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import CalculatorTool from "@/components/CalculatorTool";
 import { BreakEvenSliderTool } from "@/components/ui/BreakEvenSliderTool";
+import EmailPerformanceTool from "@/components/ui/EmailPerformanceTool";
 import CalculatorContent from "@/components/CalculatorContent";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
@@ -14,7 +15,10 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { copy } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
-import { getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS, correctedFormulaPlainEnglish } from "@/lib/calc-catalog";
+import {
+  getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS,
+  correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, type LibraryGroup,
+} from "@/lib/calc-catalog";
 import { getContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
@@ -52,20 +56,25 @@ const HERO = {
   },
 };
 
-const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
-  advertising: { en: "Advertising & Paid Media", tr: "Reklam ve Medya" },
-  acquisition: { en: "Acquisition", tr: "Edinme" },
-  ecommerce: { en: "E-commerce", tr: "E-ticaret" },
-  "lifecycle-retention": { en: "Lifecycle & Retention", tr: "Yaşam Döngüsü ve Elde Tutma" },
-  "crm-email": { en: "CRM & Email", tr: "CRM ve E-posta" },
-  "mobile-growth": { en: "Mobile Growth", tr: "Mobil Büyüme" },
-  saas: { en: "SaaS", tr: "SaaS" },
-  "unit-economics": { en: "Unit Economics", tr: "Birim Ekonomisi" },
-  "cro-funnel": { en: "CRO & Funnel", tr: "CRO ve Huni" },
+/* The library's six groups, plus Text Tools which renders as its own list
+   below the grid. Keyed by LibraryGroup (calc-catalog.ts), NOT by the
+   catalog's own `category` field - see that map's own comment for why the
+   two deliberately disagree. Replaces the previous ten labels, which were
+   the research taxonomy showing through: with 19 calculators it produced
+   groups of one and split ad spend across three headings. */
+const GROUP_LABEL: Record<LibraryGroup, { en: string; tr: string }> = {
+  ads: { en: "Ads", tr: "Reklam" },
+  "revenue-unit-economics": { en: "Revenue & Unit Economics", tr: "Gelir ve Birim Ekonomisi" },
+  "retention-saas": { en: "Retention & SaaS", tr: "Elde Tutma ve SaaS" },
+  "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Huni" },
   experimentation: { en: "Experimentation", tr: "Deneysel Test" },
+  "email-crm": { en: "Email & CRM", tr: "E-posta ve CRM" },
 };
 
 const RELATED_TITLE = { en: "Related calculators", tr: "İlgili hesaplayıcılar" };
+
+/** The calculators whose tool is too wide for the default reading column. */
+const WIDE_TOOLS = new Set(["break-even-point", "email-performance"]);
 
 export function calculatorIndexMetadata(lang: Lang): Metadata {
   const t = T[lang];
@@ -86,7 +95,12 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
     title: `${title} - Ali Demirbaş`,
     description,
     alternates: pageAlternates(`/calculators/${slug}`, lang),
-    robots: content ? { index: content.seo.index, follow: content.seo.follow } : undefined,
+    /* The content files carry their own seo.index/seo.follow, and they say
+       "index". Not honoured any more: the site is deliberately noindex
+       site-wide (see the root layouts), and a per-page `robots` here would
+       override that inherited tag for exactly the pages that have content -
+       opting the best pages back into search while the thin ones stayed
+       out. Left unset so every calculator inherits the site-wide rule. */
   };
 }
 
@@ -185,30 +199,49 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
   const base = basePathFor(lang);
   const specs = getAllLiveSpecs();
 
-  const categoryCounts = new Map<string, number>();
-  for (const s of specs) categoryCounts.set(s.category, (categoryCounts.get(s.category) ?? 0) + 1);
+  /* Everything below is grouped by LIBRARY_GROUP, not by each spec's own
+     research `category`. LIVE_CALCULATOR_SLUGS and LIBRARY_GROUP are the
+     same 19 keys, so the lookup below cannot miss - and if a calculator is
+     ever added to one without the other, it lands in `groupOf`'s fallback
+     rather than silently vanishing from the index. */
+  const groupOf = (slug: string): LibraryGroup => LIBRARY_GROUP[slug] ?? "revenue-unit-economics";
 
-  const entries: CalcEntry[] = specs.map((spec) => {
-    const categoryLabel = CATEGORY_LABEL[spec.category]?.[lang] ?? spec.category;
-    const description = correctedFormulaPlainEnglish(spec);
-    return {
-      slug: spec.slug,
-      name: spec.name,
-      description,
-      categoryLabel,
-      categoryKey: spec.category,
-      searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
-      href: `${base}/${spec.slug}`,
-    };
-  });
+  const entries: CalcEntry[] = specs
+    // Funnel order, not catalog order: the grid should read in the same
+    // sequence as the facet list beside it.
+    .slice()
+    .sort((a, b) => LIBRARY_GROUP_ORDER.indexOf(groupOf(a.slug)) - LIBRARY_GROUP_ORDER.indexOf(groupOf(b.slug)))
+    .map((spec) => {
+      const group = groupOf(spec.slug);
+      const categoryLabel = GROUP_LABEL[group][lang];
+      const description = correctedFormulaPlainEnglish(spec);
+      return {
+        slug: spec.slug,
+        name: spec.name,
+        description,
+        categoryLabel,
+        categoryKey: group,
+        searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
+        href: `${base}/${spec.slug}`,
+      };
+    });
 
-  // `id` is the display label itself (not the raw category key) — the
-  // only join key CalculatorLibrary needs, and every label is already
-  // unique across the real 10-category taxonomy, so this stays a plain
-  // 1:1 mapping with no separate id scheme to keep in sync.
-  const categoryFacets: CategoryFacet[] = [...categoryCounts.entries()]
-    .map(([cat, count]) => ({ id: CATEGORY_LABEL[cat]?.[lang] ?? cat, label: CATEGORY_LABEL[cat]?.[lang] ?? cat, count }))
-    .sort((a, b) => b.count - a.count);
+  // `id` is the display label itself (not the raw group key) — the only
+  // join key CalculatorLibrary needs, and every label is unique across the
+  // six groups, so this stays a plain 1:1 mapping with no separate id
+  // scheme to keep in sync. Ordered by LIBRARY_GROUP_ORDER rather than by
+  // count: the groups describe a funnel, and sorting them by size would
+  // scramble that for no gain across six items.
+  const groupCounts = new Map<LibraryGroup, number>();
+  for (const spec of specs) {
+    const g = groupOf(spec.slug);
+    groupCounts.set(g, (groupCounts.get(g) ?? 0) + 1);
+  }
+  const categoryFacets: CategoryFacet[] = LIBRARY_GROUP_ORDER.filter((g) => groupCounts.has(g)).map((g) => ({
+    id: GROUP_LABEL[g][lang],
+    label: GROUP_LABEL[g][lang],
+    count: groupCounts.get(g)!,
+  }));
 
   return (
     <div style={{ background: "#faf9f6", color: "#201f1c" }} className="min-h-screen">
@@ -334,14 +367,17 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
             <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{desc}</p>
           </div>
         </section>
-        {/* break-even-point gets a wider container - its slider tool is a
-            2-column layout (see BreakEvenSliderTool's own top comment on
-            why it's a one-off, not a change to every calculator's own
-            CalculatorTool). Every other calculator keeps the existing
-            max-w-2xl single-column tool unchanged. */}
-        <div className={`altor-container py-12 ${spec?.slug === "break-even-point" ? "max-w-4xl" : "max-w-2xl"}`}>
+        {/* Two calculators need more than the default single reading column:
+            break-even-point's slider tool is a 2-column layout, and
+            email-performance carries ten inputs and eight results. Both are
+            one-offs with their own component (see each one's own top comment
+            on why), not a change to the generic CalculatorTool every other
+            calculator still renders in max-w-2xl. */}
+        <div className={`altor-container py-12 ${spec && WIDE_TOOLS.has(spec.slug) ? "max-w-4xl" : "max-w-2xl"}`}>
           {spec && spec.slug === "break-even-point" ? (
             <BreakEvenSliderTool spec={toRuntimeSpec(spec)} lang={lang} />
+          ) : spec && spec.slug === "email-performance" ? (
+            <EmailPerformanceTool spec={toRuntimeSpec(spec)} lang={lang} />
           ) : (
             spec && <CalculatorTool spec={toRuntimeSpec(spec)} lang={lang} />
           )}
