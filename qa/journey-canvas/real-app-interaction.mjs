@@ -102,9 +102,9 @@ const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromi
   const j1 = byId(REPS[3]);
   const j2 = byId(REPS[4]);
   await page.goto(`${BASE}/lab/journeys/${j1.slug}`, { waitUntil: "networkidle" });
-  const firstHeader = await page.evaluate(() => document.querySelector("main p.tabular-nums")?.textContent?.split(" - ")[0]);
+  const firstHeader = await page.evaluate(() => document.querySelector("[data-journey-id]")?.getAttribute("data-journey-id"));
   await page.goto(`${BASE}/lab/journeys/${j2.slug}`, { waitUntil: "networkidle" });
-  const secondHeader = await page.evaluate(() => document.querySelector("main p.tabular-nums")?.textContent?.split(" - ")[0]);
+  const secondHeader = await page.evaluate(() => document.querySelector("[data-journey-id]")?.getAttribute("data-journey-id"));
   const secondNodeCount = await page.evaluate(() => document.querySelectorAll("[data-canvas-node-id]").length);
   results.switchBetweenJourneys = {
     firstHeader,
@@ -123,7 +123,7 @@ const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromi
   const j = byId(REPS[5]);
   const resp = await page.goto(`${BASE}/tr/lab/journeys/${j.slug}`, { waitUntil: "networkidle" });
   const canvasPresent = await page.evaluate(() => !!document.querySelector(".altor-dot-grid"));
-  const headerMatches = await page.evaluate((id) => document.querySelector("main p.tabular-nums")?.textContent?.startsWith(id), j.id);
+  const headerMatches = await page.evaluate((id) => document.querySelector("[data-journey-id]")?.getAttribute("data-journey-id") === id, j.id);
   results.trLocale = { httpOk: resp?.status() === 200, canvasPresent, headerMatches, pass: resp?.status() === 200 && canvasPresent && headerMatches };
   await page.close();
 }

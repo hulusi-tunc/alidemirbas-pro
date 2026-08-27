@@ -94,7 +94,7 @@ export function NodeDetailPanel({
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 24, opacity: 0 }}
           transition={springSnap}
-          className="absolute top-0 right-0 bottom-14 z-20 flex w-full max-w-sm flex-col overflow-y-auto border-l border-line bg-paper shadow-[-8px_0_24px_-12px_rgba(15,23,42,0.15)]"
+          className="absolute inset-y-0 right-0 z-20 flex w-full max-w-sm flex-col overflow-y-auto border-l border-line bg-paper shadow-[-8px_0_24px_-12px_rgba(15,23,42,0.15)]"
         >
           <div className="flex items-start justify-between gap-3 border-b border-line-soft px-5 py-4">
             <div className="min-w-0">

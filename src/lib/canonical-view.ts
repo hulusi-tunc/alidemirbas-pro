@@ -272,6 +272,10 @@ export type JourneyDetail = {
   name: string;
   purpose: string;
   categoryTitle: string;
+  /** The audited discovery goal. The detail page states it under the purpose
+      as the journey's own one-line answer to "what is this for"; the library
+      list filters on the same field. */
+  goal: GoalId;
   /** The journey's declared execution channels, so the canvas can name what
       a communication action may actually run on. */
   channels: readonly ChannelId[];
@@ -352,6 +356,7 @@ function detailOf(j: CanonicalJourney): JourneyDetail {
     name: j.name,
     purpose: j.purpose,
     categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
+    goal: j.goal,
     channels: j.channels,
     entityScope: j.entity.scope,
     entityNote: j.entity.note,

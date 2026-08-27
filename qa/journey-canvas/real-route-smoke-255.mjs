@@ -43,10 +43,10 @@ for (const j of dump.journeys) {
     // word characters, and the back-link text butts directly against the
     // id with no separating whitespace in textContent ("...journeysACQ-01
     // - Acquisition..."), so the id itself never matched and the regex
-    // fell through to the next candidate elsewhere on the page. Selecting
-    // the exact header paragraph directly sidesteps both problems.
-    const headerText = await page.evaluate(() => document.querySelector("main p.tabular-nums")?.textContent ?? null);
-    const idOnPage = headerText ? headerText.split(" - ")[0] : null;
+    // fell through to the next candidate elsewhere on the page. The header
+    // now publishes the id as its own attribute, which sidesteps both
+    // problems without depending on how the line is punctuated.
+    const idOnPage = await page.evaluate(() => document.querySelector("[data-journey-id]")?.getAttribute("data-journey-id") ?? null);
     row.idMatches = idOnPage === j.id;
     row.idOnPage = idOnPage;
 

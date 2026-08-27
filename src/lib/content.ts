@@ -113,6 +113,14 @@ export const copy = {
         results: "journeys",
         empty: "Nothing matches those filters.",
         nodesLabel: "nodes",
+        /* The canvas caption's own count words. Singular/plural pairs rather
+           than one invariant form, because a journey really can carry exactly
+           one handoff or one exit - `nodesLabel` above gets away with a single
+           form only because no journey has one node. Turkish takes no plural
+           after a numeral, so both entries there are deliberately identical. */
+        decisionsLabel: ["decision", "decisions"],
+        exitsLabel: ["exit", "exits"],
+        handoffsLabel: ["handoff", "handoffs"],
         entityLabel: "Entity",
         competesLabel: "Competes",
         distinctLabel: "Distinct from",
@@ -654,6 +662,9 @@ export const copy = {
         results: "journey",
         empty: "Bu filtrelerle eşleşen kayıt yok.",
         nodesLabel: "düğüm",
+        decisionsLabel: ["koşul", "koşul"],
+        exitsLabel: ["çıkış", "çıkış"],
+        handoffsLabel: ["devir", "devir"],
         entityLabel: "Varlık",
         competesLabel: "Rekabet",
         distinctLabel: "Şundan farklı",

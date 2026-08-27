@@ -54,6 +54,26 @@ const DESKTOP_MIN_ZOOM = 0.7;
 const MOBILE_ZOOM = 0.78;
 const MAX_ZOOM = 1.6;
 
+/* The frame's own height, derived from the journey rather than fixed.
+
+   A single hard-coded canvas height is wrong for a library where the laid-out
+   graphs run from 890px to 3820px tall. Measured across all 281: only 14 are
+   short enough to fit a frame of any sane size at the floor zoom, so a fixed
+   frame is not "sometimes too small" - it is dead space under those 14 and a
+   crop for the other 267. The frame therefore asks for the height the graph
+   would actually occupy at DESKTOP_MIN_ZOOM, and the clamp decides what it
+   gets: short journeys shrink the frame to their own bounds instead of
+   floating in it, everything taller pins to FRAME_MAX and pans, which is what
+   the scrollable canvas is for.
+
+   FRAME_MAX is a co-limit with the `max-h-[78vh]` below, not a duplicate of
+   it: the pixel cap keeps the figure from turning into a full-bleed workspace
+   on a tall monitor, the viewport cap keeps it from pushing the reusable rule
+   below the fold on a short one, and whichever binds first wins. */
+const FRAME_MIN = 460;
+const FRAME_MAX = 880;
+const FRAME_BREATHING = 24;
+
 function clamp(v: number, min: number, max: number) {
   return Math.min(max, Math.max(min, v));
 }
@@ -62,12 +82,17 @@ export default function JourneyCanvas({
   nodes,
   basePath,
   labels,
+  caption,
   messageLabels = [],
   humanLabels = [],
 }: {
   nodes: readonly FlowNode[];
   basePath: string;
   labels: CanvasLabels;
+  /** The figure's caption - the journey's own shape in counts, composed and
+      localised by the server. Optional so a caller with nothing to say (the
+      QA sweep route) gets a bare control bar rather than an empty line. */
+  caption?: string;
   /** The journey's message-delivery surfaces and its human routes, localised
       and ordered by the server. Each is named only on the node kind it
       applies to; both default to none, so a caller with no channels to pass
@@ -83,6 +108,15 @@ export default function JourneyCanvas({
     for (const n of nodes) if (n.kind === "action") map.set(n.id, ++i);
     return map;
   }, [nodes]);
+
+  /* Computed during render from `layout`, which is deterministic for a given
+     journey - so the server and the first client paint agree on the frame's
+     height and it never resizes under the reader after hydration. */
+  const frameHeight = clamp(
+    Math.round(layout.height * DESKTOP_MIN_ZOOM + FRAME_BREATHING),
+    FRAME_MIN,
+    FRAME_MAX,
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -194,123 +228,148 @@ export default function JourneyCanvas({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-line-soft">
-      <div
-        ref={containerRef}
-        className="altor-dot-grid relative h-[70vh] max-h-[820px] min-h-[520px] w-full overflow-auto bg-paper-soft"
-      >
+    /* The figure: one framed plate carrying the graph, with a caption bar
+       ruled off underneath it. The stage below is its own positioning
+       context so the detail panel spans the graph exactly and stops at the
+       caption rather than floating over it. */
+    <figure className="m-0 overflow-hidden rounded-lg border border-line-soft bg-paper">
+      <div className="relative">
         <div
-          style={{ width: layout.width * zoom, height: layout.height * zoom }}
-          className="relative"
+          ref={containerRef}
+          style={{ height: frameHeight }}
+          className="altor-dot-grid relative max-h-[78vh] min-h-[380px] w-full overflow-auto bg-paper-soft"
         >
+          {/* The scroll spacer, sized to the graph's own scaled bounds so the
+              scrollable area always matches what is actually drawn. Centred
+              rather than flush-left: measured across the library, 236 of 281
+              journeys are narrower than this frame at the floor zoom, and
+              left-aligning them piled every pixel of the slack into one
+              margin - the graph hugging one edge with a quarter of the plate
+              empty beside it. Auto margins resolve to zero the moment the
+              graph is wider than the frame, so the journeys that do pan are
+              untouched. */}
           <div
-            style={{ width: layout.width, height: layout.height, transform: `scale(${zoom})`, transformOrigin: "top left" }}
+            style={{ width: layout.width * zoom, height: layout.height * zoom, marginInline: "auto" }}
             className="relative"
           >
-            <svg
-              width={layout.width}
-              height={layout.height}
-              className="pointer-events-none absolute inset-0"
-              aria-hidden
+            <div
+              style={{ width: layout.width, height: layout.height, transform: `scale(${zoom})`, transformOrigin: "top left" }}
+              className="relative"
             >
-              <defs>
-                <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-                  <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-300" />
-                </marker>
-              </defs>
-              {layout.edges.map((e) => (
-                <EdgeShape key={e.id} edge={e} />
-              ))}
-            </svg>
+              <svg
+                width={layout.width}
+                height={layout.height}
+                className="pointer-events-none absolute inset-0"
+                aria-hidden
+              >
+                <defs>
+                  <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+                    <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-300" />
+                  </marker>
+                </defs>
+                {layout.edges.map((e) => (
+                  <EdgeShape key={e.id} edge={e} />
+                ))}
+              </svg>
 
-            {layout.nodes.map((l) => {
-              const n = l.node;
-              const onOpen = () => setSelectedId(n.id);
-              return (
-                <div
-                  key={n.id}
-                  data-canvas-node-id={n.id}
-                  data-canvas-node-kind={n.kind}
-                  style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
-                  className="absolute"
-                >
-                  {n.kind === "trigger" ? (
-                    <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} />
-                  ) : n.kind === "action" ? (
-                    <ActionCard
-                      node={n}
-                      sequence={actionSequence.get(n.id) ?? 1}
-                      onOpen={onOpen}
-                      messageLabels={messageLabels}
-                      humanLabels={humanLabels}
-                    />
-                  ) : n.kind === "condition" ? (
-                    <ConditionCard node={n} onOpen={onOpen} />
-                  ) : n.kind === "wait" ? (
-                    <WaitCard node={n} onOpen={onOpen} />
-                  ) : n.kind === "handoff" ? (
-                    <HandoffCard node={n} onOpen={onOpen} />
-                  ) : n.kind === "outcome" ? (
-                    <OutcomeCard node={n} onOpen={onOpen} />
-                  ) : (
-                    <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} />
-                  )}
-                </div>
-              );
-            })}
+              {layout.nodes.map((l) => {
+                const n = l.node;
+                const onOpen = () => setSelectedId(n.id);
+                return (
+                  <div
+                    key={n.id}
+                    data-canvas-node-id={n.id}
+                    data-canvas-node-kind={n.kind}
+                    style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
+                    className="absolute"
+                  >
+                    {n.kind === "trigger" ? (
+                      <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} />
+                    ) : n.kind === "action" ? (
+                      <ActionCard
+                        node={n}
+                        sequence={actionSequence.get(n.id) ?? 1}
+                        onOpen={onOpen}
+                        messageLabels={messageLabels}
+                        humanLabels={humanLabels}
+                      />
+                    ) : n.kind === "condition" ? (
+                      <ConditionCard node={n} onOpen={onOpen} />
+                    ) : n.kind === "wait" ? (
+                      <WaitCard node={n} onOpen={onOpen} />
+                    ) : n.kind === "handoff" ? (
+                      <HandoffCard node={n} onOpen={onOpen} />
+                    ) : n.kind === "outcome" ? (
+                      <OutcomeCard node={n} onOpen={onOpen} />
+                    ) : (
+                      <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
+
+        {/* Rendered as a sibling of the scrollable canvas, not a child of it -
+            living inside the `overflow-auto` element made closing it reset
+            the canvas's own scrollTop (the panel's exit animation briefly
+            changed that element's own scrollable bounds, and the browser
+            committed the clamped value). Positioned against the stage that
+            wraps them both, it still overlays exactly the same visible area. */}
+        <NodeDetailPanel node={selectedNode} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
       </div>
 
-      {/* Rendered as a sibling of the scrollable canvas, not a child of it -
-          living inside the `overflow-auto` element made closing it reset
-          the canvas's own scrollTop (the panel's exit animation briefly
-          changed that element's own scrollable bounds, and the browser
-          committed the clamped value). Positioned against this same
-          outer box, it still overlays exactly the same visible area. */}
-      <NodeDetailPanel node={selectedNode} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
-
-      {/* Restrained floating controls, bottom-right of the canvas only - not
-          a toolbar competing with the graph for attention. z-30 keeps them
-          reachable even with the (z-20) detail panel open - the panel's own
-          bottom inset already clears this corner, this is the belt as well
-          as the suspenders. */}
-      <div className="absolute bottom-3 right-3 z-30 flex items-center gap-0.5 rounded-full border border-line-soft bg-paper/95 p-1 shadow-sm backdrop-blur">
-        <button
-          type="button"
-          onClick={() => zoomBy(1 / 1.25)}
-          aria-label={labels.zoomOut}
-          className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
-        >
-          <Minus aria-hidden className="size-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => zoomBy(1.25)}
-          aria-label={labels.zoomIn}
-          className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
-        >
-          <Plus aria-hidden className="size-3.5" />
-        </button>
-        <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
-        <button
-          type="button"
-          onClick={fitToView}
-          aria-label={labels.fitToView}
-          className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
-        >
-          <Maximize2 aria-hidden className="size-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={reset}
-          aria-label={labels.reset}
-          className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
-        >
-          <RotateCcw aria-hidden className="size-3.5" />
-        </button>
-      </div>
-    </div>
+      {/* The caption bar. It states what the figure contains and carries the
+          camera controls, which used to float over the bottom-right of the
+          graph itself; down here they stop overlapping nodes, stop needing to
+          out-stack the detail panel, and read as apparatus rather than as
+          part of the drawing. Deliberately not a legend: node kinds are named
+          on the cards themselves, and a permanent key would be four more
+          things competing with the graph on every one of 281 pages. */}
+      <figcaption className="flex items-center justify-between gap-4 border-t border-line-soft px-3 py-1.5">
+        {caption ? (
+          <p className="min-w-0 truncate font-mono text-[11px] text-ink-400 tabular-nums">{caption}</p>
+        ) : (
+          <span />
+        )}
+        <div className="flex shrink-0 items-center gap-0.5">
+          <button
+            type="button"
+            onClick={() => zoomBy(1 / 1.25)}
+            aria-label={labels.zoomOut}
+            className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
+          >
+            <Minus aria-hidden className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => zoomBy(1.25)}
+            aria-label={labels.zoomIn}
+            className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
+          >
+            <Plus aria-hidden className="size-3.5" />
+          </button>
+          <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
+          <button
+            type="button"
+            onClick={fitToView}
+            aria-label={labels.fitToView}
+            className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
+          >
+            <Maximize2 aria-hidden className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={reset}
+            aria-label={labels.reset}
+            className="grid size-7 place-items-center rounded-full text-ink-500 transition-colors hover:bg-paper-soft hover:text-ink-900"
+          >
+            <RotateCcw aria-hidden className="size-3.5" />
+          </button>
+        </div>
+      </figcaption>
+    </figure>
   );
 }
 
