@@ -64,9 +64,9 @@ const T = {
 // the icons people already recognise don't all change colour: Ads keeps
 // advertising's 250, Revenue & Unit Economics keeps unit-economics' 75,
 // Retention & SaaS keeps saas' 280, Conversion & Funnel keeps cro-funnel's
-// 200. "tools" is the one synthetic bucket (UTM Builder/Character Counter
-// carry no spec at all — see CalculatorRoutes.tsx's own note on why they
-// sit outside the taxonomy).
+// 200. "text-tools" keeps the hue the old synthetic "tools" bucket used,
+// from when UTM Builder and Character Counter rendered as their own list
+// below the grid rather than inside it.
 const CATEGORY_HUE: Record<string, number> = {
   ads: 250,
   "revenue-unit-economics": 75,
@@ -74,7 +74,7 @@ const CATEGORY_HUE: Record<string, number> = {
   "conversion-funnel": 200,
   experimentation: 305,
   "email-crm": 225,
-  tools: 250,
+  "text-tools": 250,
 };
 
 export function CategoryIcon({ categoryKey, index }: { categoryKey: string; index: number }) {

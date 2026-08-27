@@ -3,6 +3,18 @@
   "slug": "cac-payback-period",
   "contentDepth": "standard",
   "intro": "CAC payback period is how many months it takes to earn back what you spent acquiring a customer, once margin is accounted for. Enter CAC, monthly ARPU and gross margin below.",
+  "page": {
+    "tagline": "See how many months it takes to earn back what a customer cost, after margin.",
+    "meaning": [
+      "Payback is a cash question rather than a value one. A shorter period means less cash tied up per customer before the acquisition starts paying for itself, which matters most to a business funding growth out of its own revenue.",
+      "It is a different lens from LTV:CAC. A customer can have excellent lifetime economics on paper and still create real cash-flow pressure if the payback stretches far enough out.",
+      "Four things move it, and they are the four in the formula: a lower CAC, a higher ARPU, and a higher gross margin all shorten it — margin with outsized effect, because it applies to the whole revenue stream rather than to one month of it."
+    ],
+    "takeaway": "Good lifetime economics and a comfortable cash position are not the same thing.",
+    "whenToUse": "When acquisition is funded from operating cash, when deciding how aggressively to scale spend, or when a healthy LTV:CAC still feels tighter in practice than the ratio suggests.",
+    "misleads": "Dividing CAC by raw ARPU without the margin adjustment counts revenue that was never available to offset acquisition cost, and reports a shorter payback than exists. Applying a blended company margin to one product's ARPU shifts it in either direction.",
+    "workedExample": "CAC ÷ (ARPU × gross margin) → $600 ÷ ($100 × 75%) = 8.0 months"
+  },
   "sections": [
     {
       "id": "formula",
@@ -15,11 +27,23 @@
       "type": "worked-example",
       "heading": "Worked example",
       "inputs": [
-        { "label": "CAC", "value": "$600" },
-        { "label": "Monthly ARPU", "value": "$100" },
-        { "label": "Gross margin", "value": "75%" }
+        {
+          "label": "CAC",
+          "value": "$600"
+        },
+        {
+          "label": "Monthly ARPU",
+          "value": "$100"
+        },
+        {
+          "label": "Gross margin",
+          "value": "75%"
+        }
       ],
-      "output": { "label": "CAC Payback Period", "value": "8.0 months" },
+      "output": {
+        "label": "CAC Payback Period",
+        "value": "8.0 months"
+      },
       "body": "8.0 months means it takes roughly eight months of this customer's gross-margin-adjusted revenue to earn back the $600 spent acquiring them. Applying the 75% gross margin changes the estimate from 6 months on a revenue-only basis to 8 months on a gross-margin-adjusted basis — this is a model-based estimate, not a guaranteed recovery timeline."
     },
     {
@@ -73,9 +97,21 @@
     }
   ],
   "related": [
-    { "slug": "cac", "name": "CAC Calculator", "desc": "Computes the acquisition cost figure this calculator divides by margin-adjusted revenue to get a recovery timeline." },
-    { "slug": "ltv-cac-ratio", "name": "LTV:CAC Ratio Calculator", "desc": "Answers whether the customer is worth more than they cost overall — a different question than how fast that cost is recovered." },
-    { "slug": "ltv", "name": "LTV Calculator", "desc": "The lifetime-value side of the same economics — useful alongside payback period, not a substitute for it." }
+    {
+      "slug": "cac",
+      "name": "CAC Calculator",
+      "desc": "Computes the acquisition cost figure this calculator divides by margin-adjusted revenue to get a recovery timeline."
+    },
+    {
+      "slug": "ltv-cac-ratio",
+      "name": "LTV:CAC Ratio Calculator",
+      "desc": "Answers whether the customer is worth more than they cost overall — a different question than how fast that cost is recovered."
+    },
+    {
+      "slug": "ltv",
+      "name": "LTV Calculator",
+      "desc": "The lifetime-value side of the same economics — useful alongside payback period, not a substitute for it."
+    }
   ],
   "faq": [
     {

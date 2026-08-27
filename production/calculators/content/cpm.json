@@ -3,6 +3,17 @@
   "slug": "cpm",
   "contentDepth": "light",
   "intro": "CPM (cost per mille) is what an advertiser pays for every thousand impressions an ad receives. Enter ad spend and impressions to get the rate.",
+  "page": {
+    "tagline": "See what it costs to put an ad in front of a thousand people.",
+    "meaning": [
+      "CPM measures the cost of exposure: what it took to show the ad, independent of any response. That makes it the natural currency for reach and brand-awareness buying, where being seen is the goal.",
+      "It has no visibility past the impression. A campaign can carry a low CPM and still perform poorly, because nothing in the formula knows whether the impressions turned into clicks or customers."
+    ],
+    "takeaway": "CPM prices attention, not outcomes. Cheap impressions can still be worthless ones.",
+    "whenToUse": "When buying or comparing reach — placements, audiences or formats judged on what exposure costs. It is also the right frame for negotiating inventory, where the unit being bought really is the impression.",
+    "misleads": "A falling CPM often means the ad is reaching a cheaper, less valuable audience rather than reaching the same audience more efficiently. Treated as a performance metric it rewards exactly that drift.",
+    "workedExample": "(ad spend ÷ impressions) × 1,000 → ($300 ÷ 150,000) × 1,000 = $2.00"
+  },
   "sections": [
     {
       "id": "formula",

@@ -3,6 +3,18 @@
   "slug": "break-even-point",
   "contentDepth": "standard",
   "intro": "Break-even point is the sales volume where total revenue exactly covers total costs — no profit, no loss. Enter fixed costs, price and variable cost per unit to get the units, plus the CAC ceiling and ROAS floor that follow from the same margin.",
+  "page": {
+    "tagline": "See the volume where revenue exactly covers costs — and the CAC and ROAS limits that implies.",
+    "meaning": [
+      "Break-even point is the volume at which revenue and costs are equal under the price and cost you entered. Nothing more: selling exactly that many units nets zero profit.",
+      "The other two outputs come from the same contribution margin. The CAC ceiling is the most you can spend acquiring one unit's sale before that sale contributes nothing toward fixed costs; the ROAS floor is the multiplier that spend would have to return. Both are unit-level figures, not the whole-business threshold the unit count is.",
+      "Price and cost move it predictably. Widening the contribution margin lowers the volume needed; narrowing it raises it; fixed costs move it in direct proportion."
+    ],
+    "takeaway": "Break-even is a floor to clear, not a target to hit — and the maths knows nothing about whether you can sell that many.",
+    "whenToUse": "When setting a price, sizing fixed commitments, or deciding how much acquisition spend a unit can carry. The CAC ceiling in particular is the honest limit to check a proposed budget against.",
+    "misleads": "The formula contains no demand data, so a plausible-looking number can be entirely unachievable in your market. It also assumes the price and variable cost hold at every volume, which discounting and tiered supply costs both break.",
+    "workedExample": "fixed costs ÷ (price − variable cost) → $50,000 ÷ ($100 − $40) = 834 units"
+  },
   "sections": [
     {
       "id": "formula",

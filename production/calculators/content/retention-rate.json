@@ -3,6 +3,18 @@
   "slug": "retention-rate",
   "contentDepth": "standard",
   "intro": "Retention rate is the share of your existing customers who were still customers at the end of the period. Enter the customer counts below to get both retention and churn.",
+  "page": {
+    "tagline": "See what share of your existing customers were still customers at the end of the period.",
+    "meaning": [
+      "Subtracting new customers from the end count is what makes this a retention number at all. Without it, fresh signups mask churn among the customers you already had — which is exactly the thing being measured.",
+      "It is a period-level average across a whole cohort, not a statement about any individual customer or about how retention behaves across a lifetime. Cohort retention, which tracks one group from a shared starting point, answers that finer question instead.",
+      "The churn rate shown alongside it is its complement over the same population and period — the two are the same measurement from opposite ends."
+    ],
+    "takeaway": "Keeping most of your customers and keeping most of your revenue are different results.",
+    "whenToUse": "When judging whether the existing base is holding, sized over a period long enough for churn to actually show. Read it beside NRR when revenue matters more than headcount.",
+    "misleads": "Forgetting to subtract new customers inflates the rate by counting brand-new signups as retained. Comparing a monthly figure against a quarterly one treats two different measurements as the same number.",
+    "workedExample": "(end − acquired) ÷ start → (1,050 − 150) ÷ 1,000 = 90.00%"
+  },
   "sections": [
     {
       "id": "definition",

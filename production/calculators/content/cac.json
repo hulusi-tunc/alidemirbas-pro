@@ -4,6 +4,18 @@
   "contentDepth": "standard",
   "heroTitle": "Customer Acquisition Cost (CAC) Calculator",
   "intro": "CAC (customer acquisition cost) is what it cost, on average, to turn spend into one new paying customer. Enter total acquisition spend and new customers acquired below to get your CAC, the average dollar cost per customer, not a rate or percentage.",
+  "page": {
+    "tagline": "See what it cost, on average, to win one new paying customer.",
+    "meaning": [
+      "CAC is the average cost of turning spend into one new paying customer. On its own it does not say whether acquisition is working: $50 means something very different for a customer worth $500 than for one worth $60.",
+      "The two numbers that supply that context are LTV:CAC, which compares it against what a customer is worth over the whole relationship, and CAC Payback Period, which asks how long it takes to earn the cost back.",
+      "There is no governing standard for what belongs in the numerator. A fully loaded CAC includes media, sales commissions, salaries and overhead; a paid CAC includes media only. Both are legitimate — they answer different questions, and mixing them is what causes trouble."
+    ],
+    "takeaway": "A CAC is only meaningful next to what a customer is worth and how fast they pay it back.",
+    "whenToUse": "When judging whether acquisition is economically sustainable, sizing a budget, or comparing channels — provided every channel is measured with the same cost definition and the same customer definition.",
+    "misleads": "Scope mismatches: paid spend divided by all new customers including organic ones understates what paid acquisition really cost. So does changing what counts as spend between periods and reading the shift as improved efficiency.",
+    "workedExample": "acquisition spend ÷ new customers → $10,000 ÷ 200 = $50.00"
+  },
   "sections": [
     {
       "id": "formula",

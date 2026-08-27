@@ -4,6 +4,17 @@
   "contentDepth": "standard",
   "heroTitle": "Multi-Step Funnel Analysis Calculator",
   "intro": "This calculator breaks a funnel into as many steps as you need and computes the conversion and drop-off between each one, plus the overall conversion from first step to last. Enter at least two stages to get started.",
+  "page": {
+    "tagline": "Break a funnel into steps and see the conversion and drop-off between each one.",
+    "meaning": [
+      "The overall rate is only the ratio between the first stage and the last. The step-by-step breakdown is the part that actually shows where people leave, and it is the reason to use this rather than a single conversion rate.",
+      "A step converting above 100% means a later stage counted more entities than the one before it. The calculator flags that rather than rendering it as a normal rate: in a single-cohort funnel it usually means double-counting, a wider date range on that stage, or two different event definitions."
+    ],
+    "takeaway": "The overall number tells you how much you lost. Only the steps tell you where.",
+    "whenToUse": "When diagnosing where a funnel leaks, when comparing the same funnel across periods or segments, or when a single conversion rate has moved and you need to know which stage moved it.",
+    "misleads": "Step rates from funnels with different stage counts or different stage definitions are not comparable, even when the endpoints look alike. And a stage that counts more than its predecessor is a data problem to investigate, not a result to report.",
+    "workedExample": "10,000 → 1,800 → 900 → 620 visits to purchase = 6.20% overall"
+  },
   "sections": [
     {
       "id": "formula",

@@ -620,7 +620,15 @@ const specs = [
     { visitorsA: ">0", conversionsA: ">=0 and <=visitorsA", visitorsB: ">0", conversionsB: ">=0 and <=visitorsB" },
     ["both visitor counts must be > 0", "frequentist method - see Bayesian Probability to Beat Control for the documented alternative method, do not present this as the only valid approach"],
     ["conversionsA = 0 or conversionsB = 0 -> valid, z-test still computes", "very small samples (<30 per arm) -> flag result as low-confidence even if p < 0.05"],
-    { visitorsA: 5000, conversionsA: 250, visitorsB: 5000, conversionsB: 290 }, { pValue: "0.0847", significant: false },
+    /* p-value corrected from a stale 0.0847. Hand-derived for these exact
+       inputs: control 250/5000 = 5.00%, variant 290/5000 = 5.80%, pooled
+       540/10000 = 5.40%, SE = sqrt(0.054 x 0.946 x 2/5000) = 0.004520,
+       z = 0.008 / 0.004520 = 1.7698, two-tailed p = 0.0768. That matches
+       what calc-registry.ts actually returns and what this calculator's own
+       content file has always shown in its worked example; only this field
+       disagreed. It escaped test-calculators.mjs because the "number" unit
+       carries a 0.06 tolerance, wide enough to swallow a 0.0079 error. */
+    { visitorsA: 5000, conversionsA: 250, visitorsB: 5000, conversionsB: 290 }, { pValue: "0.0768", significant: false },
     ["Sample Size Calculator", "Confidence Interval"]],
   ["confidence-interval-calculator", "P1", [], "p ± z* * sqrt(p(1-p)/n)", "Confidence interval around one observed conversion rate.",
     [["conversions","Conversions",CNT],["visitors","Visitors",CNT],["confidenceLevel","Confidence level","enum(90/95/99)"]],

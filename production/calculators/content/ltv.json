@@ -3,6 +3,17 @@
   "slug": "ltv",
   "contentDepth": "deep",
   "intro": "LTV (lifetime value) estimates how much revenue a customer is worth over the time they stay a customer. There isn't one formula for this — pick the model below that matches the data you actually have.",
+  "page": {
+    "tagline": "Estimate what a customer is worth over the time they stay one.",
+    "meaning": [
+      "LTV is not one equation but a family of them, trading off simplicity, data requirements and how forward-looking the answer is. The right model depends on what data you have and what the number is for — not on which formula is more correct.",
+      "A more complex model is not automatically a more accurate one. It models a different set of assumptions, and a rough input to a sophisticated formula is still a rough answer.",
+      "The number means most next to what it costs to get there. A rising LTV alongside a flat or rising CAC can still be a business getting less efficient, even though the headline figure looks healthy."
+    ],
+    "takeaway": "Every LTV here is an average built on assumptions. Which model produced it changes what it means.",
+    "whenToUse": "When sizing what you can afford to spend on acquisition, comparing the value of segments or cohorts, or feeding LTV:CAC and payback. Always state which model the figure came from.",
+    "misleads": "All three models assume the future looks like the recent past, so a business whose churn or margin is still moving will see the estimate lag reality. None of them discount for the time value of money, and feeding a revenue-based LTV into a spending decision overstates the room you actually have."
+  },
   "sections": [
     {
       "id": "why-three-models",
@@ -97,10 +108,26 @@
     }
   ],
   "related": [
-    { "slug": "ltv-cac-ratio", "name": "LTV:CAC Ratio Calculator", "desc": "Puts this LTV figure against acquisition cost directly — the natural next step once an LTV model is chosen." },
-    { "slug": "cac", "name": "CAC Calculator", "desc": "The other half of the comparison LTV is almost always read against." },
-    { "slug": "cac-payback-period", "name": "CAC Payback Period Calculator", "desc": "Answers a faster-reacting question than LTV does — how soon acquisition cost is recovered, not what the customer is worth overall." },
-    { "slug": "retention-rate", "name": "Retention Rate Calculator", "desc": "The churn assumption behind the margin-adjusted LTV model, measured directly rather than estimated." }
+    {
+      "slug": "ltv-cac-ratio",
+      "name": "LTV:CAC Ratio Calculator",
+      "desc": "Puts this LTV figure against acquisition cost directly — the natural next step once an LTV model is chosen."
+    },
+    {
+      "slug": "cac",
+      "name": "CAC Calculator",
+      "desc": "The other half of the comparison LTV is almost always read against."
+    },
+    {
+      "slug": "cac-payback-period",
+      "name": "CAC Payback Period Calculator",
+      "desc": "Answers a faster-reacting question than LTV does — how soon acquisition cost is recovered, not what the customer is worth overall."
+    },
+    {
+      "slug": "retention-rate",
+      "name": "Retention Rate Calculator",
+      "desc": "The churn assumption behind the margin-adjusted LTV model, measured directly rather than estimated."
+    }
   ],
   "faq": [
     {

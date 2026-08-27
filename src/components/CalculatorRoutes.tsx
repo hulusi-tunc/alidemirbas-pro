@@ -6,20 +6,19 @@ import { ArrowLeft } from "lucide-react";
 import CalculatorTool from "@/components/CalculatorTool";
 import { BreakEvenSliderTool } from "@/components/ui/BreakEvenSliderTool";
 import EmailPerformanceTool from "@/components/ui/EmailPerformanceTool";
-import CalculatorContent from "@/components/CalculatorContent";
+import CalculatorDetailTemplate from "@/components/CalculatorDetailTemplate";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
 import { SiteFooter, SiteHeader } from "@/components/Site";
-import { CalculatorLibrary, CategoryIcon, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
-import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import { RelatedGrid } from "@/components/ui/RelatedGrid";
+import { CalculatorLibrary, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
 import { copy } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
 import {
   getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS,
-  correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, type LibraryGroup,
+  correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, TEXT_TOOL_GROUP,
+  type LibraryGroup,
 } from "@/lib/calc-catalog";
-import { getContent } from "@/lib/calc-content";
+import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
 
@@ -69,12 +68,8 @@ const GROUP_LABEL: Record<LibraryGroup, { en: string; tr: string }> = {
   "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Huni" },
   experimentation: { en: "Experimentation", tr: "Deneysel Test" },
   "email-crm": { en: "Email & CRM", tr: "E-posta ve CRM" },
+  "text-tools": { en: "Text Tools", tr: "Metin Araçları" },
 };
-
-const RELATED_TITLE = { en: "Related calculators", tr: "İlgili hesaplayıcılar" };
-
-/** The calculators whose tool is too wide for the default reading column. */
-const WIDE_TOOLS = new Set(["break-even-point", "email-performance"]);
 
 export function calculatorIndexMetadata(lang: Lang): Metadata {
   const t = T[lang];
@@ -206,35 +201,61 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
      rather than silently vanishing from the index. */
   const groupOf = (slug: string): LibraryGroup => LIBRARY_GROUP[slug] ?? "revenue-unit-economics";
 
-  const entries: CalcEntry[] = specs
-    // Funnel order, not catalog order: the grid should read in the same
-    // sequence as the facet list beside it.
-    .slice()
-    .sort((a, b) => LIBRARY_GROUP_ORDER.indexOf(groupOf(a.slug)) - LIBRARY_GROUP_ORDER.indexOf(groupOf(b.slug)))
-    .map((spec) => {
-      const group = groupOf(spec.slug);
-      const categoryLabel = GROUP_LABEL[group][lang];
-      const description = correctedFormulaPlainEnglish(spec);
-      return {
-        slug: spec.slug,
-        name: spec.name,
-        description,
-        categoryLabel,
-        categoryKey: group,
-        searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
-        href: `${base}/${spec.slug}`,
-      };
-    });
+  /* One grid, calculators and text tools together. The two tools used to
+     render as a separate "Other tools" list below it, on the grounds that
+     they carry no `category` field to file them under - but that was a
+     data problem being shown to the reader. Somebody looking for a tool on
+     this page should find all of them in one place, filterable and
+     searchable the same way; TEXT_TOOL_GROUP supplies the group the data
+     could not. */
+  const calcEntries: CalcEntry[] = specs.map((spec) => {
+    const group = groupOf(spec.slug);
+    const categoryLabel = GROUP_LABEL[group][lang];
+    const description = correctedFormulaPlainEnglish(spec);
+    return {
+      slug: spec.slug,
+      name: spec.name,
+      description,
+      categoryLabel,
+      categoryKey: group,
+      searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
+      href: `${base}/${spec.slug}`,
+    };
+  });
 
-  // `id` is the display label itself (not the raw group key) — the only
-  // join key CalculatorLibrary needs, and every label is unique across the
-  // six groups, so this stays a plain 1:1 mapping with no separate id
-  // scheme to keep in sync. Ordered by LIBRARY_GROUP_ORDER rather than by
-  // count: the groups describe a funnel, and sorting them by size would
-  // scramble that for no gain across six items.
+  const toolEntries: CalcEntry[] = TEXT_TOOLS.map((tool) => {
+    const categoryLabel = GROUP_LABEL[TEXT_TOOL_GROUP][lang];
+    return {
+      slug: tool.slug,
+      name: tool.title[lang],
+      description: tool.desc[lang],
+      categoryLabel,
+      categoryKey: TEXT_TOOL_GROUP,
+      // No aliases to pass: a text tool has no catalog record and so no
+      // alias list, unlike every calculator above.
+      searchText: calcSearchText(tool.title[lang], tool.desc[lang], categoryLabel, []),
+      href: `${base}/${tool.slug}`,
+    };
+  });
+
+  // Funnel order, not catalog order: the grid should read in the same
+  // sequence as the facet list beside it.
+  const entries = [...calcEntries, ...toolEntries].sort(
+    (a, b) =>
+      LIBRARY_GROUP_ORDER.indexOf(a.categoryKey as LibraryGroup) -
+      LIBRARY_GROUP_ORDER.indexOf(b.categoryKey as LibraryGroup),
+  );
+
+  /* `id` is the display label itself (not the raw group key) - the only
+     join key CalculatorLibrary needs, and every label is unique across the
+     seven groups, so this stays a plain 1:1 mapping with no separate id
+     scheme to keep in sync. Ordered by LIBRARY_GROUP_ORDER rather than by
+     count: the groups describe a funnel, and sorting them by size would
+     scramble that for no gain across seven items. Counted off `entries`
+     so the facet totals can never disagree with the grid. */
   const groupCounts = new Map<LibraryGroup, number>();
-  for (const spec of specs) {
-    const g = groupOf(spec.slug);
+  for (const e of entries) {
+    const g = e.categoryKey as LibraryGroup;
     groupCounts.set(g, (groupCounts.get(g) ?? 0) + 1);
   }
   const categoryFacets: CategoryFacet[] = LIBRARY_GROUP_ORDER.filter((g) => groupCounts.has(g)).map((g) => ({
@@ -285,27 +306,6 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
           <div className="mx-auto max-w-320 px-6 sm:px-12">
             <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
 
-            {/* "Other tools" — same white-card grammar as the main grid,
-                always visible/unfiltered (see calcSearchText's own top
-                comment on why TEXT_TOOLS stay outside the taxonomy). */}
-            <div className="mt-16">
-              <h2 className="mb-5 border-b pb-2.5 text-base font-medium tracking-tight" style={{ color: "#141311", borderColor: "#e8e5df" }}>
-                {lang === "en" ? "Other tools" : "Diğer araçlar"}
-              </h2>
-              <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-                {TEXT_TOOLS.map((tool, i) => (
-                  <Link
-                    key={tool.slug}
-                    href={`${base}/${tool.slug}`}
-                    className="flex flex-col gap-2.5 rounded-[10px] border border-[#e8e5df] bg-white p-6.5 transition-[border-color,box-shadow] duration-150 hover:border-[#cfcabf] hover:shadow-[0_1px_3px_rgba(20,19,17,0.06)]"
-                  >
-                    <CategoryIcon categoryKey="tools" index={i + 1} />
-                    <span className="text-base font-semibold tracking-tight" style={{ color: "#141311" }}>{tool.title[lang]}</span>
-                    <span className="text-sm leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{tool.desc[lang]}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
       </main>
@@ -318,94 +318,108 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   const spec = getCalcSpec(slug);
   const textTool = TEXT_TOOLS.find((c) => c.slug === slug);
   if (!spec && !textTool) notFound();
-  const content = getContent(slug, lang);
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
-  // heroTitle is an optional Phase 4 override for the H1 only (see
-  // CalcContent.heroTitle) - everything else on the site (breadcrumbs,
-  // index listing, related-card labels) keeps using spec.name.
-  const title = content?.heroTitle ?? (spec ? spec.name : textTool!.title[lang]);
-  // Phase 4's intro is a short, tool-first 1-3 sentence description
-  // (instruction 24) - prefer it in the hero when it exists; it's
-  // written specifically to sit above the calculator, unlike
-  // formulaPlainEnglish which is documentation prose.
-  const desc = content ? content.intro : spec ? correctedFormulaPlainEnglish(spec) : textTool!.desc[lang];
 
-  // Section order below: Hero -> Calculator -> short desc/formula area ->
-  // FAQ -> Related calculators. Text tools (UTM builder, character
-  // counter) have no CalcSpec, so the FAQ/related sections - both
-  // spec-driven - simply don't render for them. The "Browse by category"
-  // grid that used to sit here was removed by request - category
-  // browsing lives on the /calculators index page only.
-  const runtime = spec ? toRuntimeSpec(spec) : null;
+  /* The text tools keep the page they already had. They carry no CalcSpec
+     and no content file, so they have no result to headline, no worked
+     example and no "what this number means" - running them through the
+     calculator template would mean inventing all four. */
+  if (textTool) {
+    return (
+      <>
+        <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
+        <main>
+          <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-14">
+            <div className="altor-container">
+              <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white">
+                <ArrowLeft aria-hidden className="size-3.5" />
+                {T[lang].title}
+              </Link>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{textTool.title[lang]}</h1>
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{textTool.desc[lang]}</p>
+            </div>
+          </section>
+          <div className="altor-container max-w-2xl py-12">
+            {textTool.slug === "utm-builder" && <UtmBuilder lang={lang} />}
+            {textTool.slug === "character-counter" && <CharacterCounter lang={lang} />}
+          </div>
+        </main>
+        <SiteFooter t={c} lang={lang} />
+      </>
+    );
+  }
 
-  // Phase 4 content can author its own Related Calculators with a real
-  // one-sentence relationship (see CalcContent.related) - preferred over
-  // the catalog's relatedCalculators field, which carries no description
-  // and can list a slug that's no longer live. Every content-authored
-  // slug is re-verified against LIVE_CALCULATOR_SLUGS here regardless, so
-  // a typo or a slug that goes dark later can't silently produce a 404.
-  const authoredRelated = (content?.related ?? []).filter((r) => LIVE_CALCULATOR_SLUGS.includes(r.slug));
-  const relatedItems = authoredRelated.length > 0
-    ? authoredRelated.map((r) => ({ href: `${base}/${r.slug}`, name: r.name, desc: r.desc }))
-    : (runtime?.related ?? []).map((r) => ({ href: `${base}/${r.slug}`, name: r.name }));
+  const runtime = toRuntimeSpec(spec!);
+  /* EN-only editorial content, same as before. TR falls back to an
+     English-derived page rather than showing a half-translated one, which
+     is the existing convention (see getContent's own note); the template
+     itself is fully localised, so a TR page differs only in that its prose
+     is the same English the catalog holds. */
+  const content = getContent(slug, lang) ?? getContent(slug, "en")!;
+  const title = content.heroTitle ?? spec!.name;
+
+  /* Authored related links first, catalog-derived as the fallback - both
+     re-checked against the live library so a retired slug can never render
+     as a link to a 404. Capped at four: the row is four wide, and a fifth
+     wrapping onto its own line makes a quiet section loud. */
+  const authored = (content.related ?? []).filter((r) => LIVE_CALCULATOR_SLUGS.includes(r.slug));
+  const relatedItems = (
+    authored.length > 0
+      ? authored.map((r) => ({ href: `${base}/${r.slug}`, name: r.name }))
+      : runtime.related.map((r) => ({ href: `${base}/${r.slug}`, name: r.name }))
+  ).slice(0, 4);
+
+  const tool =
+    spec!.slug === "break-even-point" ? (
+      <BreakEvenSliderTool spec={runtime} lang={lang} />
+    ) : spec!.slug === "email-performance" ? (
+      <EmailPerformanceTool spec={runtime} lang={lang} />
+    ) : (
+      <CalculatorTool spec={runtime} lang={lang} />
+    );
 
   return (
     <>
       <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
       <main>
-        {/* pt-40 -> pt-24: SiteHeader is now a real, solid header, not an
-            absolute overlay - see its own comment in Site.tsx. */}
-        <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-14">
-          <div className="altor-container">
-            <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white">
-              <ArrowLeft aria-hidden className="size-3.5" />
-              {T[lang].title}
-            </Link>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h1>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{desc}</p>
-          </div>
-        </section>
-        {/* Two calculators need more than the default single reading column:
-            break-even-point's slider tool is a 2-column layout, and
-            email-performance carries ten inputs and eight results. Both are
-            one-offs with their own component (see each one's own top comment
-            on why), not a change to the generic CalculatorTool every other
-            calculator still renders in max-w-2xl. */}
-        <div className={`altor-container py-12 ${spec && WIDE_TOOLS.has(spec.slug) ? "max-w-4xl" : "max-w-2xl"}`}>
-          {spec && spec.slug === "break-even-point" ? (
-            <BreakEvenSliderTool spec={toRuntimeSpec(spec)} lang={lang} />
-          ) : spec && spec.slug === "email-performance" ? (
-            <EmailPerformanceTool spec={toRuntimeSpec(spec)} lang={lang} />
-          ) : (
-            spec && <CalculatorTool spec={toRuntimeSpec(spec)} lang={lang} />
-          )}
-          {textTool?.slug === "utm-builder" && <UtmBuilder lang={lang} />}
-          {textTool?.slug === "character-counter" && <CharacterCounter lang={lang} />}
-        </div>
-
-        {content && <CalculatorContent content={content} />}
-
-        {spec && (
-          <div className="altor-container max-w-2xl pb-16">
-            <div className="flex flex-col gap-12 border-t border-line pt-10">
-              {/* The "short desc / formula area" the section order calls
-                  for is CalculatorTool's own inline FormulaBlock, rendered
-                  just above (formula + plain-English, for every live
-                  calculator, not only the 13 with Phase 4 content) - a
-                  second one here would just repeat it, so this template
-                  starts at Related Calculators instead. Related comes
-                  before FAQ by request - it's closer to what someone who
-                  just finished reading Common Mistakes wants next. */}
-              <RelatedGrid title={RELATED_TITLE[lang]} items={relatedItems} />
-
-              <FaqAccordion title="FAQ" items={content?.faq ?? []} />
-            </div>
-          </div>
-        )}
+        <CalculatorDetailTemplate
+          lang={lang}
+          basePath={base}
+          title={title}
+          content={content}
+          related={relatedItems}
+          workedExampleFallback={<WorkedExampleRows content={content} />}
+        >
+          {tool}
+        </CalculatorDetailTemplate>
       </main>
       <SiteFooter t={c} lang={lang} />
     </>
+  );
+}
+
+/* The structured worked example, for the one calculator whose example can't
+   be stated on a single line (ten inputs, eight results). Rendered inside
+   the template's own strip, so it reads as the same element either way. */
+function WorkedExampleRows({ content }: { content: CalcContent }) {
+  const section = content.sections.find((s) => s.type === "worked-example");
+  if (!section) return null;
+  return (
+    <div className="font-mono text-[13px]">
+      {(section.inputs ?? []).map((row) => (
+        <div key={row.label} className="flex justify-between gap-4 py-0.5 text-ink-600">
+          <span>{row.label}</span>
+          <span className="text-ink-900 tabular-nums">{row.value}</span>
+        </div>
+      ))}
+      {section.output && (
+        <div className="mt-1.5 flex justify-between gap-4 border-t border-line pt-1.5 font-medium text-ink-950">
+          <span>{section.output.label}</span>
+          <span className="tabular-nums">{section.output.value}</span>
+        </div>
+      )}
+    </div>
   );
 }

@@ -3,6 +3,17 @@
   "slug": "cr",
   "contentDepth": "standard",
   "intro": "Conversion rate is the share of opportunities that completed whatever action you're counting. Enter conversions and total opportunities below.",
+  "page": {
+    "tagline": "See what share of opportunities completed the action you are counting.",
+    "meaning": [
+      "One equation, many names. A landing page turning visitors into signups, a checkout turning carts into orders, a sales team turning leads into customers — all the same division with different words on either side of it.",
+      "It tells you what share of a defined opportunity set completed a defined action in the period. It does not tell you why, what a completed action was worth, or whether the opportunities arriving were the right ones — a channel sending fewer, better-qualified visitors can post a higher rate on less total value."
+    ],
+    "takeaway": "A conversion rate is only comparable to another one measured against the same denominator.",
+    "whenToUse": "When measuring a specific step against a specific opportunity set — a page, a checkout, a campaign — and when comparing variants of that step against each other with both definitions held fixed.",
+    "misleads": "Bot traffic in the opportunity count dilutes the rate with nothing real having changed. So does a shift in the conversion definition or the traffic mix underneath a rate that appears to be improving.",
+    "workedExample": "conversions ÷ opportunities → 340 ÷ 8,000 = 4.25%"
+  },
   "sections": [
     {
       "id": "definition",

@@ -3,6 +3,18 @@
   "slug": "logo-churn",
   "contentDepth": "standard",
   "intro": "Logo churn is the share of your customer base that left over a period, counted by customer, not by revenue. Enter customers lost and customers at period start to get the rate.",
+  "page": {
+    "tagline": "See what share of your customer base left over the period, counted by customer.",
+    "meaning": [
+      "This is customer-count churn, not revenue churn. A low logo churn can sit right next to a high revenue churn if the accounts that left were the large ones.",
+      "The calculator takes customers lost as a count you supply; it does not enforce a definition. Whether a lapsed non-renewal or a silently inactive account counts as lost is a business decision, and the only requirement is that it stays the same from one period to the next.",
+      "Churn is retention's complement only when both describe the same starting population over the same period under a consistent definition of lost."
+    ],
+    "takeaway": "Losing few customers and losing little revenue are not the same thing.",
+    "whenToUse": "When the question is about the customer base as a population — support load, community size, account count — or when comparing churn across segments whose revenue per customer differs.",
+    "misleads": "Multiplying a monthly rate by 12 overstates the annual figure, because churn compounds on a shrinking base. Comparing a monthly rate against someone else's annual one does the same thing in reverse.",
+    "workedExample": "customers lost ÷ customers at start → 12 ÷ 240 = 5.00%"
+  },
   "sections": [
     {
       "id": "formula",

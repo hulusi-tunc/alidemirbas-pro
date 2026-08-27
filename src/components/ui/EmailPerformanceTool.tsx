@@ -5,7 +5,7 @@ import { useId, useMemo, useState } from "react";
 import type { RuntimeCalcSpec } from "@/lib/calc-catalog";
 import { getCompute } from "@/lib/calc-registry";
 import { formatByUnit, parseField } from "@/lib/calc-format";
-import { FormulaBlock } from "@/components/CalculatorTool";
+import { CalcPanel, PanelLabel } from "@/components/ui/CalcPanel";
 import type { Lang } from "@/lib/content";
 
 /* The one composite calculator: one set of campaign numbers, eight metrics.
@@ -21,10 +21,14 @@ import type { Lang } from "@/lib/content";
 
    Everything else is shared, deliberately: the compute function lives in
    calc-registry.ts like every other calculator's, the labels and units come
-   from the catalog spec rather than being restated here, and the card,
-   inputs and FormulaBlock are the same ones every other calculator page
-   renders. The only things this file owns are the input grouping, the
-   per-metric dependency lists, and the one-line reading of each result. */
+   from the catalog spec rather than being restated here, and the shell is
+   the same CalcPanel the other two tools use. The only things this file
+   owns are the input grouping, the per-metric dependency lists, and the
+   one-line reading of each result.
+
+   It is the one calculator whose results panel is a grid rather than a
+   single headline number: eight independent metrics have no primary among
+   them, and picking one arbitrarily would misrepresent what the page is. */
 
 /** Which inputs each metric needs. This is the calculator's own structure -
     the compute function returns NaN for a metric whose inputs are missing,
@@ -138,82 +142,85 @@ export default function EmailPerformanceTool({ spec, lang }: { spec: RuntimeCalc
   const anyFilled = filled.size > 0;
 
   return (
-    <div className="rounded-lg border border-line bg-white p-6">
-      <div className="flex flex-col gap-6">
-        {GROUPS.map((group) => (
-          <fieldset key={group.id} className="border-0 p-0">
-            <legend className="mb-3 font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">
-              {t.groups[group.id]}
-            </legend>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {group.keys.map((key) => {
-                const input = inputByKey.get(key);
-                if (!input) return null;
-                return (
-                  <CountInput
-                    key={key}
-                    label={input.label}
-                    currency={input.unit === "currency"}
-                    value={raw[key] ?? ""}
-                    error={errors[key]}
-                    onChange={(v) => setRaw((r) => ({ ...r, [key]: v }))}
-                  />
-                );
-              })}
-            </div>
-          </fieldset>
-        ))}
-      </div>
-
-      <div className="mt-8 border-t border-line pt-6" aria-live="polite">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <p className="font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">{t.results}</p>
-          <p className="text-xs text-neutral-500">{t.hint}</p>
-        </div>
-
-        <div className="mt-4 grid gap-x-8 gap-y-5 sm:grid-cols-2">
-          {METRICS.map(({ key, needs }) => {
-            const output = outputByKey.get(key);
-            if (!output) return null;
-            const missing = needs.filter((n) => !filled.has(n));
-            const value = results[key];
-            const ready = missing.length === 0;
-            const computable = ready && typeof value === "number" && Number.isFinite(value);
-            return (
-              <div key={key} className="border-l border-line pl-4">
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-sm font-medium text-ink-900">{output.label}</span>
-                  <span
-                    className={`font-mono text-lg font-semibold tabular-nums ${
-                      computable ? "text-ink-950" : "text-ink-300"
-                    }`}
-                  >
-                    {computable ? formatByUnit(value, output.unit) : "—"}
-                  </span>
+    <CalcPanel
+      split="input-heavy"
+      inputs={
+        <>
+          <PanelLabel>{lang === "en" ? "Inputs" : "Girdiler"}</PanelLabel>
+          <div className="mt-4 flex flex-col gap-5">
+            {GROUPS.map((group) => (
+              <fieldset key={group.id} className="border-0 p-0">
+                <legend className="mb-2.5 text-[13px] font-medium text-ink-700">
+                  {t.groups[group.id]}
+                </legend>
+                <div className="grid gap-3.5 sm:grid-cols-2">
+                  {group.keys.map((key) => {
+                    const input = inputByKey.get(key);
+                    if (!input) return null;
+                    return (
+                      <CountInput
+                        key={key}
+                        label={input.label}
+                        currency={input.unit === "currency"}
+                        value={raw[key] ?? ""}
+                        error={errors[key]}
+                        onChange={(v) => setRaw((r) => ({ ...r, [key]: v }))}
+                      />
+                    );
+                  })}
                 </div>
-                <p className="mt-1 text-[13px] leading-snug text-ink-600">{t.metrics[key]}</p>
-                {/* Says which figures are still outstanding rather than just
-                    showing a dash - with ten optional fields feeding eight
-                    metrics, "what would make this one appear" is the thing a
-                    reader actually needs. Only shown once they have started
-                    filling the form in; on an empty form every metric is
-                    pending and eight of these would be noise. */}
-                {anyFilled && !ready ? (
-                  <p className="mt-1 text-xs text-ink-400">
-                    {t.pending}: {missing.map((m) => inputByKey.get(m)?.label ?? m).join(", ")}
-                  </p>
-                ) : null}
-                {ready && !computable ? (
-                  <p className="mt-1 text-xs text-amber-700">{t.undefinedResult}</p>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+              </fieldset>
+            ))}
+          </div>
+        </>
+      }
+      results={
+        <div aria-live="polite">
+          <PanelLabel>{t.results}</PanelLabel>
+          <p className="mt-2 text-[13px] leading-snug text-ink-400">{t.hint}</p>
 
-      <FormulaBlock spec={spec} lang={lang} />
-    </div>
+          <div className="mt-5 flex flex-col gap-4">
+            {METRICS.map(({ key, needs }) => {
+              const output = outputByKey.get(key);
+              if (!output) return null;
+              const missing = needs.filter((n) => !filled.has(n));
+              const value = results[key];
+              const ready = missing.length === 0;
+              const computable = ready && typeof value === "number" && Number.isFinite(value);
+              return (
+                <div key={key}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-sm font-medium text-ink-900">{output.label}</span>
+                    <span
+                      className={`font-mono text-base font-semibold tabular-nums ${
+                        computable ? "text-blue-700" : "text-ink-300"
+                      }`}
+                    >
+                      {computable ? formatByUnit(value, output.unit) : "—"}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[12.5px] leading-snug text-ink-500">{t.metrics[key]}</p>
+                  {/* Says which figures are still outstanding rather than just
+                      showing a dash - with ten optional fields feeding eight
+                      metrics, "what would make this one appear" is the thing a
+                      reader actually needs. Only shown once they have started
+                      filling the form in; on an empty form every metric is
+                      pending and eight of these would be noise. */}
+                  {anyFilled && !ready ? (
+                    <p className="mt-0.5 text-[12px] text-ink-400">
+                      {t.pending}: {missing.map((m) => inputByKey.get(m)?.label ?? m).join(", ")}
+                    </p>
+                  ) : null}
+                  {ready && !computable ? (
+                    <p className="mt-0.5 text-[12px] text-amber-700">{t.undefinedResult}</p>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      }
+    />
   );
 }
 

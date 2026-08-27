@@ -3,6 +3,17 @@
   "slug": "cpc",
   "contentDepth": "light",
   "intro": "CPC (cost per click) tells you the average price paid for each click on an ad. Enter total spend and clicks below to get the rate.",
+  "page": {
+    "tagline": "See the average price paid for each click on an ad.",
+    "meaning": [
+      "CPC is the price of a visitor, isolated from everything that happened after the click. That makes it the right number for comparing bidding strategies, ad groups or keywords on acquisition cost alone.",
+      "It says nothing about the quality of that traffic. A lower CPC is not automatically a better campaign: clicks can be cheap because they are low-intent or off-target, and a bidding change that halves CPC can halve the conversion rate with it."
+    ],
+    "takeaway": "A cheaper click is not a better click. CPC prices traffic; it does not judge it.",
+    "whenToUse": "When tuning bids, comparing keywords or ad groups within a campaign, or checking whether a change in spend efficiency came from price rather than volume. Read it beside conversion rate, never alone.",
+    "misleads": "Terminology and what gets reported vary by platform, so CPC figures are only comparable when they come from the same definition. And because CPC stops at the click, a campaign can look increasingly efficient while quietly buying worse traffic.",
+    "workedExample": "total spend ÷ clicks → $500 ÷ 250 = $2.00"
+  },
   "sections": [
     {
       "id": "formula",
