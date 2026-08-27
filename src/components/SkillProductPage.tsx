@@ -48,10 +48,6 @@ function Hero({ c }: { c: SkillProductContent }) {
     <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-16 md:pb-20">
       <div
         aria-hidden
-        className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
-      />
-      <div
-        aria-hidden
         className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
       />
       {/* Centered per this round's site-wide request ("tüm başlıkları

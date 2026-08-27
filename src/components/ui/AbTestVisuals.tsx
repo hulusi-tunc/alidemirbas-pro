@@ -476,12 +476,13 @@ export function HowStepRead({ lang }: { lang: Lang }) {
   );
 }
 
-/* Real, live calculators on this same site — verified against
-   LIVE_CALCULATOR_SLUGS in calc-catalog.ts, not aspirational links. */
+/* Real, live calculators on this same site. Test Duration was the third
+   entry until the library trim removed that calculator - a dead-link scan
+   over the full build caught the leftover. The two that remain are the
+   live statistics tools. */
 const STAT_CALCS = [
   { slug: "ab-test", en: "A/B Test Significance", tr: "A/B Test Anlamlılığı" },
   { slug: "sample-size-calculator", en: "Sample Size", tr: "Örneklem Büyüklüğü" },
-  { slug: "test-duration-estimator", en: "Test Duration", tr: "Test Süresi" },
 ] as const;
 
 export function StatCalculatorLinks({ lang }: { lang: Lang }) {
