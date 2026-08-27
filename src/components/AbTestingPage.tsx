@@ -82,13 +82,9 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const p = c.product;
   return (
     <section className="relative isolate overflow-hidden bg-paper pt-16 pb-0 md:pt-20">
-      {/* same soft blue wash as the other pages, same token ramp */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-[12%] size-[36rem] rounded-full bg-primary-300/30 blur-3xl" />
-        <div className="absolute -top-24 right-[8%] size-[30rem] rounded-full bg-primary-500/18 blur-3xl" />
-        <div className="absolute top-[38%] left-[38%] size-[28rem] rounded-full bg-primary-100/60 blur-3xl" />
-      </div>
-
+      {/* No atmospheric wash. The library and playbook pages this hero
+          leads into are plain paper with mono rails; a blue blob field on
+          the doorstep made the doorway the loudest thing in the flow. */}
       <PortraitContainer>
         <div className="relative mx-auto max-w-3xl text-center">
           <Reveal>

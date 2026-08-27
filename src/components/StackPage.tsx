@@ -63,9 +63,6 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
       {/* Re-centered along with the title above (was `left-[15%]`, tucked
           aside for the previous left-aligned heading) - now sits behind
           the centered title instead of reading as an off-axis smudge. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-28 left-1/2 size-[22rem] -translate-x-1/2 rounded-full bg-primary-300/12 blur-3xl" />
-      </div>
       <PortraitContainer>
         {/* Centered per this round's site-wide request ("tüm başlıkları
             ortala") - was left-aligned (`max-w-md`, no `mx-auto`). */}

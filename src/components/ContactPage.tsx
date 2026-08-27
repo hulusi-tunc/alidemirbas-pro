@@ -73,12 +73,6 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
           fully readable/clickable). Scoped to this section only -
           Schedule's own CalEmbed section keeps its plain `tone="soft"`
           background, unchanged. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-[8%] size-[34rem] rounded-full bg-primary-300/40 blur-3xl" />
-        <div className="absolute -top-16 right-[5%] size-[30rem] rounded-full bg-primary-500/25 blur-3xl" />
-        <div className="absolute top-[45%] left-[35%] size-[26rem] rounded-full bg-primary-100/70 blur-3xl" />
-        <div className="absolute bottom-[-10%] right-[20%] size-[28rem] rounded-full bg-primary-200/35 blur-3xl" />
-      </div>
       <PortraitContainer>
         {/* gap-14/lg:gap-20 -> gap-10/lg:gap-14: the two columns were
             reading as disconnected at the wider gap. Still enough to

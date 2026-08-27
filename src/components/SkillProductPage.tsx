@@ -59,7 +59,7 @@ function Hero({ c }: { c: SkillProductContent }) {
       <div className="altor-container text-center">
         <Reveal>
           <p className="altor-eyebrow mb-5 text-white/45">{c.eyebrow}</p>
-          <h1 className="mx-auto max-w-3xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-display-xl text-transparent">
+          <h1 className="mx-auto max-w-3xl text-display-xl text-white">
             {c.title}
           </h1>
         </Reveal>

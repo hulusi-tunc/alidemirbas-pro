@@ -233,9 +233,27 @@ export default function JourneyBrowser({
       ) : null}
 
       {rows.length === 0 ? (
-        <p className="py-16 text-center text-sm text-neutral-500">{t.empty}</p>
+        /* A designed dead end, not a bare sentence. The mono count says
+           what happened in the page's own meta register, the copy says it
+           in prose, and the one action offered is the only one that helps
+           from here. Bounded by the same hairlines the rows use, so the
+           empty list still reads as the list. */
+        <div className="mt-5 border-t border-b border-line py-16 text-center">
+          <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase tabular-nums">
+            0 / {allRows.length}
+          </p>
+          <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-ink-700">{t.empty}</p>
+          <button
+            type="button"
+            onClick={clearAll}
+            className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+          >
+            <X aria-hidden className="size-3.5" />
+            {t.clearAll}
+          </button>
+        </div>
       ) : (
-        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-5">
           {rows.map((j) => (
             <JourneyRowCard
               key={j.id}

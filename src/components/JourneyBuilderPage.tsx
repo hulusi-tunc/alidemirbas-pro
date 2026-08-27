@@ -54,11 +54,6 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.journeyBuilder;
   return (
     <section className="relative isolate overflow-hidden bg-paper pt-16 pb-20 md:pt-20 md:pb-28">
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-[8%] size-[34rem] rounded-full bg-primary-300/28 blur-3xl" />
-        <div className="absolute -top-20 right-[6%] size-[30rem] rounded-full bg-primary-500/15 blur-3xl" />
-        <div className="absolute top-[45%] left-[40%] size-[26rem] rounded-full bg-primary-100/55 blur-3xl" />
-      </div>
       <PortraitContainer>
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-14">
           <div>
