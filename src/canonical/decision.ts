@@ -185,6 +185,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "decision-request",
     category: "decision",
     goal: "decision-approval",
+    channels: ["task"],
     name: "Decision request → validate → route, reject or hold",
     purpose:
       "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
@@ -397,6 +398,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the decision case with its scope stated explicitly - what is being decided, and what is not. A case whose scope is implicit produces a decision whose reach nobody can establish afterwards, and it will be stretched by people acting in good faith to cover things the reviewer never saw",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "a.route",
+        execution: "human",
       },
       {
         id: "a.route",
@@ -432,6 +434,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "decision-assignment",
     category: "decision",
     goal: "routing-assignment",
+    channels: ["task"],
     name: "Decision case → assign reviewer → accept, reassign or escalate",
     purpose:
       "Put the case in front of someone who is actually authorized to decide it, and make that ownership explicit.",
@@ -492,6 +495,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ASSIGNED with the reviewer, the authority basis for the assignment, and the case's deadline. Assigned is not reviewed - nothing has been looked at, and a status reading otherwise conceals the gap where most SLA breaches actually happen",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.accept",
+        execution: "human",
       },
       {
         id: "w.accept",
@@ -577,6 +581,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reassign, preserving the original deadline and everything already recorded on the case. A reassignment that resets the clock rewards the delay, and one that drops the history makes the next reviewer start from nothing while the requester waits through the same work a second time",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.accept",
+        execution: "human",
       },
       {
         id: "a.ready",
@@ -584,6 +589,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record REVIEW_READY with the accepting reviewer. The case has an owner who has agreed to it, which is the first point at which anyone can be said to be responsible for the outcome",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "h.review",
+        execution: "human",
       },
       {
         id: "h.review",
@@ -622,6 +628,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "decision-review",
     category: "decision",
     goal: "decision-approval",
+    channels: ["task"],
     name: "Review started → evaluate evidence → decide or request more information",
     purpose:
       "Turn sufficient evidence into an authorized decision, within the scope the reviewer actually holds.",
@@ -665,6 +672,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the available authoritative evidence against the criteria that apply. What is evaluated is evidence - an absent document is absent, and a reviewer's sense of what it probably said is not a substitute for it",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.conflict",
+        execution: "human",
       },
       {
         id: "c.conflict",
@@ -689,6 +697,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the conflict and step back without deciding. A decision made by a conflicted reviewer is worse than no decision, because it looks like one and will be relied on",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "h.reassign",
+        execution: "human",
       },
       {
         id: "h.reassign",
@@ -762,6 +771,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the exception being exercised, the authority for it and the constraint it displaces. An exception exercised without being named is indistinguishable from the constraint not existing, and the next person to look will conclude it never did",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.evidence",
+        execution: "human",
       },
       {
         id: "c.evidence",
@@ -796,6 +806,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Produce the authorized decision within the case's stated scope - approved, rejected, partially approved, or another explicitly defined outcome. The decision records what it covers, because a decision whose reach is implicit is stretched later by people who were not in the room",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.outcome",
+        execution: "human",
       },
       {
         id: "c.outcome",
@@ -866,6 +877,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "information-requirement",
     category: "decision",
     goal: "recovery-retry",
+    channels: ["email"],
     name: "More information required → collect → revalidate → resume review",
     purpose:
       "Pause a decision for the fact it is actually missing, without losing the review already done.",
@@ -914,6 +926,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request the information from the source that actually holds it, which is not always the requester - asking a customer for something an internal system already has is the most common version of this failure",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.info",
+        execution: "communication",
       },
       {
         id: "w.info",
@@ -1009,6 +1022,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request only the part that is still outstanding, naming it precisely. Re-requesting the whole requirement asks the requester for things they have already given, which reads as the first submission having been ignored",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.info",
+        execution: "communication",
       },
       {
         id: "a.deadline",
@@ -1091,6 +1105,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "approval-execution",
     category: "decision",
     goal: "decision-approval",
+    channels: [],
     name: "Approval decision → revalidate target → execute, hold or invalidate",
     purpose:
       "Carry an authorization into execution, having checked it still applies to what it was granted against.",
@@ -1324,6 +1339,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "rejection-outcome",
     category: "decision",
     goal: "decision-approval",
+    channels: [],
     name: "Rejection decision → record reason → remediate, close or reapply",
     purpose:
       "Treat a refusal as the business outcome it is, and say what if anything the requester can do next.",
@@ -1488,6 +1504,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "partial-approval",
     category: "decision",
     goal: "decision-approval",
+    channels: [],
     name: "Partial approval → split scope → execute approved, resolve remaining",
     purpose:
       "Make the authorized and unauthorized halves of one request explicit, so only the first can move.",
@@ -1651,6 +1668,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "approval-validity",
     category: "decision",
     goal: "expiry-renewal",
+    channels: [],
     name: "Approval validity or expiry → revalidate → use, expire or renew review",
     purpose:
       "Answer, at the moment of use, whether an approval is still one - in time, in context and in count.",
@@ -1858,6 +1876,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "decision-escalation",
     category: "decision",
     goal: "escalation-exception",
+    channels: ["task"],
     name: "Decision escalation → higher authority → decide, return or reassign",
     purpose:
       "Move a case to an authority that can actually resolve it, carrying the work already done and predetermining nothing.",
@@ -1946,6 +1965,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Route to the eligible authority, within the escalation levels the model actually defines. Escalation is bounded - a case that can escalate indefinitely has no owner at any level, and each hop makes the next one easier to justify",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.decision",
+        execution: "human",
       },
       {
         id: "w.decision",
@@ -2012,6 +2032,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the direction given and return the case to the original level, which decides within it. The higher authority acted only within its own granted authority - guidance is not a decision, and recording it as one attributes an outcome to someone who declined to make it",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "h.return",
+        execution: "human",
       },
       {
         id: "h.return",
@@ -2050,6 +2071,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "decision-reconsideration",
     category: "decision",
     goal: "change-versioning",
+    channels: ["task"],
     name: "Decision superseded or reopened → revalidate → continue or new decision",
     purpose:
       "Let a decision be reconsidered without any part of the original being rewritten.",
@@ -2163,6 +2185,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create a new decision case, linked to the previous one. A different question decided under an old case's scope produces a decision that reads as covering something it never considered, and it will be relied on that way",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "h.new",
+        execution: "human",
       },
       {
         id: "h.new",

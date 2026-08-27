@@ -23,6 +23,7 @@ export default function JourneyRowCard({
   categoryTitle,
   nodeCount,
   nodesLabel,
+  channelLabels,
   preview,
 }: {
   href: string;
@@ -32,6 +33,11 @@ export default function JourneyRowCard({
   categoryTitle: string;
   nodeCount: number;
   nodesLabel: string;
+  /** The journey's execution channels, localised and ordered by the server.
+      Empty for the journeys that do no outbound communication, and those
+      render nothing rather than a placeholder - a blank line would read as
+      missing data when it is actually a statement. */
+  channelLabels: readonly string[];
   preview: JourneyPreview;
 }) {
   return (
@@ -61,6 +67,11 @@ export default function JourneyRowCard({
             {nodeCount} {nodesLabel}
           </span>
         </p>
+        {channelLabels.length > 0 ? (
+          <p className="mt-1.5 font-mono text-[10px] tracking-[0.06em] text-ink-400 uppercase">
+            {channelLabels.join(" · ")}
+          </p>
+        ) : null}
       </div>
     </Link>
   );

@@ -10,6 +10,7 @@ import {
   withCanonicalCount,
 } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
+import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
 
 /* JourneyBrowser reads filter state via useSearchParams, which forces its
@@ -50,6 +51,7 @@ function JourneyBrowserFallback({ lang, t, basePath }: {
             categoryTitle={j.categoryTitle}
             nodeCount={j.nodeCount}
             nodesLabel={t.nodesLabel}
+            channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
             preview={j.preview}
           />
         ))}

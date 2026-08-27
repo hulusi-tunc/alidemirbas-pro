@@ -175,6 +175,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-requirement",
     category: "document",
     goal: "eligibility-qualification",
+    channels: [],
     name: "Document requirement → determine artifact → create, reuse or waive",
     purpose:
       "Decide whether a new artifact is genuinely needed, or whether one already exists that answers the requirement.",
@@ -308,6 +309,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-draft",
     category: "document",
     goal: "data-integrity",
+    channels: [],
     name: "Document draft → populate → validate → ready or blocked",
     purpose:
       "Build the contents from authoritative sources and prove they are complete before anything is issued.",
@@ -462,6 +464,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-issuance",
     category: "document",
     goal: "change-versioning",
+    channels: [],
     name: "Ready document → issue → immutable issued version",
     purpose:
       "Freeze the artifact at a version that can be identified, referenced and never quietly changed.",
@@ -563,6 +566,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-distribution",
     category: "document",
     goal: "delivery-confirmation",
+    channels: ["email"],
     name: "Document distribution → send or provide access → confirm or fail",
     purpose:
       "Get a specific issued version to the party who should have it, without either fact touching the other.",
@@ -602,6 +606,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the actual delivery through the canonical communication mechanism, which owns channels, permissions, retries and delivery evidence. Document distribution does not build its own delivery path - a parallel one will disagree with the canonical delivery record about whether the contract was ever sent",
         writes: [{ field: "document_log", mode: "append" }],
         next: "w.distribution",
+        execution: "communication",
       },
       {
         id: "w.distribution",
@@ -694,6 +699,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "signature-process",
     category: "document",
     goal: "eligibility-qualification",
+    channels: ["email"],
     name: "Signature request → await signatures → signed, declined or expired",
     purpose:
       "Collect the required signatures against one exact version, and know when they are actually all there.",
@@ -763,6 +769,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record AWAITING_SIGNATURE and issue the request to each required signer, bound to the exact document version. A signature request that does not name a version collects marks against nothing anybody can identify afterwards",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "w.signatures",
+        execution: "communication",
       },
       {
         id: "w.signatures",
@@ -911,6 +918,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-effectiveness",
     category: "document",
     goal: "progression-milestone",
+    channels: [],
     name: "Signed document → validate completion → effective or pending condition",
     purpose:
       "Establish when a document actually starts doing something, which is not when it was signed.",
@@ -1181,6 +1189,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-amendment",
     category: "document",
     goal: "change-versioning",
+    channels: [],
     name: "Document change → new version or amendment → supersede prospectively",
     purpose:
       "Change an issued artifact by creating a successor, leaving what it replaces exactly as it was.",
@@ -1362,6 +1371,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-expiry",
     category: "document",
     goal: "expiry-renewal",
+    channels: [],
     name: "Document expiry → revalidate requirement → renew, replace or close",
     purpose:
       "End future reliance on a time-limited artifact, and stop only what genuinely needs it to be current.",
@@ -1547,6 +1557,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-revocation",
     category: "document",
     goal: "access-entitlement-change",
+    channels: [],
     name: "Document revocation or withdrawal → stop future reliance → reconcile",
     purpose:
       "Withdraw an artifact by an authority's decision, exactly as far as that decision reaches.",
@@ -1712,6 +1723,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "document-conflict",
     category: "document",
     goal: "reconciliation-correction",
+    channels: ["email"],
     name: "Document or record conflict → determine authoritative version → reconcile",
     purpose:
       "Work out which version actually governs, and explain the conflict rather than deleting it.",
@@ -1850,6 +1862,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Redistribute the authoritative version, saying explicitly what changed and which version it replaces. A silent correction leaves the recipient holding two documents and no idea which one counts, which is worse than the original error",
         writes: [{ field: "document_log", mode: "append" }],
         next: "x.reconciled",
+        execution: "communication",
       },
       {
         id: "a.preserve-history",

@@ -124,6 +124,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "engagement-state-reclassification",
     category: "retention",
     goal: "health-risk-signal-scoring",
+    channels: [],
     name: "Engagement state change → reclassify → appropriate lifecycle",
     purpose:
       "Hold engagement as a state that moves in both directions, and decide separately whether a movement is worth acting on.",
@@ -257,6 +258,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "expected-usage-miss-context-check",
     category: "retention",
     goal: "health-risk-signal-scoring",
+    channels: [],
     name: "Expected usage miss → context check → observe or intervene",
     purpose:
       "Read a missed usage expectation as evidence only where an expectation genuinely existed, and only where something else corroborates it.",
@@ -370,6 +372,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "health-deterioration-diagnosis",
     category: "retention",
     goal: "relationship-recovery-intervention",
+    channels: [],
     name: "Health deterioration → diagnose cause → recovery route",
     purpose:
       "Send a deteriorating relationship to the mechanism that is actually breaking it, and never to a generic retention campaign in its place.",
@@ -588,6 +591,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "churn-risk-escalation",
     category: "retention",
     goal: "relationship-recovery-intervention",
+    channels: ["task"],
     name: "Churn risk escalation → evidence → intervention priority",
     purpose:
       "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
@@ -711,6 +715,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "h.human",
+        execution: "human",
       },
       {
         id: "h.human",
@@ -771,6 +776,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "negative-experience-recovery",
     category: "retention",
     goal: "compensation-remedy",
+    channels: ["email", "push"],
     name: "Negative experience → recovery eligibility → appropriate response",
     purpose:
       "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
@@ -908,6 +914,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation - a remedy offered instead of an account of what went wrong reads as buying silence",
         next: "x.acknowledged",
+        execution: "communication",
       },
       {
         id: "x.acknowledged",
@@ -932,6 +939,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "recovery-observation-buffer",
     category: "retention",
     goal: "relationship-recovery-intervention",
+    channels: [],
     name: "Recovery signal → observation buffer → stable or relapse",
     purpose:
       "Keep the distance between a good sign and an actual recovery, so a relapse is still being watched for when it happens.",
@@ -1039,6 +1047,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "cancellation-intent-decision-point",
     category: "retention",
     goal: "cancellation-termination",
+    channels: ["email", "in-app"],
     name: "Cancellation intent → understand state → save or proceed",
     purpose:
       "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
@@ -1117,6 +1126,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Ask once, with the cancellation path fully open beside the question. The question is never a step that has to be passed to leave - a reason obtained that way is not information, it is a toll",
         next: "a.record-reason",
+        execution: "communication",
       },
       {
         id: "a.record-reason",
@@ -1154,6 +1164,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Offer the alternative that matches the reason, once, alongside an unobstructed path to continue cancelling. A discount appears only where the reason is price and policy supports it - offering one for a technical fault answers the wrong question and reveals that nobody read the reason",
         next: "h.intervention",
+        execution: "communication",
       },
       {
         id: "h.intervention",
@@ -1232,6 +1243,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "cancellation-completed-wind-down",
     category: "retention",
     goal: "cancellation-termination",
+    channels: [],
     name: "Cancellation completed → stop retention → resolve remaining relationship",
     purpose:
       "End retention ownership the moment cancellation is real, and manage what is still outstanding without pretending the relationship is either fully over or still winnable.",
@@ -1371,6 +1383,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "retention-intervention-outcome",
     category: "retention",
     goal: "reconciliation-correction",
+    channels: ["email", "in-app"],
     name: "Retention intervention → outcome → suppress, escalate or exit",
     purpose:
       "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
@@ -1553,6 +1566,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Send one follow-up and stop. There is no second, whatever the value of the relationship",
         next: "x.cooldown",
+        execution: "communication",
       },
       {
         id: "x.cooldown",

@@ -142,6 +142,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "permission-capture-and-scope",
     category: "consent",
     goal: "consent-permission",
+    channels: [],
     name: "Permission capture → validate scope → activate or reject",
     purpose:
       "Turn a permission decision into an auditable record of what exactly was authorised, rather than a flag that says yes.",
@@ -276,6 +277,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "preference-capture",
     category: "consent",
     goal: "consent-permission",
+    channels: [],
     name: "Preference capture → persist → personalise eligible communication",
     purpose:
       "Record how someone would like permitted communication done, in a store that structurally cannot become permission.",
@@ -366,6 +368,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "preference-change-recalculation",
     category: "consent",
     goal: "consent-permission",
+    channels: [],
     name: "Preference change → recalculate active journeys → suppress or adapt",
     purpose:
       "Make a preference change reach the messages already sitting in a queue, not just the profile field.",
@@ -456,6 +459,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "frequency-preference-recalculation",
     category: "consent",
     goal: "consent-permission",
+    channels: [],
     name: "Communication frequency change → recalculate cadence → apply prospectively",
     purpose:
       "Recalculate how often optional communication may go out, without letting that quietly reach the messages someone has to receive.",
@@ -575,6 +579,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "permission-change-enforcement",
     category: "consent",
     goal: "consent-permission",
+    channels: [],
     name: "Consent or permission change → immediate enforcement → propagate",
     purpose:
       "Stop affected communication the moment permission changes, and let the distributed systems catch up afterwards.",
@@ -705,6 +710,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "channel-contactability-state",
     category: "consent",
     goal: "delivery-confirmation",
+    channels: [],
     name: "Channel contactability change → recalculate reachability → route or suppress",
     purpose:
       "Track whether a channel can reach someone, as a state entirely separate from whether it may, and keep each destination's route health separately so future sending routes around what is broken.",
@@ -925,6 +931,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "communication-suppression-state",
     category: "consent",
     goal: "suspension-restoration",
+    channels: [],
     name: "Communication suppression → reason → release or persist",
     purpose:
       "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
@@ -1047,6 +1054,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "communication-cooldown",
     category: "consent",
     goal: "suspension-restoration",
+    channels: [],
     name: "Communication cooldown → hold optional messaging → re-evaluate",
     purpose:
       "Reduce optional communication pressure for a while, without touching permission and without covering more than it needs to.",
@@ -1170,6 +1178,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "permission-conflict-failsafe",
     category: "consent",
     goal: "reconciliation-correction",
+    channels: [],
     name: "Permission conflict → fail-safe state → reconcile → restore",
     purpose:
       "Hold optional communication closed while two systems disagree about permission, and reconcile on evidence rather than on whichever value allows more.",

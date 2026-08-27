@@ -156,6 +156,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "async-work-lifecycle",
     category: "processing",
     goal: "progression-milestone",
+    channels: [],
     name: "Work accepted → queue → process → complete or fail",
     purpose:
       "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
@@ -361,6 +362,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "queue-lag",
     category: "processing",
     goal: "recovery-retry",
+    channels: [],
     name: "Queue lag → measure → prioritise, scale or degrade",
     purpose:
       "Respond to a queue that cannot keep up, measured by how old the unfinished work is rather than by how much of it there is.",
@@ -528,6 +530,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "stalled-work-detection",
     category: "processing",
     goal: "recovery-retry",
+    channels: [],
     name: "Work stalled → detect lack of progress → recover, fail or escalate",
     purpose:
       "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
@@ -677,6 +680,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "retryable-failure-recovery",
     category: "processing",
     goal: "recovery-retry",
+    channels: [],
     name: "Retryable failure → backoff → retry → resolve or exhaust",
     purpose:
       "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
@@ -860,6 +864,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "work-deduplication",
     category: "processing",
     goal: "reconciliation-correction",
+    channels: [],
     name: "Duplicate work detected → deduplicate → reuse, suppress or reconcile",
     purpose:
       "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
@@ -992,6 +997,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "partial-processing-recovery",
     category: "processing",
     goal: "recovery-retry",
+    channels: [],
     name: "Partial processing → preserve completed work → retry only the failed scope",
     purpose:
       "Recover the part of a composite operation that failed, without re-running the part that worked.",
@@ -1130,6 +1136,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "dead-letter-remediation",
     category: "processing",
     goal: "escalation-exception",
+    channels: [],
     name: "Dead-letter entry → diagnose → replay, correct or close",
     purpose:
       "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
@@ -1298,6 +1305,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "worker-failure-reclaim",
     category: "processing",
     goal: "recovery-retry",
+    channels: [],
     name: "Worker or processor failure → reclaim work → resume safely",
     purpose:
       "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
@@ -1461,6 +1469,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "backlog-recovery-drain",
     category: "processing",
     goal: "recovery-retry",
+    channels: [],
     name: "Backlog recovery → revalidate → controlled drain → normal state",
     purpose:
       "Work through an accumulated backlog deliberately, discarding what has gone stale and pacing what has not.",
@@ -1608,6 +1617,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "business-outcome-verification",
     category: "processing",
     goal: "delivery-confirmation",
+    channels: [],
     name: "Technical completion → verify business outcome → finalize or reconcile",
     purpose:
       "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",

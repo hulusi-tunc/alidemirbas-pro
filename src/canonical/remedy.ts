@@ -170,6 +170,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "post-completion-issue",
     category: "remedy",
     goal: "compensation-remedy",
+    channels: ["email"],
     name: "Post-completion issue → validate → remedy route",
     purpose:
       "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
@@ -270,6 +271,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Acknowledge and explain, closing according to policy. No defect is manufactured to give the report somewhere to go, and no refund is issued as a way of ending the conversation",
         writes: [{ field: "issue_log", mode: "append" }],
         next: "x.no-defect",
+        execution: "communication",
       },
       {
         id: "x.no-defect",
@@ -313,6 +315,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "return-authorization",
     category: "remedy",
     goal: "eligibility-qualification",
+    channels: ["task"],
     name: "Return request → eligibility → authorize, reject or review",
     purpose:
       "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
@@ -446,6 +449,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RETURN_UNDER_REVIEW and gather what the decision requires. Nothing is authorised while it is under review",
         writes: [{ field: "return_log", mode: "append" }],
         next: "w.decision",
+        execution: "human",
       },
       {
         id: "w.decision",
@@ -509,6 +513,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "return-transit",
     category: "remedy",
     goal: "delivery-confirmation",
+    channels: [],
     name: "Return authorized → in transit, received, lost or expired",
     purpose:
       "Track whether an authorised return actually comes back, and hold the states where it might not have.",
@@ -672,6 +677,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "return-inspection",
     category: "remedy",
     goal: "eligibility-qualification",
+    channels: [],
     name: "Returned item or deliverable → inspect → accept, reject or partial",
     purpose:
       "Judge what came back against the conditions it was authorised under, keeping receipt and acceptance apart.",
@@ -802,6 +808,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "replacement-remedy",
     category: "remedy",
     goal: "compensation-remedy",
+    channels: [],
     name: "Replacement decision → allocate → fulfill → confirm",
     purpose:
       "Deliver a second time against the same promise, tied to the defect it exists to resolve.",
@@ -962,6 +969,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "correction-reperformance",
     category: "remedy",
     goal: "compensation-remedy",
+    channels: [],
     name: "Reperformance or correction → execute → verify corrected outcome",
     purpose:
       "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
@@ -1094,6 +1102,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "remedy-selection",
     category: "remedy",
     goal: "compensation-remedy",
+    channels: ["email", "in-app"],
     name: "Remedy selection → resolve obligation → financial handoff if needed",
     purpose:
       "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
@@ -1156,6 +1165,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Present only the options that are genuinely available, with what each would mean",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "w.selection",
+        execution: "communication",
       },
       {
         id: "w.selection",
@@ -1268,6 +1278,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "remedy-outcome-verification",
     category: "remedy",
     goal: "compensation-remedy",
+    channels: [],
     name: "Remedy execution → verify outcome → close or continue recovery",
     purpose:
       "Check that the remedy actually satisfied the obligation, rather than that it was carried out.",
@@ -1424,6 +1435,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "compensation-decision",
     category: "remedy",
     goal: "compensation-remedy",
+    channels: [],
     name: "Compensation decision → eligibility → grant or reject → deliver",
     purpose:
       "Decide separately whether impact warrants something beyond fixing the problem, and confirm it actually arrived.",
@@ -1637,6 +1649,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "post-remedy-recurrence",
     category: "remedy",
     goal: "compensation-remedy",
+    channels: [],
     name: "Post-remedy reopen → validate recurrence → continue or new issue",
     purpose:
       "Tell a recurrence of the same problem apart from a new one, and from a remedy that never actually finished.",

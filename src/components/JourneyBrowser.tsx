@@ -7,6 +7,7 @@ import { Search, X } from "lucide-react";
 import JourneyRowCard from "@/components/JourneyRowCard";
 import type { JourneyRow, MergedRedirect } from "@/lib/canonical-view";
 import { GOALS, GOAL_LABEL, isGoalId, type Goal } from "@/lib/journey-taxonomy";
+import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import type { copy, Lang } from "@/lib/content";
 
 /* The list. It takes rows as props and imports nothing from the canonical
@@ -245,6 +246,7 @@ export default function JourneyBrowser({
               categoryTitle={j.categoryTitle}
               nodeCount={j.nodeCount}
               nodesLabel={t.nodesLabel}
+              channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
               preview={j.preview}
             />
           ))}

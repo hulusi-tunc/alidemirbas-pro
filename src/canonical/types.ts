@@ -56,6 +56,31 @@ export type CategoryId =
   | "rollout"
   | "incident";
 
+/** An execution channel a journey's outbound communication can run on.
+
+    This vocabulary is not invented here: it is the channel set the retired
+    CRM Journey Archive carried on its own 90 journeys, preserved verbatim
+    apart from `inapp` -> `in-app` for readability. `sales` and `task` are in
+    it deliberately - they are how that archive expressed the two routes that
+    reach a person rather than a device, and dropping them would lose the
+    distinction between "a salesperson picks this up" and "a queue item is
+    created for someone to work".
+
+    A journey declares the channels its own communication can legitimately
+    use. It is a constraint, not a runtime choice: which one a given send
+    actually takes is still decided by the canonical send path (see
+    `sendPathOrder`, where channel routing is stage 9 of 11, after purpose,
+    permission and contactability). A journey whose work is entirely internal
+    carries an empty array, and that is a statement rather than a gap. */
+export type ChannelId =
+  | "email"
+  | "sms"
+  | "push"
+  | "in-app"
+  | "whatsapp"
+  | "sales"
+  | "task";
+
 /** The single primary discovery filter: what problem a journey solves, not
     which domain it lives in. Derived from a full semantic re-audit of all
     255 journeys (see production/journey-goal-vocabulary-audit for the
@@ -230,6 +255,18 @@ export interface ActionNode {
   does: string;
   writes?: readonly { field: string; mode: "append" | "set" }[];
   next: NodeId;
+  /** What this action's own effect is on the world outside the system.
+      Omitted is the ordinary case and means an internal state or data
+      operation - 1,039 of the library's 1,131 actions. `communication`
+      marks an action whose effect is a message reaching a recipient, and is
+      what lets the canvas draw it as such instead of defaulting every action
+      to Internal; `human` marks one that puts work in front of a person.
+
+      Explicit, because the alternative is guessing from the prose, and the
+      prose is deliberately channel-agnostic. Which channel a communication
+      action takes is not recorded here - the journey's own `channels` names
+      the permitted set, and the send path chooses within it. */
+  execution?: "communication" | "human";
 }
 
 /** A real fork. Two branches minimum: a condition with one arm is a filter
@@ -304,6 +341,11 @@ export interface CanonicalJourney {
   /** What problem this journey solves, as a single primary value - see
       GoalId. Explicit canonical metadata, not derived at runtime. */
   goal: GoalId;
+  /** The execution channels this journey's own communication may run on -
+      see ChannelId. Explicit canonical metadata on every journey, never
+      inferred from node text; `[]` where the journey does no outbound
+      communication at all. */
+  channels: readonly ChannelId[];
   name: string;
   purpose: string;
   /** What the journey is about, which is what its exits and suppressions are

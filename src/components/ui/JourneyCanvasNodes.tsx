@@ -11,23 +11,20 @@ import type { FlowNode } from "@/lib/canonical-view";
    filled, three quiet), Condition/Wait at Level C (compact, deliberately
    smaller than an Action).
 
-   ACTION SUBTYPE GAP (documented once, here, rather than silently invented):
-   the grammar's Action level is eleven channel subtypes - Email, SMS, App
-   Push, Web Push, In-App, WhatsApp, IVR, Call Center, Popup, Card, Internal
-   - each with its own accent colour. `ActionNode` in src/canonical/types.ts
-   carries none of that: `{ does: string; writes?; next }` has no channel
-   field at all, on any of the 255 journeys, so nothing in the canonical
-   library can ever select nine of those ten colours. ACQ-01's one action
-   node (`a.reconcile`, "Reconcile the anonymous behavioural history onto
-   the known profile...") describes a system/data operation with no
-   customer touchpoint anywhere in its `does` or `writes` fields - the one
-   subtype in the grammar's own vocabulary that already means exactly this
-   is INTERNAL, whose own worked example in the grammar ("Reconcile
-   identity" / "Attach anonymous history to resolved profile") is close to
-   a paraphrase of this very node. So every Action here renders as INTERNAL
-   until a channel-bearing journey's data gives a real reason to add another
-   one - the other ten accents are not implemented, because nothing exists
-   yet that could honestly select them. */
+   ACTION EXECUTION (was the ACTION SUBTYPE GAP, now closed): the grammar's
+   Action level distinguishes customer-facing execution from internal work,
+   and for a long time nothing in canonical could express that - `ActionNode`
+   carried `{ does; writes?; next }` and no execution field, so every Action
+   on all 255 journeys rendered as INTERNAL by default.
+
+   `ActionNode.execution` now carries it explicitly: `communication` on the
+   58 actions whose effect is a message reaching a recipient, `human` on the
+   34 that put work in front of a person, and omitted on the remaining 1,039
+   internal operations - which keeps INTERNAL as the honest default rather
+   than the only option. A communication card names the journey's own
+   declared channels (CanonicalJourney.channels) rather than inventing one
+   per node: the canonical send path picks the actual channel at stage 9,
+   from the permitted set, so the set is what a node can truthfully show. */
 
 const ICON_PROPS = { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor" } as const;
 
@@ -64,6 +61,22 @@ function WaitIcon() {
     <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" />
+    </svg>
+  );
+}
+function CommunicationIcon() {
+  return (
+    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 7l9 6 9-6" />
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+    </svg>
+  );
+}
+function HumanActionIcon() {
+  return (
+    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20a7 7 0 0 1 14 0" />
     </svg>
   );
 }
@@ -199,23 +212,53 @@ export function ActionCard({
   node,
   sequence,
   onOpen,
+  messageLabels,
+  humanLabels,
 }: {
   node: FlowNode;
   sequence: number;
   onOpen: () => void;
+  /** The journey's message-delivery surfaces, localised and ordered. Shown on
+      a communication action only; an empty list renders nothing rather than a
+      placeholder. */
+  messageLabels: readonly string[];
+  /** The journey's human routes (sales, task). Shown on a human action only -
+      a Message node does not send "on Task", and a Human node is not reached
+      "on SMS". */
+  humanLabels: readonly string[];
 }) {
+  const execution = node.execution ?? "system";
+  const accent =
+    execution === "communication"
+      ? "border-l-blue-700 text-blue-700"
+      : execution === "human"
+        ? "border-l-amber-700 text-amber-700"
+        : "border-l-neutral-600 text-neutral-600";
+  const [rule, ink] = accent.split(" ");
+
   return (
     <CardShell
       onClick={onOpen}
       ariaLabel={node.headline}
-      className="rounded-lg border border-line-soft border-l-[3px] border-l-neutral-600 bg-paper px-4 py-4"
+      className={`rounded-lg border border-line-soft border-l-[3px] ${rule} bg-paper px-4 py-4`}
     >
       <KindLabel>
-        <span className="text-neutral-600">
-          <InternalActionIcon />
+        <span className={ink}>
+          {execution === "communication" ? (
+            <CommunicationIcon />
+          ) : execution === "human" ? (
+            <HumanActionIcon />
+          ) : (
+            <InternalActionIcon />
+          )}
         </span>
-        <span className="text-neutral-600">
-          Internal · {String(sequence).padStart(2, "0")}
+        <span className={ink}>
+          {execution === "communication"
+            ? "Message"
+            : execution === "human"
+              ? "Human"
+              : "Internal"}{" "}
+          · {String(sequence).padStart(2, "0")}
         </span>
       </KindLabel>
       {/* No separate short title exists in canonical data (ActionNode has
@@ -225,6 +268,19 @@ export function ActionCard({
           shortened paraphrase never substituted for the canonical wording;
           the untruncated text is always available in the detail panel. */}
       <p className="mt-2 line-clamp-4 text-[14.5px] leading-snug text-ink-900">{node.headline}</p>
+      {(() => {
+        const routes =
+          execution === "communication"
+            ? messageLabels
+            : execution === "human"
+              ? humanLabels
+              : [];
+        return routes.length > 0 ? (
+          <p className="mt-2 font-mono text-[10.5px] tracking-[0.06em] text-ink-500 uppercase">
+            {routes.join(" · ")}
+          </p>
+        ) : null;
+      })()}
     </CardShell>
   );
 }

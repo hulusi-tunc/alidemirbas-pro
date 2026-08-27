@@ -138,6 +138,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "deadline-tracking",
     category: "time",
     goal: "escalation-exception",
+    channels: ["email", "push", "sms", "whatsapp"],
     name: "Deadline created → track → complete, escalate or expire",
     purpose:
       "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
@@ -246,6 +247,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Send the reminder defined for this threshold. The reminder schedule is not the deadline and does not move it - a deadline nobody was reminded about is still the deadline",
         next: "w.tracking",
+        execution: "communication",
       },
       {
         id: "c.consequence",
@@ -333,6 +335,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "due-state-change",
     category: "time",
     goal: "escalation-exception",
+    channels: [],
     name: "Due-state change → recalculate priority → resolve or escalate",
     purpose:
       "Change what an unresolved obligation costs operationally when it becomes due or overdue, rather than only announcing that it has.",
@@ -486,6 +489,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "pre-expiry-window",
     category: "time",
     goal: "expiry-renewal",
+    channels: ["email", "in-app", "push", "sms"],
     name: "Expiry approaching → eligibility check → renew, complete or let expire",
     purpose:
       "Use the window before an expiry only where acting inside it could actually change what happens.",
@@ -592,6 +596,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Say what will happen and when, with no call to action attached - because there is no action. A prompt to act where acting is impossible is worse than silence",
         next: "w.resolution",
+        execution: "communication",
       },
       {
         id: "x.silent",
@@ -654,6 +659,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "expiry-execution",
     category: "time",
     goal: "expiry-renewal",
+    channels: [],
     name: "Expiry reached → validate current state → expire, extend or replace",
     purpose:
       "Check what the entity actually is at the moment the expiry fires, before applying anything the timer was written to apply.",
@@ -766,6 +772,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "grace-period",
     category: "time",
     goal: "suspension-restoration",
+    channels: [],
     name: "Grace period entry → temporary continuity → recover or terminate",
     purpose:
       "Keep limited continuity while something recoverable is unresolved, without pretending the normal active state still exists.",
@@ -910,6 +917,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "temporary-exception",
     category: "time",
     goal: "escalation-exception",
+    channels: [],
     name: "Temporary exception → validity window → revert or formalise",
     purpose:
       "Stop an exception granted for a reason from becoming a permanent state nobody remembers deciding on.",
@@ -1054,6 +1062,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "temporary-state-lifecycle",
     category: "time",
     goal: "suspension-restoration",
+    channels: [],
     name: "Temporary state → explicit expiry → restore or transition",
     purpose:
       "Give any time-bound state a defined ending, and revalidate before returning anything to what it was.",
@@ -1197,6 +1206,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "reversal-window",
     category: "time",
     goal: "suspension-restoration",
+    channels: [],
     name: "Reversible state → reversal window → confirm or restore",
     purpose:
       "Undo a transition within its window while restoring only what is independently still valid.",
@@ -1335,6 +1345,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "post-expiry-re-entry",
     category: "time",
     goal: "eligibility-qualification",
+    channels: [],
     name: "Expired state → re-entry eligibility → renew, requalify or remain expired",
     purpose:
       "Decide how something expired can become valid again, through the mechanism that actually restores validity rather than by editing the expiry away.",
@@ -1447,6 +1458,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "scheduled-transition-execution",
     category: "time",
     goal: "scheduling-commitment",
+    channels: [],
     name: "Scheduled future transition → validate at execution → apply, cancel or recalculate",
     purpose:
       "Treat a scheduled transition as an intention recorded in the past, and check it against the present before applying it.",

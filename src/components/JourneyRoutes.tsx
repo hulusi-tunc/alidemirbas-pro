@@ -77,7 +77,7 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
       </div>
       <div className="px-4 py-8 md:px-8">
         <div className={`mx-auto ${wide ? "max-w-[1400px]" : "max-w-3xl"}`}>
-          <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} t={t} />
+          <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
         </div>
       </div>
     </LabShell>
@@ -108,7 +108,7 @@ export function JourneyModalPage({ lang, slug }: { lang: Lang; slug: string }) {
         <p className="mt-2 text-sm text-ink-600">{detail.purpose}</p>
       </header>
       <div className="flex-1 overflow-y-auto bg-paper-soft px-5 py-6">
-        <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} t={t} />
+        <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
       </div>
     </JourneyModal>
   );

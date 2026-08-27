@@ -62,10 +62,18 @@ export default function JourneyCanvas({
   nodes,
   basePath,
   labels,
+  messageLabels = [],
+  humanLabels = [],
 }: {
   nodes: readonly FlowNode[];
   basePath: string;
   labels: CanvasLabels;
+  /** The journey's message-delivery surfaces and its human routes, localised
+      and ordered by the server. Each is named only on the node kind it
+      applies to; both default to none, so a caller with no channels to pass
+      is a valid caller rather than a type error. */
+  messageLabels?: readonly string[];
+  humanLabels?: readonly string[];
 }) {
   const layout = useMemo(() => layoutJourneyCanvas(nodes), [nodes]);
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
@@ -229,7 +237,13 @@ export default function JourneyCanvas({
                   {n.kind === "trigger" ? (
                     <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} />
                   ) : n.kind === "action" ? (
-                    <ActionCard node={n} sequence={actionSequence.get(n.id) ?? 1} onOpen={onOpen} />
+                    <ActionCard
+                      node={n}
+                      sequence={actionSequence.get(n.id) ?? 1}
+                      onOpen={onOpen}
+                      messageLabels={messageLabels}
+                      humanLabels={humanLabels}
+                    />
                   ) : n.kind === "condition" ? (
                     <ConditionCard node={n} onOpen={onOpen} />
                   ) : n.kind === "wait" ? (

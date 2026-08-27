@@ -179,6 +179,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "incident-correlation",
     category: "incident",
     goal: "root-cause-diagnostic-correlation",
+    channels: [],
     name: "Correlated failure detection → incident candidate → confirm or reject",
     purpose:
       "Establish whether several failures actually share a cause, before treating them as one thing.",
@@ -318,6 +319,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "incident-scope",
     category: "incident",
     goal: "escalation-exception",
+    channels: ["task"],
     name: "Incident confirmed → determine severity and blast radius → assign command",
     purpose:
       "Establish what is actually affected, how badly, and who is running the response.",
@@ -357,6 +359,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Assign incident ownership and command according to the operating model, and record it separately from the owners of the individual cases. The incident owner runs the systemic response; the case owners still owe their customers an answer, and one absorbing the other means whichever survives stops doing the other job",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "a.state",
+        execution: "human",
       },
       {
         id: "a.state",
@@ -463,6 +466,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "incident-mitigation",
     category: "incident",
     goal: "recovery-retry",
+    channels: [],
     name: "Incident → contain and mitigate → preserve critical operations",
     purpose:
       "Reduce the damage now, without pretending the cause has been dealt with.",
@@ -624,6 +628,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "incident-communication",
     category: "incident",
     goal: "delivery-confirmation",
+    channels: ["email", "in-app"],
     name: "Incident communication → identify affected cohort → inform, update or close",
     purpose:
       "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
@@ -652,6 +657,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine who is materially affected, what is known, what is not known, what action the user needs to take, any safe workaround, and the condition under which the next meaningful update would happen. Saying what is not yet known is information; leaving it out and stating the rest as certainty is not",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.cohort",
+        execution: "communication",
       },
       {
         id: "c.cohort",
@@ -676,6 +682,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Scope the communication to the affected population. Telling everybody about an incident affecting one region trains the whole base to ignore incident notices, and the next one will be one that matters to them",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.verified",
+        execution: "communication",
       },
       {
         id: "a.broad",
@@ -683,6 +690,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Broaden only as far as necessary, and say explicitly that the scope is still being established. Uncertainty stated is information; uncertainty implied as precision is a claim that will have to be corrected",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.verified",
+        execution: "communication",
       },
       {
         id: "c.verified",
@@ -707,6 +715,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say what is known and what is not, and claim nothing about cause or resolution that has not been established. A root cause announced and then retracted costs more credibility than a slow update, and technical detail stated as fact while still uncertain is the most common source of that retraction",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.material",
+        execution: "communication",
       },
       {
         id: "c.material",
@@ -754,6 +763,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the communication through the canonical communication mechanism, which owns the obligation, the recipient resolution, the channels, the permissions and the delivery evidence. Incident communication does not build its own delivery path, and the message carries no promotional content",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.final",
+        execution: "communication",
       },
       {
         id: "c.final",
@@ -805,6 +815,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "root-cause-investigation",
     category: "incident",
     goal: "root-cause-diagnostic-correlation",
+    channels: [],
     name: "Root cause investigation → hypothesis → confirm or reject → corrective action",
     purpose:
       "Find the thing that actually explains the incident, rather than the thing that was nearest to it.",
@@ -952,6 +963,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "incident-recovery",
     category: "incident",
     goal: "recovery-retry",
+    channels: [],
     name: "Recovery action → restore service → verify or continue",
     purpose:
       "Act on the cause and then check the affected population, not the command's return code.",
@@ -1135,6 +1147,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "recovery-observation",
     category: "incident",
     goal: "suspension-restoration",
+    channels: [],
     name: "Service restored → observation window → stable or relapse",
     purpose:
       "Hold the incident open long enough to know the recovery held.",
@@ -1276,6 +1289,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "incident-resolution",
     category: "incident",
     goal: "cancellation-termination",
+    channels: [],
     name: "Incident resolution → close operational response → preserve residual cases",
     purpose:
       "Close the shared failure without closing the individual problems it caused.",
@@ -1445,6 +1459,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "post-incident-review",
     category: "incident",
     goal: "root-cause-diagnostic-correlation",
+    channels: ["task"],
     name: "Post-incident review → learn → corrective work → verify",
     purpose:
       "Turn what the incident showed into work somebody owns and somebody checks.",
@@ -1470,6 +1485,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Review the timeline, the detection, the response, the root cause, the blast radius, the mitigations, the communication, the recovery, the control failures and the near misses. What is examined is the system and the response rather than the people - a review that finds a person found the wrong thing, because the person will move on and the condition will not",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "a.identify",
+        execution: "human",
       },
       {
         id: "a.identify",
@@ -1516,6 +1532,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Assign owners and deadlines to each corrective action. An action item with no owner is a sentence in a document, and a document is not a control - the whole value of the review is what somebody is now accountable for delivering",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "w.corrective",
+        execution: "human",
       },
       {
         id: "w.corrective",
@@ -1597,6 +1614,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Return the action to its owner with what the verification found. Work completed that did not reduce the risk means the action was aimed at the wrong thing, and repeating it produces the same result",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "w.corrective",
+        execution: "human",
       },
       {
         id: "a.closed",
@@ -1629,6 +1647,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "incident-recurrence",
     category: "incident",
     goal: "root-cause-diagnostic-correlation",
+    channels: [],
     name: "Incident pattern recurrence → detect systemic weakness → escalate prevention",
     purpose:
       "Notice when the same weakness keeps producing incidents, and stop treating each one as new.",

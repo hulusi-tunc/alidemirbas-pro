@@ -7,7 +7,7 @@ import {
   byId,
   resolveJourneyId,
 } from "@/canonical";
-import type { CanonicalJourney, CanonicalNode, CategoryId, GoalId } from "@/canonical/types";
+import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId } from "@/canonical/types";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
 /* The read model the archive renders from.
@@ -74,6 +74,9 @@ export type JourneyRow = {
   /** The single primary discovery filter - explicit canonical metadata, not
       derived here. See src/canonical/types.ts and lib/journey-taxonomy.ts. */
   goal: GoalId;
+  /** The execution channels this journey's communication may use. Explicit
+      canonical metadata; empty where the journey is entirely internal. */
+  channels: readonly ChannelId[];
   /** The card's topology thumbnail, laid out here (server, once, at build
       time) rather than in the browser - see lib/journey-preview.ts. */
   preview: JourneyPreview;
@@ -154,6 +157,10 @@ export type FlowNode = {
   /** Evidence, timeout reason, writes - whatever this node kind adds. */
   meta: readonly string[];
   edges: readonly FlowEdge[];
+  /** Action nodes only. What this action's effect is outside the system -
+      see ActionNode.execution. Absent means an internal operation, which is
+      the ordinary case. */
+  execution?: "communication" | "human";
   isEntry: boolean;
   /** Exit nodes only, and only where the state itself forbids re-entry. The
       ordinary case is not flagged: 431 of 436 exits allow re-entry, so a
@@ -205,6 +212,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         detail: null,
         meta: (n.writes ?? []).map((w) => `writes ${w.field} (${w.mode})`),
         edges: [edge(n.next)],
+        ...(n.execution ? { execution: n.execution } : {}),
       };
     case "condition":
       return {
@@ -264,6 +272,9 @@ export type JourneyDetail = {
   name: string;
   purpose: string;
   categoryTitle: string;
+  /** The journey's declared execution channels, so the canvas can name what
+      a communication action may actually run on. */
+  channels: readonly ChannelId[];
   entityScope: string;
   entityNote: string;
   reusableRule: string;
@@ -328,6 +339,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
   nodeCount: j.nodes.length,
   goal: j.goal,
+  channels: j.channels,
   preview: buildJourneyPreview(flowNodesOf(j)),
 }));
 
@@ -340,6 +352,7 @@ function detailOf(j: CanonicalJourney): JourneyDetail {
     name: j.name,
     purpose: j.purpose,
     categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
+    channels: j.channels,
     entityScope: j.entity.scope,
     entityNote: j.entity.note,
     reusableRule: j.reusableRule,

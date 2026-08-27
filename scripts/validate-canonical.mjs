@@ -318,6 +318,57 @@ for (const [g, members] of Object.entries(groups)) {
     );
 }
 
+/* channels must be USED, not merely plausible.
+
+   `channels` names the execution channels a journey actually runs on, which
+   is only true if some Action node in it does the corresponding work: a
+   message surface needs an action marked `execution: "communication"`, a
+   human route needs one marked `execution: "human"`. Without this check the
+   field quietly drifts back into "channels that would suit this journey",
+   which is a different claim and an unfalsifiable one.
+
+   A handoff is deliberately not enough. Handing off to another journey - or
+   to `external:human-in-the-loop-lifecycle` - is this journey saying the
+   work belongs elsewhere, so the channel belongs to whatever picks it up. */
+const MESSAGE_CHANNELS = new Set(["email", "push", "sms", "in-app", "whatsapp"]);
+const HUMAN_CHANNELS = new Set(["sales", "task"]);
+for (const j of all) {
+  const declared = j.channels ?? [];
+  const actions = j.nodes.filter((n) => n.kind === "action");
+  const hasComm = actions.some((n) => n.execution === "communication");
+  const hasHuman = actions.some((n) => n.execution === "human");
+
+  const orphanMessage = declared.filter((c) => MESSAGE_CHANNELS.has(c));
+  if (orphanMessage.length && !hasComm)
+    err(
+      "channel_without_communication",
+      j.id,
+      `declares ${orphanMessage.join(", ")} but no action is marked execution: "communication" - the journey does not itself send`,
+    );
+
+  const orphanHuman = declared.filter((c) => HUMAN_CHANNELS.has(c));
+  if (orphanHuman.length && !hasHuman)
+    err(
+      "channel_without_human_action",
+      j.id,
+      `declares ${orphanHuman.join(", ")} but no action is marked execution: "human" - a handoff is not the journey doing the work`,
+    );
+
+  if (hasComm && !orphanMessage.length)
+    err(
+      "communication_without_channel",
+      j.id,
+      `has a communication action but declares no message channel - what does it send on?`,
+    );
+
+  if (hasHuman && !orphanHuman.length)
+    err(
+      "human_action_without_channel",
+      j.id,
+      `has a human action but declares neither sales nor task - who picks it up?`,
+    );
+}
+
 const line = (s) => console.log("  " + s);
 if (errors.length) {
   console.log(`\nERRORS (${errors.length})`);

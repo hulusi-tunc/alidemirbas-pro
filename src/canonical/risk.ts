@@ -187,6 +187,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "policy-evaluation",
     category: "risk",
     goal: "risk-compliance",
+    channels: [],
     name: "Policy check → evaluate → pass, block or review",
     purpose:
       "Decide whether a specific action is permitted under the rules that actually govern it, at the version that actually applies.",
@@ -340,6 +341,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "risk-signal",
     category: "risk",
     goal: "risk-compliance",
+    channels: [],
     name: "Risk signal → correlate evidence → clear, monitor, restrict or review",
     purpose:
       "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
@@ -578,6 +580,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "risk-restriction",
     category: "risk",
     goal: "suspension-restoration",
+    channels: [],
     name: "Risk threshold crossed → apply scoped restriction → review or release",
     purpose:
       "Stop the smallest thing that manages the risk, and keep a stated route back.",
@@ -757,6 +760,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "policy-violation",
     category: "risk",
     goal: "risk-compliance",
+    channels: [],
     name: "Policy violation detected → validate → correct, restrict or escalate",
     purpose:
       "Establish that a rule was actually broken, against the version that governed it, before anything follows from that.",
@@ -1000,6 +1004,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "compliance-requirement",
     category: "risk",
     goal: "risk-compliance",
+    channels: [],
     name: "Compliance requirement → collect and verify → satisfied or blocked",
     purpose:
       "Hold one mandatory requirement as its own state, blocking only what genuinely depends on it.",
@@ -1222,6 +1227,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "compliance-hold",
     category: "risk",
     goal: "suspension-restoration",
+    channels: [],
     name: "Compliance or policy hold → preserve state → resolve → resume or terminate",
     purpose:
       "Pause what a policy question makes unsafe, and leave everything else running.",
@@ -1390,6 +1396,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "exception-request",
     category: "risk",
     goal: "escalation-exception",
+    channels: [],
     name: "Exception request → validate authority → approve, reject or review",
     purpose:
       "Ask for a controlled deviation from a named rule, over a stated scope, from someone entitled to ask.",
@@ -1612,6 +1619,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "exception-application",
     category: "risk",
     goal: "expiry-renewal",
+    channels: [],
     name: "Exception granted → apply scoped override → expire or revoke",
     purpose:
       "Let an authorized deviation apply exactly where it was authorized, and stop applying the moment it should.",
@@ -1836,6 +1844,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "limit-quota",
     category: "risk",
     goal: "suspension-restoration",
+    channels: [],
     name: "Limit or quota reached → block, wait, increase or reset",
     purpose:
       "Treat a limit being reached as the limit working, and give the constrained action a real path forward.",
@@ -2047,6 +2056,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "policy-change-propagation",
     category: "risk",
     goal: "change-versioning",
+    channels: [],
     name: "Policy or risk state changed → re-evaluate affected work → resume, restrict or preserve",
     purpose:
       "Apply a change where the new authority actually reaches, and leave the past alone.",
