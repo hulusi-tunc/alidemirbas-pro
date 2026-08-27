@@ -11,7 +11,7 @@ import {
    pre-computed on `preview` (built server-side from the journey's real
    canonical graph by the same layout engine the detail Canvas uses - see
    lib/journey-preview.ts), so nothing here lays anything out. That is what
-   makes 255 of these affordable on one page.
+   makes 281 of these affordable on one page.
 
    The silhouettes are the Canvas's own node grammar reduced to shape alone -
    same fills, same border treatment, same size hierarchy, no text. Their
@@ -26,7 +26,7 @@ import {
    class instead of repeated inline `fill`/`stroke`/`stroke-width`
    attributes, the two stroke widths ride on the <svg> as custom properties
    once per card rather than once per shape, and every emitted number is
-   rounded - across 255 cards that markup is the page. */
+   rounded - across 281 cards that markup is the page. */
 
 const KIND_CLASS: Record<(typeof PREVIEW_KINDS)[number], string> = {
   trigger: "jp-trigger",

@@ -2144,4 +2144,163 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Ending a continuing relationship stops future relationship-dependent rights and obligations while preserving and resolving commitments legitimately created during the active term.",
   },
+  {
+    id: "SUB-262",
+    slug: "cancellation-wind-down-notice",
+    category: "subscription",
+    goal: "cancellation-termination",
+    channels: ["email", "in-app"],
+    name: "Cancellation confirmed → wind-down window → access ends or customer returns",
+    purpose:
+      "Carry somebody through the period between deciding to leave and actually losing access, so the end date is never a surprise and returning stays possible right up to it.",
+    entity: {
+      scope: "the cancelled relationship plus its effective end date",
+      note: "The wind-down belongs to this cancellation. A second cancellation after a reactivation is a new instance with its own window.",
+    },
+    distinctFrom: [
+      {
+        journey: "RET-28",
+        because:
+          "RET-28 runs before the decision and may offer an alternative. This starts once cancellation is confirmed, and never re-litigates it.",
+      },
+      {
+        journey: "SUB-167",
+        because:
+          "SUB-167 establishes whether and when the relationship ends. This is what the customer is told across that window.",
+      },
+    ],
+    entry: "t.cancelled",
+    nodes: [
+      {
+        id: "t.cancelled",
+        kind: "trigger",
+        event: "cancellation_confirmed",
+        evidence: {
+          requires: [
+            "an authoritative cancellation recorded against the relationship",
+            "an effective end date",
+          ],
+          insufficientAlone: [
+            "a stated intention to cancel",
+            "a failed payment",
+            "a support conversation about leaving",
+          ],
+          source: "authoritative",
+        },
+        next: "a.confirm",
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm the cancellation, the exact date access ends, and what remains available until then. Paid-for access is not cut short because somebody cancelled early, and saying so is what stops the immediate 'have I lost it already' contact",
+        next: "c.window",
+        execution: "communication",
+      },
+      {
+        id: "c.window",
+        kind: "condition",
+        asks: "Is there a meaningful window before access ends?",
+        branches: [
+          {
+            label: "Window remains",
+            when: "the effective end date is far enough out that a reminder before it would still be useful",
+            to: "w.window",
+          },
+          {
+            label: "Ends immediately",
+            when: "access ends at once or too soon for a further message to arrive in time",
+            to: "c.obligations",
+          },
+        ],
+      },
+      {
+        id: "w.window",
+        kind: "wait",
+        until: [
+          "the cancellation is withdrawn",
+          "the effective end date is reached",
+        ],
+        onEvent: "c.withdrawn",
+        timeout: {
+          after: "the effective end date",
+          reason: "the window closing is the event this journey exists to mark",
+        },
+        onTimeout: "a.ending",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.withdrawn",
+        kind: "condition",
+        asks: "Did they withdraw the cancellation?",
+        branches: [
+          {
+            label: "Withdrawn",
+            when: "an authoritative reactivation or withdrawal is recorded before the end date",
+            to: "x.returned",
+          },
+          {
+            label: "Still ending",
+            when: "the relationship is still due to end",
+            to: "a.ending",
+          },
+        ],
+      },
+      {
+        id: "x.returned",
+        kind: "exit",
+        state: "cancellation withdrawn, relationship continues",
+        terminal: false,
+        reEntry: "a later cancellation starts a new wind-down",
+      },
+      {
+        id: "a.ending",
+        kind: "action",
+        does: "Say that access ends shortly and what will and will not survive it - exports, history, outstanding obligations. This is information the person needs whether or not they intend to come back",
+        next: "c.obligations",
+        execution: "communication",
+      },
+      {
+        id: "c.obligations",
+        kind: "condition",
+        asks: "Does anything outlive the relationship?",
+        branches: [
+          {
+            label: "Obligations remain",
+            when: "an outstanding balance, a return, a retention period or an external subscription survives the end date",
+            to: "h.obligations",
+          },
+          {
+            label: "Nothing outstanding",
+            when: "the relationship ends cleanly",
+            to: "x.ended",
+          },
+        ],
+      },
+      {
+        id: "h.obligations",
+        kind: "handoff",
+        to: "SUB-170",
+        on: "a cancelled relationship with obligations that continue past its end",
+        carries: [
+          "the end date and what was already communicated about it",
+          "which obligations survive and who owns each",
+        ],
+      },
+      {
+        id: "x.ended",
+        kind: "exit",
+        state: "ended with nothing outstanding",
+        terminal: false,
+        reEntry: "a former customer returning enters through acquisition or reactivation, not here",
+      },
+    ],
+    guardrails: [
+      "The cancellation is never re-litigated. A save attempt after the decision is a different journey and belongs before this one.",
+      "Paid-for access runs to its end date. Cancelling early does not shorten it.",
+      "The end date is stated in the first message and never moves silently.",
+      "Withdrawal exits the journey immediately - a reminder that access is ending, sent to somebody who has just stayed, is worse than sending nothing.",
+    ],
+    reusableRule:
+      "The period between deciding to leave and leaving is still a relationship, and it is the one where being told the truth matters most.",
+  },
 ];

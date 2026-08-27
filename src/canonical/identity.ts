@@ -1808,4 +1808,377 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Suspected compromise requires reversible containment and evidence-based recovery before normal account control is restored.",
   },
+  {
+    id: "IDN-270",
+    slug: "account-recovery-guidance",
+    category: "identity",
+    goal: "suspension-restoration",
+    channels: ["email", "sms"],
+    name: "Account recovery started → proof of control → access restored or window closed",
+    purpose:
+      "Carry somebody who cannot authenticate through the evidence their recovery actually requires, inside a stated window, on a route that is no weaker than the login it is standing in for.",
+    entity: {
+      scope: "one existing account plus this recovery case and its window",
+      note: "One case, one window. A second recovery request on the same account opens its own case; it does not extend or restart this one.",
+    },
+    distinctFrom: [
+      {
+        journey: "IDN-88",
+        because:
+          "IDN-88 decides the recovery basis, judges the evidence and rebuilds secure access. This journey sends nothing that IDN-88 has not already established, and it decides nothing - it is the requester's side of that case.",
+      },
+      {
+        journey: "IDN-90",
+        because:
+          "IDN-90 governs a suspected compromise. Here the account is not under suspicion; somebody simply cannot get in, and treating the two the same makes every locked-out person a suspect.",
+      },
+    ],
+    entry: "t.recovery",
+    nodes: [
+      {
+        id: "t.recovery",
+        kind: "trigger",
+        event: "account_recovery_case_opened",
+        evidence: {
+          requires: [
+            "a recovery case authoritatively opened against one existing account",
+            "the recovery basis and the evidence that basis requires",
+            "a recovery window with a stated end",
+          ],
+          insufficientAlone: [
+            "a failed authentication attempt",
+            "a support conversation about being locked out",
+            "a destination supplied inside the request itself",
+          ],
+          source: "authoritative",
+        },
+        next: "c.incident",
+      },
+      {
+        id: "c.incident",
+        kind: "condition",
+        asks: "Is this account already under an open security incident?",
+        branches: [
+          {
+            label: "Incident open",
+            when: "a compromise signal or security incident is live on this account",
+            to: "h.security",
+          },
+          {
+            label: "Clear",
+            when: "the account has no open incident and this is an ordinary loss of access",
+            to: "a.issue",
+          },
+        ],
+      },
+      {
+        id: "h.security",
+        kind: "handoff",
+        to: "IDN-90",
+        on: "a recovery attempt on an account that is already under an open compromise signal",
+        carries: [
+          "the recovery case and the basis claimed",
+          "which destinations the request arrived from, and which were already on the account",
+        ],
+      },
+      {
+        id: "a.issue",
+        kind: "action",
+        does: "Send the recovery route to a destination the account already held, and state exactly what evidence is required and when the window closes. A route sent to whichever destination asked for it is not recovery, it is the thing recovery exists to prevent",
+        next: "w.proof",
+        execution: "communication",
+      },
+      {
+        id: "w.proof",
+        kind: "wait",
+        until: [
+          "sufficient proof of control is provided",
+          "the requester regains access by ordinary authentication",
+          "the case is withdrawn",
+        ],
+        onEvent: "c.proof",
+        timeout: {
+          after: "the point in the window at which a reminder would still leave time to act",
+          reason: "a reminder that lands after the window tells somebody they have lost something instead of helping them keep it",
+        },
+        onTimeout: "c.remind",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.proof",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Control proven",
+            when: "the evidence the basis required was provided and judged sufficient",
+            to: "a.restored",
+          },
+          {
+            label: "Resolved elsewhere",
+            when: "the requester got back in by ordinary means, or withdrew the case",
+            to: "x.moot",
+          },
+        ],
+      },
+      {
+        id: "a.restored",
+        kind: "action",
+        does: "Confirm that control is back and name what was invalidated on the way - the sessions and credentials that will no longer work. Somebody who is not told what was cut off reads the next refusal as a second compromise",
+        next: "x.restored",
+        execution: "communication",
+      },
+      {
+        id: "x.restored",
+        kind: "exit",
+        state: "control restored and confirmed",
+        terminal: false,
+        reEntry: "a later recovery case on the same account is a new instance with its own window",
+      },
+      {
+        id: "x.moot",
+        kind: "exit",
+        state: "recovery closed without being used",
+        terminal: false,
+        reEntry: "a new request opens a new case; this one is not resumed",
+      },
+      {
+        id: "c.remind",
+        kind: "condition",
+        asks: "Is one reminder still worth sending?",
+        branches: [
+          {
+            label: "Time remains",
+            when: "enough of the window is left for the outstanding evidence to be produced, and no reminder has been sent for this case",
+            to: "a.remind",
+          },
+          {
+            label: "Effectively closed",
+            when: "too little of the window remains for the evidence to arrive in time",
+            to: "x.closed",
+          },
+        ],
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Send one reminder on the same already-held destination, naming the deadline and the evidence still outstanding. There is no second reminder - a recovery nobody is pursuing has usually been abandoned rather than forgotten, and repetition on a security route is itself a pressure tactic",
+        next: "w.final",
+        execution: "communication",
+      },
+      {
+        id: "w.final",
+        kind: "wait",
+        until: [
+          "sufficient proof of control is provided",
+        ],
+        onEvent: "a.restored",
+        timeout: {
+          after: "the remainder of the recovery window",
+          reason: "the window is a security control rather than a courtesy, and a route left open indefinitely is weaker than the login it replaced",
+        },
+        onTimeout: "x.closed",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "x.closed",
+        kind: "exit",
+        state: "recovery window closed without sufficient proof",
+        terminal: false,
+        reEntry: "a fresh request opens a new case and a new window; the closed one is never extended",
+      },
+    ],
+    guardrails: [
+      "The recovery route goes to a destination the account already held, never to one supplied with the request.",
+      "Recovery is a different route to the same assurance, not a lower one. Nothing here is easier than the authentication it stands in for.",
+      "The window is never restarted by repeated attempts, and never extended by engagement.",
+      "One reminder, never two. On a security route, repetition is indistinguishable from pressure.",
+      "What was invalidated is named in the confirmation, or the next refused credential reads as a fresh attack.",
+    ],
+    reusableRule:
+      "A way back into an account is only worth offering if it is no easier to walk than the door it replaces.",
+  },
+  {
+    id: "IDN-271",
+    slug: "compromise-alert-verification",
+    category: "identity",
+    goal: "escalation-exception",
+    channels: ["email", "sms"],
+    name: "Compromise signal → scoped containment → owner verification → recover or clear",
+    purpose:
+      "Ask the owner the one question that resolves a suspected compromise, on a route the suspicion does not touch, while saying plainly whether anything has actually been restricted.",
+    entity: {
+      scope: "the account plus this security incident and the scope it affects",
+      note: "The incident is the subject and it has its own record. A later signal on the same account is a separate incident and gets its own question.",
+    },
+    distinctFrom: [
+      {
+        journey: "IDN-90",
+        because:
+          "IDN-90 determines scope, applies reversible containment and concludes the investigation. This journey does none of that; it is the owner's side of the same incident and it starts only once the scope is known.",
+      },
+      {
+        journey: "IDN-88",
+        because:
+          "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too.",
+      },
+    ],
+    entry: "t.signal",
+    nodes: [
+      {
+        id: "t.signal",
+        kind: "trigger",
+        event: "compromise_incident_opened_with_scope_determined",
+        evidence: {
+          requires: [
+            "a security incident authoritatively opened against the account",
+            "the affected scope determined - which sessions, credentials and capabilities",
+            "a record of whether containment was applied and how wide",
+          ],
+          insufficientAlone: [
+            "a single failed authentication",
+            "a risk score with no incident behind it",
+            "an unusual location with no other signal",
+          ],
+          source: "authoritative",
+        },
+        next: "c.route",
+      },
+      {
+        id: "c.route",
+        kind: "condition",
+        asks: "Is there a destination the signal does not implicate?",
+        branches: [
+          {
+            label: "Clean route",
+            when: "a contact point sits outside the affected scope and was not itself added or changed inside the window under suspicion",
+            to: "c.contained",
+          },
+          {
+            label: "Every route implicated",
+            when: "the only destinations were changed in the suspicious window or sit behind the same access under question",
+            to: "x.withheld",
+          },
+        ],
+      },
+      {
+        id: "x.withheld",
+        kind: "exit",
+        state: "no destination outside the suspicion; no alert sent",
+        terminal: false,
+        reEntry: "if a destination outside the affected scope is established, the verification question runs from there",
+      },
+      {
+        id: "c.contained",
+        kind: "condition",
+        asks: "Has anything actually been restricted?",
+        branches: [
+          {
+            label: "Containment applied",
+            when: "sessions, credentials or capabilities were restricted, so the owner will meet the restriction whether or not we say so first",
+            to: "a.alert-contained",
+          },
+          {
+            label: "Nothing restricted",
+            when: "the evidence did not justify restriction and the account is operating normally",
+            to: "a.alert-watch",
+          },
+        ],
+      },
+      {
+        id: "a.alert-contained",
+        kind: "action",
+        does: "Say what was restricted, why, and that confirming whether the recent activity was theirs is what resolves it. A restriction somebody walks into unwarned is indistinguishable from the compromise it was meant to contain",
+        next: "w.verify",
+        execution: "communication",
+      },
+      {
+        id: "a.alert-watch",
+        kind: "action",
+        does: "Ask whether the recent activity was theirs and say plainly that nothing has been restricted. Suspected is not confirmed, and most of these signals are not - a message that implies otherwise converts a false positive into a frightened person",
+        next: "w.verify",
+        execution: "communication",
+      },
+      {
+        id: "w.verify",
+        kind: "wait",
+        until: [
+          "the owner confirms the activity was theirs",
+          "the owner reports the activity was not theirs",
+          "the security review concludes without them",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the review point set for this incident",
+          reason: "an open suspicion with no stated conclusion is a restriction with no end date, and the owner is the one living inside it",
+        },
+        onTimeout: "a.standing",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "What did the answer establish?",
+        branches: [
+          {
+            label: "Theirs",
+            when: "the owner confirms the activity, or the review clears the signal without them",
+            to: "a.cleared",
+          },
+          {
+            label: "Not theirs",
+            when: "the owner reports the activity was not theirs, or the review confirms the compromise",
+            to: "h.recovery",
+          },
+        ],
+      },
+      {
+        id: "a.cleared",
+        kind: "action",
+        does: "Say the signal is cleared and name anything that has been lifted, so a restriction met yesterday is not still assumed today. The record of the signal stays; only the restriction goes",
+        next: "x.cleared",
+        execution: "communication",
+      },
+      {
+        id: "x.cleared",
+        kind: "exit",
+        state: "cleared; restrictions lifted and the owner told",
+        terminal: false,
+        reEntry: "a further signal on the same account is a new incident and a new instance",
+      },
+      {
+        id: "h.recovery",
+        kind: "handoff",
+        to: "IDN-88",
+        on: "a confirmed compromise where the owner needs secure control of the account rebuilt",
+        carries: [
+          "the incident, its affected scope and what was contained",
+          "which destinations were treated as implicated and which carried the alert",
+        ],
+      },
+      {
+        id: "a.standing",
+        kind: "action",
+        does: "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is required from them. A restriction with no stated owner and no stated date is where duplicate cases come from",
+        next: "x.open",
+        execution: "communication",
+      },
+      {
+        id: "x.open",
+        kind: "exit",
+        state: "incident open past its review point; the owner knows where it sits",
+        terminal: false,
+        reEntry: "the conclusion, whenever it lands, re-enters on the cleared or the recovery path",
+      },
+    ],
+    guardrails: [
+      "The alert goes only to destinations outside the affected scope. A notice delivered to the compromised route warns the wrong person.",
+      "Suspected is not confirmed, and the message says which one this is.",
+      "Where nothing was restricted, the message says so. Implying a lockout that did not happen is its own harm.",
+      "The all-clear is sent as deliberately as the alert was, because most signals in this category clear.",
+      "A cleared signal stays in the security history; erasing it makes a recurrence look like a first occurrence.",
+    ],
+    reusableRule:
+      "A security question can only be asked on a route the suspicion does not reach, and it has to be as easy to answer no as yes.",
+  },
 ];

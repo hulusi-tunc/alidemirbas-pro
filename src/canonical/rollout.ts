@@ -1784,4 +1784,191 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Change lifecycle closes only after the applied population demonstrates sufficient stability and remaining version dependencies are resolved.",
   },
+  {
+    id: "RLT-279",
+    slug: "upgrade-blocker-prompt",
+    category: "rollout",
+    goal: "readiness-revalidation",
+    channels: ["in-app", "email"],
+    name: "Upgrade blocked by a resolvable prerequisite → prompt → ready or expired",
+    purpose:
+      "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
+    entity: {
+      scope: "the target, the change waiting on it, and the named prerequisite that is blocking it",
+      note: "One target, one blocker, one change. A second blocker on the same target is named in the same prompt or not at all - two prompts about one target read as two problems.",
+    },
+    distinctFrom: [
+      {
+        journey: "RLT-242",
+        because:
+          "RLT-242 works out what preparation this change requires and records the blockers that hold the target. This journey is what the holder is told about a blocker, and it sends nothing until that hold exists with a named cause.",
+      },
+      {
+        journey: "RLT-241",
+        because:
+          "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite.",
+      },
+    ],
+    entry: "t.blocked",
+    nodes: [
+      {
+        id: "t.blocked",
+        kind: "trigger",
+        event: "target_held_on_named_prerequisite",
+        evidence: {
+          requires: [
+            "a target authoritatively held for a planned change",
+            "the specific prerequisite that is blocking it, named rather than described",
+            "a preparation window with time still in it",
+          ],
+          insufficientAlone: [
+            "a change that is available but not yet scoped to this target",
+            "a hold whose cause has not been identified",
+          ],
+          source: "authoritative",
+        },
+        next: "c.resolvable",
+      },
+      {
+        id: "c.resolvable",
+        kind: "condition",
+        asks: "Can the holder clear this blocker themselves?",
+        branches: [
+          {
+            label: "Theirs to clear",
+            when: "the prerequisite is something the holder controls - capacity to free, a version to move off, a dependency to accept, a confirmation to give",
+            to: "a.name-blocker",
+          },
+          {
+            label: "Not theirs",
+            when: "the prerequisite depends on a supplier, an internal approval, or a fixed period elapsing",
+            to: "a.inform-hold",
+          },
+        ],
+      },
+      {
+        id: "a.inform-hold",
+        kind: "action",
+        does: "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do. A prompt to act where acting is impossible reads as blame and produces a support contact instead of a cleared blocker",
+        next: "x.held",
+        execution: "communication",
+      },
+      {
+        id: "x.held",
+        kind: "exit",
+        state: "held on a blocker the holder cannot clear",
+        terminal: false,
+        reEntry: "if the blocker later becomes theirs to clear, the target qualifies again on the resolvable path",
+      },
+      {
+        id: "a.name-blocker",
+        kind: "action",
+        does: "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window. A generic notice that something is available leaves the holder to discover the blocker themselves, which is the whole reason the target is stuck",
+        next: "w.clear",
+        execution: "communication",
+      },
+      {
+        id: "w.clear",
+        kind: "wait",
+        until: [
+          "the named prerequisite clears on the target",
+          "the change is superseded or withdrawn",
+        ],
+        onEvent: "c.cleared",
+        timeout: {
+          after: "the point in the preparation window past which a target still blocked cannot be made ready in time",
+          reason: "a prompt that arrives with no time left to act on it is worse than no prompt - it names a deadline that has already gone",
+        },
+        onTimeout: "c.last-call",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.cleared",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Blocker cleared",
+            when: "the prerequisite is authoritatively satisfied on the target",
+            to: "h.resume",
+          },
+          {
+            label: "Change withdrawn",
+            when: "the change was superseded or withdrawn before the prerequisite cleared",
+            to: "x.moot",
+          },
+        ],
+      },
+      {
+        id: "h.resume",
+        kind: "handoff",
+        to: "RLT-242",
+        on: "a named prerequisite cleared by the holder inside the preparation window",
+        carries: [
+          "which blocker cleared and when",
+          "what the holder was told, so readiness is not announced to them twice",
+        ],
+      },
+      {
+        id: "x.moot",
+        kind: "exit",
+        state: "change withdrawn before the blocker was cleared",
+        terminal: false,
+        reEntry: "the next change with the same prerequisite scopes this target again",
+      },
+      {
+        id: "c.last-call",
+        kind: "condition",
+        asks: "Is a second prompt still worth sending?",
+        branches: [
+          {
+            label: "Time remains",
+            when: "the preparation window has a period left in which clearing the blocker would still make the target ready",
+            to: "a.last-call",
+          },
+          {
+            label: "Window closed",
+            when: "no remaining action could make the target ready in this window",
+            to: "x.unprepared",
+          },
+        ],
+      },
+      {
+        id: "a.last-call",
+        kind: "action",
+        does: "Send one further prompt naming the same prerequisite and the date it stops mattering. There is no third - a blocker nobody has cleared twice is a decision, not an oversight",
+        next: "w.final",
+        execution: "communication",
+      },
+      {
+        id: "w.final",
+        kind: "wait",
+        until: [
+          "the named prerequisite clears on the target",
+        ],
+        onEvent: "h.resume",
+        timeout: {
+          after: "the remainder of the preparation window",
+          reason: "the window is what separates a target that is not ready from one that has failed, and the two must not be recorded together",
+        },
+        onTimeout: "x.unprepared",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "x.unprepared",
+        kind: "exit",
+        state: "preparation window closed with the blocker outstanding",
+        terminal: false,
+        reEntry: "the target stays an unprepared member of the population and is prompted again by the next change that needs the same prerequisite",
+      },
+    ],
+    guardrails: [
+      "The prompt names the specific blocker. A notice that an update is available, sent to somebody who cannot take it, is the failure this journey exists to stop.",
+      "Nothing is asked of a holder who cannot clear the prerequisite.",
+      "Two prompts at most, and both name the same blocker and the same date.",
+      "Not ready is not failed. A target that was never touched is recorded as unprepared, not as a failed change.",
+    ],
+    reusableRule:
+      "A blocked change is worth telling somebody about only when the blocker is theirs to clear and the window is still open enough for clearing it to matter.",
+  },
 ];

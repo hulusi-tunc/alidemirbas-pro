@@ -2247,4 +2247,187 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Policy and risk changes should alter only the current or future states to which the new authority applies while preserving the historical context under which prior actions occurred.",
   },
+  {
+    id: "RSK-273",
+    slug: "usage-limit-capacity-path",
+    category: "risk",
+    goal: "access-entitlement-change",
+    channels: ["in-app", "email"],
+    name: "Usage limit reached → capacity path → upgrade, wait for reset or stay blocked",
+    purpose:
+      "Meet somebody at the moment a limit stops them with the three facts that decide what happens next - what the limit is, when it resets, and whether more capacity can be bought - without any of it reading as an accusation.",
+    entity: {
+      scope: "the entity and the one limit constraining it, in one measurement window",
+      note: "One limit, one window, one authoritative count. Reaching it is an operational fact about usage and says nothing about the person.",
+    },
+    distinctFrom: [
+      {
+        journey: "RSK-199",
+        because:
+          "RSK-199 blocks the action, holds the count and governs the reset. This journey adds nothing operational - it is what the person at the block is told, and it sends only figures RSK-199 already treats as authoritative.",
+      },
+      {
+        journey: "RSK-193",
+        because:
+          "RSK-193 restricts in response to risk. A limit reached is the limit working, and routing it through a risk message is how ordinary usage gets treated as suspicion.",
+      },
+    ],
+    entry: "t.blocked",
+    nodes: [
+      {
+        id: "t.blocked",
+        kind: "trigger",
+        event: "limit_reached_and_action_blocked",
+        evidence: {
+          requires: [
+            "an authoritative usage figure against a defined limit and measurement window",
+            "an action actually blocked or held by that limit",
+          ],
+          insufficientAlone: [
+            "a figure from a lagging or non-authoritative counter",
+            "approaching a threshold with nothing yet stopped",
+          ],
+          source: "authoritative",
+        },
+        next: "a.at-the-wall",
+      },
+      {
+        id: "a.at-the-wall",
+        kind: "action",
+        does: "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
+        next: "c.path",
+        execution: "communication",
+      },
+      {
+        id: "c.path",
+        kind: "condition",
+        asks: "What path exists from here?",
+        branches: [
+          {
+            label: "Capacity is purchasable",
+            when: "additional capacity for this limit can be authorised and is a genuine option on this relationship",
+            to: "c.decider",
+          },
+          {
+            label: "Resets on its own",
+            when: "no more capacity is available in this window, but the reset point is authoritatively defined",
+            to: "w.capacity",
+          },
+          {
+            label: "Neither",
+            when: "the limit is fixed, with no purchasable capacity and no defined reset",
+            to: "x.blocked",
+          },
+        ],
+      },
+      {
+        id: "c.decider",
+        kind: "condition",
+        asks: "Does the person who hit the limit hold the capacity decision?",
+        branches: [
+          {
+            label: "Theirs to decide",
+            when: "the same party can authorise more capacity",
+            to: "a.offer-self",
+          },
+          {
+            label: "Held elsewhere",
+            when: "the commercial decision sits with another party on the relationship",
+            to: "a.offer-holder",
+          },
+        ],
+      },
+      {
+        id: "a.offer-self",
+        kind: "action",
+        does: "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
+        next: "w.capacity",
+        execution: "communication",
+      },
+      {
+        id: "a.offer-holder",
+        kind: "action",
+        does: "Tell the party who holds the decision what is blocked and for whom, and tell the blocked party that the decision now sits elsewhere. Either half sent alone leaves somebody waiting on a person who does not know they are being waited on",
+        next: "w.capacity",
+        execution: "communication",
+      },
+      {
+        id: "w.capacity",
+        kind: "wait",
+        until: [
+          "additional capacity is authorised",
+          "the authoritative reset occurs",
+          "the held action is abandoned",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the authoritative reset point for this window",
+          reason: "the reset is the one date in the message the person is relying on, and passing it in silence makes the message retrospectively false",
+        },
+        onTimeout: "c.outcome",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "What changed?",
+        branches: [
+          {
+            label: "Capacity authorised",
+            when: "more capacity was approved and requires a change of plan or terms to take effect",
+            to: "h.capacity",
+          },
+          {
+            label: "Window reset",
+            when: "the authoritative reset occurred and capacity is available again under the same limit",
+            to: "a.reset",
+          },
+          {
+            label: "Still blocked",
+            when: "neither happened and the action is still held",
+            to: "x.blocked",
+          },
+        ],
+      },
+      {
+        id: "h.capacity",
+        kind: "handoff",
+        to: "SUB-166",
+        on: "an authorised capacity increase that has to be executed as a change of plan or terms",
+        carries: [
+          "the limit, the window and the usage that triggered this",
+          "which action is held and who is waiting on it",
+        ],
+      },
+      {
+        id: "a.reset",
+        kind: "action",
+        does: "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
+        next: "x.reset",
+        execution: "communication",
+      },
+      {
+        id: "x.reset",
+        kind: "exit",
+        state: "window reset; capacity available again under the same limit",
+        terminal: false,
+        reEntry: "reaching the limit again in a later window re-enters here",
+      },
+      {
+        id: "x.blocked",
+        kind: "exit",
+        state: "at the limit with no route to more capacity in this window",
+        terminal: false,
+        reEntry: "a reset, or a change to the limit authorised elsewhere, qualifies this again as a new instance",
+      },
+    ],
+    guardrails: [
+      "A limit reached is not abuse, and the message never borrows the vocabulary of one.",
+      "A reset point is never invented. If the authoritative source has no date, no date is stated.",
+      "The free path is named wherever it exists, even in the message that offers the paid one.",
+      "Where the capacity decision belongs to somebody else, both parties are told - the one waiting and the one who can end the wait.",
+    ],
+    reusableRule:
+      "A limit is only fair at the moment it bites if it can name its own way out, priced or timed.",
+  },
 ];

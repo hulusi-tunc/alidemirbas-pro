@@ -1851,4 +1851,394 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Fulfillment cancellation stops the remaining obligation while preserving and reconciling any work or side effects that already occurred.",
   },
+  {
+    id: "FUL-265",
+    slug: "dispatch-to-acceptance",
+    category: "fulfillment",
+    goal: "delivery-confirmation",
+    channels: ["email", "sms"],
+    name: "Dispatch → tracking → delivered → accepted or issue raised",
+    purpose:
+      "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
+    entity: {
+      scope: "the dispatched obligation, its recipient, and the acceptance window running against it",
+      note: "One dispatch, one instance. A re-dispatch after a failure is a new instance and does not inherit the first one's acceptance window.",
+    },
+    distinctFrom: [
+      {
+        journey: "FUL-147",
+        because:
+          "FUL-147 holds the obligation open while an executor performs it and reconciles whatever the executor reports. This is what the recipient is told across that same period, and it sends nothing the executor has not authoritatively reported.",
+      },
+      {
+        journey: "FUL-149",
+        because:
+          "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it.",
+      },
+    ],
+    entry: "t.dispatched",
+    nodes: [
+      {
+        id: "t.dispatched",
+        kind: "trigger",
+        event: "obligation_handed_to_delivery_executor",
+        evidence: {
+          requires: [
+            "an authoritative dispatch record naming the executor and the destination",
+            "a recipient with a permitted route for a service notice",
+          ],
+          insufficientAlone: [
+            "a preparation or packing status",
+            "a label or reference created with nothing handed over behind it",
+          ],
+          source: "authoritative",
+        },
+        next: "a.dispatch",
+      },
+      {
+        id: "a.dispatch",
+        kind: "action",
+        does: "Say it is on its way, with the expected window and whatever reference genuinely follows it. Where no reference exists, say so rather than inventing one - a link that resolves to nothing costs more than an honest absence",
+        next: "w.delivery",
+        execution: "communication",
+      },
+      {
+        id: "w.delivery",
+        kind: "wait",
+        until: [
+          "an authoritative delivery confirmation",
+          "a confirmed delivery failure",
+          "a material change to the expected window reported by the executor",
+        ],
+        onEvent: "c.delivery",
+        timeout: {
+          after: "the expected window plus the executor's own reporting lag",
+          reason: "an executor that has gone quiet is not an outcome, and the recipient is the person who notices first",
+        },
+        onTimeout: "a.no-arrival",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.delivery",
+        kind: "condition",
+        asks: "What did the executor authoritatively report?",
+        branches: [
+          {
+            label: "Delivered",
+            when: "a final delivery confirmation exists, not an intermediate tracking movement",
+            to: "a.arrived",
+          },
+          {
+            label: "Not delivered",
+            when: "a confirmed failure, or a window that has passed with no final outcome",
+            to: "a.no-arrival",
+          },
+        ],
+      },
+      {
+        id: "a.no-arrival",
+        kind: "action",
+        does: "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of. Calling an unknown a failure produces a replacement that then arrives alongside the original",
+        next: "x.unresolved",
+        execution: "communication",
+      },
+      {
+        id: "x.unresolved",
+        kind: "exit",
+        state: "not delivered; failed or unaccounted for, and being reconciled with the executor",
+        terminal: false,
+        reEntry: "a re-dispatch of the same obligation starts a new instance",
+      },
+      {
+        id: "a.arrived",
+        kind: "action",
+        does: "Confirm it arrived and what the evidence for that is. Proof of delivery is a fact about the executor, and stating it is what lets the recipient contradict it while the memory is fresh",
+        next: "c.acceptance",
+        execution: "communication",
+      },
+      {
+        id: "c.acceptance",
+        kind: "condition",
+        asks: "Does acceptance carry any consequence here?",
+        branches: [
+          {
+            label: "Acceptance is meaningful",
+            when: "policy defines an acceptance or issue window with something turning on it",
+            to: "a.accept-request",
+          },
+          {
+            label: "Delivery is the end of it",
+            when: "no acceptance window is defined, so there is nothing to ask for",
+            to: "x.delivered",
+          },
+        ],
+      },
+      {
+        id: "x.delivered",
+        kind: "exit",
+        state: "delivered; no acceptance was required",
+        terminal: true,
+        reEntry: "a later obligation to the same recipient is a new instance",
+      },
+      {
+        id: "a.accept-request",
+        kind: "action",
+        does: "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted. Stating that date is what makes silence mean something they chose rather than something done to them",
+        next: "w.acceptance",
+        execution: "communication",
+      },
+      {
+        id: "w.acceptance",
+        kind: "wait",
+        until: [
+          "the recipient accepts",
+          "the recipient raises an issue",
+        ],
+        onEvent: "c.response",
+        timeout: {
+          after: "the acceptance window policy defines",
+          reason: "an acceptance window with no end leaves the obligation open forever and the recipient unaware it was ever theirs to close",
+        },
+        onTimeout: "a.finalize",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.response",
+        kind: "condition",
+        asks: "What did the recipient say?",
+        branches: [
+          {
+            label: "Accepted",
+            when: "the recipient explicitly confirmed it arrived correctly",
+            to: "x.accepted",
+          },
+          {
+            label: "Issue raised",
+            when: "the recipient says what arrived is wrong, incomplete or damaged",
+            to: "h.issue",
+          },
+        ],
+      },
+      {
+        id: "h.issue",
+        kind: "handoff",
+        to: "FUL-149",
+        on: "a delivered obligation the recipient has raised an issue against inside its acceptance window",
+        carries: [
+          "the delivery evidence and when acceptance was requested",
+          "what the recipient says is wrong and when they said it",
+        ],
+      },
+      {
+        id: "x.accepted",
+        kind: "exit",
+        state: "accepted by the recipient",
+        terminal: true,
+        reEntry: "rights policy independently provides afterwards do not run through here",
+      },
+      {
+        id: "a.finalize",
+        kind: "action",
+        does: "Record acceptance by expiry, kept distinguishable from acceptance by agreement. One is the recipient saying it was right; the other is nobody saying anything, and a report that cannot tell them apart is reporting satisfaction it does not have",
+        next: "x.finalized",
+      },
+      {
+        id: "x.finalized",
+        kind: "exit",
+        state: "finalised on expiry of the acceptance window, with no explicit acceptance",
+        terminal: false,
+        reEntry: "an issue raised later runs on whatever right policy independently provides, not on this window",
+      },
+    ],
+    guardrails: [
+      "Dispatched is not delivered, and delivered is not accepted. Each is told at the point it becomes true and never before.",
+      "An intermediate tracking movement is never reported as an outcome.",
+      "No acceptance window is invented beyond what policy defines; where none exists, nothing is asked for.",
+      "An executor gone quiet is reported as unknown, not as failure.",
+      "Acceptance by agreement and acceptance by expiry stay separable forever.",
+    ],
+    reusableRule:
+      "Delivery is a fact about the executor; acceptance is a fact only the recipient can supply, and the deadline is what makes their silence readable.",
+  },
+  {
+    id: "FUL-276",
+    slug: "substitution-offer",
+    category: "fulfillment",
+    goal: "recovery-retry",
+    channels: ["email", "sms"],
+    name: "Substitution required → offer alternative → accepted, declined or lapsed",
+    purpose:
+      "Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so that nothing different is ever supplied on the assumption they would not have minded.",
+    entity: {
+      scope: "the affected scope of the obligation and the single alternative offered against it",
+      note: "The offer covers the affected scope only. Everything already fulfilled stays fulfilled, and a second exception on the same obligation is its own instance.",
+    },
+    distinctFrom: [
+      {
+        journey: "FUL-145",
+        because:
+          "FUL-145 diagnoses the exception, scopes it and decides that a defined alternative exists. This journey is the offer put to the recipient, and it starts only once that decision has been taken.",
+      },
+    ],
+    entry: "t.substitute",
+    nodes: [
+      {
+        id: "t.substitute",
+        kind: "trigger",
+        event: "substitution_required_with_defined_alternative",
+        evidence: {
+          requires: [
+            "an authoritative exception recorded against a named scope of the obligation",
+            "a specific alternative identified and actually available",
+            "the difference between what was promised and what would be supplied instead",
+          ],
+          insufficientAlone: [
+            "a delay with no alternative identified",
+            "a supply warning that has not yet touched this obligation",
+          ],
+          source: "authoritative",
+        },
+        next: "c.reachable",
+      },
+      {
+        id: "c.reachable",
+        kind: "condition",
+        asks: "Is there a permitted route that reaches them in time to decide?",
+        branches: [
+          {
+            label: "Reachable",
+            when: "at least one contact point is valid, permitted for a service notice of this kind, and arrives inside the decision window",
+            to: "a.offer",
+          },
+          {
+            label: "Unreachable",
+            when: "no permitted route would arrive before the window would have to close",
+            to: "h.unreachable",
+          },
+        ],
+      },
+      {
+        id: "h.unreachable",
+        kind: "handoff",
+        to: "CON-36",
+        on: "a substitution offer that cannot be delivered on any permitted route before its window closes",
+        carries: [
+          "the affected scope, the alternative and the decision window",
+          "which routes were tried and why each was closed",
+        ],
+      },
+      {
+        id: "a.offer",
+        kind: "action",
+        does: "State what cannot be supplied, name the one alternative and the difference in plain terms, and give explicit accept and decline paths with the date the offer ends. A decline route harder to find than the accept route is not a choice",
+        next: "w.decision",
+        execution: "communication",
+      },
+      {
+        id: "w.decision",
+        kind: "wait",
+        until: [
+          "the alternative is accepted",
+          "the alternative is declined",
+        ],
+        onEvent: "c.answer",
+        timeout: {
+          after: "the point in the window at which one reminder can still be acted on",
+          reason: "the alternative is held against this offer and cannot be held for a decision nobody is making",
+        },
+        onTimeout: "a.remind",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.answer",
+        kind: "condition",
+        asks: "What came back?",
+        branches: [
+          {
+            label: "Accepted",
+            when: "the recipient explicitly accepted the alternative",
+            to: "a.confirm-accept",
+          },
+          {
+            label: "Declined",
+            when: "the recipient explicitly declined it",
+            to: "a.confirm-decline",
+          },
+        ],
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Send one reminder naming the same alternative, the same two paths and the exact date the offer closes. There is no second reminder - a choice nobody wanted to make is not made easier by being asked again",
+        next: "w.final",
+        execution: "communication",
+      },
+      {
+        id: "w.final",
+        kind: "wait",
+        until: [
+          "the alternative is accepted",
+          "the alternative is declined",
+        ],
+        onEvent: "c.answer",
+        timeout: {
+          after: "the remainder of the decision window",
+          reason: "the held alternative is released when the window closes, which is the only reason the window exists",
+        },
+        onTimeout: "a.lapse",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.confirm-accept",
+        kind: "action",
+        does: "Confirm what will now be supplied, on what terms, and what is unchanged about the rest of the obligation. Accepting a substitute creates a new promise, and it is stated as one rather than treated as the old one continuing",
+        next: "x.accepted",
+        execution: "communication",
+      },
+      {
+        id: "x.accepted",
+        kind: "exit",
+        state: "alternative accepted and confirmed",
+        terminal: false,
+        reEntry: "a further exception on the same obligation is a new instance with its own offer",
+      },
+      {
+        id: "a.confirm-decline",
+        kind: "action",
+        does: "Confirm the decline, say that the obligation stays open and unfulfilled for the affected scope, and name what happens to it next. A decline is not a cancellation and must never be recorded as one",
+        next: "x.declined",
+        execution: "communication",
+      },
+      {
+        id: "x.declined",
+        kind: "exit",
+        state: "alternative declined, affected scope still owed",
+        terminal: false,
+        reEntry: "a different alternative found later is a new offer",
+      },
+      {
+        id: "a.lapse",
+        kind: "action",
+        does: "Close the offer, release the alternative and say plainly that nothing was substituted and the affected scope is still open. Silence at the end of a window gets read as agreement, which is exactly what a substitution must never rest on",
+        next: "x.lapsed",
+        execution: "communication",
+      },
+      {
+        id: "x.lapsed",
+        kind: "exit",
+        state: "offer lapsed undecided, affected scope still open",
+        terminal: false,
+        reEntry: "a new alternative identified later starts a new offer",
+      },
+    ],
+    guardrails: [
+      "Nothing different is supplied on the strength of silence. Only an explicit acceptance moves the obligation.",
+      "The decline path sits in the same message as the accept path and costs the same effort to take.",
+      "A decline is not a cancellation. The affected scope remains open and owed.",
+      "Scope already fulfilled is untouched. The offer covers only what the exception actually affects.",
+      "One reminder before the window closes, never two.",
+    ],
+    reusableRule:
+      "A substitute is only a substitute if the person it was offered to could have said no.",
+  },
 ];

@@ -1869,4 +1869,177 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Distributed deletion is complete only when all in-scope deletion obligations have reached their required terminal state or an explicit retained exception is recorded.",
   },
+  {
+    id: "TRM-275",
+    slug: "deletion-request-confirmation",
+    category: "terminal",
+    goal: "consent-permission",
+    channels: ["email"],
+    name: "Deletion request → verify requester → confirm scope and retention → closed",
+    purpose:
+      "Give the person who asked for their data to be removed a durable record of what went, what stayed, under which obligation, and the date the request closed - because a deletion nobody can point to is indistinguishable from one that never happened.",
+    entity: {
+      scope: "the data subject and the single deletion request they raised, bounded by the scope that request names",
+      note: "One request, one record. A later request from the same person is a separate instance and inherits neither this one's verification nor its window.",
+    },
+    distinctFrom: [
+      {
+        journey: "TRM-109",
+        because:
+          "TRM-109 decides what the request covers, what an authoritative obligation requires keeping, and executes the removal. This journey is only what the requester is told, and it states nothing TRM-109 has not resolved.",
+      },
+    ],
+    entry: "t.request",
+    nodes: [
+      {
+        id: "t.request",
+        kind: "trigger",
+        event: "data_deletion_requested_by_subject",
+        evidence: {
+          requires: [
+            "a deletion request recorded against a named data subject",
+            "the scope the request itself names",
+            "the response window the governing obligation sets",
+          ],
+          insufficientAlone: [
+            "a closure of the relationship",
+            "a request to stop receiving messages",
+            "a support conversation that mentions deletion",
+          ],
+          source: "declared",
+        },
+        next: "a.acknowledge",
+      },
+      {
+        id: "a.acknowledge",
+        kind: "action",
+        does: "Acknowledge the request, state the date by which the obligation requires an answer, and say that establishing who is asking comes first. An unacknowledged request leaves the person unable to tell a mandated wait from being ignored",
+        next: "c.verified",
+        execution: "communication",
+      },
+      {
+        id: "c.verified",
+        kind: "condition",
+        asks: "Is the requester's control of the named scope already established?",
+        branches: [
+          {
+            label: "Already established",
+            when: "control of the account or authority over the named scope meets the standard the obligation requires",
+            to: "w.decision",
+          },
+          {
+            label: "Not yet established",
+            when: "the request arrived without sufficient proof that the requester controls what they are asking to erase",
+            to: "a.verify",
+          },
+        ],
+      },
+      {
+        id: "a.verify",
+        kind: "action",
+        does: "Ask for exactly the proof of control the obligation requires and nothing beyond it. Collecting extra identifying data in order to honour a deletion request is the contradiction the request exists to end",
+        next: "w.verify",
+        execution: "communication",
+      },
+      {
+        id: "w.verify",
+        kind: "wait",
+        until: [
+          "the requester supplies the proof of control that was asked for",
+        ],
+        onEvent: "w.decision",
+        timeout: {
+          after: "the verification period held inside the mandated response window",
+          reason: "the response window runs whether or not the requester replies, so an unverifiable request has to be closed inside it rather than left open",
+        },
+        onTimeout: "a.unverified",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.unverified",
+        kind: "action",
+        does: "Close the request as unverified, saying plainly that nothing was deleted, why, and that a fresh request can be raised at any time. A silent close reads as a deletion that happened",
+        next: "x.unverified",
+        execution: "communication",
+      },
+      {
+        id: "x.unverified",
+        kind: "exit",
+        state: "closed unverified, nothing deleted",
+        terminal: false,
+        reEntry: "a fresh request from the same person is a new instance with its own window and its own verification",
+      },
+      {
+        id: "w.decision",
+        kind: "wait",
+        until: [
+          "the scope, the retained items and the deletion outcome are all authoritatively resolved",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the mandated response window",
+          reason: "the window belongs to the obligation rather than to how long the work takes, and passing it in silence is itself the failure",
+        },
+        onTimeout: "h.overdue",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "h.overdue",
+        kind: "handoff",
+        to: "external:data-protection-escalation",
+        on: "a deletion request that reaches its mandated response window with no authoritative outcome to state",
+        carries: [
+          "the request, its scope, its window and what the requester has already been told",
+          "which part of the scope remains unresolved and who holds it",
+        ],
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "What does the resolved outcome actually say?",
+        branches: [
+          {
+            label: "Deleted in full",
+            when: "everything in the named scope was deleted and no retention obligation covers any of it",
+            to: "a.closed-full",
+          },
+          {
+            label: "Partly retained",
+            when: "an authoritative retention obligation covers part of the named scope",
+            to: "a.closed-partial",
+          },
+        ],
+      },
+      {
+        id: "a.closed-full",
+        kind: "action",
+        does: "Confirm what was deleted, the scope it covered and the date the request closed. This message is the record the requester keeps, so it states the outcome rather than thanking them for their patience",
+        next: "x.closed",
+        execution: "communication",
+      },
+      {
+        id: "a.closed-partial",
+        kind: "action",
+        does: "State what was deleted, what is retained, which obligation requires it and when that obligation ends. Naming the obligation is what makes retention a rule rather than a preference",
+        next: "x.closed",
+        execution: "communication",
+      },
+      {
+        id: "x.closed",
+        kind: "exit",
+        state: "answered and closed on the record",
+        terminal: true,
+        reEntry: "a later deletion request from the same person is a new instance, verified again from the start",
+      },
+    ],
+    guardrails: [
+      "Nothing is deleted on an unverified request, and nothing is asked for beyond the proof of control the obligation actually requires.",
+      "Ending the relationship is not a deletion request and is never answered as one.",
+      "No retention is described that an authoritative obligation does not require. Where the policy is silent, nothing is claimed.",
+      "The response window belongs to the obligation, not to the work. It is answered inside it or escalated at it.",
+      "The closing message is a record: scope, outcome, obligation, date - readable a year later by somebody who was not there.",
+    ],
+    reusableRule:
+      "A deletion is only honoured if the person who asked can be told exactly what went, what stayed, and under whose rule it stayed.",
+  },
 ];

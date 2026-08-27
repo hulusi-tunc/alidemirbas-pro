@@ -15,11 +15,11 @@ import type { FlowNode } from "@/lib/canonical-view";
    Action level distinguishes customer-facing execution from internal work,
    and for a long time nothing in canonical could express that - `ActionNode`
    carried `{ does; writes?; next }` and no execution field, so every Action
-   on all 255 journeys rendered as INTERNAL by default.
+   on all 255 journeys then in the library rendered as INTERNAL by default.
 
    `ActionNode.execution` now carries it explicitly: `communication` on the
-   58 actions whose effect is a message reaching a recipient, `human` on the
-   34 that put work in front of a person, and omitted on the remaining 1,039
+   150 actions whose effect is a message reaching a recipient, `human` on the
+   34 that put work in front of a person, and omitted on the remaining 1,048
    internal operations - which keeps INTERNAL as the honest default rather
    than the only option. A communication card names the journey's own
    declared channels (CanonicalJourney.channels) rather than inventing one

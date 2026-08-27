@@ -2275,4 +2275,201 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Decision reconsideration should preserve prior decisions as history while creating a new authoritative decision state only when current evidence and authority justify it.",
   },
+  {
+    id: "DEC-267",
+    slug: "adverse-decision-remediation",
+    category: "decision",
+    goal: "decision-approval",
+    channels: ["email", "in-app"],
+    name: "Adverse decision → stated remediation path → corrected or final",
+    purpose:
+      "Tell somebody a decision went against them and which of exactly three things is true - correctable now, reapplicable later, or final - so the outcome arrives as a position they can act on instead of a verdict they have to interpret.",
+    entity: {
+      scope: "the adverse decision and the subject it was issued against",
+      note: "The decision is the subject. A second adverse decision on the same person is its own instance with its own path, however similar the reason looks.",
+    },
+    distinctFrom: [
+      {
+        journey: "DEC-186",
+        because:
+          "DEC-186 records the rejection, its reason category, and the remediation or reapplication semantics policy defines. This says them out loud to the requester and holds the window open while they act.",
+      },
+      {
+        journey: "RSK-194",
+        because:
+          "RSK-194 establishes that a rule was broken against the version that governed it. This starts only once that is confirmed and never re-argues whether it happened.",
+      },
+    ],
+    entry: "t.adverse",
+    nodes: [
+      {
+        id: "t.adverse",
+        kind: "trigger",
+        event: "adverse_decision_recorded",
+        evidence: {
+          requires: [
+            "an authorised rejection, or a violation confirmed against the applicable rule version",
+            "the recorded reason and the scope it affects",
+            "the remediation, reapplication or finality semantics policy defines for that reason",
+          ],
+          insufficientAlone: [
+            "a detection that has not been assessed",
+            "a review still in progress",
+            "a score or a flag with no decision behind it",
+          ],
+          source: "authoritative",
+        },
+        next: "c.path",
+      },
+      {
+        id: "c.path",
+        kind: "condition",
+        asks: "Which path does policy actually define for this reason?",
+        branches: [
+          {
+            label: "Correctable now",
+            when: "the reason is something the subject can put right within a defined window",
+            to: "a.correctable",
+          },
+          {
+            label: "Reapplicable later",
+            when: "nothing can be corrected now, but policy defines conditions for a fresh request",
+            to: "a.reapply",
+          },
+          {
+            label: "Final",
+            when: "policy defines no correction, no reapplication and no appeal",
+            to: "a.final",
+          },
+        ],
+      },
+      {
+        id: "a.correctable",
+        kind: "action",
+        does: "State what was decided, why, exactly what would have to change, and by when - taken from the policy that defines the path rather than from what sounds achievable. A decision delivered without its route back is a reprimand, and it produces a complaint instead of a correction",
+        next: "w.remediate",
+        execution: "communication",
+      },
+      {
+        id: "w.remediate",
+        kind: "wait",
+        until: [
+          "the correction is authoritatively recorded as complete",
+          "the correction authoritatively fails",
+          "the decision is withdrawn or overturned",
+        ],
+        onEvent: "c.corrected",
+        timeout: {
+          after: "the remediation deadline policy defines",
+          reason: "the deadline is the substance of what was offered, and a window that quietly stays open makes every stated deadline unreliable",
+        },
+        onTimeout: "a.expired",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.corrected",
+        kind: "condition",
+        asks: "What ended the window?",
+        branches: [
+          {
+            label: "Corrected",
+            when: "the correction is recorded complete and the decision no longer stands",
+            to: "a.cleared",
+          },
+          {
+            label: "Correction failed",
+            when: "the attempt was made and authoritatively did not resolve it",
+            to: "c.residual",
+          },
+          {
+            label: "Withdrawn",
+            when: "the decision itself was withdrawn or overturned before anything was corrected",
+            to: "x.withdrawn",
+          },
+        ],
+      },
+      {
+        id: "a.cleared",
+        kind: "action",
+        does: "Confirm the decision is resolved and name what it no longer affects. Silence after a correction reads as the decision still standing, and the person goes on behaving as though it does",
+        next: "x.corrected",
+        execution: "communication",
+      },
+      {
+        id: "x.corrected",
+        kind: "exit",
+        state: "adverse decision remediated within its window",
+        terminal: false,
+        reEntry: "a further decision against the same subject is a new instance",
+      },
+      {
+        id: "x.withdrawn",
+        kind: "exit",
+        state: "decision withdrawn before remediation",
+        terminal: false,
+        reEntry: "if the decision is reinstated, it enters again as a new adverse decision",
+      },
+      {
+        id: "a.expired",
+        kind: "action",
+        does: "Say once that the window has closed and what now stands. The end of a stated deadline is the single moment where saying nothing changes somebody's position without telling them",
+        next: "c.residual",
+        execution: "communication",
+      },
+      {
+        id: "c.residual",
+        kind: "condition",
+        asks: "Does any route remain now that the correction has not happened?",
+        branches: [
+          {
+            label: "A later route exists",
+            when: "policy defines conditions under which a fresh request may be made",
+            to: "a.reapply",
+          },
+          {
+            label: "Nothing remains",
+            when: "policy defines no further path from here",
+            to: "a.final",
+          },
+        ],
+      },
+      {
+        id: "a.reapply",
+        kind: "action",
+        does: "Name the conditions policy actually defines for a fresh request - after what period, on what basis, with what evidence - and nothing beyond them. A right that was invented to soften the message becomes one somebody plans around and is refused again for",
+        next: "x.reapply",
+        execution: "communication",
+      },
+      {
+        id: "x.reapply",
+        kind: "exit",
+        state: "decided against, with a stated route to a fresh request",
+        terminal: false,
+        reEntry: "a request made under those conditions is a new decision, not a continuation of this one",
+      },
+      {
+        id: "a.final",
+        kind: "action",
+        does: "Say the decision is final and that no route back exists, with no call to action attached to soften it. A false path offered out of kindness costs more than the refusal did, because it is discovered later and by somebody who has already acted on it",
+        next: "x.final",
+        execution: "communication",
+      },
+      {
+        id: "x.final",
+        kind: "exit",
+        state: "final; no path onward is defined",
+        terminal: true,
+        reEntry: "a change in the governing policy or in the underlying facts is a new decision case, not a reopening of this one",
+      },
+    ],
+    guardrails: [
+      "Nothing is said before the decision is authoritatively recorded. A warning about an outcome nobody has reached is how a support queue fills with cases that do not exist.",
+      "Correction, reapplication and appeal rights are stated only where policy defines them. None is ever invented to make the message land more softly.",
+      "The decision itself is never re-argued here. Whether it was correct belongs upstream.",
+      "Where the path is final, no call to action is attached.",
+      "A resolved decision is confirmed explicitly - silence is read as it still standing.",
+    ],
+    reusableRule:
+      "An adverse decision that does not name its own route back, or the honest absence of one, is a verdict rather than an outcome.",
+  },
 ];

@@ -1333,4 +1333,506 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Distributed permission conflicts should fail safe until an authoritative state is established and verified across dependent systems.",
   },
+  {
+    id: "CON-264",
+    slug: "contact-point-confirmation",
+    category: "consent",
+    goal: "consent-permission",
+    channels: ["email", "sms"],
+    name: "Contact point added or changed → confirm → permitted or lapsed",
+    purpose:
+      "Establish that the person who owns a new destination actually asked for it, before anything is ever sent there - and tell the destination it replaces, because a change nobody made is only visible from the address it is being taken away from.",
+    entity: {
+      scope: "the specific contact point being added or changed, plus the identity it is claimed for",
+      note: "One destination, one confirmation. A second contact point on the same identity is its own instance and confirms on its own terms.",
+    },
+    distinctFrom: [
+      {
+        journey: "CON-31",
+        because:
+          "CON-31 records what was authorised, for which purpose and scope. This runs earlier and answers a different question - whether the destination belongs to the person the permission would be recorded against.",
+      },
+      {
+        journey: "IDN-89",
+        because:
+          "IDN-89 changes the attribute and reconciles what depended on it. This is the exchange with the two destinations that decides whether the new one is usable at all.",
+      },
+    ],
+    entry: "t.contact-point",
+    nodes: [
+      {
+        id: "t.contact-point",
+        kind: "trigger",
+        event: "contact_point_added_or_changed",
+        evidence: {
+          requires: [
+            "a new or changed contact point recorded against a known identity",
+            "a destination in a form that can actually be sent to",
+          ],
+          insufficientAlone: [
+            "a destination typed into a form and not yet submitted",
+            "a live session on the account, which proves control of the account rather than of the destination",
+          ],
+          source: "authoritative",
+        },
+        next: "c.replacement",
+      },
+      {
+        id: "c.replacement",
+        kind: "condition",
+        asks: "Is this replacing a destination that already exists?",
+        branches: [
+          {
+            label: "Replaces an existing one",
+            when: "a contact point of this kind is already recorded and reachable for this identity",
+            to: "a.alert-old",
+          },
+          {
+            label: "First of its kind",
+            when: "no prior contact point of this kind exists, so there is nowhere else to warn",
+            to: "a.confirm-new",
+          },
+        ],
+      },
+      {
+        id: "a.alert-old",
+        kind: "action",
+        does: "Tell the destination being replaced that it is being replaced, what it is being replaced with, and how to stop it - sent to the old destination itself. A takeover is invisible from the address taking over and obvious from the one losing access",
+        next: "a.confirm-new",
+        execution: "communication",
+      },
+      {
+        id: "a.confirm-new",
+        kind: "action",
+        does: "Ask the new destination itself to confirm, and send that request nowhere else. A confirmation answered from inside the account proves control of the account, which was never the thing in doubt",
+        next: "w.confirm",
+        execution: "communication",
+      },
+      {
+        id: "w.confirm",
+        kind: "wait",
+        until: [
+          "the new destination confirms",
+          "the change is disputed from the destination it replaces",
+          "the contact point is withdrawn or changed again",
+        ],
+        onEvent: "c.resolution",
+        timeout: {
+          after: "the confirmation window defined for this kind of destination",
+          reason: "an unconfirmed destination that stays pending indefinitely gets read as usable by whatever looks at it next",
+        },
+        onTimeout: "a.remind",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.resolution",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Confirmed",
+            when: "the owner of the new destination confirmed from that destination",
+            to: "a.activate",
+          },
+          {
+            label: "Disputed",
+            when: "the destination being replaced says the change was not theirs",
+            to: "h.disputed",
+          },
+          {
+            label: "Superseded",
+            when: "the contact point was withdrawn or changed again before any confirmation",
+            to: "x.superseded",
+          },
+        ],
+      },
+      {
+        id: "h.disputed",
+        kind: "handoff",
+        to: "IDN-89",
+        on: "a contact point change the previous destination says it did not make",
+        carries: [
+          "the old and the new destination and when the change was recorded",
+          "the dispute and the route it arrived on",
+        ],
+      },
+      {
+        id: "a.activate",
+        kind: "action",
+        does: "Record the confirmation against this destination and this destination only. Permission held by the address it replaced is not lent forward - consent does not travel with a change of address, and treating it as though it does is how a confirmed opt-in becomes an unconfirmed one",
+        next: "x.permitted",
+      },
+      {
+        id: "x.permitted",
+        kind: "exit",
+        state: "confirmed and permitted for this destination",
+        terminal: false,
+        reEntry: "a later change to the same contact point is a new instance with its own confirmation",
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Ask once more, at the same destination, naming the point after which nothing will be sent there at all. One repeat and no more - a destination that does not answer twice is more likely wrong than busy",
+        next: "w.last",
+        execution: "communication",
+      },
+      {
+        id: "w.last",
+        kind: "wait",
+        until: [
+          "the new destination confirms",
+        ],
+        onEvent: "a.activate",
+        timeout: {
+          after: "the remainder of the confirmation window",
+          reason: "the window is what keeps an unanswered destination out of every send, rather than merely late",
+        },
+        onTimeout: "x.lapsed",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "x.lapsed",
+        kind: "exit",
+        state: "unconfirmed; the destination stays unusable",
+        terminal: false,
+        reEntry: "the same destination submitted again starts a fresh confirmation, not a continuation of this one",
+      },
+      {
+        id: "x.superseded",
+        kind: "exit",
+        state: "superseded before confirmation",
+        terminal: false,
+        reEntry: "the destination that replaced it runs its own confirmation",
+      },
+    ],
+    guardrails: [
+      "Nothing is sent to an unconfirmed destination except the request to confirm it.",
+      "The confirmation goes to the destination in question; the change alert goes to the one it replaces. Neither substitutes for the other.",
+      "Permission never transfers from a replaced destination to its replacement.",
+      "Unconfirmed and refused are recorded as different facts - one is silence, the other is a decision.",
+    ],
+    reusableRule:
+      "A destination is not yours to send to until the person on the other end of it has said so from that end.",
+  },
+  {
+    id: "CON-272",
+    slug: "contactability-repair",
+    category: "consent",
+    goal: "delivery-confirmation",
+    channels: ["in-app", "sms"],
+    name: "Contact point unreachable → alternate route → corrected or suppressed",
+    purpose:
+      "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
+    entity: {
+      scope: "the person plus the one contact point that failed - this address, this number, this token",
+      note: "The failure belongs to the destination, not to the person and not to the channel class. A second destination failing is its own instance and gets its own repair cycle.",
+    },
+    distinctFrom: [
+      {
+        journey: "CON-36",
+        because:
+          "CON-36 holds reachability per destination and decides what is suppressed. This journey is the single request to the person that could change that, and it only ever runs on a route CON-36 has already found healthy and permitted.",
+      },
+      {
+        journey: "CON-38",
+        because:
+          "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed.",
+      },
+    ],
+    entry: "t.dead",
+    nodes: [
+      {
+        id: "t.dead",
+        kind: "trigger",
+        event: "contact_point_recorded_undeliverable",
+        evidence: {
+          requires: [
+            "a permanent delivery failure or invalid-destination result recorded against one specific contact point",
+            "a failure class that marks the destination unusable rather than temporarily unavailable",
+          ],
+          insufficientAlone: [
+            "a single soft failure or a full mailbox",
+            "a message that went unopened",
+            "an opt-out, which is a permission fact and says nothing about the route",
+          ],
+          source: "authoritative",
+        },
+        next: "c.route",
+      },
+      {
+        id: "c.route",
+        kind: "condition",
+        asks: "What can carry the repair request without using the broken destination?",
+        branches: [
+          {
+            label: "Reachable in product",
+            when: "the person signs in, so the request can wait on the surface they already use",
+            to: "a.prompt-in-app",
+          },
+          {
+            label: "Reachable off product",
+            when: "no session is expected soon, and a separate destination is both deliverable and permitted for a service notice of this kind",
+            to: "a.prompt-alt",
+          },
+          {
+            label: "Nothing left",
+            when: "no other destination is both working and permitted",
+            to: "x.dark",
+          },
+        ],
+      },
+      {
+        id: "a.prompt-in-app",
+        kind: "action",
+        does: "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it. Seeing the request somewhere other than the failed route is what makes it credible rather than suspicious",
+        next: "w.corrected",
+        execution: "communication",
+      },
+      {
+        id: "a.prompt-alt",
+        kind: "action",
+        does: "Ask for a corrected destination on the surviving permitted route, naming the one that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+        next: "w.corrected",
+        execution: "communication",
+      },
+      {
+        id: "x.dark",
+        kind: "exit",
+        state: "no working permitted route; the destination stays suppressed",
+        terminal: false,
+        reEntry: "if any route becomes deliverable and permitted, the repair request runs from there",
+      },
+      {
+        id: "w.corrected",
+        kind: "wait",
+        until: [
+          "a replacement destination is supplied and verified",
+          "the original destination becomes deliverable again",
+          "the person removes the destination",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the single repair cycle allowed for this destination",
+          reason: "repair attempts are bounded - a destination not corrected inside its cycle stays suppressed rather than being retried blind against a route already known to be dead",
+        },
+        onTimeout: "x.suppressed",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Replaced",
+            when: "a new destination was supplied and has verified as reachable",
+            to: "a.confirm",
+          },
+          {
+            label: "Recovered",
+            when: "the original destination is deliverable again on its own evidence",
+            to: "x.recovered",
+          },
+        ],
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
+        next: "x.repaired",
+        execution: "communication",
+      },
+      {
+        id: "x.repaired",
+        kind: "exit",
+        state: "destination replaced and in use; permission unchanged",
+        terminal: false,
+        reEntry: "a later failure on any destination is its own instance",
+      },
+      {
+        id: "x.recovered",
+        kind: "exit",
+        state: "original destination reachable again; nothing replayed",
+        terminal: false,
+        reEntry: "a further failure on the same destination re-enters here with a new repair cycle",
+      },
+      {
+        id: "x.suppressed",
+        kind: "exit",
+        state: "destination stays suppressed after one repair cycle",
+        terminal: false,
+        reEntry: "a corrected destination supplied later re-enters at confirmation, once it has verified",
+      },
+    ],
+    guardrails: [
+      "Undeliverable is not opted out, and nothing here changes what may be sent.",
+      "The repair request never goes to the destination being repaired.",
+      "An available alternative route is not permission to use it. Availability is the easiest thing to check and the least meaningful.",
+      "One repair cycle per destination. A dead route asked twice is still dead and the second ask is paid for in delivery reputation.",
+      "A corrected value is verified before the destination is treated as usable, and nothing held is replayed on it.",
+    ],
+    reusableRule:
+      "You cannot ask somebody to fix a broken route by sending the request down it.",
+  },
+  {
+    id: "CON-283",
+    slug: "frequency-reduction-confirmation",
+    category: "consent",
+    goal: "consent-permission",
+    channels: ["email"],
+    name: "Frequency reduced → cadence recalculated → kept rather than lost",
+    purpose:
+      "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
+    entity: {
+      scope: "the person and the optional communication classes the reduced frequency actually governs",
+      note: "The governed set is the whole question. A frequency preference that quietly reaches required communication is an opt-out nobody chose.",
+    },
+    distinctFrom: [
+      {
+        journey: "CON-34",
+        because:
+          "CON-34 works out which classes the preference governs and recalculates the cadence. This journey is the single confirmation the person receives, and it states nothing the recalculation has not already applied.",
+      },
+      {
+        journey: "CON-38",
+        because:
+          "CON-38 records a stop and decides when it releases. A reduction is not a stop, and recording the two as the same state loses exactly the relationship the person was trying to keep.",
+      },
+    ],
+    entry: "t.reduced",
+    nodes: [
+      {
+        id: "t.reduced",
+        kind: "trigger",
+        event: "frequency_preference_reduced",
+        evidence: {
+          requires: [
+            "an authoritative frequency preference recorded against the person",
+            "the new cadence expressed as something that can actually be applied",
+            "the classes it governs",
+          ],
+          insufficientAlone: [
+            "a complaint about volume with no preference recorded",
+            "a period of no engagement",
+          ],
+          source: "declared",
+        },
+        next: "c.less-or-none",
+      },
+      {
+        id: "c.less-or-none",
+        kind: "condition",
+        asks: "Did they ask for less, or for none?",
+        branches: [
+          {
+            label: "Fewer",
+            when: "the preference sets a reduced cadence for optional communication rather than ending it",
+            to: "a.recalculate",
+          },
+          {
+            label: "None at all",
+            when: "the preference is a full withdrawal from optional communication",
+            to: "x.opted-out",
+          },
+        ],
+      },
+      {
+        id: "x.opted-out",
+        kind: "exit",
+        state: "full opt-out; this journey sends nothing",
+        terminal: false,
+        reEntry: "if a reduced cadence is later chosen instead of none, that qualifies here again",
+      },
+      {
+        id: "a.recalculate",
+        kind: "action",
+        does: "Recalculate the forward cadence for the optional classes only, leaving required and transactional communication under its own rules. Somebody asking to hear from us less often has not asked to stop being told about their own obligations",
+        next: "c.queued",
+      },
+      {
+        id: "c.queued",
+        kind: "condition",
+        asks: "Does what is already scheduled exceed the new cadence?",
+        branches: [
+          {
+            label: "Exceeds it",
+            when: "optional communication is already queued at a rate the new cadence does not allow",
+            to: "a.trim",
+          },
+          {
+            label: "Within it",
+            when: "what is scheduled already fits the new cadence",
+            to: "a.confirm",
+          },
+        ],
+      },
+      {
+        id: "a.trim",
+        kind: "action",
+        does: "Suppress or reschedule the optional communication that now exceeds the cadence, choosing between the two by whether the message still means anything later. The first thing somebody receives after asking for less must not be the backlog",
+        next: "a.confirm",
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm once what changed: how often optional communication will now arrive, what is unaffected because it was never optional, and the route to stopping it altogether. Naming what is unaffected is what stops the person concluding that nothing was applied when a required notice arrives next week",
+        next: "w.cycle",
+        execution: "communication",
+      },
+      {
+        id: "w.cycle",
+        kind: "wait",
+        until: [
+          "a further frequency change is recorded",
+          "a full withdrawal from optional communication is recorded",
+        ],
+        onEvent: "c.settled",
+        timeout: {
+          after: "one full cycle at the new cadence",
+          reason: "a preference that has survived a cycle is the settled state, and holding the journey open past that invents an interest in the preference that nobody has",
+        },
+        onTimeout: "x.holding",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.settled",
+        kind: "condition",
+        asks: "What changed during the first cycle?",
+        branches: [
+          {
+            label: "Reduced again",
+            when: "a further reduction was recorded before the cycle completed",
+            to: "x.reduced-again",
+          },
+          {
+            label: "Stopped altogether",
+            when: "a full withdrawal was recorded before the cycle completed",
+            to: "x.opted-out",
+          },
+        ],
+      },
+      {
+        id: "x.reduced-again",
+        kind: "exit",
+        state: "reduced a second time before the first cadence settled",
+        terminal: false,
+        reEntry: "each recorded reduction is its own instance and gets its own single confirmation",
+      },
+      {
+        id: "x.holding",
+        kind: "exit",
+        state: "reduced cadence in effect and holding",
+        terminal: false,
+        reEntry: "a later change to the same preference starts a new instance",
+      },
+    ],
+    guardrails: [
+      "Fewer is not none. A reduction that is enforced as a stop loses the relationship the person was trying to keep.",
+      "Required and transactional communication stays governed by its own rules, whatever the preference says.",
+      "One confirmation, and it is the last message at the old cadence rather than the first at the new one.",
+      "A cadence change is prospective. What was already delivered is not revisited.",
+    ],
+    reusableRule:
+      "Somebody asking for less is staying, and the only way to lose them is to hear it as leaving.",
+  },
 ];

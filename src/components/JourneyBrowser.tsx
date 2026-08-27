@@ -19,7 +19,7 @@ import type { copy, Lang } from "@/lib/content";
    filter - it stays canonical metadata, shown on the card and searchable,
    never a second facet to intersect with Goal. This replaces the earlier
    three-checkbox-facet design (Goal multi-select, Lifecycle Stage, Trigger
-   Evidence): Lifecycle Stage never fit this corpus (255 independent entity
+   Evidence): Lifecycle Stage never fit this corpus (281 independent entity
    state machines, not one customer's timeline, so 85% of it was
    "cross-lifecycle" and answered nothing) and is gone entirely; Trigger
    Evidence stays real canonical metadata but is no longer a visible filter.
@@ -122,7 +122,7 @@ export default function JourneyBrowser({
 
   /* The searchable text per row, lowercased once for the whole list rather
      than rebuilt on every keystroke - concatenating and case-folding five
-     fields across 255 rows per character typed is real work, and none of it
+     fields across 281 rows per character typed is real work, and none of it
      depends on the query. Category and Category Title stay in here: Category
      is no longer a filter, but it is still something people search by. */
   const haystack = useMemo(

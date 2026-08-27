@@ -1625,4 +1625,354 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Deprovisioning removes no-longer-authorized capability only after active dependencies and retention obligations have been reconciled.",
   },
+  {
+    id: "ACC-261",
+    slug: "access-restriction-route-back",
+    category: "access",
+    goal: "suspension-restoration",
+    channels: ["email", "in-app"],
+    name: "Access restricted or ending → stated route back → restored or ends",
+    purpose:
+      "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
+    entity: {
+      scope: "person or account plus the specific restriction or end date placed on it",
+      note: "The restriction is the subject. A second, unrelated restriction on the same account is its own instance and gets its own notice.",
+    },
+    distinctFrom: [
+      {
+        journey: "ACC-78",
+        because:
+          "ACC-78 decides and records the restriction and its release condition. This journey is what the account holder is told about it, and it sends nothing until that decision exists.",
+      },
+      {
+        journey: "ACC-74",
+        because:
+          "ACC-74 ends future use of a lost entitlement. Here the point is the window before that takes effect, which is the only period in which the person can still act.",
+      },
+    ],
+    entry: "t.restricted",
+    nodes: [
+      {
+        id: "t.restricted",
+        kind: "trigger",
+        event: "access_restriction_or_end_recorded",
+        evidence: {
+          requires: [
+            "an authoritative restriction, suspension or end date recorded against the account",
+            "a stated condition or deadline that would resolve it",
+          ],
+          insufficientAlone: [
+            "a risk signal that has not yet produced a restriction",
+            "an internal review that has not concluded",
+          ],
+          source: "authoritative",
+        },
+        next: "c.actionable",
+      },
+      {
+        id: "c.actionable",
+        kind: "condition",
+        asks: "Can the holder do anything about this?",
+        branches: [
+          {
+            label: "Resolvable by them",
+            when: "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification",
+            to: "c.reachable",
+          },
+          {
+            label: "Not theirs to resolve",
+            when: "the condition depends on an internal review, a third party, or a fixed period elapsing",
+            to: "a.inform-only",
+          },
+        ],
+      },
+      {
+        id: "a.inform-only",
+        kind: "action",
+        does: "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
+        next: "x.informed",
+        execution: "communication",
+      },
+      {
+        id: "x.informed",
+        kind: "exit",
+        state: "informed, resolution not theirs",
+        terminal: false,
+        reEntry: "if the condition later becomes something they can satisfy, this qualifies again with the actionable path",
+      },
+      {
+        id: "c.reachable",
+        kind: "condition",
+        asks: "Is there a permitted route to them?",
+        branches: [
+          {
+            label: "Reachable",
+            when: "at least one contact point is valid and permitted for a service notice of this kind",
+            to: "a.notify",
+          },
+          {
+            label: "Unreachable",
+            when: "no permitted route survives the purpose and permission checks",
+            to: "h.unreachable",
+          },
+        ],
+      },
+      {
+        id: "h.unreachable",
+        kind: "handoff",
+        to: "CON-36",
+        on: "a restriction notice that cannot be delivered on any permitted route",
+        carries: [
+          "the restriction, its deadline and its release condition",
+          "which routes were tried and why each was closed",
+        ],
+      },
+      {
+        id: "a.notify",
+        kind: "action",
+        does: "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
+        next: "w.resolve",
+        execution: "communication",
+      },
+      {
+        id: "w.resolve",
+        kind: "wait",
+        until: [
+          "the release condition is satisfied",
+          "the restriction is lifted by whoever placed it",
+          "the restriction becomes permanent",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the stated deadline or review point",
+          reason: "the deadline is the whole content of the notice - passing it silently would make the notice false",
+        },
+        onTimeout: "c.outcome",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "Where did it land?",
+        branches: [
+          {
+            label: "Restored",
+            when: "the condition was met and access is back",
+            to: "a.confirm",
+          },
+          {
+            label: "Still restricted",
+            when: "the deadline passed with the condition unmet",
+            to: "x.stands",
+          },
+        ],
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
+        next: "x.restored",
+        execution: "communication",
+      },
+      {
+        id: "x.restored",
+        kind: "exit",
+        state: "restored and confirmed",
+        terminal: false,
+        reEntry: "a later restriction on the same account is a new instance",
+      },
+      {
+        id: "x.stands",
+        kind: "exit",
+        state: "restriction stands past its deadline",
+        terminal: false,
+        reEntry: "if the condition is satisfied afterwards, the restoration path runs from the lifting event",
+      },
+    ],
+    guardrails: [
+      "A restriction is never announced before it is authoritatively recorded. Warning about a decision nobody has taken is how a support queue fills up.",
+      "The notice names what still works, not only what stopped.",
+      "Where the holder cannot resolve the condition, no call to action is attached.",
+      "Restoration is confirmed explicitly. Silence after a resolved restriction reads as the restriction continuing.",
+    ],
+    reusableRule:
+      "A restriction told to somebody names its own release condition, or it is a punishment rather than a decision.",
+  },
+  {
+    id: "ACC-263",
+    slug: "entitlement-activation-window",
+    category: "access",
+    goal: "progression-milestone",
+    channels: ["email", "in-app"],
+    name: "Entitlement or credential issued → activation window → activated or lapsed unclaimed",
+    purpose:
+      "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
+    entity: {
+      scope: "the issued entitlement or credential and its activation window",
+      note: "One issuance, one window. A reissued credential is a new instance and does not inherit the old window.",
+    },
+    distinctFrom: [
+      {
+        journey: "ACC-72",
+        because:
+          "ACC-72 provisions the capability and confirms it is technically reachable. This starts once that is true and is about whether the holder ever uses it.",
+      },
+      {
+        journey: "ACC-76",
+        because:
+          "ACC-76 tracks the credential's own issue/expire/revoke lifecycle. Here the only question is first use inside the window.",
+      },
+    ],
+    entry: "t.issued",
+    nodes: [
+      {
+        id: "t.issued",
+        kind: "trigger",
+        event: "entitlement_provisioned_and_reachable",
+        evidence: {
+          requires: [
+            "an entitlement or credential authoritatively granted to a named holder",
+            "confirmation that it is provisioned and reachable by that holder",
+            "an activation window or expiry",
+          ],
+          insufficientAlone: [
+            "an eligibility decision with no provisioning behind it",
+            "a grant whose resource is not yet reachable",
+          ],
+          source: "authoritative",
+        },
+        next: "c.first-time",
+      },
+      {
+        id: "c.first-time",
+        kind: "condition",
+        asks: "Is this the holder's first entitlement of this kind?",
+        branches: [
+          {
+            label: "First time",
+            when: "the holder has never used this capability before and needs to be told what it is for",
+            to: "a.ready",
+          },
+          {
+            label: "Already familiar",
+            when: "the holder has used this capability before - a renewal, a replacement or an additional seat",
+            to: "a.brief",
+          },
+        ],
+      },
+      {
+        id: "a.ready",
+        kind: "action",
+        does: "Say what is now available, what it lets them do, and the single first action that uses it. Naming one action rather than listing the capability is the difference between an announcement and an activation",
+        next: "w.first-use",
+        execution: "communication",
+      },
+      {
+        id: "a.brief",
+        kind: "action",
+        does: "Confirm the new grant briefly and name only what changed from what they already had. Re-explaining a capability somebody already uses reads as a system that does not know them",
+        next: "w.first-use",
+        execution: "communication",
+      },
+      {
+        id: "w.first-use",
+        kind: "wait",
+        until: [
+          "the capability is used for the first time",
+          "the entitlement is revoked or replaced",
+        ],
+        onEvent: "c.used",
+        timeout: {
+          after: "the activation window",
+          reason: "an unclaimed entitlement past its window is a different fact from an unused one inside it, and the two must not be counted together",
+        },
+        onTimeout: "c.remind",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.used",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Used",
+            when: "an authoritative first-use event was recorded",
+            to: "x.activated",
+          },
+          {
+            label: "Withdrawn",
+            when: "the entitlement was revoked or replaced before any use",
+            to: "x.moot",
+          },
+        ],
+      },
+      {
+        id: "x.activated",
+        kind: "exit",
+        state: "activated",
+        terminal: false,
+        reEntry: "a further entitlement to the same holder is a new instance",
+      },
+      {
+        id: "x.moot",
+        kind: "exit",
+        state: "entitlement withdrawn before use",
+        terminal: false,
+        reEntry: "a reissued entitlement starts a fresh window",
+      },
+      {
+        id: "c.remind",
+        kind: "condition",
+        asks: "Is there still time to claim it?",
+        branches: [
+          {
+            label: "Time remains",
+            when: "the window has a meaningful period left and no reminder has been sent for this issuance",
+            to: "a.remind",
+          },
+          {
+            label: "Window closed",
+            when: "the activation window has ended",
+            to: "x.lapsed",
+          },
+        ],
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Send one reminder naming the deadline and the same single first action. There is no second reminder - a capability nobody wanted is not made wanted by asking twice",
+        next: "w.last-chance",
+        execution: "communication",
+      },
+      {
+        id: "w.last-chance",
+        kind: "wait",
+        until: [
+          "the capability is used for the first time",
+        ],
+        onEvent: "x.activated",
+        timeout: {
+          after: "the remainder of the activation window",
+          reason: "the window is what makes this an entitlement rather than a standing offer",
+        },
+        onTimeout: "x.lapsed",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "x.lapsed",
+        kind: "exit",
+        state: "lapsed unclaimed",
+        terminal: false,
+        reEntry: "a new grant of the same capability starts a new window",
+      },
+    ],
+    guardrails: [
+      "One reminder, never two. The window is the pressure; repetition is not.",
+      "A holder who has used this capability before is not re-onboarded onto it.",
+      "Lapsed-unclaimed and revoked-before-use are recorded as different outcomes - one is about the holder, the other is not.",
+      "The message names one action, not the full capability surface.",
+    ],
+    reusableRule:
+      "A granted capability nobody has used is not yet a benefit, and the activation window is the only period in which saying so still helps.",
+  },
 ];
