@@ -40,11 +40,11 @@ for (const rep of REPS) {
       await page.waitForTimeout(300);
 
       const layout = await page.evaluate(() => {
-        const header = document.querySelector("main p.tabular-nums");
+        const header = document.querySelector("[data-journey-spec]");
         const h1 = document.querySelector("main h1");
         const purpose = h1?.nextElementSibling;
         const canvas = document.querySelector(".altor-dot-grid");
-        const controls = document.querySelector('.absolute.bottom-3.right-3');
+        const controls = document.querySelector("figcaption");
         const guardrails = Array.from(document.querySelectorAll("main p")).some((p) => p.textContent && p.textContent.length > 0 && p.closest("section"));
         const footer = document.querySelector("footer");
         return {

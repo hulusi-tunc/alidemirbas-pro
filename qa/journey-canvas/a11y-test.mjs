@@ -51,10 +51,10 @@ results.focusReturnsToTriggerOnClose = focusReturnedToTrigger;
 
 // 6. Zoom/fit/reset controls keyboard-focusable with accessible names
 const controlNames = await page.evaluate(() =>
-  Array.from(document.querySelectorAll('.absolute.bottom-3.right-3 button')).map((b) => b.getAttribute("aria-label")),
+  Array.from(document.querySelectorAll("figcaption button")).map((b) => b.getAttribute("aria-label")),
 );
 results.controlAccessibleNames = controlNames;
-results.allControlsHaveNames = controlNames.every((n) => !!n && n.length > 0);
+results.allControlsHaveNames = controlNames.length > 0 && controlNames.every((n) => !!n && n.length > 0);
 
 // 7. Visible focus state on a node card (focus-visible outline present in CSS)
 await page.locator(`[data-canvas-node-id="${firstNodeId}"] button`).first().focus();

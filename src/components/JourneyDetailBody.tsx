@@ -8,7 +8,15 @@ import type { copy, Lang } from "@/lib/content";
 /* The body of one journey, shared by the full page and the modal that
    intercepts it. A server component: it takes one journey's detail and hands
    the graph to a client island, so the browser receives this journey and no
-   other. */
+   other.
+
+   Composition, top to bottom: the canvas as a captioned figure, the reusable
+   rule as the figure's stated takeaway, then the supporting notes in columns.
+   The rule sits directly under the graph rather than last because it is what
+   the graph is FOR - the one sentence a reader should leave with - and at the
+   bottom of a long single column it read as a footnote. The notes below it
+   are reference material and are laid out as such: hairline-separated
+   columns, not cards. */
 
 /* Journey Canvas is now the single journey-detail renderer for all 255
    canonical journeys - CanonicalFlow's old vertical-list rendering is gone
@@ -121,6 +129,24 @@ export default function JourneyDetailBody({
   const messageLabels = messageChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
   const humanLabels = humanChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
 
+  /* The caption: the journey's shape stated in counts. Only the parts that
+     exist are named - a journey with no handoff says nothing about handoffs
+     rather than "0 handoffs", which would be four words spent on an absence.
+     Composed here rather than in the canvas for the same reason as the
+     channel labels above: it is static copy, and the client island should
+     not be carrying two locales' count words. */
+  const count = (kind: JourneyDetail["nodes"][number]["kind"]) =>
+    detail.nodes.filter((n) => n.kind === kind).length;
+  const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
+  const caption = [
+    `${detail.nodes.length} ${t.nodesLabel}`,
+    count("condition") ? plural(count("condition"), t.decisionsLabel) : null,
+    count("exit") ? plural(count("exit"), t.exitsLabel) : null,
+    count("handoff") ? plural(count("handoff"), t.handoffsLabel) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <div>
       {/* A retired id resolves here rather than 404ing, and says so before
@@ -132,100 +158,126 @@ export default function JourneyDetailBody({
         </p>
       ) : null}
 
-      <section className="mb-8">
-        <JourneyCanvas
-          nodes={detail.nodes}
-          basePath={basePath}
-          labels={{
-            entry: t.canvas.entry,
-            zoomIn: t.canvas.zoomIn,
-            zoomOut: t.canvas.zoomOut,
-            fitToView: t.canvas.fitToView,
-            reset: t.canvas.reset,
-            close: t.close,
-            terminal: t.terminalLabel,
-          }}
-          messageLabels={messageLabels}
-          humanLabels={humanLabels}
-        />
+      <JourneyCanvas
+        nodes={detail.nodes}
+        basePath={basePath}
+        labels={{
+          entry: t.canvas.entry,
+          zoomIn: t.canvas.zoomIn,
+          zoomOut: t.canvas.zoomOut,
+          fitToView: t.canvas.fitToView,
+          reset: t.canvas.reset,
+          close: t.close,
+          terminal: t.terminalLabel,
+        }}
+        caption={caption}
+        messageLabels={messageLabels}
+        humanLabels={humanLabels}
+      />
+
+      {/* The takeaway, stated at the size of a takeaway. Ruled top and bottom
+          so it reads as a pulled statement rather than another paragraph -
+          the heavier top rule ties it to the figure it belongs to, the
+          lighter bottom rule hands off to the notes. */}
+      <section className="mt-10 border-t border-ink-900 border-b border-b-line pt-6 pb-7">
+        <p className="font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">{t.ruleLabel}</p>
+        <p className="mt-3 max-w-4xl text-[clamp(1.125rem,0.95rem+0.85vw,1.6rem)] leading-[1.32] font-medium tracking-[-0.01em] text-balance text-ink-950">
+          {detail.reusableRule}
+        </p>
       </section>
 
-      {/* The shell around the canvas goes wide (§2: the canvas needs
-          70-80% of the viewport); everything below is prose, so it
-          re-narrows to the same reading width every other page on the
-          site already uses, rather than stretching guardrail sentences
-          across 1400px. */}
-      <div className="mx-auto max-w-3xl">
-        <section className="mb-6">
-          <p className="altor-eyebrow text-ink-400">{t.entityLabel}</p>
-          <p className="mt-1 text-sm text-ink-700">{detail.entityScope}</p>
-          <p className="mt-1 text-[13px] leading-snug text-ink-500">{detail.entityNote}</p>
-        </section>
+      {/* The notes, as columns rather than one narrow stack. Each cell is
+          separated by a hairline on its leading edge and nothing else: no
+          card, no fill, no radius - the rules do the dividing and the type
+          does the ranking. Competes and Pre-empted by are rare (a handful of
+          journeys carry either) and flow into the same grid where they exist,
+          so they are separated the same way instead of getting a treatment of
+          their own. */}
+      <div className="mt-8 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-10">
+        <NoteColumn label={t.entityLabel}>
+          <p className="font-mono text-[13px] leading-snug text-ink-900">{detail.entityScope}</p>
+          <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-600">{detail.entityNote}</p>
+        </NoteColumn>
+
+        {detail.distinctFrom.length ? (
+          <NoteColumn label={t.distinctLabel}>
+            <ul className="space-y-3.5">
+              {detail.distinctFrom.map((d) => (
+                <li key={d.journey} className="text-sm leading-relaxed text-pretty text-ink-600">
+                  {d.slug ? (
+                    <Link
+                      href={`${basePath}/${d.slug}`}
+                      className="font-mono text-[13px] text-blue-700 hover:underline"
+                    >
+                      {d.journey}
+                    </Link>
+                  ) : (
+                    <span className="font-mono text-[13px] text-ink-900">{d.journey}</span>
+                  )}
+                  {d.name ? <span className="text-ink-800"> {d.name}</span> : null}
+                  <span className="mt-1 block">{d.because}</span>
+                </li>
+              ))}
+            </ul>
+          </NoteColumn>
+        ) : null}
+
+        {/* Numbered because guardrails are a checklist a reader works
+            through, not a paragraph - and the numbers give the longest
+            column in the grid something to scan by. */}
+        <NoteColumn label={t.guardrailsLabel}>
+          <ol className="space-y-3.5">
+            {detail.guardrails.map((g, i) => (
+              <li key={g} className="flex gap-3">
+                <span className="shrink-0 pt-0.5 font-mono text-[11px] text-ink-300 tabular-nums">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-sm leading-relaxed text-pretty text-ink-600">{g}</span>
+              </li>
+            ))}
+          </ol>
+        </NoteColumn>
 
         {detail.competition ? (
-          <section className="mb-6">
-            <p className="altor-eyebrow text-ink-400">{t.competesLabel}</p>
-            <p className="mt-1 text-sm text-ink-700">
+          <NoteColumn label={t.competesLabel}>
+            <p className="font-mono text-[13px] leading-snug text-ink-900">
               {detail.competition.exclusionGroup} · {detail.competition.scope} · on loss:{" "}
               {detail.competition.onLoss}
             </p>
-            <p className="mt-1 text-[13px] leading-snug text-ink-500">
+            <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-600">
               {detail.competition.precedence}
             </p>
-          </section>
+          </NoteColumn>
         ) : null}
 
         {/* Two journeys in the library carry this. It is rendered where it
             exists and shipped nowhere else. */}
         {detail.preemptedBy.length ? (
-          <section className="mb-6">
-            <p className="altor-eyebrow text-ink-400">{t.preemptedLabel}</p>
-            <ul className="mt-1 space-y-2">
+          <NoteColumn label={t.preemptedLabel}>
+            <ul className="space-y-3.5">
               {detail.preemptedBy.map((p) => (
-                <li key={p.event} className="text-[13px] leading-snug text-ink-500">
-                  <span className="text-ink-700">{p.event}</span> - {p.then}
+                <li key={p.event} className="text-sm leading-relaxed text-pretty text-ink-600">
+                  <span className="font-mono text-[13px] text-ink-900">{p.event}</span>
+                  <span className="mt-1 block">{p.then}</span>
                 </li>
               ))}
             </ul>
-          </section>
+          </NoteColumn>
         ) : null}
-
-        {detail.distinctFrom.length ? (
-          <section className="mb-6">
-            <p className="altor-eyebrow text-ink-400">{t.distinctLabel}</p>
-            <ul className="mt-1 space-y-2">
-              {detail.distinctFrom.map((d) => (
-                <li key={d.journey} className="text-[13px] leading-snug text-ink-500">
-                  {d.slug ? (
-                    <Link href={`${basePath}/${d.slug}`} className="font-mono text-blue-700 hover:underline">
-                      {d.journey}
-                    </Link>
-                  ) : (
-                    <span className="font-mono text-ink-700">{d.journey}</span>
-                  )}
-                  {d.name ? <span className="text-ink-600"> {d.name}</span> : null} - {d.because}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        <section className="mb-6">
-          <p className="altor-eyebrow text-ink-400">{t.guardrailsLabel}</p>
-          <ul className="mt-1 space-y-1.5">
-            {detail.guardrails.map((g) => (
-              <li key={g} className="text-[13px] leading-snug text-ink-600">
-                {g}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section>
-          <p className="altor-eyebrow text-ink-400">{t.ruleLabel}</p>
-          <p className="mt-1 text-sm leading-snug text-ink-700">{detail.reusableRule}</p>
-        </section>
       </div>
     </div>
+  );
+}
+
+/* One cell of the notes grid. The hairline sits on the leading edge at every
+   breakpoint including mobile, where the grid is a single column - a rule
+   above each stacked note would read as a section divider and re-introduce
+   exactly the undifferentiated vertical list this layout replaces. */
+function NoteColumn({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <section className="border-l border-line pl-5">
+      <p className="mb-3 font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">{label}</p>
+      {children}
+    </section>
   );
 }
