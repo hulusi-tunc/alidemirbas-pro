@@ -54,8 +54,7 @@ const KIND_INDEX = new Map<CanvasNodeKind, number>(PREVIEW_KINDS.map((k, i) => [
     payload for 255 cards stays small; the SVG scales to whatever the card
     band actually is. Aspect matches the band the design specifies. */
 export const PREVIEW_VIEWBOX = { width: 1000, height: 440 } as const;
-const PAD_X = 46;
-const PAD_Y = 44;
+const PAD = 40;
 
 /** Node footprints, in multiples of the per-journey glyph unit `u`. These
     keep the Canvas's own size hierarchy (§ JourneyCanvasNodes: Action is
@@ -72,6 +71,16 @@ export const PREVIEW_GLYPH: Record<CanvasNodeKind, { w: number; h: number; r: nu
   outcome: { w: 2.9, h: 1.5, r: 0.28 },
   exit: { w: 2.5, h: 1.2, r: 0.22 },
 };
+
+/* Action is the widest and tallest glyph, so it is what the fit has to
+   clear: MAX_W/MAX_H are its footprint in units of `u`, and half of each is
+   how far a node's box extends past its own centre point. */
+const MAX_W = PREVIEW_GLYPH.action.w;
+const MAX_H = PREVIEW_GLYPH.action.h;
+/** The fraction of one grid cell a node's own footprint may occupy. Below
+    these it reads as a diagram; above, adjacent nodes start touching. */
+const CELL_FILL_X = 0.62;
+const CELL_FILL_Y = 0.66;
 
 export type JourneyPreview = {
   /** `[kindIndex, x, y]` per node, in PREVIEW_VIEWBOX coordinates. */
@@ -119,31 +128,41 @@ export function buildJourneyPreview(nodes: readonly FlowNode[]): JourneyPreview 
   const rowSpan = rowMax - rowMin;
   const colSpan = colMax - colMin;
 
-  const availW = PREVIEW_VIEWBOX.width - PAD_X * 2;
-  const availH = PREVIEW_VIEWBOX.height - PAD_Y * 2;
+  /* `u` is solved in closed form rather than fitted then patched, because
+     the two constraints are circular: how big a node may be depends on the
+     pitch between cells, and the pitch depends on how much room the nodes at
+     each end take up. Writing that out for the x axis -
+
+       span   = VIEWBOX.width - 2*PAD - MAX_W*u     (centres, not edges)
+       cell   = span / rowSpan
+       u     <= cell * CELL_FILL_X / MAX_W
+
+     - and solving for u gives the expression below; same for y. Fitting
+       first and padding afterwards is what let the outermost glyph hang
+       past the viewBox and get clipped by the SVG viewport (a real defect:
+       the entry node's left edge rendered at x = -2). */
+  const fitAxis = (extent: number, span: number, maxG: number, fill: number) =>
+    span / (extent / (fill / maxG) + maxG);
+
+  const u = Math.min(
+    46,
+    fitAxis(rowSpan, PREVIEW_VIEWBOX.width - PAD * 2, MAX_W, CELL_FILL_X),
+    fitAxis(colSpan, PREVIEW_VIEWBOX.height - PAD * 2, MAX_H, CELL_FILL_Y),
+  );
+
+  // Node centres live inside the box inset by the padding AND by half the
+  // widest glyph, so nothing can reach past the edge however deep the graph.
+  const insetX = PAD + (MAX_W * u) / 2;
+  const insetY = PAD + (MAX_H * u) / 2;
+  const cellW = rowSpan > 0 ? (PREVIEW_VIEWBOX.width - insetX * 2) / rowSpan : 0;
+  const cellH = colSpan > 0 ? (PREVIEW_VIEWBOX.height - insetY * 2) / colSpan : 0;
 
   /* A single-row or single-column graph has no extent on that axis and is
-     centred rather than divided by zero. `cellW`/`cellH` are the rendered
-     pitch between two adjacent grid steps, which is what the glyph unit is
-     then derived from - so a deep journey's nodes shrink to stay clear of
-     each other instead of overlapping, and a shallow one's grow to fill the
-     band, with no per-journey tuning. */
-  const cellW = rowSpan > 0 ? availW / rowSpan : 0;
-  const cellH = colSpan > 0 ? availH / colSpan : 0;
-
+     centred rather than divided by zero. */
   const xOf = (row: number) =>
-    rowSpan > 0 ? PAD_X + (row - rowMin) * cellW : PREVIEW_VIEWBOX.width / 2;
+    rowSpan > 0 ? insetX + (row - rowMin) * cellW : PREVIEW_VIEWBOX.width / 2;
   const yOf = (col: number) =>
-    colSpan > 0 ? PAD_Y + (col - colMin) * cellH : PREVIEW_VIEWBOX.height / 2;
-
-  /* The glyph unit is whatever leaves a clear gap on the tighter of the two
-     axes. The fractions are the fraction of a cell a node's own footprint may
-     occupy (Action, the widest at 3.4u, lands near 60% of a cell); the floor
-     keeps the deepest journeys' nodes visible rather than letting them
-     vanish, and the ceiling stops a three-node journey rendering as slabs. */
-  const wLimit = cellW > 0 ? (cellW * 0.62) / PREVIEW_GLYPH.action.w : Infinity;
-  const hLimit = cellH > 0 ? (cellH * 0.66) / PREVIEW_GLYPH.action.h : Infinity;
-  const u = Math.max(9, Math.min(46, Math.min(wLimit, hLimit)));
+    colSpan > 0 ? insetY + (col - colMin) * cellH : PREVIEW_VIEWBOX.height / 2;
 
   const placed = new Map<string, { x: number; y: number; kind: CanvasNodeKind }>();
   for (const l of layout.nodes) {

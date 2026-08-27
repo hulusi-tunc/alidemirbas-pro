@@ -42,9 +42,11 @@ export function withCanonicalCount(text: string): string {
 const CATEGORY_TITLE = new Map<CategoryId, string>(CATEGORIES.map((c) => [c.id, c.title]));
 const BY_SLUG = new Map<string, CanonicalJourney>(JOURNEYS.map((j) => [j.slug, j]));
 
-/** Where a journey's trigger evidence comes from. It is the second facet
-    because it is the one property that changes what a journey is allowed to
-    conclude, which is more useful to filter on than anything cosmetic would be. */
+/** Where a journey's trigger evidence comes from - the one property that
+    changes what a journey is allowed to conclude. Canonical metadata, read
+    by the detail view from the trigger node itself; kept here as the shared
+    vocabulary for it. Not a library filter and not on JourneyRow - see the
+    note there. */
 export type EvidenceSource = "authoritative" | "declared" | "behavioral" | "inferred";
 
 export const EVIDENCE_SOURCES: readonly EvidenceSource[] = [
@@ -61,10 +63,14 @@ export type JourneyRow = {
   purpose: string;
   category: CategoryId;
   categoryTitle: string;
-  evidence: EvidenceSource;
   nodeCount: number;
-  /** The exclusion group this journey competes in, where it competes at all. */
-  competesIn: string | null;
+  /* Trigger evidence and the competition exclusion group are deliberately
+     NOT on this row. Both are real canonical metadata and both stay exactly
+     where they live - on the journey's own trigger node and `competition`
+     field, still read by the detail view - but neither is rendered on a
+     library card or searched from one, and every field here is serialized
+     255 times into the page. Re-add either the day something on this screen
+     actually reads it. */
   /** The single primary discovery filter - explicit canonical metadata, not
       derived here. See src/canonical/types.ts and lib/journey-taxonomy.ts. */
   goal: GoalId;
@@ -72,8 +78,6 @@ export type JourneyRow = {
       time) rather than in the browser - see lib/journey-preview.ts. */
   preview: JourneyPreview;
 };
-
-const triggerOf = (j: CanonicalJourney) => j.nodes.find((n) => n.kind === "trigger");
 
 /* ------------------------------------------------------------ merged ids */
 
@@ -322,9 +326,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   purpose: j.purpose,
   category: j.category,
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
-  evidence: (triggerOf(j)?.evidence.source ?? "authoritative") as EvidenceSource,
   nodeCount: j.nodes.length,
-  competesIn: j.competition?.exclusionGroup ?? null,
   goal: j.goal,
   preview: buildJourneyPreview(flowNodesOf(j)),
 }));

@@ -575,6 +575,66 @@
     background-size: 22px 22px;
   }
 
+  /* Journey Library topology thumbnails - see components/ui/
+     JourneyTopologyPreview.tsx. These are the Canvas node grammar
+     (components/ui/JourneyCanvasNodes.tsx) reduced to silhouettes, so they
+     deliberately read from the SAME tokens those cards do: a Trigger is the
+     one filled card, an Action carries the neutral left rule, an Outcome is
+     success-tinted, a Handoff brand-tinted, an Exit a dashed hairline.
+
+     They live here rather than as inline SVG attributes for one reason:
+     255 thumbnails x ~13 shapes is ~3,300 elements on the page, and
+     repeating `fill="var(--color-paper)" stroke="var(--color-ink-200)"
+     stroke-width="3.6"` on each of them is most of that markup. The two
+     stroke widths vary per journey (they scale with the glyph size), so
+     they arrive as custom properties set once on each <svg>. */
+  .jp-edge {
+    fill: none;
+    stroke: var(--color-ink-200);
+    stroke-width: var(--jp-edge-w);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 150ms;
+  }
+  .group:hover .jp-edge {
+    stroke: var(--color-ink-300);
+  }
+  .jp rect {
+    stroke-width: var(--jp-node-w);
+  }
+  .jp-trigger {
+    fill: var(--color-ink-950);
+    stroke: var(--color-ink-950);
+  }
+  .jp-action {
+    fill: var(--color-paper);
+    stroke: var(--color-ink-200);
+  }
+  .jp-condition,
+  .jp-wait {
+    fill: var(--color-paper);
+    stroke: var(--color-ink-300);
+  }
+  .jp-handoff {
+    fill: var(--color-paper-soft);
+    stroke: var(--color-primary-700);
+  }
+  .jp-outcome {
+    fill: var(--color-paper);
+    stroke: var(--color-success);
+  }
+  .jp-exit {
+    fill: transparent;
+    stroke: var(--color-ink-300);
+    stroke-dasharray: 5 4;
+  }
+  /* The Action's left accent rule - a fill, so it must not inherit the
+     shared node stroke width. */
+  .jp-rule {
+    fill: var(--color-neutral-600);
+    stroke: none;
+  }
+
   /* Section kicker. Sentence case — the wide tracking that made small caps
      readable is dropped with them. Colour is set per usage: baking it in here
      would compete with a `text-*` override at equal specificity. */
