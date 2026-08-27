@@ -1,10 +1,11 @@
 "use client";
 
 import { useId, useMemo, useState } from "react";
-import type { RuntimeCalcSpec } from "@/lib/calc-catalog";
+import { PRIMARY_OUTPUT, type RuntimeCalcSpec } from "@/lib/calc-catalog";
 import { getCompute } from "@/lib/calc-registry";
 import { validateInputs, errorMessage } from "@/lib/calc-validate";
 import { formatByUnit, isEnumUnit, parseEnumOptions } from "@/lib/calc-format";
+import { CalcPanel, PanelLabel, PrimaryResult, ResultHint, SecondaryResults } from "@/components/ui/CalcPanel";
 import type { Lang } from "@/lib/content";
 
 type Stage = { label: string; count: string };
@@ -15,7 +16,16 @@ type Stage = { label: string; count: string };
    function client-side from calc-registry.ts by slug, the same pattern
    the pre-Phase-2 version of this file already used and that this phase
    keeps for the same reason (a Server Component cannot pass a function as
-   a Client Component prop). */
+   a Client Component prop).
+
+   The shell is CalcPanel (ui/CalcPanel.tsx): inputs on the left, the
+   primary result large on the right. Shared with the two bespoke tools
+   (BreakEvenSliderTool, EmailPerformanceTool) so all three read as one
+   design rather than three, and it adapts to what a calculator actually
+   has - one input or ten, one result or eight. The formula used to render
+   inside this card (FormulaBlock/ExampleBlock, deleted with this change);
+   it now belongs to the page template's worked-example strip and its
+   "What this number means" section. */
 export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; lang: Lang }) {
   const hasModes = Boolean(spec.modes && spec.modes.length);
   const [modeId, setModeId] = useState(hasModes ? spec.modes![0].id : undefined);
@@ -49,78 +59,115 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
     }
   }
 
+  /* The headline result, and everything else in the order the catalog
+     declares it. Almost always outputs[0]; PRIMARY_OUTPUT names the one
+     calculator whose first output is a step in the derivation rather than
+     the answer (see that map's own note). */
+  const primaryKey = PRIMARY_OUTPUT[spec.slug];
+  const primary = (primaryKey && outputs.find((o) => o.key === primaryKey)) || outputs[0];
+  const rest = outputs.filter((o) => o.key !== primary.key);
+
   return (
-    <div className="rounded-lg border border-line bg-white p-6">
-      {hasModes && (
-        <fieldset className="mb-6">
-          <legend className="mb-2 text-sm font-medium text-ink-900">
-            {lang === "en" ? "Model" : "Model"}
-          </legend>
-          <div className="flex flex-wrap gap-2" role="radiogroup">
-            {spec.modes!.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                role="radio"
-                aria-checked={m.id === modeId}
-                onClick={() => setModeId(m.id)}
-                className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-                  m.id === modeId ? "border-ink-900 bg-ink-900 text-white" : "border-line text-ink-700 hover:border-ink-900"
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-neutral-500">
-            {lang === "en"
-              ? "Changing the model changes the formula and the required inputs - the result label always shows which model produced it."
-              : "Model değişimi formülü ve gereken girdileri değiştirir - sonuç etiketi her zaman hangi modelin kullanıldığını gösterir."}
-          </p>
-        </fieldset>
-      )}
+    <CalcPanel
+      // The funnel's stage list is a form that grows; give it the room.
+      split={isFunnel || inputs.length > 4 ? "input-heavy" : "even"}
+      inputs={
+        <>
+          <PanelLabel>{lang === "en" ? "Inputs" : "Girdiler"}</PanelLabel>
 
-      {isFunnel ? (
-        <FunnelInputs stages={stages} setStages={setStages} lang={lang} />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {inputs.map((input) => (
-            <ScalarInput
-              key={input.key}
-              input={input}
-              value={raw[input.key] ?? ""}
-              error={errors[input.key]}
-              onChange={(v) => setRaw((r) => ({ ...r, [input.key]: v }))}
-            />
-          ))}
-        </div>
-      )}
+          {hasModes && (
+            <fieldset className="mt-4 border-0 p-0">
+              <legend className="mb-2 text-sm font-medium text-ink-900">
+                {lang === "en" ? "Model" : "Model"}
+              </legend>
+              <div className="flex flex-wrap gap-2" role="radiogroup">
+                {spec.modes!.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={m.id === modeId}
+                    onClick={() => setModeId(m.id)}
+                    className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
+                      m.id === modeId ? "border-ink-900 bg-ink-900 text-white" : "border-line text-ink-700 hover:border-ink-900"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-neutral-500">
+                {lang === "en"
+                  ? "Changing the model changes the formula and the required inputs - the result label always shows which model produced it."
+                  : "Model değişimi formülü ve gereken girdileri değiştirir - sonuç etiketi her zaman hangi modelin kullanıldığını gösterir."}
+              </p>
+            </fieldset>
+          )}
 
-      <div className="mt-6 border-t border-line pt-6" aria-live="polite">
-        {results ? (
-          isFunnel ? (
-            <FunnelResults results={results} lang={lang} />
+          {isFunnel ? (
+            <div className="mt-4">
+              <FunnelInputs stages={stages} setStages={setStages} lang={lang} />
+            </div>
           ) : (
-            <div className="flex flex-col gap-3">
-              {outputs.map((o) => (
-                <div key={o.key} className="flex items-baseline justify-between gap-4">
-                  <span className="text-sm text-neutral-600">{o.label}</span>
-                  <span className="font-mono text-lg font-semibold text-ink-950 tabular-nums">
-                    {formatByUnit(results![o.key], o.unit)}
-                  </span>
-                </div>
+            /* One column up to four fields, two beyond that - a calculator
+               with two inputs shouldn't have them squeezed side by side in
+               half a panel, and one with six shouldn't run off the fold. */
+            <div className={`mt-4 grid gap-4 ${inputs.length > 4 ? "sm:grid-cols-2" : ""}`}>
+              {inputs.map((input) => (
+                <ScalarInput
+                  key={input.key}
+                  input={input}
+                  value={raw[input.key] ?? ""}
+                  error={errors[input.key]}
+                  onChange={(v) => setRaw((r) => ({ ...r, [input.key]: v }))}
+                />
               ))}
             </div>
-          )
-        ) : (
-          <p className="text-sm text-neutral-500">
-            {lang === "en" ? "Fill in every field to see the result." : "Sonucu görmek için tüm alanları doldurun."}
-          </p>
-        )}
-      </div>
-
-      <FormulaBlock spec={spec} activeFormula={activeMode?.formula} activeModeId={modeId} lang={lang} />
-    </div>
+          )}
+        </>
+      }
+      results={
+        <div aria-live="polite">
+          {isFunnel ? (
+            <>
+              <PanelLabel>{lang === "en" ? "Conversion by step" : "Adım bazında dönüşüm"}</PanelLabel>
+              {results ? (
+                <div className="mt-4">
+                  <FunnelResults results={results} lang={lang} />
+                </div>
+              ) : (
+                <ResultHint>
+                  {lang === "en"
+                    ? "Name at least two stages and give each a count."
+                    : "En az iki aşama adlandırın ve her birine bir sayı girin."}
+                </ResultHint>
+              )}
+            </>
+          ) : (
+            <>
+              <PrimaryResult
+                label={primary.label}
+                value={results ? formatByUnit(results[primary.key], primary.unit) : ""}
+                ready={Boolean(results)}
+              />
+              <SecondaryResults
+                items={rest.map((o) => ({
+                  key: o.key,
+                  label: o.label,
+                  value: results ? formatByUnit(results[o.key], o.unit) : "",
+                  ready: Boolean(results),
+                }))}
+              />
+              {!results && (
+                <ResultHint>
+                  {lang === "en" ? "Fill in every field to see the result." : "Sonucu görmek için tüm alanları doldurun."}
+                </ResultHint>
+              )}
+            </>
+          )}
+        </div>
+      }
+    />
   );
 }
 
@@ -308,76 +355,9 @@ function FunnelResults({ results, lang }: { results: Record<string, unknown>; la
   );
 }
 
-function prettyFormula(formula: string, inputs: RuntimeCalcSpec["inputs"]): string | null {
-  if (!/^[a-zA-Z0-9_ ()+\-*/.]+$/.test(formula)) return null; // complex formula (sqrt, Σ, etc.) - don't mangle it
-  const byKey = new Map(inputs.map((i) => [i.key, i.label]));
-  // A token that isn't a known input key (the doc-only formula strings in
-  // the catalog use readable pseudo-code, not always the literal input
-  // key - e.g. roas's formula says "adSpend" where the real key is
-  // "spend") still gets spaced out from camelCase rather than shown raw.
-  const spaceCamel = (s: string) => s.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
-  let out = formula.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, (tok) => byKey.get(tok) ?? spaceCamel(tok));
-  out = out.replace(/\*/g, "×").replace(/\//g, "÷");
-  return out;
-}
-
-export function FormulaBlock({
-  spec,
-  activeFormula,
-  activeModeId,
-  lang,
-}: {
-  spec: RuntimeCalcSpec;
-  activeFormula?: string;
-  activeModeId?: string;
-  lang: Lang;
-}) {
-  const formula = activeFormula ?? spec.formula;
-  const inputs = spec.modes ? spec.modes.flatMap((m) => m.inputs) : spec.inputs;
-  // formulaDisplay is a hand-authored, editorially-controlled override
-  // (Phase 3) for the handful of formulas the auto-prettifier can't
-  // safely touch (^, ±, subscripts). Only used when there's no active
-  // mode - a mode's own `formula` string is always plain enough to
-  // prettify automatically, so activeFormula takes priority.
-  const pretty = activeFormula ? prettyFormula(formula, inputs) : null;
-  const displayFormula = activeFormula ? pretty ?? formula : spec.formulaDisplay ?? prettyFormula(formula, inputs) ?? formula;
-  return (
-    <div className="mt-6 border-t border-line pt-6 text-sm">
-      <p className="font-medium text-ink-900">{lang === "en" ? "Formula" : "Formül"}</p>
-      <p className="mt-1 text-neutral-600">{spec.formulaPlainEnglish}</p>
-      <p className="mt-2 rounded-md bg-paper-soft px-3 py-2 font-mono text-ink-800">{displayFormula}</p>
-
-      <ExampleBlock spec={spec} activeModeId={activeModeId} />
-    </div>
-  );
-}
-
 /* "Related calculators" used to render right here as an inline chip list -
    moved to its own page-level section (RelatedGrid, rendered by
    CalculatorRoutes after the FAQ) as part of the Calculator Product Page
    section order, so it isn't shown twice. Formula + plain-English stays
    inline above - it's the tool's own compact summary, not a duplicate of
    anything the new page sections add. */
-
-function ExampleBlock({ spec, activeModeId }: { spec: RuntimeCalcSpec; activeModeId?: string }) {
-  const fmt = (v: unknown): string => (Array.isArray(v) || (typeof v === "object" && v !== null) ? JSON.stringify(v) : String(v));
-  // Multi-mode calculators get a per-mode example (Phase 3's
-  // examplesByMode) instead of always showing the default mode's example
-  // regardless of which mode is selected.
-  const perMode = activeModeId ? spec.examplesByMode?.[activeModeId] : undefined;
-  const input = perMode?.input ?? spec.exampleInput;
-  const output = perMode?.output ?? spec.exampleOutput;
-  if (activeModeId && !perMode) return null; // no example authored for this mode yet - say nothing rather than show a mismatched one
-  return (
-    <div className="mt-4 text-xs text-neutral-500">
-      <span className="font-medium text-neutral-600">Example — </span>
-      {Object.entries(input)
-        .map(([k, v]) => `${k}: ${fmt(v)}`)
-        .join(", ")}
-      {" → "}
-      {Object.entries(output)
-        .map(([k, v]) => `${k}: ${fmt(v)}`)
-        .join(", ")}
-    </div>
-  );
-}

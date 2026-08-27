@@ -136,6 +136,27 @@ export const LIBRARY_GROUP: Record<string, LibraryGroup> = {
   "email-performance": "email-crm",
 };
 
+/* Which output a calculator leads with.
+
+   The split panel headlines one result and lists the rest beneath it, and
+   for all but one calculator the catalog's own first output is the right
+   one - break-even leads with units, retention with the retention rate, NRR
+   with NRR. ab-test is the exception: its outputs are ordered as a
+   derivation (control rate, variant rate, uplift, z-score, p-value,
+   verdict), so the first one is an input restated, not the answer. Nobody
+   opens a significance calculator to be told their control rate.
+
+   p-value rather than the boolean verdict, because the verdict sits
+   directly beneath it either way and the number is the thing that carries
+   how close the call was. This is a presentation choice and lives here
+   rather than in the catalog, whose ordering is a correct description of
+   the calculation.
+
+   Slugs absent from this map lead with outputs[0]. */
+export const PRIMARY_OUTPUT: Record<string, string> = {
+  "ab-test": "pValue",
+};
+
 /* Order on the index page. Not alphabetical and not by count - it follows
    the funnel: what you spend, what it earns, whether they stay, whether
    they convert, how you prove it, how you reach them. */

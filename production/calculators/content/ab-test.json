@@ -3,6 +3,18 @@
   "slug": "ab-test",
   "contentDepth": "deep",
   "intro": "This calculator runs a two-proportion z-test on your control and variant conversion data, to check whether the difference between them is larger than you'd expect from random chance alone. Enter visitor and conversion counts for both sides below.",
+  "page": {
+    "tagline": "Check whether the difference between control and variant is larger than chance would explain.",
+    "meaning": [
+      "The test starts from a null hypothesis — that both sides have the same true conversion rate and the difference you saw is noise from random assignment. The z-test measures how far the observed difference sits from zero, and the p-value says how likely a difference at least that large would be if the null were true.",
+      "A p-value of 0.05 does not mean a 95% probability the variant is better. It is a statement about the data given the hypothesis, not about the hypothesis given the data. It also says nothing about the size of the effect.",
+      "Statistical significance and practical significance are separate questions. A significant 0.1-point lift may not be worth the complexity of shipping it; a commercially meaningful lift can fail to reach significance simply because the sample was too small."
+    ],
+    "takeaway": "A p-value is not the probability that your variant won.",
+    "whenToUse": "Once, after the test has reached the sample size you planned for. Checking it as data accumulates is what the number cannot survive.",
+    "misleads": "Repeated peeking and stopping at the first crossing inflates the false-positive rate well past the stated threshold. And not significant does not mean no difference exists — it can equally mean the test was too small to see the one that does.",
+    "workedExample": "5,000 / 250 vs 5,000 / 290 → p = 0.0768"
+  },
   "sections": [
     {
       "id": "definition",

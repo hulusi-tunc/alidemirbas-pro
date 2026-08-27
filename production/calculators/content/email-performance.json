@@ -4,6 +4,18 @@
   "contentDepth": "standard",
   "heroTitle": "Email Performance Calculator",
   "intro": "Eight campaign metrics from one set of send numbers. Enter what you have — sent, delivered, opens, clicks, bounces, unsubscribes, complaints, revenue — and each metric appears as soon as the two figures behind it are filled in. Nothing is required, and a metric you have no data for simply stays blank rather than showing a zero.",
+  "page": {
+    "tagline": "Eight campaign metrics from one set of send numbers.",
+    "meaning": [
+      "The eight metrics fall into four groups. Deliverability — Delivery Rate and Bounce Rate — asks whether the email arrived. Engagement — Open Rate and Click-to-Open Rate — asks what happened once it did. List health — Unsubscribe, Complaint and List Growth Rate — asks what the send cost you in audience. Revenue per Recipient asks what one email was worth.",
+      "They share denominators, which is why they belong on one page: delivered feeds four of them, sent three. Entering the same campaign's numbers eight separate times is how you end up with metrics that don't reconcile.",
+      "Seeing them together is what makes them readable. A low Open Rate beside a high Bounce Rate is a list problem, not a subject-line problem. A healthy Open Rate with a weak Click-to-Open Rate points at the offer. A strong Revenue per Recipient beside a rising Complaint Rate means the campaign is earning now and spending sender reputation to do it."
+    ],
+    "takeaway": "No field here is required — a metric you have no data for stays blank rather than reporting a zero.",
+    "whenToUse": "After a send, to read one campaign whole rather than one metric at a time; and across sends, to see which of the four groups moved when a headline number changed.",
+    "misleads": "Apple Mail Privacy Protection pre-fetches images and registers opens nobody performed, so Open Rate is a trend against itself rather than an absolute. And Click-to-Open Rate is clicks over opens — reporting it as email CTR, which is clicks over delivered, answers a different question entirely.",
+    "workedExample": "10,000 sent · 9,800 delivered · 2,450 opens → 98.00% delivery · 25.00% open rate"
+  },
   "sections": [
     {
       "id": "what-it-covers",

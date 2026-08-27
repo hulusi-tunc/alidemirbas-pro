@@ -5844,7 +5844,7 @@
         "conversionsB": 290
       },
       "exampleOutput": {
-        "pValue": "0.0847",
+        "pValue": "0.0768",
         "significant": false
       },
       "relatedMetrics": [

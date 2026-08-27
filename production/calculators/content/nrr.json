@@ -3,6 +3,17 @@
   "slug": "nrr",
   "contentDepth": "standard",
   "intro": "Net revenue retention (NRR) shows how your existing customer base's recurring revenue changed over a period, once expansion, contraction and churn are all counted. Enter starting MRR and the three movements below to get both NRR and GRR.",
+  "page": {
+    "tagline": "See how your existing customers' recurring revenue moved, after expansion, contraction and churn.",
+    "meaning": [
+      "Four inputs, two answers. NRR counts expansion; GRR does not. Reported together they show how much of the base's revenue survived, and how much growth came from customers you already had.",
+      "NRR goes above 100% when expansion outweighs contraction and churn combined — the base grew its own revenue without a single new customer. Isolating that from new-customer revenue is the whole reason to track it separately."
+    ],
+    "takeaway": "NRR above 100% is growth you did not have to buy — but only for the period it actually covers.",
+    "whenToUse": "When assessing the health of a subscription base, when expansion revenue is a real part of the model, and when a headcount-based retention number is hiding what is happening to revenue.",
+    "misleads": "Reporting NRR without stating its period makes it uncomparable — a monthly and an annual figure from the same business are different numbers. Leaving contraction out and counting only full churn overstates retention.",
+    "workedExample": "(start + expansion − contraction − churn) ÷ start"
+  },
   "sections": [
     {
       "id": "definition",

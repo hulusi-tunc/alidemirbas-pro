@@ -3,6 +3,18 @@
   "slug": "roas",
   "contentDepth": "standard",
   "intro": "ROAS (return on ad spend) tells you how much revenue a campaign generated for every unit of currency spent on it. Enter revenue and spend below to get the multiplier.",
+  "page": {
+    "tagline": "See how much revenue each unit of ad spend brought back.",
+    "meaning": [
+      "ROAS is a revenue-efficiency ratio: how much revenue came back for each unit of ad spend on a specific campaign or channel. A 5x means revenue was five times spend. It is a clean way to compare campaigns against each other, or to track one campaign over time.",
+      "What it is not is a profitability measure. ROAS never sees cost of goods, fulfilment, refunds or any cost beyond the media itself, so a 5x on a thin-margin product can leave less profit than a 3x on a high-margin one.",
+      "There is no universal good ROAS, because the number that matters is the one your own margin structure needs just to break even. That threshold belongs to your business, not to a benchmark."
+    ],
+    "takeaway": "ROAS is revenue over spend. It can be high on a campaign that loses money.",
+    "whenToUse": "When comparing campaigns, channels or time periods on media efficiency alone, with the attribution window and the definition of spend held constant across everything being compared. Pair it with your own break-even ROAS before treating any figure as good or bad.",
+    "misleads": "Attribution settings move ROAS as much as performance does — a 7-day and a 28-day click window credit different revenue to identical spend. Platform-reported figures compound this: each platform can credit itself for the same purchase, so summing ROAS across dashboards overstates the total.",
+    "workedExample": "revenue ÷ ad spend → $5,000 ÷ $1,000 = 5.00x"
+  },
   "sections": [
     {
       "id": "formula",

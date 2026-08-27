@@ -3,6 +3,17 @@
   "slug": "sample-size-calculator",
   "contentDepth": "deep",
   "intro": "This calculator estimates how many visitors per variant your A/B test needs before it has a real chance of detecting the lift you're looking for. Enter your baseline rate and the smallest lift worth detecting below.",
+  "page": {
+    "tagline": "Work out how many visitors per variant a test needs before it can detect the lift you care about.",
+    "meaning": [
+      "Run a test on too few visitors and a real effect can pass undetected — there simply was not enough data to tell a genuine lift from noise. This works backward from four inputs to the sample size that gives the test a reasonable chance of catching one.",
+      "MDE here is relative, not an absolute percentage-point move. Entering 10 means detect a 10% relative improvement: from a 5% baseline that is a move to 5.5%, not to 15%. At a 2% baseline it means about 2.2%; at 40%, about 44%.",
+      "The result is a requirement, not a target to stop at. Run to it, then check significance once."
+    ],
+    "takeaway": "The sample size is decided before the test runs. Stopping when it looks good is a different experiment.",
+    "whenToUse": "Before launching, to find out whether the test is even feasible on your traffic. If the number is out of reach in a reasonable window, that is the signal to raise the MDE or reconsider the test.",
+    "misleads": "Setting MDE to the lift you are hoping for rather than the smallest one that would change a decision demands an enormous sample. And if another tool disagrees with this result, check whether it treats MDE as relative or absolute before assuming either is wrong."
+  },
   "sections": [
     {
       "id": "definition",

@@ -3,6 +3,18 @@
   "slug": "gross-margin",
   "contentDepth": "standard",
   "intro": "Gross margin is the share of revenue left after subtracting the direct cost of goods sold. Enter revenue and COGS below.",
+  "page": {
+    "tagline": "See what share of revenue is left after the direct cost of goods.",
+    "meaning": [
+      "Gross margin subtracts only COGS — the direct cost of producing or sourcing what was sold. Shipping, payment processing, returns handling and every other operating cost stay out of it on purpose.",
+      "That is what makes it the number for product economics: is what you sell priced well relative to what it costs to make. It is not the number for whether the business is profitable, because it has not accounted for the cost of running one.",
+      "Expressed as a percentage rather than a dollar amount, it compares across sizes. A $60,000 gross profit is the same figure whether it came from $100,000 of revenue or $600,000 — the margins, 60% and 10%, describe two very different businesses."
+    ],
+    "takeaway": "Gross margin stops at COGS. It is a product verdict, not a business one.",
+    "whenToUse": "When pricing a product, judging a supplier or sourcing change, or comparing product lines on unit economics. It is also the input other calculations depend on — CAC payback, for one, is only as good as the margin fed into it.",
+    "misleads": "Folding shipping, processing or fulfilment into COGS quietly turns this into contribution margin, a different and always lower number. And margin is not markup: the same dollar profit produces two different percentages depending on whether revenue or cost is the denominator.",
+    "workedExample": "(revenue − COGS) ÷ revenue → ($100,000 − $40,000) ÷ $100,000 = 60.00%"
+  },
   "sections": [
     {
       "id": "definition",

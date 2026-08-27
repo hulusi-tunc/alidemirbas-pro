@@ -66,6 +66,33 @@ export type CalcContent = {
   heroTitle?: string;
   intro: string;
   sections: ContentSection[];
+  /* The approved calculator-detail page (see CalculatorDetailTemplate).
+     Every live calculator carries this block; the older `sections`/`faq`
+     fields below are kept because they are the authored source this was
+     restructured FROM - nothing was thrown away - but the page itself
+     renders `page` only. */
+  page: {
+    /** The single line under the title. Shorter and more direct than
+        `intro`, which was written as an opening paragraph. */
+    tagline: string;
+    /** "What this number means" - editorial paragraphs, not a card. Each
+        entry is one paragraph; the renderer does not split on newlines
+        (Prose has no paragraph markup - see CalculatorContent). */
+    meaning: readonly string[];
+    /** The dark block. ONE statement, the most important caution or
+        insight this calculator carries - never a summary of the page. */
+    takeaway: string;
+    /** "When to use it" - the practical occasion, not a definition. */
+    whenToUse: string;
+    /** "What can mislead you" - the assumption, limitation or common
+        misreading most likely to produce a wrong decision. */
+    misleads: string;
+    /** The worked-example strip, as one monospace line. Omitted where a
+        calculator's example genuinely doesn't fit on one (the composite
+        email calculator), in which case the strip falls back to the
+        structured worked-example section's own rows. */
+    workedExample?: string;
+  };
   /** Authored Related Calculators, verified against LIVE_CALCULATOR_SLUGS at
       build time by CalculatorRoutes.tsx - a real, checked slug with a real
       one-sentence relationship description, not the catalog's own

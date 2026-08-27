@@ -3,6 +3,17 @@
   "slug": "aov",
   "contentDepth": "standard",
   "intro": "AOV (average order value) is the average amount a customer spends per completed order. Enter total revenue and number of orders below.",
+  "page": {
+    "tagline": "See the average amount a customer spends per completed order.",
+    "meaning": [
+      "AOV describes one dimension of purchasing behaviour: how much revenue the average completed order generates. It is an order-level metric, not a customer-level one — it says nothing about how often someone orders or what the whole relationship is worth.",
+      "A higher AOV is not automatically a more profitable order, because it depends on what is inside it. An order padded with a low-margin add-on raises AOV while barely moving profit; a smaller basket of high-margin items can be worth more than a bigger one full of discounted stock."
+    ],
+    "takeaway": "AOV is a revenue metric. A bigger order is not necessarily a better one.",
+    "whenToUse": "When measuring the effect of merchandising, bundling, pricing or shipping-threshold changes on basket size — read over time against a stable revenue definition rather than as a single number.",
+    "misleads": "Mixing gross and net revenue between periods shifts AOV with no change in behaviour at all. So does reading a rise as good news without checking whether margin moved with it.",
+    "workedExample": "total revenue ÷ orders → $45,000 ÷ 900 = $50.00"
+  },
   "sections": [
     {
       "id": "definition",

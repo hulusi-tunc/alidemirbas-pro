@@ -3,6 +3,18 @@
   "slug": "rule-of-40",
   "contentDepth": "standard",
   "intro": "Rule of 40 adds revenue growth rate and profit margin together into one score, a shorthand check on the trade-off between growth and profitability. Enter both to get the combined score.",
+  "page": {
+    "tagline": "Add growth rate and profit margin into one score for the trade-off between them.",
+    "meaning": [
+      "The score compresses two things into one number, which is its use and its limit. It says whether growth and profitability together clear a bar; it cannot say which half is carrying the other, and two companies with the same score can be in completely different positions.",
+      "Both inputs are already percentages of their own base, so the formula adds them as percentage points rather than compounding them.",
+      "A negative score is a valid result, not an error — a company both shrinking and unprofitable produces one."
+    ],
+    "takeaway": "One number hiding two. A 40 built on growth is a different company from a 40 built on margin.",
+    "whenToUse": "As a quick directional check on a subscription business at a stage where both halves are meaningful, and as a way to track the trade-off over time rather than to grade a single quarter.",
+    "misleads": "The 40 is a convention, not a law. The metric's own popularisers have since called equal weighting of growth and profitability a poor fit for companies approaching cash-flow positivity, and less relevant for early-stage ones still burning cash.",
+    "workedExample": "growth rate + profit margin → 30% + 15% = 45 pts"
+  },
   "sections": [
     {
       "id": "formula",
@@ -54,7 +66,23 @@
       ]
     }
   ],
-  "related": [],
+  "related": [
+    {
+      "slug": "nrr",
+      "name": "Net Revenue Retention (NRR) Calculator",
+      "desc": "The score compresses growth and profitability into one number; NRR says whether the growth half came from existing customers or from new ones, which the score itself cannot show."
+    },
+    {
+      "slug": "gross-margin",
+      "name": "Gross Margin Calculator",
+      "desc": "Where the profitability half starts - a Rule of 40 built on a thin gross margin carries risk the single score hides."
+    },
+    {
+      "slug": "logo-churn",
+      "name": "Logo Churn Calculator",
+      "desc": "The drag underneath the growth half: growth reported before churn is netted out flatters the score."
+    }
+  ],
   "faq": [
     {
       "id": "what-is-rule-of-40",

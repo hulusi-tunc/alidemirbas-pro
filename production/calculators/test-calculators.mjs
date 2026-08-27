@@ -37,7 +37,11 @@ function parseExpected(v, unit) {
 function tolerance(unit) {
   if (unit === "%") return 0.0015; // 0.15 percentage points
   if (unit === "count") return 6; // sample-size rounding from 4-decimal z constants
-  return 0.06;
+  // 0.06 was wide enough to pass a p-value that was wrong by 0.0079 (see
+  // the ab-test entry in _generate-catalog.mjs). The z-constants this engine
+  // uses are 4-decimal, so 0.005 is still comfortably above real rounding
+  // drift while being tight enough to catch a genuinely stale figure.
+  return 0.005;
 }
 
 function check(label, actual, expected, unit) {

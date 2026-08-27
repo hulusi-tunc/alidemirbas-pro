@@ -1,10 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Info } from "lucide-react";
-
-import { FormulaBlock } from "@/components/CalculatorTool";
+import { CalcPanel, PanelLabel, PrimaryResult, ResultHint, SecondaryResults } from "@/components/ui/CalcPanel";
 import type { RuntimeCalcSpec } from "@/lib/calc-catalog";
 import { getCompute } from "@/lib/calc-registry";
 import { formatByUnit } from "@/lib/calc-format";
@@ -17,13 +14,17 @@ import type { Lang } from "@/lib/content";
    drag with no submit button.
 
    Deliberately scoped to this one calculator, not merged into the
-   shared CalculatorTool.tsx: that component drives all 43 other live
-   calculators via a generic, spec-shaped renderer, and this page's own
+   shared CalculatorTool.tsx: that component drives every other live
+   calculator via a generic, spec-shaped renderer, and this page's own
    brief was "for one example" - retrofitting sliders onto every field
    type (enums, funnel stages, arbitrary-range currency figures with no
    natural bound) is a separate, much larger design decision the user
    hasn't asked for yet. CalculatorRoutes.tsx special-cases this one
    slug to render this component instead of CalculatorTool.
+
+   It shares the CalcPanel shell with the other two tools, so a reader
+   moving between calculator pages sees one interface with a different
+   input control, not a different page.
 
    REAL FORMULA, NOT REINVENTED: `getCompute("break-even-point")` is the
    exact same function every other rendering of this calculator (and
@@ -51,10 +52,9 @@ const T = {
 } as const;
 
 function Slider({
-  label, hint, value, min, max, step, unit, onChange,
+  label, value, min, max, step, unit, onChange,
 }: {
   label: string;
-  hint: string;
   value: number;
   min: number;
   max: number;
@@ -65,14 +65,9 @@ function Slider({
   const display = unit === "currency" ? `$${value.toLocaleString()}` : value.toLocaleString();
   const pct = ((value - min) / (max - min)) * 100;
   return (
-    <div className="rounded-card border border-line-soft bg-paper p-5">
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-sm font-medium text-ink-950">{label}</span>
-        <span title={hint} aria-label={hint} className="shrink-0 text-ink-950/40">
-          <Info aria-hidden className="size-4" />
-        </span>
-      </div>
-      <p className="mt-2 text-2xl font-medium tabular-nums text-ink-950">{display}</p>
+    <div>
+      <span className="text-sm font-medium text-ink-950">{label}</span>
+      <p className="mt-1 text-xl font-medium text-ink-950 tabular-nums">{display}</p>
       <input
         type="range"
         min={min}
@@ -81,22 +76,13 @@ function Slider({
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         aria-label={label}
-        className="mt-4 h-1.5 w-full cursor-pointer appearance-none rounded-full outline-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-600 [&::-webkit-slider-thumb]:bg-paper [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-600 [&::-moz-range-thumb]:bg-paper"
+        className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full outline-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-600 [&::-webkit-slider-thumb]:bg-paper [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-600 [&::-moz-range-thumb]:bg-paper"
         style={{ background: `linear-gradient(to right, var(--color-primary-600) ${pct}%, var(--color-line) ${pct}%)` }}
       />
       <div className="mt-1.5 flex justify-between text-xs tabular-nums text-ink-950/40">
         <span>{unit === "currency" ? `$${min.toLocaleString()}` : min.toLocaleString()}</span>
         <span>{unit === "currency" ? `$${max.toLocaleString()}` : max.toLocaleString()}</span>
       </div>
-    </div>
-  );
-}
-
-function StatTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-card border border-white/10 bg-white/5 p-4">
-      <p className="text-xs text-white/60">{label}</p>
-      <p className="mt-1.5 text-2xl font-semibold tabular-nums text-white">{value}</p>
     </div>
   );
 }
@@ -122,75 +108,72 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
   const vcMax = Math.max(pricePerUnit - 1, 0);
   const clampedVariableCost = Math.min(variableCostPerUnit, vcMax);
 
-  const home = lang === "en" ? "/calculators" : "/tr/calculators";
-
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-      <div className="flex flex-col gap-4">
-        <Slider
-          label={byKey.get("fixedCosts")?.label ?? "Fixed costs"}
-          hint={spec.formulaPlainEnglish}
-          value={fixedCosts}
-          min={BOUNDS.fixedCosts.min}
-          max={BOUNDS.fixedCosts.max}
-          step={BOUNDS.fixedCosts.step}
-          unit="currency"
-          onChange={setFixedCosts}
-        />
-        <Slider
-          label={byKey.get("pricePerUnit")?.label ?? "Price per unit"}
-          hint={spec.formulaPlainEnglish}
-          value={pricePerUnit}
-          min={BOUNDS.pricePerUnit.min}
-          max={BOUNDS.pricePerUnit.max}
-          step={BOUNDS.pricePerUnit.step}
-          unit="currency"
-          onChange={setPricePerUnit}
-        />
-        <Slider
-          label={byKey.get("variableCostPerUnit")?.label ?? "Variable cost per unit"}
-          hint={spec.formulaPlainEnglish}
-          value={clampedVariableCost}
-          min={BOUNDS.variableCostPerUnit.min}
-          max={vcMax}
-          step={BOUNDS.variableCostPerUnit.step}
-          unit="currency"
-          onChange={setVariableCostPerUnit}
-        />
-      </div>
-
-      <div className="rounded-card bg-ink-950 p-6" aria-live="polite">
-        {valid ? (
-          <>
-            <p className="text-sm text-white/60">{outByKey.get("breakEvenUnits")?.label ?? "Break-Even Units"}</p>
-            <p className="mt-2 text-4xl font-semibold tabular-nums text-white">
-              {formatByUnit(results.breakEvenUnits, "count")}
-            </p>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <StatTile
-                label={outByKey.get("breakEvenCac")?.label ?? "Break-Even CAC"}
-                value={formatByUnit(results.breakEvenCac, "currency")}
-              />
-              <StatTile
-                label={outByKey.get("breakEvenRoas")?.label ?? "Break-Even ROAS"}
-                value={formatByUnit(results.breakEvenRoas, "x (multiplier)")}
-              />
-            </div>
-          </>
-        ) : (
-          <p className="text-sm leading-relaxed text-white/70">{t.noBreakEven}</p>
-        )}
-        <Link
-          href={home}
-          className="mt-6 inline-flex h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-ink-950 transition-colors hover:bg-white/90"
-        >
-          {t.exploreMore}
-        </Link>
-      </div>
-
-      <div className="lg:col-span-2">
-        <FormulaBlock spec={spec} lang={lang} />
-      </div>
-    </div>
+    <CalcPanel
+      split="input-heavy"
+      inputs={
+        <>
+          <PanelLabel>{lang === "en" ? "Inputs" : "Girdiler"}</PanelLabel>
+          <div className="mt-4 flex flex-col gap-4">
+            <Slider
+              label={byKey.get("fixedCosts")?.label ?? "Fixed costs"}
+              value={fixedCosts}
+              min={BOUNDS.fixedCosts.min}
+              max={BOUNDS.fixedCosts.max}
+              step={BOUNDS.fixedCosts.step}
+              unit="currency"
+              onChange={setFixedCosts}
+            />
+            <Slider
+              label={byKey.get("pricePerUnit")?.label ?? "Price per unit"}
+              value={pricePerUnit}
+              min={BOUNDS.pricePerUnit.min}
+              max={BOUNDS.pricePerUnit.max}
+              step={BOUNDS.pricePerUnit.step}
+              unit="currency"
+              onChange={setPricePerUnit}
+            />
+            <Slider
+              label={byKey.get("variableCostPerUnit")?.label ?? "Variable cost per unit"}
+              value={clampedVariableCost}
+              min={BOUNDS.variableCostPerUnit.min}
+              max={vcMax}
+              step={BOUNDS.variableCostPerUnit.step}
+              unit="currency"
+              onChange={setVariableCostPerUnit}
+            />
+          </div>
+        </>
+      }
+      results={
+        <div aria-live="polite">
+          <PrimaryResult
+            label={outByKey.get("breakEvenUnits")?.label ?? "Break-Even Units"}
+            value={valid ? formatByUnit(results.breakEvenUnits, "count") : ""}
+            ready={Boolean(valid)}
+          />
+          <SecondaryResults
+            items={[
+              {
+                key: "breakEvenCac",
+                label: outByKey.get("breakEvenCac")?.label ?? "Break-Even CAC",
+                value: valid ? formatByUnit(results.breakEvenCac, "currency") : "",
+                ready: Boolean(valid),
+              },
+              {
+                key: "breakEvenRoas",
+                label: outByKey.get("breakEvenRoas")?.label ?? "Break-Even ROAS",
+                value: valid ? formatByUnit(results.breakEvenRoas, "x (multiplier)") : "",
+                ready: Boolean(valid),
+              },
+            ]}
+          />
+          {/* Not an empty state: at variable cost >= price there is no
+              break-even volume at all, which is a real answer the sliders
+              can reach and worth saying in words. */}
+          {!valid && <ResultHint>{t.noBreakEven}</ResultHint>}
+        </div>
+      }
+    />
   );
 }
