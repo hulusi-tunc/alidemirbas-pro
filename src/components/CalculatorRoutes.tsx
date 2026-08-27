@@ -10,12 +10,13 @@ import CalculatorDetailTemplate from "@/components/CalculatorDetailTemplate";
 import UtmBuilder from "@/components/UtmBuilder";
 import CharacterCounter from "@/components/CharacterCounter";
 import { SiteFooter, SiteHeader } from "@/components/Site";
-import { CalculatorLibrary, CategoryIcon, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
+import { CalculatorLibrary, type CalcEntry, type CategoryFacet } from "@/components/ui/CalculatorLibrary";
 import { copy } from "@/lib/content";
 import { TEXT_TOOLS } from "@/lib/text-tools";
 import {
   getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS,
-  correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, type LibraryGroup,
+  correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, TEXT_TOOL_GROUP,
+  type LibraryGroup,
 } from "@/lib/calc-catalog";
 import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
@@ -67,6 +68,7 @@ const GROUP_LABEL: Record<LibraryGroup, { en: string; tr: string }> = {
   "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Huni" },
   experimentation: { en: "Experimentation", tr: "Deneysel Test" },
   "email-crm": { en: "Email & CRM", tr: "E-posta ve CRM" },
+  "text-tools": { en: "Text Tools", tr: "Metin Araçları" },
 };
 
 export function calculatorIndexMetadata(lang: Lang): Metadata {
@@ -199,35 +201,61 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
      rather than silently vanishing from the index. */
   const groupOf = (slug: string): LibraryGroup => LIBRARY_GROUP[slug] ?? "revenue-unit-economics";
 
-  const entries: CalcEntry[] = specs
-    // Funnel order, not catalog order: the grid should read in the same
-    // sequence as the facet list beside it.
-    .slice()
-    .sort((a, b) => LIBRARY_GROUP_ORDER.indexOf(groupOf(a.slug)) - LIBRARY_GROUP_ORDER.indexOf(groupOf(b.slug)))
-    .map((spec) => {
-      const group = groupOf(spec.slug);
-      const categoryLabel = GROUP_LABEL[group][lang];
-      const description = correctedFormulaPlainEnglish(spec);
-      return {
-        slug: spec.slug,
-        name: spec.name,
-        description,
-        categoryLabel,
-        categoryKey: group,
-        searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
-        href: `${base}/${spec.slug}`,
-      };
-    });
+  /* One grid, calculators and text tools together. The two tools used to
+     render as a separate "Other tools" list below it, on the grounds that
+     they carry no `category` field to file them under - but that was a
+     data problem being shown to the reader. Somebody looking for a tool on
+     this page should find all of them in one place, filterable and
+     searchable the same way; TEXT_TOOL_GROUP supplies the group the data
+     could not. */
+  const calcEntries: CalcEntry[] = specs.map((spec) => {
+    const group = groupOf(spec.slug);
+    const categoryLabel = GROUP_LABEL[group][lang];
+    const description = correctedFormulaPlainEnglish(spec);
+    return {
+      slug: spec.slug,
+      name: spec.name,
+      description,
+      categoryLabel,
+      categoryKey: group,
+      searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
+      href: `${base}/${spec.slug}`,
+    };
+  });
 
-  // `id` is the display label itself (not the raw group key) — the only
-  // join key CalculatorLibrary needs, and every label is unique across the
-  // six groups, so this stays a plain 1:1 mapping with no separate id
-  // scheme to keep in sync. Ordered by LIBRARY_GROUP_ORDER rather than by
-  // count: the groups describe a funnel, and sorting them by size would
-  // scramble that for no gain across six items.
+  const toolEntries: CalcEntry[] = TEXT_TOOLS.map((tool) => {
+    const categoryLabel = GROUP_LABEL[TEXT_TOOL_GROUP][lang];
+    return {
+      slug: tool.slug,
+      name: tool.title[lang],
+      description: tool.desc[lang],
+      categoryLabel,
+      categoryKey: TEXT_TOOL_GROUP,
+      // No aliases to pass: a text tool has no catalog record and so no
+      // alias list, unlike every calculator above.
+      searchText: calcSearchText(tool.title[lang], tool.desc[lang], categoryLabel, []),
+      href: `${base}/${tool.slug}`,
+    };
+  });
+
+  // Funnel order, not catalog order: the grid should read in the same
+  // sequence as the facet list beside it.
+  const entries = [...calcEntries, ...toolEntries].sort(
+    (a, b) =>
+      LIBRARY_GROUP_ORDER.indexOf(a.categoryKey as LibraryGroup) -
+      LIBRARY_GROUP_ORDER.indexOf(b.categoryKey as LibraryGroup),
+  );
+
+  /* `id` is the display label itself (not the raw group key) - the only
+     join key CalculatorLibrary needs, and every label is unique across the
+     seven groups, so this stays a plain 1:1 mapping with no separate id
+     scheme to keep in sync. Ordered by LIBRARY_GROUP_ORDER rather than by
+     count: the groups describe a funnel, and sorting them by size would
+     scramble that for no gain across seven items. Counted off `entries`
+     so the facet totals can never disagree with the grid. */
   const groupCounts = new Map<LibraryGroup, number>();
-  for (const spec of specs) {
-    const g = groupOf(spec.slug);
+  for (const e of entries) {
+    const g = e.categoryKey as LibraryGroup;
     groupCounts.set(g, (groupCounts.get(g) ?? 0) + 1);
   }
   const categoryFacets: CategoryFacet[] = LIBRARY_GROUP_ORDER.filter((g) => groupCounts.has(g)).map((g) => ({
@@ -278,27 +306,6 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
           <div className="mx-auto max-w-320 px-6 sm:px-12">
             <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
 
-            {/* "Other tools" — same white-card grammar as the main grid,
-                always visible/unfiltered (see calcSearchText's own top
-                comment on why TEXT_TOOLS stay outside the taxonomy). */}
-            <div className="mt-16">
-              <h2 className="mb-5 border-b pb-2.5 text-base font-medium tracking-tight" style={{ color: "#141311", borderColor: "#e8e5df" }}>
-                {lang === "en" ? "Other tools" : "Diğer araçlar"}
-              </h2>
-              <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-                {TEXT_TOOLS.map((tool, i) => (
-                  <Link
-                    key={tool.slug}
-                    href={`${base}/${tool.slug}`}
-                    className="flex flex-col gap-2.5 rounded-[10px] border border-[#e8e5df] bg-white p-6.5 transition-[border-color,box-shadow] duration-150 hover:border-[#cfcabf] hover:shadow-[0_1px_3px_rgba(20,19,17,0.06)]"
-                  >
-                    <CategoryIcon categoryKey="tools" index={i + 1} />
-                    <span className="text-base font-semibold tracking-tight" style={{ color: "#141311" }}>{tool.title[lang]}</span>
-                    <span className="text-sm leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{tool.desc[lang]}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
       </main>

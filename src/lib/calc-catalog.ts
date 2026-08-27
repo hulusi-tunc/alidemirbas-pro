@@ -108,11 +108,12 @@ export const LIVE_CALCULATOR_SLUGS: readonly string[] = [
    belong with unit economics. Rewriting the catalog's categories to match
    would have made the generator's own cross-validation lie.
 
-   Text tools have no entry: they carry no spec at all and render as their
-   own list (see CalculatorRoutes). */
+   Text tools have no entry HERE because they carry no CalcSpec to key off,
+   but they are a group like any other on the index - see TEXT_TOOL_GROUP
+   below and CalculatorRoutes' own entry construction. */
 export type LibraryGroup =
   | "ads" | "revenue-unit-economics" | "retention-saas"
-  | "conversion-funnel" | "experimentation" | "email-crm";
+  | "conversion-funnel" | "experimentation" | "email-crm" | "text-tools";
 
 export const LIBRARY_GROUP: Record<string, LibraryGroup> = {
   roas: "ads",
@@ -135,6 +136,14 @@ export const LIBRARY_GROUP: Record<string, LibraryGroup> = {
   "sample-size-calculator": "experimentation",
   "email-performance": "email-crm",
 };
+
+/* UTM Builder and Character Counter. They have no catalog spec - no
+   formula, no inputs, no outputs - so they cannot appear in LIBRARY_GROUP
+   above, which is keyed by slug against LIVE_CALCULATOR_SLUGS. They are
+   still a real group in the library rather than a separate list below it:
+   somebody looking for a tool on this page should find all of them in one
+   grid, filterable and searchable the same way. */
+export const TEXT_TOOL_GROUP: LibraryGroup = "text-tools";
 
 /* Which output a calculator leads with.
 
@@ -159,10 +168,14 @@ export const PRIMARY_OUTPUT: Record<string, string> = {
 
 /* Order on the index page. Not alphabetical and not by count - it follows
    the funnel: what you spend, what it earns, whether they stay, whether
-   they convert, how you prove it, how you reach them. */
+   they convert, how you prove it, how you reach them - then the tools that
+   aren't metrics at all. */
 export const LIBRARY_GROUP_ORDER: readonly LibraryGroup[] = [
   "ads", "revenue-unit-economics", "retention-saas",
   "conversion-funnel", "experimentation", "email-crm",
+  // Last because it is the one group that isn't a metric - the funnel
+  // ordering above doesn't apply to it.
+  "text-tools",
 ];
 
 const bySlug = new Map(CATALOG.map((c) => [c.slug, c]));
