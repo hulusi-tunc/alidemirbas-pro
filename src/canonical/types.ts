@@ -257,7 +257,7 @@ export interface ActionNode {
   next: NodeId;
   /** What this action's own effect is on the world outside the system.
       Omitted is the ordinary case and means an internal state or data
-      operation - 1,039 of the library's 1,131 actions. `communication`
+      operation - 1,048 of the library's 1,232 actions. `communication`
       marks an action whose effect is a message reaching a recipient, and is
       what lets the canvas draw it as such instead of defaulting every action
       to Internal; `human` marks one that puts work in front of a person.

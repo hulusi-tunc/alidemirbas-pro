@@ -1899,4 +1899,191 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Document reconciliation restores a single authoritative version lineage by explaining conflicts rather than overwriting or deleting inconvenient historical records.",
   },
+  {
+    id: "DOC-286",
+    slug: "document-effective-notice",
+    category: "document",
+    goal: "progression-milestone",
+    channels: ["email", "in-app"],
+    name: "Document effective → entitlement active → first use or dormant",
+    purpose:
+      "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
+    entity: {
+      scope: "the effective document version and the entitlement it confers on its holder",
+      note: "One effective version, one instance. A renewal or a superseding version taking effect is its own instance and inherits nothing from this one.",
+    },
+    distinctFrom: [
+      {
+        journey: "DOC-216",
+        because:
+          "DOC-216 establishes whether and when the document takes effect and revalidates it at that moment. This journey starts only once that record exists, and it decides nothing about effectiveness itself.",
+      },
+      {
+        journey: "ACC-263",
+        because:
+          "ACC-263 runs a claim window on a granted capability that lapses if unused. Here nothing lapses for want of use - the document is in force either way, and dormancy is an observation rather than a loss.",
+      },
+    ],
+    entry: "t.effective",
+    nodes: [
+      {
+        id: "t.effective",
+        kind: "trigger",
+        event: "document_recorded_effective",
+        evidence: {
+          requires: [
+            "an authoritative record that this version is in force, revalidated at its effective moment",
+            "the entitlement it confers, expressed as something the holder can act on",
+            "a named holder with a permitted route to them",
+          ],
+          insufficientAlone: [
+            "a complete set of signatures",
+            "a scheduled effective date that has not been revalidated",
+            "a condition that has not yet resolved",
+          ],
+          source: "authoritative",
+        },
+        next: "c.usable",
+      },
+      {
+        id: "c.usable",
+        kind: "condition",
+        asks: "Is this entitlement exercised, or held?",
+        branches: [
+          {
+            label: "Exercised",
+            when: "the entitlement is taken up by an action the holder performs - a claim, a booking, an access, a draw-down",
+            to: "a.in-force-actionable",
+          },
+          {
+            label: "Held",
+            when: "the entitlement is a standing protection or permission with nothing to do unless something happens",
+            to: "a.in-force-standing",
+          },
+        ],
+      },
+      {
+        id: "a.in-force-actionable",
+        kind: "action",
+        does: "Say the document is in force, from when, and name the single first thing the entitlement now lets them do. The gap between signing and taking effect is where holders quietly conclude that nothing happened",
+        next: "w.first-use",
+        execution: "communication",
+      },
+      {
+        id: "a.in-force-standing",
+        kind: "action",
+        does: "Say the document is in force and what it covers, and name the moment at which it would matter rather than an action to take now. An entitlement that only applies when something goes wrong is otherwise read as inactive until it is needed",
+        next: "x.standing",
+        execution: "communication",
+      },
+      {
+        id: "x.standing",
+        kind: "exit",
+        state: "in force, nothing for the holder to exercise",
+        terminal: false,
+        reEntry: "a superseding version, or a change that gives the entitlement something to exercise, is a new instance",
+      },
+      {
+        id: "w.first-use",
+        kind: "wait",
+        until: [
+          "the entitlement is exercised for the first time",
+          "the document is superseded or revoked",
+          "the effective period ends",
+        ],
+        onEvent: "c.what-happened",
+        timeout: {
+          after: "the period within which a holder of this entitlement would ordinarily have used it",
+          reason: "in force and never used is a different fact from in force and working, and reporting the two together hides the one that needs attention",
+        },
+        onTimeout: "c.still-in-force",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.what-happened",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Exercised",
+            when: "an authoritative first exercise of the entitlement was recorded",
+            to: "x.used",
+          },
+          {
+            label: "Ended first",
+            when: "the document was superseded, revoked or ran out before any use",
+            to: "x.moot",
+          },
+        ],
+      },
+      {
+        id: "x.used",
+        kind: "exit",
+        state: "entitlement exercised",
+        terminal: false,
+        reEntry: "a further document taking effect for the same holder is its own instance",
+      },
+      {
+        id: "x.moot",
+        kind: "exit",
+        state: "in force and ended without ever being used",
+        terminal: false,
+        reEntry: "a superseding version taking effect starts its own instance",
+      },
+      {
+        id: "c.still-in-force",
+        kind: "condition",
+        asks: "Does the document still stand?",
+        branches: [
+          {
+            label: "Still in force",
+            when: "this remains the authoritative version and its effective period has not ended",
+            to: "a.reminder",
+          },
+          {
+            label: "No longer in force",
+            when: "the document has been superseded, revoked or has run out",
+            to: "x.moot",
+          },
+        ],
+      },
+      {
+        id: "a.reminder",
+        kind: "action",
+        does: "Send one reminder naming what is in force and the same single first action, not a second explanation of the document. There is no further reminder - the entitlement stands whether or not it is used, and chasing it turns a benefit into a demand",
+        next: "w.dormancy",
+        execution: "communication",
+      },
+      {
+        id: "w.dormancy",
+        kind: "wait",
+        until: [
+          "the entitlement is exercised for the first time",
+        ],
+        onEvent: "x.used",
+        timeout: {
+          after: "the remainder of the effective period",
+          reason: "dormancy has to be recorded while the entitlement is still live, or it cannot be told apart from expiry",
+        },
+        onTimeout: "x.dormant",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "x.dormant",
+        kind: "exit",
+        state: "in force and dormant",
+        terminal: false,
+        reEntry: "a renewal or a superseding version taking effect starts a new instance",
+      },
+    ],
+    guardrails: [
+      "Signed is not effective, and only the effective record starts this.",
+      "The entitlement is named as what the holder can do, never as what the document says.",
+      "An entitlement with nothing to exercise is never chased for use.",
+      "One reminder, never two. The entitlement stands whether or not anybody takes it up.",
+      "Dormant and no-longer-in-force are recorded as different outcomes - one is about the holder, the other is about the document.",
+    ],
+    reusableRule:
+      "A document takes effect on its own date, but it becomes real to its holder only when they are told what it now lets them do.",
+  },
 ];

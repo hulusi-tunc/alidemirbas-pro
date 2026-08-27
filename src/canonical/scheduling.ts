@@ -2148,4 +2148,777 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Provider-side inability should preserve the customer's underlying service obligation and attempt recovery before treating the reservation as simply cancelled.",
   },
+  {
+    id: "SCH-266",
+    slug: "appointment-readiness-reminder",
+    category: "scheduling",
+    goal: "readiness-revalidation",
+    channels: ["email", "sms", "in-app"],
+    name: "Appointment approaching → prerequisites and revalidation → ready, reminded or at risk",
+    purpose:
+      "Get the customer's side of a confirmed commitment done before the commitment arrives, and send the reminder from what the booking is at that moment rather than from what it was when it was made.",
+    entity: {
+      scope: "the confirmed booking occurrence plus the prerequisites its customer owes against it",
+      note: "One occurrence, one instance. Each occurrence of a recurring commitment revalidates and reminds on its own.",
+    },
+    distinctFrom: [
+      {
+        journey: "SCH-174",
+        because:
+          "SCH-174 prepares the conditions and records a reminder having been sent as somebody else's fact. This journey is that somebody, and it never moves the confirmed time.",
+      },
+      {
+        journey: "SCH-177",
+        because:
+          "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all.",
+      },
+    ],
+    entry: "t.booking",
+    nodes: [
+      {
+        id: "t.booking",
+        kind: "trigger",
+        event: "confirmed_booking_with_customer_owed_prerequisites",
+        evidence: {
+          requires: [
+            "a confirmed booking with a scheduled time",
+            "at least one prerequisite recorded as outstanding and owned by the customer",
+          ],
+          insufficientAlone: [
+            "a request that has not been confirmed",
+            "a prerequisite owned by the provider rather than by the customer",
+          ],
+          source: "authoritative",
+        },
+        next: "c.time",
+      },
+      {
+        id: "c.time",
+        kind: "condition",
+        asks: "Is there enough time left for a prompt to be worth sending?",
+        branches: [
+          {
+            label: "Time remains",
+            when: "the scheduled time is far enough out that an outstanding prerequisite could still be completed",
+            to: "a.prompt",
+          },
+          {
+            label: "Too close to prompt",
+            when: "the booking is already inside its pre-start window",
+            to: "a.revalidate",
+          },
+        ],
+      },
+      {
+        id: "a.prompt",
+        kind: "action",
+        does: "Name every outstanding prerequisite, whose it is and the point by which it has to be done, in one message rather than one message per requirement. Somebody with three things to do has one problem, and splitting it into three makes it look like three systems that do not talk",
+        next: "w.prereq",
+        execution: "communication",
+      },
+      {
+        id: "w.prereq",
+        kind: "wait",
+        until: [
+          "every customer-owed prerequisite is recorded complete",
+          "the booking is cancelled, moved or materially changed",
+        ],
+        onEvent: "c.prereq",
+        timeout: {
+          after: "the pre-start window for this kind of booking",
+          reason: "the pre-start point is where the booking is read again, and anything sent past it is about a commitment that may no longer exist",
+        },
+        onTimeout: "a.revalidate",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.prereq",
+        kind: "condition",
+        asks: "What resolved the wait?",
+        branches: [
+          {
+            label: "All complete",
+            when: "every prerequisite the customer owed is recorded satisfied",
+            to: "w.prestart",
+          },
+          {
+            label: "Booking changed",
+            when: "the booking was cancelled, moved or materially changed",
+            to: "x.superseded",
+          },
+        ],
+      },
+      {
+        id: "w.prestart",
+        kind: "wait",
+        until: [
+          "the booking is cancelled or moved",
+        ],
+        onEvent: "a.revalidate",
+        timeout: {
+          after: "the pre-start window for this kind of booking",
+          reason: "the reminder exists to arrive before the commitment; after it there is nothing left to remind anybody about",
+        },
+        onTimeout: "a.revalidate",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.revalidate",
+        kind: "action",
+        does: "Re-read the booking from authoritative current state before anything is sent - still confirmed, same time, same provider, and which prerequisites are outstanding now. A reminder generated from the booking as it was is how somebody who cancelled correctly gets told to turn up",
+        next: "c.valid",
+      },
+      {
+        id: "c.valid",
+        kind: "condition",
+        asks: "Does the booking still stand as it was just read?",
+        branches: [
+          {
+            label: "Still valid",
+            when: "the booking is confirmed, at the time recorded, and deliverable",
+            to: "c.critical",
+          },
+          {
+            label: "Cancelled, moved or superseded",
+            when: "current state no longer matches the booking this reminder was scheduled against",
+            to: "x.superseded",
+          },
+        ],
+      },
+      {
+        id: "c.critical",
+        kind: "condition",
+        asks: "Is anything outstanding that would stop the service happening?",
+        branches: [
+          {
+            label: "Critical prerequisite missing",
+            when: "a requirement the service cannot be delivered without is still not satisfied",
+            to: "a.at-risk",
+          },
+          {
+            label: "Nothing critical outstanding",
+            when: "everything blocking is done, whatever remains is not blocking",
+            to: "a.remind",
+          },
+        ],
+      },
+      {
+        id: "a.at-risk",
+        kind: "action",
+        does: "Send the reminder and name the one thing that will stop this going ahead, with the last point at which it can still be done. The confirmed time is not moved here - a prerequisite failing is a reason to warn somebody, not a reason to rewrite a commitment they have planned around",
+        next: "h.at-risk",
+        execution: "communication",
+      },
+      {
+        id: "h.at-risk",
+        kind: "handoff",
+        to: "SCH-174",
+        on: "a booking reaching its pre-start point with a critical prerequisite still outstanding",
+        carries: [
+          "which prerequisite is missing and when it was last prompted",
+          "that the customer has been told, and what they were told",
+        ],
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Remind them of the time, the place or joining route, and anything still outstanding that does not block it. One reminder per occurrence - a second one sent because nothing could tell that the first arrived is how people stop reading them",
+        next: "x.reminded",
+        execution: "communication",
+      },
+      {
+        id: "x.reminded",
+        kind: "exit",
+        state: "reminded against a revalidated booking",
+        terminal: false,
+        reEntry: "each further occurrence of a recurring commitment is its own instance",
+      },
+      {
+        id: "x.superseded",
+        kind: "exit",
+        state: "superseded; the booking changed before the reminder was due",
+        terminal: false,
+        reEntry: "the booking that replaced it runs its own readiness from its own confirmation",
+      },
+    ],
+    guardrails: [
+      "Nothing is sent without re-reading the booking at send time. The scheduled job carries the version it was built against, and that version is a claim rather than a fact.",
+      "A reminder having been sent is never recorded as preparation being complete.",
+      "Interaction with a reminder is not attendance and is not a prerequisite satisfied.",
+      "Preparation never moves the confirmed time. A failing condition escalates; it does not reschedule.",
+      "One reminder per occurrence, and outstanding requirements are named together rather than one message each.",
+    ],
+    reusableRule:
+      "A reminder is only as true as the moment it is built, so it is built at the moment it is sent.",
+  },
+  {
+    id: "SCH-277",
+    slug: "reservation-outcome-notice",
+    category: "scheduling",
+    goal: "scheduling-commitment",
+    channels: ["email", "sms"],
+    name: "Reservation requested → validate capacity → confirm, re-offer or lapse",
+    purpose:
+      "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
+    entity: {
+      scope: "the reservation request, the requester, and the resource and slot it names",
+      note: "One instance per request. A retried submission is the same request rather than a second claim on the same capacity.",
+    },
+    distinctFrom: [
+      {
+        journey: "SCH-173",
+        because:
+          "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold.",
+      },
+    ],
+    entry: "t.requested",
+    nodes: [
+      {
+        id: "t.requested",
+        kind: "trigger",
+        event: "reservation_request_recorded",
+        evidence: {
+          requires: [
+            "a reservation request recorded against a named requester, resource and slot",
+            "a permitted contact point for a booking notice",
+          ],
+          insufficientAlone: [
+            "availability being searched or displayed",
+            "a slot held inside a session that was never submitted",
+          ],
+          source: "authoritative",
+        },
+        next: "a.received",
+      },
+      {
+        id: "a.received",
+        kind: "action",
+        does: "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come. The gap between asking for a time and holding it is where every double-booking dispute begins",
+        next: "w.outcome",
+        execution: "communication",
+      },
+      {
+        id: "w.outcome",
+        kind: "wait",
+        until: [
+          "the request is committed against current capacity",
+          "the request is rejected for want of capacity or eligibility",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the period the booking semantics allow a request to stay unresolved",
+          reason: "an unresolved request sits against capacity other requesters can see, and it cannot sit there indefinitely",
+        },
+        onTimeout: "a.lapse",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "What did revalidation decide?",
+        branches: [
+          {
+            label: "Committed",
+            when: "the capacity was committed and a confirmed reservation now exists",
+            to: "a.confirm",
+          },
+          {
+            label: "Gone, but something near",
+            when: "the slot was no longer available when it was re-read, and current availability holds something close enough to be worth offering",
+            to: "a.reoffer",
+          },
+          {
+            label: "Gone, nothing near",
+            when: "the slot was no longer available and nothing in current availability is a genuine alternative",
+            to: "a.decline",
+          },
+        ],
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival. A confirmation that does not restate the specifics is not something the requester can act on a month later",
+        next: "x.confirmed",
+        execution: "communication",
+      },
+      {
+        id: "x.confirmed",
+        kind: "exit",
+        state: "committed and stated to the requester",
+        terminal: false,
+        reEntry: "a change or cancellation to this commitment is its own instance; a further request is a new one",
+      },
+      {
+        id: "a.reoffer",
+        kind: "action",
+        does: "Say the requested time is gone, name the slots available now, and give a deadline for choosing. What is offered is current availability and never the set they were originally shown, which by definition contains one slot that no longer exists",
+        next: "w.choice",
+        execution: "communication",
+      },
+      {
+        id: "w.choice",
+        kind: "wait",
+        until: [
+          "one of the offered slots is requested",
+          "every offered slot is declined",
+        ],
+        onEvent: "c.choice",
+        timeout: {
+          after: "the stated deadline for choosing",
+          reason: "the offered slots stay visible to everyone else and are not held while one requester decides",
+        },
+        onTimeout: "x.lapsed",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.choice",
+        kind: "condition",
+        asks: "Did they take one of them?",
+        branches: [
+          {
+            label: "Took a slot",
+            when: "the requester asked for one of the slots that were offered",
+            to: "h.rebook",
+          },
+          {
+            label: "Declined all",
+            when: "the requester declined every alternative offered",
+            to: "x.declined",
+          },
+        ],
+      },
+      {
+        id: "h.rebook",
+        kind: "handoff",
+        to: "SCH-173",
+        on: "a requester choosing one of the alternative slots offered to them",
+        carries: [
+          "the original request and why it could not be met",
+          "the slot chosen and when it was offered",
+        ],
+      },
+      {
+        id: "x.declined",
+        kind: "exit",
+        state: "no commitment made, requester informed",
+        terminal: false,
+        reEntry: "a fresh request for a different time enters as a new instance",
+      },
+      {
+        id: "a.decline",
+        kind: "action",
+        does: "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected. A rejection with no next horizon sends the requester somewhere else rather than back to the calendar",
+        next: "x.declined",
+        execution: "communication",
+      },
+      {
+        id: "a.lapse",
+        kind: "action",
+        does: "Close the request as lapsed and say that nothing is held and nothing was booked. Requesters read silence as confirmation, which is the most expensive assumption in scheduling",
+        next: "x.lapsed",
+        execution: "communication",
+      },
+      {
+        id: "x.lapsed",
+        kind: "exit",
+        state: "request lapsed unresolved, nothing held",
+        terminal: false,
+        reEntry: "a fresh request starts the sequence again",
+      },
+    ],
+    guardrails: [
+      "A request acknowledged is never worded as a request confirmed.",
+      "What is offered after a failure is current availability, never the set the requester was originally shown.",
+      "Nothing is described as held unless the booking semantics actually hold it.",
+      "A lapse is stated. Silence after a request is read as a commitment.",
+      "The confirmation restates the concrete slot every time. A reference is not a time and a place.",
+    ],
+    reusableRule:
+      "Availability shown is a picture and a confirmation is a promise, and the requester must never have to guess which one they were sent.",
+  },
+  {
+    id: "SCH-280",
+    slug: "no-show-rebooking",
+    category: "scheduling",
+    goal: "scheduling-commitment",
+    channels: ["email", "sms"],
+    name: "No-show confirmed → validate the miss → rebook or close",
+    purpose:
+      "Offer a way back to somebody whose booking did not happen, having first established that the miss was theirs and not ours - because a rebooking prompt sent over our own failure is an accusation.",
+    entity: {
+      scope: "the single booking occurrence that did not take place",
+      note: "One occurrence. This says nothing about the person's history or standing - it is a fact about one booking, and a second miss is its own instance.",
+    },
+    distinctFrom: [
+      {
+        journey: "SCH-179",
+        because:
+          "SCH-179 establishes and records the no-show and decides what consequence policy attaches. This journey is what the customer is told, it never creates the record, and it runs only where policy attached rebooking rather than a consequence.",
+      },
+      {
+        journey: "SCH-177",
+        because:
+          "SCH-177 runs as the time approaches and is about getting somebody there. This starts only once the window has closed with nobody there.",
+      },
+    ],
+    entry: "t.no-show",
+    nodes: [
+      {
+        id: "t.no-show",
+        kind: "trigger",
+        event: "no_show_recorded_against_booking",
+        evidence: {
+          requires: [
+            "a no-show authoritatively recorded against one confirmed booking",
+            "the semantics it was judged under and the window that closed",
+            "policy naming rebooking rather than a fee as what follows",
+          ],
+          insufficientAlone: [
+            "a service window that has passed with no attendance event yet recorded",
+            "a provider running late",
+            "a booking with no arrival semantics defined",
+          ],
+          source: "authoritative",
+        },
+        next: "a.reread",
+      },
+      {
+        id: "a.reread",
+        kind: "action",
+        does: "Re-read the booking's latest events before anything leaves the building. Attendance and cancellation events land late, and the gap between the record being written and the message being sent is exactly where a correct cancellation gets treated as a miss",
+        next: "c.superseded",
+      },
+      {
+        id: "c.superseded",
+        kind: "condition",
+        asks: "Did the booking genuinely not happen?",
+        branches: [
+          {
+            label: "Superseded or reconciled",
+            when: "a cancellation, a reschedule or a late attendance event has landed since the no-show was recorded",
+            to: "x.suppressed",
+          },
+          {
+            label: "Genuinely missed",
+            when: "the record still stands after the re-read",
+            to: "c.provider",
+          },
+        ],
+      },
+      {
+        id: "x.suppressed",
+        kind: "exit",
+        state: "nothing sent; the booking was moved, cancelled or attended after all",
+        terminal: false,
+        reEntry: "a later booking that is genuinely missed is its own instance",
+      },
+      {
+        id: "c.provider",
+        kind: "condition",
+        asks: "Could the provider or resource actually have delivered?",
+        branches: [
+          {
+            label: "Deliverable",
+            when: "the provider and the resource were available and able to deliver for the whole window",
+            to: "c.rebookable",
+          },
+          {
+            label: "Our side failed",
+            when: "the provider, the resource or the location could not have delivered the booking as confirmed",
+            to: "h.provider",
+          },
+        ],
+      },
+      {
+        id: "h.provider",
+        kind: "handoff",
+        to: "SCH-180",
+        on: "a missed booking the provider or resource could not have delivered",
+        carries: [
+          "the window that closed and what was already said to the customer about it",
+          "the evidence that delivery was not possible on our side",
+        ],
+      },
+      {
+        id: "c.rebookable",
+        kind: "condition",
+        asks: "Is there anything to offer?",
+        branches: [
+          {
+            label: "Rebooking available",
+            when: "the same commitment can still be met and capacity for it exists",
+            to: "a.offer",
+          },
+          {
+            label: "Nothing to rebook onto",
+            when: "the commitment has lapsed, the entitlement behind it has gone, or no capacity remains",
+            to: "a.acknowledge",
+          },
+        ],
+      },
+      {
+        id: "a.acknowledge",
+        kind: "action",
+        does: "State plainly that the booking did not happen and what that means, with no rebooking prompt attached because there is nothing to book. An offer with nothing behind it costs more trust than saying nothing would",
+        next: "x.closed",
+        execution: "communication",
+      },
+      {
+        id: "a.offer",
+        kind: "action",
+        does: "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one with the date that route closes. Attaching blame to the miss makes rebooking a confession, and people do not book to confess",
+        next: "w.rebook",
+        execution: "communication",
+      },
+      {
+        id: "w.rebook",
+        kind: "wait",
+        until: [
+          "a new booking is created for the same commitment",
+          "the customer declines a further booking",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the rebooking window stated in the offer",
+          reason: "the stated window is the whole content of the offer, and letting it pass silently makes what was said untrue",
+        },
+        onTimeout: "x.closed",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "How did the offer resolve?",
+        branches: [
+          {
+            label: "Rebooked",
+            when: "a new booking exists against the same commitment",
+            to: "x.rebooked",
+          },
+          {
+            label: "Declined",
+            when: "the customer said they do not want another booking",
+            to: "x.closed",
+          },
+        ],
+      },
+      {
+        id: "x.rebooked",
+        kind: "exit",
+        state: "rebooked",
+        terminal: false,
+        reEntry: "the new booking has its own lifecycle and a later miss enters here again",
+      },
+      {
+        id: "x.closed",
+        kind: "exit",
+        state: "closed with no rebooking",
+        terminal: false,
+        reEntry: "a request from the customer later reopens booking through the ordinary route, not through this one",
+      },
+    ],
+    guardrails: [
+      "The record is re-read immediately before sending. A message about a miss is the one thing that cannot be sent on stale state.",
+      "Provider-side failure is ruled out before the customer is told anything about a miss.",
+      "No blame, no penalty language, no history. This is one booking.",
+      "One offer, not a sequence. Somebody who missed once is not pursued.",
+    ],
+    reusableRule:
+      "Before telling somebody they missed something, prove it was not us who missed it.",
+  },
+  {
+    id: "SCH-282",
+    slug: "availability-searched-no-booking",
+    category: "scheduling",
+    goal: "scheduling-commitment",
+    channels: ["email", "push"],
+    name: "Availability searched, no booking → nearest window or waitlist",
+    purpose:
+      "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
+    entity: {
+      scope: "the availability question, the resource and window it asked about, and the absence of any reservation from it",
+      note: "The question is not a claim on anything. A second question about a different window is its own instance and never inherits the first one's offer.",
+    },
+    distinctFrom: [
+      {
+        journey: "SCH-171",
+        because:
+          "SCH-171 answers the question at the moment it is asked and holds nothing. This journey starts only once that answer has produced no booking, and it re-evaluates from scratch rather than reusing what was shown.",
+      },
+      {
+        journey: "SCH-172",
+        because:
+          "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so.",
+      },
+    ],
+    entry: "t.queried",
+    nodes: [
+      {
+        id: "t.queried",
+        kind: "trigger",
+        event: "availability_query_closed_without_reservation",
+        evidence: {
+          requires: [
+            "an availability query recorded for a named person against a specific resource and window",
+            "no reservation or hold created by that person for that window since",
+          ],
+          insufficientAlone: [
+            "a query by somebody who already holds a booking for that window",
+            "a browse with no resource or window attached to it",
+          ],
+          source: "behavioral",
+        },
+        next: "c.permitted",
+      },
+      {
+        id: "c.permitted",
+        kind: "condition",
+        asks: "May an unprompted offer be sent to this person at all?",
+        branches: [
+          {
+            label: "Identified and permitted",
+            when: "the person is known and at least one contact point is valid and permitted for an offer of this kind",
+            to: "w.settle",
+          },
+          {
+            label: "Anonymous or not permitted",
+            when: "the query cannot be attributed to a person we may contact for this purpose",
+            to: "x.no-route",
+          },
+        ],
+      },
+      {
+        id: "x.no-route",
+        kind: "exit",
+        state: "no offer made; the query cannot be attributed to a reachable person",
+        terminal: false,
+        reEntry: "a later query from an identified person qualifies normally",
+      },
+      {
+        id: "w.settle",
+        kind: "wait",
+        until: [
+          "a reservation or hold is created by this person for the requested window",
+          "the requested window is taken or withdrawn",
+        ],
+        onEvent: "c.settled",
+        timeout: {
+          after: "a short bounded delay, long enough that the person is no longer in the product deciding",
+          reason: "an offer that arrives while somebody is still choosing competes with the thing they are choosing, and usually wins nothing",
+        },
+        onTimeout: "a.recheck",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.settled",
+        kind: "condition",
+        asks: "What ended the delay?",
+        branches: [
+          {
+            label: "Booked unprompted",
+            when: "the person reserved or held something for the window themselves",
+            to: "x.booked",
+          },
+          {
+            label: "Window gone",
+            when: "the window they asked about was taken or withdrawn before they acted",
+            to: "a.recheck",
+          },
+        ],
+      },
+      {
+        id: "x.booked",
+        kind: "exit",
+        state: "booked; no offer was needed",
+        terminal: false,
+        reEntry: "a later query with no booking behind it starts a new instance",
+      },
+      {
+        id: "a.recheck",
+        kind: "action",
+        does: "Re-evaluate what is genuinely bookable now rather than reusing what the query returned. Nothing shown at query time was ever held, and an offer of a window that has since gone costs more than sending nothing would",
+        next: "c.options",
+      },
+      {
+        id: "c.options",
+        kind: "condition",
+        asks: "What is actually available now?",
+        branches: [
+          {
+            label: "A near window is bookable",
+            when: "capacity exists close enough to what was asked for that it answers the same need",
+            to: "a.offer",
+          },
+          {
+            label: "Nothing fits, waitlist exists",
+            when: "no window answers the request and the resource supports a waitlist",
+            to: "a.waitlist",
+          },
+          {
+            label: "Nothing fits, no waitlist",
+            when: "no window answers the request and there is nothing to put the person on",
+            to: "x.nothing",
+          },
+        ],
+      },
+      {
+        id: "a.offer",
+        kind: "action",
+        does: "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held. Somebody who wanted one day and is shown another should see that at a glance, not discover it at the point of booking",
+        next: "w.respond",
+        execution: "communication",
+      },
+      {
+        id: "a.waitlist",
+        kind: "action",
+        does: "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
+        next: "x.waitlisted",
+        execution: "communication",
+      },
+      {
+        id: "x.waitlisted",
+        kind: "exit",
+        state: "waitlisted; nothing is reserved",
+        terminal: false,
+        reEntry: "capacity reaching the waitlist is that mechanism's business, not a new instance of this one",
+      },
+      {
+        id: "x.nothing",
+        kind: "exit",
+        state: "nothing to offer; no message sent",
+        terminal: false,
+        reEntry: "a later query for a window that does have capacity qualifies again",
+      },
+      {
+        id: "w.respond",
+        kind: "wait",
+        until: [
+          "a reservation is created for the offered window",
+        ],
+        onEvent: "x.booked",
+        timeout: {
+          after: "the validity of the offered window",
+          reason: "the offer was true at one instant only, and the window closing is what makes a second offer a different journey rather than a repeat",
+        },
+        onTimeout: "x.lapsed",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "x.lapsed",
+        kind: "exit",
+        state: "offer made and not taken",
+        terminal: false,
+        reEntry: "a new availability query is a new instance; this one is never re-offered",
+      },
+    ],
+    guardrails: [
+      "Availability is re-evaluated before the offer is sent. What the query returned was never held and is not evidence of anything now.",
+      "A different window is labelled as a different window.",
+      "A waitlist place is stated as reserving nothing.",
+      "One offer per query. A second offer for the same request is pressure rather than help.",
+      "The delay before the offer is bounded and never extended by the person browsing again.",
+    ],
+    reusableRule:
+      "An answer about availability holds nothing, so anything sent afterwards has to be re-checked before it is offered.",
+  },
 ];

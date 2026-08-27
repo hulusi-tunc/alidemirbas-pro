@@ -1589,4 +1589,393 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "External dependency failure should degrade only the capability that actually depends on it while preserving safe recovery and outcome reconciliation.",
   },
+  {
+    id: "INT-269",
+    slug: "integration-reconnect-prompt",
+    category: "integration",
+    goal: "suspension-restoration",
+    channels: ["email", "in-app"],
+    name: "Integration connection broken → reconnect → restored or degraded",
+    purpose:
+      "Tell the person who owns a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and what one step restores it - so a silent dependency failure becomes a decision instead of a slow discovery.",
+    entity: {
+      scope: "one connection to one external provider, plus the failure recorded against it",
+      note: "The connection is the subject. A second provider failing at the same time is its own instance, and a capability that never depended on this connection is untouched.",
+    },
+    distinctFrom: [
+      {
+        journey: "INT-112",
+        because:
+          "INT-112 revalidates capabilities against a changed authorization and sets the connection's state. This journey starts once that state says something is broken, and it never decides what is broken - only what the holder is told.",
+      },
+      {
+        journey: "INT-116",
+        because:
+          "INT-116 stops unsafe operations and preserves in-flight work. Here nothing operational happens; the subject is the holder's window to re-authorise before the break becomes permanent.",
+      },
+    ],
+    entry: "t.disconnected",
+    nodes: [
+      {
+        id: "t.disconnected",
+        kind: "trigger",
+        event: "integration_connection_failed_or_deauthorized",
+        evidence: {
+          requires: [
+            "an authoritative failed or disconnected state recorded against a named connection",
+            "a diagnosed failure cause",
+            "the list of capabilities that depended on it",
+          ],
+          insufficientAlone: [
+            "a single failed call that has not been classified",
+            "a provider rate limit that clears itself",
+            "a scheduled provider maintenance window",
+          ],
+          source: "authoritative",
+        },
+        next: "c.fixable",
+      },
+      {
+        id: "c.fixable",
+        kind: "condition",
+        asks: "Is the fix the holder's to perform?",
+        branches: [
+          {
+            label: "Holder can re-authorise",
+            when: "the cause is a withdrawn, expired or insufficient authorization on the holder's side of the connection",
+            to: "c.scope",
+          },
+          {
+            label: "Not theirs",
+            when: "the cause is a provider outage, a defect on our side, or an entitlement the holder does not control",
+            to: "a.inform-only",
+          },
+        ],
+      },
+      {
+        id: "a.inform-only",
+        kind: "action",
+        does: "Say which capabilities have stopped and that nothing is required from them, with no reconnection step attached - because there is no step that would work. Prompting a re-auth against a provider outage produces a person who tries three times and then opens a ticket",
+        next: "x.informed",
+        execution: "communication",
+      },
+      {
+        id: "x.informed",
+        kind: "exit",
+        state: "informed, recovery not the holder's to perform",
+        terminal: false,
+        reEntry: "if the cause is later reclassified as holder-fixable, this qualifies again on the re-authorisation path",
+      },
+      {
+        id: "c.scope",
+        kind: "condition",
+        asks: "How much of the connection is affected?",
+        branches: [
+          {
+            label: "Some capabilities",
+            when: "the authorization still covers part of what was granted and the rest of the connection keeps running",
+            to: "a.partial",
+          },
+          {
+            label: "Nothing works",
+            when: "no capability on this connection can run until it is re-authorised",
+            to: "a.total",
+          },
+        ],
+      },
+      {
+        id: "a.partial",
+        kind: "action",
+        does: "Name exactly which capabilities stopped, which are still running, and the single re-authorisation step. Telling somebody their whole connection is broken when most of it works buys an afternoon of unnecessary work and a lasting distrust of the next notice",
+        next: "w.revalidate",
+        execution: "communication",
+      },
+      {
+        id: "a.total",
+        kind: "action",
+        does: "Say the connection is carrying nothing at present, name what has stopped depending on it, and give the single re-authorisation step. What stopped is the part the holder needs in order to judge how urgent this is",
+        next: "w.revalidate",
+        execution: "communication",
+      },
+      {
+        id: "w.revalidate",
+        kind: "wait",
+        until: [
+          "the connection revalidates against a new authorization",
+          "the holder removes the connection",
+          "the cause is reclassified as not the holder's to fix",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the period beyond which an unreconnected dependency stops being an interruption and starts being a decision",
+          reason: "a broken connection nobody has reconnected is a churn signal long before it is reported as one, and it must be handed over while that is still true",
+        },
+        onTimeout: "h.abandoned",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Reconnected",
+            when: "revalidation confirms the capabilities are working against the new authorization",
+            to: "a.restored",
+          },
+          {
+            label: "Removed",
+            when: "the holder deliberately disconnected rather than re-authorising",
+            to: "x.removed",
+          },
+          {
+            label: "Not theirs after all",
+            when: "the cause was reclassified and no holder action would have helped",
+            to: "a.inform-only",
+          },
+        ],
+      },
+      {
+        id: "a.restored",
+        kind: "action",
+        does: "Confirm which capabilities are working again and name any that came back reduced. A reconnection that silently restores less than before is discovered later, at whatever moment the missing capability was needed",
+        next: "x.restored",
+        execution: "communication",
+      },
+      {
+        id: "x.restored",
+        kind: "exit",
+        state: "reconnected and confirmed",
+        terminal: false,
+        reEntry: "a later break on the same connection is a new instance",
+      },
+      {
+        id: "x.removed",
+        kind: "exit",
+        state: "connection deliberately removed by the holder",
+        terminal: true,
+        reEntry: "connecting the same provider again is a new connection and enters through activation, not through this journey",
+      },
+      {
+        id: "h.abandoned",
+        kind: "handoff",
+        to: "RET-24",
+        on: "a connection the holder could re-authorise and has not, past the point where the break is still being treated as an interruption",
+        carries: [
+          "which capabilities have been unavailable and for how long",
+          "what was already said about the break and on which routes",
+        ],
+      },
+    ],
+    guardrails: [
+      "Nothing is sent before the failure has a diagnosed cause. A notice that cannot say what to do is a notice that generates the question it should have answered.",
+      "A reduced authorization disables what depended on it, never the whole connection.",
+      "Where the holder cannot perform the fix, no reconnection step is attached.",
+      "Restoration is confirmed capability by capability, because a partial recovery and a full one are told apart nowhere else.",
+    ],
+    reusableRule:
+      "A broken dependency is worth telling somebody about only when the message can name both what stopped and the one act that would restart it.",
+  },
+  {
+    id: "INT-278",
+    slug: "integration-setup-outcome",
+    category: "integration",
+    goal: "progression-milestone",
+    channels: ["email", "in-app"],
+    name: "Integration connection started → validation outcome → active or targeted fix",
+    purpose:
+      "Tell the person who started a connection which stage it actually failed at and what would fix that stage - because a generic failure sends a capable person to support and an incapable one away for good.",
+    entity: {
+      scope: "the single connection attempt and the integration it configures",
+      note: "One instance per connection. A second connection to the same provider has its own credentials, scopes and outcome, and inherits nothing from this one.",
+    },
+    distinctFrom: [
+      {
+        journey: "INT-111",
+        because:
+          "INT-111 authenticates, checks scope, probes capability and decides whether the connection is active. This journey is what the person configuring it is told about that outcome, and it invents no diagnosis of its own.",
+      },
+      {
+        journey: "INT-269",
+        because:
+          "INT-269 addresses an established connection that has broken. Here nothing has ever worked, so there is no prior capability to restore and nothing to describe as degraded.",
+      },
+    ],
+    entry: "t.started",
+    nodes: [
+      {
+        id: "t.started",
+        kind: "trigger",
+        event: "integration_connection_attempt_resolved",
+        evidence: {
+          requires: [
+            "a connection attempt recorded against a named integration by a named configurer",
+            "a recorded outcome from the authentication, scope and capability checks",
+          ],
+          insufficientAlone: [
+            "an integration browsed or selected",
+            "a credential entered but never submitted",
+          ],
+          source: "authoritative",
+        },
+        next: "c.outcome",
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "How far did the attempt get?",
+        branches: [
+          {
+            label: "Active",
+            when: "authentication, required scope and the capability probe all passed and the connection is recorded active",
+            to: "a.active",
+          },
+          {
+            label: "Failed at a named stage",
+            when: "the attempt failed and which stage failed is authoritatively recorded",
+            to: "c.stage",
+          },
+          {
+            label: "Failed, stage unidentified",
+            when: "the attempt failed and no stage is authoritatively identified",
+            to: "a.generic",
+          },
+        ],
+      },
+      {
+        id: "a.active",
+        kind: "action",
+        does: "Confirm the connection is active and name the capabilities that were actually validated rather than the ones that were configured. The difference is what stops somebody building on a permission they do not have",
+        next: "x.active",
+        execution: "communication",
+      },
+      {
+        id: "x.active",
+        kind: "exit",
+        state: "active, with validated capabilities stated",
+        terminal: false,
+        reEntry: "a further connection to the same provider is a new instance",
+      },
+      {
+        id: "c.stage",
+        kind: "condition",
+        asks: "Which stage failed?",
+        branches: [
+          {
+            label: "Credential",
+            when: "the provider refused the credential or the authorisation was never completed",
+            to: "a.fix-auth",
+          },
+          {
+            label: "Permission",
+            when: "the credential was accepted but a required permission was not granted",
+            to: "a.fix-scope",
+          },
+          {
+            label: "Capability",
+            when: "credential and permission both passed but the safe probe could not perform the minimum operation",
+            to: "a.fix-capability",
+          },
+        ],
+      },
+      {
+        id: "a.fix-auth",
+        kind: "action",
+        does: "Say the credential itself was refused and give the one step that re-establishes it. This is the only stage the configurer can usually fix unaided, and it is the one most often buried under a generic error",
+        next: "w.retry",
+        execution: "communication",
+      },
+      {
+        id: "a.fix-scope",
+        kind: "action",
+        does: "Name the specific permission that is missing and where it is granted. A missing permission reported as a failed setup makes somebody redo an entire connection to change one switch",
+        next: "w.retry",
+        execution: "communication",
+      },
+      {
+        id: "a.fix-capability",
+        kind: "action",
+        does: "Say that access was granted but the minimum operation could not be performed, and name which operation. This usually sits with a limit on the provider side, so the message points there rather than at the configurer",
+        next: "w.retry",
+        execution: "communication",
+      },
+      {
+        id: "a.generic",
+        kind: "action",
+        does: "Say the attempt failed, that the stage has not been identified, and that nothing further is needed from the configurer while it is looked at. Admitting there is no cause yet beats inventing one - a guessed cause sends somebody to fix what is not broken",
+        next: "h.diagnose",
+        execution: "communication",
+      },
+      {
+        id: "h.diagnose",
+        kind: "handoff",
+        to: "INT-111",
+        on: "a failed connection attempt with no stage authoritatively identified",
+        carries: [
+          "the attempt, its provider and what the configurer has already been told",
+          "which stages did pass before the failure",
+        ],
+      },
+      {
+        id: "w.retry",
+        kind: "wait",
+        until: [
+          "a further connection attempt is recorded for this integration",
+          "the configuration is removed",
+        ],
+        onEvent: "c.retry",
+        timeout: {
+          after: "the period beyond which an unfinished connection is treated as abandoned",
+          reason: "a half-configured integration nobody returns to is not work in progress and must stop being counted as such",
+        },
+        onTimeout: "x.abandoned",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.retry",
+        kind: "condition",
+        asks: "What did the next attempt do?",
+        branches: [
+          {
+            label: "Now active",
+            when: "a later attempt passed every stage and the connection is recorded active",
+            to: "a.active",
+          },
+          {
+            label: "Failed again",
+            when: "a later attempt failed at a stage that has already been named to the configurer",
+            to: "x.unresolved",
+          },
+          {
+            label: "Removed",
+            when: "the configuration was removed before any attempt succeeded",
+            to: "x.abandoned",
+          },
+        ],
+      },
+      {
+        id: "x.unresolved",
+        kind: "exit",
+        state: "still not connected after the named fix",
+        terminal: false,
+        reEntry: "a later attempt re-enters at the outcome check; a fix already given is not sent twice",
+      },
+      {
+        id: "x.abandoned",
+        kind: "exit",
+        state: "abandoned before the connection was ever made",
+        terminal: false,
+        reEntry: "a new attempt on the same integration starts a fresh instance",
+      },
+    ],
+    guardrails: [
+      "The stage that failed is named, or the failure is admitted as unidentified. A generic error is a support ticket with extra steps.",
+      "A saved credential is never described as a connection.",
+      "The message states the capabilities that were validated, never the ones that were configured.",
+      "No fix is suggested that the configurer cannot perform. Where the cause sits with the provider, the message says so.",
+      "One message per named failure. A fix already given is not repeated on the next attempt.",
+    ],
+    reusableRule:
+      "A setup failure is only actionable if it names the stage it failed at, and only honest if it admits when it cannot.",
+  },
 ];

@@ -1486,4 +1486,192 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "When a required relationship disappears, the entity should enter an explicit unresolved state until a valid relationship is restored.",
   },
+  {
+    id: "REL-284",
+    slug: "relationship-invitation",
+    category: "structure",
+    goal: "relationship-hierarchy-structure",
+    channels: ["email", "in-app"],
+    name: "Relationship invitation → counterparty acceptance → active or expired",
+    purpose:
+      "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
+    entity: {
+      scope: "the invitation, plus the two parties and the scope of the link it proposes, in the direction it was issued",
+      note: "The invitation is the subject, not the parties. A second invitation between the same two parties, for a different scope or the other direction, is its own instance.",
+    },
+    distinctFrom: [
+      {
+        journey: "REL-91",
+        because:
+          "REL-91 decides whether a link has an authoritative basis and records it active or rejected. This journey exists only in the case where the missing basis is the counterparty's own acceptance, and it establishes nothing itself - it asks.",
+      },
+      {
+        journey: "SUB-161",
+        because:
+          "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this.",
+      },
+    ],
+    entry: "t.invited",
+    nodes: [
+      {
+        id: "t.invited",
+        kind: "trigger",
+        event: "relationship_invitation_issued",
+        evidence: {
+          requires: [
+            "an invitation recorded by a party holding the authority to extend it",
+            "a named counterparty, the scope of the proposed link and its direction",
+            "an expiry on the invitation",
+          ],
+          insufficientAlone: [
+            "a shared attribute between two records - an address, a name, a device",
+            "an intention to invite that has not been recorded as an invitation",
+          ],
+          source: "authoritative",
+        },
+        next: "c.known",
+      },
+      {
+        id: "c.known",
+        kind: "condition",
+        asks: "Does the counterparty already exist here in their own right?",
+        branches: [
+          {
+            label: "Existing holder",
+            when: "the counterparty already holds a record and a session of their own, and the invitation would attach to it",
+            to: "a.invite-known",
+          },
+          {
+            label: "New to us",
+            when: "the counterparty has no record here and knows the inviting party but not us",
+            to: "a.invite-new",
+          },
+        ],
+      },
+      {
+        id: "a.invite-known",
+        kind: "action",
+        does: "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record. An existing holder's first question is what accepting costs them, not what it gives the inviter",
+        next: "w.response",
+        execution: "communication",
+      },
+      {
+        id: "a.invite-new",
+        kind: "action",
+        does: "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold. Somebody with no prior relationship reads an unexplained invitation as a claim already made on them",
+        next: "w.response",
+        execution: "communication",
+      },
+      {
+        id: "w.response",
+        kind: "wait",
+        until: [
+          "the counterparty accepts",
+          "the counterparty declines",
+          "the inviting party withdraws the invitation",
+        ],
+        onEvent: "c.response",
+        timeout: {
+          after: "the point at which one reminder would still leave time to act before expiry",
+          reason: "a reminder that arrives after the invitation is dead is worse than no reminder, because it asks for something that can no longer be given",
+        },
+        onTimeout: "c.remind",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.response",
+        kind: "condition",
+        asks: "How was the invitation answered?",
+        branches: [
+          {
+            label: "Accepted",
+            when: "the counterparty's acceptance is authoritatively recorded and the link is created",
+            to: "a.confirm",
+          },
+          {
+            label: "Declined or withdrawn",
+            when: "the counterparty declined, or the inviting party withdrew the invitation before it was answered",
+            to: "x.closed",
+          },
+        ],
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do. An unstated scope is assumed to be total by whoever has less to gain from it",
+        next: "x.active",
+        execution: "communication",
+      },
+      {
+        id: "x.active",
+        kind: "exit",
+        state: "link active, both identities intact",
+        terminal: false,
+        reEntry: "a further invitation between the same parties, for a different scope, is a new instance",
+      },
+      {
+        id: "x.closed",
+        kind: "exit",
+        state: "invitation declined or withdrawn",
+        terminal: true,
+        reEntry: "the inviting party may issue a fresh invitation, which is a new instance; a declined one is never revived",
+      },
+      {
+        id: "c.remind",
+        kind: "condition",
+        asks: "Is a reminder still worth sending?",
+        branches: [
+          {
+            label: "Time remains",
+            when: "the invitation has a meaningful period left and no reminder has been sent for it",
+            to: "a.remind",
+          },
+          {
+            label: "Window closed",
+            when: "the invitation has reached or passed its expiry unanswered",
+            to: "x.expired",
+          },
+        ],
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Send one reminder naming who is waiting and the date the invitation expires. There is no second one - a counterparty who has not answered twice has answered",
+        next: "w.final",
+        execution: "communication",
+      },
+      {
+        id: "w.final",
+        kind: "wait",
+        until: [
+          "the counterparty accepts",
+          "the counterparty declines",
+          "the inviting party withdraws the invitation",
+        ],
+        onEvent: "c.response",
+        timeout: {
+          after: "the remaining life of the invitation",
+          reason: "an invitation with no expiry is a standing claim on somebody who never agreed to anything",
+        },
+        onTimeout: "x.expired",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "x.expired",
+        kind: "exit",
+        state: "expired unanswered",
+        terminal: false,
+        reEntry: "a fresh invitation from the same party starts a new window",
+      },
+    ],
+    guardrails: [
+      "An invitation is not a relationship. Nothing is linked, and nothing is shown to either side as linked, until the counterparty accepts.",
+      "Acceptance links two records and merges none. Both parties keep their own identity, history and lifecycle.",
+      "Scope and direction are stated in the invitation itself, not discovered after acceptance.",
+      "One reminder, never two. The expiry is the pressure; repetition is not.",
+      "Every invitation expires. A pending claim on somebody who never agreed to it does not sit open indefinitely.",
+    ],
+    reusableRule:
+      "An invitation is a question put to somebody who owes no answer, so it names its scope, names its expiry, and asks at most once more.",
+  },
 ];

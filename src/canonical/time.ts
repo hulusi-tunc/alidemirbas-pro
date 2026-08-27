@@ -1619,4 +1619,567 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Future transitions are intentions, not guaranteed outcomes; their validity must be rechecked when execution time arrives.",
   },
+  {
+    id: "TIM-268",
+    slug: "outstanding-obligation-reminder",
+    category: "time",
+    goal: "escalation-exception",
+    channels: ["email", "sms"],
+    name: "Customer-owed action → deadline reminder → completed or lapsed",
+    purpose:
+      "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
+    entity: {
+      scope: "the outstanding obligation, its owner and its due date",
+      note: "The obligation is the subject and it outlives every reminder about it. Two obligations owed by the same person are two instances.",
+    },
+    distinctFrom: [
+      {
+        journey: "FIN-131",
+        because:
+          "FIN-131 holds what is owed as its own state, independent of anything sent about it. This is the sending, and it reads that state rather than defining it - nothing here changes what is owed.",
+      },
+      {
+        journey: "REM-153",
+        because:
+          "REM-153 tracks whether the resource actually comes back and holds the states where it might not have. This is the prompt to the person still holding it, and it stops the moment the record says it is no longer outstanding.",
+      },
+    ],
+    entry: "t.owed",
+    nodes: [
+      {
+        id: "t.owed",
+        kind: "trigger",
+        event: "customer_owed_obligation_outstanding",
+        evidence: {
+          requires: [
+            "an authoritative record that a defined action is owed by a named person",
+            "a due date recorded against it",
+          ],
+          insufficientAlone: [
+            "an internal expectation with no due date",
+            "a reminder schedule that fired before the obligation was confirmed outstanding",
+          ],
+          source: "authoritative",
+        },
+        next: "c.remindable",
+      },
+      {
+        id: "c.remindable",
+        kind: "condition",
+        asks: "Is there a gap before the deadline worth waiting through?",
+        branches: [
+          {
+            label: "Time remains",
+            when: "the due date is far enough out that the reminder point has not been reached",
+            to: "w.due",
+          },
+          {
+            label: "Due now or already past",
+            when: "the reminder point is reached or gone by the time this qualifies",
+            to: "a.recheck",
+          },
+        ],
+      },
+      {
+        id: "w.due",
+        kind: "wait",
+        until: [
+          "the obligation is satisfied, cancelled or adjusted",
+          "the obligation is changed and still owed",
+        ],
+        onEvent: "a.recheck",
+        timeout: {
+          after: "the reminder point defined for this kind of obligation",
+          reason: "a reminder is only a reminder while the deadline is ahead of it; after that it is a notice about something that has already gone wrong",
+        },
+        onTimeout: "a.recheck",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.recheck",
+        kind: "action",
+        does: "Re-read the obligation from authoritative current state immediately before sending - what is owed now, what has been received against it, and what the deadline is now. A message built from the state an hour ago is how somebody who has already settled is asked to settle again",
+        next: "c.outstanding",
+      },
+      {
+        id: "c.outstanding",
+        kind: "condition",
+        asks: "Is anything still owed at the moment of sending?",
+        branches: [
+          {
+            label: "Still outstanding",
+            when: "the record shows the obligation unsatisfied in whole or in part",
+            to: "a.remind",
+          },
+          {
+            label: "Nothing outstanding",
+            when: "it has been satisfied, cancelled or adjusted to nothing",
+            to: "x.moot",
+          },
+        ],
+      },
+      {
+        id: "x.moot",
+        kind: "exit",
+        state: "no longer owed; nothing was sent",
+        terminal: false,
+        reEntry: "a later obligation owed by the same person is a new instance",
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Name the obligation, what remains outstanding, the deadline and the single way to discharge it. Partly met is not met, and the figure named is what is still owed rather than what it started as - the difference is what makes the message answerable",
+        next: "w.deadline",
+        execution: "communication",
+      },
+      {
+        id: "w.deadline",
+        kind: "wait",
+        until: [
+          "the obligation is authoritatively satisfied",
+          "it is cancelled or adjusted to nothing",
+          "the deadline passes with it still owed",
+        ],
+        onEvent: "c.settled",
+        timeout: {
+          after: "the deadline",
+          reason: "the deadline is what the reminder said would matter, so it has to be the point at which something actually changes",
+        },
+        onTimeout: "a.overdue",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.settled",
+        kind: "condition",
+        asks: "How did it resolve?",
+        branches: [
+          {
+            label: "Satisfied",
+            when: "an authoritative event discharges the obligation in full",
+            to: "a.confirm",
+          },
+          {
+            label: "Cancelled or adjusted away",
+            when: "the obligation no longer exists to be met",
+            to: "x.moot",
+          },
+          {
+            label: "Still owed at the deadline",
+            when: "the deadline passed with something still outstanding",
+            to: "a.overdue",
+          },
+        ],
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm it is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact is made of",
+        next: "x.satisfied",
+        execution: "communication",
+      },
+      {
+        id: "x.satisfied",
+        kind: "exit",
+        state: "satisfied and confirmed",
+        terminal: true,
+        reEntry: "a new obligation owed by the same person is a new instance",
+      },
+      {
+        id: "a.overdue",
+        kind: "action",
+        does: "Say once that the deadline has passed, what stands now, and what consequence policy actually attaches to it. One notice - repeating it is a recovery sequence, and that belongs to whoever owns the consequence rather than to whoever owns the reminder",
+        next: "c.escalate",
+        execution: "communication",
+      },
+      {
+        id: "c.escalate",
+        kind: "condition",
+        asks: "Does a defined consequence own this now?",
+        branches: [
+          {
+            label: "A consequence applies",
+            when: "policy defines a further step for an obligation unmet past its deadline",
+            to: "h.consequence",
+          },
+          {
+            label: "Nothing further is defined",
+            when: "no consequence is defined and the obligation simply stands unmet",
+            to: "x.lapsed",
+          },
+        ],
+      },
+      {
+        id: "h.consequence",
+        kind: "handoff",
+        to: "external:consequence-owner",
+        on: "an obligation still outstanding past its deadline with a defined consequence attached",
+        carries: [
+          "what remains outstanding, its due date and its history",
+          "which reminders were sent, when, and what they stated",
+        ],
+      },
+      {
+        id: "x.lapsed",
+        kind: "exit",
+        state: "lapsed unmet; no further consequence is defined",
+        terminal: false,
+        reEntry: "if the obligation is later satisfied, the confirmation runs from that event",
+      },
+    ],
+    guardrails: [
+      "The record decides what is owed. Nothing sent from here changes it, and no reminder is evidence of it.",
+      "The obligation is re-read at send time, every time. A reminder for something already done is worse than one that never went.",
+      "One reminder before the deadline and one notice after it. Repetition past that is a recovery process and belongs elsewhere.",
+      "Outstanding is not failure. A person who has not yet acted inside their window has done nothing wrong.",
+      "What is still owed is named, not what was originally owed.",
+    ],
+    reusableRule:
+      "A reminder is a claim about the present, so it is built from the present or not sent at all.",
+  },
+  {
+    id: "TIM-274",
+    slug: "grace-period-recovery",
+    category: "time",
+    goal: "expiry-renewal",
+    channels: ["email", "sms"],
+    name: "Grace period entered → recover before it ends → restored or lost",
+    purpose:
+      "Tell the holder that validity has lapsed into a bounded period with reduced function, what still works, when that period ends and the one route back - so grace is a state they are in knowingly rather than one they discover when something stops.",
+    entity: {
+      scope: "the entity whose primary validity ended, plus the fixed end of the grace period placed on it",
+      note: "One lapse, one grace period. A second lapse after a recovery is its own instance with its own window, and a window never inherits time from the one before it.",
+    },
+    distinctFrom: [
+      {
+        journey: "TIM-65",
+        because:
+          "TIM-65 grants the grace state, records which capabilities continue and decides what happens when the window closes. This journey is what the holder is told across that window, and it sends nothing until that state exists.",
+      },
+    ],
+    entry: "t.grace",
+    nodes: [
+      {
+        id: "t.grace",
+        kind: "trigger",
+        event: "grace_period_started",
+        evidence: {
+          requires: [
+            "an authoritative grace state recorded against the entity after its primary validity ended",
+            "a fixed end date for that grace period",
+            "a recorded condition that would recover the active state",
+          ],
+          insufficientAlone: [
+            "a validity date that is merely approaching",
+            "a failed renewal attempt with no grace policy applied to it",
+          ],
+          source: "authoritative",
+        },
+        next: "c.restricted",
+      },
+      {
+        id: "c.restricted",
+        kind: "condition",
+        asks: "Does grace restrict anything the holder will actually notice?",
+        branches: [
+          {
+            label: "Function reduced",
+            when: "the capabilities recorded for grace are narrower than the active state in a way the holder uses",
+            to: "a.notify-restricted",
+          },
+          {
+            label: "Continuity unchanged",
+            when: "everything the holder relies on continues untouched for the length of the window",
+            to: "a.notify-quiet",
+          },
+        ],
+      },
+      {
+        id: "a.notify-restricted",
+        kind: "action",
+        does: "Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state. Naming what still works is what stops a reduction being read as a termination",
+        next: "w.grace",
+        execution: "communication",
+      },
+      {
+        id: "a.notify-quiet",
+        kind: "action",
+        does: "State that validity has lapsed, that nothing has changed yet, and the date it will. Dramatising a restriction the holder cannot feel teaches them to discount the message that arrives when they can",
+        next: "w.grace",
+        execution: "communication",
+      },
+      {
+        id: "w.grace",
+        kind: "wait",
+        until: [
+          "the recovery condition is satisfied",
+          "the entity is terminated before the window closes",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the point inside the window at which one further message can still be acted on",
+          reason: "the window has a fixed end, so the last useful moment to name it falls before that end rather than at it",
+        },
+        onTimeout: "a.last-call",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "the recovery condition was satisfied and the entity left grace for the active state",
+            to: "a.confirm",
+          },
+          {
+            label: "Ended early",
+            when: "the entity was terminated or withdrawn before the window ran out",
+            to: "x.moot",
+          },
+        ],
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm the active state is back and name which reduced capabilities returned. A recovery nobody confirms leaves the holder still behaving as though restricted, which is the same cost as not recovering",
+        next: "x.recovered",
+        execution: "communication",
+      },
+      {
+        id: "x.recovered",
+        kind: "exit",
+        state: "recovered inside the window",
+        terminal: false,
+        reEntry: "a later lapse opens a new grace period and a new instance",
+      },
+      {
+        id: "x.moot",
+        kind: "exit",
+        state: "grace ended by termination before its window closed",
+        terminal: false,
+        reEntry: "an entity reinstated and later lapsing again qualifies afresh",
+      },
+      {
+        id: "a.last-call",
+        kind: "action",
+        does: "Send one message naming the exact end date, what stops at it, and the same single recovery route. There is no second reminder - the fixed end is the pressure, and repeating it only spends the attention needed to act",
+        next: "w.final",
+        execution: "communication",
+      },
+      {
+        id: "w.final",
+        kind: "wait",
+        until: [
+          "the recovery condition is satisfied",
+        ],
+        onEvent: "a.confirm",
+        timeout: {
+          after: "the fixed end of the grace period",
+          reason: "grace does not extend itself, so the journey has to end where the window does",
+        },
+        onTimeout: "a.lost",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.lost",
+        kind: "action",
+        does: "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms. A holder who is not told the window shut will go on assuming it is open",
+        next: "x.lost",
+        execution: "communication",
+      },
+      {
+        id: "x.lost",
+        kind: "exit",
+        state: "window closed unrecovered",
+        terminal: false,
+        reEntry: "a validity granted later starts a fresh lifecycle; re-entry here needs a new lapse",
+      },
+    ],
+    guardrails: [
+      "Grace is never announced before it is authoritatively recorded. A warning about a lapse that has not happened is a different journey and belongs before this one.",
+      "The message names what still works, not only what stopped.",
+      "One message before the window closes, never two.",
+      "The window does not move because somebody read a message. Engagement is not recovery.",
+      "Both endings are stated. Silence after a recovery and silence after an expiry are indistinguishable to the person living in the window.",
+    ],
+    reusableRule:
+      "A grace period only helps somebody who knows they are in one, when it ends, and the single thing that ends it early.",
+  },
+  {
+    id: "TIM-281",
+    slug: "expired-entity-re-entry",
+    category: "time",
+    goal: "eligibility-qualification",
+    channels: ["email", "in-app"],
+    name: "Expired entitlement touched → re-entry route → requalify, replace or stay expired",
+    purpose:
+      "Give somebody who has come back to something that expired the one route that actually restores it, at the moment they are asking - because naming the wrong route spends the only intent this ever gets.",
+    entity: {
+      scope: "the expired entity and the holder's attempt to act on it, kept distinct from any replacement issued",
+      note: "The expired entity and its replacement are two objects. That something was valid until March and that something is valid now are different facts, and merging them destroys both.",
+    },
+    distinctFrom: [
+      {
+        journey: "TIM-69",
+        because:
+          "TIM-69 decides which mechanism restores validity and issues any replacement. This journey starts from the holder's own attempt and carries them along whichever route that decision names.",
+      },
+      {
+        journey: "TIM-63",
+        because:
+          "TIM-63 runs before expiry, while the thing is still valid and can simply be kept. This runs after, where a gap exists on the record and the route back is a different mechanism.",
+      },
+    ],
+    entry: "t.touched",
+    nodes: [
+      {
+        id: "t.touched",
+        kind: "trigger",
+        event: "holder_acted_on_expired_entity",
+        evidence: {
+          requires: [
+            "an authoritative expiry recorded against the entity",
+            "an attempt by the holder to use, renew or ask about it after that expiry",
+            "the holder being the party the entity belonged to",
+          ],
+          insufficientAlone: [
+            "an expiry with no attempt against it",
+            "a scheduled win-back date with no action from the holder",
+          ],
+          source: "behavioral",
+        },
+        next: "a.establish",
+      },
+      {
+        id: "a.establish",
+        kind: "action",
+        does: "Establish what the expiry actually did to this entity - suspended it, invalidated it, or ended the relationship behind it - before naming any route back. Reading every lapse as the same lapse is how somebody is sent to renew something that can only be replaced",
+        next: "c.route",
+      },
+      {
+        id: "c.route",
+        kind: "condition",
+        asks: "Which mechanism restores validity here?",
+        branches: [
+          {
+            label: "Renewal",
+            when: "the governing rules let the same entity be carried forward from where it stopped",
+            to: "a.renew",
+          },
+          {
+            label: "Requalification",
+            when: "validity depends on evidence or a check that has to be satisfied again",
+            to: "a.requalify",
+          },
+          {
+            label: "Replacement only",
+            when: "the expired entity cannot become valid again and a new one has to be issued in its place",
+            to: "a.replace",
+          },
+          {
+            label: "No route back",
+            when: "nothing restores validity - the basis for it has gone",
+            to: "a.no-route",
+          },
+        ],
+      },
+      {
+        id: "a.renew",
+        kind: "action",
+        does: "Name renewal as the route, what it costs, and what carries across the gap. Somebody who came back on their own does not need persuading, only telling exactly what to do next",
+        next: "w.act",
+        execution: "communication",
+      },
+      {
+        id: "a.requalify",
+        kind: "action",
+        does: "Say plainly that this is not a renewal and that the conditions have to be met again, listing them. Letting somebody believe a click will fix it, and then asking for evidence halfway through, is how an intent that arrived willing leaves annoyed",
+        next: "w.act",
+        execution: "communication",
+      },
+      {
+        id: "a.replace",
+        kind: "action",
+        does: "Explain that the old one stays expired and a new one is issued in its place, and what differs between them. The replacement is a different object, and the holder will be asked later about a period when they held neither",
+        next: "w.act",
+        execution: "communication",
+      },
+      {
+        id: "a.no-route",
+        kind: "action",
+        does: "Say there is no way back to this one and name what exists instead, if anything does. A dead end stated clearly ends the attempt once; a dead end left vague produces three more attempts and a support contact",
+        next: "x.terminal",
+        execution: "communication",
+      },
+      {
+        id: "w.act",
+        kind: "wait",
+        until: [
+          "the named route is completed and validity is restored",
+          "the holder abandons the attempt",
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          after: "the re-entry window for this kind of expiry",
+          reason: "re-entry routes are bounded by the rules that created them, and an offer that outlives its own window is one nobody can honour",
+        },
+        onTimeout: "x.still-expired",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.outcome",
+        kind: "condition",
+        asks: "Did validity come back?",
+        branches: [
+          {
+            label: "Valid again",
+            when: "the route completed and something valid now exists for the holder",
+            to: "a.confirm",
+          },
+          {
+            label: "Abandoned",
+            when: "the holder stopped partway or explicitly declined the route",
+            to: "x.still-expired",
+          },
+        ],
+      },
+      {
+        id: "a.confirm",
+        kind: "action",
+        does: "Confirm what is valid now and, where a replacement was issued, that it is a new one rather than the old one revived. The gap during which nothing was valid is a fact the holder will need later, and hiding it here is what makes that conversation go wrong",
+        next: "x.restored",
+        execution: "communication",
+      },
+      {
+        id: "x.restored",
+        kind: "exit",
+        state: "valid again by the route that was named",
+        terminal: false,
+        reEntry: "the restored or replacement entity has its own expiry, and a later lapse enters here again",
+      },
+      {
+        id: "x.still-expired",
+        kind: "exit",
+        state: "still expired; the route was offered and not taken",
+        terminal: false,
+        reEntry: "a further attempt by the holder starts a new instance with the route re-evaluated from current rules",
+      },
+      {
+        id: "x.terminal",
+        kind: "exit",
+        state: "expired with no route back",
+        terminal: true,
+        reEntry: "nothing re-enters here - a new entitlement of this kind is a different object and starts at its own issuance",
+      },
+    ],
+    guardrails: [
+      "The route is worked out before anything is said. One wrong route spends an intent that arrived willing.",
+      "An expiry is never undone by editing its date. The gap during which nothing was valid stays on the record.",
+      "The replacement and the expired entity stay separately addressable, and the holder is told which one they now have.",
+      "A dead end is said once, clearly, with whatever alternative exists - not softened into a route that does not work.",
+    ],
+    reusableRule:
+      "Somebody returning to something expired has already done the hard part, and the only way to waste that is to name the wrong way back.",
+  },
 ];

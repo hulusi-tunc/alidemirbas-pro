@@ -15,7 +15,9 @@ import { layoutJourneyCanvas, type CanvasNodeKind } from "@/lib/journey-canvas-l
 
    1. TRANSPOSED. The Canvas runs top-to-bottom; the thumbnail runs
       left-to-right (depth on x, branch fan on y). This is measured, not
-      taste: 249 of the 255 journeys are taller than they are wide (median
+      taste: measured across the library, the overwhelming majority of journeys
+      are taller than they are wide (249 of the 255 that existed when this was
+      first measured; median
       bounding box ~0.45 w/h), and the card's thumbnail band is the opposite
       shape (~2.2 w/h). Drawn upright, the median journey would use about a
       fifth of the band and the deepest ones would be an unreadable thread.
@@ -34,7 +36,7 @@ import { layoutJourneyCanvas, type CanvasNodeKind } from "@/lib/journey-canvas-l
    Everything here is computed once per journey on the server (canonical-view
    builds it into JOURNEY_ROWS at build time) and shipped as small integers.
    The card component maps those integers straight onto SVG elements - no
-   layout runs in the browser for any of the 255 cards. */
+   layout runs in the browser for any of the 281 cards. */
 
 /** Kinds, in a fixed order - the wire format stores an index into this, so
     the order is part of the format and must not be reshuffled. */
@@ -51,7 +53,7 @@ export const PREVIEW_KINDS: readonly CanvasNodeKind[] = [
 const KIND_INDEX = new Map<CanvasNodeKind, number>(PREVIEW_KINDS.map((k, i) => [k, i]));
 
 /** The thumbnail's coordinate space. Integers throughout, so the serialized
-    payload for 255 cards stays small; the SVG scales to whatever the card
+    payload for 281 cards stays small; the SVG scales to whatever the card
     band actually is. Aspect matches the band the design specifies. */
 export const PREVIEW_VIEWBOX = { width: 1000, height: 440 } as const;
 const PAD = 40;
@@ -87,7 +89,7 @@ export type JourneyPreview = {
   n: readonly (readonly [number, number, number])[];
   /** Every edge as one combined SVG path (subpaths joined) - one DOM node
       for the whole connection layer instead of one per edge, which is what
-      keeps 255 thumbnails cheap. */
+      keeps 281 thumbnails cheap. */
   e: string;
   /** The glyph unit for this journey - glyph dimensions are PREVIEW_GLYPH
       multiples of it. Scales with how much room each node actually has. */

@@ -1441,4 +1441,174 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Negative commercial outcomes should determine future eligibility according to their cause, not merely their LOST label.",
   },
+  {
+    id: "ACQ-285",
+    slug: "captured-interest-first-touch",
+    category: "acquisition",
+    goal: "routing-assignment",
+    channels: ["email"],
+    name: "Captured interest → readiness check → destination-appropriate first touch",
+    purpose:
+      "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
+    entity: {
+      scope: "the individual capture and what it asked for, resolved onto a person",
+      note: "One capture, one destination. A second, different request from the same person is its own instance and is not considered answered by what the first one produced.",
+    },
+    distinctFrom: [
+      {
+        journey: "ACQ-02",
+        because:
+          "ACQ-02 decides which destination a capture justifies and records that decision with its own state. This journey is what the person receives once that decision exists, and it invents no destination of its own.",
+      },
+    ],
+    entry: "t.captured",
+    nodes: [
+      {
+        id: "t.captured",
+        kind: "trigger",
+        event: "first_party_interest_captured",
+        evidence: {
+          requires: [
+            "a first-party capture recorded with the context the person declared",
+            "a contact point the person gave in that capture",
+            "the permission position recorded as its own fact, separate from the submission",
+          ],
+          insufficientAlone: [
+            "a session or a page view with no declaration in it",
+            "a contact point obtained from a third party",
+            "a submitted form read as permission because it was submitted",
+          ],
+          source: "declared",
+        },
+        next: "c.declared",
+      },
+      {
+        id: "c.declared",
+        kind: "condition",
+        asks: "What did the person actually declare?",
+        branches: [
+          {
+            label: "Asked for a person",
+            when: "the capture states a request only a person can answer - a conversation, a price for their own situation, an assessment",
+            to: "a.first-touch",
+          },
+          {
+            label: "Asked for the material",
+            when: "the capture asks for a document, an access or a notification and names no person-led request",
+            to: "a.deliver",
+          },
+        ],
+      },
+      {
+        id: "a.first-touch",
+        kind: "action",
+        does: "Send what they asked for and say that a person will follow up, naming when. A promised follow-up with no time on it reads as a queue rather than an answer, and the person starts again elsewhere",
+        next: "h.person",
+        execution: "communication",
+      },
+      {
+        id: "h.person",
+        kind: "handoff",
+        to: "external:sales-assignment",
+        on: "a captured interest whose declared request can only be answered by a person",
+        carries: [
+          "what the person declared and asked for, in their own terms",
+          "what was already sent to them and when",
+          "the permission facts recorded, and what they do and do not cover",
+        ],
+      },
+      {
+        id: "a.deliver",
+        kind: "action",
+        does: "Send exactly what the capture asked for, once, and nothing the person did not ask for alongside it. Fulfilment travels on the request; everything past it travels on permission, and the two must not be posted together",
+        next: "c.permission",
+        execution: "communication",
+      },
+      {
+        id: "c.permission",
+        kind: "condition",
+        asks: "Is there permission to continue past fulfilment?",
+        branches: [
+          {
+            label: "Permitted",
+            when: "a permission covering ongoing contact was given in the capture and recorded as its own fact",
+            to: "a.nurture",
+          },
+          {
+            label: "Fulfilment only",
+            when: "nothing beyond the single requested delivery was permitted",
+            to: "x.delivered",
+          },
+        ],
+      },
+      {
+        id: "a.nurture",
+        kind: "action",
+        does: "Open a bounded sequence on the subject they declared, and state where it ends when it opens. A sequence with no stated end is a subscription nobody agreed to, and it is remembered as one",
+        next: "w.nurture",
+        execution: "communication",
+      },
+      {
+        id: "w.nurture",
+        kind: "wait",
+        until: [
+          "the person does something that names a destination - a reply, a request to talk, a purchase",
+          "the person withdraws permission or asks to stop",
+        ],
+        onEvent: "c.progressed",
+        timeout: {
+          after: "the stated length of the bounded sequence",
+          reason: "the end was stated when the sequence opened, and moving it silently is what turns interest into complaint",
+        },
+        onTimeout: "x.sunset",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.progressed",
+        kind: "condition",
+        asks: "What ended the sequence?",
+        branches: [
+          {
+            label: "Readiness declared",
+            when: "the person did something that names a destination they are now ready for",
+            to: "h.person",
+          },
+          {
+            label: "Stopped",
+            when: "the person withdrew permission or asked to stop",
+            to: "x.stopped",
+          },
+        ],
+      },
+      {
+        id: "x.stopped",
+        kind: "exit",
+        state: "stopped at the person's request",
+        terminal: true,
+        reEntry: "a later capture carrying its own permission is a new instance; this one is never resumed",
+      },
+      {
+        id: "x.sunset",
+        kind: "exit",
+        state: "sequence ended, no destination declared",
+        terminal: false,
+        reEntry: "a later capture from the same person is its own instance with its own destination",
+      },
+      {
+        id: "x.delivered",
+        kind: "exit",
+        state: "fulfilled, no continuing contact permitted",
+        terminal: false,
+        reEntry: "a later capture that carries a permission opens the bounded path",
+      },
+    ],
+    guardrails: [
+      "A capture records interest, not a decision. Nothing downstream treats it as one.",
+      "The submission and the permission are two facts, and only one of them may have happened.",
+      "Not every capture earns a person. The destination comes from what was declared, not from what the pipeline is short of.",
+      "A bounded sequence states its end when it opens and stops there, whether or not anything came of it.",
+    ],
+    reusableRule:
+      "What somebody asked for is the entire mandate for the first message, and everything after it needs a permission of its own.",
+  },
 ];
