@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { SurfaceWireframe } from "@/components/ui/SurfaceWireframe";
-import { abPlaybookText, abSetupMode } from "@/lib/ab-test-playbook";
+import { VariableDiagram } from "@/components/ui/VariableDiagram";
+import { abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
+import type { AbVariableKind } from "@/lib/ab-test-playbook";
 import type { AbTestDetail } from "@/lib/ab-test-view";
 
 /* The A/B test detail page, built to the AB001_Detail_Page_v5 reference.
@@ -108,9 +109,22 @@ export default function AbTestPlaybookPage({
   const t = T[lang];
   const { lede, hypothesis, takeaway } = abPlaybookText(test.hypothesis);
   const mode = abSetupMode(test);
+  /* What the experiment varies. Drives the diagram; exposed as a data
+     attribute so the classification can be audited against the rendered
+     page rather than against a copy of the rule. */
+  const kind = abVariableKind(test);
+  /* The one behaviour whose two sides the data fixes: on `add` the control
+     lacks the element and the variant has it, on `remove` the reverse. Any
+     other kind draws the same diagram on both sides. */
+  const presenceOf = (side: "a" | "b"): "absent" | "present" | null => {
+    if (kind !== "presence") return null;
+    if (test.differenceBehavior === "add") return side === "a" ? "absent" : "present";
+    if (test.differenceBehavior === "remove") return side === "a" ? "present" : "absent";
+    return null;
+  };
 
   return (
-    <div className="mx-auto max-w-[1120px] px-6 pb-24 sm:px-8">
+    <div className="mx-auto max-w-[1120px] px-6 pb-24 sm:px-8" data-ab-variable={kind} data-ab-mode={mode}>
       <header className={`flex items-baseline justify-between border-b border-line py-5 ${RAIL}`}>
         <Link href={basePath} className="transition-colors hover:text-ink-800">
           ← {t.back}
@@ -154,9 +168,11 @@ export default function AbTestPlaybookPage({
               label={t.control}
               letter="A"
               side={test.sideA!}
-              surface={test.surface}
+              kind={kind}
+              presence={presenceOf("a")}
               testedSlot={test.testedSlot}
               testedElementLabel={t.testedElement}
+              lang={lang}
             />
             <div className="flex items-center justify-center lg:h-full">
               <span aria-hidden className="font-mono text-[13px] text-ink-300 max-lg:rotate-90">
@@ -167,18 +183,16 @@ export default function AbTestPlaybookPage({
               label={t.variant}
               letter="B"
               side={test.sideB!}
-              surface={test.surface}
+              kind={kind}
+              presence={presenceOf("b")}
               testedSlot={test.testedSlot}
               testedElementLabel={t.testedElement}
+              lang={lang}
             />
           </div>
         ) : (
           <div className="mt-7 grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-10">
-            <SurfaceWireframe
-              surface={test.surface}
-              testedSlot={test.testedSlot}
-              label={t.testedElement}
-            />
+            <VariableDiagram kind={kind} testedSlot={test.testedSlot} label={t.testedElement} lang={lang} />
             <div className="flex flex-col justify-center gap-6">
               <div>
                 <p className={RAIL}>{t.whatChanges}</p>
@@ -316,16 +330,20 @@ function SidePanel({
   label,
   letter,
   side,
-  surface,
+  kind,
+  presence,
   testedSlot,
   testedElementLabel,
+  lang,
 }: {
   label: string;
   letter: string;
   side: { role: string; label: string | null; sourceBasis: string | null };
-  surface: string;
+  kind: AbVariableKind;
+  presence: "absent" | "present" | null;
   testedSlot: string | null;
   testedElementLabel: string;
+  lang: Lang;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -333,7 +351,7 @@ function SidePanel({
         <span className="font-mono text-[12px] tracking-[0.12em] text-ink-800 uppercase">{label}</span>
         <span className="font-mono text-[11px] text-ink-400">{letter}</span>
       </div>
-      <SurfaceWireframe surface={surface} testedSlot={testedSlot} label={testedElementLabel} />
+      <VariableDiagram kind={kind} testedSlot={testedSlot} label={testedElementLabel} lang={lang} presence={presence} />
       <p className="text-[14px] leading-relaxed text-pretty text-ink-700">{side.label ?? "—"}</p>
       {side.sourceBasis && (
         <p className="text-[12px] leading-relaxed text-ink-400">{side.sourceBasis}</p>
