@@ -170,6 +170,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-221",
     slug: "data-intake",
     category: "data",
+    goal: "data-integrity",
+    channels: [],
     name: "Data intake → identify format → parse or reject",
     purpose:
       "Get an incoming dataset into a stable readable form, without touching anything real while doing it.",
@@ -302,6 +304,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-222",
     slug: "data-validation",
     category: "data",
+    goal: "data-integrity",
+    channels: [],
     name: "Parsed data → validate schema and semantics → accept, reject or quarantine",
     purpose:
       "Establish that the data is valid for the target it is going into, record by record where that is meaningful.",
@@ -490,6 +494,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-223",
     slug: "change-impact-preview",
     category: "data",
+    goal: "decision-approval",
+    channels: ["task"],
     name: "Valid data → preview and impact analysis → confirm or hold",
     purpose:
       "Show what the mutation would actually do, so an approval attaches to that rather than to a filename.",
@@ -573,6 +579,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Present the impact summary bound to this exact change-set version. A confirmation that binds to the intake rather than the version approves whatever the change set later becomes, including a regenerated one nobody looked at",
         writes: [{ field: "intake_log", mode: "append" }],
         next: "w.confirm",
+        execution: "human",
       },
       {
         id: "w.confirm",
@@ -689,6 +696,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-224",
     slug: "import-execution",
     category: "data",
+    goal: "data-integrity",
+    channels: [],
     name: "Import execution → apply idempotently → complete, partial or fail",
     purpose:
       "Apply a fixed validated change set to production state, keeping every record's outcome.",
@@ -848,6 +857,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-225",
     slug: "partial-import-recovery",
     category: "data",
+    goal: "reconciliation-correction",
+    channels: [],
     name: "Partial import → isolate failed scope → correct → resume",
     purpose:
       "Fix only what did not land, without touching the records that already did.",
@@ -1028,6 +1039,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-226",
     slug: "migration-readiness",
     category: "data",
+    goal: "data-integrity",
+    channels: [],
     name: "Migration plan → map source to target → validate readiness",
     purpose:
       "Prove the target can carry the source's meaning before anything is moved.",
@@ -1182,6 +1195,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-227",
     slug: "migration-execution",
     category: "data",
+    goal: "data-integrity",
+    channels: [],
     name: "Migration execute → copy and transform → verify population",
     purpose:
       "Move the population and then prove the result still means what the source meant.",
@@ -1308,6 +1323,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-228",
     slug: "cutover",
     category: "data",
+    goal: "change-versioning",
+    channels: [],
     name: "Cutover → switch authority → observe → stabilize or roll back",
     purpose:
       "Change which system is authoritative, once, with a way back that was defined before it was needed.",
@@ -1475,6 +1492,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-229",
     slug: "historical-backfill",
     category: "data",
+    goal: "data-integrity",
+    channels: [],
     name: "Historical backfill → scope window → apply without replaying stale actions",
     purpose:
       "Repair a gap in the record without re-enacting the things those events would have caused.",
@@ -1633,6 +1652,8 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DAT-230",
     slug: "transformation-error-recovery",
     category: "data",
+    goal: "reconciliation-correction",
+    channels: [],
     name: "Data transformation error → reconcile → correct, roll forward or roll back",
     purpose:
       "Undo the wrong mutation without undoing the right things that happened after it.",

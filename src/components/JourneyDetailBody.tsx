@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
+import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
 import type { copy, Lang } from "@/lib/content";
 
@@ -105,13 +106,21 @@ export default function JourneyDetailBody({
   detail,
   merged,
   basePath,
+  lang,
   t,
 }: {
   detail: JourneyDetail;
   merged: MergedRedirect | null;
   basePath: string;
+  lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
 }) {
+  /* Localised once here rather than inside the canvas, which is a client
+     island: the labels are static copy, so resolving them on the server
+     keeps the channel vocabulary out of the browser bundle. */
+  const messageLabels = messageChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
+  const humanLabels = humanChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
+
   return (
     <div>
       {/* A retired id resolves here rather than 404ing, and says so before
@@ -136,6 +145,8 @@ export default function JourneyDetailBody({
             close: t.close,
             terminal: t.terminalLabel,
           }}
+          messageLabels={messageLabels}
+          humanLabels={humanLabels}
         />
       </section>
 

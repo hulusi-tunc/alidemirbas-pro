@@ -5,7 +5,7 @@ import { pageAlternates } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Canonical Journey Library - Ali Demirbaş",
   description:
-    "255 domain-neutral lifecycle state machines across 26 categories, filterable by category and by what the trigger is allowed to conclude.",
+    "255 domain-neutral lifecycle state machines across 26 categories, searchable and filterable by goal.",
   alternates: pageAlternates("/lab/journeys", "en"),
 };
 

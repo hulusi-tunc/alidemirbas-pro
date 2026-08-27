@@ -162,6 +162,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-131",
     slug: "financial-obligation-lifecycle",
     category: "financial",
+    goal: "reconciliation-correction",
+    channels: [],
     name: "Financial obligation created → due → satisfied or outstanding",
     purpose:
       "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
@@ -321,6 +323,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-132",
     slug: "payment-attempt-outcome",
     category: "financial",
+    goal: "delivery-confirmation",
+    channels: [],
     name: "Payment initiated → pending → success, failure or unknown",
     purpose:
       "Keep initiating a payment and knowing what happened to it as separate states, with a third state for not knowing.",
@@ -452,6 +456,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-133",
     slug: "authorization-capture-settlement",
     category: "financial",
+    goal: "progression-milestone",
+    channels: [],
     name: "Payment authorization → capture → settle or release",
     purpose:
       "Model the actual commitment of funds, where reserving, taking and receiving are three different things.",
@@ -630,6 +636,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-134",
     slug: "payment-failure-recovery",
     category: "financial",
+    goal: "recovery-retry",
+    channels: ["email", "in-app", "push", "sms", "whatsapp"],
     name: "Payment failure → classify → recover, alternate or exit",
     purpose:
       "Respond to the reason a payment actually failed, and keep the obligation alive while doing it.",
@@ -701,6 +709,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request the exact corrective action - update the method, complete the authentication, choose another method. Naming what to fix is the whole value of the classification, and a generic notice that payment failed makes the person guess. Provider risk detail and internal decline codes are not exposed",
         writes: [{ field: "payment_log", mode: "append" }],
         next: "w.recovery",
+        execution: "communication",
       },
       {
         id: "c.alternate",
@@ -820,6 +829,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-135",
     slug: "unknown-payment-reconciliation",
     category: "financial",
+    goal: "reconciliation-correction",
+    channels: [],
     name: "Payment unknown → reconcile → confirm success or failure",
     purpose:
       "Find out what actually happened to a payment whose outcome we lost sight of, before anything is charged again.",
@@ -986,6 +997,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-136",
     slug: "obligation-satisfaction",
     category: "financial",
+    goal: "reconciliation-correction",
+    channels: [],
     name: "Financial obligation satisfied → reconcile balance → release dependent state",
     purpose:
       "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
@@ -1126,6 +1139,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-137",
     slug: "refund-request-decision",
     category: "financial",
+    goal: "eligibility-qualification",
+    channels: ["email", "task"],
     name: "Refund request → eligibility → approve, reject or review",
     purpose:
       "Turn a refund request into an authorised decision, without money moving on the request itself.",
@@ -1185,6 +1200,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reject with the actual reason and whatever process does apply. A rejection that does not say why produces the next request rather than closing this one",
         writes: [{ field: "refund_log", mode: "append" }],
         next: "x.rejected",
+        execution: "communication",
       },
       {
         id: "c.policy",
@@ -1256,6 +1272,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record UNDER_REVIEW and gather whatever the decision requires. Nothing moves while it is under review",
         writes: [{ field: "refund_log", mode: "append" }],
         next: "w.decision",
+        execution: "human",
       },
       {
         id: "w.decision",
@@ -1292,6 +1309,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record APPROVED with the authorised amount and the authority that approved it. Approved authorises the movement and performs none of it",
         writes: [{ field: "refund_log", mode: "append" }],
         next: "h.execute",
+        execution: "human",
       },
       {
         id: "h.execute",
@@ -1318,6 +1336,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-138",
     slug: "refund-execution",
     category: "financial",
+    goal: "delivery-confirmation",
+    channels: [],
     name: "Refund approved → execute → confirm or reconcile",
     purpose:
       "Move the money and confirm it arrived, keeping that separate from having decided it should.",
@@ -1460,6 +1480,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-139",
     slug: "financial-dispute",
     category: "financial",
+    goal: "risk-compliance",
+    channels: [],
     name: "Financial dispute or chargeback → evidence → decision → reconcile",
     purpose:
       "Run a transaction-level dispute through the authority that decides it, without treating the claim as a finding.",
@@ -1618,6 +1640,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FIN-140",
     slug: "financial-reconciliation",
     category: "financial",
+    goal: "reconciliation-correction",
+    channels: [],
     name: "Financial reconciliation → detect mismatch → correct or escalate",
     purpose:
       "Restore financial consistency by explaining the difference and adjusting it, never by editing the record that is inconvenient.",

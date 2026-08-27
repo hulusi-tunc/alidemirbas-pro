@@ -141,6 +141,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-81",
     slug: "identity-claim-verification",
     category: "identity",
+    goal: "identity-verification",
+    channels: ["in-app", "email"],
     name: "Identity claim → evidence → verified, rejected or more evidence",
     purpose:
       "Establish confidence in one specific identity claim, bound to the evidence that established it.",
@@ -203,6 +205,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request the minimum evidence this claim requires, and record the state as EVIDENCE_REQUIRED. Evidence is scoped to the claim - collecting more than it needs creates a liability without creating confidence, and asking for a passport to confirm a phone number tells the person we do not know what we are checking",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "w.evidence",
+        execution: "communication",
       },
       {
         id: "w.evidence",
@@ -282,6 +285,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request the specific additional evidence that would settle it, naming what is missing rather than repeating the original request",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "w.evidence",
+        execution: "communication",
       },
       {
         id: "h.review",
@@ -334,6 +338,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-82",
     slug: "verification-dependency",
     category: "identity",
+    goal: "identity-verification",
+    channels: [],
     name: "Verification requirement → collect evidence → resume blocked process",
     purpose:
       "Hold a verification dependency as its own state, blocking only the process that needs it and releasing it only after everything else is rechecked.",
@@ -526,6 +532,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-83",
     slug: "document-validation",
     category: "identity",
+    goal: "eligibility-qualification",
+    channels: [],
     name: "Document submitted → validate → accept, reject or replace",
     purpose:
       "Keep uploading a document and satisfying a requirement as separate facts, and keep an acceptance bound to the requirement it was assessed against.",
@@ -690,6 +698,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-84",
     slug: "verification-failure-routing",
     category: "identity",
+    goal: "identity-verification",
+    channels: ["in-app", "email"],
     name: "Verification failure → reason → retry, remediate, review or exit",
     purpose:
       "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
@@ -766,6 +776,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Explain exactly what needs correcting and offer the bounded retry. A retry offered without an explanation produces the same attempt again, which spends the budget without improving anything",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.retry",
+        execution: "communication",
       },
       {
         id: "c.technical-budget",
@@ -843,6 +854,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-85",
     slug: "authentication-challenge",
     category: "identity",
+    goal: "identity-verification",
+    channels: ["sms", "push", "email"],
     name: "Authentication challenge → authenticate, step up or deny",
     purpose:
       "Establish that whoever is present controls the required identity, at the assurance the context demands.",
@@ -906,6 +919,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Issue the challenge appropriate to the required assurance level",
         writes: [{ field: "authentication_log", mode: "append" }],
         next: "w.auth",
+        execution: "communication",
       },
       {
         id: "w.auth",
@@ -997,6 +1011,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-86",
     slug: "step-up-authentication",
     category: "identity",
+    goal: "identity-verification",
+    channels: [],
     name: "Step-up requirement → stronger authentication → resume or deny",
     purpose:
       "Raise identity assurance for a sensitive action, then check the action is still authorised before it runs.",
@@ -1117,6 +1133,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-87",
     slug: "authentication-failure-pattern",
     category: "identity",
+    goal: "risk-compliance",
+    channels: [],
     name: "Authentication failure pattern → security check → recover or restrict",
     purpose:
       "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
@@ -1228,6 +1246,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-88",
     slug: "account-recovery",
     category: "identity",
+    goal: "suspension-restoration",
+    channels: [],
     name: "Account recovery request → prove control → restore secure access",
     purpose:
       "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
@@ -1427,6 +1447,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-89",
     slug: "identity-attribute-change",
     category: "identity",
+    goal: "change-versioning",
+    channels: [],
     name: "Identity attribute change → verify if required → update → propagate",
     purpose:
       "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
@@ -1601,6 +1623,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     id: "IDN-90",
     slug: "suspected-account-compromise",
     category: "identity",
+    goal: "escalation-exception",
+    channels: [],
     name: "Suspected account compromise → contain → verify → recover or clear",
     purpose:
       "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",

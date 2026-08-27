@@ -4,6 +4,8 @@
       "id": "ACQ-01",
       "slug": "anonymous-intent-to-qualified-entry",
       "category": "acquisition",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Anonymous intent → known identity → qualified entry",
       "purpose": "Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.",
       "entity": {
@@ -135,6 +137,8 @@
       "id": "ACQ-02",
       "slug": "captured-interest-to-destination",
       "category": "acquisition",
+      "goal": "routing-assignment",
+      "channels": [],
       "name": "Captured interest → qualification → appropriate destination",
       "purpose": "Route first-party interest to the destination its own content justifies, instead of treating every capture as either a sales lead or a subscriber.",
       "entity": {
@@ -256,6 +260,8 @@
       "id": "ACQ-03",
       "slug": "intent-escalation-handoff",
       "category": "acquisition",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Intent escalation → higher-intent journey handoff",
       "purpose": "Move ownership when someone in a low-intent lifecycle does something that no longer fits it, and make sure the journey being left behind actually goes quiet.",
       "entity": {
@@ -381,6 +387,11 @@
       "id": "ACQ-04",
       "slug": "high-intent-human-or-automated-route",
       "category": "acquisition",
+      "goal": "escalation-exception",
+      "channels": [
+        "sales",
+        "task"
+      ],
       "name": "High-intent action → qualification → human or automated route",
       "purpose": "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
       "entity": {
@@ -487,7 +498,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.human"
+          "next": "h.human",
+          "execution": "human"
         },
         {
           "id": "h.human",
@@ -531,6 +543,8 @@
       "id": "ACQ-05",
       "slug": "qualification-state-change-routing",
       "category": "acquisition",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Qualification state change → route, re-route or exit",
       "purpose": "Treat qualification as a reversible state whose routing depends on why it changed, rather than a label applied once and trusted afterwards.",
       "entity": {
@@ -760,6 +774,8 @@
       "id": "ACQ-06",
       "slug": "dynamic-eligibility-consequence",
       "category": "acquisition",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Dynamic eligibility → eligible or ineligible → consequence",
       "purpose": "Re-decide eligibility as the underlying data changes, and separate what it forbids next from what it does not undo.",
       "entity": {
@@ -901,6 +917,8 @@
       "id": "ACQ-07",
       "slug": "intent-decay-cooldown",
       "category": "acquisition",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Intent decay → de-prioritise → cooldown or exit",
       "purpose": "Let a recorded high-intent state expire when the evidence behind it goes stale, instead of pursuing someone on the strength of something they did once.",
       "entity": {
@@ -1061,6 +1079,8 @@
       "id": "ACQ-08",
       "slug": "destination-reached-acquisition-suppression",
       "category": "acquisition",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Commercial destination reached → acquisition suppression → lifecycle handoff",
       "purpose": "Make acquisition give up ownership the moment the outcome it existed to cause is recorded, and stop what it has already queued.",
       "entity": {
@@ -1180,6 +1200,11 @@
       "id": "ACQ-09",
       "slug": "bounded-education-progress-or-sunset",
       "category": "acquisition",
+      "goal": "progression-milestone",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Researching lead → bounded education → progress or sunset",
       "purpose": "Give a legitimate but not-yet-ready lead a window of useful education that ends whether or not it worked.",
       "entity": {
@@ -1234,7 +1259,8 @@
           "id": "a.educate",
           "kind": "action",
           "does": "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
-          "next": "w.window"
+          "next": "w.window",
+          "execution": "communication"
         },
         {
           "id": "w.window",
@@ -1292,6 +1318,8 @@
       "id": "ACQ-10",
       "slug": "commercial-decline-reason-routing",
       "category": "acquisition",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Explicit commercial decline → reason → terminal, cooldown or recycle",
       "purpose": "Route a negative commercial outcome by its cause rather than filing every one of them under lost.",
       "entity": {
@@ -1472,6 +1500,10 @@
       "id": "ACT-11",
       "slug": "onboarding-route-selection",
       "category": "activation",
+      "goal": "routing-assignment",
+      "channels": [
+        "task"
+      ],
       "name": "New entry → onboarding route → appropriate path",
       "purpose": "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
       "entity": {
@@ -1541,7 +1573,8 @@
               "mode": "set"
             }
           ],
-          "next": "c.prerequisite"
+          "next": "c.prerequisite",
+          "execution": "human"
         },
         {
           "id": "a.self-service",
@@ -1605,6 +1638,11 @@
       "id": "ACT-12",
       "slug": "onboarding-progress-next-step",
       "category": "activation",
+      "goal": "progression-milestone",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Onboarding progress → next best setup step → activation",
       "purpose": "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
       "entity": {
@@ -1658,7 +1696,8 @@
           "id": "a.surface",
           "kind": "action",
           "does": "Surface the single most useful next action. A completed step is never suggested again, and an order is imposed only where one step genuinely depends on another - elsewhere the person picks",
-          "next": "w.progress"
+          "next": "w.progress",
+          "execution": "communication"
         },
         {
           "id": "c.ready",
@@ -1765,6 +1804,14 @@
       "id": "ACT-13",
       "slug": "activation-blocker-resolution",
       "category": "activation",
+      "goal": "relationship-recovery-intervention",
+      "channels": [
+        "email",
+        "push",
+        "sms",
+        "whatsapp",
+        "task"
+      ],
       "name": "Missing activation requirement → resolve blocker → resume",
       "purpose": "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
       "entity": {
@@ -1853,7 +1900,8 @@
           "id": "a.specific-action",
           "kind": "action",
           "does": "Give the one specific action that clears this requirement, named as the thing it is - never a general prompt to finish setup, which tells someone who is already blocked nothing they did not know",
-          "next": "w.resolve"
+          "next": "w.resolve",
+          "execution": "communication"
         },
         {
           "id": "a.route-dependency",
@@ -1865,7 +1913,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.resolve"
+          "next": "w.resolve",
+          "execution": "human"
         },
         {
           "id": "w.resolve",
@@ -1991,6 +2040,13 @@
       "id": "ACT-14",
       "slug": "struggling-user-assistance",
       "category": "activation",
+      "goal": "relationship-recovery-intervention",
+      "channels": [
+        "email",
+        "in-app",
+        "push",
+        "sms"
+      ],
       "name": "Struggling user detection → proactive assistance → recovery or exit",
       "purpose": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
       "entity": {
@@ -2075,7 +2131,8 @@
           "id": "a.offer",
           "kind": "action",
           "does": "Offer help named against the step they keep returning to. The primary route books assisted setup; the secondary opens the specific guide for that step, for people who would rather not talk to anyone",
-          "next": "w.response"
+          "next": "w.response",
+          "execution": "communication"
         },
         {
           "id": "w.response",
@@ -2126,7 +2183,8 @@
           "id": "a.confirm",
           "kind": "action",
           "does": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
-          "next": "w.session"
+          "next": "w.session",
+          "execution": "communication"
         },
         {
           "id": "w.session",
@@ -2188,7 +2246,8 @@
           "id": "a.followup",
           "kind": "action",
           "does": "Send one follow-up tied to what the session actually covered. There is no second one, and no further request for a call",
-          "next": "x.normal"
+          "next": "x.normal",
+          "execution": "communication"
         },
         {
           "id": "c.final-option",
@@ -2211,7 +2270,8 @@
           "id": "a.final",
           "kind": "action",
           "does": "Send one final self-service option and stop. The call is not asked for a third time",
-          "next": "x.normal"
+          "next": "x.normal",
+          "execution": "communication"
         },
         {
           "id": "h.activated",
@@ -2243,6 +2303,12 @@
       "id": "ACT-15",
       "slug": "first-value-milestone",
       "category": "activation",
+      "goal": "progression-milestone",
+      "channels": [
+        "email",
+        "in-app",
+        "push"
+      ],
       "name": "First value milestone → recognition → next meaningful action",
       "purpose": "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
       "entity": {
@@ -2279,7 +2345,8 @@
           "id": "a.recognize",
           "kind": "action",
           "does": "Acknowledge what was actually produced, in the terms of the thing itself. Recognition that names nothing real is the failure mode here - it reads as manufactured, and it devalues the milestones that follow",
-          "next": "c.next"
+          "next": "c.next",
+          "execution": "communication"
         },
         {
           "id": "c.next",
@@ -2302,7 +2369,8 @@
           "id": "a.surface",
           "kind": "action",
           "does": "Surface one relevant next action, drawn from what they produced rather than from the product's feature list",
-          "next": "h.adoption"
+          "next": "h.adoption",
+          "execution": "communication"
         },
         {
           "id": "h.adoption",
@@ -2326,6 +2394,8 @@
       "id": "ACT-16",
       "slug": "activation-stops-onboarding",
       "category": "activation",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Activation achieved → stop onboarding → adoption handoff",
       "purpose": "Make onboarding let go the moment activation is recorded, including the messages it has already queued.",
       "entity": {
@@ -2449,6 +2519,11 @@
       "id": "ACT-17",
       "slug": "early-adoption-to-stable-use",
       "category": "activation",
+      "goal": "progression-milestone",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Early adoption → usage depth → habit or stable use",
       "purpose": "Carry an account from having produced value once to producing it repeatedly, measured against its own use-case.",
       "entity": {
@@ -2512,7 +2587,8 @@
           "id": "a.next-behavior",
           "kind": "action",
           "does": "Identify the next behaviour that would actually produce more value for this use-case, and encourage only that. Breadth is not pursued where the value is narrow - a person who gets everything they need from one workflow is adopted, not under-adopted",
-          "next": "w.observe"
+          "next": "w.observe",
+          "execution": "communication"
         },
         {
           "id": "w.observe",
@@ -2550,6 +2626,11 @@
       "id": "ACT-18",
       "slug": "adoption-stall-diagnosis",
       "category": "activation",
+      "goal": "relationship-recovery-intervention",
+      "channels": [
+        "email",
+        "push"
+      ],
       "name": "Adoption stall → diagnose missing value → recover or re-route",
       "purpose": "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
       "entity": {
@@ -2624,7 +2705,8 @@
           "id": "a.recover",
           "kind": "action",
           "does": "Address the diagnosed blocker specifically. Not more encouragement, not a re-run of onboarding - the thing the diagnosis actually named",
-          "next": "w.recover"
+          "next": "w.recover",
+          "execution": "communication"
         },
         {
           "id": "w.recover",
@@ -2692,6 +2774,11 @@
       "id": "ACT-19",
       "slug": "role-use-case-discovery",
       "category": "activation",
+      "goal": "routing-assignment",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Role or use-case discovery → relevant onboarding adaptation",
       "purpose": "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
       "entity": {
@@ -2763,7 +2850,8 @@
           "id": "a.ask",
           "kind": "action",
           "does": "Ask one lightweight question covering only what the implementation will actually consume. Onboarding does not become a questionnaire on the way to the thing the person came for",
-          "next": "w.answer"
+          "next": "w.answer",
+          "execution": "communication"
         },
         {
           "id": "w.answer",
@@ -2825,6 +2913,12 @@
       "id": "ACT-20",
       "slug": "dormant-non-customer-reactivation",
       "category": "activation",
+      "goal": "relationship-recovery-intervention",
+      "channels": [
+        "email",
+        "push",
+        "sms"
+      ],
       "name": "Dormant non-customer reactivation → return → re-qualification or exit",
       "purpose": "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did.",
       "entity": {
@@ -2919,7 +3013,8 @@
           "id": "a.attempt",
           "kind": "action",
           "does": "Make one bounded attempt built on the recorded reason. Not a general note that they have been missed, which says nothing and asks for nothing",
-          "next": "w.return"
+          "next": "w.return",
+          "execution": "communication"
         },
         {
           "id": "w.return",
@@ -3024,6 +3119,8 @@
       "id": "RET-21",
       "slug": "engagement-state-reclassification",
       "category": "retention",
+      "goal": "health-risk-signal-scoring",
+      "channels": [],
       "name": "Engagement state change → reclassify → appropriate lifecycle",
       "purpose": "Hold engagement as a state that moves in both directions, and decide separately whether a movement is worth acting on.",
       "entity": {
@@ -3160,6 +3257,8 @@
       "id": "RET-22",
       "slug": "expected-usage-miss-context-check",
       "category": "retention",
+      "goal": "health-risk-signal-scoring",
+      "channels": [],
       "name": "Expected usage miss → context check → observe or intervene",
       "purpose": "Read a missed usage expectation as evidence only where an expectation genuinely existed, and only where something else corroborates it.",
       "entity": {
@@ -3266,6 +3365,8 @@
       "id": "RET-23",
       "slug": "health-deterioration-diagnosis",
       "category": "retention",
+      "goal": "relationship-recovery-intervention",
+      "channels": [],
       "name": "Health deterioration → diagnose cause → recovery route",
       "purpose": "Send a deteriorating relationship to the mechanism that is actually breaking it, and never to a generic retention campaign in its place.",
       "entity": {
@@ -3499,6 +3600,10 @@
       "id": "RET-24",
       "slug": "churn-risk-escalation",
       "category": "retention",
+      "goal": "relationship-recovery-intervention",
+      "channels": [
+        "task"
+      ],
       "name": "Churn risk escalation → evidence → intervention priority",
       "purpose": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
       "entity": {
@@ -3632,7 +3737,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.human"
+          "next": "h.human",
+          "execution": "human"
         },
         {
           "id": "h.human",
@@ -3691,6 +3797,11 @@
       "id": "RET-26",
       "slug": "negative-experience-recovery",
       "category": "retention",
+      "goal": "compensation-remedy",
+      "channels": [
+        "email",
+        "push"
+      ],
       "name": "Negative experience → recovery eligibility → appropriate response",
       "purpose": "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
       "entity": {
@@ -3836,7 +3947,8 @@
           "id": "a.acknowledge",
           "kind": "action",
           "does": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation - a remedy offered instead of an account of what went wrong reads as buying silence",
-          "next": "x.acknowledged"
+          "next": "x.acknowledged",
+          "execution": "communication"
         },
         {
           "id": "x.acknowledged",
@@ -3857,6 +3969,8 @@
       "id": "RET-27",
       "slug": "recovery-observation-buffer",
       "category": "retention",
+      "goal": "relationship-recovery-intervention",
+      "channels": [],
       "name": "Recovery signal → observation buffer → stable or relapse",
       "purpose": "Keep the distance between a good sign and an actual recovery, so a relapse is still being watched for when it happens.",
       "entity": {
@@ -3975,6 +4089,11 @@
       "id": "RET-28",
       "slug": "cancellation-intent-decision-point",
       "category": "retention",
+      "goal": "cancellation-termination",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Cancellation intent → understand state → save or proceed",
       "purpose": "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
       "entity": {
@@ -4050,7 +4169,8 @@
           "id": "a.ask",
           "kind": "action",
           "does": "Ask once, with the cancellation path fully open beside the question. The question is never a step that has to be passed to leave - a reason obtained that way is not information, it is a toll",
-          "next": "a.record-reason"
+          "next": "a.record-reason",
+          "execution": "communication"
         },
         {
           "id": "a.record-reason",
@@ -4097,7 +4217,8 @@
           "id": "a.offer",
           "kind": "action",
           "does": "Offer the alternative that matches the reason, once, alongside an unobstructed path to continue cancelling. A discount appears only where the reason is price and policy supports it - offering one for a technical fault answers the wrong question and reveals that nobody read the reason",
-          "next": "h.intervention"
+          "next": "h.intervention",
+          "execution": "communication"
         },
         {
           "id": "h.intervention",
@@ -4173,6 +4294,8 @@
       "id": "RET-29",
       "slug": "cancellation-completed-wind-down",
       "category": "retention",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Cancellation completed → stop retention → resolve remaining relationship",
       "purpose": "End retention ownership the moment cancellation is real, and manage what is still outstanding without pretending the relationship is either fully over or still winnable.",
       "entity": {
@@ -4322,6 +4445,11 @@
       "id": "RET-30",
       "slug": "retention-intervention-outcome",
       "category": "retention",
+      "goal": "reconciliation-correction",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Retention intervention → outcome → suppress, escalate or exit",
       "purpose": "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
       "entity": {
@@ -4514,7 +4642,8 @@
           "id": "a.followup",
           "kind": "action",
           "does": "Send one follow-up and stop. There is no second, whatever the value of the relationship",
-          "next": "x.cooldown"
+          "next": "x.cooldown",
+          "execution": "communication"
         },
         {
           "id": "x.cooldown",
@@ -4536,6 +4665,8 @@
       "id": "CON-31",
       "slug": "permission-capture-and-scope",
       "category": "consent",
+      "goal": "consent-permission",
+      "channels": [],
       "name": "Permission capture → validate scope → activate or reject",
       "purpose": "Turn a permission decision into an auditable record of what exactly was authorised, rather than a flag that says yes.",
       "entity": {
@@ -4682,6 +4813,8 @@
       "id": "CON-32",
       "slug": "preference-capture",
       "category": "consent",
+      "goal": "consent-permission",
+      "channels": [],
       "name": "Preference capture → persist → personalise eligible communication",
       "purpose": "Record how someone would like permitted communication done, in a store that structurally cannot become permission.",
       "entity": {
@@ -4771,6 +4904,8 @@
       "id": "CON-33",
       "slug": "preference-change-recalculation",
       "category": "consent",
+      "goal": "consent-permission",
+      "channels": [],
       "name": "Preference change → recalculate active journeys → suppress or adapt",
       "purpose": "Make a preference change reach the messages already sitting in a queue, not just the profile field.",
       "entity": {
@@ -4868,6 +5003,8 @@
       "id": "CON-34",
       "slug": "frequency-preference-recalculation",
       "category": "consent",
+      "goal": "consent-permission",
+      "channels": [],
       "name": "Communication frequency change → recalculate cadence → apply prospectively",
       "purpose": "Recalculate how often optional communication may go out, without letting that quietly reach the messages someone has to receive.",
       "entity": {
@@ -4998,6 +5135,8 @@
       "id": "CON-35",
       "slug": "permission-change-enforcement",
       "category": "consent",
+      "goal": "consent-permission",
+      "channels": [],
       "name": "Consent or permission change → immediate enforcement → propagate",
       "purpose": "Stop affected communication the moment permission changes, and let the distributed systems catch up afterwards.",
       "entity": {
@@ -5133,6 +5272,8 @@
       "id": "CON-36",
       "slug": "channel-contactability-state",
       "category": "consent",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Channel contactability change → recalculate reachability → route or suppress",
       "purpose": "Track whether a channel can reach someone, as a state entirely separate from whether it may, and keep each destination's route health separately so future sending routes around what is broken.",
       "entity": {
@@ -5366,6 +5507,8 @@
       "id": "CON-38",
       "slug": "communication-suppression-state",
       "category": "consent",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Communication suppression → reason → release or persist",
       "purpose": "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
       "entity": {
@@ -5492,6 +5635,8 @@
       "id": "CON-39",
       "slug": "communication-cooldown",
       "category": "consent",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Communication cooldown → hold optional messaging → re-evaluate",
       "purpose": "Reduce optional communication pressure for a while, without touching permission and without covering more than it needs to.",
       "entity": {
@@ -5626,6 +5771,8 @@
       "id": "CON-40",
       "slug": "permission-conflict-failsafe",
       "category": "consent",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Permission conflict → fail-safe state → reconcile → restore",
       "purpose": "Hold optional communication closed while two systems disagree about permission, and reconcile on evidence rather than on whichever value allows more.",
       "entity": {
@@ -5812,6 +5959,13 @@
       "id": "FBK-41",
       "slug": "feedback-eligibility",
       "category": "feedback",
+      "goal": "eligibility-qualification",
+      "channels": [
+        "email",
+        "in-app",
+        "push",
+        "sms"
+      ],
       "name": "Feedback eligibility → ask, suppress or delay",
       "purpose": "Decide whether asking is appropriate at all, and hold the gap between asking and hearing back as a real state.",
       "entity": {
@@ -5969,7 +6123,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.response"
+          "next": "w.response",
+          "execution": "communication"
         },
         {
           "id": "w.response",
@@ -6013,6 +6168,12 @@
       "id": "FBK-42",
       "slug": "advocacy-eligibility",
       "category": "feedback",
+      "goal": "eligibility-qualification",
+      "channels": [
+        "email",
+        "in-app",
+        "push"
+      ],
       "name": "Advocacy eligibility → ask, delay or suppress",
       "purpose": "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
       "entity": {
@@ -6126,13 +6287,15 @@
           "id": "a.ask-light",
           "kind": "action",
           "does": "Make the small ask, once, with no follow-up sequence behind it",
-          "next": "w.response"
+          "next": "w.response",
+          "execution": "communication"
         },
         {
           "id": "a.ask-heavy",
           "kind": "action",
           "does": "Make the substantial ask, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint",
-          "next": "w.response"
+          "next": "w.response",
+          "execution": "communication"
         },
         {
           "id": "w.response",
@@ -6217,6 +6380,12 @@
       "id": "FBK-43",
       "slug": "feedback-routing-and-loop-closure",
       "category": "feedback",
+      "goal": "escalation-exception",
+      "channels": [
+        "email",
+        "in-app",
+        "task"
+      ],
       "name": "Feedback received → classify → route → close the loop",
       "purpose": "Get feedback to the process that can act on it, and keep the record open until anything promised in return has actually happened.",
       "entity": {
@@ -6343,7 +6512,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.outcome"
+          "next": "w.outcome",
+          "execution": "human"
         },
         {
           "id": "w.outcome",
@@ -6427,7 +6597,8 @@
           "id": "a.acknowledge",
           "kind": "action",
           "does": "Acknowledge specifically enough that it is clear a person could have read it",
-          "next": "x.stored"
+          "next": "x.stored",
+          "execution": "communication"
         },
         {
           "id": "x.stored",
@@ -6455,6 +6626,13 @@
       "id": "FBK-44",
       "slug": "negative-feedback-issue-check",
       "category": "feedback",
+      "goal": "escalation-exception",
+      "channels": [
+        "email",
+        "in-app",
+        "push",
+        "task"
+      ],
       "name": "Negative feedback → issue check → resolve, acknowledge or escalate",
       "purpose": "Find out whether an unresolved obligation actually exists before anything that looks like recovery starts.",
       "entity": {
@@ -6554,7 +6732,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.acknowledged"
+          "next": "x.acknowledged",
+          "execution": "communication"
         },
         {
           "id": "x.acknowledged",
@@ -6590,7 +6769,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.issue"
+          "next": "h.issue",
+          "execution": "human"
         },
         {
           "id": "h.issue",
@@ -6615,6 +6795,11 @@
       "id": "FBK-45",
       "slug": "positive-feedback-recognition",
       "category": "feedback",
+      "goal": "eligibility-qualification",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Positive feedback → recognition → advocacy opportunity",
       "purpose": "Record a good experience as evidence and acknowledge it, without turning the person into an advocate by arithmetic.",
       "entity": {
@@ -6672,7 +6857,8 @@
           "id": "a.acknowledge",
           "kind": "action",
           "does": "Acknowledge the specific thing they said. A generic thank-you sent in response to praise is worse than silence, because it proves nobody read it",
-          "next": "c.contribution"
+          "next": "c.contribution",
+          "execution": "communication"
         },
         {
           "id": "c.contribution",
@@ -6747,6 +6933,10 @@
       "id": "FBK-46",
       "slug": "issue-ownership-and-closure",
       "category": "feedback",
+      "goal": "escalation-exception",
+      "channels": [
+        "task"
+      ],
       "name": "Complaint or issue created → ownership → resolution → confirmation",
       "purpose": "Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.",
       "entity": {
@@ -6822,7 +7012,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.resolution"
+          "next": "w.resolution",
+          "execution": "human"
         },
         {
           "id": "w.resolution",
@@ -6848,7 +7039,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.levels"
+          "next": "c.levels",
+          "execution": "human"
         },
         {
           "id": "c.levels",
@@ -6979,6 +7171,10 @@
       "id": "FBK-47",
       "slug": "appeal-and-dispute-review",
       "category": "feedback",
+      "goal": "decision-approval",
+      "channels": [
+        "email"
+      ],
       "name": "Appeal or dispute → evidence review → uphold, reverse or modify",
       "purpose": "Review a decision that has already been made, without erasing it while the review is running.",
       "entity": {
@@ -7048,7 +7244,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.rejected"
+          "next": "x.rejected",
+          "execution": "communication"
         },
         {
           "id": "x.rejected",
@@ -7182,6 +7379,8 @@
       "id": "FBK-48",
       "slug": "declared-context-recalculation",
       "category": "feedback",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Declared need or preference signal → persist → recalculate relevant experience",
       "purpose": "Let something a person has told us about their situation reach the decisions that actually depend on it, and nothing else.",
       "entity": {
@@ -7314,6 +7513,11 @@
       "id": "FBK-49",
       "slug": "missing-critical-data",
       "category": "feedback",
+      "goal": "recovery-retry",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Missing critical data → request or resolve → resume",
       "purpose": "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
       "entity": {
@@ -7383,7 +7587,8 @@
           "id": "a.request",
           "kind": "action",
           "does": "Request it from the actor who can actually provide it - which is often not the customer - stating what it unblocks, so the request is answerable rather than merely received",
-          "next": "w.received"
+          "next": "w.received",
+          "execution": "communication"
         },
         {
           "id": "w.received",
@@ -7493,6 +7698,8 @@
       "id": "FBK-50",
       "slug": "relationship-evidence-accumulation",
       "category": "feedback",
+      "goal": "health-risk-signal-scoring",
+      "channels": [],
       "name": "Relationship signal → evidence accumulation → state reassessment",
       "purpose": "Accumulate signals as dated evidence, and let a relationship label exist only where a policy defined what it means.",
       "entity": {
@@ -7644,6 +7851,10 @@
       "id": "OWN-51",
       "slug": "work-routing-to-responsibility",
       "category": "ownership",
+      "goal": "routing-assignment",
+      "channels": [
+        "task"
+      ],
       "name": "Work created → routing → assignment",
       "purpose": "Get new work into the smallest responsibility scope that is genuinely valid, and refuse to invent one where the policy is silent.",
       "entity": {
@@ -7731,7 +7942,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.queued"
+          "next": "x.queued",
+          "execution": "human"
         },
         {
           "id": "a.route",
@@ -7743,7 +7955,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.named"
+          "next": "c.named",
+          "execution": "human"
         },
         {
           "id": "c.named",
@@ -7791,6 +8004,8 @@
       "id": "OWN-52",
       "slug": "assignment-to-accepted-responsibility",
       "category": "ownership",
+      "goal": "routing-assignment",
+      "channels": [],
       "name": "Assignment → acceptance → active responsibility",
       "purpose": "Keep proposed responsibility and accepted responsibility as different states, so work nobody has taken is visible as such.",
       "entity": {
@@ -7971,6 +8186,8 @@
       "id": "OWN-53",
       "slug": "ownership-context-transfer",
       "category": "ownership",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Owner assignment → context transfer → work start",
       "purpose": "Give a new owner what they need to continue an existing obligation, rather than an entity with their name on it.",
       "entity": {
@@ -8098,6 +8315,10 @@
       "id": "OWN-54",
       "slug": "ownership-change-obligation-transfer",
       "category": "ownership",
+      "goal": "ownership-transfer",
+      "channels": [
+        "task"
+      ],
       "name": "Ownership change → transfer obligations → continue",
       "purpose": "Move responsibility for an active entity without losing anything that was already owed, without letting the clock restart, and without rewriting who did what before the change.",
       "entity": {
@@ -8242,7 +8463,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.dependent"
+          "next": "a.dependent",
+          "execution": "human"
         },
         {
           "id": "a.dependent",
@@ -8392,6 +8614,10 @@
       "id": "OWN-55",
       "slug": "responsibility-escalation",
       "category": "ownership",
+      "goal": "escalation-exception",
+      "channels": [
+        "task"
+      ],
       "name": "Responsibility escalation → higher authority → resolution or return",
       "purpose": "Move a blocker up to the level that can clear it, without the original owner putting the work down by raising it.",
       "entity": {
@@ -8573,7 +8799,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.resolution"
+          "next": "w.resolution",
+          "execution": "human"
         },
         {
           "id": "h.exhausted",
@@ -8599,6 +8826,10 @@
       "id": "OWN-56",
       "slug": "approval-request-review",
       "category": "ownership",
+      "goal": "decision-approval",
+      "channels": [
+        "task"
+      ],
       "name": "Approval request → review → approve, reject or request changes",
       "purpose": "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
       "entity": {
@@ -8638,7 +8869,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.review"
+          "next": "w.review",
+          "execution": "human"
         },
         {
           "id": "w.review",
@@ -8775,6 +9007,8 @@
       "id": "OWN-57",
       "slug": "multi-party-approval-aggregation",
       "category": "ownership",
+      "goal": "decision-approval",
+      "channels": [],
       "name": "Multi-party approval → aggregate required decisions → authorised or blocked",
       "purpose": "Combine several genuinely independent approval decisions strictly according to the governing policy, and refuse to proceed where no policy defines how.",
       "entity": {
@@ -9034,6 +9268,10 @@
       "id": "OWN-58",
       "slug": "material-change-after-approval",
       "category": "ownership",
+      "goal": "decision-approval",
+      "channels": [
+        "task"
+      ],
       "name": "Material change after approval → impact check → re-approval or continue",
       "purpose": "Work out whether an approval still covers what the subject has become, and re-open only the decisions whose basis stopped being true.",
       "entity": {
@@ -9183,7 +9421,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.reapproval"
+          "next": "w.reapproval",
+          "execution": "human"
         },
         {
           "id": "w.reapproval",
@@ -9256,6 +9495,8 @@
       "id": "OWN-59",
       "slug": "rejected-approval-revision-path",
       "category": "ownership",
+      "goal": "decision-approval",
+      "channels": [],
       "name": "Approval rejected → revision eligibility → resubmit or close",
       "purpose": "Keep rejection from being either a dead end by default or a retry loop, and make sure a rejected version cannot quietly execute later.",
       "entity": {
@@ -9409,6 +9650,10 @@
       "id": "OWN-60",
       "slug": "decision-authority-change",
       "category": "ownership",
+      "goal": "decision-approval",
+      "channels": [
+        "task"
+      ],
       "name": "Decision authority change → revalidate pending decisions → transfer or continue",
       "purpose": "Re-evaluate decisions against who is actually authorised now, without unapproving history or blindly moving what is pending.",
       "entity": {
@@ -9503,7 +9748,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.completed"
+          "next": "c.completed",
+          "execution": "human"
         },
         {
           "id": "h.no-authority",
@@ -9592,6 +9838,13 @@
       "id": "TIM-61",
       "slug": "deadline-tracking",
       "category": "time",
+      "goal": "escalation-exception",
+      "channels": [
+        "email",
+        "push",
+        "sms",
+        "whatsapp"
+      ],
       "name": "Deadline created → track → complete, escalate or expire",
       "purpose": "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
       "entity": {
@@ -9710,7 +9963,8 @@
           "id": "a.remind",
           "kind": "action",
           "does": "Send the reminder defined for this threshold. The reminder schedule is not the deadline and does not move it - a deadline nobody was reminded about is still the deadline",
-          "next": "w.tracking"
+          "next": "w.tracking",
+          "execution": "communication"
         },
         {
           "id": "c.consequence",
@@ -9799,6 +10053,8 @@
       "id": "TIM-62",
       "slug": "due-state-change",
       "category": "time",
+      "goal": "escalation-exception",
+      "channels": [],
       "name": "Due-state change → recalculate priority → resolve or escalate",
       "purpose": "Change what an unresolved obligation costs operationally when it becomes due or overdue, rather than only announcing that it has.",
       "entity": {
@@ -9962,6 +10218,13 @@
       "id": "TIM-63",
       "slug": "pre-expiry-window",
       "category": "time",
+      "goal": "expiry-renewal",
+      "channels": [
+        "email",
+        "in-app",
+        "push",
+        "sms"
+      ],
       "name": "Expiry approaching → eligibility check → renew, complete or let expire",
       "purpose": "Use the window before an expiry only where acting inside it could actually change what happens.",
       "entity": {
@@ -10065,7 +10328,8 @@
           "id": "a.inform",
           "kind": "action",
           "does": "Say what will happen and when, with no call to action attached - because there is no action. A prompt to act where acting is impossible is worse than silence",
-          "next": "w.resolution"
+          "next": "w.resolution",
+          "execution": "communication"
         },
         {
           "id": "x.silent",
@@ -10136,6 +10400,8 @@
       "id": "TIM-64",
       "slug": "expiry-execution",
       "category": "time",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Expiry reached → validate current state → expire, extend or replace",
       "purpose": "Check what the entity actually is at the moment the expiry fires, before applying anything the timer was written to apply.",
       "entity": {
@@ -10261,6 +10527,8 @@
       "id": "TIM-65",
       "slug": "grace-period",
       "category": "time",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Grace period entry → temporary continuity → recover or terminate",
       "purpose": "Keep limited continuity while something recoverable is unresolved, without pretending the normal active state still exists.",
       "entity": {
@@ -10411,6 +10679,8 @@
       "id": "TIM-66",
       "slug": "temporary-exception",
       "category": "time",
+      "goal": "escalation-exception",
+      "channels": [],
       "name": "Temporary exception → validity window → revert or formalise",
       "purpose": "Stop an exception granted for a reason from becoming a permanent state nobody remembers deciding on.",
       "entity": {
@@ -10562,6 +10832,8 @@
       "id": "TIM-67",
       "slug": "temporary-state-lifecycle",
       "category": "time",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Temporary state → explicit expiry → restore or transition",
       "purpose": "Give any time-bound state a defined ending, and revalidate before returning anything to what it was.",
       "entity": {
@@ -10723,6 +10995,8 @@
       "id": "TIM-68",
       "slug": "reversal-window",
       "category": "time",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Reversible state → reversal window → confirm or restore",
       "purpose": "Undo a transition within its window while restoring only what is independently still valid.",
       "entity": {
@@ -10867,6 +11141,8 @@
       "id": "TIM-69",
       "slug": "post-expiry-re-entry",
       "category": "time",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Expired state → re-entry eligibility → renew, requalify or remain expired",
       "purpose": "Decide how something expired can become valid again, through the mechanism that actually restores validity rather than by editing the expiry away.",
       "entity": {
@@ -10978,6 +11254,8 @@
       "id": "TIM-70",
       "slug": "scheduled-transition-execution",
       "category": "time",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Scheduled future transition → validate at execution → apply, cancel or recalculate",
       "purpose": "Treat a scheduled transition as an intention recorded in the past, and check it against the present before applying it.",
       "entity": {
@@ -11155,6 +11433,8 @@
       "id": "ACC-71",
       "slug": "entitlement-qualification",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Entitlement qualification → grant, deny or pending",
       "purpose": "Establish whether a right actually exists, as a state distinct from being eligible for one or having paid toward one.",
       "entity": {
@@ -11306,6 +11586,8 @@
       "id": "ACC-72",
       "slug": "entitlement-provisioning",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Entitlement grant → provision → verify availability",
       "purpose": "Hold the distance between a right being granted and the thing behind it actually working.",
       "entity": {
@@ -11485,6 +11767,8 @@
       "id": "ACC-73",
       "slug": "entitlement-scope-change",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Entitlement change → recalculate scope → expand, reduce or preserve",
       "purpose": "Apply only the difference between the old and new rights, rather than re-applying a whole scope over a working one.",
       "entity": {
@@ -11616,6 +11900,8 @@
       "id": "ACC-74",
       "slug": "entitlement-loss",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Entitlement loss → revoke future capability → reconcile existing obligations",
       "purpose": "Stop future use of a right that has ended without cancelling what was validly created while it was held.",
       "entity": {
@@ -11746,6 +12032,8 @@
       "id": "ACC-75",
       "slug": "access-authorization-decision",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Access request → authorization check → allow, deny or step up",
       "purpose": "Decide at the moment of the attempt whether this actor may take this action on this resource.",
       "entity": {
@@ -11853,6 +12141,8 @@
       "id": "ACC-76",
       "slug": "credential-lifecycle",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Credential issued → activate → use, expire or revoke",
       "purpose": "Run an access artifact through its own validity lifecycle, separately from the right it represents.",
       "entity": {
@@ -12082,6 +12372,8 @@
       "id": "ACC-77",
       "slug": "credential-revocation",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Credential compromise or revocation → disable → replace or re-authenticate",
       "purpose": "Take a credential out of use immediately, and let any replacement come through its own authorised path.",
       "entity": {
@@ -12227,6 +12519,8 @@
       "id": "ACC-78",
       "slug": "access-suspension",
       "category": "access",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Access suspension → restricted state → restore or terminate",
       "purpose": "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
       "entity": {
@@ -12425,6 +12719,8 @@
       "id": "ACC-79",
       "slug": "capability-restoration",
       "category": "access",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Capability restoration → revalidate → restore safely",
       "purpose": "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
       "entity": {
@@ -12546,6 +12842,8 @@
       "id": "ACC-80",
       "slug": "deprovision-with-dependency-check",
       "category": "access",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Deprovision request → dependency check → remove, retain or escalate",
       "purpose": "Remove a capability that is no longer authorised, after establishing that nothing still depends on the thing being removed.",
       "entity": {
@@ -12778,6 +13076,11 @@
       "id": "IDN-81",
       "slug": "identity-claim-verification",
       "category": "identity",
+      "goal": "identity-verification",
+      "channels": [
+        "in-app",
+        "email"
+      ],
       "name": "Identity claim → evidence → verified, rejected or more evidence",
       "purpose": "Establish confidence in one specific identity claim, bound to the evidence that established it.",
       "entity": {
@@ -12847,7 +13150,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.evidence"
+          "next": "w.evidence",
+          "execution": "communication"
         },
         {
           "id": "w.evidence",
@@ -12936,7 +13240,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.evidence"
+          "next": "w.evidence",
+          "execution": "communication"
         },
         {
           "id": "h.review",
@@ -12990,6 +13295,8 @@
       "id": "IDN-82",
       "slug": "verification-dependency",
       "category": "identity",
+      "goal": "identity-verification",
+      "channels": [],
       "name": "Verification requirement → collect evidence → resume blocked process",
       "purpose": "Hold a verification dependency as its own state, blocking only the process that needs it and releasing it only after everything else is rechecked.",
       "entity": {
@@ -13202,6 +13509,8 @@
       "id": "IDN-83",
       "slug": "document-validation",
       "category": "identity",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Document submitted → validate → accept, reject or replace",
       "purpose": "Keep uploading a document and satisfying a requirement as separate facts, and keep an acceptance bound to the requirement it was assessed against.",
       "entity": {
@@ -13394,6 +13703,11 @@
       "id": "IDN-84",
       "slug": "verification-failure-routing",
       "category": "identity",
+      "goal": "identity-verification",
+      "channels": [
+        "in-app",
+        "email"
+      ],
       "name": "Verification failure → reason → retry, remediate, review or exit",
       "purpose": "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
       "entity": {
@@ -13480,7 +13794,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.retry"
+          "next": "x.retry",
+          "execution": "communication"
         },
         {
           "id": "c.technical-budget",
@@ -13558,6 +13873,12 @@
       "id": "IDN-85",
       "slug": "authentication-challenge",
       "category": "identity",
+      "goal": "identity-verification",
+      "channels": [
+        "sms",
+        "push",
+        "email"
+      ],
       "name": "Authentication challenge → authenticate, step up or deny",
       "purpose": "Establish that whoever is present controls the required identity, at the assurance the context demands.",
       "entity": {
@@ -13624,7 +13945,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.auth"
+          "next": "w.auth",
+          "execution": "communication"
         },
         {
           "id": "w.auth",
@@ -13722,6 +14044,8 @@
       "id": "IDN-86",
       "slug": "step-up-authentication",
       "category": "identity",
+      "goal": "identity-verification",
+      "channels": [],
       "name": "Step-up requirement → stronger authentication → resume or deny",
       "purpose": "Raise identity assurance for a sensitive action, then check the action is still authorised before it runs.",
       "entity": {
@@ -13851,6 +14175,8 @@
       "id": "IDN-87",
       "slug": "authentication-failure-pattern",
       "category": "identity",
+      "goal": "risk-compliance",
+      "channels": [],
       "name": "Authentication failure pattern → security check → recover or restrict",
       "purpose": "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
       "entity": {
@@ -13966,6 +14292,8 @@
       "id": "IDN-88",
       "slug": "account-recovery",
       "category": "identity",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Account recovery request → prove control → restore secure access",
       "purpose": "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
       "entity": {
@@ -14188,6 +14516,8 @@
       "id": "IDN-89",
       "slug": "identity-attribute-change",
       "category": "identity",
+      "goal": "change-versioning",
+      "channels": [],
       "name": "Identity attribute change → verify if required → update → propagate",
       "purpose": "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
       "entity": {
@@ -14386,6 +14716,8 @@
       "id": "IDN-90",
       "slug": "suspected-account-compromise",
       "category": "identity",
+      "goal": "escalation-exception",
+      "channels": [],
       "name": "Suspected account compromise → contain → verify → recover or clear",
       "purpose": "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
       "entity": {
@@ -14597,6 +14929,8 @@
       "id": "REL-91",
       "slug": "relationship-creation",
       "category": "structure",
+      "goal": "relationship-hierarchy-structure",
+      "channels": [],
       "name": "Entity relationship created → validate → activate or reject",
       "purpose": "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
       "entity": {
@@ -14740,6 +15074,8 @@
       "id": "REL-92",
       "slug": "relationship-change",
       "category": "structure",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Relationship change → recalculate rights and obligations → continue",
       "purpose": "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
       "entity": {
@@ -14911,6 +15247,8 @@
       "id": "REL-93",
       "slug": "relationship-end",
       "category": "structure",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Relationship end → remove future dependency → reconcile existing obligations",
       "purpose": "Stop what a relationship was carrying forward without cancelling what it validly produced.",
       "entity": {
@@ -15041,6 +15379,8 @@
       "id": "REL-94",
       "slug": "role-change-delta",
       "category": "structure",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Role change → authority and capability delta → apply",
       "purpose": "Move what someone may do next, by the difference between two roles, without disturbing what they did under the old one.",
       "entity": {
@@ -15165,6 +15505,8 @@
       "id": "REL-95",
       "slug": "parent-state-propagation",
       "category": "structure",
+      "goal": "relationship-hierarchy-structure",
+      "channels": [],
       "name": "Parent state change → determine child impact → propagate selectively",
       "purpose": "Let a parent's state reach only the children that genuinely depend on it, through a rule someone actually wrote.",
       "entity": {
@@ -15316,6 +15658,8 @@
       "id": "REL-96",
       "slug": "parent-state-aggregation",
       "category": "structure",
+      "goal": "relationship-hierarchy-structure",
+      "channels": [],
       "name": "Child state change → recalculate aggregate parent state",
       "purpose": "Derive a parent's state from its children through an explicit aggregation policy, recomputed from source rather than nudged by whichever child reported last.",
       "entity": {
@@ -15433,6 +15777,8 @@
       "id": "REL-97",
       "slug": "duplicate-assessment",
       "category": "structure",
+      "goal": "merge-consolidation",
+      "channels": [],
       "name": "Duplicate entity detected → assess → keep separate, link or merge",
       "purpose": "Assess whether two records are the same entity, and route the answer - without consolidating anything.",
       "entity": {
@@ -15552,6 +15898,8 @@
       "id": "REL-98",
       "slug": "entity-link",
       "category": "structure",
+      "goal": "relationship-hierarchy-structure",
+      "channels": [],
       "name": "Entity link → shared context → preserve independent identity",
       "purpose": "Record that two entities are related and let defined context cross between them, while both remain two entities.",
       "entity": {
@@ -15671,6 +16019,8 @@
       "id": "REL-99",
       "slug": "entity-split",
       "category": "structure",
+      "goal": "relationship-hierarchy-structure",
+      "channels": [],
       "name": "Entity split required → create separate records → allocate history and state safely",
       "purpose": "Separate what should never have been one record, or what must now be managed apart, without copying the things that do not divide.",
       "entity": {
@@ -15838,6 +16188,8 @@
       "id": "REL-100",
       "slug": "orphaned-entity-resolution",
       "category": "structure",
+      "goal": "escalation-exception",
+      "channels": [],
       "name": "Required relationship missing → orphan state → resolve or reassign",
       "purpose": "Make a missing required relationship an explicit, findable state rather than a null field that active work quietly runs against.",
       "entity": {
@@ -16028,6 +16380,8 @@
       "id": "TRM-101",
       "slug": "entity-merge-execution",
       "category": "terminal",
+      "goal": "merge-consolidation",
+      "channels": [],
       "name": "Identity or entity merge → reconcile → consolidate → verify",
       "purpose": "Consolidate records that represent one entity, after every dependent state has been reconciled under its own authority rule.",
       "entity": {
@@ -16236,6 +16590,8 @@
       "id": "TRM-102",
       "slug": "merge-conflict-resolution",
       "category": "terminal",
+      "goal": "merge-consolidation",
+      "channels": [],
       "name": "Merge conflict → safe state → resolve → continue or abort",
       "purpose": "Fail safe wherever consolidating would require inventing an authority the system does not have.",
       "entity": {
@@ -16460,6 +16816,8 @@
       "id": "TRM-103",
       "slug": "account-consolidation",
       "category": "terminal",
+      "goal": "merge-consolidation",
+      "channels": [],
       "name": "Account consolidation → dependency reconciliation → unified relationship",
       "purpose": "Unify business structure across accounts while every person involved stays a separate person.",
       "entity": {
@@ -16670,6 +17028,8 @@
       "id": "TRM-104",
       "slug": "primary-relationship-transfer",
       "category": "terminal",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Primary relationship transfer → validate new primary → transfer dependencies",
       "purpose": "Move a dependent entity to a new primary, carrying only what the primary relationship actually governs.",
       "entity": {
@@ -16832,6 +17192,8 @@
       "id": "TRM-105",
       "slug": "responsibility-handover",
       "category": "terminal",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Role or responsibility handover → effective-time transfer → continue",
       "purpose": "Move a role between two people at a defined moment, without changing anything before it or rewriting anything behind it.",
       "entity": {
@@ -17030,6 +17392,11 @@
       "id": "TRM-106",
       "slug": "account-closure-request",
       "category": "terminal",
+      "goal": "cancellation-termination",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Account closure request → validate → resolve blockers → close",
       "purpose": "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
       "entity": {
@@ -17129,7 +17496,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.blockers"
+          "next": "w.blockers",
+          "execution": "communication"
         },
         {
           "id": "w.blockers",
@@ -17257,6 +17625,8 @@
       "id": "TRM-107",
       "slug": "closure-external-dependencies",
       "category": "terminal",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Account closure → reconcile external and commercial dependencies → finalize",
       "purpose": "Make sure nothing that lives outside the account is assumed to have ended because the account did.",
       "entity": {
@@ -17444,6 +17814,8 @@
       "id": "TRM-108",
       "slug": "closure-wind-down",
       "category": "terminal",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Closure completed → wind-down → former or terminal account state",
       "purpose": "Stop normal account activity while letting the obligations that outlive closure actually finish.",
       "entity": {
@@ -17560,6 +17932,8 @@
       "id": "TRM-109",
       "slug": "data-deletion-request",
       "category": "terminal",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Data deletion request → validate scope → hold, delete or retain required data",
       "purpose": "Decide what a deletion request actually covers, and keep only what an authoritative retention obligation genuinely requires.",
       "entity": {
@@ -17752,6 +18126,8 @@
       "id": "TRM-110",
       "slug": "data-deletion-execution",
       "category": "terminal",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Data deletion execution → propagate → verify or reconcile failure",
       "purpose": "Carry a deletion through every system it has to reach, and keep any part that did not arrive visible.",
       "entity": {
@@ -17977,6 +18353,8 @@
       "id": "INT-111",
       "slug": "integration-connection-activation",
       "category": "integration",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Integration connection → authenticate → validate → activate",
       "purpose": "Make an integration active only once it has been proven to do the thing it exists for, rather than once a credential has been saved.",
       "entity": {
@@ -18147,6 +18525,8 @@
       "id": "INT-112",
       "slug": "integration-authorization-change",
       "category": "integration",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Integration credential or authorization change → revalidate → continue or degrade",
       "purpose": "Recheck what an integration can still do whenever its authorization changes, rather than assuming valid credentials mean unchanged access.",
       "entity": {
@@ -18273,6 +18653,8 @@
       "id": "INT-113",
       "slug": "integration-health-degradation",
       "category": "integration",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Integration health degradation → diagnose → recover, degrade or escalate",
       "purpose": "Scope a deteriorating integration to what is actually failing, and let recovery be established by evidence rather than by a metric returning to normal.",
       "entity": {
@@ -18439,6 +18821,8 @@
       "id": "INT-114",
       "slug": "external-operation-outcome",
       "category": "integration",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "External request → pending outcome → confirm, fail or unknown",
       "purpose": "Keep submitting an external operation and completing one as separate states, and let an unknown outcome stay unknown.",
       "entity": {
@@ -18559,6 +18943,8 @@
       "id": "INT-115",
       "slug": "external-outcome-reconciliation",
       "category": "integration",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "External outcome → local state reconciliation → apply or investigate",
       "purpose": "Apply an external outcome to local state only after establishing that it belongs here, has not already been applied, and still describes what is true.",
       "entity": {
@@ -18734,6 +19120,8 @@
       "id": "INT-116",
       "slug": "integration-failure",
       "category": "integration",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Integration failure → stop unsafe operations → diagnose → restore",
       "purpose": "Stop sending into an integration that cannot work, while keeping enough state to recover without repeating anything the provider may already have done.",
       "entity": {
@@ -18899,6 +19287,8 @@
       "id": "INT-117",
       "slug": "failure-blocked-work-queue",
       "category": "integration",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Integration failure → queue or hold work → recover → controlled resume",
       "purpose": "Keep work that a failed integration blocked, but only where it can later be revalidated and safely resumed.",
       "entity": {
@@ -19092,6 +19482,8 @@
       "id": "INT-118",
       "slug": "reconnect-backfill",
       "category": "integration",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Integration reconnect → backfill → deduplicate → reconcile",
       "purpose": "Close the gap an outage left in what we know, without recreating everything that would have happened if the events had arrived on time.",
       "entity": {
@@ -19278,6 +19670,8 @@
       "id": "INT-119",
       "slug": "synchronization-conflict",
       "category": "integration",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Synchronization conflict → determine authority → reconcile or hold",
       "purpose": "Settle a cross-system disagreement using an explicit authority rule, and hold rather than guess where none exists.",
       "entity": {
@@ -19434,6 +19828,8 @@
       "id": "INT-120",
       "slug": "external-dependency-degradation",
       "category": "integration",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "External dependency unavailable → degrade capability → alternate or recover",
       "purpose": "Lose only the capability that actually depends on an unavailable provider, and keep every uncertain outcome uncertain.",
       "entity": {
@@ -19614,6 +20010,8 @@
       "id": "OPS-121",
       "slug": "async-work-lifecycle",
       "category": "processing",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Work accepted → queue → process → complete or fail",
       "purpose": "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
       "entity": {
@@ -19851,6 +20249,8 @@
       "id": "OPS-122",
       "slug": "queue-lag",
       "category": "processing",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Queue lag → measure → prioritise, scale or degrade",
       "purpose": "Respond to a queue that cannot keep up, measured by how old the unfinished work is rather than by how much of it there is.",
       "entity": {
@@ -20035,6 +20435,8 @@
       "id": "OPS-123",
       "slug": "stalled-work-detection",
       "category": "processing",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Work stalled → detect lack of progress → recover, fail or escalate",
       "purpose": "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
       "entity": {
@@ -20195,6 +20597,8 @@
       "id": "OPS-124",
       "slug": "retryable-failure-recovery",
       "category": "processing",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Retryable failure → backoff → retry → resolve or exhaust",
       "purpose": "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
       "entity": {
@@ -20407,6 +20811,8 @@
       "id": "OPS-125",
       "slug": "work-deduplication",
       "category": "processing",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Duplicate work detected → deduplicate → reuse, suppress or reconcile",
       "purpose": "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
       "entity": {
@@ -20548,6 +20954,8 @@
       "id": "OPS-126",
       "slug": "partial-processing-recovery",
       "category": "processing",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Partial processing → preserve completed work → retry only the failed scope",
       "purpose": "Recover the part of a composite operation that failed, without re-running the part that worked.",
       "entity": {
@@ -20695,6 +21103,8 @@
       "id": "OPS-127",
       "slug": "dead-letter-remediation",
       "category": "processing",
+      "goal": "escalation-exception",
+      "channels": [],
       "name": "Dead-letter entry → diagnose → replay, correct or close",
       "purpose": "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
       "entity": {
@@ -20875,6 +21285,8 @@
       "id": "OPS-128",
       "slug": "worker-failure-reclaim",
       "category": "processing",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Worker or processor failure → reclaim work → resume safely",
       "purpose": "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
       "entity": {
@@ -21051,6 +21463,8 @@
       "id": "OPS-129",
       "slug": "backlog-recovery-drain",
       "category": "processing",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Backlog recovery → revalidate → controlled drain → normal state",
       "purpose": "Work through an accumulated backlog deliberately, discarding what has gone stale and pacing what has not.",
       "entity": {
@@ -21218,6 +21632,8 @@
       "id": "OPS-130",
       "slug": "business-outcome-verification",
       "category": "processing",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Technical completion → verify business outcome → finalize or reconcile",
       "purpose": "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",
       "entity": {
@@ -21364,6 +21780,8 @@
       "id": "FIN-131",
       "slug": "financial-obligation-lifecycle",
       "category": "financial",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Financial obligation created → due → satisfied or outstanding",
       "purpose": "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
       "entity": {
@@ -21531,6 +21949,8 @@
       "id": "FIN-132",
       "slug": "payment-attempt-outcome",
       "category": "financial",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Payment initiated → pending → success, failure or unknown",
       "purpose": "Keep initiating a payment and knowing what happened to it as separate states, with a third state for not knowing.",
       "entity": {
@@ -21666,6 +22086,8 @@
       "id": "FIN-133",
       "slug": "authorization-capture-settlement",
       "category": "financial",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Payment authorization → capture → settle or release",
       "purpose": "Model the actual commitment of funds, where reserving, taking and receiving are three different things.",
       "entity": {
@@ -21890,6 +22312,14 @@
       "id": "FIN-134",
       "slug": "payment-failure-recovery",
       "category": "financial",
+      "goal": "recovery-retry",
+      "channels": [
+        "email",
+        "in-app",
+        "push",
+        "sms",
+        "whatsapp"
+      ],
       "name": "Payment failure → classify → recover, alternate or exit",
       "purpose": "Respond to the reason a payment actually failed, and keep the obligation alive while doing it.",
       "entity": {
@@ -21975,7 +22405,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.recovery"
+          "next": "w.recovery",
+          "execution": "communication"
         },
         {
           "id": "c.alternate",
@@ -22109,6 +22540,8 @@
       "id": "FIN-135",
       "slug": "unknown-payment-reconciliation",
       "category": "financial",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Payment unknown → reconcile → confirm success or failure",
       "purpose": "Find out what actually happened to a payment whose outcome we lost sight of, before anything is charged again.",
       "entity": {
@@ -22294,6 +22727,8 @@
       "id": "FIN-136",
       "slug": "obligation-satisfaction",
       "category": "financial",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Financial obligation satisfied → reconcile balance → release dependent state",
       "purpose": "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
       "entity": {
@@ -22448,6 +22883,11 @@
       "id": "FIN-137",
       "slug": "refund-request-decision",
       "category": "financial",
+      "goal": "eligibility-qualification",
+      "channels": [
+        "email",
+        "task"
+      ],
       "name": "Refund request → eligibility → approve, reject or review",
       "purpose": "Turn a refund request into an authorised decision, without money moving on the request itself.",
       "entity": {
@@ -22516,7 +22956,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.rejected"
+          "next": "x.rejected",
+          "execution": "communication"
         },
         {
           "id": "c.policy",
@@ -22596,7 +23037,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.decision"
+          "next": "w.decision",
+          "execution": "human"
         },
         {
           "id": "w.decision",
@@ -22648,7 +23090,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.execute"
+          "next": "h.execute",
+          "execution": "human"
         },
         {
           "id": "h.execute",
@@ -22672,6 +23115,8 @@
       "id": "FIN-138",
       "slug": "refund-execution",
       "category": "financial",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Refund approved → execute → confirm or reconcile",
       "purpose": "Move the money and confirm it arrived, keeping that separate from having decided it should.",
       "entity": {
@@ -22835,6 +23280,8 @@
       "id": "FIN-139",
       "slug": "financial-dispute",
       "category": "financial",
+      "goal": "risk-compliance",
+      "channels": [],
       "name": "Financial dispute or chargeback → evidence → decision → reconcile",
       "purpose": "Run a transaction-level dispute through the authority that decides it, without treating the claim as a finding.",
       "entity": {
@@ -23024,6 +23471,8 @@
       "id": "FIN-140",
       "slug": "financial-reconciliation",
       "category": "financial",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Financial reconciliation → detect mismatch → correct or escalate",
       "purpose": "Restore financial consistency by explaining the difference and adjusting it, never by editing the record that is inconvenient.",
       "entity": {
@@ -23210,6 +23659,8 @@
       "id": "FUL-141",
       "slug": "fulfillment-request-acceptance",
       "category": "fulfillment",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Fulfillment request → validate → accept, reject or hold",
       "purpose": "Decide whether we are taking responsibility for delivering something, as a state distinct from having been asked.",
       "entity": {
@@ -23378,6 +23829,8 @@
       "id": "FUL-142",
       "slug": "fulfillment-availability",
       "category": "fulfillment",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Accepted fulfillment → availability check → allocate, backorder or reject",
       "purpose": "Establish whether the resources to satisfy an accepted obligation actually exist, in the scope and window that would serve it.",
       "entity": {
@@ -23548,6 +24001,8 @@
       "id": "FUL-143",
       "slug": "resource-allocation",
       "category": "fulfillment",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Resource allocation → reserve → confirm, release or reallocate",
       "purpose": "Bind specific capacity to one obligation until it is consumed or deliberately let go.",
       "entity": {
@@ -23754,6 +24209,8 @@
       "id": "FUL-144",
       "slug": "fulfillment-execution",
       "category": "fulfillment",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Fulfillment execution → progress → complete, partial or fail",
       "purpose": "Track what the obligation's scope actually reaches, rather than what an internal step reported.",
       "entity": {
@@ -23956,6 +24413,8 @@
       "id": "FUL-145",
       "slug": "fulfillment-exception",
       "category": "fulfillment",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Fulfillment exception → diagnose → recover, substitute or fail",
       "purpose": "Change only the part of an obligation the operational problem actually touches.",
       "entity": {
@@ -24151,6 +24610,11 @@
       "id": "FUL-146",
       "slug": "fulfillment-delay",
       "category": "fulfillment",
+      "goal": "scheduling-commitment",
+      "channels": [
+        "email",
+        "sms"
+      ],
       "name": "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
       "purpose": "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
       "entity": {
@@ -24271,7 +24735,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.decision"
+          "next": "w.decision",
+          "execution": "communication"
         },
         {
           "id": "w.decision",
@@ -24393,6 +24858,8 @@
       "id": "FUL-147",
       "slug": "dispatch-and-delivery-tracking",
       "category": "fulfillment",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Dispatch or handoff → track → delivered, failed or unknown",
       "purpose": "Transfer execution to whoever performs the delivery while the obligation stays ours and stays open.",
       "entity": {
@@ -24544,6 +25011,11 @@
       "id": "FUL-148",
       "slug": "delivery-attempt-failure",
       "category": "fulfillment",
+      "goal": "recovery-retry",
+      "channels": [
+        "email",
+        "sms"
+      ],
       "name": "Delivery attempt failed → reason → retry, correct, alternate or return",
       "purpose": "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
       "entity": {
@@ -24621,7 +25093,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.correction"
+          "next": "w.correction",
+          "execution": "communication"
         },
         {
           "id": "w.correction",
@@ -24738,6 +25211,8 @@
       "id": "FUL-149",
       "slug": "delivery-acceptance-finalization",
       "category": "fulfillment",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Delivery confirmation → acceptance or issue window → finalize",
       "purpose": "Separate arriving from being agreed to have arrived correctly, wherever that difference has business meaning.",
       "entity": {
@@ -24892,6 +25367,8 @@
       "id": "FUL-150",
       "slug": "fulfillment-cancellation",
       "category": "fulfillment",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Fulfillment cancellation → stop future work → release resources → reconcile",
       "purpose": "Stop what remains of an obligation while keeping everything that already happened.",
       "entity": {
@@ -25093,6 +25570,10 @@
       "id": "REM-151",
       "slug": "post-completion-issue",
       "category": "remedy",
+      "goal": "compensation-remedy",
+      "channels": [
+        "email"
+      ],
       "name": "Post-completion issue → validate → remedy route",
       "purpose": "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
       "entity": {
@@ -25204,7 +25685,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.no-defect"
+          "next": "x.no-defect",
+          "execution": "communication"
         },
         {
           "id": "x.no-defect",
@@ -25248,6 +25730,10 @@
       "id": "REM-152",
       "slug": "return-authorization",
       "category": "remedy",
+      "goal": "eligibility-qualification",
+      "channels": [
+        "task"
+      ],
       "name": "Return request → eligibility → authorize, reject or review",
       "purpose": "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
       "entity": {
@@ -25394,7 +25880,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.decision"
+          "next": "w.decision",
+          "execution": "human"
         },
         {
           "id": "w.decision",
@@ -25470,6 +25957,8 @@
       "id": "REM-153",
       "slug": "return-transit",
       "category": "remedy",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Return authorized → in transit, received, lost or expired",
       "purpose": "Track whether an authorised return actually comes back, and hold the states where it might not have.",
       "entity": {
@@ -25666,6 +26155,8 @@
       "id": "REM-154",
       "slug": "return-inspection",
       "category": "remedy",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Returned item or deliverable → inspect → accept, reject or partial",
       "purpose": "Judge what came back against the conditions it was authorised under, keeping receipt and acceptance apart.",
       "entity": {
@@ -25818,6 +26309,8 @@
       "id": "REM-155",
       "slug": "replacement-remedy",
       "category": "remedy",
+      "goal": "compensation-remedy",
+      "channels": [],
       "name": "Replacement decision → allocate → fulfill → confirm",
       "purpose": "Deliver a second time against the same promise, tied to the defect it exists to resolve.",
       "entity": {
@@ -25992,6 +26485,8 @@
       "id": "REM-156",
       "slug": "correction-reperformance",
       "category": "remedy",
+      "goal": "compensation-remedy",
+      "channels": [],
       "name": "Reperformance or correction → execute → verify corrected outcome",
       "purpose": "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
       "entity": {
@@ -26144,6 +26639,11 @@
       "id": "REM-157",
       "slug": "remedy-selection",
       "category": "remedy",
+      "goal": "compensation-remedy",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Remedy selection → resolve obligation → financial handoff if needed",
       "purpose": "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
       "entity": {
@@ -26215,7 +26715,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.selection"
+          "next": "w.selection",
+          "execution": "communication"
         },
         {
           "id": "w.selection",
@@ -26335,6 +26836,8 @@
       "id": "REM-158",
       "slug": "remedy-outcome-verification",
       "category": "remedy",
+      "goal": "compensation-remedy",
+      "channels": [],
       "name": "Remedy execution → verify outcome → close or continue recovery",
       "purpose": "Check that the remedy actually satisfied the obligation, rather than that it was carried out.",
       "entity": {
@@ -26522,6 +27025,8 @@
       "id": "REM-159",
       "slug": "compensation-decision",
       "category": "remedy",
+      "goal": "compensation-remedy",
+      "channels": [],
       "name": "Compensation decision → eligibility → grant or reject → deliver",
       "purpose": "Decide separately whether impact warrants something beyond fixing the problem, and confirm it actually arrived.",
       "entity": {
@@ -26748,6 +27253,8 @@
       "id": "REM-160",
       "slug": "post-remedy-recurrence",
       "category": "remedy",
+      "goal": "compensation-remedy",
+      "channels": [],
       "name": "Post-remedy reopen → validate recurrence → continue or new issue",
       "purpose": "Tell a recurrence of the same problem apart from a new one, and from a remedy that never actually finished.",
       "entity": {
@@ -26908,6 +27415,8 @@
       "id": "SUB-161",
       "slug": "continuing-relationship-creation",
       "category": "subscription",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Continuing relationship created → validate → activate or pending",
       "purpose": "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
       "entity": {
@@ -27111,6 +27620,8 @@
       "id": "SUB-162",
       "slug": "future-effective-activation",
       "category": "subscription",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Future effective start → wait → revalidate → activate or abort",
       "purpose": "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
       "entity": {
@@ -27317,6 +27828,13 @@
       "id": "SUB-163",
       "slug": "renewal-decision",
       "category": "subscription",
+      "goal": "eligibility-qualification",
+      "channels": [
+        "email",
+        "in-app",
+        "push",
+        "sms"
+      ],
       "name": "Renewal window → eligibility → renew, non-renew or review",
       "purpose": "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
       "entity": {
@@ -27440,7 +27958,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.decision"
+          "next": "w.decision",
+          "execution": "communication"
         },
         {
           "id": "w.decision",
@@ -27578,6 +28097,8 @@
       "id": "SUB-164",
       "slug": "renewal-execution",
       "category": "subscription",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Renewal execution → financial and dependency check → new term active",
       "purpose": "Make the new term exist, once the things it depends on have actually happened.",
       "entity": {
@@ -27824,6 +28345,8 @@
       "id": "SUB-165",
       "slug": "renewal-payment-failure",
       "category": "subscription",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Renewal payment failure → grace or recover → renew or lapse",
       "purpose": "Decide what the relationship does while a failed renewal payment is being chased, without ending it by reflex.",
       "entity": {
@@ -28039,6 +28562,8 @@
       "id": "SUB-166",
       "slug": "terms-change",
       "category": "subscription",
+      "goal": "change-versioning",
+      "channels": [],
       "name": "Plan or terms change request → validate → schedule, apply or reject",
       "purpose": "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
       "entity": {
@@ -28352,6 +28877,8 @@
       "id": "SUB-167",
       "slug": "cancellation-request",
       "category": "subscription",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Cancellation request → determine effective end → schedule or cancel now",
       "purpose": "Establish whether and when a relationship will end, while the current term keeps running until it does.",
       "entity": {
@@ -28563,6 +29090,8 @@
       "id": "SUB-168",
       "slug": "scheduled-termination",
       "category": "subscription",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Scheduled cancellation → revalidate at effective time → end or preserve",
       "purpose": "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
       "entity": {
@@ -28681,6 +29210,8 @@
       "id": "SUB-169",
       "slug": "relationship-suspension",
       "category": "subscription",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Suspension or hold → restrict relationship → restore or end",
       "purpose": "Hold a relationship in a state where it cannot operate normally and has not ended.",
       "entity": {
@@ -28883,6 +29414,8 @@
       "id": "SUB-170",
       "slug": "continuing-relationship-end",
       "category": "subscription",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Relationship end → final reconciliation → former or expired state",
       "purpose": "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
       "entity": {
@@ -29072,6 +29605,8 @@
       "id": "SCH-171",
       "slug": "availability-query",
       "category": "scheduling",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Availability query → evaluate capacity → offer valid options",
       "purpose": "Produce the options that are genuinely bookable right now, and say plainly that nothing is being held.",
       "entity": {
@@ -29253,6 +29788,8 @@
       "id": "SCH-172",
       "slug": "slot-hold",
       "category": "scheduling",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Slot hold → reserve temporarily → confirm, expire or release",
       "purpose": "Protect specific capacity for a bounded moment while a booking is being completed, without pretending it is a booking.",
       "entity": {
@@ -29442,6 +29979,8 @@
       "id": "SCH-173",
       "slug": "reservation-request",
       "category": "scheduling",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Reservation request → validate → confirm, reject or pending",
       "purpose": "Turn a request for a specific time into a commitment both sides can rely on, or say clearly that it did not.",
       "entity": {
@@ -29678,6 +30217,8 @@
       "id": "SCH-174",
       "slug": "reservation-preparation",
       "category": "scheduling",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Reservation confirmed → prepare → upcoming or ready",
       "purpose": "Get the conditions for a successful service in place, without letting them move the time that was promised.",
       "entity": {
@@ -29854,6 +30395,8 @@
       "id": "SCH-175",
       "slug": "reschedule",
       "category": "scheduling",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Reschedule request → recheck availability → move, reject or preserve original",
       "purpose": "Move a commitment to a new time without ever leaving the customer holding neither.",
       "entity": {
@@ -30046,6 +30589,8 @@
       "id": "SCH-176",
       "slug": "reservation-cancellation",
       "category": "scheduling",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Reservation cancellation → stop commitment → release capacity → reconcile",
       "purpose": "End a future time commitment cleanly, returning the capacity and leaving the money to be decided elsewhere.",
       "entity": {
@@ -30263,6 +30808,8 @@
       "id": "SCH-177",
       "slug": "scheduled-start",
       "category": "scheduling",
+      "goal": "readiness-revalidation",
+      "channels": [],
       "name": "Scheduled time approaches → revalidate → check in, start or exception",
       "purpose": "Start a service from what the booking is now, not from a confirmation issued weeks ago.",
       "entity": {
@@ -30480,6 +31027,8 @@
       "id": "SCH-178",
       "slug": "service-attendance",
       "category": "scheduling",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Attendance or service start → complete, partial or interrupted",
       "purpose": "Separate the fact that someone turned up from the question of whether they got what they came for.",
       "entity": {
@@ -30750,6 +31299,8 @@
       "id": "SCH-179",
       "slug": "no-show",
       "category": "scheduling",
+      "goal": "escalation-exception",
+      "channels": [],
       "name": "No-show or missed appointment → validate → rebook, close or consequence",
       "purpose": "Establish that one confirmed booking did not happen because the customer did not attend, having ruled out every other explanation.",
       "entity": {
@@ -30980,6 +31531,11 @@
       "id": "SCH-180",
       "slug": "provider-cancellation",
       "category": "scheduling",
+      "goal": "recovery-retry",
+      "channels": [
+        "email",
+        "sms"
+      ],
       "name": "Provider or resource cancellation → reallocate → reschedule, remedy or cancel",
       "purpose": "Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.",
       "entity": {
@@ -31098,7 +31654,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.reallocated"
+          "next": "x.reallocated",
+          "execution": "communication"
         },
         {
           "id": "x.reallocated",
@@ -31224,6 +31781,10 @@
       "id": "DEC-181",
       "slug": "decision-request",
       "category": "decision",
+      "goal": "decision-approval",
+      "channels": [
+        "task"
+      ],
       "name": "Decision request → validate → route, reject or hold",
       "purpose": "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
       "entity": {
@@ -31467,7 +32028,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.route"
+          "next": "a.route",
+          "execution": "human"
         },
         {
           "id": "a.route",
@@ -31504,6 +32066,10 @@
       "id": "DEC-182",
       "slug": "decision-assignment",
       "category": "decision",
+      "goal": "routing-assignment",
+      "channels": [
+        "task"
+      ],
       "name": "Decision case → assign reviewer → accept, reassign or escalate",
       "purpose": "Put the case in front of someone who is actually authorized to decide it, and make that ownership explicit.",
       "entity": {
@@ -31567,7 +32133,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.accept"
+          "next": "w.accept",
+          "execution": "human"
         },
         {
           "id": "w.accept",
@@ -31665,7 +32232,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.accept"
+          "next": "w.accept",
+          "execution": "human"
         },
         {
           "id": "a.ready",
@@ -31677,7 +32245,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.review"
+          "next": "h.review",
+          "execution": "human"
         },
         {
           "id": "h.review",
@@ -31712,6 +32281,10 @@
       "id": "DEC-183",
       "slug": "decision-review",
       "category": "decision",
+      "goal": "decision-approval",
+      "channels": [
+        "task"
+      ],
       "name": "Review started → evaluate evidence → decide or request more information",
       "purpose": "Turn sufficient evidence into an authorized decision, within the scope the reviewer actually holds.",
       "entity": {
@@ -31764,7 +32337,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.conflict"
+          "next": "c.conflict",
+          "execution": "human"
         },
         {
           "id": "c.conflict",
@@ -31793,7 +32367,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.reassign"
+          "next": "h.reassign",
+          "execution": "human"
         },
         {
           "id": "h.reassign",
@@ -31876,7 +32451,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.evidence"
+          "next": "c.evidence",
+          "execution": "human"
         },
         {
           "id": "c.evidence",
@@ -31915,7 +32491,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.outcome"
+          "next": "c.outcome",
+          "execution": "human"
         },
         {
           "id": "c.outcome",
@@ -31982,6 +32559,10 @@
       "id": "DEC-184",
       "slug": "information-requirement",
       "category": "decision",
+      "goal": "recovery-retry",
+      "channels": [
+        "email"
+      ],
       "name": "More information required → collect → revalidate → resume review",
       "purpose": "Pause a decision for the fact it is actually missing, without losing the review already done.",
       "entity": {
@@ -32042,7 +32623,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.info"
+          "next": "w.info",
+          "execution": "communication"
         },
         {
           "id": "w.info",
@@ -32145,7 +32727,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.info"
+          "next": "w.info",
+          "execution": "communication"
         },
         {
           "id": "a.deadline",
@@ -32233,6 +32816,8 @@
       "id": "DEC-185",
       "slug": "approval-execution",
       "category": "decision",
+      "goal": "decision-approval",
+      "channels": [],
       "name": "Approval decision → revalidate target → execute, hold or invalidate",
       "purpose": "Carry an authorization into execution, having checked it still applies to what it was granted against.",
       "entity": {
@@ -32486,6 +33071,8 @@
       "id": "DEC-186",
       "slug": "rejection-outcome",
       "category": "decision",
+      "goal": "decision-approval",
+      "channels": [],
       "name": "Rejection decision → record reason → remediate, close or reapply",
       "purpose": "Treat a refusal as the business outcome it is, and say what if anything the requester can do next.",
       "entity": {
@@ -32662,6 +33249,8 @@
       "id": "DEC-187",
       "slug": "partial-approval",
       "category": "decision",
+      "goal": "decision-approval",
+      "channels": [],
       "name": "Partial approval → split scope → execute approved, resolve remaining",
       "purpose": "Make the authorized and unauthorized halves of one request explicit, so only the first can move.",
       "entity": {
@@ -32847,6 +33436,8 @@
       "id": "DEC-188",
       "slug": "approval-validity",
       "category": "decision",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Approval validity or expiry → revalidate → use, expire or renew review",
       "purpose": "Answer, at the moment of use, whether an approval is still one - in time, in context and in count.",
       "entity": {
@@ -33066,6 +33657,10 @@
       "id": "DEC-189",
       "slug": "decision-escalation",
       "category": "decision",
+      "goal": "escalation-exception",
+      "channels": [
+        "task"
+      ],
       "name": "Decision escalation → higher authority → decide, return or reassign",
       "purpose": "Move a case to an authority that can actually resolve it, carrying the work already done and predetermining nothing.",
       "entity": {
@@ -33169,7 +33764,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.decision"
+          "next": "w.decision",
+          "execution": "human"
         },
         {
           "id": "w.decision",
@@ -33239,7 +33835,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.return"
+          "next": "h.return",
+          "execution": "human"
         },
         {
           "id": "h.return",
@@ -33274,6 +33871,10 @@
       "id": "DEC-190",
       "slug": "decision-reconsideration",
       "category": "decision",
+      "goal": "change-versioning",
+      "channels": [
+        "task"
+      ],
       "name": "Decision superseded or reopened → revalidate → continue or new decision",
       "purpose": "Let a decision be reconsidered without any part of the original being rewritten.",
       "entity": {
@@ -33397,7 +33998,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.new"
+          "next": "h.new",
+          "execution": "human"
         },
         {
           "id": "h.new",
@@ -33500,6 +34102,8 @@
       "id": "RSK-191",
       "slug": "policy-evaluation",
       "category": "risk",
+      "goal": "risk-compliance",
+      "channels": [],
       "name": "Policy check → evaluate → pass, block or review",
       "purpose": "Decide whether a specific action is permitted under the rules that actually govern it, at the version that actually applies.",
       "entity": {
@@ -33677,6 +34281,8 @@
       "id": "RSK-192",
       "slug": "risk-signal",
       "category": "risk",
+      "goal": "risk-compliance",
+      "channels": [],
       "name": "Risk signal → correlate evidence → clear, monitor, restrict or review",
       "purpose": "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
       "entity": {
@@ -33935,6 +34541,8 @@
       "id": "RSK-193",
       "slug": "risk-restriction",
       "category": "risk",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Risk threshold crossed → apply scoped restriction → review or release",
       "purpose": "Stop the smallest thing that manages the risk, and keep a stated route back.",
       "entity": {
@@ -34133,6 +34741,8 @@
       "id": "RSK-194",
       "slug": "policy-violation",
       "category": "risk",
+      "goal": "risk-compliance",
+      "channels": [],
       "name": "Policy violation detected → validate → correct, restrict or escalate",
       "purpose": "Establish that a rule was actually broken, against the version that governed it, before anything follows from that.",
       "entity": {
@@ -34406,6 +35016,8 @@
       "id": "RSK-195",
       "slug": "compliance-requirement",
       "category": "risk",
+      "goal": "risk-compliance",
+      "channels": [],
       "name": "Compliance requirement → collect and verify → satisfied or blocked",
       "purpose": "Hold one mandatory requirement as its own state, blocking only what genuinely depends on it.",
       "entity": {
@@ -34654,6 +35266,8 @@
       "id": "RSK-196",
       "slug": "compliance-hold",
       "category": "risk",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Compliance or policy hold → preserve state → resolve → resume or terminate",
       "purpose": "Pause what a policy question makes unsafe, and leave everything else running.",
       "entity": {
@@ -34841,6 +35455,8 @@
       "id": "RSK-197",
       "slug": "exception-request",
       "category": "risk",
+      "goal": "escalation-exception",
+      "channels": [],
       "name": "Exception request → validate authority → approve, reject or review",
       "purpose": "Ask for a controlled deviation from a named rule, over a stated scope, from someone entitled to ask.",
       "entity": {
@@ -35091,6 +35707,8 @@
       "id": "RSK-198",
       "slug": "exception-application",
       "category": "risk",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Exception granted → apply scoped override → expire or revoke",
       "purpose": "Let an authorized deviation apply exactly where it was authorized, and stop applying the moment it should.",
       "entity": {
@@ -35349,6 +35967,8 @@
       "id": "RSK-199",
       "slug": "limit-quota",
       "category": "risk",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Limit or quota reached → block, wait, increase or reset",
       "purpose": "Treat a limit being reached as the limit working, and give the constrained action a real path forward.",
       "entity": {
@@ -35574,6 +36194,8 @@
       "id": "RSK-200",
       "slug": "policy-change-propagation",
       "category": "risk",
+      "goal": "change-versioning",
+      "channels": [],
       "name": "Policy or risk state changed → re-evaluate affected work → resume, restrict or preserve",
       "purpose": "Apply a change where the new authority actually reaches, and leave the past alone.",
       "entity": {
@@ -35794,6 +36416,8 @@
       "id": "CMS-201",
       "slug": "communication-obligation",
       "category": "communication",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Business event → communication obligation → create or suppress",
       "purpose": "Decide whether anyone is actually owed a message about what happened, before any message exists.",
       "entity": {
@@ -35944,6 +36568,8 @@
       "id": "CMS-202",
       "slug": "recipient-resolution",
       "category": "communication",
+      "goal": "routing-assignment",
+      "channels": [],
       "name": "Communication obligation → resolve recipient → ready, hold or fail",
       "purpose": "Establish who is actually owed this, and where they can currently be reached.",
       "entity": {
@@ -36192,6 +36818,8 @@
       "id": "CMS-203",
       "slug": "communication-permission",
       "category": "communication",
+      "goal": "consent-permission",
+      "channels": [],
       "name": "Communication purpose → permission and preference check → allow, suppress or alternate",
       "purpose": "Decide whether a working destination may carry this particular message, given what it is for.",
       "entity": {
@@ -36396,6 +37024,12 @@
       "id": "CMS-204",
       "slug": "channel-selection",
       "category": "communication",
+      "goal": "delivery-confirmation",
+      "channels": [
+        "email",
+        "push",
+        "sms"
+      ],
       "name": "Channel selection → choose route → prepare message",
       "purpose": "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
       "entity": {
@@ -36432,7 +37066,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.multi"
+          "next": "c.multi",
+          "execution": "communication"
         },
         {
           "id": "c.multi",
@@ -36461,7 +37096,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.prepare"
+          "next": "a.prepare",
+          "execution": "communication"
         },
         {
           "id": "a.single",
@@ -36473,7 +37109,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.prepare"
+          "next": "a.prepare",
+          "execution": "communication"
         },
         {
           "id": "a.prepare",
@@ -36485,7 +37122,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.send-ready"
+          "next": "h.send-ready",
+          "execution": "communication"
         },
         {
           "id": "h.send-ready",
@@ -36512,6 +37150,10 @@
       "id": "CMS-205",
       "slug": "send-revalidation",
       "category": "communication",
+      "goal": "readiness-revalidation",
+      "channels": [
+        "email"
+      ],
       "name": "Message prepared → revalidate state → send or suppress",
       "purpose": "Check the message is still true immediately before it goes, and stop it if it is not.",
       "entity": {
@@ -36620,7 +37262,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.send"
+          "next": "a.send",
+          "execution": "communication"
         },
         {
           "id": "a.send",
@@ -36632,7 +37275,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.attempt"
+          "next": "h.attempt",
+          "execution": "communication"
         },
         {
           "id": "h.attempt",
@@ -36657,6 +37301,10 @@
       "id": "CMS-206",
       "slug": "send-attempt",
       "category": "communication",
+      "goal": "delivery-confirmation",
+      "channels": [
+        "email"
+      ],
       "name": "Send attempt → accepted, failed or unknown",
       "purpose": "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
       "entity": {
@@ -36693,7 +37341,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.acceptance"
+          "next": "w.acceptance",
+          "execution": "communication"
         },
         {
           "id": "w.acceptance",
@@ -36826,6 +37475,8 @@
       "id": "CMS-207",
       "slug": "delivery-outcome",
       "category": "communication",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Delivery outcome → delivered, failed or unknown → update communication",
       "purpose": "Derive the real delivery state from what the channel reports, attached to the exact attempt it concerns.",
       "entity": {
@@ -37025,6 +37676,12 @@
       "id": "CMS-208",
       "slug": "delivery-recovery",
       "category": "communication",
+      "goal": "recovery-retry",
+      "channels": [
+        "email",
+        "push",
+        "sms"
+      ],
       "name": "Delivery failure → classify → retry, fallback or stop",
       "purpose": "Respond to the failure that actually happened, without spreading it wider than the destination it belongs to.",
       "entity": {
@@ -37155,7 +37812,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.budget"
+          "next": "c.budget",
+          "execution": "communication"
         },
         {
           "id": "c.budget",
@@ -37264,6 +37922,8 @@
       "id": "CMS-210",
       "slug": "communication-closure",
       "category": "communication",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Communication outcome → close obligation or escalate unreachable",
       "purpose": "Close the obligation against what it actually required, and escalate the ones that could not be met.",
       "entity": {
@@ -37488,6 +38148,8 @@
       "id": "DOC-211",
       "slug": "document-requirement",
       "category": "document",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Document requirement → determine artifact → create, reuse or waive",
       "purpose": "Decide whether a new artifact is genuinely needed, or whether one already exists that answers the requirement.",
       "entity": {
@@ -37635,6 +38297,8 @@
       "id": "DOC-212",
       "slug": "document-draft",
       "category": "document",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Document draft → populate → validate → ready or blocked",
       "purpose": "Build the contents from authoritative sources and prove they are complete before anything is issued.",
       "entity": {
@@ -37809,6 +38473,8 @@
       "id": "DOC-213",
       "slug": "document-issuance",
       "category": "document",
+      "goal": "change-versioning",
+      "channels": [],
       "name": "Ready document → issue → immutable issued version",
       "purpose": "Freeze the artifact at a version that can be identified, referenced and never quietly changed.",
       "entity": {
@@ -37926,6 +38592,10 @@
       "id": "DOC-214",
       "slug": "document-distribution",
       "category": "document",
+      "goal": "delivery-confirmation",
+      "channels": [
+        "email"
+      ],
       "name": "Document distribution → send or provide access → confirm or fail",
       "purpose": "Get a specific issued version to the party who should have it, without either fact touching the other.",
       "entity": {
@@ -37980,7 +38650,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.distribution"
+          "next": "w.distribution",
+          "execution": "communication"
         },
         {
           "id": "w.distribution",
@@ -38077,6 +38748,10 @@
       "id": "DOC-215",
       "slug": "signature-process",
       "category": "document",
+      "goal": "eligibility-qualification",
+      "channels": [
+        "email"
+      ],
       "name": "Signature request → await signatures → signed, declined or expired",
       "purpose": "Collect the required signatures against one exact version, and know when they are actually all there.",
       "entity": {
@@ -38160,7 +38835,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.signatures"
+          "next": "w.signatures",
+          "execution": "communication"
         },
         {
           "id": "w.signatures",
@@ -38328,6 +39004,8 @@
       "id": "DOC-216",
       "slug": "document-effectiveness",
       "category": "document",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Signed document → validate completion → effective or pending condition",
       "purpose": "Establish when a document actually starts doing something, which is not when it was signed.",
       "entity": {
@@ -38625,6 +39303,8 @@
       "id": "DOC-217",
       "slug": "document-amendment",
       "category": "document",
+      "goal": "change-versioning",
+      "channels": [],
       "name": "Document change → new version or amendment → supersede prospectively",
       "purpose": "Change an issued artifact by creating a successor, leaving what it replaces exactly as it was.",
       "entity": {
@@ -38835,6 +39515,8 @@
       "id": "DOC-218",
       "slug": "document-expiry",
       "category": "document",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Document expiry → revalidate requirement → renew, replace or close",
       "purpose": "End future reliance on a time-limited artifact, and stop only what genuinely needs it to be current.",
       "entity": {
@@ -39043,6 +39725,8 @@
       "id": "DOC-219",
       "slug": "document-revocation",
       "category": "document",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Document revocation or withdrawal → stop future reliance → reconcile",
       "purpose": "Withdraw an artifact by an authority's decision, exactly as far as that decision reaches.",
       "entity": {
@@ -39238,6 +39922,10 @@
       "id": "DOC-220",
       "slug": "document-conflict",
       "category": "document",
+      "goal": "reconciliation-correction",
+      "channels": [
+        "email"
+      ],
       "name": "Document or record conflict → determine authoritative version → reconcile",
       "purpose": "Work out which version actually governs, and explain the conflict rather than deleting it.",
       "entity": {
@@ -39398,7 +40086,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.reconciled"
+          "next": "x.reconciled",
+          "execution": "communication"
         },
         {
           "id": "a.preserve-history",
@@ -39442,6 +40131,8 @@
       "id": "DAT-221",
       "slug": "data-intake",
       "category": "data",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Data intake → identify format → parse or reject",
       "purpose": "Get an incoming dataset into a stable readable form, without touching anything real while doing it.",
       "entity": {
@@ -39595,6 +40286,8 @@
       "id": "DAT-222",
       "slug": "data-validation",
       "category": "data",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Parsed data → validate schema and semantics → accept, reject or quarantine",
       "purpose": "Establish that the data is valid for the target it is going into, record by record where that is meaningful.",
       "entity": {
@@ -39810,6 +40503,10 @@
       "id": "DAT-223",
       "slug": "change-impact-preview",
       "category": "data",
+      "goal": "decision-approval",
+      "channels": [
+        "task"
+      ],
       "name": "Valid data → preview and impact analysis → confirm or hold",
       "purpose": "Show what the mutation would actually do, so an approval attaches to that rather than to a filename.",
       "entity": {
@@ -39908,7 +40605,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.confirm"
+          "next": "w.confirm",
+          "execution": "human"
         },
         {
           "id": "w.confirm",
@@ -40037,6 +40735,8 @@
       "id": "DAT-224",
       "slug": "import-execution",
       "category": "data",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Import execution → apply idempotently → complete, partial or fail",
       "purpose": "Apply a fixed validated change set to production state, keeping every record's outcome.",
       "entity": {
@@ -40223,6 +40923,8 @@
       "id": "DAT-225",
       "slug": "partial-import-recovery",
       "category": "data",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Partial import → isolate failed scope → correct → resume",
       "purpose": "Fix only what did not land, without touching the records that already did.",
       "entity": {
@@ -40431,6 +41133,8 @@
       "id": "DAT-226",
       "slug": "migration-readiness",
       "category": "data",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Migration plan → map source to target → validate readiness",
       "purpose": "Prove the target can carry the source's meaning before anything is moved.",
       "entity": {
@@ -40612,6 +41316,8 @@
       "id": "DAT-227",
       "slug": "migration-execution",
       "category": "data",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Migration execute → copy and transform → verify population",
       "purpose": "Move the population and then prove the result still means what the source meant.",
       "entity": {
@@ -40765,6 +41471,8 @@
       "id": "DAT-228",
       "slug": "cutover",
       "category": "data",
+      "goal": "change-versioning",
+      "channels": [],
       "name": "Cutover → switch authority → observe → stabilize or roll back",
       "purpose": "Change which system is authoritative, once, with a way back that was defined before it was needed.",
       "entity": {
@@ -40959,6 +41667,8 @@
       "id": "DAT-229",
       "slug": "historical-backfill",
       "category": "data",
+      "goal": "data-integrity",
+      "channels": [],
       "name": "Historical backfill → scope window → apply without replaying stale actions",
       "purpose": "Repair a gap in the record without re-enacting the things those events would have caused.",
       "entity": {
@@ -41139,6 +41849,8 @@
       "id": "DAT-230",
       "slug": "transformation-error-recovery",
       "category": "data",
+      "goal": "reconciliation-correction",
+      "channels": [],
       "name": "Data transformation error → reconcile → correct, roll forward or roll back",
       "purpose": "Undo the wrong mutation without undoing the right things that happened after it.",
       "entity": {
@@ -41336,6 +42048,8 @@
       "id": "CTL-231",
       "slug": "ownership-assignment",
       "category": "control",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Ownership assignment → validate authority → assign or reject",
       "purpose": "Establish an accountable controller for an entity, by an explicit act rather than by inference.",
       "entity": {
@@ -41636,6 +42350,8 @@
       "id": "CTL-232",
       "slug": "transfer-request",
       "category": "control",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Ownership transfer request → validate → pending acceptance or reject",
       "purpose": "Propose a future controller without disturbing the one the entity currently has.",
       "entity": {
@@ -41814,6 +42530,8 @@
       "id": "CTL-233",
       "slug": "transfer-acceptance",
       "category": "control",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Ownership transfer acceptance → revalidate → execute or expire",
       "purpose": "Check that a transfer accepted today is still the transfer that was proposed.",
       "entity": {
@@ -41969,6 +42687,8 @@
       "id": "CTL-234",
       "slug": "ownership-cutover",
       "category": "control",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Ownership cutover → assign new owner → reconcile old owner",
       "purpose": "Move control from one party to another without the entity being uncontrolled in between.",
       "entity": {
@@ -42108,6 +42828,8 @@
       "id": "CTL-235",
       "slug": "delegation-grant",
       "category": "control",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Delegation request → define scope → grant or reject",
       "purpose": "Let somebody act on an owner's behalf, inside a boundary, without moving anything.",
       "entity": {
@@ -42322,6 +43044,8 @@
       "id": "CTL-236",
       "slug": "temporary-delegation",
       "category": "control",
+      "goal": "expiry-renewal",
+      "channels": [],
       "name": "Temporary delegation → expire → revoke, extend or restore",
       "purpose": "End borrowed authority at its boundary, checking first that the boundary still belongs to a delegation that exists.",
       "entity": {
@@ -42535,6 +43259,8 @@
       "id": "CTL-237",
       "slug": "delegation-revocation",
       "category": "control",
+      "goal": "access-entitlement-change",
+      "channels": [],
       "name": "Delegation revoked → remove delegated authority → preserve independent access",
       "purpose": "Take back exactly what was lent, and nothing the delegate had of their own.",
       "entity": {
@@ -42684,6 +43410,8 @@
       "id": "CTL-238",
       "slug": "owner-unavailable",
       "category": "control",
+      "goal": "ownership-transfer",
+      "channels": [],
       "name": "Owner unavailable or invalid → protect entity → recover ownership",
       "purpose": "Hold an entity safely when its owner cannot act, without handing it to whoever is nearest.",
       "entity": {
@@ -42878,6 +43606,8 @@
       "id": "RLT-241",
       "slug": "change-eligibility",
       "category": "rollout",
+      "goal": "eligibility-qualification",
+      "channels": [],
       "name": "Change candidate → eligibility → ready or blocked",
       "purpose": "Decide which targets a change may reach at all, before anyone starts preparing any of them.",
       "entity": {
@@ -43019,6 +43749,8 @@
       "id": "RLT-242",
       "slug": "change-preparation",
       "category": "rollout",
+      "goal": "readiness-revalidation",
+      "channels": [],
       "name": "Change preparation → resolve dependencies → ready or hold",
       "purpose": "Get an eligible target into a state where the change can actually be applied to it.",
       "entity": {
@@ -43184,6 +43916,8 @@
       "id": "RLT-243",
       "slug": "scheduled-change",
       "category": "rollout",
+      "goal": "scheduling-commitment",
+      "channels": [],
       "name": "Change scheduled → wait → revalidate → execute or cancel",
       "purpose": "Check, at the moment of execution, that the change scheduled earlier is still the right one for this target.",
       "entity": {
@@ -43363,6 +44097,8 @@
       "id": "RLT-244",
       "slug": "change-execution",
       "category": "rollout",
+      "goal": "delivery-confirmation",
+      "channels": [],
       "name": "Change execution → apply → verify, fail or unknown",
       "purpose": "Establish that the target actually ended up in the state the change intended, rather than that a command was accepted.",
       "entity": {
@@ -43598,6 +44334,8 @@
       "id": "RLT-245",
       "slug": "staged-rollout",
       "category": "rollout",
+      "goal": "change-versioning",
+      "channels": [],
       "name": "Staged rollout → pilot cohort → health gate → expand or hold",
       "purpose": "Widen a change only when the targets that already took it show it is safe to widen.",
       "entity": {
@@ -43804,6 +44542,8 @@
       "id": "RLT-246",
       "slug": "rollout-pause",
       "category": "rollout",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Rollout pause → freeze expansion → diagnose → resume, roll back or end",
       "purpose": "Stop the change spreading while the question of what to do about it is still open.",
       "entity": {
@@ -43956,6 +44696,8 @@
       "id": "RLT-247",
       "slug": "rollback-decision",
       "category": "rollout",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Change failure threshold → rollback decision → execute or forward recover",
       "purpose": "Decide whether going back is actually safer than going on, before anyone starts going back.",
       "entity": {
@@ -44104,6 +44846,8 @@
       "id": "RLT-248",
       "slug": "rollback-execution",
       "category": "rollout",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Rollback execution → restore → verify stability",
       "purpose": "Return the affected targets to a known-good state and prove that they actually work there.",
       "entity": {
@@ -44316,6 +45060,8 @@
       "id": "RLT-249",
       "slug": "target-change-failure",
       "category": "rollout",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Individual target change failure → retry, isolate or remediate",
       "purpose": "Recover one target that could not take the change, and notice when it stops being one target.",
       "entity": {
@@ -44517,6 +45263,8 @@
       "id": "RLT-250",
       "slug": "change-completion",
       "category": "rollout",
+      "goal": "progression-milestone",
+      "channels": [],
       "name": "Change completed → observe → close, reopen or deprecate previous version",
       "purpose": "Wait long enough to know the change held, and keep what a recovery would need until it clearly does not.",
       "entity": {
@@ -44681,6 +45429,8 @@
       "id": "INC-251",
       "slug": "incident-correlation",
       "category": "incident",
+      "goal": "root-cause-diagnostic-correlation",
+      "channels": [],
       "name": "Correlated failure detection → incident candidate → confirm or reject",
       "purpose": "Establish whether several failures actually share a cause, before treating them as one thing.",
       "entity": {
@@ -44837,6 +45587,10 @@
       "id": "INC-252",
       "slug": "incident-scope",
       "category": "incident",
+      "goal": "escalation-exception",
+      "channels": [
+        "task"
+      ],
       "name": "Incident confirmed → determine severity and blast radius → assign command",
       "purpose": "Establish what is actually affected, how badly, and who is running the response.",
       "entity": {
@@ -44891,7 +45645,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.state"
+          "next": "a.state",
+          "execution": "human"
         },
         {
           "id": "a.state",
@@ -45008,6 +45763,8 @@
       "id": "INC-253",
       "slug": "incident-mitigation",
       "category": "incident",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Incident → contain and mitigate → preserve critical operations",
       "purpose": "Reduce the damage now, without pretending the cause has been dealt with.",
       "entity": {
@@ -45189,6 +45946,11 @@
       "id": "INC-254",
       "slug": "incident-communication",
       "category": "incident",
+      "goal": "delivery-confirmation",
+      "channels": [
+        "email",
+        "in-app"
+      ],
       "name": "Incident communication → identify affected cohort → inform, update or close",
       "purpose": "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
       "entity": {
@@ -45222,7 +45984,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.cohort"
+          "next": "c.cohort",
+          "execution": "communication"
         },
         {
           "id": "c.cohort",
@@ -45251,7 +46014,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.verified"
+          "next": "c.verified",
+          "execution": "communication"
         },
         {
           "id": "a.broad",
@@ -45263,7 +46027,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.verified"
+          "next": "c.verified",
+          "execution": "communication"
         },
         {
           "id": "c.verified",
@@ -45292,7 +46057,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.material"
+          "next": "c.material",
+          "execution": "communication"
         },
         {
           "id": "c.material",
@@ -45349,7 +46115,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.final"
+          "next": "c.final",
+          "execution": "communication"
         },
         {
           "id": "c.final",
@@ -45395,6 +46162,8 @@
       "id": "INC-255",
       "slug": "root-cause-investigation",
       "category": "incident",
+      "goal": "root-cause-diagnostic-correlation",
+      "channels": [],
       "name": "Root cause investigation → hypothesis → confirm or reject → corrective action",
       "purpose": "Find the thing that actually explains the incident, rather than the thing that was nearest to it.",
       "entity": {
@@ -45574,6 +46343,8 @@
       "id": "INC-256",
       "slug": "incident-recovery",
       "category": "incident",
+      "goal": "recovery-retry",
+      "channels": [],
       "name": "Recovery action → restore service → verify or continue",
       "purpose": "Act on the cause and then check the affected population, not the command's return code.",
       "entity": {
@@ -45786,6 +46557,8 @@
       "id": "INC-257",
       "slug": "recovery-observation",
       "category": "incident",
+      "goal": "suspension-restoration",
+      "channels": [],
       "name": "Service restored → observation window → stable or relapse",
       "purpose": "Hold the incident open long enough to know the recovery held.",
       "entity": {
@@ -45946,6 +46719,8 @@
       "id": "INC-258",
       "slug": "incident-resolution",
       "category": "incident",
+      "goal": "cancellation-termination",
+      "channels": [],
       "name": "Incident resolution → close operational response → preserve residual cases",
       "purpose": "Close the shared failure without closing the individual problems it caused.",
       "entity": {
@@ -46136,6 +46911,10 @@
       "id": "INC-259",
       "slug": "post-incident-review",
       "category": "incident",
+      "goal": "root-cause-diagnostic-correlation",
+      "channels": [
+        "task"
+      ],
       "name": "Post-incident review → learn → corrective work → verify",
       "purpose": "Turn what the incident showed into work somebody owns and somebody checks.",
       "entity": {
@@ -46166,7 +46945,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.identify"
+          "next": "a.identify",
+          "execution": "human"
         },
         {
           "id": "a.identify",
@@ -46226,7 +47006,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.corrective"
+          "next": "w.corrective",
+          "execution": "human"
         },
         {
           "id": "w.corrective",
@@ -46321,7 +47102,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.corrective"
+          "next": "w.corrective",
+          "execution": "human"
         },
         {
           "id": "a.closed",
@@ -46354,6 +47136,8 @@
       "id": "INC-260",
       "slug": "incident-recurrence",
       "category": "incident",
+      "goal": "root-cause-diagnostic-correlation",
+      "channels": [],
       "name": "Incident pattern recurrence → detect systemic weakness → escalate prevention",
       "purpose": "Notice when the same weakness keeps producing incidents, and stop treating each one as new.",
       "entity": {

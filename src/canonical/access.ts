@@ -143,6 +143,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-71",
     slug: "entitlement-qualification",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Entitlement qualification → grant, deny or pending",
     purpose:
       "Establish whether a right actually exists, as a state distinct from being eligible for one or having paid toward one.",
@@ -285,6 +287,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-72",
     slug: "entitlement-provisioning",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Entitlement grant → provision → verify availability",
     purpose:
       "Hold the distance between a right being granted and the thing behind it actually working.",
@@ -437,6 +441,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-73",
     slug: "entitlement-scope-change",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Entitlement change → recalculate scope → expand, reduce or preserve",
     purpose:
       "Apply only the difference between the old and new rights, rather than re-applying a whole scope over a working one.",
@@ -552,6 +558,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-74",
     slug: "entitlement-loss",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Entitlement loss → revoke future capability → reconcile existing obligations",
     purpose:
       "Stop future use of a right that has ended without cancelling what was validly created while it was held.",
@@ -678,6 +686,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-75",
     slug: "access-authorization-decision",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Access request → authorization check → allow, deny or step up",
     purpose:
       "Decide at the moment of the attempt whether this actor may take this action on this resource.",
@@ -784,6 +794,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-76",
     slug: "credential-lifecycle",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Credential issued → activate → use, expire or revoke",
     purpose:
       "Run an access artifact through its own validity lifecycle, separately from the right it represents.",
@@ -983,6 +995,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-77",
     slug: "credential-revocation",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Credential compromise or revocation → disable → replace or re-authenticate",
     purpose:
       "Take a credential out of use immediately, and let any replacement come through its own authorised path.",
@@ -1112,6 +1126,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-78",
     slug: "access-suspension",
     category: "access",
+    goal: "suspension-restoration",
+    channels: [],
     name: "Access suspension → restricted state → restore or terminate",
     purpose:
       "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
@@ -1290,6 +1306,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-79",
     slug: "capability-restoration",
     category: "access",
+    goal: "suspension-restoration",
+    channels: [],
     name: "Capability restoration → revalidate → restore safely",
     purpose:
       "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
@@ -1403,6 +1421,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACC-80",
     slug: "deprovision-with-dependency-check",
     category: "access",
+    goal: "access-entitlement-change",
+    channels: [],
     name: "Deprovision request → dependency check → remove, retain or escalate",
     purpose:
       "Remove a capability that is no longer authorised, after establishing that nothing still depends on the thing being removed.",

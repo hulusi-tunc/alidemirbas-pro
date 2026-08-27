@@ -139,6 +139,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-51",
     slug: "work-routing-to-responsibility",
     category: "ownership",
+    goal: "routing-assignment",
+    channels: ["task"],
     name: "Work created → routing → assignment",
     purpose:
       "Get new work into the smallest responsibility scope that is genuinely valid, and refuse to invent one where the policy is silent.",
@@ -225,6 +227,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Place the item in the fallback or shared queue the policy names, or raise it for manual routing, recording that no route resolved. No ordering or priority is invented here - where the policy is silent the work waits visibly rather than being sorted by a rule nobody wrote and nobody can review",
         writes: [{ field: "routing_log", mode: "append" }],
         next: "x.queued",
+        execution: "human",
       },
       {
         id: "a.route",
@@ -232,6 +235,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Route to the resolved owner, team or queue, recording which inputs produced the decision - a routing that cannot explain itself cannot be corrected when it is systematically wrong",
         writes: [{ field: "routing_log", mode: "append" }],
         next: "c.named",
+        execution: "human",
       },
       {
         id: "c.named",
@@ -283,6 +287,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-52",
     slug: "assignment-to-accepted-responsibility",
     category: "ownership",
+    goal: "routing-assignment",
+    channels: [],
     name: "Assignment → acceptance → active responsibility",
     purpose:
       "Keep proposed responsibility and accepted responsibility as different states, so work nobody has taken is visible as such.",
@@ -429,6 +435,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-53",
     slug: "ownership-context-transfer",
     category: "ownership",
+    goal: "ownership-transfer",
+    channels: [],
     name: "Owner assignment → context transfer → work start",
     purpose:
       "Give a new owner what they need to continue an existing obligation, rather than an entity with their name on it.",
@@ -553,6 +561,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-54",
     slug: "ownership-change-obligation-transfer",
     category: "ownership",
+    goal: "ownership-transfer",
+    channels: ["task"],
     name: "Ownership change → transfer obligations → continue",
     purpose:
       "Move responsibility for an active entity without losing anything that was already owed, without letting the clock restart, and without rewriting who did what before the change.",
@@ -662,6 +672,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Assign the fallback owner and record that the intended transfer failed, so the fallback is visible as a fallback rather than as the original plan",
         writes: [{ field: "ownership_chain", mode: "append" }],
         next: "a.dependent",
+        execution: "human",
       },
       {
         id: "a.dependent",
@@ -792,6 +803,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-55",
     slug: "responsibility-escalation",
     category: "ownership",
+    goal: "escalation-exception",
+    channels: ["task"],
     name: "Responsibility escalation → higher authority → resolution or return",
     purpose:
       "Move a blocker up to the level that can clear it, without the original owner putting the work down by raising it.",
@@ -960,6 +973,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Escalate one level further and record the level. The ladder is walked once - a loop that keeps re-escalating to the same place is how an unresolvable case stays busy without moving",
         writes: [{ field: "escalation_log", mode: "append" }],
         next: "w.resolution",
+        execution: "human",
       },
       {
         id: "h.exhausted",
@@ -988,6 +1002,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-56",
     slug: "approval-request-review",
     category: "ownership",
+    goal: "decision-approval",
+    channels: ["task"],
     name: "Approval request → review → approve, reject or request changes",
     purpose:
       "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
@@ -1021,6 +1037,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the approval request bound to the exact version of the subject under review, and record the state as PENDING_REVIEW. Requested is not approved, and until this resolves nothing downstream may act as though it were",
         writes: [{ field: "approval_log", mode: "append" }],
         next: "w.review",
+        execution: "human",
       },
       {
         id: "w.review",
@@ -1135,6 +1152,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-57",
     slug: "multi-party-approval-aggregation",
     category: "ownership",
+    goal: "decision-approval",
+    channels: [],
     name: "Multi-party approval → aggregate required decisions → authorised or blocked",
     purpose:
       "Combine several genuinely independent approval decisions strictly according to the governing policy, and refuse to proceed where no policy defines how.",
@@ -1363,6 +1382,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-58",
     slug: "material-change-after-approval",
     category: "ownership",
+    goal: "decision-approval",
+    channels: ["task"],
     name: "Material change after approval → impact check → re-approval or continue",
     purpose:
       "Work out whether an approval still covers what the subject has become, and re-open only the decisions whose basis stopped being true.",
@@ -1488,6 +1509,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request re-approval, scoped to the authorities whose basis actually changed rather than to everyone who approved the original",
         writes: [{ field: "approval_log", mode: "append" }],
         next: "w.reapproval",
+        execution: "human",
       },
       {
         id: "w.reapproval",
@@ -1559,6 +1581,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-59",
     slug: "rejected-approval-revision-path",
     category: "ownership",
+    goal: "decision-approval",
+    channels: [],
     name: "Approval rejected → revision eligibility → resubmit or close",
     purpose:
       "Keep rejection from being either a dead end by default or a retry loop, and make sure a rejected version cannot quietly execute later.",
@@ -1700,6 +1724,8 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     id: "OWN-60",
     slug: "decision-authority-change",
     category: "ownership",
+    goal: "decision-approval",
+    channels: ["task"],
     name: "Decision authority change → revalidate pending decisions → transfer or continue",
     purpose:
       "Re-evaluate decisions against who is actually authorised now, without unapproving history or blindly moving what is pending.",
@@ -1782,6 +1808,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reassign the pending decision, preserving the original request, the exact version under review and the deadline. The clock does not restart because we changed who is reading it - the requester's wait is not reset by our reorganisation",
         writes: [{ field: "authority_change_log", mode: "append" }],
         next: "c.completed",
+        execution: "human",
       },
       {
         id: "h.no-authority",

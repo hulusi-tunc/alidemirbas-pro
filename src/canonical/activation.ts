@@ -103,6 +103,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-11",
     slug: "onboarding-route-selection",
     category: "activation",
+    goal: "routing-assignment",
+    channels: ["task"],
     name: "New entry → onboarding route → appropriate path",
     purpose:
       "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
@@ -165,6 +167,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the assisted route and raise the internal task that gives this onboarding a human owner - the route is a property of the onboarding, carried into every step that follows",
         writes: [{ field: "onboarding_route", mode: "set" }],
         next: "c.prerequisite",
+        execution: "human",
       },
       {
         id: "a.self-service",
@@ -226,6 +229,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-12",
     slug: "onboarding-progress-next-step",
     category: "activation",
+    goal: "progression-milestone",
+    channels: ["email", "in-app"],
     name: "Onboarding progress → next best setup step → activation",
     purpose:
       "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
@@ -282,6 +287,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Surface the single most useful next action. A completed step is never suggested again, and an order is imposed only where one step genuinely depends on another - elsewhere the person picks",
         next: "w.progress",
+        execution: "communication",
       },
       {
         id: "c.ready",
@@ -386,6 +392,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-13",
     slug: "activation-blocker-resolution",
     category: "activation",
+    goal: "relationship-recovery-intervention",
+    channels: ["email", "push", "sms", "whatsapp", "task"],
     name: "Missing activation requirement → resolve blocker → resume",
     purpose:
       "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
@@ -473,6 +481,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Give the one specific action that clears this requirement, named as the thing it is - never a general prompt to finish setup, which tells someone who is already blocked nothing they did not know",
         next: "w.resolve",
+        execution: "communication",
       },
       {
         id: "a.route-dependency",
@@ -480,6 +489,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the requirement with whoever can actually resolve it, carrying what is blocked and why. Ownership of the resume stays here, so the account is not handed away and forgotten",
         writes: [{ field: "dependency_requests", mode: "append" }],
         next: "w.resolve",
+        execution: "human",
       },
       {
         id: "w.resolve",
@@ -599,6 +609,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-14",
     slug: "struggling-user-assistance",
     category: "activation",
+    goal: "relationship-recovery-intervention",
+    channels: ["email", "in-app", "push", "sms"],
     name: "Struggling user detection → proactive assistance → recovery or exit",
     purpose:
       "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
@@ -687,6 +699,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Offer help named against the step they keep returning to. The primary route books assisted setup; the secondary opens the specific guide for that step, for people who would rather not talk to anyone",
         next: "w.response",
+        execution: "communication",
       },
       {
         id: "w.response",
@@ -735,6 +748,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
         next: "w.session",
+        execution: "communication",
       },
       {
         id: "w.session",
@@ -796,6 +810,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Send one follow-up tied to what the session actually covered. There is no second one, and no further request for a call",
         next: "x.normal",
+        execution: "communication",
       },
       {
         id: "c.final-option",
@@ -819,6 +834,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Send one final self-service option and stop. The call is not asked for a third time",
         next: "x.normal",
+        execution: "communication",
       },
       {
         id: "h.activated",
@@ -853,6 +869,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-15",
     slug: "first-value-milestone",
     category: "activation",
+    goal: "progression-milestone",
+    channels: ["email", "in-app", "push"],
     name: "First value milestone → recognition → next meaningful action",
     purpose:
       "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
@@ -892,6 +910,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Acknowledge what was actually produced, in the terms of the thing itself. Recognition that names nothing real is the failure mode here - it reads as manufactured, and it devalues the milestones that follow",
         next: "c.next",
+        execution: "communication",
       },
       {
         id: "c.next",
@@ -915,6 +934,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Surface one relevant next action, drawn from what they produced rather than from the product's feature list",
         next: "h.adoption",
+        execution: "communication",
       },
       {
         id: "h.adoption",
@@ -941,6 +961,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-16",
     slug: "activation-stops-onboarding",
     category: "activation",
+    goal: "progression-milestone",
+    channels: [],
     name: "Activation achieved → stop onboarding → adoption handoff",
     purpose:
       "Make onboarding let go the moment activation is recorded, including the messages it has already queued.",
@@ -1056,6 +1078,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-17",
     slug: "early-adoption-to-stable-use",
     category: "activation",
+    goal: "progression-milestone",
+    channels: ["email", "in-app"],
     name: "Early adoption → usage depth → habit or stable use",
     purpose:
       "Carry an account from having produced value once to producing it repeatedly, measured against its own use-case.",
@@ -1120,6 +1144,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Identify the next behaviour that would actually produce more value for this use-case, and encourage only that. Breadth is not pursued where the value is narrow - a person who gets everything they need from one workflow is adopted, not under-adopted",
         next: "w.observe",
+        execution: "communication",
       },
       {
         id: "w.observe",
@@ -1159,6 +1184,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-18",
     slug: "adoption-stall-diagnosis",
     category: "activation",
+    goal: "relationship-recovery-intervention",
+    channels: ["email", "push"],
     name: "Adoption stall → diagnose missing value → recover or re-route",
     purpose:
       "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
@@ -1237,6 +1264,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Address the diagnosed blocker specifically. Not more encouragement, not a re-run of onboarding - the thing the diagnosis actually named",
         next: "w.recover",
+        execution: "communication",
       },
       {
         id: "w.recover",
@@ -1298,6 +1326,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-19",
     slug: "role-use-case-discovery",
     category: "activation",
+    goal: "routing-assignment",
+    channels: ["email", "in-app"],
     name: "Role or use-case discovery → relevant onboarding adaptation",
     purpose:
       "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
@@ -1372,6 +1402,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Ask one lightweight question covering only what the implementation will actually consume. Onboarding does not become a questionnaire on the way to the thing the person came for",
         next: "w.answer",
+        execution: "communication",
       },
       {
         id: "w.answer",
@@ -1429,6 +1460,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "ACT-20",
     slug: "dormant-non-customer-reactivation",
     category: "activation",
+    goal: "relationship-recovery-intervention",
+    channels: ["email", "push", "sms"],
     name: "Dormant non-customer reactivation → return → re-qualification or exit",
     purpose:
       "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did.",
@@ -1529,6 +1562,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Make one bounded attempt built on the recorded reason. Not a general note that they have been missed, which says nothing and asks for nothing",
         next: "w.return",
+        execution: "communication",
       },
       {
         id: "w.return",

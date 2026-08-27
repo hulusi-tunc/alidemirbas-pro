@@ -1,79 +1,92 @@
-import type { CanonicalJourney, CategoryId } from "@/canonical/types";
+import type { GoalId } from "@/canonical/types";
 
-/* Lifecycle Stage and Goal/Use Case derivation - the two filters approved
-   in the filter taxonomy audit (production/journey-filter-taxonomy-audit.md),
-   now wired into the live /lab/journeys UI instead of only existing as an
-   offline classification file.
+/* The Journey Library's single primary discovery filter.
 
-   These rules are ported verbatim from
-   production/generate-journey-filter-taxonomy.mjs (the audit's own
-   generator script). That script stays standalone and dependency-free on
-   purpose - it patches its own temp copy of src/canonical and runs outside
-   the Next build, so it can't import this file. Keep the two in sync by
-   hand if either changes; they're small and rarely touched. */
+   Goal used to be derived at runtime by a first-match-wins regex over each
+   journey's name + purpose text (production/generate-journey-filter-
+   taxonomy.mjs). That approach is retired: a full semantic re-audit read
+   every one of the 255 journeys individually - name, purpose, category,
+   distinctFrom notes and the actual node graph - against "what problem is a
+   practitioner trying to solve", and the result was written back onto each
+   journey as explicit canonical metadata (`goal: GoalId` on CanonicalJourney,
+   see src/canonical/types.ts and every file under src/canonical/). 144 of
+   255 journeys (56.5%) ended up with a different Goal than the old regex
+   produced; the full migration matrix and per-journey reasoning live in
+   production/journey-goal-vocabulary-audit.
 
-export type LifecycleStage =
-  | "acquisition-qualification"
-  | "activation-onboarding"
-  | "engagement-retention"
-  | "ending-closure"
-  | "cross-lifecycle";
+   This module now does nothing but declare the vocabulary and its display
+   labels - there is no derivation logic left to keep in sync. Lifecycle
+   Stage (the old second facet) is gone entirely: the corpus is 255
+   independent entity state machines, not one customer's timeline, and
+   forcing a cross-lifecycle axis onto journeys that aren't lifecycle-shaped
+   produced an 85%-populated "cross-lifecycle" bucket that answered no real
+   question. Each journey's own graph already shows its internal lifecycle. */
 
-const STAGE_BY_CATEGORY: Partial<Record<CategoryId, LifecycleStage>> = {
-  acquisition: "acquisition-qualification",
-  activation: "activation-onboarding",
-  retention: "engagement-retention",
-  terminal: "ending-closure",
+export type Goal = GoalId;
+
+/** Alphabetical by English label - a 26-value single-select list is scanned,
+    not memorized in frequency order. */
+export const GOALS: readonly Goal[] = [
+  "access-entitlement-change",
+  "cancellation-termination",
+  "change-versioning",
+  "compensation-remedy",
+  "consent-permission",
+  "data-integrity",
+  "decision-approval",
+  "delivery-confirmation",
+  "eligibility-qualification",
+  "escalation-exception",
+  "expiry-renewal",
+  "health-risk-signal-scoring",
+  "identity-verification",
+  "merge-consolidation",
+  "ownership-transfer",
+  "progression-milestone",
+  "readiness-revalidation",
+  "reconciliation-correction",
+  "recovery-retry",
+  "relationship-hierarchy-structure",
+  "relationship-recovery-intervention",
+  "risk-compliance",
+  "root-cause-diagnostic-correlation",
+  "routing-assignment",
+  "scheduling-commitment",
+  "suspension-restoration",
+];
+
+export const GOAL_LABEL: Record<Goal, { en: string; tr: string }> = {
+  "access-entitlement-change": { en: "Access & Entitlement Change", tr: "Erişim ve yetki değişikliği" },
+  "cancellation-termination": { en: "Cancellation & Termination", tr: "İptal ve sonlandırma" },
+  "change-versioning": { en: "Change & Versioning", tr: "Değişiklik ve sürümleme" },
+  "compensation-remedy": { en: "Compensation & Remedy", tr: "Tazminat ve telafi" },
+  "consent-permission": { en: "Consent & Permission", tr: "Onay ve izin" },
+  "data-integrity": { en: "Data Integrity", tr: "Veri bütünlüğü" },
+  "decision-approval": { en: "Decision & Approval", tr: "Karar ve onay" },
+  "delivery-confirmation": { en: "Delivery & Confirmation", tr: "Teslimat ve onay" },
+  "eligibility-qualification": { en: "Eligibility & Qualification", tr: "Uygunluk ve nitelendirme" },
+  "escalation-exception": { en: "Escalation & Exception", tr: "Eskalasyon ve istisna" },
+  "expiry-renewal": { en: "Expiry & Renewal", tr: "Süre dolumu ve yenileme" },
+  "health-risk-signal-scoring": { en: "Health & Risk Signal Scoring", tr: "Sağlık ve risk sinyali puanlaması" },
+  "identity-verification": { en: "Identity Verification", tr: "Kimlik doğrulama" },
+  "merge-consolidation": { en: "Merge & Consolidation", tr: "Birleştirme ve konsolidasyon" },
+  "ownership-transfer": { en: "Ownership Transfer", tr: "Sahiplik devri" },
+  "progression-milestone": { en: "Progression & Milestone", tr: "İlerleme ve kilometre taşı" },
+  "readiness-revalidation": { en: "Readiness & Revalidation", tr: "Hazırlık ve yeniden doğrulama" },
+  "reconciliation-correction": { en: "Reconciliation & Correction", tr: "Mutabakat ve düzeltme" },
+  "recovery-retry": { en: "Recovery & Retry", tr: "Kurtarma ve yeniden deneme" },
+  "relationship-hierarchy-structure": { en: "Relationship & Hierarchy Structure", tr: "İlişki ve hiyerarşi yapısı" },
+  "relationship-recovery-intervention": { en: "Relationship Recovery & Intervention", tr: "İlişki kurtarma ve müdahale" },
+  "risk-compliance": { en: "Risk & Compliance", tr: "Risk ve uyum" },
+  "root-cause-diagnostic-correlation": { en: "Root Cause & Diagnostic Correlation", tr: "Kök neden ve tanısal korelasyon" },
+  "routing-assignment": { en: "Routing & Assignment", tr: "Yönlendirme ve atama" },
+  "scheduling-commitment": { en: "Scheduling & Commitment", tr: "Zamanlama ve taahhüt" },
+  "suspension-restoration": { en: "Suspension & Restoration", tr: "Askıya alma ve geri yükleme" },
 };
 
-export function lifecycleStageOf(category: CategoryId): LifecycleStage {
-  return STAGE_BY_CATEGORY[category] ?? "cross-lifecycle";
+const GOAL_SET: ReadonlySet<string> = new Set(GOALS);
+
+/** Guards a query-param value before it's trusted as a Goal filter. */
+export function isGoalId(value: string): value is Goal {
+  return GOAL_SET.has(value);
 }
-
-export const LIFECYCLE_STAGES: readonly LifecycleStage[] = [
-  "acquisition-qualification",
-  "activation-onboarding",
-  "engagement-retention",
-  "ending-closure",
-  "cross-lifecycle",
-];
-
-export type Goal =
-  | "eligibility-qualification" | "consent-permission" | "identity-verification"
-  | "expiry-renewal" | "cancellation-termination" | "suspension-restoration"
-  | "revocation-access-change" | "ownership-transfer" | "merge-consolidation"
-  | "reconciliation-correction" | "recovery-retry" | "escalation-exception"
-  | "delivery-confirmation" | "compensation-remedy" | "change-versioning"
-  | "scheduling-commitment" | "decision-approval" | "risk-compliance"
-  | "data-integrity" | "progression-milestone" | "review-required";
-
-const GOAL_RULES: readonly [Goal, RegExp][] = [
-  ["eligibility-qualification", /eligib|qualif/i],
-  ["consent-permission", /consent|permission|preference|contactability|opt.?(in|out)/i],
-  ["identity-verification", /identit|verif|authenticat/i],
-  ["expiry-renewal", /expir|renew/i],
-  ["cancellation-termination", /cancel|terminat|closure|closed|close\b/i],
-  ["suspension-restoration", /suspen|restor|reinstat/i],
-  ["revocation-access-change", /revok|entitlement|provision|deprovision|capability|credential/i],
-  ["ownership-transfer", /ownership|transfer|delegat|custody|assign\b/i],
-  ["merge-consolidation", /merge|consolidat|duplicate|link(ed)?\b|split\b/i],
-  ["reconciliation-correction", /reconcil|correct|mismatch|discrepan|financial obligation/i],
-  ["recovery-retry", /recover|retry|resume|failure|failed/i],
-  ["escalation-exception", /escalat|exception|override|violation/i],
-  ["delivery-confirmation", /deliver|confirm|submit|dispatch/i],
-  ["compensation-remedy", /compensat|remedy|refund|credit\b|dispute|chargeback/i],
-  ["change-versioning", /version|amend|supersede|migrat|rollout|deploy|cutover/i],
-  ["scheduling-commitment", /schedul|reservat|appointment|slot|booking|availability/i],
-  ["decision-approval", /approv|review|decision|authoris|authoriz/i],
-  ["risk-compliance", /risk|complian|polic(y|ies)|block|threshold/i],
-  ["data-integrity", /\bdata\b|import|parse|backfill|transform/i],
-  ["progression-milestone", /onboarding|activation|adoption|progress|queue|process(ing)?\b|execution|attendance/i],
-];
-
-export function goalOf(j: Pick<CanonicalJourney, "name" | "purpose">): Goal {
-  const text = j.name + " " + j.purpose;
-  for (const [goal, re] of GOAL_RULES) if (re.test(text)) return goal;
-  return "review-required";
-}
-
-export const GOALS: readonly Goal[] = [...GOAL_RULES.map(([g]) => g), "review-required"];

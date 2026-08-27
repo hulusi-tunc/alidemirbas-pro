@@ -175,6 +175,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-161",
     slug: "continuing-relationship-creation",
     category: "subscription",
+    goal: "eligibility-qualification",
+    channels: [],
     name: "Continuing relationship created → validate → activate or pending",
     purpose:
       "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
@@ -358,6 +360,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-162",
     slug: "future-effective-activation",
     category: "subscription",
+    goal: "scheduling-commitment",
+    channels: [],
     name: "Future effective start → wait → revalidate → activate or abort",
     purpose:
       "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
@@ -537,6 +541,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-163",
     slug: "renewal-decision",
     category: "subscription",
+    goal: "eligibility-qualification",
+    channels: ["email", "in-app", "push", "sms"],
     name: "Renewal window → eligibility → renew, non-renew or review",
     purpose:
       "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
@@ -654,6 +660,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Put the renewal decision to whoever holds it, with the terms that would apply. Asking is not deciding - a renewal notice sent is a communication, and treating the send as the answer renews relationships nobody agreed to",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.decision",
+        execution: "communication",
       },
       {
         id: "w.decision",
@@ -770,6 +777,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-164",
     slug: "renewal-execution",
     category: "subscription",
+    goal: "expiry-renewal",
+    channels: [],
     name: "Renewal execution → financial and dependency check → new term active",
     purpose: "Make the new term exist, once the things it depends on have actually happened.",
     entity: {
@@ -994,6 +1003,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-165",
     slug: "renewal-payment-failure",
     category: "subscription",
+    goal: "expiry-renewal",
+    channels: [],
     name: "Renewal payment failure → grace or recover → renew or lapse",
     purpose:
       "Decide what the relationship does while a failed renewal payment is being chased, without ending it by reflex.",
@@ -1188,6 +1199,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-166",
     slug: "terms-change",
     category: "subscription",
+    goal: "change-versioning",
+    channels: [],
     name: "Plan or terms change request → validate → schedule, apply or reject",
     purpose:
       "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
@@ -1481,6 +1494,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-167",
     slug: "cancellation-request",
     category: "subscription",
+    goal: "cancellation-termination",
+    channels: [],
     name: "Cancellation request → determine effective end → schedule or cancel now",
     purpose:
       "Establish whether and when a relationship will end, while the current term keeps running until it does.",
@@ -1677,6 +1692,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-168",
     slug: "scheduled-termination",
     category: "subscription",
+    goal: "cancellation-termination",
+    channels: [],
     name: "Scheduled cancellation → revalidate at effective time → end or preserve",
     purpose:
       "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
@@ -1783,6 +1800,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-169",
     slug: "relationship-suspension",
     category: "subscription",
+    goal: "suspension-restoration",
+    channels: [],
     name: "Suspension or hold → restrict relationship → restore or end",
     purpose:
       "Hold a relationship in a state where it cannot operate normally and has not ended.",
@@ -1967,6 +1986,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     id: "SUB-170",
     slug: "continuing-relationship-end",
     category: "subscription",
+    goal: "cancellation-termination",
+    channels: [],
     name: "Relationship end → final reconciliation → former or expired state",
     purpose:
       "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",

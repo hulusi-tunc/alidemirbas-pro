@@ -124,6 +124,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-41",
     slug: "feedback-eligibility",
     category: "feedback",
+    goal: "eligibility-qualification",
+    channels: ["email", "in-app", "push", "sms"],
     name: "Feedback eligibility → ask, suppress or delay",
     purpose:
       "Decide whether asking is appropriate at all, and hold the gap between asking and hearing back as a real state.",
@@ -281,6 +283,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request feedback about this specific experience, in terms the person would recognise as being about the thing that just happened",
         writes: [{ field: "feedback_request_log", mode: "append" }],
         next: "w.response",
+        execution: "communication",
       },
       {
         id: "w.response",
@@ -327,6 +330,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-42",
     slug: "advocacy-eligibility",
     category: "feedback",
+    goal: "eligibility-qualification",
+    channels: ["email", "in-app", "push"],
     name: "Advocacy eligibility → ask, delay or suppress",
     purpose:
       "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
@@ -445,12 +450,14 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Make the small ask, once, with no follow-up sequence behind it",
         next: "w.response",
+        execution: "communication",
       },
       {
         id: "a.ask-heavy",
         kind: "action",
         does: "Make the substantial ask, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint",
         next: "w.response",
+        execution: "communication",
       },
       {
         id: "w.response",
@@ -538,6 +545,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-43",
     slug: "feedback-routing-and-loop-closure",
     category: "feedback",
+    goal: "escalation-exception",
+    channels: ["email", "in-app", "task"],
     name: "Feedback received → classify → route → close the loop",
     purpose:
       "Get feedback to the process that can act on it, and keep the record open until anything promised in return has actually happened.",
@@ -640,6 +649,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the work item in the owning process. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events",
         writes: [{ field: "feedback_log", mode: "append" }],
         next: "w.outcome",
+        execution: "human",
       },
       {
         id: "w.outcome",
@@ -721,6 +731,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Acknowledge specifically enough that it is clear a person could have read it",
         next: "x.stored",
+        execution: "communication",
       },
       {
         id: "x.stored",
@@ -751,6 +762,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-44",
     slug: "negative-feedback-issue-check",
     category: "feedback",
+    goal: "escalation-exception",
+    channels: ["email", "in-app", "push", "task"],
     name: "Negative feedback → issue check → resolve, acknowledge or escalate",
     purpose:
       "Find out whether an unresolved obligation actually exists before anything that looks like recovery starts.",
@@ -842,6 +855,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Acknowledge what they said and record it as relationship evidence. No fault is manufactured, no compensation is offered as a substitute for having nothing to fix",
         writes: [{ field: "feedback_log", mode: "append" }],
         next: "x.acknowledged",
+        execution: "communication",
       },
       {
         id: "x.acknowledged",
@@ -873,6 +887,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the policy escalation and mark the severity on the issue, so that the ownership and SLA it inherits are the escalated ones rather than the default",
         writes: [{ field: "issue_context_log", mode: "append" }],
         next: "h.issue",
+        execution: "human",
       },
       {
         id: "h.issue",
@@ -900,6 +915,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-45",
     slug: "positive-feedback-recognition",
     category: "feedback",
+    goal: "eligibility-qualification",
+    channels: ["email", "in-app"],
     name: "Positive feedback → recognition → advocacy opportunity",
     purpose:
       "Record a good experience as evidence and acknowledge it, without turning the person into an advocate by arithmetic.",
@@ -952,6 +969,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Acknowledge the specific thing they said. A generic thank-you sent in response to praise is worse than silence, because it proves nobody read it",
         next: "c.contribution",
+        execution: "communication",
       },
       {
         id: "c.contribution",
@@ -1027,6 +1045,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-46",
     slug: "issue-ownership-and-closure",
     category: "feedback",
+    goal: "escalation-exception",
+    channels: ["task"],
     name: "Complaint or issue created → ownership → resolution → confirmation",
     purpose:
       "Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.",
@@ -1093,6 +1113,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Assign the owner and record the assignment, appended - who held an issue and when is part of its resolution history",
         writes: [{ field: "issue_log", mode: "append" }],
         next: "w.resolution",
+        execution: "human",
       },
       {
         id: "w.resolution",
@@ -1113,6 +1134,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Escalate one level: notify, then involve the team or manager, then reassign into a priority queue. Nothing customer-facing is sent because of this - an internal delay is our problem, not new information for them",
         writes: [{ field: "issue_log", mode: "append" }],
         next: "c.levels",
+        execution: "human",
       },
       {
         id: "c.levels",
@@ -1228,6 +1250,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-47",
     slug: "appeal-and-dispute-review",
     category: "feedback",
+    goal: "decision-approval",
+    channels: ["email"],
     name: "Appeal or dispute → evidence review → uphold, reverse or modify",
     purpose:
       "Review a decision that has already been made, without erasing it while the review is running.",
@@ -1288,6 +1312,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Decline the appeal with the actual reason and whatever process does apply. A rejection that does not say why is the thing that produces the next complaint",
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "x.rejected",
+        execution: "communication",
       },
       {
         id: "x.rejected",
@@ -1400,6 +1425,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-48",
     slug: "declared-context-recalculation",
     category: "feedback",
+    goal: "data-integrity",
+    channels: [],
     name: "Declared need or preference signal → persist → recalculate relevant experience",
     purpose:
       "Let something a person has told us about their situation reach the decisions that actually depend on it, and nothing else.",
@@ -1526,6 +1553,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-49",
     slug: "missing-critical-data",
     category: "feedback",
+    goal: "recovery-retry",
+    channels: ["email", "in-app"],
     name: "Missing critical data → request or resolve → resume",
     purpose:
       "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
@@ -1593,6 +1622,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Request it from the actor who can actually provide it - which is often not the customer - stating what it unblocks, so the request is answerable rather than merely received",
         next: "w.received",
+        execution: "communication",
       },
       {
         id: "w.received",
@@ -1700,6 +1730,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     id: "FBK-50",
     slug: "relationship-evidence-accumulation",
     category: "feedback",
+    goal: "health-risk-signal-scoring",
+    channels: [],
     name: "Relationship signal → evidence accumulation → state reassessment",
     purpose:
       "Accumulate signals as dated evidence, and let a relationship label exist only where a policy defined what it means.",
