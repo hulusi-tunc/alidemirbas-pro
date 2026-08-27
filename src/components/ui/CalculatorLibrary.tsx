@@ -48,6 +48,7 @@ const T = {
     countAll: (n: number) => `${n} calculator${n === 1 ? "" : "s"}`,
     countFiltered: (n: number, total: number) => `${n} of ${total} calculators`,
     empty: "No calculators match your search.",
+    clear: "Clear search & filters",
   },
   tr: {
     searchPlaceholder: "Hesaplayıcılarda ara...",
@@ -55,6 +56,7 @@ const T = {
     countAll: (n: number) => `${n} hesaplayıcı`,
     countFiltered: (n: number, total: number) => `${n} / ${total} hesaplayıcı`,
     empty: "Bu aramayla eşleşen hesaplayıcı yok.",
+    clear: "Aramayı ve filtreleri temizle",
   },
 } as const;
 
@@ -194,7 +196,23 @@ export function CalculatorLibrary({
 
         <div>
           {results.length === 0 ? (
-            <p className="my-12 text-sm" style={{ color: "rgba(20,19,17,0.55)" }}>{t.empty}</p>
+            /* The same designed dead end the two Lab libraries use -
+               count, message, one recovery action - translated into this
+               page's own cream grammar rather than the site tokens. */
+            <div className="my-8 rounded-[10px] border py-14 text-center" style={{ borderColor: "#e8e5df", background: "#ffffff" }}>
+              <p className="font-mono text-[11px] tracking-[0.12em] uppercase tabular-nums" style={{ color: "#9c978c" }}>
+                0 / {entries.length}
+              </p>
+              <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{t.empty}</p>
+              <button
+                type="button"
+                onClick={() => { setQuery(""); setCategory(new Set()); }}
+                className="mt-5 text-sm font-medium underline decoration-[#d8d4cc] underline-offset-4 transition-colors hover:decoration-[#8f8a80]"
+                style={{ color: "#141311" }}
+              >
+                {t.clear}
+              </button>
+            </div>
           ) : (
             <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
               {results.map((entry, i) => (

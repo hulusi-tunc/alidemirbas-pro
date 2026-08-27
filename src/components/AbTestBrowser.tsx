@@ -108,7 +108,22 @@ export default function AbTestBrowser({
         </div>
 
         {rows.length === 0 ? (
-          <p className="py-16 text-center text-sm text-neutral-500">{t.empty}</p>
+          /* Same designed dead end as the Journey Library's: count in the
+             mono register, prose message, and the single useful action. */
+          <div className="mt-4 border-t border-b border-line py-16 text-center">
+            <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase tabular-nums">
+              0 / {allRows.length}
+            </p>
+            <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-ink-700">{t.empty}</p>
+            <button
+              type="button"
+              onClick={() => { setQuery(""); setSurface(""); }}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+            >
+              <X aria-hidden className="size-3.5" />
+              {t.clear}
+            </button>
+          </div>
         ) : (
           <div className="mt-4">
             {rows.map((r) => (

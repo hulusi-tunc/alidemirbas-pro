@@ -638,10 +638,20 @@
   /* Section kicker. Sentence case — the wide tracking that made small caps
      readable is dropped with them. Colour is set per usage: baking it in here
      would compete with a `text-*` override at equal specificity. */
+  /* The eyebrow IS the detail pages' mono rail now. The journey,
+     calculator and A/B detail redesigns all settled on the same meta
+     register - ui-monospace at 11px, 0.12em tracking, uppercase - and
+     redefining this one class is what carries that register up into
+     every landing and index page at once, instead of translating
+     fifteen call sites by hand. Call sites that need a different weight
+     or tracking (the footers) already stack utilities on top, and
+     utilities win the cascade. */
   .altor-eyebrow {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: 0;
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   /* Scroll reveal — progressive enhancement, content is in the HTML. */

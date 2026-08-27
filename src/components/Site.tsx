@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Sparkle } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
@@ -117,11 +117,12 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
       // overlay-compensation on top of that.
       className="relative isolate flex min-h-[92svh] flex-col overflow-hidden bg-ink-950 pt-16 pb-12 lg:pt-20"
     >
-      {/* quiet blue wash + vertical rules, the reference hero's ground */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
-      />
+      {/* Vertical rules only - the radial blue wash is gone. The detail
+          pages settled the site's language: ink and paper, mono rails, and
+          colour only where it is functional. On this hero the one place
+          colour earns its keep is the portrait plate, so the atmospheric
+          gradient behind the type came off and the rules (structure, not
+          decoration) stayed. */}
       <div
         aria-hidden
         className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
@@ -132,7 +133,7 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
           <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
             <div>
               <Reveal>
-                <h1 className="max-w-3xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-display-xl text-transparent">
+                <h1 className="max-w-3xl text-display-xl text-white">
                   {t.hero.line1}
                   <br />
                   {t.hero.line2}
@@ -159,11 +160,15 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
                 </div>
               </Reveal>
               <Reveal delay={240} className="mt-8">
-                <ul className="flex flex-wrap items-center gap-x-7 gap-y-3">
+                {/* The same mono rail the detail pages use for their meta
+                    lines - the hero introduces the register the rest of the
+                    site speaks in, instead of a sparkle-and-gradient chip
+                    row that appears nowhere else. */}
+                <ul className="flex flex-wrap items-center gap-x-6 gap-y-3">
                   {t.hero.reassurance.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-base">
-                      <Sparkle aria-hidden className="size-3.5 text-white" />
-                      <span className="bg-gradient-to-r from-primary-300 to-white bg-clip-text text-transparent">
+                    <li key={item} className="flex items-center gap-2.5">
+                      <span aria-hidden className="size-1 rounded-full bg-white/40" />
+                      <span className="font-mono text-[11px] tracking-[0.12em] text-white/65 uppercase">
                         {item}
                       </span>
                     </li>
@@ -235,13 +240,9 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
 export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="contact" data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-[-18rem] -z-10 h-[32rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
-      />
       <div className="altor-container text-center">
         <Reveal>
-          <h2 className="mx-auto max-w-2xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] text-transparent">
+          <h2 className="mx-auto max-w-2xl text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] text-white">
             {t.finalCta.title}
           </h2>
           <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-white/75">{t.finalCta.body}</p>

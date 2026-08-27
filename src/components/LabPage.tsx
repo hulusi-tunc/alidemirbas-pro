@@ -40,7 +40,7 @@ function JourneyBrowserFallback({ lang, t, basePath }: {
       <p className="mt-4 text-sm text-ink-500 tabular-nums">
         {JOURNEY_ROWS.length} / {JOURNEY_ROWS.length} {t.results}
       </p>
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5">
         {JOURNEY_ROWS.map((j) => (
           <JourneyRowCard
             key={j.id}

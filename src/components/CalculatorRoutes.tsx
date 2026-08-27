@@ -277,24 +277,12 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
       />
       <main>
         <section className="relative overflow-hidden pt-22 pb-10">
-          {/* Same soft, multi-tone blue wash as the Contact page hero, per
-              request ("bu sayfanın da üst kısmını contact sayfası gibi
-              mavı yapsana"). Several overlapping blurred circles, not one
-              gradient, for the same reason as Contact's own note - a
-              single blurred gradient reads as one flat color. Reuses the
-              site's global `primary-*` blue tokens (they exist site-wide
-              in globals.css, not scoped to the Portrait pages), even
-              though this page otherwise runs its own bespoke cream
-              palette - only this hero band gets the blue treatment, the
-              rest of the page (cards/facets/footer) is unchanged. First
-              child + no z-index: the section becomes `position:relative`
-              here, and the real heading/copy below paints over it as a
-              later sibling, same technique as Contact. */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div className="absolute -top-32 left-[8%] size-[34rem] rounded-full bg-primary-300/40 blur-3xl" />
-            <div className="absolute -top-16 right-[5%] size-[30rem] rounded-full bg-primary-500/25 blur-3xl" />
-            <div className="absolute top-[45%] left-[35%] size-[26rem] rounded-full bg-primary-100/70 blur-3xl" />
-          </div>
+          {/* The blue wash this hero borrowed from Contact came off in the
+              site-wide quieting: this page runs its own deliberate cream
+              palette (a user-supplied mockup), and blue blobs floating on
+              a cream ground were the one place two design languages sat
+              in the same viewport. The cream page now opens on its own
+              ground. */}
           <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
             <p className="mb-4 text-xs font-medium tracking-[0.12em] uppercase" style={{ color: "#9c978c" }}>{hero.eyebrow}</p>
             <h1 className="mx-auto max-w-xl text-[2.75rem] leading-[1.1] font-medium tracking-tight" style={{ color: "#141311" }}>{hero.title}</h1>
