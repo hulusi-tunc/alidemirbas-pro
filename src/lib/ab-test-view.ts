@@ -13,7 +13,7 @@ export type Surface =
   | "pdp" | "plp" | "home" | "cart" | "checkout" | "search" | "filters" | "form"
   | "pricing" | "saas" | "mobile" | "thankyou" | "dashboard" | "generic-ui";
 
-type AbTestRecord = {
+export type AbTestDetail = {
   id: string;
   slug: string;
   category: string;
@@ -34,7 +34,7 @@ type AbTestRecord = {
   seoDescription: string | null;
 };
 
-const TESTS = rawTests as AbTestRecord[];
+const TESTS = rawTests as AbTestDetail[];
 
 export const AB_TEST_COUNT = TESTS.length;
 
@@ -62,6 +62,6 @@ export const ALL_AB_TEST_SLUGS: readonly string[] = TESTS.map((r) => r.slug);
 
 const BY_SLUG = new Map(TESTS.map((r) => [r.slug, r]));
 
-export function abTestDetail(slug: string): AbTestRecord | null {
+export function abTestDetail(slug: string): AbTestDetail | null {
   return BY_SLUG.get(slug) ?? null;
 }
