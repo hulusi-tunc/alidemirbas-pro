@@ -48,6 +48,12 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
   const { detail, merged } = resolved;
   const t = copy[lang].lab.page;
   const basePath = basePathFor(lang);
+  /* The canvas needs 70-80% of the viewport (§2 of the visual grammar) - a
+     max-w-3xl reading column would crop it to a fraction of that. Every
+     journey now uses the wide shell; JourneyDetailBody itself re-narrows
+     its own prose sections back to max-w-3xl even inside this wider shell,
+     so guardrails and the reusable rule stay a comfortable reading width. */
+  const wide = true;
 
   return (
     <LabShell lang={lang}>
@@ -70,7 +76,7 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
         </div>
       </div>
       <div className="px-4 py-8 md:px-8">
-        <div className="mx-auto max-w-3xl">
+        <div className={`mx-auto ${wide ? "max-w-[1400px]" : "max-w-3xl"}`}>
           <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} t={t} />
         </div>
       </div>
@@ -85,9 +91,10 @@ export function JourneyModalPage({ lang, slug }: { lang: Lang; slug: string }) {
   const { detail, merged } = resolved;
   const t = copy[lang].lab.page;
   const basePath = basePathFor(lang);
+  const wide = true;
 
   return (
-    <JourneyModal closeLabel={t.close}>
+    <JourneyModal closeLabel={t.close} wide={wide}>
       <header className="border-b border-line px-6 py-5 pr-16">
         <p className="font-mono text-xs text-neutral-500 tabular-nums">
           {detail.id} - {detail.categoryTitle}

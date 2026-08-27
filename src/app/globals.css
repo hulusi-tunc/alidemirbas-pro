@@ -567,6 +567,14 @@
     box-shadow: var(--shadow-hairline);
   }
 
+  /* Journey canvas background - a faint dot grid, considerably quieter than
+     a classic CRM builder's graph paper. rgba rather than a token so it
+     never needs a dark-canvas counterpart; this site has none. */
+  .altor-dot-grid {
+    background-image: radial-gradient(circle, rgb(0 0 0 / 0.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
   /* Section kicker. Sentence case — the wide tracking that made small caps
      readable is dropped with them. Colour is set per usage: baking it in here
      would compete with a `text-*` override at equal specificity. */

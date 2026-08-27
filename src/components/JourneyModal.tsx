@@ -18,9 +18,20 @@ const FOCUSABLE =
 export default function JourneyModal({
   children,
   closeLabel,
+  wide = false,
 }: {
   children: React.ReactNode;
   closeLabel: string;
+  /** Every journey is canvas-enabled now, and the canvas needs most of the
+      viewport for its graph (§2 of the visual grammar: canvas as 70-80% of
+      the screen), so both call sites in JourneyRoutes.tsx always pass
+      `true`. The narrow reading-width variant stays here rather than being
+      deleted with it - it's the modal's general width parameter, not a
+      canvas-specific one, and removing it now would just mean re-adding it
+      the next time this modal wraps something that isn't a graph.
+      Everything else about the modal - the real URL underneath, the focus
+      trap, the inert page behind it - is unchanged either way. */
+  wide?: boolean;
 }) {
   const router = useRouter();
   const panel = useRef<HTMLDivElement>(null);
@@ -93,7 +104,9 @@ export default function JourneyModal({
       />
       <div
         ref={panel}
-        className="absolute inset-4 mx-auto flex max-w-2xl flex-col border border-line bg-paper shadow-2xl md:inset-y-10"
+        className={`absolute inset-4 mx-auto flex flex-col border border-line bg-paper shadow-2xl md:inset-y-10 ${
+          wide ? "max-w-[1440px]" : "max-w-2xl"
+        }`}
       >
         <button
           ref={closeButton}
