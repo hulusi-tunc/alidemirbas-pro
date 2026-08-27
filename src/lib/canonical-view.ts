@@ -8,6 +8,7 @@ import {
   resolveJourneyId,
 } from "@/canonical";
 import type { CanonicalJourney, CanonicalNode, CategoryId, GoalId } from "@/canonical/types";
+import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
 /* The read model the archive renders from.
 
@@ -67,22 +68,12 @@ export type JourneyRow = {
   /** The single primary discovery filter - explicit canonical metadata, not
       derived here. See src/canonical/types.ts and lib/journey-taxonomy.ts. */
   goal: GoalId;
+  /** The card's topology thumbnail, laid out here (server, once, at build
+      time) rather than in the browser - see lib/journey-preview.ts. */
+  preview: JourneyPreview;
 };
 
 const triggerOf = (j: CanonicalJourney) => j.nodes.find((n) => n.kind === "trigger");
-
-export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
-  id: j.id,
-  slug: j.slug,
-  name: j.name,
-  purpose: j.purpose,
-  category: j.category,
-  categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
-  evidence: (triggerOf(j)?.evidence.source ?? "authoritative") as EvidenceSource,
-  nodeCount: j.nodes.length,
-  competesIn: j.competition?.exclusionGroup ?? null,
-  goal: j.goal,
-}));
 
 /* ------------------------------------------------------------ merged ids */
 
@@ -303,18 +294,43 @@ function orderedNodes(j: CanonicalJourney): CanonicalNode[] {
   return out;
 }
 
-function detailOf(j: CanonicalJourney): JourneyDetail {
+/** The FlowNode projection of one journey - the exact input both the detail
+    page's Canvas and the library card's topology thumbnail lay out, so the
+    two can never drift into being different graphs. */
+function flowNodesOf(j: CanonicalJourney): FlowNode[] {
   const nodes = orderedNodes(j).map((n) => nodeView(n, j.entry));
   // Reading order is settled now, so an edge can finally say whether its
   // target is above it. Done here rather than in nodeView because a node on
   // its own has no idea where it sits.
   const position = new Map(nodes.map((n, i) => [n.id, i]));
-  const withDirection = nodes.map((n, i) => ({
+  return nodes.map((n, i) => ({
     ...n,
     edges: n.edges.map((e) =>
       e.kind === "node" && (position.get(e.to) ?? i) < i ? { ...e, back: true } : e,
     ),
   }));
+}
+
+/* Declared here rather than beside the JourneyRow type because building each
+   row's topology thumbnail needs `flowNodesOf` above - and `nodeView`, which
+   it calls, is a const rather than a hoisted declaration, so evaluating this
+   any earlier in the module would hit its temporal dead zone. */
+export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
+  id: j.id,
+  slug: j.slug,
+  name: j.name,
+  purpose: j.purpose,
+  category: j.category,
+  categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
+  evidence: (triggerOf(j)?.evidence.source ?? "authoritative") as EvidenceSource,
+  nodeCount: j.nodes.length,
+  competesIn: j.competition?.exclusionGroup ?? null,
+  goal: j.goal,
+  preview: buildJourneyPreview(flowNodesOf(j)),
+}));
+
+function detailOf(j: CanonicalJourney): JourneyDetail {
+  const withDirection = flowNodesOf(j);
 
   return {
     id: j.id,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 
 import JourneyRowCard from "@/components/JourneyRowCard";
@@ -25,7 +25,7 @@ import type { copy, Lang } from "@/lib/content";
    See production/journey-goal-vocabulary-audit for why.
 
    Filter state lives in the URL (?q=&goal=), read with useSearchParams and
-   written with useRouter, so it survives a refresh and restores correctly on
+   written with the History API, so it survives a refresh and restores correctly on
    browser back/forward. A Goal change pushes a new history entry (a
    discrete, meaningful state change); the search query is debounced and
    written with replace so a history entry isn't created per keystroke. */
@@ -43,7 +43,6 @@ export default function JourneyBrowser({
   merged: readonly MergedRedirect[];
   basePath: string;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -64,18 +63,39 @@ export default function JourneyBrowser({
     setQuery(urlQuery);
   }
 
+  /* The one place filter state is written to the URL.
+
+     Uses the native History API rather than `router.push`/`replace`, which is
+     what Next documents for query-string-only updates (see next/dist/docs/
+     .../linking-and-navigating.md § Native History API: pushState and
+     replaceState "integrate into the Next.js Router, allowing you to sync
+     with usePathname and useSearchParams"). It is not a preference: on this
+     route `router.push` to a URL that differs from the current one only in
+     its query string is coalesced away and emits no navigation at all, so
+     clearing the last filter left the old query in the address bar while the
+     list below it had already reset. pushState has no such dedupe, and still
+     produces a real history entry for back/forward.
+
+     It also reads the LIVE query string rather than the `searchParams`
+     captured when this callback was created: the debounced search write
+     below fires up to 400ms after its own render, and anything that changed
+     the URL in between - picking a Goal, or Clear all - would otherwise be
+     undone by that stale snapshot being written back. Only ever called from
+     an event handler or a timeout, never during render, so `window` is
+     always available here. */
   const setParams = useCallback(
     (updates: Record<string, string | null>, mode: "push" | "replace") => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(window.location.search);
       for (const [key, value] of Object.entries(updates)) {
         if (value) params.set(key, value);
         else params.delete(key);
       }
       const qs = params.toString();
       const url = qs ? `${pathname}?${qs}` : pathname;
-      router[mode](url, { scroll: false });
+      if (mode === "push") window.history.pushState(null, "", url);
+      else window.history.replaceState(null, "", url);
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   // Debounced URL sync for the search box - replace, so a paused-then-resumed
@@ -92,22 +112,35 @@ export default function JourneyBrowser({
 
   const setGoal = (g: Goal | null) => setParams({ goal: g }, "push");
 
+  /* Names the params to drop rather than resetting to a bare pathname, so
+     this stays honest if another one is ever added. */
   const clearAll = () => {
     setQuery("");
-    router.push(pathname, { scroll: false });
+    setParams({ q: null, goal: null }, "push");
   };
+
+  /* The searchable text per row, lowercased once for the whole list rather
+     than rebuilt on every keystroke - concatenating and case-folding five
+     fields across 255 rows per character typed is real work, and none of it
+     depends on the query. Category and Category Title stay in here: Category
+     is no longer a filter, but it is still something people search by. */
+  const haystack = useMemo(
+    () =>
+      allRows.map((j) =>
+        [j.id, j.name, j.purpose, j.category, j.categoryTitle, GOAL_LABEL[j.goal][lang]]
+          .join(" ")
+          .toLocaleLowerCase(lang),
+      ),
+    [allRows, lang],
+  );
 
   const { rows, mergedHit } = useMemo(() => {
     const q = query.trim().toLocaleLowerCase(lang);
-    const byQuery = (j: JourneyRow) =>
-      !q ||
-      [j.id, j.name, j.purpose, j.categoryTitle, GOAL_LABEL[j.goal][lang]]
-        .join(" ")
-        .toLocaleLowerCase(lang)
-        .includes(q);
     const byGoal = (j: JourneyRow) => goal === null || j.goal === goal;
 
-    const matched = allRows.filter((j) => byQuery(j) && byGoal(j));
+    const matched = allRows.filter(
+      (j, i) => (!q || haystack[i].includes(q)) && byGoal(j),
+    );
 
     /* A merged id is not a journey and matches nothing, which would leave
        someone holding an old reference at a dead end. Answer with the journey
@@ -116,7 +149,7 @@ export default function JourneyBrowser({
     const survivor = hit ? allRows.filter((j) => j.id === hit.to) : null;
 
     return { rows: survivor ?? matched, mergedHit: hit };
-  }, [query, goal, lang, allRows, merged]);
+  }, [query, goal, lang, allRows, merged, haystack]);
 
   const activeCount = (goal ? 1 : 0) + (query.trim() ? 1 : 0);
 
@@ -201,7 +234,7 @@ export default function JourneyBrowser({
       {rows.length === 0 ? (
         <p className="py-16 text-center text-sm text-neutral-500">{t.empty}</p>
       ) : (
-        <div className="mt-4">
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((j) => (
             <JourneyRowCard
               key={j.id}
@@ -210,9 +243,9 @@ export default function JourneyBrowser({
               name={j.name}
               goalLabel={GOAL_LABEL[j.goal][lang]}
               categoryTitle={j.categoryTitle}
-              competesIn={j.competesIn}
               nodeCount={j.nodeCount}
               nodesLabel={t.nodesLabel}
+              preview={j.preview}
             />
           ))}
         </div>

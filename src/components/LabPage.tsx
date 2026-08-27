@@ -39,7 +39,7 @@ function JourneyBrowserFallback({ lang, t, basePath }: {
       <p className="mt-4 text-sm text-ink-500 tabular-nums">
         {JOURNEY_ROWS.length} / {JOURNEY_ROWS.length} {t.results}
       </p>
-      <div className="mt-4">
+      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {JOURNEY_ROWS.map((j) => (
           <JourneyRowCard
             key={j.id}
@@ -48,9 +48,9 @@ function JourneyBrowserFallback({ lang, t, basePath }: {
             name={j.name}
             goalLabel={GOAL_LABEL[j.goal][lang]}
             categoryTitle={j.categoryTitle}
-            competesIn={j.competesIn}
             nodeCount={j.nodeCount}
             nodesLabel={t.nodesLabel}
+            preview={j.preview}
           />
         ))}
       </div>
@@ -86,7 +86,9 @@ export default function LabPage({ lang }: { lang: Lang }) {
         </div>
       </div>
       <div className="px-4 py-6 md:px-8">
-        <div className="mx-auto max-w-4xl">
+        {/* Wider than the header block: three card columns need the room, and
+            the grid is the page - everything above it stays secondary. */}
+        <div className="mx-auto max-w-6xl">
           <Suspense fallback={<JourneyBrowserFallback lang={lang} t={t.lab.page} basePath={basePath} />}>
             <JourneyBrowser
               lang={lang}
