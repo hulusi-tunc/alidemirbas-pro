@@ -124,9 +124,6 @@ export const copy = {
         preemptedLabel: "Pre-empted by",
         guardrailsLabel: "Guardrails",
         ruleLabel: "Reusable rule",
-        flowLabel: "Graph",
-        more: "more",
-        less: "less",
         terminalLabel: "terminal",
         close: "Close",
         backToLibrary: "All journeys",
@@ -140,6 +137,13 @@ export const copy = {
         },
         evidenceHint:
           "What the trigger is allowed to conclude. Authoritative evidence can establish an outcome; declared, behavioral and inferred evidence can prioritise work or ask for verification, and cannot conclude one.",
+        canvas: {
+          entry: "Entry",
+          zoomIn: "Zoom in",
+          zoomOut: "Zoom out",
+          fitToView: "Fit to view",
+          reset: "Reset zoom",
+        },
       },
     },
     about: {
@@ -674,9 +678,6 @@ export const copy = {
         preemptedLabel: "Şu olursa biter",
         guardrailsLabel: "Guardrail",
         ruleLabel: "Yeniden kullanılabilir kural",
-        flowLabel: "Graf",
-        more: "Detay",
-        less: "Gizle",
         terminalLabel: "Terminal",
         close: "Kapat",
         backToLibrary: "Tüm journey'ler",
@@ -690,6 +691,13 @@ export const copy = {
         },
         evidenceHint:
           "Trigger'ın neyi sonuçlandırmasına izin verildiği. Authoritative kanıt bir sonuç kurabilir; declared, behavioral ve inferred kanıt işi önceliklendirebilir veya doğrulama isteyebilir, sonuç kuramaz.",
+        canvas: {
+          entry: "Giriş",
+          zoomIn: "Yakınlaştır",
+          zoomOut: "Uzaklaştır",
+          fitToView: "Sığdır",
+          reset: "Yakınlaştırmayı sıfırla",
+        },
       },
     },
     about: {
