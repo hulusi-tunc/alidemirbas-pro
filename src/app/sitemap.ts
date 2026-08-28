@@ -13,6 +13,9 @@ const routes = [
   // The Journey Builder product page. /lab/journeys above is the LIBRARY;
   // this is the product page in front of it, added this round.
   "/lab/claude-lifecycle",
+  // The Change History Explorer's product page, added when that project
+  // stopped being the one Lab entry whose only link left the site.
+  "/lab/google-ads-change-history-dashboard",
   // The Marketing Calculators index, plus every live calculator/text-tool
   // route - previously missing from this list entirely, meaning the whole
   // /calculators section (index + every individual calculator page) was

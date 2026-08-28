@@ -86,8 +86,11 @@ export const copy = {
           slug: "google-ads-change-history-dashboard",
           desc: "Turns Google Ads change history into a searchable dashboard - showing what changed, who changed it, when it happened and how significant it was.",
           tags: ["Google Ads", "Analytics", "Python"],
-          proof: null,
-          links: [{ label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
+          proof: "Zero dependencies · 57 self-tests",
+          links: [
+            { label: "Explore project", href: "/lab/google-ads-change-history-dashboard" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
+          ],
         },
         {
           name: "Numerspace",
@@ -635,8 +638,11 @@ export const copy = {
           slug: "google-ads-change-history-dashboard",
           desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - ne değişti, kim değiştirdi, ne zaman oldu ve ne kadar önemliydi.",
           tags: ["Google Ads", "Analitik", "Python"],
-          proof: null,
-          links: [{ label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" }],
+          proof: "Sıfır bağımlılık · 57 self-test",
+          links: [
+            { label: "Projeyi keşfet", href: "/tr/lab/google-ads-change-history-dashboard" },
+            { label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
+          ],
         },
         {
           name: "Numerspace",
