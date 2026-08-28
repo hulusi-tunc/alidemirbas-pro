@@ -17,6 +17,7 @@ import {
   getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS,
   correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, TEXT_TOOL_GROUP,
   type LibraryGroup,
+  GROUP_LABEL,
 } from "@/lib/calc-catalog";
 import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
@@ -53,22 +54,6 @@ const HERO = {
     title: "Excel'e gerek kalmadan büyüme matematiği.",
     sub: "Büyüme, edinme, elde tutma, deneysel test ve birim ekonomisini kapsayan pratik hesaplayıcılardan oluşan bir koleksiyon - hesap gerektirmez, girdileriniz izlenmez.",
   },
-};
-
-/* The library's six groups, plus Text Tools which renders as its own list
-   below the grid. Keyed by LibraryGroup (calc-catalog.ts), NOT by the
-   catalog's own `category` field - see that map's own comment for why the
-   two deliberately disagree. Replaces the previous ten labels, which were
-   the research taxonomy showing through: with 19 calculators it produced
-   groups of one and split ad spend across three headings. */
-const GROUP_LABEL: Record<LibraryGroup, { en: string; tr: string }> = {
-  ads: { en: "Ads", tr: "Reklam" },
-  "revenue-unit-economics": { en: "Revenue & Unit Economics", tr: "Gelir ve Birim Ekonomisi" },
-  "retention-saas": { en: "Retention & SaaS", tr: "Elde Tutma ve SaaS" },
-  "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Huni" },
-  experimentation: { en: "Experimentation", tr: "Deneysel Test" },
-  "email-crm": { en: "Email & CRM", tr: "E-posta ve CRM" },
-  "text-tools": { en: "Text Tools", tr: "Metin Araçları" },
 };
 
 export function calculatorIndexMetadata(lang: Lang): Metadata {

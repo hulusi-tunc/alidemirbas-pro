@@ -86,11 +86,18 @@ a rule — not from adding padding until things stop touching. If your only tool
 for "these are different sections" is `py-32`, you have not composed the page.
 
 ### Everything becomes a card
-Same commit's Stack band: a grid of bordered boxes each containing one centred
-label and nothing else. An empty box is not a card; it is a fence around a
-word. A card must earn its border by holding something structured — a figure,
-a set of fields, an interface. A label alone belongs in a list, a row, or a
-rail.
+A card must earn its border by holding something structured — a figure, a set
+of fields, an interface. A label alone belongs in a list, a row, or a rail, and
+19 bordered boxes each holding one name is how an index turns into wallpaper.
+
+Counter-example worth studying rather than avoiding: this home page's Stack
+band **is** a bento of bordered cells and it works, because each cell holds a
+real logo, a real category tag, and the overflow cell holds a real count. The
+rule is not "no cards" — it is that the border must be around something.
+
+(The first version of this skill cited that Stack band as a failure. It was
+wrong: the screenshots behind that call were taken mid-`Reveal`, so the logos
+had not faded in. See the QA note in §4 — that mistake is why the note exists.)
 
 ### Icon grid / fake dashboard / abstract blobs
 Three-across icon-and-caption grids, invented chart screenshots, decorative
@@ -172,8 +179,17 @@ npm run build && npx next start -p 4200 &
 ```
 
 Then drive Chromium with `puppeteer-core` (installed; Chromium at
-`/opt/pw-browsers/chromium`, launch with `--no-sandbox`). Capture the page in
-full-height sections at **1440**, **834**, and **390**, then:
+`/opt/pw-browsers/chromium`, launch with `--no-sandbox`).
+
+**Trigger every `Reveal` before you shoot.** Sections on this site fade in on
+scroll, and a screenshot taken on the way past catches them half-transparent —
+which reads exactly like faded text and empty boxes. Scroll the full height in
+~400px steps with a short wait, return to the top, wait again, and only then
+capture. A design conclusion drawn from a mid-animation screenshot is a
+conclusion about your scroll timing, not about the page. This has already
+produced one wrong verdict (see §2).
+
+Capture at **1440**, **834**, and **390**, then:
 
 1. **Look at every screenshot.** Read them as a reader would, not as a diff.
 2. Check the failure modes in §2 by name against what actually rendered.

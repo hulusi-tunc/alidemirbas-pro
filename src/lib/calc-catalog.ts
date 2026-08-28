@@ -170,6 +170,24 @@ export const PRIMARY_OUTPUT: Record<string, string> = {
    the funnel: what you spend, what it earns, whether they stay, whether
    they convert, how you prove it, how you reach them - then the tools that
    aren't metrics at all. */
+/* The library's groups as displayed. Keyed by LibraryGroup, NOT by the
+   catalog's own `category` field - see LIBRARY_GROUP's own comment for why
+   the two deliberately disagree.
+
+   Lives here rather than in CalculatorRoutes because two surfaces render it
+   now: the calculators index's facet rail, and the home page's calculator
+   band, which lists the live tools grouped the same way. One map, so the
+   two cannot drift into calling the same group different things. */
+export const GROUP_LABEL: Record<LibraryGroup, { en: string; tr: string }> = {
+  ads: { en: "Ads", tr: "Reklam" },
+  "revenue-unit-economics": { en: "Revenue & Unit Economics", tr: "Gelir ve Birim Ekonomisi" },
+  "retention-saas": { en: "Retention & SaaS", tr: "Elde Tutma ve SaaS" },
+  "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Huni" },
+  experimentation: { en: "Experimentation", tr: "Deneysel Test" },
+  "email-crm": { en: "Email & CRM", tr: "E-posta ve CRM" },
+  "text-tools": { en: "Text Tools", tr: "Metin Araçları" },
+};
+
 export const LIBRARY_GROUP_ORDER: readonly LibraryGroup[] = [
   "ads", "revenue-unit-economics", "retention-saas",
   "conversion-funnel", "experimentation", "email-crm",

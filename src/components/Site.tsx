@@ -10,7 +10,13 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { withJourneyCount } from "@/lib/archive";
-import { LIVE_CALCULATOR_SLUGS } from "@/lib/calc-catalog";
+import {
+  getAllLiveSpecs,
+  GROUP_LABEL,
+  LIBRARY_GROUP,
+  LIBRARY_GROUP_ORDER,
+  LIVE_CALCULATOR_SLUGS,
+} from "@/lib/calc-catalog";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 
 const HEADER_T = {
@@ -198,34 +204,44 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
 /** Short teaser between the hero and the rest of the page - eyebrow, one
     real paragraph from the About page's own lead copy (not new writing),
     and a link out to the full page. */
-function AboutTeaser({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    <section className="bg-paper py-24 md:py-32">
-      <div className="altor-container">
-        <Reveal>
-          <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
-          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-relaxed text-ink-600">{t.about.teaserLead}</p>
-          <Link
-            href={t.nav.aboutHref}
-            className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            {t.about.moreLink}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
+/* AboutTeaser used to be its own band here: an eyebrow, five lines of prose
+   and a link, set at max-w-2xl inside the 1248px container - so the right
+   46% of the section was empty - on the same bg-paper as the two sections
+   either side of it, which left padding as the only thing separating three
+   consecutive bands.
+
+   The prose was not the problem; the band was. It is now the right-hand
+   column of Work's heading (below), where it reads as the lede to
+   "measurement problems wearing a costume" that it always was. The copy is
+   moved verbatim - t.about.eyebrow / teaserLead / moreLink - not rewritten,
+   and one dead band leaves the page. */
 
 /** What I do: one ranked item with room, then the rest as a numbered list.
     A row of equal cards would claim the four are equally important; they are
     not, and the first is what the other three are built on. */
 function Work({ t }: { t: (typeof copy)[Lang] }) {
   return (
-    <section id="work" className="bg-paper py-24 md:py-32">
+    <section id="work" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
-        <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} />
+        {/* Two columns, so the statement has something to sit against. The
+            heading alone left the right half of this band empty; the About
+            prose that used to occupy its own dead band now answers it. */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+          <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} />
+          <Reveal delay={60} className="lg:pt-10">
+            <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
+            <p className="mt-4 max-w-[46ch] text-[1.0625rem] leading-relaxed text-ink-600">
+              {t.about.teaserLead}
+            </p>
+            <Link
+              href={t.nav.aboutHref}
+              className="mt-5 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+            >
+              {t.about.moreLink}
+              <ArrowRight aria-hidden className="size-3.5" />
+            </Link>
+          </Reveal>
+        </div>
 
         <Reveal delay={90}>
           <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-8">
@@ -267,7 +283,7 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
     it, not a replacement for it. */
 function Lab({ t }: { t: (typeof copy)[Lang] }) {
   return (
-    <section id="lab" className="bg-paper py-24 md:py-32">
+    <section id="lab" className="bg-paper-soft py-24 md:py-28">
       <div className="altor-container">
         <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
 
@@ -324,26 +340,76 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/** Calculators. The count comes from LIVE_CALCULATOR_SLUGS, so it cannot
-    drift from what is actually routable - the library has been resized once
-    already. */
-function Calculators({ t }: { t: (typeof copy)[Lang] }) {
+/* Calculators.
+
+   This band used to be a heading, a two-line intro, one mono count and a
+   link - four lines of text holding a full py-32 section, with the right
+   half of the page empty and roughly 270px of nothing below it. The
+   emptiness was not restraint: the section had a real anchor available and
+   showed none of it.
+
+   The anchor is the library itself. getAllLiveSpecs() returns the 19 live
+   calculators with their real names, and LIBRARY_GROUP puts each one in its
+   real product group, so the right-hand column is the actual index - no
+   invented names, no placeholder tiles, and it cannot drift from what is
+   routable because it is read from the same catalog the routes are.
+
+   Names only, as a rail rather than cards: a name is not structured enough
+   to earn a border, and 19 bordered boxes is exactly the failure the Lab
+   index above already avoids. */
+function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const specs = getAllLiveSpecs();
+  const groups = LIBRARY_GROUP_ORDER.map((group) => ({
+    group,
+    items: specs.filter((spec) => LIBRARY_GROUP[spec.slug] === group),
+  })).filter((g) => g.items.length > 0);
+
   return (
-    <section id="calculators" className="bg-paper-soft py-24 md:py-32">
+    <section id="calculators" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
-        <SectionHeading eyebrow={t.home.calc.eyebrow} title={t.home.calc.title} intro={t.home.calc.intro} />
-        <Reveal delay={90}>
-          <p className="mt-8 font-mono text-sm text-ink-500">
-            <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
-          </p>
-          <Link
-            href={t.nav.calculatorsHref}
-            className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            {t.home.calc.more}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
-        </Reveal>
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
+          <div>
+            <SectionHeading
+              eyebrow={t.home.calc.eyebrow}
+              title={t.home.calc.title}
+              intro={t.home.calc.intro}
+            />
+            <Reveal delay={90}>
+              <p className="mt-8 font-mono text-sm text-ink-500">
+                <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
+              </p>
+              <Link
+                href={t.nav.calculatorsHref}
+                className="mt-5 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+              >
+                {t.home.calc.more}
+                <ArrowRight aria-hidden className="size-3.5" />
+              </Link>
+            </Reveal>
+          </div>
+
+          <Reveal delay={140}>
+            <div className="flex flex-col gap-7 border-t border-line pt-7 lg:border-t-0 lg:pt-1">
+              {groups.map(({ group, items }) => (
+                <div key={group} className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-[10rem_minmax(0,1fr)]">
+                  <p className="altor-eyebrow pt-1 text-ink-400">{GROUP_LABEL[group][lang]}</p>
+                  <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+                    {items.map((spec) => (
+                      <li key={spec.slug}>
+                        <Link
+                          href={`${t.nav.calculatorsHref}/${spec.slug}`}
+                          className="text-[0.9375rem] text-ink-700 underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink-950 hover:decoration-ink-400"
+                        >
+                          {spec.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
@@ -488,14 +554,13 @@ export default function Site({ lang }: { lang: Lang }) {
       <SiteHeader t={t} />
       <main>
         <Hero t={t} />
-        <AboutTeaser t={t} />
         <Work t={t} />
         {/* Expertise, StatsBand and Experience pulled off the home page for
             now - components kept below, just not rendered. Re-add
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
         <Lab t={t} />
-        <Calculators t={t} />
+        <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
         <FinalCta t={t} />
       </main>
