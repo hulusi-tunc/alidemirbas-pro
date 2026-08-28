@@ -12,6 +12,51 @@ export const copy = {
       ctaSecondary: "LinkedIn",
       reassurance: ["Mobile App Growth Lead, Aksigorta", "7+ years in growth", "Istanbul"],
     },
+    /* Home page only: the spec plate beside the hero, the ranked "what I do"
+       block, and the calculators band. The hero's own headline and lead stay
+       in `hero` above; nothing here restates them. */
+    home: {
+      spec: [
+        { label: "Now", value: "Mobile App Growth Lead, Aksigorta" },
+        { label: "Before", value: "Vodafone, Getir, Wingie Enuygun Group" },
+        { label: "Years", value: "8+ in digital marketing and growth" },
+        { label: "Works on", value: "Acquisition, CRM, lifecycle, measurement, CRO" },
+        { label: "Based in", value: "Istanbul, works in English and Turkish" },
+      ],
+      work: {
+        eyebrow: "What I do",
+        title: "Most growth problems are measurement problems wearing a costume.",
+        primaryLabel: "Primary",
+        primary: {
+          title: "Measurement that survives an audit",
+          body:
+            "GA4 and GTM event design, Adjust MMP configuration, and the reconciliation work that starts when two platforms report two different numbers for the same week. What you get is a taxonomy your team can query, definitions everyone agrees on, and dashboards that answer the question that was asked.",
+        },
+        rest: [
+          {
+            title: "Lifecycle and CRM programs",
+            body: "Onboarding, activation, renewal and winback journeys built from the events a product already emits, not from a template.",
+          },
+          {
+            title: "Paid acquisition",
+            body: "Google, Meta and app-install channels, run against post-install behaviour rather than install counts.",
+          },
+          {
+            title: "Experimentation and CRO",
+            body: "One variable per test, a stated stopping rule, and a written note on what would invalidate the result.",
+          },
+        ],
+      },
+      calc: {
+        eyebrow: "Calculators",
+        title: "Marketing math, answered in one screen.",
+        intro:
+          "Free calculators for the numbers growth teams argue about: CAC payback, LTV, ROAS, retention, sample size and test duration. No account, no export gate.",
+        countSuffix: "tools live right now.",
+        more: "Open all calculators",
+      },
+      labMore: "Open the full archive",
+    },
     lab: {
       label: "Lab",
       title: "Things I've been building",
@@ -591,6 +636,48 @@ export const copy = {
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
       reassurance: ["Mobile App Growth Lead, Aksigorta", "Growth'ta 7+ yıl", "İstanbul"],
+    },
+    home: {
+      spec: [
+        { label: "Şu an", value: "Mobile App Growth Lead, Aksigorta" },
+        { label: "Öncesinde", value: "Vodafone, Getir, Wingie Enuygun Group" },
+        { label: "Deneyim", value: "Dijital pazarlama ve growth'ta 8+ yıl" },
+        { label: "Çalışma alanı", value: "Edinim, CRM, lifecycle, ölçümleme, CRO" },
+        { label: "Konum", value: "İstanbul, İngilizce ve Türkçe çalışır" },
+      ],
+      work: {
+        eyebrow: "Ne yapıyorum",
+        title: "Büyüme problemlerinin çoğu, kılık değiştirmiş ölçüm problemidir.",
+        primaryLabel: "Ana iş",
+        primary: {
+          title: "Denetimden geçen ölçümleme",
+          body:
+            "GA4 ve GTM event tasarımı, Adjust MMP yapılandırması, ve iki platform aynı hafta için iki farklı sayı söylediğinde başlayan mutabakat işi. Çıktı: ekibin sorgulayabildiği bir taksonomi, herkesin üzerinde anlaştığı tanımlar, ve sorulan soruya cevap veren dashboard'lar.",
+        },
+        rest: [
+          {
+            title: "Lifecycle ve CRM programları",
+            body: "Onboarding, aktivasyon, yenileme ve geri kazanım journey'leri; şablondan değil, ürünün zaten ürettiği event'lerden kurulur.",
+          },
+          {
+            title: "Ücretli edinim",
+            body: "Google, Meta ve uygulama kurulumu kanalları; kurulum sayısına göre değil, kurulum sonrası davranışa göre yönetilir.",
+          },
+          {
+            title: "Deney ve CRO",
+            body: "Test başına tek değişken, önceden yazılmış durma kuralı, ve sonucu geçersiz kılacak şeyin not edilmesi.",
+          },
+        ],
+      },
+      calc: {
+        eyebrow: "Hesaplayıcılar",
+        title: "Pazarlama matematiği, tek ekranda.",
+        intro:
+          "Growth ekiplerinin tartıştığı sayılar için ücretsiz hesaplayıcılar: CAC geri dönüş süresi, LTV, ROAS, retention, örneklem büyüklüğü ve test süresi. Hesap yok, indirme duvarı yok.",
+        countSuffix: "araç şu anda yayında.",
+        more: "Tüm hesaplayıcıları aç",
+      },
+      labMore: "Arşivin tamamını aç",
     },
     lab: {
       label: "Lab",

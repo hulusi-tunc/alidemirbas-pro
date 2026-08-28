@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { JsonLd } from "@/components/JsonLd";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
 
 const geist = Geist({
   variable: "--font-geist",
+  subsets: ["latin", "latin-ext"],
+});
+
+/* The mono rail the detail pages and the home page's spec plate already use
+   was resolving to whatever monospace the OS happened to ship - `--font-mono`
+   was referenced but never defined. This is the same family's mono cut, so a
+   label set in it does not read as a second typeface. */
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin", "latin-ext"],
 });
 
@@ -39,7 +48,7 @@ export default function TrRootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={geist.variable}>
+    <html lang="tr" className={`${geist.variable} ${geistMono.variable}`}>
       <body className="bg-paper font-sans text-ink-900 antialiased">
         <JsonLd />
         {children}
