@@ -15,6 +15,35 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  /* The four URLs that die when alidemirbas.com.tr moves from the
+     predecessor CV site to this one.
+
+     The domain still serves that older project, whose sitemap carries 13
+     URLs. Nine of them exist here unchanged (/about, /contact, /lab,
+     /stack and their /tr twins, plus /tr); the four below do not, and
+     without these they would start 404ing the moment the domain is
+     repointed. Each maps to the page that actually succeeded it rather
+     than to the home page - a redirect to "/" is what people write when
+     they have not checked what the old URL was:
+
+       /lab/crm-journeys  "CRM Journey Archive"  ->  the Canonical Journey
+                          Library, the same archive rebuilt (281 journeys)
+       /content           "Insights", the LinkedIn post archive  ->  /blog,
+                          the writing section that replaced it
+
+     Permanent (308), because these moves are permanent. They are cheap to
+     keep: four static rules, no matcher work at request time. Verified
+     against the live sitemap of the site currently on the domain, not
+     guessed - see the session that added them. */
+  async redirects() {
+    return [
+      { source: "/lab/crm-journeys", destination: "/lab/journeys", permanent: true },
+      { source: "/tr/lab/crm-journeys", destination: "/tr/lab/journeys", permanent: true },
+      { source: "/content", destination: "/blog", permanent: true },
+      { source: "/tr/content", destination: "/tr/blog", permanent: true },
+    ];
+  },
+
   async headers() {
     return [
       {
