@@ -29,6 +29,11 @@
      serif. */
   --font-serif: var(--font-sans);
 
+  /* Mono. Loaded in both root layouts; `font-mono` call sites (the hero spec
+     plate, the Lab index numbers, the detail pages' meta rails) resolved to
+     the OS default before this was defined. */
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
   /* --- Neutral ramp (reference) ----------------------------------------
      TRUE grey — chroma exactly zero at every step, so there is no undertone to
      drift with the brand and nothing to fight a photograph or a client logo.
