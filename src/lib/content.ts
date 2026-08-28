@@ -97,8 +97,15 @@ export const copy = {
           slug: "numerspace",
           desc: "Free calculators for marketing, finance, health, career and everyday decisions - fast answers, no account or paywall.",
           tags: ["Web App", "Calculators"],
-          proof: "75+ tools",
-          links: [{ label: "Visit Numerspace", href: "https://www.numerspace.com" }],
+          // Was "75+ tools" - stale. numerspace.com's own sitemap lists 97
+          // calculator pages per language across 13 tool-bearing categories
+          // (blog posts excluded); counted, not taken from the site's own
+          // "140+" marketing line.
+          proof: "97 calculators · 13 categories",
+          links: [
+            { label: "Explore project", href: "/lab/numerspace" },
+            { label: "Visit Numerspace", href: "https://www.numerspace.com" },
+          ],
         },
       ],
       shell: {
@@ -649,8 +656,11 @@ export const copy = {
           slug: "numerspace",
           desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar - hesap ya da ücret duvarı olmadan hızlı cevaplar.",
           tags: ["Web Uygulaması", "Hesaplayıcılar"],
-          proof: "75+ araç",
-          links: [{ label: "Numerspace'i ziyaret et", href: "https://www.numerspace.com" }],
+          proof: "97 hesaplayıcı · 13 kategori",
+          links: [
+            { label: "Projeyi keşfet", href: "/tr/lab/numerspace" },
+            { label: "Numerspace'i ziyaret et", href: "https://www.numerspace.com" },
+          ],
         },
       ],
       shell: {

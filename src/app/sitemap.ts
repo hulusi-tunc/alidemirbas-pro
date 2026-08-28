@@ -16,6 +16,9 @@ const routes = [
   // The Change History Explorer's product page, added when that project
   // stopped being the one Lab entry whose only link left the site.
   "/lab/google-ads-change-history-dashboard",
+  // Numerspace's portfolio page. The product itself is hosted elsewhere;
+  // this is the entry describing it, and it is a real route here.
+  "/lab/numerspace",
   // The Marketing Calculators index, plus every live calculator/text-tool
   // route - previously missing from this list entirely, meaning the whole
   // /calculators section (index + every individual calculator page) was
