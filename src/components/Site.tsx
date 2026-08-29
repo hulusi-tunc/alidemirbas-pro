@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
+import { LAB_PREVIEWS } from "@/components/ui/LabPreviews";
 import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
@@ -277,59 +278,74 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/** Lab, as a numbered index rather than a card grid. Six equal cards made the
-    reader weigh all six; a list lets them scan the names and stop at one. The
-    grid itself is still what /lab renders - this is the home page's summary of
-    it, not a replacement for it. */
-function Lab({ t }: { t: (typeof copy)[Lang] }) {
+/** Lab, as real-preview rows rather than a numbered link list or a second
+    card grid. Each row reuses the exact illustrative preview LabIndexPage
+    already builds for that project (LabPreviews.tsx) - real journey-canvas
+    nodes, real category counts, the real AB-004 record, honestly-labelled
+    bar/row illustrations for the two tools with no single number to show -
+    instead of a generic icon-in-a-box standing in for "app screenshot we
+    don't have" (exactly the filler this system's own anti-patterns name).
+
+    One column, full-width rows on narrow viewports; two columns side by
+    side from `md` up. Each row's own composition (preview left, text
+    right) stays fixed at every width - only the number of rows per line
+    changes, so mobile is not "the same grid, fewer columns" but the
+    desktop view reads as an actual grid rather than a rescaled list. */
+function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   return (
     <section id="lab" className="bg-paper-soft py-24 md:py-28">
       <div className="altor-container">
         <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
 
-        <Reveal delay={90}>
-          <ul className="mt-14 border-b border-line">
-            {t.lab.projects.map((project, i) => {
-              const href = project.links[0].href;
-              const external = href.startsWith("http");
-              return (
-                <li key={project.slug} className="border-t border-line">
-                  <Link
-                    href={href}
-                    {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="group grid grid-cols-[2.75rem_minmax(0,1fr)] items-baseline gap-4 py-6 transition-[padding,background-color] duration-200 ease-out-soft hover:bg-paper-soft hover:pl-3 lg:grid-cols-[2.75rem_minmax(0,20rem)_minmax(0,1fr)_1.5rem]"
+        <div className="mt-14 grid grid-cols-1 gap-x-12 gap-y-12 md:grid-cols-2 md:gap-y-14">
+          {t.lab.projects.map((project, i) => {
+            const href = project.links[0].href;
+            const external = href.startsWith("http");
+            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack" });
+            return (
+              <Reveal key={project.slug} delay={i * 60}>
+                <Link
+                  href={href}
+                  {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+                  className="group flex items-start gap-5 sm:gap-6"
+                >
+                  {/* The preview components are full detail-page panels
+                      (min-h 190-240px); framed and clipped to a fixed
+                      thumbnail here rather than resized, so nothing inside
+                      them has to know it's being used at teaser scale. 152px
+                      clears every panel's header plus its first real content
+                      row (checked against all six); the fade masks the clip
+                      line instead of cutting text off hard. */}
+                  <span
+                    aria-hidden
+                    className="relative block h-[144px] w-[152px] shrink-0 overflow-hidden rounded-[10px] sm:h-[156px] sm:w-[176px]"
                   >
+                    <span className="block transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.03] [&>div]:!shadow-none">
+                      {preview}
+                    </span>
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-paper-soft to-transparent" />
+                  </span>
+                  <span className="min-w-0 pt-1">
                     <span className="tnum font-mono text-xs text-ink-400">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <span className="text-xl font-semibold text-ink-950">{project.name}</span>
-                    <span>
-                      <span className="block max-w-[60ch] text-[0.9375rem] leading-relaxed text-ink-600">
-                        {withJourneyCount(project.desc)}
-                      </span>
-                      <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-                        {project.tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="font-mono text-[11px] text-ink-400">
-                            {withJourneyCount(tag)}
-                          </span>
-                        ))}
-                      </span>
+                    <span className="mt-1.5 block text-lg font-semibold text-ink-950 sm:text-xl">
+                      {project.name}
                     </span>
-                    <ArrowUpRight
-                      aria-hidden
-                      className="hidden size-4 self-center justify-self-end text-ink-400 transition-colors group-hover:text-blue-600 lg:block"
-                    />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </Reveal>
+                    <span className="mt-2 block max-w-[46ch] text-[0.9375rem] leading-relaxed text-ink-600">
+                      {withJourneyCount(project.desc)}
+                    </span>
+                  </span>
+                </Link>
+              </Reveal>
+            );
+          })}
+        </div>
 
-        <Reveal delay={140}>
+        <Reveal delay={t.lab.projects.length * 60 + 40}>
           <Link
             href={t.nav.labHref}
-            className="mt-10 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+            className="mt-14 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
           >
             {t.home.labMore}
             <ArrowRight aria-hidden className="size-3.5" />
@@ -559,7 +575,7 @@ export default function Site({ lang }: { lang: Lang }) {
             now - components kept below, just not rendered. Re-add
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
-        <Lab t={t} />
+        <Lab t={t} lang={lang} />
         <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
         <FinalCta t={t} />
