@@ -1,22 +1,24 @@
 # Designing pages on this site
 
-This site's design work runs on **`web-design-director/`** — a generic,
-register-aware methodology and orchestrator, built to be portable across
-site types. This file is the thin, site-specific loader: it points at that
-engine and names this project's own constitution instance and two rules
-that hold regardless of whether the engine gets loaded.
+This site's design work runs on **[`web-design-director`](https://github.com/ali-demirbas/web-design-director)**
+— a generic, register-aware methodology and orchestrator, extracted into
+its own repository so it stays reusable across site types instead of
+living only inside this one. This file is the thin, site-specific loader.
 
-**Read `web-design-director/SKILL.md` first.** It decides mode (DISCOVER /
-DESIGN / BUILD / EDIT / QA / SHIP — `web-design-director/methodology/modes.md`),
-reads project state, and loads only the modules the current task needs. Do
-not answer a design request from taste alone; the reasoning lives there,
-not here.
+**Fetch and read `web-design-director`'s `SKILL.md` first** (it's a
+separate public repo now — use `WebFetch` on
+`https://raw.githubusercontent.com/ali-demirbas/web-design-director/main/SKILL.md`,
+or `add_repo`/clone it if the session supports that, before starting any
+non-trivial design task). It decides mode (DISCOVER / DESIGN / BUILD / EDIT /
+QA / SHIP — `methodology/modes.md` in that repo), reads project state, and
+loads only the modules the current task needs. Do not answer a design
+request from taste alone; the reasoning lives there, not here.
 
 This project's filled-in constitution — the actual tokens, type ramp, and
 named failure-mode incidents behind the generic engine's evidence base —
-lives at `web-design-director/examples/ali-demirbas-site/`. Read
+lives at `examples/ali-demirbas-site/` in that same repo. Read
 `site-constitution-instance.md` there before designing any page on this
-site; it is this project's `DESIGN.md` (`web-design-director/templates/DESIGN.md`).
+site; it is this project's `DESIGN.md` (`templates/DESIGN.md` in that repo).
 
 ## Two absolute rules, even when nothing else has been loaded
 
@@ -24,19 +26,19 @@ site; it is this project's `DESIGN.md` (`web-design-director/templates/DESIGN.md
   as part of a page-level change. They are shared by every page; changing
   them is a site-wide change disguised as a page change.
 - **Never put a fabricated number, screenshot, or metric on a page.** No
-  invented data, ever, at any stage (`web-design-director/methodology/anti-patterns.md`
+  invented data, ever, at any stage (the methodology's `anti-patterns.md`
   #9 — the ban is absolute and not subject to register or taste).
 
-## Quick reference: where things live now
+## Why this file is thin
 
-| Was | Now |
-|---|---|
-| This project's tokens/type/failure-mode narrative | `web-design-director/examples/ali-demirbas-site/site-constitution-instance.md` |
-| Named failure-mode incidents (commit hashes, the 19-box case, the Stack-band withdrawal, Controlled Experiment 1) | `web-design-director/examples/ali-demirbas-site/incident-log.md` |
-| The render→critique→refine loop, motion-settle protocol | `web-design-director/methodology/qa.md` (B — Visual Critique) |
-| "This section looks empty" / "too safe" / "cluttered" mapping to a named defect | `web-design-director/methodology/anti-patterns.md` |
-
-If `web-design-director/` is ever extracted into its own repository, update
-the paths above to wherever it's vendored (submodule, subtree, or copy) —
-nothing else on this page should need to change, because everything
-project-specific already lives in `examples/ali-demirbas-site/`, not here.
+The methodology used to live in this repo (`web-design-director/`), fully
+self-contained and already verified to have zero references outside
+itself. It has since been extracted to
+[github.com/ali-demirbas/web-design-director](https://github.com/ali-demirbas/web-design-director)
+so it can be reused on other projects without dragging this site's own
+specifics along. Nothing about the reasoning changed in the move — only
+its address. If a session working on this repo needs the methodology and
+can't reach the external repo (no network, no `add_repo` support), say so
+plainly rather than designing from memory or from taste alone; that
+silence-vs-fabrication distinction is itself one of the methodology's own
+rules (`core-principles.md` P20, environment-awareness.md).
