@@ -19,13 +19,14 @@ valid within that scope · `[OBSERVED]` seen repeatedly, uncontrolled ·
 mode with its mitigation. Evidence for a weaker claim never supports a
 stronger one. Rejected ideas appear only in Part 8.
 
-**Revision note.** This edition follows a corrective audit: the composition
-principle was split from the composition *vocabulary* (Part 1, P12a/P12b),
-the grammar was opened (KNOWN / PROJECT-SPECIFIC / CANDIDATE moves), QA
-checks were classified by evidence strength so unvalidated metrics cannot
-gate shipping, the fabrication ban was scoped to evidentiary material, and
-several `[PROVEN]` labels were demoted to what the evidence actually
-supports.
+**Revision note.** This edition follows a corrective audit. The composition
+principle was split from the composition *vocabulary* (P12a / P12b); the
+grammar was opened (KNOWN / PROJECT-SPECIFIC / CANDIDATE moves); QA checks
+were classified by evidence strength so unvalidated metrics cannot gate
+shipping; the fabrication ban was scoped to evidentiary material while
+expressive synthetic imagery was permitted; register budgets were made
+ceilings rather than floors; and every empirical `[PROVEN]` label was demoted
+to what its evidence actually supports.
 
 ---
 
@@ -247,7 +248,7 @@ happened, where (commit/PR/screenshot), and when. Rules are dated,
 reviewed on a cadence, and retired to an archive with a reason — never
 silently deleted, never kept forever by inertia. Withdrawn conclusions are
 recorded as withdrawals, not erased.
-**WHY:** [PROVEN] Incident-backed rules steered behavior harder than
+**WHY:** [VALIDATED IN PROJECT] Incident-backed rules steered behavior harder than
 principles in production. Undated rule lists staled within a generation in
 every studied system.
 **PREVENTS:** rule rot; the eternal blacklist; repeating undocumented
@@ -479,7 +480,7 @@ the hybrid rule below cannot resolve them.
 **Hybrid rule:** PAGE register may differ from SITE SHELL register. The
 page's register comes from its content; the shell's from the site. A
 calculator inside a marketing site is a UTILITY page in a MARKETING shell —
-the page obeys utility rules, the shell obeys marketing rules. [PROVEN in
+the page obeys utility rules, the shell obeys marketing rules. [VALIDATED IN PROJECT —
 production: calculator pages inside a marketing site work exactly this way.]
 
 ---
@@ -860,7 +861,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
   Marketing 1, Utility 0–1.
 - PAIRS: background shift (3).
 - CONFLICTS: bleed (2); a second plate.
-- OVERUSE: the second plate destroys the first. [PROVEN in production use.]
+- OVERUSE: the second plate destroys the first. [OBSERVED in production use.]
 - CHECK: HEURISTIC SIGNAL — high-contrast plate count ≤ 1 per page. A budget, not a quota: zero is legitimate.
 
 #### 9. Repetition + break
@@ -875,7 +876,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 #### 10. Window-card
 - PURPOSE: a border earned by structured content behind it.
 - INPUT: the card holds more than one content type (figure + label + meta).
-  A single label in a box is a fence, not a card. [PROVEN counter-example
+  A single label in a box is a fence, not a card. [VALIDATED IN PROJECT counter-example
   in production: 19 one-name boxes, rejected; and a working bento whose
   every cell holds a real logo + tag + count.]
 - REGISTER: Marketing, Utility dashboards.
@@ -1295,7 +1296,7 @@ the default.]
 Claude inspects **rendered screenshots** — never the code alone, never a
 description of the code.
 
-**Capture protocol [PROVEN — a real wrong verdict created this rule]:**
+**Capture protocol [VALIDATED IN PROJECT — a real wrong verdict created this rule]:**
 1. Build and serve; open at each declared width (default 1440 / 834 / 390).
 2. **Settle motion first:** scroll the full height in steps, return to top,
    wait; only then capture. Reveal-style animations photographed mid-flight
@@ -1454,7 +1455,7 @@ Format: SYMPTOM · MECHANISM · DETECT · CORRECT · STATUS.
 - DETECT: swap test (would this identity fit another site unchanged?);
   baseline comparison where one exists.
 - CORRECT: derive from project material (core P4); name the unnamed axes.
-- STATUS: [PROVEN] 2026-08 — root phenomenon of the whole research arc.
+- STATUS: [OBSERVED] 2026-08 — the root phenomenon across all studied systems; a mechanism account, not a controlled measurement.
 
 ### 2. Token-level anti-generic rules
 - SYMPTOM: rules like "avoid font X", "never color Y".
@@ -1465,7 +1466,9 @@ Format: SYMPTOM · MECHANISM · DETECT · CORRECT · STATUS.
   constitution.
 - CORRECT: rewrite at mechanism level ("decoration must carry information"),
   or move into a register-conditioned or project-scoped rule.
-- STATUS: [PROVEN — REJECTED idea, banned from re-entry] 2026-08.
+- STATUS: [REJECTED — policy decision, banned from re-entry] 2026-08. The
+  supporting evidence is [OBSERVED] (two staling generations); the ban itself
+  is a choice, not an empirical finding.
 
 **Rewrite table** — the form every candidate ban must take before entering
 this file. Left column = rejected shapes seen in studied systems.
@@ -1492,8 +1495,7 @@ Named look-clusters may still be recorded as **distribution-aware warnings**
 - DETECT: swap test; derivation chain missing from the manifesto.
 - CORRECT: rebuild identity from the content inventory; if the subject's
   world is thin, spend less budget rather than borrowing a world.
-- STATUS: [PROVEN] 2026-08 — field case: an anti-generic workflow landed
-  inside the exact named default it fled.
+- STATUS: [OBSERVED] 2026-08 — one documented field case: an anti-generic workflow landed inside the exact named default it fled.
 
 ### 4. Dead canvas
 - SYMPTOM: wide viewport, single left column, right half empty across
@@ -1504,17 +1506,16 @@ Named look-clusters may still be recorded as **distribution-aware warnings**
   captures.
 - CORRECT: statement+witness or narrow the measure so emptiness reads as
   margin (grammar moves 6, 4).
-- STATUS: [PROVEN] 2026-08 — shipped, diagnosed from render, fixed;
-  provenance in the reference project (commit a9178b2).
+- STATUS: [VALIDATED IN PROJECT] 2026-08 — shipped, diagnosed from render, fixed; provenance in this project (commit a9178b2).
 
 ### 5. Padding as composition
 - SYMPTOM: 300–600px voids between sections; separation exists only because
   things stopped touching.
 - MECHANISM: padding used where a change (ground, measure, columns) should
   do the work.
-- DETECT: **padding-only seam detector [PROVEN, 3/0/0].**
+- DETECT: **padding-only seam detector — VALIDATED PROJECT DETECTOR, 3/0/0 within tested scope** (qa.md carries its known threshold limitation).
 - CORRECT: background shift or another seam change (grammar move 3).
-- STATUS: [PROVEN] 2026-08, same provenance.
+- STATUS: [VALIDATED IN PROJECT] 2026-08, same provenance.
 
 ### 6. Border without structural reason
 - SYMPTOM: boxes around single labels; fences around words.
@@ -1522,7 +1523,7 @@ Named look-clusters may still be recorded as **distribution-aware warnings**
 - DETECT: content-node diversity per card ≤ 1.
 - CORRECT: lists, rows, rails for labels; keep borders for structured
   content (grammar move 10).
-- STATUS: [PROVEN] 2026-08 — 19-one-name-boxes case, rejected in review.
+- STATUS: [VALIDATED IN PROJECT] 2026-08 — the 19-one-name-boxes case, rejected in review; and a working bento counter-example.
 
 ### 7. Card-everything
 - SYMPTOM: open prose boxed; the reference page reads as a dashboard.
@@ -1530,7 +1531,7 @@ Named look-clusters may still be recorded as **distribution-aware warnings**
 - DETECT: boxed-prose scan; card density per page.
 - CORRECT: prose sits open; one edge for the interface, one tint for
   evidence, one plate for the takeaway.
-- STATUS: [PROVEN] 2026-08 — production rule predating the methodology.
+- STATUS: [OBSERVED] 2026-08 — a production rule predating the methodology, held across many pages.
 
 ### 8. Screenshot optimization
 - SYMPTOM: quality that exists only in the hero viewport; the rest of the
@@ -1540,7 +1541,7 @@ Named look-clusters may still be recorded as **distribution-aware warnings**
 - DETECT: full-height captures mandatory; absence metrics over the whole
   page.
 - CORRECT: full-page silhouette in the plan; QA reads the entire scroll.
-- STATUS: [PROVEN] 2026-08 — structural bias identified in studied systems.
+- STATUS: [OBSERVED] 2026-08 — a structural evaluation bias identified in studied systems.
 
 ### 9. Fabricated evidence
 **Scope, precisely.** The ban covers EVIDENTIARY MATERIAL, not all generated
@@ -1574,7 +1575,8 @@ overbroad reading and is withdrawn — it would have made whole registers
 - PLACEHOLDER LIFECYCLE: explicit placeholders are **legal during
   exploration and mockup**, and a **blocking defect at ship** (qa.md lint,
   three verdicts). Fabricated evidence is forbidden at every stage.
-- STATUS: [PROVEN — hard ban] 2026-08. Two studied systems instruct
+- STATUS: [HARD BAN — an integrity rule, not an empirical claim; it does not
+  need evidence and cannot be outvoted by it] 2026-08. Two studied systems instruct
   otherwise and both are REJECTED here and barred from re-entry: one
   instructs inventing copy when the brief lacks it; another instructs
   "if real data is unavailable, write realistic data". **Realistic-looking
@@ -1590,7 +1592,7 @@ overbroad reading and is withdrawn — it would have made whole registers
 - DETECT: any decision touching a reversal-matrix axis without a declared
   register.
 - CORRECT: classify register first (registers.md); condition the rule.
-- STATUS: [PROVEN as failure; taxonomy PLAUSIBLE] 2026-08.
+- STATUS: [OBSERVED as a failure mode; the register taxonomy itself is PLAUSIBLE] 2026-08.
 
 ### 11. Decoration inflation
 - SYMPTOM: flourishes, textures, "unnecessary details" doctrine; ornament
@@ -1607,7 +1609,8 @@ overbroad reading and is withdrawn — it would have made whole registers
   art direction whose function is emotional staging or subject reference.)
 - CORRECT: cut ornament with no defensible function; spend identity budget
   on derived choices.
-- STATUS: [PROVEN — REJECTED doctrine, banned from re-entry] 2026-08.
+- STATUS: [REJECTED — policy decision, banned from re-entry] 2026-08.
+  Evidence for the underlying failure is [OBSERVED].
 
 ### 12. Fan-out theater
 - SYMPTOM: "three directions" that differ in hue, theme darkness, or font
@@ -1617,7 +1620,7 @@ overbroad reading and is withdrawn — it would have made whole registers
 - DETECT: manifesto diff — anchor + three structural axes must differ
   pairwise (visual-direction.md); pixels are never the diff target.
 - CORRECT: regenerate manifestos before rendering.
-- STATUS: [PROVEN as risk; k and axes PLAUSIBLE] 2026-08.
+- STATUS: [OBSERVED as a risk; k, the axis list and the distance rule are PLAUSIBLE] 2026-08.
 
 ### 13. Second-order convergence
 - SYMPTOM: the anti-generic system's own outputs converge; the house
@@ -1650,7 +1653,7 @@ overbroad reading and is withdrawn — it would have made whole registers
   from.
 - DETECT: cross-project diff of constitutions; convergence audit.
 - CORRECT: mechanisms and process transfer; identity re-derives per project.
-- STATUS: [PROVEN] 2026-08 — independent field report, corroborated.
+- STATUS: [OBSERVED] 2026-08 — one independent field report, corroborated by our own reasoning; not tested here.
 
 ### 15. Optional render validation
 - SYMPTOM: "screenshots if your environment supports it"; design claims
@@ -1660,8 +1663,7 @@ overbroad reading and is withdrawn — it would have made whole registers
   widths.
 - CORRECT: render inspection is mandatory (core P11); no exceptions,
   including the motion-settle protocol.
-- STATUS: [PROVEN] 2026-08 — both by studied systems' failure to require it
-  and by a real wrong verdict from a mis-taken screenshot.
+- STATUS: [VALIDATED IN PROJECT] 2026-08 — a real wrong verdict here came from a mis-taken screenshot; [OBSERVED] studied systems left render validation optional.
 
 ### 16. Designing pages independently without site rules
 - SYMPTOM: each page locally fine; the site incoherent — or the inverse
@@ -1670,7 +1672,7 @@ overbroad reading and is withdrawn — it would have made whole registers
   layer.
 - DETECT: constitution diff per page; undeclared-decision scan.
 - CORRECT: site-constitution.md layers; exceptions protocol.
-- STATUS: [PROVEN need] 2026-08 — three independent sources agree on
+- STATUS: [OBSERVED need] 2026-08 — three independent sources agree on
   project language; the layer split is this system's formalization.
 
 ---
@@ -1714,8 +1716,8 @@ files, append-mostly. Records are dated; nothing is silently deleted.
 | COMPOSITION MOVE HISTORY | per shipped page: the moves its plan named | after ship |
 
 The LEARNINGS discipline is load-bearing: entries carry provenance
-(commit / PR / screenshot) or they do not enter. [PROVEN — provenance-
-carrying rules steered production harder than principles.]
+(commit / PR / screenshot) or they do not enter. [VALIDATED IN PROJECT —
+provenance-carrying rules steered production harder than abstract ones here.]
 
 ---
 
@@ -1825,7 +1827,7 @@ Human decisions are never folded into an agent-role summary: stages 8, 9
 (ratification) and 15 belong to a person, and no role above may close them.
 
 [PLAUSIBLE] Strict separate-agent execution; the ergonomics are untested.
-[PROVEN as a need] The generating pass is the worst judge of its own output.
+[OBSERVED as a need] The generating pass is the worst judge of its own output.
 
 ### Session start / state
 
@@ -1920,7 +1922,7 @@ the human for context STATE.md already holds.
 - INPUT: renders + manifesto summaries (structure visible beside pixels).
 - OUTPUT: SELECT / REJECT ALL / HYBRID (+ notes). Total rejection = the
   direction space was wrong → back to 6 with new axes, not refinement.
-- OWNER: HUMAN. [PROVEN — the checkpoint that repeatedly paid for itself.]
+- OWNER: HUMAN. [VALIDATED IN PROJECT — the checkpoint that paid for itself, including via an informative total rejection.]
 - SKIP: only when 6–7 were skipped.
 - FAILURE: treating rejection as indecision; selecting on polish (mitigated
   by manifesto-beside-render presentation).
