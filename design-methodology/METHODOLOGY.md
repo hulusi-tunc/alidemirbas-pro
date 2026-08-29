@@ -1,6 +1,6 @@
 # AI-Assisted Web Design Methodology
 
-*Consolidated single-file edition — generated 2026-08-29 from the ten
+*Consolidated single-file edition — regenerated 2026-08-29 from the ten
 modules in `design-methodology/`. Those files remain the editable source of
 truth; this document is the portable read-through.*
 
@@ -10,19 +10,22 @@ convergence, stylistic overreach, composition failure, fabrication, and
 uncontrolled inconsistency.
 
 **Optimization order:** appropriateness → clarity → composition → identity →
-craft. Novelty is never the objective.
+craft. Novelty is never the objective — and no rule here may force it.
 
-**How to read the evidence tags.** `[PROVEN]` = supported strongly enough to
-be a default rule. `[PLAUSIBLE]` = included but an assumption awaiting
-validation — never present these as findings. `[OPEN RISK]` = a known way
-this system can fail, carrying its mitigation. Rejected ideas appear only in
-Part 8 so they cannot re-enter under new wording.
+**Evidence statuses.** `[PROVEN]` supports this exact claim at this exact
+scope · `[VALIDATED IN PROJECT]` tested against this project's real cases,
+valid within that scope · `[OBSERVED]` seen repeatedly, uncontrolled ·
+`[PLAUSIBLE]` hypothesis, experiment pending · `[OPEN RISK]` known failure
+mode with its mitigation. Evidence for a weaker claim never supports a
+stronger one. Rejected ideas appear only in Part 8.
 
-**Provenance.** Assembled from five research steps: a study of Anthropic's
-frontend-design guidance across two generations, two community workflows, a
-forensic audit of a third-party skill repository, and controlled measurement
-against a real codebase where the same page exists in a known-bad and a
-known-good state.
+**Revision note.** This edition follows a corrective audit: the composition
+principle was split from the composition *vocabulary* (Part 1, P12a/P12b),
+the grammar was opened (KNOWN / PROJECT-SPECIFIC / CANDIDATE moves), QA
+checks were classified by evidence strength so unvalidated metrics cannot
+gate shipping, the fabrication ban was scoped to evidentiary material, and
+several `[PROVEN]` labels were demoted to what the evidence actually
+supports.
 
 ---
 
@@ -31,10 +34,10 @@ known-good state.
 1. [Core Principles](#part-1-core-principles) — The constitution: durable behavioral mechanisms, aesthetic-neutral.
 2. [Registers](#part-2-registers) — The switch that decides which rules apply and which reverse.
 3. [Reference Analysis & Taste Memory](#part-3-reference-analysis-taste-memory) — How references are dissected, and how preference is stored without becoming law.
-4. [Composition Grammar v1](#part-4-composition-grammar-v1) — The 13 named moves — a vocabulary, not a template library.
+4. [Composition Grammar v1](#part-4-composition-grammar-v1) — An open vocabulary of 13 named moves — not a closed design language.
 5. [Visual Direction](#part-5-visual-direction) — Baseline elicitation, direction manifestos, structural fan-out, human selection.
 6. [Site Constitution](#part-6-site-constitution) — Three rule layers, the exception protocol, and promotion.
-7. [QA — Three-Layer Validation](#part-7-qa-three-layer-validation) — Machine, critique, human; finding classes, iteration scope, exit criteria.
+7. [QA — Three-Layer Validation](#part-7-qa-three-layer-validation) — Machine, critique, human; evidence-classed checks, quality floors, exit criteria.
 8. [Anti-Patterns](#part-8-anti-patterns) — Versioned behavior bans with detection and correction.
 9. [Project Memory](#part-9-project-memory) — What persists, STATE.md, and the convergence audit.
 10. [Workflow](#part-10-workflow) — The orchestrator: roles, 16 stages, 4 modes, module loading.
@@ -53,6 +56,22 @@ This file is aesthetic-neutral by design: it contains no fonts, no colors,
 no layout advice. It contains the behavioral mechanisms that survived when
 the aesthetic advice around them staled.
 
+### Evidence status vocabulary
+
+Every claim in this methodology carries one of these. The system must obey
+its own evidence standard: a useful heuristic is not automatically proven,
+and an experimentally useful threshold is not automatically a hard gate.
+
+- **[PROVEN]** — the evidence supports this exact claim at this exact scope.
+- **[VALIDATED IN PROJECT]** — tested against this project's real cases
+  (usually a known-good / known-bad pair). Valid within tested scope; not a
+  universal law.
+- **[OBSERVED]** — seen repeatedly across sources or sessions, uncontrolled.
+- **[PLAUSIBLE]** — a reasonable system hypothesis; experiment pending.
+- **[OPEN RISK]** — a known way this can fail, carrying its mitigation.
+
+Evidence for a weaker claim may never be used to support a stronger one.
+
 Purpose of the whole system, in priority order:
 **appropriateness → clarity → composition → identity → craft.**
 Novelty is never the objective; it is an occasional side effect of deriving
@@ -67,15 +86,17 @@ direction, leave the value to context. IF a rule dictates literal values
 IF a rule is an adjective ("beautiful", "premium") with no operational
 definition → rewrite it or delete it.
 **WHY:** Low-altitude rules execute without judgment and break when context
-shifts; high-altitude rules resolve to the model's modal output. [PROVEN —
-observed across Anthropic's skill generations and our own rules.]
+shifts; high-altitude rules resolve to the model's modal output.
+[OBSERVED — across two generations of one vendor's guidance and our own
+rule-writing; not a controlled comparison.]
 **PREVENTS:** brittle prescriptions; vibes-driven regressions to the mode.
 
 ### P2 — Behavioral mechanism over aesthetic prescription
 **RULE:** Encode quality as mechanisms (schemas, budgets, tests, rituals,
 ledgers), not as aesthetic recipes. Aesthetic content may exist only inside
 register-conditioned modules or project constitutions, never in core rules.
-**WHY:** [PROVEN] Aesthetic prescriptions staled within one generation twice:
+**WHY:** [OBSERVED — two documented cases] Aesthetic prescriptions staled
+within one generation twice:
 Anthropic's blog recipes became its own skill's named anti-patterns, and a
 community workflow's "escape from generic" landed pixel-adjacent to the
 named default it fled. The mechanisms around those recipes did not stale.
@@ -119,18 +140,32 @@ never only in thinking. IF a decision was made but not written → it was not
 made.
 **WHY:** Unnamed things cannot be checked; unwritten things cannot be
 diffed. The planning notation shapes the output space, so the notation must
-be able to express the decisions that matter. [PROVEN — named failure modes
-outperformed generic warnings in production use.]
+be able to express the decisions that matter. [VALIDATED IN PROJECT — named
+failure modes steered behavior in this project's production use; not measured
+against a control.]
 **PREVENTS:** unfalsifiable plans; critique that cannot cite anything.
 
-### P7 — Traceability
-**RULE:** Every implemented visual value traces to a written source: the
-constitution, a page-family rule, a direction manifesto, or a composition
-plan. IF a value has no source → it is an undeclared decision; declare it
-or remove it.
-**WHY:** Traceability is what makes plan-vs-build diffs possible, and those
-diffs are a QA layer.
-**PREVENTS:** drift between what was decided and what shipped.
+### P7 — Traceability of material decisions
+**RULE:** Every **material design decision** traces to a written source:
+project truth, the constitution, a page-family rule, an approved direction,
+the composition plan, or an explicit implementation constraint. Implementation
+minutiae that merely instantiate an approved token or system need no
+individual justification.
+
+Requires traceability: a new container width · a new type role · a new colour
+role · an unusual section structure · a composition exception · a new anchor
+treatment · a new motion behavior.
+
+Does not: an inherited spacing token · an existing radius token · an ordinary
+flex gap · any implementation detail that does not change design intent.
+
+**WHY:** Traceability makes plan-vs-build diffs possible, and those diffs are
+a QA layer. The purpose is accountability, not bureaucracy — demanding prose
+for every CSS value produces compliance theatre and buries the decisions that
+actually mattered.
+**PREVENTS:** drift between what was decided and what shipped; and, in its
+narrowed form, the documentation overhead that would make the system unusable
+on routine work.
 
 ### P8 — Commitment devices
 **RULE:** At every declared decision point, state the choice and the reason
@@ -145,8 +180,10 @@ every revision.
 (≤1/page), aesthetic risks (register-budgeted, see registers.md), fan-out
 directions (k=3 default). IF a countable budget is exceeded → mechanical QA
 fails the page.
-**WHY:** [PROVEN] Countable constraints are the most reliably obeyed rule
-form observed across all studied systems and our own production.
+**WHY:** [OBSERVED] Countable constraints were the most reliably obeyed rule
+form across all studied systems and our own production. Budgets are also
+**permission, not quota**: a budget of one signature never obliges spending
+it (see registers.md).
 **PREVENTS:** emphasis inflation — the second bold thing killing the first.
 
 ### P10 — Human checkpoints before production
@@ -154,9 +191,10 @@ form observed across all studied systems and our own production.
 implementation whenever direction is open (see visual-direction.md and
 workflow.md for placement and skip conditions). Total rejection of all
 directions is valid output: it means the direction space was wrong.
-**WHY:** [PROVEN] The human is the taste engine; autonomous end-to-end
-pipelines were rejected by the research. Cheap rejection before production
-beat expensive refinement after it in every observed case.
+**WHY:** [VALIDATED IN PROJECT] A full three-direction rejection redirected
+real work here for the cost of three static mocks. [OBSERVED] across studied
+workflows: autonomous end-to-end pipelines removed the taste engine from the
+loop.
 **PREVENTS:** polishing the wrong direction; taste laundering.
 
 ### P11 — Render is ground truth
@@ -164,29 +202,42 @@ beat expensive refinement after it in every observed case.
 inspected — at the required widths, with motion settled (trigger all
 reveals, return to top, wait, then capture). A conclusion drawn from a
 mid-animation screenshot is a conclusion about scroll timing, not the page.
-**WHY:** [PROVEN] A confident wrong verdict in this project traced directly
-to un-settled animations; the correction is procedural, not attitudinal.
+**WHY:** [VALIDATED IN PROJECT] A confident wrong verdict here traced
+directly to un-settled animations; the correction is procedural, not attitudinal.
 A corollary: the builder's rationale is not evidence that the result works.
 Reasons explain intent; only the render shows outcome. A critic who accepts
 "here is why I did it" as proof has stopped being a critic.
 **PREVENTS:** rubber-stamp critique; false defects; false passes.
 
-### P12 — Composition is a first-class discipline
-**RULE:** Every page gets a written composition plan in grammar vocabulary
-(composition-grammar.md) before implementation. Composition failures are
-named defects with detectors, not matters of taste.
-**WHY:** [PROVEN] Composition was the largest absent layer in every studied
-system, and the costliest real failure in this project (a page passed every
-typographic rule and failed as a page). One composition defect class is
-already machine-detectable.
+### P12a — Composition is a first-class discipline
+**RULE:** Significant pages require an **explicit written composition plan**
+before implementation. Composition failures are named defects with
+detectors, not matters of taste.
+**WHY:** [VALIDATED IN PROJECT] Composition was the largest absent layer in
+every studied system, and the costliest real failure here: a page satisfied
+every typographic rule and failed as a page. One composition defect class
+(padding-only seams) separated known-bad from known-good cases mechanically.
 **PREVENTS:** dead canvas; padding-as-composition; document-poured-into-web.
+
+### P12b — The grammar vocabulary is the default method, not a proven one
+**RULE:** Composition plans use the vocabulary in composition-grammar.md by
+default, because named moves are diffable and checkable. **Do not claim that
+mandatory grammar vocabulary improves visual quality.**
+**WHY:** [PLAUSIBLE — PENDING CONTROLLED EXPERIMENT] Grammar planning may
+improve planning quality, consistency and traceability. A controlled A/B
+experiment testing exactly this claim is running and unrevealed at the time
+of writing; its result promotes or demotes this principle. Until then the
+vocabulary is an experimental default, not scientific fact — and P12a stands
+on its own without it.
+**PREVENTS:** an unvalidated method hardening into doctrine — the failure
+this whole methodology was built to avoid.
 
 ### P13 — Site law and page freedom are separate layers
 **RULE:** Maintain three layers (site constitution / page-family rules /
 page freedom, see site-constitution.md). An undeclared violation of a
 higher layer is a defect regardless of how good the page looks.
-**WHY:** Pages designed independently drift into many sites; pages designed
-identically collapse into one template. The layer split is the only
+**WHY:** [OBSERVED] Pages designed independently drift into many sites;
+pages designed identically collapse into one template. The layer split is the only
 mechanism that holds both failure modes off simultaneously.
 **PREVENTS:** 40 pages = 40 websites; 40 pages = 1 template.
 
@@ -217,7 +268,8 @@ one generation.
 ### P16 — Evidence precedence
 **RULE:** When two inputs disagree, resolve in this fixed order:
 
-    CONTENT / USER JOB
+    EXPLICIT BRIEF / NON-NEGOTIABLE HUMAN REQUIREMENTS
+    → USER JOB / CONTENT TRUTH
     → REGISTER
     → CLIENT / PROJECT BRAND
     → SITE CONSTITUTION
@@ -234,8 +286,18 @@ input in the system — it describes what has pleased before, not what this
 content and this visitor need now. Without an explicit ladder, taste
 silently outranks register (this is exactly how a house style becomes a
 template applied to every brief).
+**Explicit human direction is not taste.** A stated project requirement sits
+at the TOP of the ladder; accumulated preference sits near the bottom. Never
+conflate them.
+
+**Human exceptions.** A human may deliberately approve an exception against a
+design heuristic. The exception must be explicit, dated, scoped and recorded
+(site-constitution.md). Human approval does **not** make factual falsehood,
+inaccessible behavior, or fabricated evidence valid — those are outside the
+scope of anyone's approval.
 **PREVENTS:** taste-as-style-generator; register override by preference;
-the model's defaults masquerading as decisions.
+the model's defaults masquerading as decisions; and the opposite error of
+treating an explicit client requirement as if it were a mere preference.
 
 ### P17 — Generation and approval are different passes
 **RULE:** On high-impact work, the pass that produces a design is not the
@@ -273,6 +335,12 @@ not as ground truth.
 
 A register is not an audience description. It is the switch that decides
 which design rules apply, which reverse, and how large the risk budget is.
+
+**Every budget in this file is a ceiling, never a floor.** A register that
+permits a larger aesthetic risk does not require one; a register with a
+distinctiveness budget of zero forbids spending, but no register anywhere
+*obliges* an aesthetic device. Turning a tendency into a mandatory treatment
+is the same error as a token-level ban, arriving from the opposite side.
 **No visual decision is valid before a register is declared** (core P3).
 
 Six registers. UTILITY carries two sub-modes because eleven of its thirteen
@@ -314,7 +382,7 @@ behaviors are identical across tools and documentation; the two that differ
 | Motion budget | Medium; one orchestrated moment is legitimate |
 | Interaction priority | CTA journey + section navigation |
 | Trust requirement | Built through specificity: real screens, real numbers, real names |
-| Aesthetic risk budget | Low-to-medium; one signature element |
+| Aesthetic risk budget | Low-to-medium; up to one signature element — a ceiling, not a requirement |
 | Common failure mode | A wall of unwitnessed claims; whimsy aimed at a trust-critical buyer |
 
 ### EDITORIAL
@@ -350,7 +418,7 @@ behaviors are identical across tools and documentation; the two that differ
 | Motion budget | Medium; one moment in service of character |
 | Interaction priority | Exploration + the contact path |
 | Trust requirement | Honesty; one inflated number poisons the whole site |
-| Aesthetic risk budget | Medium-high, if derived |
+| Aesthetic risk budget | Medium-high **if derived** from the person's real work; zero is valid when the work itself carries the identity |
 | Common failure mode | Talking *about* the work instead of showing it (this is where dead canvas lives) |
 
 ### PREMIUM BRAND
@@ -365,10 +433,10 @@ behaviors are identical across tools and documentation; the two that differ
 | Typography behavior | The most legitimate place to spend the budget on type: it is part of the emotional signal |
 | Composition behavior | Few elements, large imagery, wide space; bleed and asymmetry are native |
 | Imagery behavior | First-class and non-negotiable in quality. IF real assets of sufficient quality do not exist → say so; do not generate substitutes |
-| Motion budget | Highest; easing quality becomes a QA subject |
+| Motion budget | Highest available; easing quality becomes a QA subject. A ceiling, not an obligation |
 | Interaction priority | Atmospheric exploration; the purchase path itself stays conventional |
 | Trust requirement | Flawless execution — one cheap detail breaks the illusion |
-| Aesthetic risk budget | Highest; **one real risk is expected, not optional** |
+| Aesthetic risk budget | **Highest available** — this register may legitimately spend more of it than any other. It is permission, not a quota: no risk, signature, asymmetry, type treatment or motion moment is mandatory. If the material is already distinctive, restraint may be the stronger art direction |
 | Common failure mode | Atmosphere without craft precision ("cheap luxury") |
 
 ### COMMERCE (listing / product detail / checkout)
@@ -513,8 +581,12 @@ SURFACE             the skin, listed explicitly so it is visible…
 SURFACE QUARANTINE  …and explicitly marked DO-NOT-IMPORT
 TRANSFER CONDITIONS which registers/page-families each mechanism moves to,
                     and which it must not
-ONE THING NOT TO TAKE  the reference's most characteristic feature that is
-                    toxic to this project — named, singular, mandatory
+TRANSFER RISK /     mandatory field, but a valid value may be: a named toxic
+DO-NOT-TAKE         surface or mechanism · a condition under which the
+                    reference stops transferring · or "none identified after
+                    review". The operator must show transfer risk was
+                    considered; inventing a flaw to satisfy the form is worse
+                    than recording that none was found
 MEASURED EVIDENCE   numbers, not impressions: measures in px/ch, column
                     counts, section heights, screenshots attached
 PROVENANCE          who dissected it, when, from what material
@@ -524,9 +596,11 @@ REVIEW / EXPIRY     date to re-examine; references stale like rules do
 Field rules:
 - MECHANISMS with no WHERE → delete the entry; unlocated mechanisms are
   guesses.
-- ONE THING NOT TO TAKE is mandatory. Every admired reference has a
-  signature that would poison the importing project; naming it is the
-  card's immune system.
+- TRANSFER RISK / DO-NOT-TAKE is a mandatory field with an honest empty
+  value. Most admired references carry a signature that would poison the
+  importing project, and naming it is the card's immune system — but a
+  forced criticism is noise, and "none identified after review" is a real
+  finding when it is true.
 - MEASURED EVIDENCE beats adjectives. "Generous spacing" is not evidence;
   "text measure 68ch, section padding 96px, 11 sections over 8987px" is.
 - A card whose TRANSFER CONDITIONS cannot be written is blocked on register
@@ -632,27 +706,63 @@ A vocabulary, **not a template library**. No page must use any particular
 move; every page must NAME its moves. The grammar exists so that
 composition can be planned, diffed, and checked — the layer every studied
 system left to the model's prior, and where the costliest real failures
-lived. [PROVEN as a need; individual moves evidenced; the pairing/conflict
-table is inference — PLAUSIBLE.]
+lived. [VALIDATED IN PROJECT as a need; individual moves are OBSERVED; the
+pairing/conflict table is inference — PLAUSIBLE. That composition must be
+planned is core P12a; that THIS vocabulary improves outcomes is P12b and is
+under controlled test.]
 
 **RULE: A page's composition plan names its moves before implementation**
-(workflow.md, COMPOSITION PLAN stage). A plan that cannot be written in
-this vocabulary is describing a page that has not been composed.
+(workflow.md, COMPOSITION PLAN stage). Every named move carries one of three
+labels:
+
+- **KNOWN MOVE** — already in this file.
+- **PROJECT-SPECIFIC MOVE** — a deliberate composition decision that works in
+  this project, named and described, but not claimed as universal.
+- **CANDIDATE GRAMMAR MOVE** — a recurring, evidenced move that may later be
+  proposed for the shared grammar (with provenance, per core P14).
+
+A page may use zero, one, or many KNOWN moves. **A composition that is not in
+this vocabulary is not thereby invalid** — it is unnamed, and unnamed means
+unexamined, not wrong. The grammar exists to make composition discussable,
+diffable and testable; it does not constrain all future composition to
+thirteen patterns. Treating it as a closed world would contradict core P15
+(second-order convergence) and would make this file the very template the
+methodology exists to prevent.
 
 **RULE: Do not plan in ASCII wireframes.** Planning notation constrains the
 design space to what the notation can draw; ASCII cannot draw bleed,
 overlap, or density, so plans made in it converge to stacked bands.
-[PROVEN mechanism, observed across studied systems.] Plan in descriptive
+[OBSERVED mechanism across studied systems.] Plan in descriptive
 sentences using move names, e.g.: "Hero: full-width anchor (the live
 library browser) with bottom bleed; then statement+witness on shifted
 ground; index-as-texture for the catalog; one interruption plate for the
 single takeaway; density gradient toward the tool."
 
 Move evidence baseline: every move below exists in at least one real,
-inspected page (positive or counter-example). No move was invented to
-complete the taxonomy.
+inspected page (positive or counter-example) — status **[OBSERVED]** unless
+noted otherwise. No move was invented to complete the taxonomy, and no move
+is claimed as universally correct or mandatory.
 
 ---
+
+### How to read the MECHANICAL CHECK values
+
+Every numeric value below is classified by evidence strength (core status
+vocabulary). Machine QA's hard gate applies only to HARD ASSERTS and
+explicitly promoted VALIDATED detectors (qa.md).
+
+| Class | Meaning | Effect on shipping |
+|---|---|---|
+| **HARD ASSERT** | objectively invalid when failed | blocks |
+| **VALIDATED PROJECT DETECTOR** | empirically separated known-good/known-bad here | blocks, within tested scope |
+| **HEURISTIC SIGNAL** | useful warning needing visual interpretation | opens a critique finding |
+| **EXPERIMENTAL METRIC** | awaiting validation | informs critique; never blocks alone |
+
+The numbers below (90% anchor width, 25% rail width, ~10 index items, one
+interruption plate, one repetition break, content-node diversity >1, 30%
+sticky share) are **HEURISTIC SIGNALS with working values** — reasonable
+starting points, not measured optima. They look precise, and that precision
+is not itself evidence. Tune per project; record the tuning.
 
 ### The moves
 
@@ -669,7 +779,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - CONFLICTS: measure narrowing (4) in the same block; adjacent to
   interruption plate (8).
 - OVERUSE: every section anchored → nothing is the anchor.
-- CHECK: anchor bbox ≥ 90% of its container (register-adjusted).
+- CHECK: HEURISTIC SIGNAL — anchor bbox ≥ 90% of its container (register-adjusted).
 
 #### 2. Bleed
 - PURPOSE: state that the object is larger than the viewport; imply
@@ -683,7 +793,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: full-width anchor (1), density gradient (12).
 - CONFLICTS: interruption plate (8) — two interruptions compete.
 - OVERUSE: nothing ever seen whole → loss-of-control feeling.
-- CHECK: element bbox crosses the section clip boundary.
+- CHECK: HEURISTIC SIGNAL — element bbox crosses the section clip boundary.
 
 #### 3. Background shift
 - PURPOSE: build the seam between sections out of change, not padding.
@@ -693,9 +803,14 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - CONFLICTS: none.
 - OVERUSE: mechanical zebra (alternating every seam regardless of content
   grouping) → the shift stops meaning anything.
-- CHECK: **[PROVEN] padding-only seam detector** — adjacent sections with
-  >220px combined seam space and identical background = defect. Validated
-  3/0/0 against known-bad/known-good/positive-control pages.
+- CHECK: **VALIDATED PROJECT DETECTOR** — padding-only seam detector:
+  adjacent sections with >220px combined seam space and identical background.
+  Separated known-bad / known-good / positive-control 3/0/0 in this project.
+  Valid within that tested scope, not a universal law. **Known limitation:**
+  the threshold is absolute, so a page with repeated *identical* same-ground
+  seams just under it passes while showing the same failure — observed during
+  Controlled Experiment 1. A relative form (repeated identical same-ground
+  seams) is a candidate revision.
 
 #### 4. Measure narrowing
 - PURPOSE: mark a register change (prose ↔ working surface) with width.
@@ -704,7 +819,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: rail+body (5), statement+witness (6).
 - CONFLICTS: full-width anchor (1) in the same block.
 - OVERUSE: measure zigzag → the page feels unstable.
-- CHECK: measured line length in ch within declared bounds per block type.
+- CHECK: HEURISTIC SIGNAL — measured line length in ch within declared bounds per block type.
 
 #### 5. Rail + body
 - PURPOSE: separate meta from content; make lists scannable.
@@ -713,7 +828,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: measure narrowing (4), index-as-texture (7).
 - CONFLICTS: statement+witness (6) in the same band (two competing splits).
 - OVERUSE: everything railed → the rail stops signifying meta.
-- CHECK: rail column ≤ 25% width; rail content in the label register.
+- CHECK: HEURISTIC SIGNAL — rail column ≤ 25% width; rail content in the label register.
 
 #### 6. Statement + witness
 - PURPOSE: give a claim its evidence in the same visual field.
@@ -723,8 +838,11 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: full-width anchor (1), spec plate (11).
 - CONFLICTS: rail+body (5) same band.
 - OVERUSE: every heading twinned → formula.
-- CHECK: dead-canvas geometry v2 [PLAUSIBLE — v1 failed to separate; v2
-  (content right-edge percentile vs container) awaits validation].
+- CHECK: EXPERIMENTAL METRIC — dead-canvas geometry v2 (content right-edge
+  percentile vs container). v1 failed to separate and was retired; v2 awaits
+  validation and never blocks shipping alone. It flags *candidates*; only the
+  critic decides whether emptiness has a readable compositional function
+  (qa.md, dead canvas vs intentional negative space).
 
 #### 7. Index as texture
 - PURPOSE: let genuine multitude be both content and visual field.
@@ -733,7 +851,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: rail+body (5), repetition+break (9).
 - CONFLICTS: the sparse end of density gradient (12).
 - OVERUSE: wall — unscannable.
-- CHECK: item count + fraction of real hrefs (no dead/placeholder items).
+- CHECK: HEURISTIC SIGNAL — item count + fraction of real hrefs (no dead/placeholder items).
 
 #### 8. Interruption plate
 - PURPOSE: stop the reader once, for the single thing worth stopping for.
@@ -743,7 +861,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: background shift (3).
 - CONFLICTS: bleed (2); a second plate.
 - OVERUSE: the second plate destroys the first. [PROVEN in production use.]
-- CHECK: high-contrast plate count ≤ 1 per page.
+- CHECK: HEURISTIC SIGNAL — high-contrast plate count ≤ 1 per page. A budget, not a quota: zero is legitimate.
 
 #### 9. Repetition + break
 - PURPOSE: regularity builds trust; the single break carries information.
@@ -752,7 +870,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: index-as-texture (7), window-card (10).
 - CONFLICTS: none.
 - OVERUSE: multiple breaks → the pattern collapses.
-- CHECK: exactly one style-deviant child in the repeated grid.
+- CHECK: HEURISTIC SIGNAL — one style-deviant child in the repeated grid; zero is also valid, the move is optional.
 
 #### 10. Window-card
 - PURPOSE: a border earned by structured content behind it.
@@ -764,7 +882,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: repetition+break (9), index-as-texture (7).
 - CONFLICTS: boxing open prose (see anti-patterns: card-everything).
 - OVERUSE: dashboard disease.
-- CHECK: content-node diversity per card > 1.
+- CHECK: HEURISTIC SIGNAL — content-node diversity per card > 1.
 
 #### 11. Colophon / spec plate
 - PURPOSE: present facts as a record (label–value rows).
@@ -773,7 +891,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: statement+witness (6), rail+body (5).
 - CONFLICTS: none.
 - OVERUSE: every list bureaucratized into a plate.
-- CHECK: fabrication lint — every value derivable from repo/source.
+- CHECK: HARD ASSERT — fabrication lint — every value derivable from repo/source.
 
 #### 12. Density gradient
 - PURPOSE: open airy, densify toward the working material (direction
@@ -783,7 +901,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: full-width anchor (1), bleed (2), index-as-texture (7).
 - CONFLICTS: none.
 - OVERUSE: inverse gradient (dense → empty) deflates the page.
-- CHECK: sign of the band-occupancy slope across the page.
+- CHECK: EXPERIMENTAL METRIC — sign of the band-occupancy slope across the page.
 
 #### 13. Persistent rail
 - PURPOSE: keep context available across a long scroll (TOC, facets,
@@ -793,7 +911,7 @@ OVERUSE FAILURE · MECHANICAL CHECK.
 - PAIRS: rail+body (5), index-as-texture (7).
 - CONFLICTS: bleed (2) — sticky + bleed produces chaos.
 - OVERUSE: multiple sticky columns → a page that shudders.
-- CHECK: sticky element's viewport share ≤ 30%.
+- CHECK: HEURISTIC SIGNAL — sticky element's viewport share ≤ 30%.
 
 ---
 
@@ -851,11 +969,24 @@ It is never Direction 0, never a candidate, never implementation.
   register-conditional — no mechanism in this system is exempt from the
   reversal matrix.)
 
-**WHAT TO EXTRACT** (then discard the artifact):
-1. The modal anchor + composition → **banned combination** in the fan-out
-   manifestos that follow.
-2. The human's reactions, verbatim → the negative brief.
-3. Nothing else. No code survives. The baseline is static, routeless,
+**WHAT TO EXTRACT** (then discard the artifact). Extract *failure
+mechanisms*, not the mere fact that the model produced something:
+
+1. **What is generic because it ignores project material** — the parts that
+   would be identical for any brief. These become negative constraints.
+2. **What is structurally weak** — named composition failures (dead canvas,
+   padding-only seams, unearned borders). These become negative constraints.
+3. **What the human specifically rejects**, verbatim → the negative brief.
+4. **What may actually be correct** because the register or a convention
+   calls for it. **Modal is not synonymous with wrong.** A convention-dominant
+   register's modal answer is often the right answer; marking it "banned"
+   because the model reached it first would force novelty, and novelty is
+   never this system's objective.
+
+Only identified failure mechanisms become constraints. There is no rule of
+the form "the model used this, therefore we must not."
+
+Nothing else is extracted. No code survives. The baseline is static, routeless,
    timeboxed, and presented under the label "the default we are escaping."
 
 **Anchoring mitigation:** show the baseline after labeling it, never as the
@@ -879,7 +1010,7 @@ PAGE SILHOUETTE INTENT how the page opens, peaks, and ends
 TYPOGRAPHY ROLE        carrier of identity / carrier of hierarchy only
 IMAGERY ROLE           evidence / subject / absent — and why
 INTERACTION MODEL      what the visitor does on this page
-DISTINCTIVENESS BUDGET where the one risk is spent (or "none", stated)
+DISTINCTIVENESS BUDGET where budget is spent, or "none" — stated either way
 ```
 
 Structural axes: ANCHOR TYPE, INFORMATION HIERARCHY, DENSITY, SECTION
@@ -890,14 +1021,28 @@ dark/light, font personality, motion flavor.
 ### Fan-out
 
 - **k = 3 by default.** Two directions under-sample the space; four dilute
-  the selection and the budget. [PROVEN utility of structural fan-out at
-  k=3 in one real experiment; the exact k is PLAUSIBLE.]
-- **Hard condition: every PAIR of directions differs in ANCHOR TYPE and in
-  at least three structural axes.**
-- IF two manifestos match on anchor + hierarchy + density → regenerate
-  before rendering. This is a mechanical diff on the manifestos, and it is
-  what prevents fan-out theater ("Direction A = blue, B = green, C = dark
-  mode").
+  the selection and the budget. [VALIDATED IN PROJECT — structural fan-out at
+  k=3 produced a useful outcome once, including an informative total
+  rejection; the exact k is PLAUSIBLE.]
+
+**Divergence rule — minimum structural distance.** Directions must diverge
+meaningfully across **at least three structural axes**:
+
+  anchor choice / anchor treatment · information hierarchy · density ·
+  section rhythm · page silhouette · interaction model · content sequencing
+
+**ANCHOR TYPE is the highest-value axis but is not universally mandatory.**
+IF the content truth strongly implies one anchor — the page genuinely owns a
+single obvious object — then keep the anchor fixed and diverge through
+treatment, hierarchy, sequencing, rhythm, density or silhouette. Forcing
+three different anchors onto content that has one would manufacture fake
+diversity, which is the same failure as fan-out theatre wearing the opposite
+costume.
+
+- **Surface changes never count** toward divergence: colour family,
+  dark/light, font personality, motion flavour.
+- IF two manifestos fail the three-axis distance → regenerate before
+  rendering. The diff runs on the manifestos, never on pixels.
 - **Held fixed across all directions:** project truth (brand tokens, voice),
   content truth (real material only), site constitution, and every
   convention the register marks as required. Divergence never spends from
@@ -914,8 +1059,8 @@ The human may:
 - **SELECT** one direction (optionally with notes),
 - **REJECT ALL** — valid and valuable output: it means the direction space
   was wrong, and the correct next step is new manifestos, not refinement of
-  a rejected one. [PROVEN: a full 3-direction rejection redirected a real
-  project for the cost of three static mocks.]
+  a rejected one. [VALIDATED IN PROJECT: a full three-direction rejection
+  redirected real work for the cost of three static mocks.]
 - **REQUEST HYBRID** — name which axes come from which direction; a hybrid
   gets its own manifesto before implementation.
 
@@ -1041,27 +1186,102 @@ criterion in any layer, and a page never passes on it.
 
 ### A. MACHINE QA
 
-Runs on the built page, headless, at the declared widths. Hard gate: red
-here blocks everything downstream.
+Runs on the built page, headless, at the declared widths. **Every check
+carries an evidence class, and only two classes gate shipping.**
 
-| Check | What it asserts | Status |
-|---|---|---|
-| Overflow | `scrollWidth − clientWidth = 0` at every declared width | standard |
-| Padding-only seams | no adjacent-section seam with >220px combined space AND identical background | **[PROVEN — validated 3/0/0 on known-bad / known-good / positive-control pages]** |
-| Dead-canvas geometry | content right-edge percentile vs container width per band; flags statement-without-witness zones | **[PLAUSIBLE — v1 failed to separate; v2 geometry awaits validation]** |
-| Contrast | WCAG ratios on text/ground pairs | standard |
-| Focus states | focus-visible present on interactive elements | standard |
-| Text measure | line length in ch within the block type's declared bounds | standard |
-| Interruption budget | high-contrast plate count ≤ 1 per page | from grammar |
-| Placeholder / fake-content lint | no lorem, TODO assets, placeholder strings; numbers traceable to source | from core P5 |
-| Reduced motion | `prefers-reduced-motion` respected | standard |
-| Absence / density metrics | band-occupancy profile, absence ratio, silhouette variance — reported as signals, thresholds advisory | [PLAUSIBLE] |
+| Class | Effect |
+|---|---|
+| **HARD ASSERT** — objectively invalid when failed | blocks completion |
+| **VALIDATED PROJECT DETECTOR** — empirically separated known-good/known-bad here | blocks, within its tested scope |
+| **HEURISTIC SIGNAL** — useful warning needing interpretation | opens a visual-critique finding |
+| **EXPERIMENTAL METRIC** — awaiting validation | informs critique; **never blocks alone** |
+
+#### HARD ASSERTS
+
+| Check | Asserts |
+|---|---|
+| Unintended horizontal overflow | `scrollWidth − clientWidth = 0` at every declared width |
+| Contrast | text/ground pairs meet the required WCAG ratio |
+| Focus behavior | a visible focus indicator exists on every interactive element |
+| Unresolved production placeholder | no `EXPLICIT_PLACEHOLDER` remains at ship (see lint below) |
+| Fabricated evidence | none present, at any stage |
+| Constitution violation | no undeclared deviation from site law |
+
+#### VALIDATED PROJECT DETECTORS
+
+| Check | Status |
+|---|---|
+| Padding-only seams (>220px combined seam, identical ground) | separated known-bad/known-good/positive-control **3/0/0 in this project**. Valid within tested scope. **Known limitation:** absolute threshold — repeated *identical* same-ground seams just under it pass while showing the same failure (observed in Controlled Experiment 1); a relative form is a candidate revision |
+
+#### HEURISTIC SIGNALS
+
+Text measure bounds · interruption-plate count · anchor width share · rail
+width share · index item count · sticky viewport share · content-node
+diversity per card. Each may open a critique finding; none blocks by itself.
+
+#### EXPERIMENTAL METRICS
+
+Dead-canvas geometry v2 · absence ratio thresholds · silhouette variance ·
+density-slope thresholds. These inform the critic and **may never block
+shipping**. When a metric fails to separate a known-bad from a known-good
+case, fix or retire it — a wrong detector is worse than none. [This happened
+once: the first dead-canvas metric was retired on ground-truth evidence.]
+
+#### Fake-content lint — three verdicts
+
+| Verdict | Meaning | Exploration | Ship |
+|---|---|---|---|
+| `REAL_VERIFIED_CONTENT` | traceable to repo or a read source | allowed | allowed |
+| `EXPLICIT_PLACEHOLDER` | visibly marked as a placeholder, never presented as evidence | **allowed** | **blocks** |
+| `FABRICATED_EVIDENCE` | realistic-looking invented evidentiary material | **hard failure** | **hard failure** |
+
+The lint must distinguish these three. A placeholder that reads as a
+placeholder is a legitimate exploration tool; a placeholder that reads as
+real data is fabrication regardless of intent (anti-patterns #9).
 
 Do not pretend all visual quality automates. The battery catches defect
-*classes* with geometric signatures; everything else belongs below. When a
-metric fails to separate a known-bad from a known-good case, fix or retire
-the metric — a wrong detector is worse than none. [This happened once: the
-first dead-canvas metric was retired on ground-truth evidence.]
+*classes* with geometric signatures; everything else belongs below.
+
+### A2. WEB QUALITY BASELINE
+
+Register-independent floor. Its purpose is narrow: prevent a visually strong
+page from being called complete while basic web usability is broken. Use
+established objective standards (WCAG and platform guidance) where they
+exist; **do not invent thresholds**.
+
+- Semantic structure: headings form a real outline; landmarks present.
+- Keyboard operability: every interactive element reachable and operable.
+- Focus order: follows the visual/reading order.
+- Visible focus: present and not suppressed.
+- Forms where applicable: labelled controls; errors identified in text, not
+  colour alone.
+- Alt-text strategy: informative images described; decorative images
+  explicitly empty.
+- Touch targets: adequate size and spacing per platform guidance.
+- Zoom / reflow: content survives text zoom and narrow reflow without loss.
+- Contrast: meets the required ratio (also a HARD ASSERT above).
+- Reduced motion: honoured.
+- Responsive behavior: no unintended overflow at any declared width.
+
+This is a floor, not an accessibility curriculum. Failures here are HARD
+ASSERTS where objectively testable, otherwise named critique findings.
+
+### A3. PERFORMANCE & ASSET QUALITY GATE
+
+High-end visual design also fails through implementation weight. Findings
+are **proportional to project and register**; do not invent universal KB
+budgets unless the project sets them.
+
+- Responsive image sizing: correct dimensions served for the display size.
+- Asset compression: no uncompressed or wildly oversized media.
+- Font payload: no avoidable weights/subsets shipped.
+- Layout shift: no obvious shift caused by media or font loading.
+- Motion/render cost: animation does not degrade interaction.
+- Autoplay and heavy media: justified by the register and controllable.
+
+**Premium Brand is not permission for unnecessary performance damage.** A
+register with the largest motion and imagery budget carries the largest
+obligation to spend it competently.
 
 ### B. VISUAL CRITIQUE
 
@@ -1097,6 +1317,20 @@ state coverage (error, empty, loading, disabled) as first-class critique
 subjects; EDITORIAL adds reading-measure and rhythm checks at body-text
 priority. A register's emphasis layer failing = an open finding, same as
 any other.
+
+**Dead canvas vs intentional negative space.** These are different things
+and only the critic can tell them apart:
+
+- **DEAD CANVAS** — space that exists because the layout has no compositional
+  job for the area.
+- **INTENTIONAL NEGATIVE SPACE** — space performing a readable role:
+  hierarchy, pacing, focus, anticipation, isolation, or brand staging.
+
+Emptiness is not a defect merely because the geometry is empty. Detectors
+flag *candidates*; they never infer intent. The critic decides whether the
+emptiness has a readable compositional function — and must say which function
+when ruling it intentional. This distinction matters most in PREMIUM BRAND
+and image-led PORTFOLIO work, where scarcity is the register's own signal.
 
 **Finding validity rule:** every finding names its failure mode and its
 location. "Bland", "off", "needs polish" are invalid findings — a critique
@@ -1179,7 +1413,12 @@ A page is complete ONLY when all of the following are true:
    acceptance recorded.
 5. **State completeness satisfied** where it applies (B3): every relevant
    state designed and verified, or marked N/A with a reason.
-6. **Human approval exists** and is recorded in project memory.
+6. **Web quality baseline met** (A2), and performance findings (A3) either
+   resolved or explicitly accepted.
+7. **Human approval exists** and is recorded in project memory.
+
+No experimental metric appears in this list, and none may block a page on its
+own — an unvalidated number must never become a gate.
 
 One validated pass through this gate beats three speculative ones. A page
 that fails any criterion is not "mostly done"; it is open.
@@ -1234,7 +1473,7 @@ this file. Left column = rejected shapes seen in studied systems.
 | Rejected (token-level) | Accepted (mechanism-level) |
 |---|---|
 | "Do not use Inter." | "Reject typography chosen only because it is the model's default; neutral typography stays valid when the register calls for it." |
-| "Purple gradients are banned." | "Reject decoration that carries no information." |
+| "Purple gradients are banned." | "An ornamental or expressive element must carry a defensible function appropriate to the register (see #11)." |
 | "Every page needs an unusual display font." | "Spend the register's distinctiveness budget where the content gives it something to say." |
 | "Never use three cards." | "Reject equal-weight repeated containers when the content has hierarchy the layout is hiding." |
 | "Break the grid once per page." | "Break an established structural rule only when the break communicates hierarchy, continuation, emphasis, or content behavior." |
@@ -1303,16 +1542,38 @@ Named look-clusters may still be recorded as **distribution-aware warnings**
 - CORRECT: full-page silhouette in the plan; QA reads the entire scroll.
 - STATUS: [PROVEN] 2026-08 — structural bias identified in studied systems.
 
-### 9. Fabricated content and data
-- SYMPTOM: invented copy, numbers, testimonials, screenshots, chart images.
-- MECHANISM: generation filling material gaps instead of reporting them.
+### 9. Fabricated evidence
+**Scope, precisely.** The ban covers EVIDENTIARY MATERIAL, not all generated
+imagery.
+
+**EVIDENTIARY MATERIAL — never invented, never realistically fabricated, at
+any stage:** metrics · customer numbers · testimonials · logos · product
+screenshots · product results · case-study outcomes · business facts ·
+photographs presented as documentary reality.
+
+**EXPRESSIVE / SYNTHETIC MATERIAL — may be created** when the brief calls for
+it, its synthetic nature is not deceptive, it suits the register, and it is
+not presented as evidence of real product, customer or business performance:
+illustration · abstract imagery · decorative artwork · generated texture ·
+fictional visual metaphor · intentionally synthetic campaign imagery.
+
+So: "never fabricate evidence" is absolute. "Never generate imagery" was an
+overbroad reading and is withdrawn — it would have made whole registers
+(brand, editorial) impossible to serve.
+
+- SYMPTOM: invented metrics, testimonials, fake product screenshots, charts
+  presenting invented data; or synthetic imagery passed off as documentary.
+- MECHANISM: generation filling *evidentiary* gaps instead of reporting them.
 - DETECT: fake-content lint; every number traceable to source; imagery
   provenance.
 - CORRECT: stop and report the gap; design with real material or less
   material (core P5).
-- CORRECT (expanded): IF content is missing → use an EXPLICIT PLACEHOLDER
-  that reads as a placeholder, OR compose so the missing evidence is not
-  required. Never a realistic-looking substitute.
+- CORRECT (expanded): IF evidentiary content is missing → use an EXPLICIT
+  PLACEHOLDER that visibly reads as a placeholder, OR compose so the missing
+  evidence is not required. Never a realistic-looking substitute.
+- PLACEHOLDER LIFECYCLE: explicit placeholders are **legal during
+  exploration and mockup**, and a **blocking defect at ship** (qa.md lint,
+  three verdicts). Fabricated evidence is forbidden at every stage.
 - STATUS: [PROVEN — hard ban] 2026-08. Two studied systems instruct
   otherwise and both are REJECTED here and barred from re-entry: one
   instructs inventing copy when the brief lacks it; another instructs
@@ -1335,9 +1596,16 @@ Named look-clusters may still be recorded as **distribution-aware warnings**
 - SYMPTOM: flourishes, textures, "unnecessary details" doctrine; ornament
   presented as identity.
 - MECHANISM: equating distinctiveness with added decoration.
-- DETECT: structure-is-information test — each ornament either encodes
-  something true or is a defect; excess-decoration check in visual critique.
-- CORRECT: cut ornament that carries no information; spend identity budget
+- DETECT: **function test.** An ornamental or expressive element must carry a
+  defensible FUNCTION appropriate to its register. Valid functions include:
+  information · hierarchy · interaction affordance · brand meaning ·
+  emotional staging · material or subject reference · pacing.
+  IF its only justification is "it makes the page look more designed" →
+  reject it.
+  (The earlier form of this rule read "decoration must carry information",
+  which was too narrow: it would have outlawed legitimate brand and editorial
+  art direction whose function is emotional staging or subject reference.)
+- CORRECT: cut ornament with no defensible function; spend identity budget
   on derived choices.
 - STATUS: [PROVEN — REJECTED doctrine, banned from re-entry] 2026-08.
 
@@ -1440,7 +1708,7 @@ files, append-mostly. Records are dated; nothing is silently deleted.
 | REJECTED DIRECTIONS | kept, with the human's stated reason — rejections are data | selection |
 | EXCEPTIONS | the exception records per site-constitution.md | on approval |
 | QA FAILURES | machine-QA reds and named critique findings that reached the human, with resolution | QA stages |
-| LEARNINGS | real events only: what happened, evidence, what rule changed. Withdrawn conclusions recorded as withdrawals. No ceremonial entries — "nothing learned" is a legitimate outcome and writes nothing | document-learning stage |
+| LEARNINGS | real events only: what happened, evidence, what rule changed. Withdrawn conclusions recorded as withdrawals. No ceremonial entries — "nothing learned" writes nothing. Conditional in **every** mode, including the fast path (workflow.md stage 16) | when a trigger fires |
 | ANTI-PATTERN EVENTS | each time a named anti-pattern fired in this project | on detection |
 | TASTE ITEMS + PROFILE | inspiration items and the regenerated cluster profile (reference-analysis.md) | opportunistically; profile on review |
 | COMPOSITION MOVE HISTORY | per shipped page: the moves its plan named | after ship |
@@ -1543,23 +1811,35 @@ pages may collapse DIRECTOR and BUILDER but **never** collapse BUILDER and
 CRITIC.
 
 - **DESIGN DIRECTOR** — register, direction architecture, composition
-  strategy. Owns stages 2–10.
-- **BUILDER** — implements the approved plan, within declared scope. Owns
-  stage 11 and the fix half of 14.
-- **VISUAL CRITIC** — judges the render. Does not receive the builder's
-  rationale as evidence (qa.md B). Owns stages 12–13 and the verdict half
-  of 14.
+  strategy. Coordinates and prepares stages 2–7 and 10.
+- **HUMAN** — owns stage 8 (direction selection), ratifies constitutional
+  decisions in stage 9, and owns stage 15 (final approval).
+- **BUILDER** — owns stage 11 and the implementation side of stage 14.
+- **MACHINE** — owns stage 12 assertions.
+- **VISUAL CRITIC** — consumes stage 12 results, owns stage 13, and owns the
+  critique/verdict side of stage 14. Does not receive the builder's rationale
+  as evidence (qa.md B).
+- **BOTH** — stage 16 learning, where applicable.
+
+Human decisions are never folded into an agent-role summary: stages 8, 9
+(ratification) and 15 belong to a person, and no role above may close them.
 
 [PLAUSIBLE] Strict separate-agent execution; the ergonomics are untested.
 [PROVEN as a need] The generating pass is the worst judge of its own output.
 
 ### Session start / state
 
-**Before anything else in a design session: read `design-memory/STATE.md`**
-(project-memory.md). It gives the register, the mode, the stage, and the
-next step — which determines which modules to load at all. Update it at
-every major decision and every stage transition. Never ask the human for
-context STATE.md already holds.
+**IF `design-memory/STATE.md` exists** → read it before any methodology
+module. It gives the register, the mode, the stage and the next step, which
+determines which modules to load at all.
+
+**IF it does not exist** (greenfield, or a project that has never used this
+system) → run BRIEF → initial REGISTER declaration → **initialize STATE.md**
+→ continue. Never invent prior project state, and never treat a missing file
+as an error.
+
+Update STATE.md at every major decision and every stage transition. Never ask
+the human for context STATE.md already holds.
 
 ### Stages
 
@@ -1659,8 +1939,11 @@ context STATE.md already holds.
 
 #### 10. COMPOSITION PLAN
 - INPUT: page content inventory + constitution + family rules.
-- OUTPUT: descriptive plan naming grammar moves per section (composition-
-  grammar.md). No ASCII wireframes.
+- OUTPUT: an **explicit composition plan** (required, core P12a), naming its
+  moves per section. The grammar vocabulary is the **default method** and
+  each named move is labelled KNOWN / PROJECT-SPECIFIC / CANDIDATE
+  (composition-grammar.md); a move outside the vocabulary is named and
+  described, not rejected. No ASCII wireframes.
 - OWNER: CLAUDE.
 - SKIP: never — the cheapest insurance in the system (core P12).
 - FAILURE: plans that cannot cite moves (uncomposed pages headed to code);
@@ -1711,12 +1994,17 @@ context STATE.md already holds.
 - FAILURE: approval assumed from silence.
 - NEXT: 16.
 
-#### 16. DOCUMENT LEARNING
+#### 16. DOCUMENT LEARNING (conditional in **every** mode)
 - INPUT: everything that actually happened.
 - OUTPUT: LEARNINGS / EXCEPTIONS / ledger rows in project memory — real
-  events only; "nothing learned" writes nothing.
+  events only.
 - OWNER: BOTH.
-- SKIP: when nothing occurred worth recording (legitimate).
+- RUN IT only if at least one of these occurred: a new failure mode appeared ·
+  a detector was contradicted · an exception was approved · a rule changed ·
+  a meaningful human preference was learned · a conclusion was withdrawn.
+- SKIP: otherwise — and write nothing at all. The fast path avoids ceremony,
+  **not** real learning: a fast-path task that contradicts a detector still
+  records it.
 - FAILURE: ceremonial entries; unrecorded withdrawals.
 - NEXT: done.
 
@@ -1747,8 +2035,8 @@ passing silently.
 |---|---|---|---|
 | **GREENFIELD** | all 16 | — (4 still register-gated) | no design language exists |
 | **EXISTING DESIGN LANGUAGE** | 1–3, 9(consult), 10–16 | 4; 5–8 unless a NEW page family is being created | project constitution exists |
-| **ROUTINE PAGE** | 1–3, 10–13(+14 if findings), 15, 16(usually empty) | 4–9 | known family, known register, no constitutional impact |
-| **UTILITY / COMMERCE FAST PATH** | 1–3, 10–12, light 13, 15 | 4–9; visual exploration minimal by register (distinctiveness budget ≈ 0) | convention-dominant registers |
+| **ROUTINE PAGE** | 1–3, 10–13(+14 if findings), 15, **16 if triggered** | 4–9 | known family, known register, no constitutional impact |
+| **UTILITY / COMMERCE FAST PATH** | 1–3, 10–12, light 13, 15, **16 if triggered** | 4–9; visual exploration minimal by register (distinctiveness budget ≈ 0) | convention-dominant registers |
 
 Scale-down rule: IF a task qualifies for a lighter mode → use it and say
 so. Ceremony beyond the mode is cost, not rigor. IF mid-task the work

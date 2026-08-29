@@ -6,6 +6,22 @@ This file is aesthetic-neutral by design: it contains no fonts, no colors,
 no layout advice. It contains the behavioral mechanisms that survived when
 the aesthetic advice around them staled.
 
+## Evidence status vocabulary
+
+Every claim in this methodology carries one of these. The system must obey
+its own evidence standard: a useful heuristic is not automatically proven,
+and an experimentally useful threshold is not automatically a hard gate.
+
+- **[PROVEN]** — the evidence supports this exact claim at this exact scope.
+- **[VALIDATED IN PROJECT]** — tested against this project's real cases
+  (usually a known-good / known-bad pair). Valid within tested scope; not a
+  universal law.
+- **[OBSERVED]** — seen repeatedly across sources or sessions, uncontrolled.
+- **[PLAUSIBLE]** — a reasonable system hypothesis; experiment pending.
+- **[OPEN RISK]** — a known way this can fail, carrying its mitigation.
+
+Evidence for a weaker claim may never be used to support a stronger one.
+
 Purpose of the whole system, in priority order:
 **appropriateness → clarity → composition → identity → craft.**
 Novelty is never the objective; it is an occasional side effect of deriving
@@ -20,15 +36,17 @@ direction, leave the value to context. IF a rule dictates literal values
 IF a rule is an adjective ("beautiful", "premium") with no operational
 definition → rewrite it or delete it.
 **WHY:** Low-altitude rules execute without judgment and break when context
-shifts; high-altitude rules resolve to the model's modal output. [PROVEN —
-observed across Anthropic's skill generations and our own rules.]
+shifts; high-altitude rules resolve to the model's modal output.
+[OBSERVED — across two generations of one vendor's guidance and our own
+rule-writing; not a controlled comparison.]
 **PREVENTS:** brittle prescriptions; vibes-driven regressions to the mode.
 
 ## P2 — Behavioral mechanism over aesthetic prescription
 **RULE:** Encode quality as mechanisms (schemas, budgets, tests, rituals,
 ledgers), not as aesthetic recipes. Aesthetic content may exist only inside
 register-conditioned modules or project constitutions, never in core rules.
-**WHY:** [PROVEN] Aesthetic prescriptions staled within one generation twice:
+**WHY:** [OBSERVED — two documented cases] Aesthetic prescriptions staled
+within one generation twice:
 Anthropic's blog recipes became its own skill's named anti-patterns, and a
 community workflow's "escape from generic" landed pixel-adjacent to the
 named default it fled. The mechanisms around those recipes did not stale.
@@ -72,18 +90,32 @@ never only in thinking. IF a decision was made but not written → it was not
 made.
 **WHY:** Unnamed things cannot be checked; unwritten things cannot be
 diffed. The planning notation shapes the output space, so the notation must
-be able to express the decisions that matter. [PROVEN — named failure modes
-outperformed generic warnings in production use.]
+be able to express the decisions that matter. [VALIDATED IN PROJECT — named
+failure modes steered behavior in this project's production use; not measured
+against a control.]
 **PREVENTS:** unfalsifiable plans; critique that cannot cite anything.
 
-## P7 — Traceability
-**RULE:** Every implemented visual value traces to a written source: the
-constitution, a page-family rule, a direction manifesto, or a composition
-plan. IF a value has no source → it is an undeclared decision; declare it
-or remove it.
-**WHY:** Traceability is what makes plan-vs-build diffs possible, and those
-diffs are a QA layer.
-**PREVENTS:** drift between what was decided and what shipped.
+## P7 — Traceability of material decisions
+**RULE:** Every **material design decision** traces to a written source:
+project truth, the constitution, a page-family rule, an approved direction,
+the composition plan, or an explicit implementation constraint. Implementation
+minutiae that merely instantiate an approved token or system need no
+individual justification.
+
+Requires traceability: a new container width · a new type role · a new colour
+role · an unusual section structure · a composition exception · a new anchor
+treatment · a new motion behavior.
+
+Does not: an inherited spacing token · an existing radius token · an ordinary
+flex gap · any implementation detail that does not change design intent.
+
+**WHY:** Traceability makes plan-vs-build diffs possible, and those diffs are
+a QA layer. The purpose is accountability, not bureaucracy — demanding prose
+for every CSS value produces compliance theatre and buries the decisions that
+actually mattered.
+**PREVENTS:** drift between what was decided and what shipped; and, in its
+narrowed form, the documentation overhead that would make the system unusable
+on routine work.
 
 ## P8 — Commitment devices
 **RULE:** At every declared decision point, state the choice and the reason
@@ -98,8 +130,10 @@ every revision.
 (≤1/page), aesthetic risks (register-budgeted, see registers.md), fan-out
 directions (k=3 default). IF a countable budget is exceeded → mechanical QA
 fails the page.
-**WHY:** [PROVEN] Countable constraints are the most reliably obeyed rule
-form observed across all studied systems and our own production.
+**WHY:** [OBSERVED] Countable constraints were the most reliably obeyed rule
+form across all studied systems and our own production. Budgets are also
+**permission, not quota**: a budget of one signature never obliges spending
+it (see registers.md).
 **PREVENTS:** emphasis inflation — the second bold thing killing the first.
 
 ## P10 — Human checkpoints before production
@@ -107,9 +141,10 @@ form observed across all studied systems and our own production.
 implementation whenever direction is open (see visual-direction.md and
 workflow.md for placement and skip conditions). Total rejection of all
 directions is valid output: it means the direction space was wrong.
-**WHY:** [PROVEN] The human is the taste engine; autonomous end-to-end
-pipelines were rejected by the research. Cheap rejection before production
-beat expensive refinement after it in every observed case.
+**WHY:** [VALIDATED IN PROJECT] A full three-direction rejection redirected
+real work here for the cost of three static mocks. [OBSERVED] across studied
+workflows: autonomous end-to-end pipelines removed the taste engine from the
+loop.
 **PREVENTS:** polishing the wrong direction; taste laundering.
 
 ## P11 — Render is ground truth
@@ -117,29 +152,42 @@ beat expensive refinement after it in every observed case.
 inspected — at the required widths, with motion settled (trigger all
 reveals, return to top, wait, then capture). A conclusion drawn from a
 mid-animation screenshot is a conclusion about scroll timing, not the page.
-**WHY:** [PROVEN] A confident wrong verdict in this project traced directly
-to un-settled animations; the correction is procedural, not attitudinal.
+**WHY:** [VALIDATED IN PROJECT] A confident wrong verdict here traced
+directly to un-settled animations; the correction is procedural, not attitudinal.
 A corollary: the builder's rationale is not evidence that the result works.
 Reasons explain intent; only the render shows outcome. A critic who accepts
 "here is why I did it" as proof has stopped being a critic.
 **PREVENTS:** rubber-stamp critique; false defects; false passes.
 
-## P12 — Composition is a first-class discipline
-**RULE:** Every page gets a written composition plan in grammar vocabulary
-(composition-grammar.md) before implementation. Composition failures are
-named defects with detectors, not matters of taste.
-**WHY:** [PROVEN] Composition was the largest absent layer in every studied
-system, and the costliest real failure in this project (a page passed every
-typographic rule and failed as a page). One composition defect class is
-already machine-detectable.
+## P12a — Composition is a first-class discipline
+**RULE:** Significant pages require an **explicit written composition plan**
+before implementation. Composition failures are named defects with
+detectors, not matters of taste.
+**WHY:** [VALIDATED IN PROJECT] Composition was the largest absent layer in
+every studied system, and the costliest real failure here: a page satisfied
+every typographic rule and failed as a page. One composition defect class
+(padding-only seams) separated known-bad from known-good cases mechanically.
 **PREVENTS:** dead canvas; padding-as-composition; document-poured-into-web.
+
+## P12b — The grammar vocabulary is the default method, not a proven one
+**RULE:** Composition plans use the vocabulary in composition-grammar.md by
+default, because named moves are diffable and checkable. **Do not claim that
+mandatory grammar vocabulary improves visual quality.**
+**WHY:** [PLAUSIBLE — PENDING CONTROLLED EXPERIMENT] Grammar planning may
+improve planning quality, consistency and traceability. A controlled A/B
+experiment testing exactly this claim is running and unrevealed at the time
+of writing; its result promotes or demotes this principle. Until then the
+vocabulary is an experimental default, not scientific fact — and P12a stands
+on its own without it.
+**PREVENTS:** an unvalidated method hardening into doctrine — the failure
+this whole methodology was built to avoid.
 
 ## P13 — Site law and page freedom are separate layers
 **RULE:** Maintain three layers (site constitution / page-family rules /
 page freedom, see site-constitution.md). An undeclared violation of a
 higher layer is a defect regardless of how good the page looks.
-**WHY:** Pages designed independently drift into many sites; pages designed
-identically collapse into one template. The layer split is the only
+**WHY:** [OBSERVED] Pages designed independently drift into many sites;
+pages designed identically collapse into one template. The layer split is the only
 mechanism that holds both failure modes off simultaneously.
 **PREVENTS:** 40 pages = 40 websites; 40 pages = 1 template.
 
@@ -149,7 +197,7 @@ happened, where (commit/PR/screenshot), and when. Rules are dated,
 reviewed on a cadence, and retired to an archive with a reason — never
 silently deleted, never kept forever by inertia. Withdrawn conclusions are
 recorded as withdrawals, not erased.
-**WHY:** [PROVEN] Incident-backed rules steered behavior harder than
+**WHY:** [VALIDATED IN PROJECT] Incident-backed rules steered behavior harder than
 principles in production. Undated rule lists staled within a generation in
 every studied system.
 **PREVENTS:** rule rot; the eternal blacklist; repeating undocumented
@@ -170,7 +218,8 @@ one generation.
 ## P16 — Evidence precedence
 **RULE:** When two inputs disagree, resolve in this fixed order:
 
-    CONTENT / USER JOB
+    EXPLICIT BRIEF / NON-NEGOTIABLE HUMAN REQUIREMENTS
+    → USER JOB / CONTENT TRUTH
     → REGISTER
     → CLIENT / PROJECT BRAND
     → SITE CONSTITUTION
@@ -187,8 +236,18 @@ input in the system — it describes what has pleased before, not what this
 content and this visitor need now. Without an explicit ladder, taste
 silently outranks register (this is exactly how a house style becomes a
 template applied to every brief).
+**Explicit human direction is not taste.** A stated project requirement sits
+at the TOP of the ladder; accumulated preference sits near the bottom. Never
+conflate them.
+
+**Human exceptions.** A human may deliberately approve an exception against a
+design heuristic. The exception must be explicit, dated, scoped and recorded
+(site-constitution.md). Human approval does **not** make factual falsehood,
+inaccessible behavior, or fabricated evidence valid — those are outside the
+scope of anyone's approval.
 **PREVENTS:** taste-as-style-generator; register override by preference;
-the model's defaults masquerading as decisions.
+the model's defaults masquerading as decisions; and the opposite error of
+treating an explicit client requirement as if it were a mere preference.
 
 ## P17 — Generation and approval are different passes
 **RULE:** On high-impact work, the pass that produces a design is not the

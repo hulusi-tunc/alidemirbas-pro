@@ -52,8 +52,12 @@ SURFACE             the skin, listed explicitly so it is visible…
 SURFACE QUARANTINE  …and explicitly marked DO-NOT-IMPORT
 TRANSFER CONDITIONS which registers/page-families each mechanism moves to,
                     and which it must not
-ONE THING NOT TO TAKE  the reference's most characteristic feature that is
-                    toxic to this project — named, singular, mandatory
+TRANSFER RISK /     mandatory field, but a valid value may be: a named toxic
+DO-NOT-TAKE         surface or mechanism · a condition under which the
+                    reference stops transferring · or "none identified after
+                    review". The operator must show transfer risk was
+                    considered; inventing a flaw to satisfy the form is worse
+                    than recording that none was found
 MEASURED EVIDENCE   numbers, not impressions: measures in px/ch, column
                     counts, section heights, screenshots attached
 PROVENANCE          who dissected it, when, from what material
@@ -63,9 +67,11 @@ REVIEW / EXPIRY     date to re-examine; references stale like rules do
 Field rules:
 - MECHANISMS with no WHERE → delete the entry; unlocated mechanisms are
   guesses.
-- ONE THING NOT TO TAKE is mandatory. Every admired reference has a
-  signature that would poison the importing project; naming it is the
-  card's immune system.
+- TRANSFER RISK / DO-NOT-TAKE is a mandatory field with an honest empty
+  value. Most admired references carry a signature that would poison the
+  importing project, and naming it is the card's immune system — but a
+  forced criticism is noise, and "none identified after review" is a real
+  finding when it is true.
 - MEASURED EVIDENCE beats adjectives. "Generous spacing" is not evidence;
   "text measure 68ch, section padding 96px, 11 sections over 8987px" is.
 - A card whose TRANSFER CONDITIONS cannot be written is blocked on register

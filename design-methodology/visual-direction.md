@@ -29,11 +29,24 @@ It is never Direction 0, never a candidate, never implementation.
   register-conditional — no mechanism in this system is exempt from the
   reversal matrix.)
 
-**WHAT TO EXTRACT** (then discard the artifact):
-1. The modal anchor + composition → **banned combination** in the fan-out
-   manifestos that follow.
-2. The human's reactions, verbatim → the negative brief.
-3. Nothing else. No code survives. The baseline is static, routeless,
+**WHAT TO EXTRACT** (then discard the artifact). Extract *failure
+mechanisms*, not the mere fact that the model produced something:
+
+1. **What is generic because it ignores project material** — the parts that
+   would be identical for any brief. These become negative constraints.
+2. **What is structurally weak** — named composition failures (dead canvas,
+   padding-only seams, unearned borders). These become negative constraints.
+3. **What the human specifically rejects**, verbatim → the negative brief.
+4. **What may actually be correct** because the register or a convention
+   calls for it. **Modal is not synonymous with wrong.** A convention-dominant
+   register's modal answer is often the right answer; marking it "banned"
+   because the model reached it first would force novelty, and novelty is
+   never this system's objective.
+
+Only identified failure mechanisms become constraints. There is no rule of
+the form "the model used this, therefore we must not."
+
+Nothing else is extracted. No code survives. The baseline is static, routeless,
    timeboxed, and presented under the label "the default we are escaping."
 
 **Anchoring mitigation:** show the baseline after labeling it, never as the
@@ -57,7 +70,7 @@ PAGE SILHOUETTE INTENT how the page opens, peaks, and ends
 TYPOGRAPHY ROLE        carrier of identity / carrier of hierarchy only
 IMAGERY ROLE           evidence / subject / absent — and why
 INTERACTION MODEL      what the visitor does on this page
-DISTINCTIVENESS BUDGET where the one risk is spent (or "none", stated)
+DISTINCTIVENESS BUDGET where budget is spent, or "none" — stated either way
 ```
 
 Structural axes: ANCHOR TYPE, INFORMATION HIERARCHY, DENSITY, SECTION
@@ -68,14 +81,28 @@ dark/light, font personality, motion flavor.
 ## Fan-out
 
 - **k = 3 by default.** Two directions under-sample the space; four dilute
-  the selection and the budget. [PROVEN utility of structural fan-out at
-  k=3 in one real experiment; the exact k is PLAUSIBLE.]
-- **Hard condition: every PAIR of directions differs in ANCHOR TYPE and in
-  at least three structural axes.**
-- IF two manifestos match on anchor + hierarchy + density → regenerate
-  before rendering. This is a mechanical diff on the manifestos, and it is
-  what prevents fan-out theater ("Direction A = blue, B = green, C = dark
-  mode").
+  the selection and the budget. [VALIDATED IN PROJECT — structural fan-out at
+  k=3 produced a useful outcome once, including an informative total
+  rejection; the exact k is PLAUSIBLE.]
+
+**Divergence rule — minimum structural distance.** Directions must diverge
+meaningfully across **at least three structural axes**:
+
+  anchor choice / anchor treatment · information hierarchy · density ·
+  section rhythm · page silhouette · interaction model · content sequencing
+
+**ANCHOR TYPE is the highest-value axis but is not universally mandatory.**
+IF the content truth strongly implies one anchor — the page genuinely owns a
+single obvious object — then keep the anchor fixed and diverge through
+treatment, hierarchy, sequencing, rhythm, density or silhouette. Forcing
+three different anchors onto content that has one would manufacture fake
+diversity, which is the same failure as fan-out theatre wearing the opposite
+costume.
+
+- **Surface changes never count** toward divergence: colour family,
+  dark/light, font personality, motion flavour.
+- IF two manifestos fail the three-axis distance → regenerate before
+  rendering. The diff runs on the manifestos, never on pixels.
 - **Held fixed across all directions:** project truth (brand tokens, voice),
   content truth (real material only), site constitution, and every
   convention the register marks as required. Divergence never spends from
@@ -92,8 +119,8 @@ The human may:
 - **SELECT** one direction (optionally with notes),
 - **REJECT ALL** — valid and valuable output: it means the direction space
   was wrong, and the correct next step is new manifestos, not refinement of
-  a rejected one. [PROVEN: a full 3-direction rejection redirected a real
-  project for the cost of three static mocks.]
+  a rejected one. [VALIDATED IN PROJECT: a full three-direction rejection
+  redirected real work for the cost of three static mocks.]
 - **REQUEST HYBRID** — name which axes come from which direction; a hybrid
   gets its own manifesto before implementation.
 

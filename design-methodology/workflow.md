@@ -18,23 +18,35 @@ pages may collapse DIRECTOR and BUILDER but **never** collapse BUILDER and
 CRITIC.
 
 - **DESIGN DIRECTOR** — register, direction architecture, composition
-  strategy. Owns stages 2–10.
-- **BUILDER** — implements the approved plan, within declared scope. Owns
-  stage 11 and the fix half of 14.
-- **VISUAL CRITIC** — judges the render. Does not receive the builder's
-  rationale as evidence (qa.md B). Owns stages 12–13 and the verdict half
-  of 14.
+  strategy. Coordinates and prepares stages 2–7 and 10.
+- **HUMAN** — owns stage 8 (direction selection), ratifies constitutional
+  decisions in stage 9, and owns stage 15 (final approval).
+- **BUILDER** — owns stage 11 and the implementation side of stage 14.
+- **MACHINE** — owns stage 12 assertions.
+- **VISUAL CRITIC** — consumes stage 12 results, owns stage 13, and owns the
+  critique/verdict side of stage 14. Does not receive the builder's rationale
+  as evidence (qa.md B).
+- **BOTH** — stage 16 learning, where applicable.
+
+Human decisions are never folded into an agent-role summary: stages 8, 9
+(ratification) and 15 belong to a person, and no role above may close them.
 
 [PLAUSIBLE] Strict separate-agent execution; the ergonomics are untested.
-[PROVEN as a need] The generating pass is the worst judge of its own output.
+[OBSERVED as a need] The generating pass is the worst judge of its own output.
 
 ## Session start / state
 
-**Before anything else in a design session: read `design-memory/STATE.md`**
-(project-memory.md). It gives the register, the mode, the stage, and the
-next step — which determines which modules to load at all. Update it at
-every major decision and every stage transition. Never ask the human for
-context STATE.md already holds.
+**IF `design-memory/STATE.md` exists** → read it before any methodology
+module. It gives the register, the mode, the stage and the next step, which
+determines which modules to load at all.
+
+**IF it does not exist** (greenfield, or a project that has never used this
+system) → run BRIEF → initial REGISTER declaration → **initialize STATE.md**
+→ continue. Never invent prior project state, and never treat a missing file
+as an error.
+
+Update STATE.md at every major decision and every stage transition. Never ask
+the human for context STATE.md already holds.
 
 ## Stages
 
@@ -115,7 +127,7 @@ context STATE.md already holds.
 - INPUT: renders + manifesto summaries (structure visible beside pixels).
 - OUTPUT: SELECT / REJECT ALL / HYBRID (+ notes). Total rejection = the
   direction space was wrong → back to 6 with new axes, not refinement.
-- OWNER: HUMAN. [PROVEN — the checkpoint that repeatedly paid for itself.]
+- OWNER: HUMAN. [VALIDATED IN PROJECT — the checkpoint that paid for itself, including via an informative total rejection.]
 - SKIP: only when 6–7 were skipped.
 - FAILURE: treating rejection as indecision; selecting on polish (mitigated
   by manifesto-beside-render presentation).
@@ -134,8 +146,11 @@ context STATE.md already holds.
 
 ### 10. COMPOSITION PLAN
 - INPUT: page content inventory + constitution + family rules.
-- OUTPUT: descriptive plan naming grammar moves per section (composition-
-  grammar.md). No ASCII wireframes.
+- OUTPUT: an **explicit composition plan** (required, core P12a), naming its
+  moves per section. The grammar vocabulary is the **default method** and
+  each named move is labelled KNOWN / PROJECT-SPECIFIC / CANDIDATE
+  (composition-grammar.md); a move outside the vocabulary is named and
+  described, not rejected. No ASCII wireframes.
 - OWNER: CLAUDE.
 - SKIP: never — the cheapest insurance in the system (core P12).
 - FAILURE: plans that cannot cite moves (uncomposed pages headed to code);
@@ -186,12 +201,17 @@ context STATE.md already holds.
 - FAILURE: approval assumed from silence.
 - NEXT: 16.
 
-### 16. DOCUMENT LEARNING
+### 16. DOCUMENT LEARNING (conditional in **every** mode)
 - INPUT: everything that actually happened.
 - OUTPUT: LEARNINGS / EXCEPTIONS / ledger rows in project memory — real
-  events only; "nothing learned" writes nothing.
+  events only.
 - OWNER: BOTH.
-- SKIP: when nothing occurred worth recording (legitimate).
+- RUN IT only if at least one of these occurred: a new failure mode appeared ·
+  a detector was contradicted · an exception was approved · a rule changed ·
+  a meaningful human preference was learned · a conclusion was withdrawn.
+- SKIP: otherwise — and write nothing at all. The fast path avoids ceremony,
+  **not** real learning: a fast-path task that contradicts a detector still
+  records it.
 - FAILURE: ceremonial entries; unrecorded withdrawals.
 - NEXT: done.
 
@@ -222,8 +242,8 @@ passing silently.
 |---|---|---|---|
 | **GREENFIELD** | all 16 | — (4 still register-gated) | no design language exists |
 | **EXISTING DESIGN LANGUAGE** | 1–3, 9(consult), 10–16 | 4; 5–8 unless a NEW page family is being created | project constitution exists |
-| **ROUTINE PAGE** | 1–3, 10–13(+14 if findings), 15, 16(usually empty) | 4–9 | known family, known register, no constitutional impact |
-| **UTILITY / COMMERCE FAST PATH** | 1–3, 10–12, light 13, 15 | 4–9; visual exploration minimal by register (distinctiveness budget ≈ 0) | convention-dominant registers |
+| **ROUTINE PAGE** | 1–3, 10–13(+14 if findings), 15, **16 if triggered** | 4–9 | known family, known register, no constitutional impact |
+| **UTILITY / COMMERCE FAST PATH** | 1–3, 10–12, light 13, 15, **16 if triggered** | 4–9; visual exploration minimal by register (distinctiveness budget ≈ 0) | convention-dominant registers |
 
 Scale-down rule: IF a task qualifies for a lighter mode → use it and say
 so. Ceremony beyond the mode is cost, not rigor. IF mid-task the work

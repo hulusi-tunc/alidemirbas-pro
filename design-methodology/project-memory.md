@@ -21,14 +21,14 @@ files, append-mostly. Records are dated; nothing is silently deleted.
 | REJECTED DIRECTIONS | kept, with the human's stated reason — rejections are data | selection |
 | EXCEPTIONS | the exception records per site-constitution.md | on approval |
 | QA FAILURES | machine-QA reds and named critique findings that reached the human, with resolution | QA stages |
-| LEARNINGS | real events only: what happened, evidence, what rule changed. Withdrawn conclusions recorded as withdrawals. No ceremonial entries — "nothing learned" is a legitimate outcome and writes nothing | document-learning stage |
+| LEARNINGS | real events only: what happened, evidence, what rule changed. Withdrawn conclusions recorded as withdrawals. No ceremonial entries — "nothing learned" writes nothing. Conditional in **every** mode, including the fast path (workflow.md stage 16) | when a trigger fires |
 | ANTI-PATTERN EVENTS | each time a named anti-pattern fired in this project | on detection |
 | TASTE ITEMS + PROFILE | inspiration items and the regenerated cluster profile (reference-analysis.md) | opportunistically; profile on review |
 | COMPOSITION MOVE HISTORY | per shipped page: the moves its plan named | after ship |
 
 The LEARNINGS discipline is load-bearing: entries carry provenance
-(commit / PR / screenshot) or they do not enter. [PROVEN — provenance-
-carrying rules steered production harder than principles.]
+(commit / PR / screenshot) or they do not enter. [VALIDATED IN PROJECT —
+provenance-carrying rules steered production harder than abstract ones here.]
 
 ---
 

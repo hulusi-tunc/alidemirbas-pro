@@ -7,6 +7,12 @@ not as ground truth.
 
 A register is not an audience description. It is the switch that decides
 which design rules apply, which reverse, and how large the risk budget is.
+
+**Every budget in this file is a ceiling, never a floor.** A register that
+permits a larger aesthetic risk does not require one; a register with a
+distinctiveness budget of zero forbids spending, but no register anywhere
+*obliges* an aesthetic device. Turning a tendency into a mandatory treatment
+is the same error as a token-level ban, arriving from the opposite side.
 **No visual decision is valid before a register is declared** (core P3).
 
 Six registers. UTILITY carries two sub-modes because eleven of its thirteen
@@ -48,7 +54,7 @@ behaviors are identical across tools and documentation; the two that differ
 | Motion budget | Medium; one orchestrated moment is legitimate |
 | Interaction priority | CTA journey + section navigation |
 | Trust requirement | Built through specificity: real screens, real numbers, real names |
-| Aesthetic risk budget | Low-to-medium; one signature element |
+| Aesthetic risk budget | Low-to-medium; up to one signature element — a ceiling, not a requirement |
 | Common failure mode | A wall of unwitnessed claims; whimsy aimed at a trust-critical buyer |
 
 ## EDITORIAL
@@ -84,7 +90,7 @@ behaviors are identical across tools and documentation; the two that differ
 | Motion budget | Medium; one moment in service of character |
 | Interaction priority | Exploration + the contact path |
 | Trust requirement | Honesty; one inflated number poisons the whole site |
-| Aesthetic risk budget | Medium-high, if derived |
+| Aesthetic risk budget | Medium-high **if derived** from the person's real work; zero is valid when the work itself carries the identity |
 | Common failure mode | Talking *about* the work instead of showing it (this is where dead canvas lives) |
 
 ## PREMIUM BRAND
@@ -99,10 +105,10 @@ behaviors are identical across tools and documentation; the two that differ
 | Typography behavior | The most legitimate place to spend the budget on type: it is part of the emotional signal |
 | Composition behavior | Few elements, large imagery, wide space; bleed and asymmetry are native |
 | Imagery behavior | First-class and non-negotiable in quality. IF real assets of sufficient quality do not exist → say so; do not generate substitutes |
-| Motion budget | Highest; easing quality becomes a QA subject |
+| Motion budget | Highest available; easing quality becomes a QA subject. A ceiling, not an obligation |
 | Interaction priority | Atmospheric exploration; the purchase path itself stays conventional |
 | Trust requirement | Flawless execution — one cheap detail breaks the illusion |
-| Aesthetic risk budget | Highest; **one real risk is expected, not optional** |
+| Aesthetic risk budget | **Highest available** — this register may legitimately spend more of it than any other. It is permission, not a quota: no risk, signature, asymmetry, type treatment or motion moment is mandatory. If the material is already distinctive, restraint may be the stronger art direction |
 | Common failure mode | Atmosphere without craft precision ("cheap luxury") |
 
 ## COMMERCE (listing / product detail / checkout)
@@ -145,7 +151,7 @@ the hybrid rule below cannot resolve them.
 **Hybrid rule:** PAGE register may differ from SITE SHELL register. The
 page's register comes from its content; the shell's from the site. A
 calculator inside a marketing site is a UTILITY page in a MARKETING shell —
-the page obeys utility rules, the shell obeys marketing rules. [PROVEN in
+the page obeys utility rules, the shell obeys marketing rules. [VALIDATED IN PROJECT —
 production: calculator pages inside a marketing site work exactly this way.]
 
 ---
