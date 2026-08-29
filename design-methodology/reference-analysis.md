@@ -82,3 +82,79 @@ Field rules:
 - IF multiple cards in the store share the same mechanism list → the store
   itself is converging; diversify sources before the next project
   (project-memory.md convergence audit applies to the card store too).
+
+---
+
+# Taste Memory
+
+A second, weaker layer beside Reference Cards. **Taste memory is not design
+law** (core P16: it sits second-from-bottom in the precedence ladder, above
+only model defaults). It records what this human repeatedly responds to, so
+that preference becomes visible and reviewable instead of invisible and
+assumed.
+
+Reference Card vs Taste Memory:
+- A **Reference Card** is a deliberate dissection of a chosen reference,
+  produced during a project stage, consulted when writing manifestos.
+- A **Taste Memory item** is an opportunistic capture — something the human
+  saved, liked, or disliked, in or out of project context. Cheap to record,
+  weak in authority, valuable in aggregate.
+
+## Inspiration item format
+
+```
+TASTE ITEM — <short name>
+DATE
+SOURCE                url / file / screenshot / "seen in <context>"
+TYPE                  site · page · component · motion · type · layout · other
+TAGS                  free tags for clustering
+HUMAN WORDS (VERBATIM)  the human's own explanation, unedited
+ANALYSIS              Claude's reading — kept separate from the words above
+TRANSFERABLE MECHANISM  the structural move, if any (may be "none")
+SURFACE FEATURES      the skin, listed so it stays visible as skin
+REGISTER              the source's register, in registers.md terms
+POSITIVE / NEGATIVE   liked or disliked — negatives are equally valuable
+STATUS                active · superseded · retired
+SCORE (optional)      strength of the reaction, if the human gave one
+```
+
+**The human's verbatim words are the highest-value field.** Never overwrite
+them with Claude's interpretation, never "clean them up", never summarise
+them away. ANALYSIS is a separate field precisely so the two are never
+conflated: the human's "this feels like it respects my time" and Claude's
+"low density, high measure discipline" are different kinds of evidence, and
+only the first is primary.
+
+A NEGATIVE item is recorded with the same care as a positive one. What
+someone reliably dislikes constrains the space faster than what they like.
+
+## Synthesis
+
+Individual items → recurring preference clusters → a provisional taste
+profile.
+
+- **Cluster** when ≥3 items share a mechanism or a tag with the same
+  polarity. Name the cluster in mechanism terms, not surface terms.
+- **Provisional taste profile** = the current set of clusters, dated, each
+  with the item ids behind it. It is provisional by construction and is
+  regenerated, never hand-edited.
+- The profile may be consulted at manifesto time as a tie-breaker only
+  (core P16). A manifesto may not cite taste as its reason for an anchor,
+  a hierarchy, or a density decision — those come from content and register.
+
+## Taste decay
+
+Preferences age. Every item and cluster carries a review date; on review it
+is renewed, superseded, or retired with a reason (core P14).
+
+[PLAUSIBLE] Working defaults, explicitly not scientific truth: review items
+at ~90 days; weight recent items above older ones when clustering; retire an
+item that has not been reinforced across two consecutive reviews. These
+numbers are placeholders awaiting evidence — do not present them as
+findings, and do not import another system's half-life as if it were one.
+
+## Taste and convergence
+
+Taste memory feeds the convergence audit (project-memory.md). A preference
+that keeps winning is exactly how an unconscious house style forms — the
+audit's response is one forced-alternative direction, never a ban.

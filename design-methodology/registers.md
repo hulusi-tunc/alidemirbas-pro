@@ -150,6 +150,23 @@ production: calculator pages inside a marketing site work exactly this way.]
 
 ---
 
+## State completeness by register
+
+Which registers owe the interactive-state coverage defined in qa.md B3.
+This is component-conditional too: a register marked "not required" still
+owes coverage for any genuinely interactive component it contains.
+
+| Register | State completeness |
+|---|---|
+| UTILITY-interactive | **Required** — states are the body of the work, not an edge case |
+| COMMERCE | **Required** — error and empty states cost money directly |
+| Product application UI (inside any register) | **Required** |
+| UTILITY-reading | Required for search/nav/TOC components only |
+| PRODUCT MARKETING | Not required for static sections; required for forms, pricing toggles, demos |
+| EDITORIAL | Not required for reading surfaces; required for search/filters |
+| PORTFOLIO | Not required for static sections; required for contact forms and filters |
+| PREMIUM BRAND | Not required for atmospheric sections; required on any purchase or enquiry path |
+
 ## Reversal matrix
 
 Rules that change sign across registers. A rule from this table may never

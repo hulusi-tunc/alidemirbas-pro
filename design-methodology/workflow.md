@@ -10,6 +10,32 @@ stages run.
 
 ---
 
+## Roles (core P17)
+
+Three roles, which may be three passes by one operator or three separate
+agents. Scale with impact: high-impact pages get real separation, routine
+pages may collapse DIRECTOR and BUILDER but **never** collapse BUILDER and
+CRITIC.
+
+- **DESIGN DIRECTOR** — register, direction architecture, composition
+  strategy. Owns stages 2–10.
+- **BUILDER** — implements the approved plan, within declared scope. Owns
+  stage 11 and the fix half of 14.
+- **VISUAL CRITIC** — judges the render. Does not receive the builder's
+  rationale as evidence (qa.md B). Owns stages 12–13 and the verdict half
+  of 14.
+
+[PLAUSIBLE] Strict separate-agent execution; the ergonomics are untested.
+[PROVEN as a need] The generating pass is the worst judge of its own output.
+
+## Session start / state
+
+**Before anything else in a design session: read `design-memory/STATE.md`**
+(project-memory.md). It gives the register, the mode, the stage, and the
+next step — which determines which modules to load at all. Update it at
+every major decision and every stage transition. Never ask the human for
+context STATE.md already holds.
+
 ## Stages
 
 ### 1. BRIEF
@@ -171,6 +197,25 @@ stages run.
 
 ---
 
+## Build-with / check-with pairing
+
+Constructive and adversarial passes are paired, and the check is matched to
+the thing built. **Do not create review ceremony where the risk is trivial.**
+
+| Built | Checked with |
+|---|---|
+| Visual direction | Convergence audit (project-memory.md) + manifesto divergence diff |
+| Composition plan | Composition grammar conditions + named failure modes |
+| UI implementation | Machine QA battery (qa.md A) |
+| Motion | Reduced-motion + motion-sensitivity behavior |
+| Responsive design | Mobile RE-composition, not reflow |
+| Interactive screen | State completeness (qa.md B3) |
+| Final page | Independent visual critique (qa.md B, critic role) |
+
+IF a check does not match what was built → it is ceremony; drop it. IF a
+built thing has no matching check → that is a gap; name it rather than
+passing silently.
+
 ## Modes
 
 | Mode | Runs | Skips | When |
@@ -185,3 +230,20 @@ so. Ceremony beyond the mode is cost, not rigor. IF mid-task the work
 outgrows its mode (a "routine" page turns out to need a new family) →
 declare the mode change and enter the missing stages; do not smuggle
 discovery into implementation.
+
+## Module loading (lean by mode)
+
+The ten modules are a knowledge base, not a preamble. Load only what the
+mode needs; routine work must stay cheap.
+
+| Mode | Loads |
+|---|---|
+| UTILITY / COMMERCE FAST PATH | core-principles · registers · composition-grammar · qa · STATE.md |
+| ROUTINE PAGE | + site-constitution (family rules), anti-patterns |
+| EXISTING DESIGN LANGUAGE | + project-memory, visual-direction (only when creating a new page family) |
+| GREENFIELD / PREMIUM BRAND | potentially all ten |
+
+Taste memory and fan-out analysis are **not** loaded on the fast path
+unless a tie genuinely needs breaking. The eventual executable skill is a
+thin orchestrator over these modules — it decides mode, reads STATE.md,
+loads the mode's set, and nothing more.

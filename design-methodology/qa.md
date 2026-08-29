@@ -32,6 +32,13 @@ first dead-canvas metric was retired on ground-truth evidence.]
 
 ## B. VISUAL CRITIQUE
 
+**Role separation (core P17).** On high-impact pages the critic is a
+separate pass from the builder, and the builder's rationale is not admitted
+as evidence. The critic reads renders, not reasons. A critique that cites
+"the plan says this is the anchor" instead of what the capture shows is
+defective. [Strict separate-agent execution PLAUSIBLE; pass separation is
+the default.]
+
 Claude inspects **rendered screenshots** — never the code alone, never a
 description of the code.
 
@@ -63,6 +70,53 @@ location. "Bland", "off", "needs polish" are invalid findings — a critique
 containing one is returned as defective. A critique with zero findings must
 state which named modes were checked and found absent.
 
+## B2. FINDING CLASSES AND ITERATION SCOPE
+
+Every finding is classified, because different classes get different
+treatment and only one of them licenses a rewrite:
+
+| Class | Meaning | Treatment |
+|---|---|---|
+| **WRONG** | Clearly incorrect; violates a rule, a plan, or a fact | Must change |
+| **MISSING** | A required element, state, behavior or composition function is absent | Must be added |
+| **ROUGH** | The underlying decision is defensible; the execution is weak | Refine in place — do not re-decide |
+| **CORRECT — PROTECT** | Working; must survive the next pass unchanged | Named explicitly, so it can be protected |
+
+**CORRECT — PROTECT is mandatory, not optional.** A critique that lists only
+problems hands the builder an unbounded licence.
+
+**ITERATION SCOPE (core P18).** Every refinement pass opens with an explicit
+scope statement:
+
+```
+CHANGE:  <regions/aspects allowed to change this pass>
+PROTECT: <regions/aspects that must not change>
+```
+
+The builder may not regenerate anything outside CHANGE. IF a fix appears to
+require touching a PROTECT region → stop and renegotiate the scope; do not
+silently widen it. After the pass, re-capture and verify that PROTECT
+regions are visually unchanged (diff the captures where possible).
+
+## B3. STATE COMPLETENESS
+
+Register- and component-conditional (registers.md). Required wherever the
+surface is interactive — UTILITY-interactive, COMMERCE, product application
+UI — and for any interactive component elsewhere. **Not** required of static
+marketing sections; demanding it there is ceremony.
+
+Where it applies, every interactive surface/component is designed and
+verified in each relevant state:
+
+DEFAULT · LOADING · POPULATED · EMPTY · ERROR · DISABLED · FIRST-TIME ·
+OVERFLOW (long values, long lists, long text) · HOVER · FOCUS ·
+ACTIVE/PRESSED · RESPONSIVE-SCROLL behavior
+
+Rules: a state that cannot occur is marked N/A with the reason (silence is
+not coverage); EMPTY and ERROR are designed, not defaulted; FOCUS is never
+merely "not removed". **State completeness is part of the definition of
+done for interactive surfaces** — see EXIT CRITERIA.
+
 ## C. HUMAN JUDGMENT
 
 The human owns, and only the human closes:
@@ -90,7 +144,9 @@ A page is complete ONLY when all of the following are true:
 4. **Visual critique closed.** Zero unresolved named findings — resolved
    means fixed and re-shot, or explicitly accepted by the human with the
    acceptance recorded.
-5. **Human approval exists** and is recorded in project memory.
+5. **State completeness satisfied** where it applies (B3): every relevant
+   state designed and verified, or marked N/A with a reason.
+6. **Human approval exists** and is recorded in project memory.
 
 One validated pass through this gate beats three speculative ones. A page
 that fails any criterion is not "mostly done"; it is open.

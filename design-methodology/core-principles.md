@@ -119,6 +119,9 @@ reveals, return to top, wait, then capture). A conclusion drawn from a
 mid-animation screenshot is a conclusion about scroll timing, not the page.
 **WHY:** [PROVEN] A confident wrong verdict in this project traced directly
 to un-settled animations; the correction is procedural, not attitudinal.
+A corollary: the builder's rationale is not evidence that the result works.
+Reasons explain intent; only the render shows outcome. A critic who accepts
+"here is why I did it" as proof has stopped being a critic.
 **PREVENTS:** rubber-stamp critique; false defects; false passes.
 
 ## P12 — Composition is a first-class discipline
@@ -163,3 +166,47 @@ is not.
 Every anti-generic system studied became a recognizable aesthetic within
 one generation.
 **PREVENTS:** the house style hardening into the next mode.
+
+## P16 — Evidence precedence
+**RULE:** When two inputs disagree, resolve in this fixed order:
+
+    CONTENT / USER JOB
+    → REGISTER
+    → CLIENT / PROJECT BRAND
+    → SITE CONSTITUTION
+    → PROJECT-SPECIFIC DESIGN LANGUAGE
+    → TASTE MEMORY
+    → MODEL DEFAULTS
+
+A lower rung may only decide what a higher rung leaves open. **Taste never
+produces a design decision on its own; it breaks ties.** IF a decision's
+only justification is taste while a higher rung has an answer → the
+decision is invalid, regardless of how much the human likes it.
+**WHY:** Accumulated preference is real signal, but it is the second-weakest
+input in the system — it describes what has pleased before, not what this
+content and this visitor need now. Without an explicit ladder, taste
+silently outranks register (this is exactly how a house style becomes a
+template applied to every brief).
+**PREVENTS:** taste-as-style-generator; register override by preference;
+the model's defaults masquerading as decisions.
+
+## P17 — Generation and approval are different passes
+**RULE:** On high-impact work, the pass that produces a design is not the
+pass that approves it. Roles: DESIGN DIRECTOR (register, direction,
+composition strategy) → BUILDER (implements the approved plan) → VISUAL
+CRITIC (judges the render, without access to the builder's defence as
+evidence). [Role separation is the default for high-impact pages; strict
+separate-agent execution is PLAUSIBLE — the ergonomic form is still being
+tested.]
+**WHY:** A reasoning pass that just committed to a decision is the worst
+available judge of it. Separation is what converts self-critique from an
+attitude into a structure.
+**PREVENTS:** self-approval; defending decisions instead of reading renders.
+
+## P18 — Change scope is declared before iteration
+**RULE:** Every refinement pass declares CHANGE (areas allowed to change)
+and PROTECT (areas that must not). Anything working stays working; a
+builder may not regenerate unrelated regions "while in there".
+**WHY:** Unscoped iteration is the main way AI refinement destroys ground it
+had already won — the fix lands, three approved things silently move.
+**PREVENTS:** regression during refinement; infinite polish loops.

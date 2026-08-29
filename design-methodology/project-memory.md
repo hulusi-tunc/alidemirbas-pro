@@ -23,6 +23,7 @@ files, append-mostly. Records are dated; nothing is silently deleted.
 | QA FAILURES | machine-QA reds and named critique findings that reached the human, with resolution | QA stages |
 | LEARNINGS | real events only: what happened, evidence, what rule changed. Withdrawn conclusions recorded as withdrawals. No ceremonial entries — "nothing learned" is a legitimate outcome and writes nothing | document-learning stage |
 | ANTI-PATTERN EVENTS | each time a named anti-pattern fired in this project | on detection |
+| TASTE ITEMS + PROFILE | inspiration items and the regenerated cluster profile (reference-analysis.md) | opportunistically; profile on review |
 | COMPOSITION MOVE HISTORY | per shipped page: the moves its plan named | after ship |
 
 The LEARNINGS discipline is load-bearing: entries carry provenance
@@ -30,6 +31,33 @@ The LEARNINGS discipline is load-bearing: entries carry provenance
 carrying rules steered production harder than principles.]
 
 ---
+
+## design-memory/STATE.md — the resume pointer
+
+A single small file, distinct from the structured records above. **It is a
+resume pointer, not a knowledge dump**; detailed memory stays in its own
+artifacts. Its entire responsibility:
+
+```
+PROJECT
+CURRENT REGISTER              (+ sub-mode, hybrid split)
+CURRENT WORKFLOW MODE
+CURRENT STAGE                 (workflow.md stage number/name)
+LATEST APPROVED DIRECTION     (manifesto id + date)
+ACTIVE ARTIFACTS              paths to the constitution, plans, cards in play
+DECISIONS SINCE LAST SESSION  append-only, dated one-liners
+OPEN ISSUES                   unresolved named findings, blocked questions
+NEXT STEP                     the single next action
+```
+
+Protocol:
+- **At the start of a design session: read STATE.md first**, before any
+  methodology module. It says which modules the current mode even needs.
+- **At every major decision or stage transition: update STATE.md.**
+- DECISIONS SINCE LAST SESSION is append-safe — add, never rewrite history.
+- The human must never have to re-explain context that STATE.md already
+  holds. IF Claude asks about something recorded there → that is a defect
+  in the reading protocol, not a question for the human.
 
 ## Project-to-project convergence audit
 
@@ -52,6 +80,10 @@ motion pattern · signature element class.
 - same SIGNATURE ELEMENT CLASS reused
 - same PALETTE ARCHITECTURE in ≥ 3 consecutive projects
 - REFERENCE CARD STORE sharing one mechanism list across most cards
+- **TASTE CLUSTER DOMINANCE**: one taste cluster's mechanism decides
+  directions across most recent projects. Repeated human preference is
+  itself a convergence vector — the most invisible one, because it feels
+  like judgment rather than habit. Flagging it does **not** ban it.
 
 **Response rule — conscious reuse, not forced novelty:**
 IF a flag fires → the next project's fan-out MUST include at least one

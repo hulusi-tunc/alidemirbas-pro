@@ -36,6 +36,23 @@ Format: SYMPTOM · MECHANISM · DETECT · CORRECT · STATUS.
   or move into a register-conditioned or project-scoped rule.
 - STATUS: [PROVEN — REJECTED idea, banned from re-entry] 2026-08.
 
+**Rewrite table** — the form every candidate ban must take before entering
+this file. Left column = rejected shapes seen in studied systems.
+
+| Rejected (token-level) | Accepted (mechanism-level) |
+|---|---|
+| "Do not use Inter." | "Reject typography chosen only because it is the model's default; neutral typography stays valid when the register calls for it." |
+| "Purple gradients are banned." | "Reject decoration that carries no information." |
+| "Every page needs an unusual display font." | "Spend the register's distinctiveness budget where the content gives it something to say." |
+| "Never use three cards." | "Reject equal-weight repeated containers when the content has hierarchy the layout is hiding." |
+| "Break the grid once per page." | "Break an established structural rule only when the break communicates hierarchy, continuation, emphasis, or content behavior." |
+| "Every page needs a memorable visual trick." | "One signature is a budget, not a requirement; registers with a ≈0 risk budget spend none." |
+| "Asymmetry is better." | "Asymmetry is register-conditional (see reversal matrix); reading surfaces prefer stability." |
+| "Luxury means serif and whitespace." | "Premium brand may spend more budget on typography and space because exploration and emotional signalling are part of the user job." |
+
+Named look-clusters may still be recorded as **distribution-aware warnings**
+(what the model currently over-produces, dated) — never as universal bans.
+
 ## 3. Costume distinctiveness
 - SYMPTOM: a strong "identity" that has no traceable relation to the
   subject; physical metaphors applied to unrelated products.
@@ -101,9 +118,17 @@ Format: SYMPTOM · MECHANISM · DETECT · CORRECT · STATUS.
   provenance.
 - CORRECT: stop and report the gap; design with real material or less
   material (core P5).
-- STATUS: [PROVEN — hard ban] 2026-08. Note: one studied workflow
-  explicitly instructs inventing copy; that instruction is REJECTED here
-  and must not re-enter.
+- CORRECT (expanded): IF content is missing → use an EXPLICIT PLACEHOLDER
+  that reads as a placeholder, OR compose so the missing evidence is not
+  required. Never a realistic-looking substitute.
+- STATUS: [PROVEN — hard ban] 2026-08. Two studied systems instruct
+  otherwise and both are REJECTED here and barred from re-entry: one
+  instructs inventing copy when the brief lacks it; another instructs
+  "if real data is unavailable, write realistic data". **Realistic-looking
+  invented evidence is still fabrication** — the realism is what makes it
+  worse, not better. The ban covers metrics, customer counts, testimonials,
+  logos, screenshots, product results, case-study outcomes, and business
+  facts.
 
 ## 10. Register blindness
 - SYMPTOM: one visual philosophy applied to every site type; drama on a
@@ -144,6 +169,19 @@ Format: SYMPTOM · MECHANISM · DETECT · CORRECT · STATUS.
   next fan-out; conscious reuse allowed after review.
 - STATUS: [OPEN RISK — mechanism designed, untested against ourselves]
   2026-08.
+
+## 13b. Taste-driven convergence
+- SYMPTOM: recent projects all solved by the same mechanism, each time
+  because "we like it".
+- MECHANISM: accumulated preference outranking content and register —
+  invisible because it feels like judgment rather than habit.
+- DETECT: taste-cluster dominance flag (project-memory.md); precedence
+  audit — any decision whose only justification is taste while a higher
+  rung had an answer (core P16).
+- CORRECT: one forced-alternative direction in the next fan-out; the
+  preferred mechanism may still win, consciously. Never banned.
+- STATUS: [PLAUSIBLE] 2026-08 — mechanism designed, not yet observed in a
+  multi-project ledger.
 
 ## 14. Copied scaffolds across projects
 - SYMPTOM: new project starts from the previous project's design files;
