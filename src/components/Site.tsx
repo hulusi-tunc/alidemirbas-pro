@@ -301,7 +301,7 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           {t.lab.projects.map((project, i) => {
             const href = project.links[0].href;
             const external = href.startsWith("http");
-            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack" });
+            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack", compact: true });
             return (
               <Reveal key={project.slug} delay={i * 60}>
                 <Link

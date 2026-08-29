@@ -20,12 +20,24 @@ import { copy, type Lang } from "@/lib/content";
 
 export type Project = (typeof copy)[Lang]["lab"]["projects"][number];
 
+/** All seven real node kinds (journey-marketing.ts's `NodeKind`), not the
+    six this preview showed before — "action" was missing from both the
+    label list and the render. Two rows now instead of one broken chain,
+    so the canvas reads as a fuller graph rather than a single path -
+    still every label is one of the library's own seven, nothing invented. */
 export function JourneyCanvasPreview({ lang, size = "md" }: { lang: Lang; size?: "md" | "lg" }) {
   const T2 = {
-    en: { label: "Journey canvas", nodes: ["Trigger", "Condition", "Wait", "Outcome", "Exit", "Handoff"] },
-    tr: { label: "Journey şeması", nodes: ["Tetikleyici", "Koşul", "Bekleme", "Sonuç", "Çıkış", "Devir"] },
+    en: {
+      label: "Journey canvas",
+      trigger: "Trigger", condition: "Condition", wait: "Wait", action: "Action",
+      outcome: "Outcome", exit: "Exit", handoff: "Handoff",
+    },
+    tr: {
+      label: "Journey şeması",
+      trigger: "Tetikleyici", condition: "Koşul", wait: "Bekleme", action: "Aksiyon",
+      outcome: "Sonuç", exit: "Çıkış", handoff: "Devir",
+    },
   }[lang];
-  const [trigger, condition, wait, outcome, exit, handoff] = T2.nodes;
   return (
     <div
       aria-hidden
@@ -33,23 +45,26 @@ export function JourneyCanvasPreview({ lang, size = "md" }: { lang: Lang; size?:
     >
       <p className="text-[13px] font-semibold text-ink-950">{T2.label}</p>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="rounded-md bg-primary-100 px-2.5 py-1.5 text-xs font-medium text-primary-700">{trigger}</span>
+        <span className="rounded-md bg-primary-100 px-2.5 py-1.5 text-xs font-medium text-primary-700">{T2.trigger}</span>
         <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-700 shadow-[inset_0_0_0_1px_var(--color-line)]">{condition}</span>
+        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-700 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.condition}</span>
         <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-sand-50 px-2.5 py-1.5 text-xs font-medium text-neutral-700 shadow-[inset_0_0_0_1px_var(--color-sand-200)]">{wait}</span>
+        <span className="rounded-md bg-sand-50 px-2.5 py-1.5 text-xs font-medium text-neutral-700 shadow-[inset_0_0_0_1px_var(--color-sand-200)]">{T2.wait}</span>
         <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-[#e8f9e7] px-2.5 py-1.5 text-xs font-medium text-[#2c7a35]">{outcome}</span>
+        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-700 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.action}</span>
       </div>
       <div className="mt-3 flex items-center gap-2">
         <span className="w-10" />
         <span className="h-3.5 w-px bg-ink-200" />
+        <span className="ml-[4.5rem] h-3.5 w-px bg-ink-200" />
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="w-6" />
-        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-500 shadow-[inset_0_0_0_1px_var(--color-line)]">{exit}</span>
+        <span className="rounded-md bg-[#e8f9e7] px-2.5 py-1.5 text-xs font-medium text-[#2c7a35]">{T2.outcome}</span>
         <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-500 shadow-[inset_0_0_0_1px_var(--color-line)]">{handoff}</span>
+        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-500 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.exit}</span>
+        <span className="h-px w-3.5 bg-ink-200" />
+        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-500 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.handoff}</span>
       </div>
     </div>
   );
@@ -90,7 +105,7 @@ export function CategoryLibraryPreview({ lang }: { lang: Lang }) {
 }
 
 /** Mirrors real AB-004 ("Açık kupon kodu alanı sepet terkini artırır mı?"). */
-export function AbTestPreview({ lang }: { lang: Lang }) {
+export function AbTestPreview({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
   const T2 = {
     en: {
       category: "Cart & Checkout",
@@ -119,7 +134,11 @@ export function AbTestPreview({ lang }: { lang: Lang }) {
         <span className="rounded bg-primary-50 px-2 py-1 text-[11px] font-semibold tracking-wide text-primary-700 uppercase">{T2.category}</span>
         <p className="text-[13px] font-semibold text-ink-950">{T2.question}</p>
       </div>
-      <div className="mt-3.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+      {/* grid-cols-3 only when NOT compact: the old `sm:grid-cols-3` fired on
+          any ≥640px viewport regardless of this panel's own width, which at
+          teaser-thumbnail scale (~150px) produced three ~40px slivers of
+          hard-wrapped text instead of one readable column. */}
+      <div className={`mt-3.5 grid grid-cols-1 gap-2.5 ${compact ? "" : "sm:grid-cols-3"}`}>
         <div className="rounded-lg bg-paper-soft p-3">
           <p className="text-[11px] font-semibold text-ink-500">{T2.whatToTestLabel}</p>
           <p className="mt-1.5 text-xs leading-relaxed text-ink-700">{T2.whatToTest}</p>
@@ -142,8 +161,11 @@ export function DashboardBarsPreview({ project, lang }: { project: Project; lang
     en: { label: "Decision-ready dashboard", tags: ["Comparable", "Cross-platform", "Validated"] },
     tr: { label: "Karara hazır dashboard", tags: ["Karşılaştırılabilir", "Platformlar arası", "Doğrulanmış"] },
   }[lang];
-  const heights = [42, 68, 54, 88, 62, 74];
-  const fills = ["bg-primary-200", "bg-primary-400", "bg-primary-200", "bg-primary-600", "bg-primary-400", "bg-primary-200"];
+  const heights = [38, 62, 48, 88, 56, 70, 44, 60];
+  const fills = [
+    "bg-primary-200", "bg-primary-400", "bg-primary-200", "bg-primary-600",
+    "bg-primary-400", "bg-primary-200", "bg-primary-200", "bg-primary-400",
+  ];
   return (
     <div aria-hidden className="min-h-[190px] rounded-t-[12px] bg-paper p-5 shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_8px_24px_-12px_rgb(10_16_32/0.12)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01]">
       <div className="flex items-baseline justify-between gap-3">
@@ -244,7 +266,11 @@ export function ToolGridPreview({ lang, size = "md" }: { lang: Lang; size?: "md"
         <p className={size === "lg" ? "text-base font-semibold text-ink-950" : "text-[13px] font-semibold text-ink-950"}>{T2.label}</p>
         <p className="text-xs text-ink-400">{T2.sub}</p>
       </div>
-      <div className={`grid grid-cols-2 gap-2.5 sm:grid-cols-4 ${size === "lg" ? "mt-5" : "mt-3.5"}`}>
+      {/* Column count is driven by `size`, not a viewport breakpoint: the
+          old `sm:grid-cols-4` fired on any ≥640px viewport regardless of
+          this panel's own width, which crammed 4 columns into a ~150px
+          teaser thumbnail and cut every label off mid-word. */}
+      <div className={`grid grid-cols-2 gap-2.5 ${size === "lg" ? "sm:grid-cols-4" : ""} ${size === "lg" ? "mt-5" : "mt-3.5"}`}>
         {T2.items.map(([cat, item], i) => (
           <div key={cat} className={`rounded-lg p-3 ${size === "lg" ? "py-5" : ""} ${i === 3 ? "bg-primary-50" : "bg-paper-soft"}`}>
             <p className={`text-[11px] ${i === 3 ? "text-primary-700" : "text-ink-400"}`}>{cat}</p>
@@ -262,12 +288,24 @@ export function ToolGridPreview({ lang, size = "md" }: { lang: Lang; size?: "md"
     every other caller gets "md"). */
 export const LAB_PREVIEWS: Record<
   string,
-  (p: { project: Project; lang: Lang; layout: "stack" | "stack-reverse" | "wide" | "wide-reverse" }) => ReactNode
+  (p: {
+    project: Project;
+    lang: Lang;
+    layout: "stack" | "stack-reverse" | "wide" | "wide-reverse";
+    /** True only for the homepage's small teaser thumbnail. Multi-column
+        inner grids (AbTestPreview, ToolGridPreview) collapse to one column
+        at this scale instead of cramming viewport-breakpoint columns into
+        a ~150px frame. LabIndexPage never passes this, so its render is
+        unaffected. */
+    compact?: boolean;
+  }) => ReactNode
 > = {
   "claude-lifecycle": ({ lang }) => <JourneyCanvasPreview lang={lang} />,
   "lifecycle-card-archive": ({ lang }) => <CategoryLibraryPreview lang={lang} />,
-  "ab-test-playbook": ({ lang }) => <AbTestPreview lang={lang} />,
+  "ab-test-playbook": ({ lang, compact }) => <AbTestPreview lang={lang} compact={compact} />,
   "dashboard-builder": ({ project, lang }) => <DashboardBarsPreview project={project} lang={lang} />,
   "google-ads-change-history-dashboard": ({ lang }) => <ChangeHistoryPreview lang={lang} />,
-  numerspace: ({ lang, layout }) => <ToolGridPreview lang={lang} size={layout === "wide-reverse" ? "lg" : "md"} />,
+  numerspace: ({ lang, layout, compact }) => (
+    <ToolGridPreview lang={lang} size={!compact && layout === "wide-reverse" ? "lg" : "md"} />
+  ),
 };
