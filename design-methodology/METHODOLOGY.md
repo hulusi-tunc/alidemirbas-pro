@@ -19,14 +19,15 @@ valid within that scope · `[OBSERVED]` seen repeatedly, uncontrolled ·
 mode with its mitigation. Evidence for a weaker claim never supports a
 stronger one. Rejected ideas appear only in Part 8.
 
-**Revision note.** This edition follows a corrective audit. The composition
-principle was split from the composition *vocabulary* (P12a / P12b); the
-grammar was opened (KNOWN / PROJECT-SPECIFIC / CANDIDATE moves); QA checks
-were classified by evidence strength so unvalidated metrics cannot gate
-shipping; the fabrication ban was scoped to evidentiary material while
-expressive synthetic imagery was permitted; register budgets were made
-ceilings rather than floors; and every empirical `[PROVEN]` label was demoted
-to what its evidence actually supports.
+**Conflict resolution.** One hierarchy governs the whole system: a Tier 0 of
+non-negotiables (factual truth, accessibility floor, integrity) that no
+approval can waive, then an eleven-rung ladder from explicit brief down to
+model defaults (Part 1, P16). Any module that seems to imply a different
+order is wrong and is reconciled to that one.
+
+**Status.** Post-audit corrective pass complete; frozen for validation. The
+composition-grammar hypothesis (P12b) is under controlled experiment and its
+result is not yet applied.
 
 ---
 
@@ -269,16 +270,38 @@ one generation.
 ### P16 — Evidence precedence
 **RULE:** When two inputs disagree, resolve in this fixed order:
 
-    EXPLICIT BRIEF / NON-NEGOTIABLE HUMAN REQUIREMENTS
-    → USER JOB / CONTENT TRUTH
-    → REGISTER
-    → CLIENT / PROJECT BRAND
-    → SITE CONSTITUTION
-    → PROJECT-SPECIFIC DESIGN LANGUAGE
-    → TASTE MEMORY
-    → MODEL DEFAULTS
+**Tier 0 — outside anyone's authority.** Not rungs, because nothing on the
+ladder can outrank them and no approval can waive them:
 
-A lower rung may only decide what a higher rung leaves open. **Taste never
+    FACTUAL TRUTH  ·  ACCESSIBILITY FLOOR  ·  INTEGRITY (no fabricated evidence)
+
+A brief cannot commission a falsehood; a client cannot approve an
+inaccessible control; taste cannot license invented proof.
+
+**The ladder** — resolves every remaining conflict, top wins:
+
+     1  EXPLICIT BRIEF / NON-NEGOTIABLE HUMAN REQUIREMENTS
+     2  USER JOB
+     3  REGISTER REQUIREMENTS
+     4  CLIENT / PROJECT BRAND
+     5  SITE CONSTITUTION
+     6  APPROVED PROJECT DESIGN LANGUAGE
+     7  PAGE-FAMILY RULES
+     8  CURRENT PAGE CONTENT
+     9  REFERENCE MECHANISMS
+    10  TASTE MEMORY
+    11  MODEL DEFAULTS
+
+A lower rung may only decide what a higher rung leaves open — with **one
+procedural exception**: rung 8 (current page content) may win against rungs
+5–7 through the recorded exception protocol (site-constitution.md), because a
+measurable content requirement is the only legitimate reason to break site
+law. That route is explicit, dated and approved; it is not a silent override,
+and it does not exist for any other rung.
+
+This is the methodology's single conflict-resolution hierarchy. If another
+module appears to imply a different order, that module is wrong and is
+reconciled to this one. **Taste never
 produces a design decision on its own; it breaks ties.** IF a decision's
 only justification is taste while a higher rung has an answer → the
 decision is invalid, regardless of how much the human likes it.
@@ -1286,12 +1309,19 @@ obligation to spend it competently.
 
 ### B. VISUAL CRITIQUE
 
-**Role separation (core P17).** On high-impact pages the critic is a
-separate pass from the builder, and the builder's rationale is not admitted
-as evidence. The critic reads renders, not reasons. A critique that cites
+**Role separation (core P17).** On high-impact pages the critic is a separate
+pass from the builder. [Strict separate-agent execution PLAUSIBLE; pass
+separation is the default.]
+
+The critic evaluates: **rendered evidence** · the requirements · the direction
+manifesto · the composition plan · the constitution · the machine-QA results.
+
+The critic does **not** accept "I did this because…" from the builder as
+proof that the result works. **Intent is not evidence; the rendered outcome
+is evidence.** A rationale may explain what was attempted and may be checked
+against the render — it may never substitute for it. A critique that cites
 "the plan says this is the anchor" instead of what the capture shows is
-defective. [Strict separate-agent execution PLAUSIBLE; pass separation is
-the default.]
+defective and is returned.
 
 Claude inspects **rendered screenshots** — never the code alone, never a
 description of the code.
@@ -1361,10 +1391,22 @@ CHANGE:  <regions/aspects allowed to change this pass>
 PROTECT: <regions/aspects that must not change>
 ```
 
+Deriving the scope: from the findings, **identify what is wrong** (WRONG /
+MISSING / ROUGH) and **identify what already works** (CORRECT — PROTECT);
+CHANGE covers only the former, PROTECT covers the latter. Then modify only
+that scope, re-render, and verify **both** the correction and the protected
+regions.
+
 The builder may not regenerate anything outside CHANGE. IF a fix appears to
 require touching a PROTECT region → stop and renegotiate the scope; do not
-silently widen it. After the pass, re-capture and verify that PROTECT
-regions are visually unchanged (diff the captures where possible).
+silently widen it. After the pass, re-capture and verify that PROTECT regions
+are visually unchanged (diff the captures where possible).
+
+**Critique is not permission for redesign.** A finding licenses a bounded
+correction, never a fresh attempt at the whole page. IF the critique
+concludes the direction itself is wrong → that is not a refinement; it goes
+back to the human checkpoint (workflow.md stage 8), because changing
+direction after production is a decision only a person makes.
 
 ### B3. STATE COMPLETENESS
 
@@ -1376,13 +1418,21 @@ marketing sections; demanding it there is ceremony.
 Where it applies, every interactive surface/component is designed and
 verified in each relevant state:
 
-DEFAULT · LOADING · POPULATED · EMPTY · ERROR · DISABLED · FIRST-TIME ·
-OVERFLOW (long values, long lists, long text) · HOVER · FOCUS ·
-ACTIVE/PRESSED · RESPONSIVE-SCROLL behavior
+**Interaction / data states:** DEFAULT · LOADING · POPULATED · EMPTY ·
+ERROR · SUCCESS · DISABLED · FIRST-TIME · HOVER · FOCUS · ACTIVE/PRESSED
 
-Rules: a state that cannot occur is marked N/A with the reason (silence is
-not coverage); EMPTY and ERROR are designed, not defaulted; FOCUS is never
-merely "not removed". **State completeness is part of the definition of
+**Content-extreme states:** LONG-CONTENT (long values, long lists, wrapped
+labels) · SHORT-CONTENT (one item, empty-ish but valid data)
+
+**Viewport states:** desktop · mobile · tablet **where the composition
+materially changes** (if tablet is only a reflow of desktop, say so and skip
+it) · scroll behavior where anything is sticky or revealed
+
+Rules: **coverage is conditional and explicit.** A state that cannot occur
+for a component is marked N/A with the reason — silence is not coverage, and
+demanding meaningless states (a hover state for a static paragraph, a loading
+state for a server-rendered list) is ceremony, not rigour. EMPTY and ERROR
+are designed, not defaulted; FOCUS is never merely "not removed". **State completeness is part of the definition of
 done for interactive surfaces** — see EXIT CRITERIA.
 
 ### C. HUMAN JUDGMENT
@@ -1569,9 +1619,19 @@ overbroad reading and is withdrawn — it would have made whole registers
   provenance.
 - CORRECT: stop and report the gap; design with real material or less
   material (core P5).
-- CORRECT (expanded): IF evidentiary content is missing → use an EXPLICIT
-  PLACEHOLDER that visibly reads as a placeholder, OR compose so the missing
-  evidence is not required. Never a realistic-looking substitute.
+- CORRECT — the four legal responses to missing evidentiary content, in the
+  order to try them:
+  1. **Preserve** what already exists — do not replace real content with
+     invented content to make a layout tidier.
+  2. **Request or source** the missing material, naming exactly what is
+     needed. Saying "I need the real figure" is a valid deliverable.
+  3. **Design around the absence** — compose so the missing evidence is not
+     required by the layout.
+  4. **Use an explicit placeholder** that visibly reads as a placeholder and
+     is never presented as a claim.
+  Never a realistic-looking substitute. **A placeholder must never silently
+  become a factual claim** — the moment it reads as real, it is fabrication,
+  whatever it was called when it was written.
 - PLACEHOLDER LIFECYCLE: explicit placeholders are **legal during
   exploration and mockup**, and a **blocking defect at ship** (qa.md lint,
   three verdicts). Fabricated evidence is forbidden at every stage.
@@ -1947,7 +2007,7 @@ the human for context STATE.md already holds.
   (composition-grammar.md); a move outside the vocabulary is named and
   described, not rejected. No ASCII wireframes.
 - OWNER: CLAUDE.
-- SKIP: never — the cheapest insurance in the system (core P12).
+- SKIP: never — the cheapest insurance in the system (core P12a).
 - FAILURE: plans that cannot cite moves (uncomposed pages headed to code);
   the dead-canvas class is caught HERE or expensively later.
 - NEXT: 11.

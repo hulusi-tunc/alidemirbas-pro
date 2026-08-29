@@ -218,16 +218,38 @@ one generation.
 ## P16 — Evidence precedence
 **RULE:** When two inputs disagree, resolve in this fixed order:
 
-    EXPLICIT BRIEF / NON-NEGOTIABLE HUMAN REQUIREMENTS
-    → USER JOB / CONTENT TRUTH
-    → REGISTER
-    → CLIENT / PROJECT BRAND
-    → SITE CONSTITUTION
-    → PROJECT-SPECIFIC DESIGN LANGUAGE
-    → TASTE MEMORY
-    → MODEL DEFAULTS
+**Tier 0 — outside anyone's authority.** Not rungs, because nothing on the
+ladder can outrank them and no approval can waive them:
 
-A lower rung may only decide what a higher rung leaves open. **Taste never
+    FACTUAL TRUTH  ·  ACCESSIBILITY FLOOR  ·  INTEGRITY (no fabricated evidence)
+
+A brief cannot commission a falsehood; a client cannot approve an
+inaccessible control; taste cannot license invented proof.
+
+**The ladder** — resolves every remaining conflict, top wins:
+
+     1  EXPLICIT BRIEF / NON-NEGOTIABLE HUMAN REQUIREMENTS
+     2  USER JOB
+     3  REGISTER REQUIREMENTS
+     4  CLIENT / PROJECT BRAND
+     5  SITE CONSTITUTION
+     6  APPROVED PROJECT DESIGN LANGUAGE
+     7  PAGE-FAMILY RULES
+     8  CURRENT PAGE CONTENT
+     9  REFERENCE MECHANISMS
+    10  TASTE MEMORY
+    11  MODEL DEFAULTS
+
+A lower rung may only decide what a higher rung leaves open — with **one
+procedural exception**: rung 8 (current page content) may win against rungs
+5–7 through the recorded exception protocol (site-constitution.md), because a
+measurable content requirement is the only legitimate reason to break site
+law. That route is explicit, dated and approved; it is not a silent override,
+and it does not exist for any other rung.
+
+This is the methodology's single conflict-resolution hierarchy. If another
+module appears to imply a different order, that module is wrong and is
+reconciled to this one. **Taste never
 produces a design decision on its own; it breaks ties.** IF a decision's
 only justification is taste while a higher rung has an answer → the
 decision is invalid, regardless of how much the human likes it.

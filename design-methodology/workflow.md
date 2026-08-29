@@ -152,7 +152,7 @@ the human for context STATE.md already holds.
   (composition-grammar.md); a move outside the vocabulary is named and
   described, not rejected. No ASCII wireframes.
 - OWNER: CLAUDE.
-- SKIP: never — the cheapest insurance in the system (core P12).
+- SKIP: never — the cheapest insurance in the system (core P12a).
 - FAILURE: plans that cannot cite moves (uncomposed pages headed to code);
   the dead-canvas class is caught HERE or expensively later.
 - NEXT: 11.

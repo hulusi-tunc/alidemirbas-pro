@@ -137,9 +137,19 @@ overbroad reading and is withdrawn — it would have made whole registers
   provenance.
 - CORRECT: stop and report the gap; design with real material or less
   material (core P5).
-- CORRECT (expanded): IF evidentiary content is missing → use an EXPLICIT
-  PLACEHOLDER that visibly reads as a placeholder, OR compose so the missing
-  evidence is not required. Never a realistic-looking substitute.
+- CORRECT — the four legal responses to missing evidentiary content, in the
+  order to try them:
+  1. **Preserve** what already exists — do not replace real content with
+     invented content to make a layout tidier.
+  2. **Request or source** the missing material, naming exactly what is
+     needed. Saying "I need the real figure" is a valid deliverable.
+  3. **Design around the absence** — compose so the missing evidence is not
+     required by the layout.
+  4. **Use an explicit placeholder** that visibly reads as a placeholder and
+     is never presented as a claim.
+  Never a realistic-looking substitute. **A placeholder must never silently
+  become a factual claim** — the moment it reads as real, it is fabrication,
+  whatever it was called when it was written.
 - PLACEHOLDER LIFECYCLE: explicit placeholders are **legal during
   exploration and mockup**, and a **blocking defect at ship** (qa.md lint,
   three verdicts). Fabricated evidence is forbidden at every stage.

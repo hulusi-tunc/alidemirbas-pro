@@ -107,12 +107,19 @@ obligation to spend it competently.
 
 ## B. VISUAL CRITIQUE
 
-**Role separation (core P17).** On high-impact pages the critic is a
-separate pass from the builder, and the builder's rationale is not admitted
-as evidence. The critic reads renders, not reasons. A critique that cites
+**Role separation (core P17).** On high-impact pages the critic is a separate
+pass from the builder. [Strict separate-agent execution PLAUSIBLE; pass
+separation is the default.]
+
+The critic evaluates: **rendered evidence** · the requirements · the direction
+manifesto · the composition plan · the constitution · the machine-QA results.
+
+The critic does **not** accept "I did this because…" from the builder as
+proof that the result works. **Intent is not evidence; the rendered outcome
+is evidence.** A rationale may explain what was attempted and may be checked
+against the render — it may never substitute for it. A critique that cites
 "the plan says this is the anchor" instead of what the capture shows is
-defective. [Strict separate-agent execution PLAUSIBLE; pass separation is
-the default.]
+defective and is returned.
 
 Claude inspects **rendered screenshots** — never the code alone, never a
 description of the code.
@@ -182,10 +189,22 @@ CHANGE:  <regions/aspects allowed to change this pass>
 PROTECT: <regions/aspects that must not change>
 ```
 
+Deriving the scope: from the findings, **identify what is wrong** (WRONG /
+MISSING / ROUGH) and **identify what already works** (CORRECT — PROTECT);
+CHANGE covers only the former, PROTECT covers the latter. Then modify only
+that scope, re-render, and verify **both** the correction and the protected
+regions.
+
 The builder may not regenerate anything outside CHANGE. IF a fix appears to
 require touching a PROTECT region → stop and renegotiate the scope; do not
-silently widen it. After the pass, re-capture and verify that PROTECT
-regions are visually unchanged (diff the captures where possible).
+silently widen it. After the pass, re-capture and verify that PROTECT regions
+are visually unchanged (diff the captures where possible).
+
+**Critique is not permission for redesign.** A finding licenses a bounded
+correction, never a fresh attempt at the whole page. IF the critique
+concludes the direction itself is wrong → that is not a refinement; it goes
+back to the human checkpoint (workflow.md stage 8), because changing
+direction after production is a decision only a person makes.
 
 ## B3. STATE COMPLETENESS
 
@@ -197,13 +216,21 @@ marketing sections; demanding it there is ceremony.
 Where it applies, every interactive surface/component is designed and
 verified in each relevant state:
 
-DEFAULT · LOADING · POPULATED · EMPTY · ERROR · DISABLED · FIRST-TIME ·
-OVERFLOW (long values, long lists, long text) · HOVER · FOCUS ·
-ACTIVE/PRESSED · RESPONSIVE-SCROLL behavior
+**Interaction / data states:** DEFAULT · LOADING · POPULATED · EMPTY ·
+ERROR · SUCCESS · DISABLED · FIRST-TIME · HOVER · FOCUS · ACTIVE/PRESSED
 
-Rules: a state that cannot occur is marked N/A with the reason (silence is
-not coverage); EMPTY and ERROR are designed, not defaulted; FOCUS is never
-merely "not removed". **State completeness is part of the definition of
+**Content-extreme states:** LONG-CONTENT (long values, long lists, wrapped
+labels) · SHORT-CONTENT (one item, empty-ish but valid data)
+
+**Viewport states:** desktop · mobile · tablet **where the composition
+materially changes** (if tablet is only a reflow of desktop, say so and skip
+it) · scroll behavior where anything is sticky or revealed
+
+Rules: **coverage is conditional and explicit.** A state that cannot occur
+for a component is marked N/A with the reason — silence is not coverage, and
+demanding meaningless states (a hover state for a static paragraph, a loading
+state for a server-rendered list) is ceremony, not rigour. EMPTY and ERROR
+are designed, not defaulted; FOCUS is never merely "not removed". **State completeness is part of the definition of
 done for interactive surfaces** — see EXIT CRITERIA.
 
 ## C. HUMAN JUDGMENT
