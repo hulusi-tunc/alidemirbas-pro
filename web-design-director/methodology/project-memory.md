@@ -13,8 +13,10 @@ files, append-mostly. Records are dated; nothing is silently deleted.
 
 | Record | Content | Written when |
 |---|---|---|
+| CONTEXT | verified project truth — templates/CONTEXT.md | BRIEF/REGISTER stages |
+| COPY | approved/working content — templates/COPY.md | before serious composition, when real copy exists |
 | REGISTER DECISION | register + sub-mode + hybrid split, one-line reason, who confirmed | classification stage |
-| SITE CONSTITUTION | the three-layer document (site-constitution.md instance) | after first direction selection; amended thereafter |
+| SITE CONSTITUTION | the three-layer document — templates/DESIGN.md is this project's instance | after first direction selection; amended thereafter |
 | PAGE-FAMILY RULES | per-family skeletons, anchor norms, density bands | as families emerge |
 | REFERENCE CARDS | full cards per reference-analysis.md | reference stage |
 | DIRECTION MANIFESTOS | every manifesto rendered, marked selected / rejected / hybrid-source | fan-out + selection |
@@ -32,32 +34,16 @@ provenance-carrying rules steered production harder than abstract ones here.]
 
 ---
 
-## design-memory/STATE.md — the resume pointer
+## PROJECT_STATE.md — the resume pointer
 
-A single small file, distinct from the structured records above. **It is a
-resume pointer, not a knowledge dump**; detailed memory stays in its own
-artifacts. Its entire responsibility:
-
-```
-PROJECT
-CURRENT REGISTER              (+ sub-mode, hybrid split)
-CURRENT WORKFLOW MODE
-CURRENT STAGE                 (workflow.md stage number/name)
-LATEST APPROVED DIRECTION     (manifesto id + date)
-ACTIVE ARTIFACTS              paths to the constitution, plans, cards in play
-DECISIONS SINCE LAST SESSION  append-only, dated one-liners
-OPEN ISSUES                   unresolved named findings, blocked questions
-NEXT STEP                     the single next action
-```
-
-Protocol:
-- **At the start of a design session: read STATE.md first**, before any
-  methodology module. It says which modules the current mode even needs.
-- **At every major decision or stage transition: update STATE.md.**
-- DECISIONS SINCE LAST SESSION is append-safe — add, never rewrite history.
-- The human must never have to re-explain context that STATE.md already
-  holds. IF Claude asks about something recorded there → that is a defect
-  in the reading protocol, not a question for the human.
+The resume-pointer file is specified in full as `templates/PROJECT_STATE.md`
+— this section is a pointer, not a second copy, to avoid the two drifting
+apart. In brief: it is a single small file, distinct from the structured
+records above, whose only job is letting a session resume without
+re-deriving or re-asking for anything already decided. Read it before any
+other methodology module (workflow.md, Session start / state); update it at
+every major decision, mode transition (modes.md), and workflow stage
+transition.
 
 ## Project-to-project convergence audit
 

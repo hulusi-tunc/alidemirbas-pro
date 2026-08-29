@@ -17,10 +17,11 @@ agents. Scale with impact: high-impact pages get real separation, routine
 pages may collapse DIRECTOR and BUILDER but **never** collapse BUILDER and
 CRITIC.
 
-- **DESIGN DIRECTOR** — register, direction architecture, composition
-  strategy. Coordinates and prepares stages 2–7 and 10.
+- **DESIGN DIRECTOR** — register, IA, direction architecture, composition
+  strategy. Coordinates and prepares stages 2–7 and 3a/3b/10/10a.
 - **HUMAN** — owns stage 8 (direction selection), ratifies constitutional
-  decisions in stage 9, and owns stage 15 (final approval).
+  decisions in stage 9, owns stage 15 (final approval), and authorizes 15a
+  (deploy).
 - **BUILDER** — owns stage 11 and the implementation side of stage 14.
 - **MACHINE** — owns stage 12 assertions.
 - **VISUAL CRITIC** — consumes stage 12 results, owns stage 13, and owns the
@@ -29,24 +30,35 @@ CRITIC.
 - **BOTH** — stage 16 learning, where applicable.
 
 Human decisions are never folded into an agent-role summary: stages 8, 9
-(ratification) and 15 belong to a person, and no role above may close them.
+(ratification), 15, and 15a (deploy authorization) belong to a person, and
+no role above may close them.
 
 [PLAUSIBLE] Strict separate-agent execution; the ergonomics are untested.
 [OBSERVED as a need] The generating pass is the worst judge of its own output.
 
+## Working mode gate (modes.md)
+
+Before any stage below runs, the task carries one of six declared modes —
+DISCOVER / DESIGN / BUILD / EDIT / QA / SHIP (modes.md). The mode decides
+what category of action is licensed; the stages below decide how much
+process a licensed action deserves. A DESIGN-mode task runs stages 1–10a and
+stops at a manifesto or mock — it does not proceed to 11 (IMPLEMENTATION)
+without a declared mode change to BUILD.
+
 ## Session start / state
 
-**IF `design-memory/STATE.md` exists** → read it before any methodology
-module. It gives the register, the mode, the stage and the next step, which
-determines which modules to load at all.
+**IF `PROJECT_STATE.md` (templates/) exists for this project** → read it
+before any methodology module. It gives the register, the current mode
+(modes.md), the workflow stage and the next step, which determines which
+modules to load at all.
 
 **IF it does not exist** (greenfield, or a project that has never used this
-system) → run BRIEF → initial REGISTER declaration → **initialize STATE.md**
-→ continue. Never invent prior project state, and never treat a missing file
-as an error.
+system) → run BRIEF → initial REGISTER declaration → **initialize
+PROJECT_STATE.md from the template** → continue. Never invent prior project
+state, and never treat a missing file as an error.
 
-Update STATE.md at every major decision and every stage transition. Never ask
-the human for context STATE.md already holds.
+Update PROJECT_STATE.md at every major decision, every mode transition, and
+every stage transition. Never ask the human for context it already holds.
 
 ## Stages
 
@@ -75,11 +87,41 @@ the human for context STATE.md already holds.
 - INPUT: repo, data, copy, assets, product access.
 - OUTPUT: inventory + candidate anchors ("the most characteristic real
   thing this page owns"); gaps named. May revise stage 2 (short loop back).
+  Also produces or updates CONTEXT.md and COPY.md (templates/) where real
+  copy exists.
 - OWNER: CLAUDE.
 - SKIP: never — it is cheap and everything downstream stands on it (core
   P5).
 - FAILURE: empty inventory answered with fabrication instead of "material
   missing, here is what I need".
+- NEXT: 3a.
+
+### 3a. INFORMATION ARCHITECTURE
+- INPUT: content inventory (stage 3) + register (stage 2).
+- OUTPUT: the page/section structure and information relationships this
+  content actually requires — what exists, in what order, and why — decided
+  BEFORE copy is composed into layout and before any visual material
+  strategy or direction work begins. Not a visual decision; a structural one.
+- OWNER: CLAUDE, human confirms for a new page family or a full site.
+- SKIP: a routine page inside an established family (the family skeleton
+  already answers the structural questions — site-constitution.md Layer 2).
+- FAILURE: skipping straight to composition with an implicit structure
+  nobody stated; restructuring silently mid-build once composition reveals
+  the IA was wrong (that is a stage 3a redo, declared, not a build-time
+  patch).
+- NEXT: 3b.
+
+### 3b. VISUAL MATERIAL STRATEGY
+- INPUT: content inventory + IA.
+- OUTPUT: one declared line naming which real-material family
+  (visual-material-strategy.md) carries this page's visual experience, and
+  why — before any anchor is chosen inside composition-grammar.md.
+- OWNER: CLAUDE.
+- SKIP: never for a page with meaningful visual weight; a text-only utility
+  surface may declare "none — the interface itself carries the page" in one
+  line and move on.
+- FAILURE: reaching for generic filler material (anti-patterns.md #9, #11)
+  because the inventory came up thin, instead of naming the gap.
 - NEXT: 4 (or 5/9 per mode).
 
 ### 4. BASELINE (optional)
@@ -155,11 +197,28 @@ the human for context STATE.md already holds.
 - SKIP: never — the cheapest insurance in the system (core P12a).
 - FAILURE: plans that cannot cite moves (uncomposed pages headed to code);
   the dead-canvas class is caught HERE or expensively later.
+- NEXT: 10a.
+
+### 10a. TECHNICAL FIT
+- INPUT: the composition plan's requirements.
+- OUTPUT: a confirmed or newly-declared stack/complexity decision
+  (technical-fit.md) — for an existing project, "unchanged, existing stack"
+  is the default and usually the whole output; for greenfield, the simplest
+  architecture that genuinely satisfies the requirements.
+- OWNER: CLAUDE, human confirms any deviation from the existing stack.
+- SKIP: once decided for a project, most pages inherit it without
+  re-running this stage — it re-runs only when a task's requirements
+  plausibly exceed the standing decision.
+- FAILURE: adding a dependency, framework or backend the requirements don't
+  actually need; conversely, forcing an existing simple stack to strain
+  under a requirement it genuinely can't satisfy instead of naming the gap.
 - NEXT: 11.
 
 ### 11. IMPLEMENTATION
-- INPUT: plan + constitution.
-- OUTPUT: built page; every visual value traceable (core P7).
+- INPUT: plan + constitution + technical-fit decision.
+- OUTPUT: built page; every visual value traceable (core P7). Third-party
+  components are imported as structural donors (protocols/structural-donor.md),
+  never wholesale with their own design system attached.
 - OWNER: CLAUDE.
 - SKIP: never (when the task is a page).
 - FAILURE: plan-build drift; undeclared decisions.
@@ -199,6 +258,33 @@ the human for context STATE.md already holds.
 - OWNER: HUMAN.
 - SKIP: never for shipped pages.
 - FAILURE: approval assumed from silence.
+- NEXT: 15a (SHIP mode, modes.md) if this task deploys; otherwise 16.
+
+### 15a. PRE-SHIP GATE + DEPLOY
+- INPUT: the approved page + confirmed deploy target.
+- OUTPUT: deployed change, per protocols/pre-post-deploy-qa.md — including
+  the environment-awareness.md check for whether this environment can
+  actually deploy, or only prepare the change for a human to.
+- OWNER: HUMAN authorizes; CLAUDE executes where the environment allows.
+- SKIP: when the task's output is a prepared change with no deploy step in
+  scope (state this explicitly rather than silently stopping short).
+- FAILURE: deploying to the wrong target; treating "committed and pushed" as
+  equivalent to "shipped."
+- NEXT: 15b.
+
+### 15b. POST-DEPLOY QA
+- INPUT: the live result.
+- OUTPUT: verification that the live URL actually serves the change, that
+  the specific thing that changed is correct in production (not only in a
+  local/preview build), and that nothing outside scope moved
+  (protocols/pre-post-deploy-qa.md).
+- OWNER: CLAUDE verifies where the environment allows; states plainly what
+  could not be verified otherwise (environment-awareness.md).
+- SKIP: never when 15a ran.
+- FAILURE: claiming "deployed" when only "verified live" is the true, but
+  weaker, unmade claim; the reverse — this project's own real incident of a
+  production domain silently serving a different site than the one being
+  worked on, undetected until checked directly.
 - NEXT: 16.
 
 ### 16. DOCUMENT LEARNING (conditional in **every** mode)
@@ -236,14 +322,20 @@ IF a check does not match what was built → it is ceremony; drop it. IF a
 built thing has no matching check → that is a gap; name it rather than
 passing silently.
 
-## Modes
+## Modes (workflow scale, distinct from modes.md's action gate)
 
 | Mode | Runs | Skips | When |
 |---|---|---|---|
-| **GREENFIELD** | all 16 | — (4 still register-gated) | no design language exists |
-| **EXISTING DESIGN LANGUAGE** | 1–3, 9(consult), 10–16 | 4; 5–8 unless a NEW page family is being created | project constitution exists |
-| **ROUTINE PAGE** | 1–3, 10–13(+14 if findings), 15, **16 if triggered** | 4–9 | known family, known register, no constitutional impact |
-| **UTILITY / COMMERCE FAST PATH** | 1–3, 10–12, light 13, 15, **16 if triggered** | 4–9; visual exploration minimal by register (distinctiveness budget ≈ 0) | convention-dominant registers |
+| **GREENFIELD** | all stages | — (4 still register-gated) | no design language exists |
+| **EXISTING DESIGN LANGUAGE** | 1–3b, 9(consult), 10–16 | 4; 5–8 unless a NEW page family is being created | project constitution exists |
+| **ROUTINE PAGE** | 1–3b, 10–13(+14 if findings), 15, **16 if triggered** | 4–9 | known family, known register, no constitutional impact |
+| **UTILITY / COMMERCE FAST PATH** | 1–3b, 10–12, light 13, 15, **16 if triggered** | 4–9; visual exploration minimal by register (distinctiveness budget ≈ 0) | convention-dominant registers |
+
+Stages 3a/3b, 10a, and 15a/15b run wherever the task actually touches
+structure, a technical decision, or a deploy — they are not exempt from the
+scale-down rule below, but they are also not silently skipped when relevant
+just because they're new: a ROUTINE PAGE with no structural question still
+gives 3a one line ("IA unchanged — inherits the family skeleton").
 
 Scale-down rule: IF a task qualifies for a lighter mode → use it and say
 so. Ceremony beyond the mode is cost, not rigor. IF mid-task the work
@@ -253,17 +345,17 @@ discovery into implementation.
 
 ## Module loading (lean by mode)
 
-The ten modules are a knowledge base, not a preamble. Load only what the
+The methodology is a knowledge base, not a preamble. Load only what the
 mode needs; routine work must stay cheap.
 
 | Mode | Loads |
 |---|---|
-| UTILITY / COMMERCE FAST PATH | core-principles · registers · composition-grammar · qa · STATE.md |
+| UTILITY / COMMERCE FAST PATH | core-principles · registers · composition-grammar · qa · PROJECT_STATE.md |
 | ROUTINE PAGE | + site-constitution (family rules), anti-patterns |
 | EXISTING DESIGN LANGUAGE | + project-memory, visual-direction (only when creating a new page family) |
-| GREENFIELD / PREMIUM BRAND | potentially all ten |
+| GREENFIELD / PREMIUM BRAND | potentially every module, including visual-material-strategy, technical-fit, and the protocols/ set |
 
 Taste memory and fan-out analysis are **not** loaded on the fast path
-unless a tie genuinely needs breaking. The eventual executable skill is a
-thin orchestrator over these modules — it decides mode, reads STATE.md,
-loads the mode's set, and nothing more.
+unless a tie genuinely needs breaking. `SKILL.md` (repo root) is the thin
+orchestrator over every module here — it decides the mode (modes.md), reads
+PROJECT_STATE.md, loads the mode's set, and nothing more.

@@ -9,6 +9,19 @@ pairing/conflict table is inference — PLAUSIBLE. That composition must be
 planned is core P12a; that THIS vocabulary improves outcomes is P12b and is
 under controlled test.]
 
+**This module composes a direction; it does not choose one.** Art direction
+— which anchor type, what hierarchy, what density band, what the page's
+identity is — is visual-direction.md's job (workflow.md stages 4–9), decided
+and human-checked before this module runs (stage 10). Running this module
+without a prior direction decision (as the workflow's fast/routine paths do
+by design) means it is deciding both jobs in one pass with no checkpoint —
+acceptable for low-stakes work where the register's own convention already
+answers the identity question, and a real risk everywhere else. IF a task
+in a fast/routine path turns out to need real identity decisions → that is
+the workflow's own escalation rule (workflow.md's scale-down rule, "declare
+the mode change and enter the missing stages"), not a reason to let this
+module quietly absorb the work.
+
 **RULE: A page's composition plan names its moves before implementation**
 (workflow.md, COMPOSITION PLAN stage). Every named move carries one of three
 labels:

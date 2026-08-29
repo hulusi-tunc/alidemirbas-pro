@@ -51,9 +51,29 @@ this file. Left column = rejected shapes seen in studied systems.
 | "Every page needs a memorable visual trick." | "One signature is a budget, not a requirement; registers with a ≈0 risk budget spend none." |
 | "Asymmetry is better." | "Asymmetry is register-conditional (see reversal matrix); reading surfaces prefer stability." |
 | "Luxury means serif and whitespace." | "Premium brand may spend more budget on typography and space because exploration and emotional signalling are part of the user job." |
+| "Fake dashboards / fake analytics charts are banned." | Already covered at mechanism level by #9 (fabricated evidence) — an invented chart is fabricated evidentiary material regardless of how it's styled; the failure is the invention, not the dashboard shape. |
+| "Generic icon grids are banned." | "Reject equal-weight repeated containers when the content has hierarchy the layout is hiding" (same rewrite as "never use three cards," above) — an icon grid is this pattern's most common instance, not a separate rule. |
+| "Excessive glassmorphism / floating UI is banned." | "An ornamental or expressive element must carry a defensible function appropriate to the register" (see #11) — a blur or a floating panel is a technique; ban the technique used without function, not the technique. |
+| "Rounded rectangles are the default; stop using them." | "The border-and-radius language is a site-constitution decision (site-constitution.md Layer 1), derived once per project — not a default inherited from habit, and not banned by fiat either." |
+| "'Modern' means Inter + purple gradient; 'tech' means dark + neon." | These are named look-clusters, recorded below as distribution-aware warnings — never rewritten into a ban, because banning the specific pairing only shifts the mode to an adjacent one (the mechanism this table exists to interrupt). |
 
 Named look-clusters may still be recorded as **distribution-aware warnings**
 (what the model currently over-produces, dated) — never as universal bans.
+
+**Current dated warnings** (revisit at the cadence stated at the top of this
+file; a warning that has stopped being the modal output should retire, not
+persist by inertia):
+
+- 2026-08: warm cream + serif display + terracotta accent, presented as "the
+  premium look."
+- 2026-08: near-black ground + a single acid-green or vermilion accent,
+  presented as "the tech look."
+- 2026-08: Inter or a small set of "safe" geometric sans faces defaulted to
+  without a register-driven reason.
+- 2026-08: purple-to-blue gradient hero on white, presented as "the modern
+  SaaS look."
+- 2026-08: heavy glassmorphism / floating panels used as decoration rather
+  than to signal an actual layering relationship in the interface.
 
 ## 3. Costume distinctiveness
 - SYMPTOM: a strong "identity" that has no traceable relation to the

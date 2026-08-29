@@ -291,3 +291,32 @@ builder may not regenerate unrelated regions "while in there".
 **WHY:** Unscoped iteration is the main way AI refinement destroys ground it
 had already won — the fix lands, three approved things silently move.
 **PREVENTS:** regression during refinement; infinite polish loops.
+
+## P19 — Technical complexity requires a traceable reason
+**RULE:** A stack, framework, dependency, or backend earns its place by
+tracing to a specific requirement (technical-fit.md), the same way a visual
+decision traces to material (P7). For an existing project, default to its
+established architecture; for greenfield, default to the simplest
+architecture that genuinely satisfies the requirements.
+**WHY:** [OBSERVED — a named risk this system did not previously guard
+against] Complexity added because it is fashionable, rather than because a
+requirement needs it, is the technical-layer twin of costume distinctiveness
+(#3 in anti-patterns.md) — sampled from what's currently popular to build
+with, not derived from what this project actually needs.
+**PREVENTS:** unnecessary frameworks, dependencies, and backend complexity
+entering a build with no traceable justification.
+
+## P20 — Verify only what the environment can actually verify, and say which
+**RULE:** Before claiming a capability (render capture, deployment,
+external fetch, image generation, persistent storage across sessions),
+check it cheaply rather than assuming either that it exists or that it
+doesn't (environment-awareness.md). Report exactly what was verified and
+what could not be, in every case.
+**WHY:** [OBSERVED — real friction in this system's own development] Both
+assumption directions cause real harm: assuming a capability is absent when
+it's present wastes it; assuming it's present when it's absent produces an
+unverified completion claim, which P11 already treats as a hard failure
+when the missing verification is a render — this principle generalizes that
+same discipline to every other environment-dependent capability.
+**PREVENTS:** unverified completion claims dressed as confidence; needless
+refusal of capabilities the environment actually has.

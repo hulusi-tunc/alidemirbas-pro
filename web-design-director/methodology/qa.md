@@ -1,8 +1,13 @@
-# QA — Three-Layer Validation
+# QA — Multi-Lens Validation
 
-Validation is split by what each layer can actually see. Machines assert,
-rendered-eye critique names, humans judge. "It looks good" is not a
-criterion in any layer, and a page never passes on it.
+Validation is split by what each lens can actually see: machines assert
+(A), rendered-eye critique names composition and craft failures (B),
+functional exercise proves behavior (D), SEO and content/fact lenses catch
+what the others are not looking for (E, F), and humans judge what no
+mechanism can (C). "It looks good" is not a criterion in any lens, and a
+page never passes on it. Lenses run independently and in parallel where
+practical (core P17's role-separation logic extended to QA itself) — a
+visual critique in progress does not block a functional pass from starting.
 
 ---
 
@@ -133,10 +138,11 @@ description of the code.
    not as a diff.
 
 **Checks:** section rhythm · hierarchy legibility · full-page silhouette ·
-mobile RE-composition (not mere reflow) · reference-mechanism fidelity
-(against the cited cards) · direction-manifesto fidelity (against the
-selected manifesto) · excess decoration · motion timing · the named
-composition failure modes (anti-patterns.md).
+mobile RE-composition, not mere reflow (protocols/responsive-recomposition.md
+for the PRESERVE/REFLOW/COMPRESS/DISCLOSE/REPLACE/REMOVE procedure) ·
+reference-mechanism fidelity (against the cited cards) · direction-manifesto
+fidelity (against the selected manifesto) · excess decoration · motion
+timing · the named composition failure modes (anti-patterns.md).
 
 **Register-conditional emphasis** (registers.md sets which layer works
 hardest): PREMIUM BRAND adds a craft-precision pass — easing curves, motion
@@ -233,6 +239,74 @@ state for a server-rendered list) is ceremony, not rigour. EMPTY and ERROR
 are designed, not defaulted; FOCUS is never merely "not removed". **State completeness is part of the definition of
 done for interactive surfaces** — see EXIT CRITERIA.
 
+## D. FUNCTIONAL QA
+
+A distinct lens from B (Visual Critique) and A2 (Web Quality Baseline) —
+"does it work" is a different question from "does it look intentional" and
+"is it usable," and collapsing them means functional defects hide behind a
+clean visual pass. Runs on the built page, exercised, not merely observed.
+
+- **Navigation** — every route reachable that should be; no dead links.
+- **Forms** — submit, validation, and error paths actually exercised, not
+  just present.
+- **Interactions** — every interactive element does what it claims (a
+  disclosure discloses, a filter filters).
+- **Loading / error / success states** — exist and are reachable, not only
+  designed (cross-reference B3 State Completeness for which registers owe
+  this).
+- **Runtime errors** — no console errors/warnings introduced by the change.
+- **Integrations** — any third-party or backend dependency actually
+  responds as expected in the environment this was tested in (and
+  environment-awareness.md's honesty rule applies if it couldn't be
+  tested).
+
+A finding here follows the same validity rule as B: name the failure and
+its location. "Seems to work" is not a finding.
+
+## E. SEO QA
+
+Register-conditional (some registers care far more than others — a UTILITY
+tool behind auth may have none of this in scope; a MARKETING or EDITORIAL
+page usually has all of it). Where in scope:
+
+- **Metadata** — title/description present, accurate, and not stale
+  relative to the shipped content.
+- **Canonical behavior** — one canonical URL per piece of content; no
+  accidental duplication across routes or locales.
+- **Structured data** — present where the content type calls for it,
+  accurate to what's actually on the page (fabricating structured data
+  that doesn't match visible content is a content/fact violation, not just
+  an SEO one — see F).
+- **Indexability** — the page is discoverable/indexable exactly to the
+  degree intended, no more and no less.
+- **Content hierarchy** — heading structure matches the page's real
+  information hierarchy (this overlaps A2's semantic-structure check by
+  design; a broken heading outline is both an accessibility and an SEO
+  defect, and fixing it once satisfies both).
+
+## F. CONTENT / FACT QA
+
+Consolidates a mechanism that already exists elsewhere in this system —
+the fabrication hard ban (anti-patterns.md #9) and the fake-content lint
+(A, above) — into its own named lens, run explicitly rather than only
+incidentally covered while checking something else.
+
+- **Fabricated claims** — none present, per the fake-content lint's three
+  verdicts (A).
+- **Stale placeholders** — no `EXPLICIT_PLACEHOLDER` remains at ship (also
+  a HARD ASSERT in A).
+- **Consistency** — names, numbers, and claims that appear in more than one
+  place on the page (or across pages) agree with each other and with their
+  source.
+- **Broken content relationships** — a claim that references data, an
+  image that references a caption, a stat that references its source —
+  each relationship still holds after any edit that touched either side.
+
+This lens exists because content/fact defects are easy to miss when every
+other QA pass is checking something else — a visual critique looking at
+composition will not notice a stale number, and a functional QA pass
+exercising a form will not notice a copy claim that's gone out of date.
+
 ## C. HUMAN JUDGMENT
 
 The human owns, and only the human closes:
@@ -264,7 +338,12 @@ A page is complete ONLY when all of the following are true:
    state designed and verified, or marked N/A with a reason.
 6. **Web quality baseline met** (A2), and performance findings (A3) either
    resolved or explicitly accepted.
-7. **Human approval exists** and is recorded in project memory.
+7. **Functional QA closed** (D): no unresolved broken navigation, forms,
+   interactions, or runtime errors.
+8. **SEO and content/fact QA closed where in scope** (E, F): no unresolved
+   fabrication, staleness, or indexability defect the register makes
+   relevant.
+9. **Human approval exists** and is recorded in project memory.
 
 No experimental metric appears in this list, and none may block a page on its
 own — an unvalidated number must never become a gate.
