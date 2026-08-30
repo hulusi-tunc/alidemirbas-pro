@@ -135,21 +135,37 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
 export function EntryCard({ entry }: { entry: CalcEntry; index?: number }) {
   const Icon = SLUG_ICON[entry.slug] ?? CATEGORY_ICON[entry.categoryKey] ?? TrendingUp;
   return (
+    /* Two shapes, one card. On mobile it is a compact ROW - icon at the
+       left as the scanning anchor, two lines of description at most - so
+       four or five land on a phone screen instead of two near-identical
+       tall blocks. From `sm` up it is the stacked card the grid wants.
+       `sm:contents` dissolves the mobile text wrapper at that breakpoint,
+       so the same markup gives both layouts with no duplicated content. */
     <Link
       href={entry.href}
-      className="group flex flex-col gap-2.5 rounded-card bg-paper-soft p-6 transition-[background-color,box-shadow] hover:bg-paper hover:shadow-card"
+      /* Hover is a quiet brand tint and nothing else - the white-plate-plus-
+         shadow lift this used to do was reviewed as cheap. The card stays
+         flat on its ground; only the colour temperature moves. */
+      className="group flex gap-4 rounded-card bg-paper-soft p-4 transition-colors hover:bg-blue-50 sm:flex-col sm:gap-2.5 sm:p-6"
     >
-      <span aria-hidden className="mb-1 grid size-10 place-items-center rounded-full bg-blue-100 text-primary-600">
+      <span
+        aria-hidden
+        className="grid size-10 shrink-0 place-items-center rounded-full bg-blue-100 text-primary-600 sm:mb-1"
+      >
         <Icon className="size-5" />
       </span>
-      <span className="text-base font-semibold tracking-tight text-ink-950">{entry.name}</span>
-      <span className="text-sm leading-relaxed text-ink-600">{entry.description}</span>
-      <span className="mt-auto flex items-center justify-between gap-2 pt-1.5">
-        <span className="text-[12px] text-ink-400">{entry.categoryLabel}</span>
-        <ArrowRight
-          aria-hidden
-          className="size-3.5 shrink-0 text-ink-200 transition-colors group-hover:text-blue-600"
-        />
+      <span className="flex min-w-0 flex-1 flex-col sm:contents">
+        <span className="text-base font-semibold tracking-tight text-ink-950">{entry.name}</span>
+        <span className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-600 sm:mt-0 sm:line-clamp-none">
+          {entry.description}
+        </span>
+        <span className="mt-2 flex items-center justify-between gap-2 sm:mt-auto sm:pt-1.5">
+          <span className="text-[12px] text-ink-400">{entry.categoryLabel}</span>
+          <ArrowRight
+            aria-hidden
+            className="size-3.5 shrink-0 text-ink-200 transition-colors group-hover:text-blue-600"
+          />
+        </span>
       </span>
     </Link>
   );
@@ -233,17 +249,31 @@ export function CalculatorLibrary({
           filter is multi-select and a chip row reads that way, where a
           checkbox sidebar read as a form. Selected chips take the brand
           plate, exactly the active-state grammar the mode selector on the
-          detail pages already uses. */}
-      <div className="mt-5 flex flex-wrap gap-2">
-        {categoryFacets.map((f) => (
-          <FacetChip
-            key={f.id}
-            label={f.label}
-            count={f.count}
-            checked={category.has(f.id)}
-            onToggle={() => toggle(f.id)}
-          />
-        ))}
+          detail pages already uses.
+
+          ON MOBILE IT IS A SCROLLING RAIL, not a wrapped block: seven chips
+          wrap onto four lines on a phone, which pushes the actual results
+          off the first screen - the filter costing more space than the
+          content it filters. One swipeable line, snapping to a chip, with
+          a fade at the edge so it reads as scrollable. It goes back to
+          wrapping at `sm`, where the whole set fits in one or two lines. */}
+      <div className="relative mt-5">
+        <div className="no-scrollbar -mx-6 flex snap-x snap-mandatory gap-2 overflow-x-auto px-6 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          {categoryFacets.map((f) => (
+            <div key={f.id} className="shrink-0 snap-start">
+              <FacetChip
+                label={f.label}
+                count={f.count}
+                checked={category.has(f.id)}
+                onToggle={() => toggle(f.id)}
+              />
+            </div>
+          ))}
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-paper to-transparent sm:hidden"
+        />
       </div>
 
       <div className="mt-8">

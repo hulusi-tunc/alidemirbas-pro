@@ -890,6 +890,20 @@
   --badge-ink: var(--color-badge-dark-ink);
 }
 
+/* A horizontal rail that scrolls without showing a bar. For filter rows and
+   tab strips on narrow screens, where wrapping a set of chips onto four
+   lines costs more vertical space than the content below is worth. Paired
+   with `snap-x` at the call site so a swipe lands on a chip rather than
+   between two. */
+@utility no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility section-badge {
   /* Block-level flex sized to its content rather than `inline-flex`: an inline
      box would sit in a line box and carry the parent's leading below it, which
