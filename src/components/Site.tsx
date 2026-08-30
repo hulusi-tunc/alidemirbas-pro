@@ -10,12 +10,10 @@ import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
+import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { withJourneyCount } from "@/lib/archive";
 import {
-  getAllLiveSpecs,
-  GROUP_LABEL,
-  LIBRARY_GROUP,
-  LIBRARY_GROUP_ORDER,
+  getFeaturedCalcEntries,
   LIVE_CALCULATOR_SLUGS,
 } from "@/lib/calc-catalog";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
@@ -366,74 +364,45 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
 
 /* Calculators.
 
-   This band used to be a heading, a two-line intro, one mono count and a
-   link - four lines of text holding a full py-32 section, with the right
-   half of the page empty and roughly 270px of nothing below it. The
-   emptiness was not restraint: the section had a real anchor available and
-   showed none of it.
-
-   The anchor is the library itself. getAllLiveSpecs() returns the 19 live
-   calculators with their real names, and LIBRARY_GROUP puts each one in its
-   real product group, so the right-hand column is the actual index - no
-   invented names, no placeholder tiles, and it cannot drift from what is
-   routable because it is read from the same catalog the routes are.
-
-   Names only, as a rail rather than cards: a name is not structured enough
-   to earn a border, and 19 bordered boxes is exactly the failure the Lab
-   index above already avoids. */
+   Was a heading + a grouped text-link rail (names only, no cards) - see
+   git history for the prior reasoning against boxing all 19 at once. Per
+   explicit site-owner direction, now a 6-card teaser reusing the exact
+   card CalculatorLibrary's own /calculators grid renders (EntryCard),
+   plus one "see all" link - the same shape as the Lab section above it.
+   getFeaturedCalcEntries() returns a genuine prefix of the real,
+   routable catalog (funnel order), not a hand-picked or invented list. */
 function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const specs = getAllLiveSpecs();
-  const groups = LIBRARY_GROUP_ORDER.map((group) => ({
-    group,
-    items: specs.filter((spec) => LIBRARY_GROUP[spec.slug] === group),
-  })).filter((g) => g.items.length > 0);
+  const entries = getFeaturedCalcEntries(lang, 6);
 
   return (
     <section id="calculators" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
-          <div>
-            <SectionHeading
-              eyebrow={t.home.calc.eyebrow}
-              title={t.home.calc.title}
-              intro={t.home.calc.intro}
-            />
-            <Reveal delay={90}>
-              <p className="mt-8 font-mono text-sm text-ink-500">
-                <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
-              </p>
-              <Link
-                href={t.nav.calculatorsHref}
-                className="mt-5 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-              >
-                {t.home.calc.more}
-                <ArrowRight aria-hidden className="size-3.5" />
-              </Link>
-            </Reveal>
-          </div>
+        <SectionHeading
+          eyebrow={t.home.calc.eyebrow}
+          title={t.home.calc.title}
+          intro={t.home.calc.intro}
+        />
+        <p className="mt-6 font-mono text-sm text-ink-500">
+          <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
+        </p>
 
-          <Reveal delay={140}>
-            <div className="flex flex-col gap-7 border-t border-line pt-7 lg:border-t-0 lg:pt-1">
-              {groups.map(({ group, items }) => (
-                <div key={group} className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-[10rem_minmax(0,1fr)]">
-                  <p className="altor-eyebrow pt-1 text-ink-400">{GROUP_LABEL[group][lang]}</p>
-                  <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
-                    {items.map((spec) => (
-                      <li key={spec.slug}>
-                        <Link
-                          href={`${t.nav.calculatorsHref}/${spec.slug}`}
-                          className="text-[0.9375rem] text-ink-700 underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink-950 hover:decoration-ink-400"
-                        >
-                          {spec.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </Reveal>
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {entries.map((entry, i) => (
+            <Reveal key={entry.slug} delay={i * 50}>
+              <EntryCard entry={{ ...entry, searchText: "" }} index={i} />
+            </Reveal>
+          ))}
         </div>
+
+        <Reveal delay={entries.length * 50 + 40}>
+          <Link
+            href={t.nav.calculatorsHref}
+            className="mt-10 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+          >
+            {t.home.calc.more}
+            <ArrowRight aria-hidden className="size-3.5" />
+          </Link>
+        </Reveal>
       </div>
     </section>
   );

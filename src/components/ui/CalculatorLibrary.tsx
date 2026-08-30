@@ -103,7 +103,7 @@ export function CategoryIcon({ categoryKey, index }: { categoryKey: string; inde
   );
 }
 
-function EntryCard({ entry, index }: { entry: CalcEntry; index: number }) {
+export function EntryCard({ entry, index }: { entry: CalcEntry; index: number }) {
   return (
     <Link
       href={entry.href}
