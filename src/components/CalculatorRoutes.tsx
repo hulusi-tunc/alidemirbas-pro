@@ -194,14 +194,20 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
             where the product is - the tinted category icons below, and the
             blue answer plate on each detail page.
 
-            `bg-paper-soft`, not `bg-paper`: the library grid below sits on
-            white, and a white stage above a white grid with this much
-            padding is a padding-only seam (identical ground either side of
-            a >220px gap). One step of ground keeps the seam a real
-            surface. No wash and no gradient title - a tinted glow on white
-            is the "modern SaaS look" default, and the point here is a
-            clean open, not a second effect. */}
-        <section className="border-b border-line bg-paper-soft pt-16 pb-14 md:pt-20 md:pb-16">
+            PURE white here, unlike the detail template's stage, and the
+            difference is decided by what sits on the ground rather than by
+            taste: this band holds type and nothing else, so it can open at
+            full white; the detail stage holds the white tool card and
+            needs one step of ground under it to keep the card readable.
+            Safe from the padding-only seam rule because the seam to the
+            search row below is ~100px, well under the 220px an
+            identical-ground gap has to clear.
+
+            No wash and no gradient title - a tinted glow on white is the
+            "modern SaaS look" default, and the point here is a clean open,
+            not a second effect. Colour arrives one row down, in the
+            per-category icon tints. */}
+        <section className="border-b border-line bg-paper pt-16 pb-14 md:pt-20 md:pb-16">
           <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
             <h1 className="mx-auto max-w-2xl text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-ink-950">
               {hero.title}
