@@ -324,7 +324,7 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             const external = action.href.startsWith("http");
             return (
               <Reveal key={project.slug} delay={i * 60}>
-                <article className="flex h-full flex-col">
+                <article className="flex h-full flex-col rounded-[28px] border border-line p-6 sm:p-7">
                   <div
                     className="overflow-hidden rounded-2xl p-5 sm:p-6 [&>div]:!shadow-none"
                     style={{ backgroundColor: LAB_PANEL_COLOR[project.slug] ?? "#152049" }}
@@ -338,7 +338,7 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
                   <a
                     href={action.href}
                     {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                    className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#1f9d70] px-4 py-2 text-sm font-medium text-[#1f9d70] transition-colors hover:bg-[#1f9d70]/10"
                   >
                     {action.label}
                   </a>
