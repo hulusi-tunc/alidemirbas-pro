@@ -102,6 +102,10 @@ export function SiteHeader({
             langLabel={t.nav.lang}
             ctaHref={`mailto:${EMAIL}`}
             ctaLabel={t.nav.cta}
+            // Same Lab projects the desktop dropdown lists, so the phone
+            // menu is not a shorter version of the site's navigation.
+            labHref={t.nav.labHref}
+            labProjects={labProjects}
           />
         </div>
       </div>
