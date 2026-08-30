@@ -38,33 +38,38 @@ export function JourneyCanvasPreview({ lang, size = "md" }: { lang: Lang; size?:
       outcome: "Sonuç", exit: "Çıkış", handoff: "Devir",
     },
   }[lang];
+  // Node kind -> a fixed, semantic colour (same seven kinds as before,
+  // just filled instead of outlined) - per explicit site-owner direction
+  // to make this illustration read more like a live flow-builder canvas.
+  // Every label stays one of the library's real seven kinds; only the
+  // colour treatment and the gradient ground changed, nothing invented.
   return (
     <div
       aria-hidden
-      className={`rounded-t-[12px] bg-paper p-5 pb-6 shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_8px_24px_-12px_rgb(10_16_32/0.12)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01] ${size === "lg" ? "min-h-[240px]" : "min-h-[190px]"}`}
+      className={`rounded-t-[12px] bg-gradient-to-br from-primary-50 via-paper to-primary-100 p-5 pb-6 shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_8px_24px_-12px_rgb(10_16_32/0.12)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01] ${size === "lg" ? "min-h-[240px]" : "min-h-[190px]"}`}
     >
       <p className="text-[13px] font-semibold text-ink-950">{T2.label}</p>
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="rounded-md bg-primary-100 px-2.5 py-1.5 text-xs font-medium text-primary-700">{T2.trigger}</span>
-        <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-700 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.condition}</span>
-        <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-sand-50 px-2.5 py-1.5 text-xs font-medium text-neutral-700 shadow-[inset_0_0_0_1px_var(--color-sand-200)]">{T2.wait}</span>
-        <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-700 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.action}</span>
+      <div className="mt-4 flex flex-wrap items-center gap-2.5">
+        <span className="rounded-lg bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">{T2.trigger}</span>
+        <span className="h-0.5 w-4 rounded-full bg-primary-300" />
+        <span className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">{T2.condition}</span>
+        <span className="h-0.5 w-4 rounded-full bg-violet-300" />
+        <span className="rounded-lg bg-amber-500 px-3 py-2 text-xs font-semibold text-white shadow-sm">{T2.wait}</span>
+        <span className="h-0.5 w-4 rounded-full bg-amber-300" />
+        <span className="rounded-lg bg-sky-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">{T2.action}</span>
       </div>
       <div className="mt-3 flex items-center gap-2">
-        <span className="w-10" />
-        <span className="h-3.5 w-px bg-ink-200" />
-        <span className="ml-[4.5rem] h-3.5 w-px bg-ink-200" />
+        <span className="w-[3.7rem]" />
+        <span className="h-4 w-0.5 rounded-full bg-primary-300" />
+        <span className="ml-[5.4rem] h-4 w-0.5 rounded-full bg-violet-300" />
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-6" />
-        <span className="rounded-md bg-[#e8f9e7] px-2.5 py-1.5 text-xs font-medium text-[#2c7a35]">{T2.outcome}</span>
-        <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-500 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.exit}</span>
-        <span className="h-px w-3.5 bg-ink-200" />
-        <span className="rounded-md bg-paper px-2.5 py-1.5 text-xs font-medium text-ink-500 shadow-[inset_0_0_0_1px_var(--color-line)]">{T2.handoff}</span>
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span className="w-8" />
+        <span className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">{T2.outcome}</span>
+        <span className="h-0.5 w-4 rounded-full bg-emerald-300" />
+        <span className="rounded-lg bg-rose-500 px-3 py-2 text-xs font-semibold text-white shadow-sm">{T2.exit}</span>
+        <span className="h-0.5 w-4 rounded-full bg-rose-300" />
+        <span className="rounded-lg bg-teal-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">{T2.handoff}</span>
       </div>
     </div>
   );
