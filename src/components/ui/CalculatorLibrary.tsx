@@ -128,6 +128,22 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
   "text-tools": Type,
 };
 
+/* One tint per CATEGORY, so the badge carries two signals at once: the icon
+   says which tool this is, the colour says which family it belongs to - and
+   a grid of 21 all-blue badges stops reading as a system and starts reading
+   as one repeated element. Written as whole class strings because that is
+   what Tailwind's scanner can see; brand blue stays with Ads, the group the
+   brand colour belongs to, so the accent is not spent arbitrarily. */
+const CATEGORY_TINT: Record<string, string> = {
+  ads: "bg-blue-100 text-blue-600",
+  "revenue-unit-economics": "bg-emerald-100 text-emerald-600",
+  "retention-saas": "bg-violet-100 text-violet-600",
+  "conversion-funnel": "bg-amber-100 text-amber-600",
+  experimentation: "bg-fuchsia-100 text-fuchsia-600",
+  "email-crm": "bg-teal-100 text-teal-600",
+  "text-tools": "bg-slate-200 text-slate-600",
+};
+
 /** Exported: the homepage's Calculators teaser renders this same card, so
     the two grids stay one design by construction. The old `index` prop
     (which varied the retired two-shape badge) is accepted and ignored so
@@ -150,7 +166,9 @@ export function EntryCard({ entry }: { entry: CalcEntry; index?: number }) {
     >
       <span
         aria-hidden
-        className="grid size-10 shrink-0 place-items-center rounded-full bg-blue-100 text-primary-600 sm:mb-1"
+        className={`grid size-10 shrink-0 place-items-center rounded-full sm:mb-1 ${
+          CATEGORY_TINT[entry.categoryKey] ?? CATEGORY_TINT.ads
+        }`}
       >
         <Icon className="size-5" />
       </span>
