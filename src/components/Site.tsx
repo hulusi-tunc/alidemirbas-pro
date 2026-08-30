@@ -324,24 +324,26 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             const external = action.href.startsWith("http");
             return (
               <Reveal key={project.slug} delay={i * 60}>
-                <article className="flex h-full flex-col rounded-[28px] border border-line p-6 sm:p-7">
+                <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-line">
                   <div
                     className="overflow-hidden rounded-2xl p-5 sm:p-6 [&>div]:!shadow-none"
                     style={{ backgroundColor: LAB_PANEL_COLOR[project.slug] ?? "#152049" }}
                   >
                     {preview}
                   </div>
-                  <h3 className="mt-6 text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
-                  <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
-                    {withJourneyCount(project.desc)}
-                  </p>
-                  <a
-                    href={action.href}
-                    {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#1f9d70] px-4 py-2 text-sm font-medium text-[#1f9d70] transition-colors hover:bg-[#1f9d70]/10"
-                  >
-                    {action.label}
-                  </a>
+                  <div className="flex flex-1 flex-col p-6 sm:p-7">
+                    <h3 className="text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
+                    <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
+                      {withJourneyCount(project.desc)}
+                    </p>
+                    <a
+                      href={action.href}
+                      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+                      className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#1f9d70] px-4 py-2 text-sm font-medium text-[#1f9d70] transition-colors hover:bg-[#1f9d70]/10"
+                    >
+                      {action.label}
+                    </a>
+                  </div>
                 </article>
               </Reveal>
             );
