@@ -159,12 +159,27 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
        the statement sits in the middle of it the way a product's own
        landing page opens. */
     <section className="relative isolate overflow-hidden bg-paper pt-20 pb-24 text-center md:pt-28 md:pb-32">
-      {layers.length > 0 && <ParallaxField layers={[...layers]} />}
-      {/* Keeps the type legible over whatever the art does underneath,
-          without flattening the art itself. */}
+      {layers.length > 0 ? (
+        <ParallaxField layers={[...layers]} />
+      ) : (
+        /* THE AMBIENT FALLBACK, and it is not a placeholder. Three soft
+           brand blooms on the same drift keyframes the art layers use, so
+           the hero has colour and motion from CSS alone. The generated
+           illustration is an upgrade to this, never a dependency of it -
+           which matters because the art is produced by a queue that can be
+           slow or down, and a hero that renders as a blank white box in
+           that case would be the wrong trade. */
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="parallax-drift absolute -top-40 left-1/2 h-[38rem] w-[38rem] -translate-x-[70%] rounded-full bg-[radial-gradient(circle,var(--color-primary-400)_0%,transparent_70%)] opacity-25" />
+          <div className="parallax-drift-slow absolute -top-24 left-1/2 h-[32rem] w-[32rem] translate-x-[10%] rounded-full bg-[radial-gradient(circle,var(--color-primary-300)_0%,transparent_70%)] opacity-30" />
+          <div className="parallax-drift absolute top-32 left-1/2 h-[26rem] w-[26rem] -translate-x-[10%] rounded-full bg-[radial-gradient(circle,#7c3aed_0%,transparent_70%)] opacity-[0.12]" />
+        </div>
+      )}
+      {/* Keeps the type legible over whatever sits underneath, without
+          flattening it. */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-paper/70 via-paper/40 to-paper"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-paper/50 via-paper/30 to-paper"
       />
 
       <div className="altor-container relative">
