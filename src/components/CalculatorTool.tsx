@@ -164,13 +164,13 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
               field-gap of air when the form is tall. */}
           <div aria-hidden className="min-h-6 flex-1" />
 
-          {/* btn-keep-tone: the stage band is data-tone="dark", which flips
-              a primary button to the white dark-ground plate - but this one
-              sits on the card's WHITE half inside that band, so it opts out
-              and keeps the brand-blue plate the light ground calls for.
-              `sm` is the compact 40px tier - the 56px control read as
-              oversized in this panel. */}
-          <Button type="submit" variant="primary" size="sm" className="btn-keep-tone w-full">
+          {/* `sm` is the compact 40px tier - the 56px control read as
+              oversized in this panel. (This carried `btn-keep-tone` while
+              the stage band was data-tone="dark" and would otherwise have
+              flipped the primary to its white dark-ground plate. The band
+              is light as of 2026-08-30, so there is no flip to opt out of
+              and the class is gone rather than left as a no-op.) */}
+          <Button type="submit" variant="primary" size="sm" className="w-full">
             {lang === "en" ? "Calculate" : "Hesapla"}
           </Button>
         </form>

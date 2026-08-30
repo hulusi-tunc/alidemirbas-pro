@@ -75,45 +75,40 @@ export default function CalculatorDetailTemplate({
 
   return (
     /* Banded, not one flat column: the ground shifts at each section
-       boundary (dark hero stage → white explanation → soft FAQ → white
+       boundary (soft hero stage → white explanation → soft FAQ → white
        exit), so the seams are real surfaces rather than padding-only gaps.
        Two measures on purpose - the tool stages at 880px, wider than the
        760px prose below it, because the working surface is the page's
        anchor and its size should say so. */
     <div className="pb-24">
-      {/* The stage: title, the tool, and the evidence for it, on the site's
-          FIRST hero ground - the dark band the homepage originally opened
-          on (commit 1153504), ported verbatim: ink-950, the quiet blue
-          radial wash bleeding down from above the fold, and the faint
-          vertical rules. It came off the homepage when the site went
-          light-first; it lives on here, where the calculator family is
-          allowed to spend the brand. */}
-      <section
-        data-tone="dark"
-        className="relative isolate overflow-hidden border-b border-line bg-ink-950"
-      >
-        <div
-          aria-hidden
-          className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
-        />
+      {/* The stage, LIGHT (2026-08-30). This was the site's first homepage
+          hero ground - ink-950 with a blue radial wash and faint vertical
+          rules - ported here verbatim. It is retired: on a page whose job
+          is one number, the darkest, loudest surface was the band holding
+          the title, and the tool sat inside it as a bright rectangle
+          fighting its own ground.
+
+          The colour has not been removed, it has been MOVED. The stage is
+          quiet `paper-soft`; the one saturated surface on the page is now
+          the blue answer plate inside the tool, which is the thing the
+          visitor came for. That ordering - open clean, colour where the
+          product is - is the mechanism, and the reason the wash and the
+          gradient title are gone rather than re-tinted: a coloured glow on
+          white is a default, not a decision. */}
+      <section className="border-b border-line bg-paper-soft">
         <div className="mx-auto max-w-[880px] px-5 pt-10 pb-12 sm:px-6 md:pt-14 md:pb-14">
           <header className="text-center">
             <Link
               href={basePath}
-              className="inline-flex items-center gap-1.5 text-[13px] text-white/60 transition-colors hover:text-white"
+              className="inline-flex items-center gap-1.5 text-[13px] text-ink-400 transition-colors hover:text-ink-900"
             >
               <ArrowLeft aria-hidden className="size-3.5" />
               {t.back}
             </Link>
-            {/* The first hero's own title treatment: primary-300 → white. */}
-            <h1 className="mt-5 bg-gradient-to-r from-primary-300 to-white bg-clip-text text-[clamp(2rem,1.4rem+2.4vw,2.875rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-transparent">
+            <h1 className="mt-5 text-[clamp(2rem,1.4rem+2.4vw,2.875rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
               {title}
             </h1>
-            <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-pretty text-white/70">
+            <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-pretty text-ink-500">
               {page.tagline}
             </p>
           </header>
@@ -121,10 +116,12 @@ export default function CalculatorDetailTemplate({
           <div className="mt-9">{children}</div>
 
           {/* The example, as evidence rather than as another section: a
-              SOLID paper card on the dark band (a translucent wash sat
-              here and was rejected in review), echoing the tool card's own
-              white half. Monospace, no heading competing with the prose
-              below it. */}
+              SOLID paper card (a translucent wash sat here and was
+              rejected in review), echoing the tool card's own white half.
+              Still white now that the stage is `paper-soft` - one step of
+              ground is what separates it, the same relationship the tool
+              card above it has. Monospace, no heading competing with the
+              prose below it. */}
           {(page.workedExample || workedExampleFallback) && (
             <div className="mt-4 rounded-card bg-paper px-5 py-4">
               <p className="text-[13px] font-medium text-blue-700">{t.workedExample}</p>
