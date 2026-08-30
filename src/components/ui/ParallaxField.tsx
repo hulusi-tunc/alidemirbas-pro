@@ -91,7 +91,13 @@ export function ParallaxField({ layers }: { layers: ParallaxLayer[] }) {
             fill
             priority={i === 0}
             sizes="100vw"
-            className={layer.className ?? "object-cover"}
+            /* `mix-blend-multiply`: the art is rendered on white, and
+               JPEG carries no alpha, so without this each layer would
+               paint an opaque white rectangle over the one behind it.
+               Multiplying makes white transparent and keeps the colour -
+               which is exactly the compositing these light layers want,
+               and costs nothing. */
+            className={layer.className ?? "object-cover mix-blend-multiply"}
           />
         </div>
       ))}

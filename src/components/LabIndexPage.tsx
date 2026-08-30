@@ -144,11 +144,16 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
   /* Only the layers that actually exist. The hero is composed on white and
      reads correctly with no art at all, so a missing file is a quieter
      hero rather than a broken one. */
+  /* Back to front, each quieter than the one behind it. The opacities are
+     the "keep generated grounds quiet" rule applied literally: at full
+     strength the glass shapes competed with the headline sitting on top of
+     them, which is the same objection that killed the ambient texture on
+     the calculator answer plate. */
   const layers = (
     [
-      { src: "/lab/layer-orb.png", depth: 0.06 },
-      { src: "/lab/layer-ribbons.png", depth: 0.14 },
-      { src: "/lab/layer-shapes.png", depth: 0.24 },
+      { src: "/lab/layer-orb.jpg", depth: 0.06, className: "object-cover mix-blend-multiply opacity-70" },
+      { src: "/lab/layer-ribbons.jpg", depth: 0.14, className: "object-cover mix-blend-multiply opacity-50" },
+      { src: "/lab/layer-shapes.jpg", depth: 0.24, className: "object-cover mix-blend-multiply opacity-35" },
     ] as const
   ).filter((l) => hasArt(l.src));
 
@@ -179,7 +184,7 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
           flattening it. */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-paper/50 via-paper/30 to-paper"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-paper/60 via-paper/45 to-paper"
       />
 
       <div className="altor-container relative">
@@ -198,21 +203,47 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
           </p>
         </Reveal>
 
-        {/* The six real projects as chips under the statement: a product
-            landing page says what it contains above the fold, and these
-            double as jump links into the bands below. */}
+        {/* WHAT'S INSIDE, above the fold. Still the six real projects and
+            still jump links into the bands below - but each entry now
+            carries that project's own `proof`, so the opening states the
+            Lab's scale instead of only naming its parts.
+
+            The mechanism is taken from mobbin.com/mcp, which opens by
+            saying how much it holds ("621,500+ shipped screens") and only
+            then shows the evidence. Its surface is not taken: no card
+            imagery, no borrowed palette, nothing about how that page
+            looks. Claim first, witnesses below, is the transferable part.
+
+            This also retires six single-label pills. A box around one word
+            is a fence, not a card (anti-patterns.md #6, whose detector is
+            content-node diversity per card <= 1); these hold two real
+            nodes now - a name and a sourced number - so the tile earns
+            its ground.
+
+            NOTHING HERE IS COMPUTED. Every number is the project's own
+            `proof` string from content.ts, already sourced and already
+            rendered inside its band; `withJourneyCount` fills the Journey
+            Library's live {count}/{categories} tokens exactly as the band
+            does. All six carry one today, but `proof` is nullable by
+            design and the second line is therefore conditional: a project
+            without a real number shows its name alone. An absent line,
+            never an invented one. */}
         <Reveal delay={160}>
-          <ul className="mx-auto mt-10 flex max-w-3xl list-none flex-wrap justify-center gap-2 p-0">
-            {projects.map((p) => (
-              <li key={p.slug}>
-                <a
-                  href={`#${p.slug}`}
-                  className="inline-flex rounded-full bg-paper-soft px-3.5 py-1.5 text-sm text-ink-700 transition-colors hover:bg-blue-50 hover:text-primary-700"
-                >
-                  {p.name}
-                </a>
-              </li>
-            ))}
+          <ul className="mx-auto mt-10 grid max-w-3xl list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            {projects.map((p) => {
+              const proof = p.proof ? withJourneyCount(p.proof) : null;
+              return (
+                <li key={p.slug}>
+                  <a
+                    href={`#${p.slug}`}
+                    className="flex h-full flex-col gap-0.5 rounded-card bg-paper-soft px-4 py-3 text-left transition-colors hover:bg-blue-50"
+                  >
+                    <span className="text-[14px] leading-snug font-medium text-ink-950">{p.name}</span>
+                    {proof && <span className="text-[13px] text-ink-500 tabular-nums">{proof}</span>}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </Reveal>
       </div>
