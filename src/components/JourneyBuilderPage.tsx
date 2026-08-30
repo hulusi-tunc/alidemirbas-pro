@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
@@ -33,51 +33,61 @@ const REPO = "https://github.com/ali-demirbas/claude-lifecycle";
 function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.journeyBuilder;
   return (
-    <section className="relative isolate overflow-hidden bg-paper pt-16 pb-20 md:pt-20 md:pb-28">
-      <PortraitContainer>
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-14">
-          <div>
-            <Reveal>
-              <p className="altor-eyebrow mb-5 text-ink-400">{c.eyebrow}</p>
-              <h1 className="text-h1-fluid font-medium text-ink-950">{c.title}</h1>
-            </Reveal>
-            <Reveal delay={90} className="mt-6">
-              <p className="max-w-xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
-            </Reveal>
-            <Reveal delay={140} className="mt-8">
-              <div className="flex flex-wrap gap-2.5">
-                <JourneyLibraryCta lang={lang} label={c.ctaLibrary} />
-                <a
-                  href={REPO}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-12 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-medium text-ink-700 transition-colors duration-[var(--duration-fast)] hover:border-ink-300 hover:text-ink-950"
-                >
-                  {t.abTesting.repoLink}
-                  <ArrowUpRight aria-hidden className="size-3.5" />
-                </a>
-              </div>
-            </Reveal>
-            <Reveal delay={180} className="mt-7">
-              <ul className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] text-ink-400">
-                {c.proof.map((item, i) => (
-                  <li key={item} className="flex items-center gap-3">
-                    {i > 0 && <span aria-hidden className="size-1 rounded-full bg-ink-200" />}
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </div>
+    <section className="relative isolate overflow-hidden bg-paper pt-16 pb-24 md:pt-20 md:pb-32">
+      <PortraitContainer className="text-center">
+        <Reveal>
+          <p className="altor-eyebrow mb-5 text-ink-400">{c.eyebrow}</p>
+          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{c.title}</h1>
+        </Reveal>
+        <Reveal delay={90} className="mt-6">
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+        </Reveal>
+        <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
+          <JourneyLibraryCta lang={lang} label={c.ctaLibrary} />
+          <a
+            href={REPO}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-12 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-medium text-ink-700 transition-colors duration-[var(--duration-fast)] hover:border-ink-300 hover:text-ink-950"
+          >
+            {t.abTesting.repoLink}
+            <ArrowUpRight aria-hidden className="size-3.5" />
+          </a>
+        </Reveal>
+        <Reveal delay={180} className="mt-7">
+          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-[13px] text-ink-500">
+            {c.proof.map((item) => (
+              <li key={item} className="flex items-center gap-1.5">
+                <Check aria-hidden className="size-3.5 shrink-0 text-primary-600" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
 
-          <Reveal delay={120} className="min-w-0">
-            <HeroVideoCard
-              poster="/images/claude-lifecycle/08-journey-acq-01.jpg"
-              posterAlt="ACQ-01, a real acquisition journey, as a claude-lifecycle state machine"
-              video="/images/claude-lifecycle/02-hero-workflow-demo.mp4"
-            />
-          </Reveal>
-        </div>
+        {/* Video-first product visual, with floating real-fragment
+            decoration around it - the same three fragments the final CTA
+            uses, echoed here per the Peerbie hero's own composition
+            (a dominant screenshot with a few decorative shapes drifting
+            past its edges), desktop only. */}
+        <Reveal delay={220} className="relative mx-auto mt-16 max-w-4xl">
+          <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
+            <div className="absolute -top-8 -left-14 w-32 -rotate-6 opacity-90">
+              <Image src="/images/claude-lifecycle/13-fragment-trigger.jpg" alt="" width={280} height={175} className="rounded-lg shadow-lg" />
+            </div>
+            <div className="absolute -top-10 -right-10 w-36 rotate-3 opacity-90">
+              <Image src="/images/claude-lifecycle/14-fragment-handoff.jpg" alt="" width={280} height={175} className="rounded-lg shadow-lg" />
+            </div>
+            <div className="absolute -bottom-10 -left-8 w-32 rotate-2 opacity-90">
+              <Image src="/images/claude-lifecycle/15-fragment-validated.jpg" alt="" width={280} height={175} className="rounded-lg shadow-lg" />
+            </div>
+          </div>
+          <HeroVideoCard
+            poster="/images/claude-lifecycle/08-journey-acq-01.jpg"
+            posterAlt="ACQ-01, a real acquisition journey, as a claude-lifecycle state machine"
+            video="/images/claude-lifecycle/02-hero-workflow-demo.mp4"
+          />
+        </Reveal>
       </PortraitContainer>
     </section>
   );
