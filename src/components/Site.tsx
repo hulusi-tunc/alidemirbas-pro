@@ -278,65 +278,54 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/** Lab, as real-preview rows rather than a numbered link list or a second
-    card grid. Each row reuses the exact illustrative preview LabIndexPage
-    already builds for that project (LabPreviews.tsx) - real journey-canvas
-    nodes, real category counts, the real AB-004 record, honestly-labelled
-    bar/row illustrations for the two tools with no single number to show -
-    instead of a generic icon-in-a-box standing in for "app screenshot we
-    don't have" (exactly the filler this system's own anti-patterns name).
+/** Lab, as bordered cards - frame on top, title, description, one action
+    pill below - reusing the exact illustrative preview LabIndexPage
+    already builds for that project (LabPreviews.tsx) instead of a fake
+    "product screenshot": real journey-canvas nodes, real category counts,
+    the real AB-004 record, honestly-labelled bar/row illustrations for the
+    two tools with no single number to show. A user-supplied reference for
+    this layout used AI-generated screenshot mockups with garbled,
+    meaningless UI text baked into the images - realistic-looking fabricated
+    evidence, which this project's own constitution (AGENTS.md, anti-
+    patterns.md #9) bans outright. Same card shape, same one-per-project
+    frame-then-text-then-button structure; every pixel inside the frame is
+    real.
 
-    One column, full-width rows on narrow viewports; two columns side by
-    side from `md` up. Each row's own composition (preview left, text
-    right) stays fixed at every width - only the number of rows per line
-    changes, so mobile is not "the same grid, fewer columns" but the
-    desktop view reads as an actual grid rather than a rescaled list. */
+    One column, full-width cards on narrow viewports; two columns side by
+    side from `md` up. */
 function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   return (
     <section id="lab" className="bg-paper-soft py-24 md:py-28">
       <div className="altor-container">
         <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
 
-        <div className="mt-14 grid grid-cols-1 gap-x-12 gap-y-12 md:grid-cols-2 md:gap-y-14">
+        <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2">
           {t.lab.projects.map((project, i) => {
-            const href = project.links[0].href;
-            const external = href.startsWith("http");
-            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack", compact: true });
+            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack" });
+            // Prefer the real GitHub link when one exists; five of six
+            // projects have one. The Canonical Journey Library doesn't (it
+            // lives at /lab/journeys, not a separate repo) - falling back to
+            // its own first link rather than fabricating a GitHub URL.
+            const action = project.links.find((l) => l.href.includes("github.com")) ?? project.links[0];
+            const external = action.href.startsWith("http");
             return (
               <Reveal key={project.slug} delay={i * 60}>
-                <Link
-                  href={href}
-                  {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                  className="group flex items-start gap-5 sm:gap-6"
-                >
-                  {/* The preview components are full detail-page panels
-                      (min-h 190-240px); framed and clipped to a fixed
-                      thumbnail here rather than resized, so nothing inside
-                      them has to know it's being used at teaser scale. 152px
-                      clears every panel's header plus its first real content
-                      row (checked against all six); the fade masks the clip
-                      line instead of cutting text off hard. */}
-                  <span
-                    aria-hidden
-                    className="relative block h-[144px] w-[152px] shrink-0 overflow-hidden rounded-[10px] sm:h-[156px] sm:w-[176px]"
+                <article className="flex h-full flex-col rounded-2xl border border-line bg-paper p-6 sm:p-7">
+                  <div className="overflow-hidden rounded-xl bg-paper-soft p-3 sm:p-4 [&>div]:!shadow-none">
+                    {preview}
+                  </div>
+                  <h3 className="mt-6 text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
+                  <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
+                    {withJourneyCount(project.desc)}
+                  </p>
+                  <a
+                    href={action.href}
+                    {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+                    className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
                   >
-                    <span className="block transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.03] [&>div]:!shadow-none">
-                      {preview}
-                    </span>
-                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-paper-soft to-transparent" />
-                  </span>
-                  <span className="min-w-0 pt-1">
-                    <span className="tnum font-mono text-xs text-ink-400">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="mt-1.5 block text-lg font-semibold text-ink-950 sm:text-xl">
-                      {project.name}
-                    </span>
-                    <span className="mt-2 block max-w-[46ch] text-[0.9375rem] leading-relaxed text-ink-600">
-                      {withJourneyCount(project.desc)}
-                    </span>
-                  </span>
-                </Link>
+                    {action.label}
+                  </a>
+                </article>
               </Reveal>
             );
           })}
