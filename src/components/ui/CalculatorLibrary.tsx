@@ -67,14 +67,13 @@ export type CategoryFacet = { id: string; label: string; count: number };
 const T = {
   en: {
     searchPlaceholder: "Search calculators...",
-    countAll: (n: number) => `${n} calculator${n === 1 ? "" : "s"}`,
+    // No resting total any more - it only appears while a filter is on.
     countFiltered: (n: number, total: number) => `${n} of ${total} calculators`,
     empty: "No calculators match your search.",
     clear: "Clear search & filters",
   },
   tr: {
     searchPlaceholder: "Hesaplayıcılarda ara...",
-    countAll: (n: number) => `${n} hesaplayıcı`,
     countFiltered: (n: number, total: number) => `${n} / ${total} hesaplayıcı`,
     empty: "Bu aramayla eşleşen hesaplayıcı yok.",
     clear: "Aramayı ve filtreleri temizle",
@@ -218,11 +217,23 @@ function FacetChip({
 }
 
 export function CalculatorLibrary({
-  lang, entries, categoryFacets,
+  lang, entries, categoryFacets, heroTitle, heroSub,
 }: {
   lang: Lang;
   entries: CalcEntry[];
   categoryFacets: CategoryFacet[];
+  /** The page's title copy. Rendered here, above the search field, so the
+      two read as one composed hero - search is the primary action on an
+      index of 21 tools and belongs with the title, not in a utility strip
+      below it.
+
+      PLAIN STRINGS, not a JSX slot. The route is a Server Component and
+      this is a Client Component: JSX handed across that boundary is
+      serialised, which loses the marker React uses to tell a static child
+      list from a dynamic one, so a `<div>` holding an h1 and a p arrives
+      looking like an unkeyed array and warns. Strings cross cleanly. */
+  heroTitle: string;
+  heroSub: string;
 }) {
   const t = T[lang];
   const [query, setQuery] = useState("");
@@ -247,21 +258,38 @@ export function CalculatorLibrary({
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="relative w-full max-w-96">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.searchPlaceholder}
-            aria-label={t.searchPlaceholder}
-            className="box-border w-full rounded-full bg-paper-soft py-2.5 pr-4 pl-10 text-sm text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
-          />
-          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-400" />
-        </div>
-        <p className="text-sm whitespace-nowrap text-ink-500">
-          {filtered ? t.countFiltered(results.length, entries.length) : t.countAll(entries.length)}
-        </p>
+      <div className="mx-auto max-w-2xl text-center">
+        <h1 className="text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+          {heroTitle}
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-pretty text-ink-500">{heroSub}</p>
       </div>
+
+      {/* Search, centred under the title and at a size that reads as the
+          page's primary control rather than as a filter accessory. It used
+          to sit left in a strip with a running total on the right; the
+          total is gone (the facet chips already carry per-category counts,
+          and a bare "21 calculators" beside an empty field only told the
+          reader something the grid below already showed). */}
+      <div className="relative mx-auto mt-8 w-full max-w-xl">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t.searchPlaceholder}
+          aria-label={t.searchPlaceholder}
+          className="box-border w-full rounded-full bg-paper-soft py-4 pr-5 pl-13 text-base text-ink-950 outline-none transition-shadow placeholder:text-ink-400 focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
+        />
+        <Search aria-hidden className="pointer-events-none absolute top-1/2 left-5 size-4.5 -translate-y-1/2 text-ink-400" />
+      </div>
+
+      {/* The count survives ONLY while a filter is on, where it answers a
+          question the reader just asked ("did that narrow it to anything?").
+          At rest it said nothing the grid did not. */}
+      {filtered && (
+        <p aria-live="polite" className="mt-3 text-center text-sm text-ink-500">
+          {t.countFiltered(results.length, entries.length)}
+        </p>
+      )}
 
       {/* The category facet as a multi-select chip row above the grid: the
           filter is multi-select and a chip row reads that way, where a
@@ -275,8 +303,11 @@ export function CalculatorLibrary({
           content it filters. One swipeable line, snapping to a chip, with
           a fade at the edge so it reads as scrollable. It goes back to
           wrapping at `sm`, where the whole set fits in one or two lines. */}
-      <div className="relative mt-5">
-        <div className="no-scrollbar -mx-6 flex snap-x snap-mandatory gap-2 overflow-x-auto px-6 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+      <div className="relative mt-7">
+        {/* Centred from `sm` up, to sit under a centred title and search
+            rather than hanging off the left edge of the grid. Still the
+            swipeable rail below that. */}
+        <div className="no-scrollbar -mx-6 flex snap-x snap-mandatory gap-2 overflow-x-auto px-6 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0">
           {categoryFacets.map((f) => (
             <div key={f.id} className="shrink-0 snap-start">
               <FacetChip

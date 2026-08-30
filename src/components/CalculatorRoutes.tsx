@@ -46,12 +46,14 @@ const T = {
 const HERO = {
   en: {
     eyebrow: "Calculators",
-    title: "Growth math, without the spreadsheet.",
+    // Shortened 2026-08-30 - it now sits above the search field rather than
+    // alone in a band, and a two-line title pushed the field down the fold.
+    title: "Growth math, no spreadsheet.",
     sub: "A collection of practical calculators covering growth, acquisition, retention, experimentation and unit economics - no account, no tracking of your inputs.",
   },
   tr: {
     eyebrow: "Hesaplayıcılar",
-    title: "Excel'e gerek kalmadan büyüme matematiği.",
+    title: "Excel'siz büyüme matematiği.",
     sub: "Büyüme, edinme, elde tutma, deneysel test ve birim ekonomisini kapsayan pratik hesaplayıcılardan oluşan bir koleksiyon - hesap gerektirmez, girdileriniz izlenmez.",
   },
 };
@@ -207,22 +209,22 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
             "modern SaaS look" default, and the point here is a clean open,
             not a second effect. Colour arrives one row down, in the
             per-category icon tints. */}
-        {/* Tinted rather than white-with-a-rule: the stage and the grid
-            below it were both white, so a hairline was doing all the
-            seam work. One step of ground does it without a stroke, and
-            matches the detail pages' own stage. */}
-        <section className="bg-paper-soft pt-16 pb-14 md:pt-20 md:pb-16">
-          <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
-            <h1 className="mx-auto max-w-2xl text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-ink-950">
-              {hero.title}
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-pretty text-ink-500">{hero.sub}</p>
-          </div>
-        </section>
-
-        <section className="pt-10 pb-24">
+        {/* ONE white band, hero and library together. The stage was briefly
+            tinted `paper-soft` to give the seam between two white sections
+            something to be - but the honest fix was to stop having two
+            sections. Search is the primary action on an index of 21 tools,
+            so it moved up into the hero, and with the title, the search and
+            the results in one continuous flow there is no seam left to
+            solve: no tint, no rule, white throughout. */}
+        <section className="bg-paper pt-16 pb-24 md:pt-20">
           <div className="mx-auto max-w-320 px-6 sm:px-12">
-            <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
+            <CalculatorLibrary
+              lang={lang}
+              entries={entries}
+              categoryFacets={categoryFacets}
+              heroTitle={hero.title}
+              heroSub={hero.sub}
+            />
           </div>
         </section>
       </main>
