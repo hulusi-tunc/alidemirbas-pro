@@ -411,6 +411,72 @@ export const copy = {
         abTest: "A/B Test Playbook",
         abTestDesc: "The experimentation side of the same practice.",
       },
+      whyDifferent: {
+        eyebrow: "Why claude-lifecycle",
+        title: "Why claude-lifecycle is different",
+        feature1: {
+          title: "Every path is explicit",
+          body: "Conditions are not vague decision points. Each branch must lead to another state, a handoff or an explicit exit.",
+        },
+        feature2: {
+          title: "Handoffs carry state",
+          body: "A handoff transfers lifecycle context from one journey to the next instead of treating every workflow as an isolated automation.",
+        },
+        feature3: {
+          title: "Reusable lifecycle architecture",
+          body: "Build journeys as reusable lifecycle patterns instead of isolated automation flows. Extend them, connect them through handoffs, and keep the underlying state logic explicit.",
+        },
+      },
+      carousel: {
+        eyebrow: "The library",
+        title: "{count} lifecycle journeys",
+        body: "Explore reusable journey patterns across acquisition, activation, retention, identity, consent and more. Start from an existing lifecycle structure instead of a blank canvas.",
+      },
+      faq: {
+        eyebrow: "FAQ",
+        title: "Questions? Answers.",
+        items: [
+          {
+            q: "What is claude-lifecycle?",
+            a: "claude-lifecycle is an open-source lifecycle architecture library for structuring customer journeys as explicit states, branches, waits, handoffs and exits. It is designed to provide a stronger starting point for lifecycle planning instead of beginning every automation from a blank canvas.",
+          },
+          {
+            q: "Is claude-lifecycle a journey builder or a journey library?",
+            a: "It is primarily a structured journey library and architecture system. The journeys define lifecycle logic and reusable patterns that can then be adapted to the tools, channels and data model used by a specific product or business.",
+          },
+          {
+            q: "What does a journey contain?",
+            a: "A journey can contain triggers, conditions, actions, waits, handoffs and exits. These states make entry logic, branching behavior, timing, transitions and terminal outcomes explicit rather than leaving important lifecycle behavior undefined.",
+          },
+          {
+            q: "How many journeys are included?",
+            a: "The current library contains 281 lifecycle journeys organized across 26 categories.",
+          },
+          {
+            q: "Can I adapt the journeys to my own product?",
+            a: "Yes. The journeys are intended as reusable starting points rather than rigid implementations. Teams can adapt triggers, conditions, timing and downstream actions while preserving the underlying lifecycle logic.",
+          },
+          {
+            q: "What is a handoff?",
+            a: "A handoff explicitly transfers lifecycle state from one journey to another. Instead of treating workflows as isolated automations, handoffs make the relationship between journeys and the state being carried forward visible.",
+          },
+          {
+            q: "How does validation work?",
+            a: "Validation checks whether important structural rules are complete, including entry states, condition branches, bounded waits, handoffs and explicit exits. The goal is to identify incomplete lifecycle logic before implementation.",
+          },
+          {
+            q: "How do I use claude-lifecycle?",
+            a: "Open the GitHub repository, review the available journeys and use the project structure with Claude Code to explore, adapt and implement lifecycle patterns for your own product.",
+          },
+        ],
+      },
+      pageCta: {
+        eyebrow: "OPEN SOURCE · GITHUB",
+        title: "Build lifecycle logic from a stronger starting point.",
+        primary: "View on GitHub",
+        secondary: "Explore journeys",
+      },
+      watchDemo: "Watch demo",
     },
     abTesting: {
       metaTitle: "A/B Test Playbook - Ali Demirbaş",
@@ -992,6 +1058,72 @@ export const copy = {
         abTest: "A/B Test Playbook",
         abTestDesc: "Aynı pratiğin deney tarafı.",
       },
+      whyDifferent: {
+        eyebrow: "Neden claude-lifecycle",
+        title: "claude-lifecycle neden farklı",
+        feature1: {
+          title: "Her yol açıkça tanımlı",
+          body: "Koşullar belirsiz karar noktaları değildir. Her dal başka bir duruma, bir devire ya da açık bir çıkışa bağlanmak zorundadır.",
+        },
+        feature2: {
+          title: "Devirler durumu taşır",
+          body: "Bir devir, lifecycle bağlamını bir journey'den diğerine aktarır — her workflow'u izole bir otomasyon gibi ele almak yerine.",
+        },
+        feature3: {
+          title: "Yeniden kullanılabilir lifecycle mimarisi",
+          body: "Journey'leri izole otomasyon akışları yerine yeniden kullanılabilir lifecycle kalıpları olarak kur. Onları genişlet, devirlerle birbirine bağla ve altta yatan durum mantığını açık tut.",
+        },
+      },
+      carousel: {
+        eyebrow: "Kütüphane",
+        title: "{count} lifecycle journey",
+        body: "Edinme, aktivasyon, elde tutma, kimlik, rıza ve daha fazlasında yeniden kullanılabilir journey kalıplarını keşfet. Boş bir sayfa yerine mevcut bir lifecycle yapısından başla.",
+      },
+      faq: {
+        eyebrow: "SSS",
+        title: "Sorular? Cevaplar.",
+        items: [
+          {
+            q: "claude-lifecycle nedir?",
+            a: "claude-lifecycle, müşteri journey'lerini açık durumlar, dallar, beklemeler, devirler ve çıkışlar olarak yapılandırmak için açık kaynaklı bir lifecycle mimarisi kütüphanesidir. Her otomasyona boş bir sayfadan başlamak yerine, lifecycle planlaması için daha güçlü bir başlangıç noktası sağlamak üzere tasarlanmıştır.",
+          },
+          {
+            q: "claude-lifecycle bir journey builder mı, yoksa bir journey kütüphanesi mi?",
+            a: "Öncelikle yapılandırılmış bir journey kütüphanesi ve mimari sistemidir. Journey'ler, belirli bir ürün ya da işin kullandığı araçlara, kanallara ve veri modeline uyarlanabilecek lifecycle mantığını ve yeniden kullanılabilir kalıpları tanımlar.",
+          },
+          {
+            q: "Bir journey neler içerir?",
+            a: "Bir journey; tetikleyiciler, koşullar, aksiyonlar, beklemeler, devirler ve çıkışlar içerebilir. Bu durumlar; giriş mantığını, dallanma davranışını, zamanlamayı, geçişleri ve nihai sonuçları belirsiz bırakmak yerine açıkça tanımlar.",
+          },
+          {
+            q: "Kaç journey dahil?",
+            a: "Kütüphane şu anda 26 kategoriye yayılmış 281 lifecycle journey içeriyor.",
+          },
+          {
+            q: "Journey'leri kendi ürünüme uyarlayabilir miyim?",
+            a: "Evet. Journey'ler katı uygulamalar değil, yeniden kullanılabilir başlangıç noktaları olarak tasarlanmıştır. Ekipler, altta yatan lifecycle mantığını korurken tetikleyicileri, koşulları, zamanlamayı ve sonraki aksiyonları uyarlayabilir.",
+          },
+          {
+            q: "Devir (handoff) nedir?",
+            a: "Bir devir, lifecycle durumunu bir journey'den diğerine açıkça aktarır. Workflow'ları izole otomasyonlar gibi ele almak yerine, devirler journey'ler arasındaki ilişkiyi ve taşınan durumu görünür kılar.",
+          },
+          {
+            q: "Doğrulama (validation) nasıl çalışır?",
+            a: "Doğrulama; giriş durumları, koşul dalları, sınırlı beklemeler, devirler ve açık çıkışlar dahil olmak üzere önemli yapısal kuralların tamamlanıp tamamlanmadığını kontrol eder. Amaç, uygulamadan önce eksik lifecycle mantığını tespit etmektir.",
+          },
+          {
+            q: "claude-lifecycle'ı nasıl kullanırım?",
+            a: "GitHub deposunu aç, mevcut journey'leri incele ve kendi ürünün için lifecycle kalıplarını keşfetmek, uyarlamak ve uygulamak üzere Claude Code ile proje yapısını kullan.",
+          },
+        ],
+      },
+      pageCta: {
+        eyebrow: "AÇIK KAYNAK · GITHUB",
+        title: "Lifecycle mantığını daha güçlü bir başlangıç noktasından kur.",
+        primary: "GitHub'da görüntüle",
+        secondary: "Journey'leri keşfet",
+      },
+      watchDemo: "Demoyu izle",
     },
     abTesting: {
       metaTitle: "A/B Test Playbook - Ali Demirbaş",
