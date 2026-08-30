@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalcPanel, PanelLabel, PrimaryResult, ResultHint, SecondaryResults } from "@/components/ui/CalcPanel";
+import { CalcPanel, PrimaryResult, ResultHint, SecondaryResults } from "@/components/ui/CalcPanel";
 import type { RuntimeCalcSpec } from "@/lib/calc-catalog";
 import { getCompute } from "@/lib/calc-registry";
 import { formatByUnit } from "@/lib/calc-format";
@@ -108,13 +108,26 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
   const vcMax = Math.max(pricePerUnit - 1, 0);
   const clampedVariableCost = Math.min(variableCostPerUnit, vcMax);
 
+  /* This tool opens ALREADY answered (the sliders start on the example),
+     so the plate's answer burst never fires on load - only when a slider
+     actually moves the answer. A drag changes it continuously; PixelBurst
+     absorbs the mid-sweep pulses, so dragging reads as back-to-back
+     sweeps rather than a strobe. */
+  const signature = valid ? JSON.stringify(results) : null;
+  const [pulsedFor, setPulsedFor] = useState(signature);
+  const [pulse, setPulse] = useState(0);
+  if (signature !== pulsedFor) {
+    setPulsedFor(signature);
+    if (signature !== null) setPulse((p) => p + 1);
+  }
+
   return (
     <CalcPanel
       split="input-heavy"
+      answerPulse={pulse}
       inputs={
         <>
-          <PanelLabel>{lang === "en" ? "Inputs" : "Girdiler"}</PanelLabel>
-          <div className="mt-4 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <Slider
               label={byKey.get("fixedCosts")?.label ?? "Fixed costs"}
               value={fixedCosts}

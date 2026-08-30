@@ -2,38 +2,44 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import {
+  ArrowRight,
+  FlaskConical,
+  Funnel,
+  Mail,
+  Megaphone,
+  RefreshCw,
+  Search,
+  TrendingUp,
+  Type,
+  type LucideIcon,
+} from "lucide-react";
 
 import type { Lang } from "@/lib/content";
 
-/* Calculators index — converted to a user-supplied mockup (warm cream
-   palette #faf9f6, square checkbox facets, two-shape OKLCH icon badges
-   per category). A DELIBERATE one-off, same reasoning as the About page
-   conversion: this mockup specifies its own colors/card grammar, not the
-   Portrait system the rest of the site (Contact/Stack/Blog/Lab/404) still
-   uses — reproducing it exactly means not forcing it through those
-   pages' tokens. Nothing here touches globals.css or any shared
-   primitive; `CalculatorRoutes.tsx`'s own `CalculatorDetailPage` (the
-   real calculator tool pages) is untouched and keeps its current
-   look.
+/* Calculators index, in the calculator family's own language (the cream
+   mockup one-off this file used to be is retired - the family now has a
+   real design language, set on the detail pages): square-edged cards on
+   the site tokens, Lucide category icons on brand tiles (one icon set,
+   never a drawn shape standing in for one), category filters as a
+   multi-select chip row ABOVE the grid rather than a sidebar - the
+   filter is multi-select, and a chip row reads that way (and was where
+   the owner suggested it belonged).
 
    REAL DATA ONLY, same discipline as before: `entries`/`categoryFacets`
    are computed by `CalculatorIndexPage` from the live catalog
    (calc-catalog.ts) + TEXT_TOOLS and passed in as props - this file
    holds no calculator data of its own. Search/filter logic (OR within
    the category facet, `.includes()` over name+description+category+
-   aliases) is unchanged from the previous Portrait-styled version -
-   only the visual grammar changed. The facet list is now the six
-   library groups rather than the ten research categories; nothing about
-   how filtering works changed with it. */
+   aliases) is unchanged - only the visual grammar changed. */
 
 export type CalcEntry = {
   slug: string;
   name: string;
   description: string;
   categoryLabel: string;
-  /** Real internal category key (e.g. "advertising") - used only to pick
-      a deterministic icon hue, never displayed. */
+  /** Real internal category key (e.g. "ads") - picks the category icon,
+      never displayed. */
   categoryKey: string;
   searchText: string;
   href: string;
@@ -44,7 +50,6 @@ export type CategoryFacet = { id: string; label: string; count: number };
 const T = {
   en: {
     searchPlaceholder: "Search calculators...",
-    categoryLabel: "Category",
     countAll: (n: number) => `${n} calculator${n === 1 ? "" : "s"}`,
     countFiltered: (n: number, total: number) => `${n} of ${total} calculators`,
     empty: "No calculators match your search.",
@@ -52,7 +57,6 @@ const T = {
   },
   tr: {
     searchPlaceholder: "Hesaplayıcılarda ara...",
-    categoryLabel: "Kategori",
     countAll: (n: number) => `${n} hesaplayıcı`,
     countFiltered: (n: number, total: number) => `${n} / ${total} hesaplayıcı`,
     empty: "Bu aramayla eşleşen hesaplayıcı yok.",
@@ -60,78 +64,70 @@ const T = {
   },
 } as const;
 
-// Library group key -> a deterministic OKLCH hue. Keyed by LibraryGroup
-// (calc-catalog.ts) since the trim to six groups, carrying over each
-// group's hue from whichever of the old ten categories it absorbed, so
-// the icons people already recognise don't all change colour: Ads keeps
-// advertising's 250, Revenue & Unit Economics keeps unit-economics' 75,
-// Retention & SaaS keeps saas' 280, Conversion & Funnel keeps cro-funnel's
-// 200. "text-tools" keeps the hue the old synthetic "tools" bucket used,
-// from when UTM Builder and Character Counter rendered as their own list
-// below the grid rather than inside it.
-const CATEGORY_HUE: Record<string, number> = {
-  ads: 250,
-  "revenue-unit-economics": 75,
-  "retention-saas": 280,
-  "conversion-funnel": 200,
-  experimentation: 305,
-  "email-crm": 225,
-  "text-tools": 250,
+/* One Lucide icon per library group - the icon rule: always the real icon
+   from the site's one set, never a drawn stand-in. */
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  ads: Megaphone,
+  "revenue-unit-economics": TrendingUp,
+  "retention-saas": RefreshCw,
+  "conversion-funnel": Funnel,
+  experimentation: FlaskConical,
+  "email-crm": Mail,
+  "text-tools": Type,
 };
 
-export function CategoryIcon({ categoryKey, index }: { categoryKey: string; index: number }) {
-  const hue = CATEGORY_HUE[categoryKey] ?? 250;
-  const shift = index % 2 === 0;
-  return (
-    <span aria-hidden className="relative mb-2.5 block size-10">
-      <span
-        className="absolute rounded-[7px]"
-        style={{ left: 0, top: 3, width: 26, height: 26, background: `oklch(0.87 0.07 ${hue})` }}
-      />
-      <span
-        className="absolute opacity-92"
-        style={{
-          left: shift ? 14 : 12,
-          top: shift ? 14 : 0,
-          width: 20,
-          height: 20,
-          borderRadius: shift ? 6 : 999,
-          background: `oklch(0.55 0.15 ${hue})`,
-        }}
-      />
-    </span>
-  );
-}
-
-export function EntryCard({ entry, index }: { entry: CalcEntry; index: number }) {
+/** Exported: the homepage's Calculators teaser renders this same card, so
+    the two grids stay one design by construction. The old `index` prop
+    (which varied the retired two-shape badge) is accepted and ignored so
+    that call site keeps compiling. */
+export function EntryCard({ entry }: { entry: CalcEntry; index?: number }) {
+  const Icon = CATEGORY_ICON[entry.categoryKey] ?? TrendingUp;
   return (
     <Link
       href={entry.href}
-      className="flex flex-col gap-2.5 rounded-[10px] border border-[#e8e5df] bg-white p-6.5 transition-[border-color,box-shadow] duration-150 hover:border-[#cfcabf] hover:shadow-[0_1px_3px_rgba(20,19,17,0.06)]"
+      className="group flex flex-col gap-2.5 border border-line bg-paper p-6 transition-colors hover:border-blue-400"
     >
-      <CategoryIcon categoryKey={entry.categoryKey} index={index} />
-      <span className="text-base font-semibold tracking-tight" style={{ color: "#141311" }}>{entry.name}</span>
-      <span className="text-sm leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{entry.description}</span>
-      <span className="mt-auto pt-1.5 text-xs" style={{ color: "#9c978c" }}>{entry.categoryLabel}</span>
+      <span aria-hidden className="mb-1 grid size-10 place-items-center bg-blue-50 text-primary-600">
+        <Icon className="size-5" />
+      </span>
+      <span className="text-base font-semibold tracking-tight text-ink-950">{entry.name}</span>
+      <span className="text-sm leading-relaxed text-ink-600">{entry.description}</span>
+      <span className="mt-auto flex items-center justify-between gap-2 pt-1.5">
+        <span className="text-[12px] text-ink-400">{entry.categoryLabel}</span>
+        <ArrowRight
+          aria-hidden
+          className="size-3.5 shrink-0 text-ink-200 transition-colors group-hover:text-blue-600"
+        />
+      </span>
     </Link>
   );
 }
 
-function FacetRow({ label, count, checked, onToggle }: { label: string; count: number; checked: boolean; onToggle: () => void }) {
+function FacetChip({
+  label,
+  count,
+  checked,
+  onToggle,
+}: {
+  label: string;
+  count: number;
+  checked: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 py-1.5 text-sm select-none">
-      <input type="checkbox" checked={checked} onChange={onToggle} className="sr-only" />
-      <span
-        aria-hidden
-        className="grid size-4.5 shrink-0 place-items-center border-2 box-border"
-        style={{ borderColor: "#d8d4cc" }}
-      >
-        <span className="size-2.5" style={{ background: "#171614", opacity: checked ? 1 : 0, transition: "opacity .1s" }} />
-      </span>
-      <span style={{ color: "#4a463f" }}>
-        {label} <span className="tabular-nums" style={{ color: "#9c978c" }}>({count})</span>
-      </span>
-    </label>
+    <button
+      type="button"
+      aria-pressed={checked}
+      onClick={onToggle}
+      className={`flex items-center gap-1.5 border px-3 py-1.5 text-sm transition-colors ${
+        checked
+          ? "border-primary-600 bg-primary-600 text-white"
+          : "border-line bg-paper text-ink-700 hover:border-blue-400"
+      }`}
+    >
+      {label}
+      <span className={`tabular-nums ${checked ? "text-white/70" : "text-ink-400"}`}>{count}</span>
+    </button>
   );
 }
 
@@ -165,62 +161,63 @@ export function CalculatorLibrary({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full max-w-96">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.searchPlaceholder}
             aria-label={t.searchPlaceholder}
-            className="box-border w-full rounded-full border py-2.5 pr-4 pl-10 text-sm outline-none transition-colors"
-            style={{ borderColor: "#e3e0d9", background: "#faf9f6", color: "#201f1c" }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = "#8f8a80"; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = "#e3e0d9"; }}
+            className="box-border w-full border border-line bg-paper py-2.5 pr-4 pl-10 text-sm text-ink-950 outline-none transition-colors focus:border-primary-600"
           />
-          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2" style={{ color: "#9c978c" }} />
+          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-400" />
         </div>
-        <p className="text-sm whitespace-nowrap" style={{ color: "rgba(20,19,17,0.65)" }}>
+        <p className="text-sm whitespace-nowrap text-ink-500">
           {filtered ? t.countFiltered(results.length, entries.length) : t.countAll(entries.length)}
         </p>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 items-start gap-10 lg:grid-cols-[13rem_1fr]">
-        <aside>
-          <p className="text-sm font-semibold tracking-tight" style={{ color: "#141311" }}>{t.categoryLabel}</p>
-          <div className="mt-2.5 flex flex-col">
-            {categoryFacets.map((f) => (
-              <FacetRow key={f.id} label={f.label} count={f.count} checked={category.has(f.id)} onToggle={() => toggle(f.id)} />
+      {/* The category facet as a multi-select chip row above the grid: the
+          filter is multi-select and a chip row reads that way, where a
+          checkbox sidebar read as a form. Selected chips take the brand
+          plate, exactly the active-state grammar the mode selector on the
+          detail pages already uses. */}
+      <div className="mt-5 flex flex-wrap gap-2">
+        {categoryFacets.map((f) => (
+          <FacetChip
+            key={f.id}
+            label={f.label}
+            count={f.count}
+            checked={category.has(f.id)}
+            onToggle={() => toggle(f.id)}
+          />
+        ))}
+      </div>
+
+      <div className="mt-8">
+        {results.length === 0 ? (
+          /* The same designed dead end the two Lab libraries use - count,
+             message, one recovery action - on the site tokens. */
+          <div className="my-8 border border-line bg-paper py-14 text-center">
+            <p className="text-[13px] font-medium text-ink-400 tabular-nums">
+              0 / {entries.length}
+            </p>
+            <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-ink-600">{t.empty}</p>
+            <button
+              type="button"
+              onClick={() => { setQuery(""); setCategory(new Set()); }}
+              className="mt-5 text-sm font-medium text-blue-700 underline underline-offset-4 transition-colors hover:text-blue-800"
+            >
+              {t.clear}
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+            {results.map((entry) => (
+              <EntryCard key={entry.slug} entry={entry} />
             ))}
           </div>
-        </aside>
-
-        <div>
-          {results.length === 0 ? (
-            /* The same designed dead end the two Lab libraries use -
-               count, message, one recovery action - translated into this
-               page's own cream grammar rather than the site tokens. */
-            <div className="my-8 rounded-[10px] border py-14 text-center" style={{ borderColor: "#e8e5df", background: "#ffffff" }}>
-              <p className="font-mono text-[11px] tracking-[0.12em] uppercase tabular-nums" style={{ color: "#9c978c" }}>
-                0 / {entries.length}
-              </p>
-              <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{t.empty}</p>
-              <button
-                type="button"
-                onClick={() => { setQuery(""); setCategory(new Set()); }}
-                className="mt-5 text-sm font-medium underline decoration-[#d8d4cc] underline-offset-4 transition-colors hover:decoration-[#8f8a80]"
-                style={{ color: "#141311" }}
-              >
-                {t.clear}
-              </button>
-            </div>
-          ) : (
-            <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-              {results.map((entry, i) => (
-                <EntryCard key={entry.slug} entry={entry} index={i} />
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </>
   );

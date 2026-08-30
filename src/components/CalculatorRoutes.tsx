@@ -103,77 +103,6 @@ function calcSearchText(name: string, description: string, categoryLabel: string
   return [name, description, categoryLabel, ...aliases].join(" ").toLowerCase();
 }
 
-/* Bespoke dark FOOTER for this page only — matches a user-supplied mockup
-   (warm near-black #141311, full real site nav). The matching bespoke
-   dark HEADER this comment used to describe was removed per explicit
-   request ("header siyah, ikinci görseldeki gibi olsun" — dark headers
-   should match the shared light SiteHeader every other page uses);
-   CalculatorIndexPage now renders SiteHeader directly, same as
-   CalculatorDetailPage below already did. The footer wasn't part of
-   that request and is unchanged. */
-function CalcFooter({ lang }: { lang: Lang }) {
-  const t = copy[lang];
-  const home = lang === "en" ? "/" : "/tr";
-  const quickLinks = [
-    { label: t.footer.home, href: home },
-    { label: t.nav.about, href: t.nav.aboutHref },
-    { label: t.nav.lab, href: t.nav.labHref },
-    { label: t.nav.calculators, href: t.nav.calculatorsHref },
-    { label: t.nav.blog, href: t.nav.blogHref },
-    { label: t.nav.stack, href: t.nav.stackHref },
-    { label: t.nav.contact, href: t.nav.contactHref },
-  ];
-  const labProjects = copy[lang].lab.projects.map((p) => ({ label: p.name, href: p.links[0].href }));
-  return (
-    <footer style={{ background: "#141311", color: "#ffffff" }} className="border-t border-white/10 pt-16 pb-8">
-      <div className="mx-auto max-w-320 px-6 sm:px-12">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-          <div>
-            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>{t.footer.quickLinks}</p>
-            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
-              {quickLinks.map((l) => (
-                <li key={l.href}><Link href={l.href} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>{l.label}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>{t.footer.projects}</p>
-            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
-              {labProjects.map((l) => {
-                const external = l.href.startsWith("http");
-                return (
-                  <li key={l.href}>
-                    <a href={l.href} {...(external ? { target: "_blank", rel: "noreferrer" } : {})} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>
-                      {l.label}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div>
-            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>Connect</p>
-            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
-              <li><a href="mailto:mehmetalidemirbas@gmail.com" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>mehmetalidemirbas@gmail.com</a></li>
-              <li><a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>LinkedIn</a></li>
-              <li><a href="https://github.com/ali-demirbas" target="_blank" rel="noreferrer" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>GitHub</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-          <div className="flex items-center gap-3">
-            <span>{t.footer.left}</span><span aria-hidden>·</span><span>{t.footer.right}</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer" className="transition-colors hover:text-white">LinkedIn</a>
-            <a href="https://github.com/ali-demirbas" target="_blank" rel="noreferrer" className="transition-colors hover:text-white">GitHub</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 export function CalculatorIndexPage({ lang }: { lang: Lang }) {
   const hero = HERO[lang];
   const base = basePathFor(lang);
@@ -250,39 +179,44 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
   }));
 
   return (
-    <div style={{ background: "#faf9f6", color: "#201f1c" }} className="min-h-screen">
-      {/* Was a bespoke black CalcHeader (#171614) - replaced with the
-          shared light SiteHeader per explicit request to match every
-          other page's header. CalcFooter below is unchanged - only the
-          header was flagged. */}
+    <div className="min-h-screen bg-paper text-ink-950">
       <SiteHeader
         t={copy[lang]}
         anchorBase={lang === "en" ? "/" : "/tr"}
         langHref={lang === "en" ? "/tr/calculators" : "/calculators"}
       />
       <main>
-        <section className="relative overflow-hidden pt-22 pb-10">
-          {/* The blue wash this hero borrowed from Contact came off in the
-              site-wide quieting: this page runs its own deliberate cream
-              palette (a user-supplied mockup), and blue blobs floating on
-              a cream ground were the one place two design languages sat
-              in the same viewport. The cream page now opens on its own
-              ground. */}
+        {/* The calculator family's stage: the site's first homepage hero
+            ground (ink-950, blue radial wash, faint vertical rules), same
+            as every calculator detail page. The cream one-off this page
+            used to run is retired - the family has a language now. */}
+        <section
+          data-tone="dark"
+          className="relative isolate overflow-hidden border-b border-line bg-ink-950 pt-16 pb-14 md:pt-20 md:pb-16"
+        >
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
+          />
           <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
-            <p className="mb-4 text-xs font-medium tracking-[0.12em] uppercase" style={{ color: "#9c978c" }}>{hero.eyebrow}</p>
-            <h1 className="mx-auto max-w-xl text-[2.75rem] leading-[1.1] font-medium tracking-tight" style={{ color: "#141311" }}>{hero.title}</h1>
-            <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{hero.sub}</p>
+            <h1 className="mx-auto max-w-2xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-transparent">
+              {hero.title}
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-pretty text-white/70">{hero.sub}</p>
           </div>
         </section>
 
-        <section className="pt-3 pb-24">
+        <section className="pt-10 pb-24">
           <div className="mx-auto max-w-320 px-6 sm:px-12">
             <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
-
           </div>
         </section>
       </main>
-      <CalcFooter lang={lang} />
+      <SiteFooter t={copy[lang]} lang={lang} />
     </div>
   );
 }
@@ -380,6 +314,7 @@ function WorkedExampleRows({ content }: { content: CalcContent }) {
   const section = content.sections.find((s) => s.type === "worked-example");
   if (!section) return null;
   return (
+    // Set for the template's solid paper worked-example card.
     <div className="font-mono text-[13px]">
       {(section.inputs ?? []).map((row) => (
         <div key={row.label} className="flex justify-between gap-4 py-0.5 text-ink-600">

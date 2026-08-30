@@ -1,4 +1,8 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
+
+import { PixelBurst } from "./PixelField";
 
 /* The calculator interface shell, shared by all three tools (the generic
    CalculatorTool and the two bespoke ones). Inputs on the left, the primary
@@ -26,32 +30,75 @@ export function CalcPanel({
       (the composite email calculator, the funnel's stage list) gives the
       left column more room instead. */
   split = "even",
+  /** Bumped by the tool when a result first computes; fires one pixel
+      wavefront across the answer plate (PixelBurst). 0 = never fired. */
+  answerPulse = 0,
+  /** A single glyph (%, ×, $) set giant at low opacity, bleeding off the
+      plate's bottom-right corner - the unit as typographic brand mass. */
+  plateWatermark,
+  /** One quiet mono line pinned to the plate's bottom edge - the formula. */
+  plateFootnote,
 }: {
   inputs: ReactNode;
   results: ReactNode;
   split?: "even" | "input-heavy";
+  answerPulse?: number;
+  plateWatermark?: string;
+  plateFootnote?: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-paper">
+    // No stroke and no radius: the white inputs half and the brand plate
+    // draw the card's shape themselves, square-edged like the site's
+    // buttons and blocks (a hairline and rounded corners were both
+    // reviewed here and removed).
+    <div className="overflow-hidden bg-paper">
+      {/* min-height so a two-field calculator still gets a card with real
+          presence - the working surface is the page's anchor and a stubby
+          strip doesn't read as one. Bigger tools grow past it naturally. */}
       <div
-        className={`grid ${
+        className={`grid md:min-h-[380px] ${
           split === "input-heavy" ? "md:grid-cols-[3fr_2fr]" : "md:grid-cols-2"
         }`}
       >
-        <div className="border-b border-line p-6 md:border-r md:border-b-0 md:p-7">{inputs}</div>
-        {/* Tinted, so the answer reads as a distinct surface from the form
-            that produced it without needing a heavier border or a shadow. */}
-        <div className="bg-paper-soft p-6 md:p-7">{results}</div>
+        {/* Flex column so a tool can pin its submit control to the panel's
+            bottom edge (CalculatorTool's Calculate button does). */}
+        <div className="flex flex-col border-b border-line p-6 md:border-r md:border-b-0 md:p-8">{inputs}</div>
+        {/* The answer surface IS the primary button's plate: the same
+            primary-600 ground, and the burst sweeps in the same
+            neutral-900 the button's hover dissolve fills with - the plate
+            answers your numbers the way the button answers your pointer.
+            Clean at rest: three ambient pixel textures were tried here and
+            every one read as noise behind the number. */}
+        <div className="relative isolate flex overflow-hidden bg-primary-600 p-6 md:p-8">
+          <PixelBurst pulse={answerPulse} />
+          {plateWatermark && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-8 -bottom-20 hidden font-semibold tracking-tight text-white/10 select-none md:block md:text-[17rem] md:leading-none"
+            >
+              {plateWatermark}
+            </span>
+          )}
+          {/* Top-aligned (centering was tried and pulled back on review):
+              the answer leads the plate, the watermark and footnote hold
+              the ground beneath it. */}
+          <div className="relative w-full">{results}</div>
+          {plateFootnote && (
+            <p className="pointer-events-none absolute bottom-5 left-6 font-mono text-[12px] text-white/50 md:left-8">
+              {plateFootnote}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-/** The small uppercase label at the top of either panel. */
+/** The label at the top of a panel. Plain case at a readable size - the
+    mono-uppercase micro-label this used to be was rejected in review
+    ("uppercase + small" reads as lock-up, not as a label). */
 export function PanelLabel({ children }: { children: ReactNode }) {
-  return (
-    <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">{children}</p>
-  );
+  return <p className="text-[13px] font-medium text-white/70">{children}</p>;
 }
 
 /* The primary result: the one number the calculator exists to produce.
@@ -69,13 +116,29 @@ export function PrimaryResult({
   value: string;
   ready: boolean;
 }) {
+  /* The reveal runs on the not-ready → ready transition and only then: the
+     arrival counter keys the element, so a NEW answer resolving out of a
+     blur remounts and animates, while live edits to an already-standing
+     answer (a slider mid-drag, a digit being appended) just update text.
+     Derived DURING render (the setState-in-render pattern) so the very
+     first ready paint already carries the new key - an effect would paint
+     one unanimated frame first and the reveal would visibly restart.
+     `.calc-reveal` lives in globals.css beside the other keyframes. */
+  const [wasReady, setWasReady] = useState(ready);
+  const [arrival, setArrival] = useState(0);
+  if (ready !== wasReady) {
+    setWasReady(ready);
+    if (ready) setArrival((a) => a + 1);
+  }
+
   return (
     <div>
       <PanelLabel>{label}</PanelLabel>
       <p
+        key={arrival}
         className={`mt-2 font-semibold tracking-[-0.03em] tabular-nums ${
-          ready ? "text-blue-700" : "text-ink-200"
-        } text-[clamp(2.5rem,1.6rem+3.4vw,3.5rem)] leading-[1.05]`}
+          ready ? "calc-reveal text-white" : "text-white/30"
+        } text-[clamp(3rem,1.9rem+4.4vw,4.75rem)] leading-[1.02]`}
       >
         {ready ? value : "—"}
       </p>
@@ -91,13 +154,13 @@ export function SecondaryResults({
 }) {
   if (items.length === 0) return null;
   return (
-    <dl className="mt-6 flex flex-col gap-2.5 border-t border-line pt-5">
+    <dl className="mt-6 flex flex-col gap-2.5 border-t border-white/15 pt-5">
       {items.map((r) => (
         <div key={r.key} className="flex items-baseline justify-between gap-4">
-          <dt className="text-sm text-ink-600">{r.label}</dt>
+          <dt className="text-sm text-white/70">{r.label}</dt>
           <dd
             className={`font-mono text-sm font-medium tabular-nums ${
-              r.ready ? "text-ink-950" : "text-ink-300"
+              r.ready ? "text-white" : "text-white/30"
             }`}
           >
             {r.ready ? r.value : "—"}
@@ -110,5 +173,5 @@ export function SecondaryResults({
 
 /** Shown in the results panel before anything is entered. */
 export function ResultHint({ children }: { children: ReactNode }) {
-  return <p className="mt-4 text-[13px] leading-snug text-ink-400">{children}</p>;
+  return <p className="mt-4 text-[13px] leading-snug text-white/60">{children}</p>;
 }
