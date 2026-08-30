@@ -108,7 +108,7 @@ export function BlogLibrary({
     return (
       <Section tone="paper" size="md" className="pt-8! md:pt-10!">
         <PortraitContainer>
-          <div className="border-t border-line-soft py-16 text-center">
+          <div className="rounded-card bg-paper-soft py-16 text-center">
             <p className="text-lg font-medium text-ink-950">{emptyTitle}</p>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-950/65">{emptyBody}</p>
           </div>
@@ -124,12 +124,12 @@ export function BlogLibrary({
             control row, not a form. Horizontally scrollable on mobile
             rather than wrapping into multiple rows. */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-5 overflow-x-auto pb-1 [scrollbar-width:none] sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+          <div className="no-scrollbar flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible">
             <button
               type="button"
               onClick={() => setCategory("all")}
-              className={`shrink-0 border-b-2 pb-1 text-sm font-medium whitespace-nowrap transition-colors duration-[var(--duration-fast)] ${
-                category === "all" ? "border-primary-600 text-ink-950" : "border-transparent text-ink-500 hover:text-ink-950"
+              className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors duration-[var(--duration-fast)] ${
+                category === "all" ? "bg-primary-600 text-white" : "bg-paper-soft text-ink-700 hover:bg-blue-50 hover:text-primary-700"
               }`}
             >
               {t.all}
@@ -139,8 +139,8 @@ export function BlogLibrary({
                 key={f.id}
                 type="button"
                 onClick={() => setCategory(f.id)}
-                className={`shrink-0 border-b-2 pb-1 text-sm font-medium whitespace-nowrap transition-colors duration-[var(--duration-fast)] ${
-                  category === f.id ? "border-primary-600 text-ink-950" : "border-transparent text-ink-500 hover:text-ink-950"
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors duration-[var(--duration-fast)] ${
+                  category === f.id ? "bg-primary-600 text-white" : "bg-paper-soft text-ink-700 hover:bg-blue-50 hover:text-primary-700"
                 }`}
               >
                 {CATEGORY_TAB_LABEL[f.id]?.[lang] ?? f.id}
@@ -154,7 +154,7 @@ export function BlogLibrary({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full rounded-full border border-neutral-200 bg-paper py-2 pr-4 pl-9 text-sm text-ink-900 outline-none transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] placeholder:text-neutral-500 focus:border-neutral-500"
+              className="w-full rounded-full bg-paper-soft py-2.5 pr-4 pl-9 text-sm text-ink-900 outline-none transition-shadow placeholder:text-ink-400 focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
             />
           </div>
         </div>
@@ -166,7 +166,7 @@ export function BlogLibrary({
         )}
 
         {filtered.length === 0 ? (
-          <div className="mt-10 border-t border-line-soft py-16 text-center">
+          <div className="mt-10 rounded-card bg-paper-soft py-16 text-center">
             <p className="text-lg font-medium text-ink-950">{t.emptyFilteredTitle}</p>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-950/65">{t.emptyFilteredBody}</p>
             <button
@@ -186,7 +186,15 @@ export function BlogLibrary({
               <BlogCard key={featured.slug} post={featured} href={`${basePath}/${featured.slug}`} lang={lang} featured />
             )}
             {rest.length > 0 && (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              /* TWO columns, not three. With five posts the third column
+                 left the last card stranded alone on its own row beside
+                 two empty cells - the page's most visible patch of dead
+                 canvas, and at the bottom where it read as "we ran out".
+                 Two columns divides the four non-featured posts evenly and
+                 gives each cover the larger frame the review already asked
+                 for. Revisit when the post count makes three columns land
+                 evenly again; the orphan comes back at 4 and 7 posts. */
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 {rest.map((post) => (
                   <BlogCard key={post.slug} post={post} href={`${basePath}/${post.slug}`} lang={lang} />
                 ))}

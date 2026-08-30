@@ -102,6 +102,10 @@ export function SiteHeader({
             langLabel={t.nav.lang}
             ctaHref={`mailto:${EMAIL}`}
             ctaLabel={t.nav.cta}
+            // Same Lab projects the desktop dropdown lists, so the phone
+            // menu is not a shorter version of the site's navigation.
+            labHref={t.nav.labHref}
+            labProjects={labProjects}
           />
         </div>
       </div>
@@ -119,7 +123,12 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
       // the only thing still asking the reader to cross a tone boundary at
       // the top of the site. Ink on paper, hairline rules, and the portrait
       // plate left as the one place colour does any work.
-      className="relative isolate flex flex-col overflow-hidden border-b border-line bg-paper pt-16 pb-16 lg:pt-20 lg:pb-20"
+      // Tinted stage, no rule under it. The hero and the Work band below
+      // were both white, so a hairline was doing all the seam work; one
+      // step of ground does it without a stroke, and matches the stage on
+      // every calculator page. Deleting the line without the tint would
+      // leave a padding-only seam - this project's own known defect.
+      className="relative isolate flex flex-col overflow-hidden bg-paper-soft pt-16 pb-16 lg:pt-20 lg:pb-20"
     >
 
       <div className="relative flex flex-1 flex-col justify-center">
@@ -246,7 +255,9 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
 
         <Reveal delay={90}>
           <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-8">
-            <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">
+            {/* Plain case, like every other label since the mono rail was
+                retired. */}
+            <p className="text-[13px] font-medium text-ink-400">
               {t.home.work.primaryLabel}
             </p>
             <div>
@@ -257,11 +268,14 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
         </Reveal>
 
         <Reveal delay={140}>
-          <ul className="mt-12 md:ml-[11rem]">
+          {/* Soft filled rows rather than a ruled table: three hairlines
+              stacked under three lines of prose was the stroke-heavy habit
+              the site has left, and the rows read as a list either way. */}
+          <ul className="mt-12 flex list-none flex-col gap-2.5 p-0 md:ml-[11rem]">
             {t.home.work.rest.map((item, i) => (
               <li
                 key={item.title}
-                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 border-t border-line py-4"
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 rounded-xl bg-paper-soft px-5 py-4"
               >
                 <span className="tnum pt-0.5 font-mono text-xs text-ink-400">
                   {String(i + 2).padStart(2, "0")}
@@ -459,7 +473,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
     // used for the Contact form zone) - explicitly lighter than the old
     // black footer, per request. Link/heading colors flip from
     // white-on-dark to ink-on-light using the same token ramp.
-    <footer className="border-t border-line bg-paper-soft pt-16 pb-8">
+    <footer className="bg-paper-soft pt-16 pb-8">
       <div className="altor-container">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-16">
           <Link href={home} className="shrink-0 text-[15px] font-semibold tracking-tight text-ink-950">

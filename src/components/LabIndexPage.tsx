@@ -1,100 +1,112 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
-import { Section } from "@/components/ui/Section";
-import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { HoverLift } from "@/components/ui/HoverLift";
 import { Reveal } from "@/components/ui/Reveal";
 import { LAB_PREVIEWS, type Project } from "@/components/ui/LabPreviews";
+import { ParallaxField } from "@/components/ui/ParallaxField";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
 
-/* Lab index — REFINEMENT ROUND. The page was structurally sound (same
-   locked system: PortraitContainer, Section, SiteHeader/SiteFooter/
-   FinalCta, ink-950/line-soft/rounded-card tokens) but read as one card
-   component repeated six times: a rank number, one metadata sentence
-   mixing taxonomy and proof together, a circular icon-button duplicating
-   the text CTA right below it, and an identical stacked layout on every
-   panel regardless of what the project actually is. This pass keeps the
-   system and changes the composition:
+/* Lab index — LANDING-PAGE REDESIGN (2026-08-31).
 
-   - No more 01-06 numbering and no circular arrow buttons (HeaderAction
-     is gone) - the text CTAs in ProjectActions were always the real
-     navigation; the icon button was a duplicate.
-   - Title -> semantic tag pills -> one proof highlight -> description ->
-     CTAs -> visual, per project, instead of a single run-on metadata
-     line. Tags and proof are separate fields in content.ts now (see that
-     file's own note on this reshape) - not derived by slicing a mixed
-     array here.
-   - Six different compositions sharing one ProjectPanel primitive: the
-     two lifecycle projects sit side by side with a shared accent (see
-     `isEcosystemTag`) as understated relationship cue, not a merged
-     card; A/B Test Playbook gets a wide text-left/larger-visual-right
-     panel; Dashboard Builder and the Google Ads explorer sit side by
-     side but text-first vs visual-first, a genuine compositional
-     contrast rather than a matched pair; Numerspace closes the page as
-     a wide, visual-dominant finale (see Projects() below for the exact
-     grid).
-   - Hero: no stat row (it added taxonomy, not value, per this round's
-     brief), new two-sentence intro (content.ts), tightened vertical
-     rhythm.
+   The page was six instances of one card stacked in a column: same ground,
+   same shape, same rhythm, top to bottom. It read as an index, and the
+   brief was that it should read as a product landing page - sections that
+   differentiate, grounds that change, scroll that has movement in it.
 
-   REAL DATA, NOT INVENTED — unchanged discipline from the previous pass:
-   - All 6 projects (names, descriptions, tags, proof, links) are
-     `t.lab.projects` from content.ts.
-   - The Canonical Journey Library preview's counts/category pills are
-     real, live values from the canonical registry (`JOURNEY_COUNT`,
-     `CATEGORY_COUNT`), computed at build time.
-   - The A/B Test Playbook preview mirrors real entry AB-004 from
-     `src/data/ab-tests.json`.
-   - The dashboard/change-history/tool-grid previews are small, explicitly
-     decorative (`aria-hidden`) illustrations of what each real tool does,
-     not a claim of specific historical data. */
+   THE STRUCTURE. An atmospheric opening, then one BAND PER PROJECT rather
+   than one card per project. Each band owns a full stripe of the page, and
+   the ground alternates through a fixed cycle (paper -> tinted-with-art ->
+   paper -> tinted-with-art ...) so no two neighbours share a backdrop -
+   the "her section farklı" note, executed as a real ground change rather
+   than a border.
+
+   THE SCROLL. Inside every band the text column is `lg:sticky` and the
+   visual is what moves past it, so the project's name and claim stay
+   parked while its evidence scrolls - the sticky-scroll feel, with no
+   JavaScript and no scroll listener. `Reveal` (already in the system)
+   fades each band in on entry. Both are neutralised under
+   `prefers-reduced-motion` by the global rule in globals.css.
+
+   THE VISUALS ARE STILL THE REAL TOOLS. Every preview is the same
+   LAB_PREVIEWS component the page already used - real journey-canvas
+   nodes, the real category registry counts, the real AB-004 record. What
+   changed is their PRESENTATION: each one now sits on a raised stage
+   (rounded plate, soft shadow, its own ground) at a much larger size, the
+   "in-app görsellerin kalitesi" note. No generated product screenshot,
+   no mocked dashboard, no invented number - the site's own absolute rule
+   (AGENTS.md), and these pages exist precisely to prove the tools are
+   real.
+
+   THE GENERATED ART IS GROUND ONLY. The hero backdrop and the two band
+   grounds are Higgsfield-generated abstract fields (public/lab/*). They
+   carry no information, so they sit behind content at low opacity and
+   never depict an interface, a chart, or a figure. */
 
 const T = {
-  en: { heroPrefix: "Things I've been", heroHighlight: "building" },
-  tr: { heroPrefix: "Üzerinde", heroHighlight: "çalıştıklarım" },
+  en: {
+    heroPrefix: "Things I've been",
+    heroHighlight: "building",
+    scrollCue: "Six projects",
+    sectionLabel: (i: number, total: number) => `${String(i).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
+  },
+  tr: {
+    heroPrefix: "Üzerinde",
+    heroHighlight: "çalıştıklarım",
+    scrollCue: "Altı proje",
+    sectionLabel: (i: number, total: number) => `${String(i).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
+  },
 } as const;
 
+/** Whether a generated ground has actually been produced yet.
+
+    The grounds are art, not content: the page's composition is carried by
+    its own tone changes, and every band reads correctly with nothing
+    behind it. So a missing file degrades to the plain ground rather than
+    to a broken image - which also means a fresh clone, or a run before the
+    art is regenerated, never renders a 404 rectangle. Server component, so
+    this is a build-time check with no client cost. */
+function hasArt(src: string) {
+  return fs.existsSync(path.join(process.cwd(), "public", src));
+}
 
 /** The one tag the two lifecycle projects share - the understated cue
-    that they're parts of the same system without merging their cards.
-    Keys off real tag content, not a hardcoded slug list, so it stays
-    correct if a project's own tags ever change. */
+    that they're parts of the same system without merging their cards. */
 function isEcosystemTag(tag: string) {
   return tag === "Lifecycle";
 }
 
-function TagPill({ tag }: { tag: string }) {
+function TagPill({ tag, onDark = false }: { tag: string; onDark?: boolean }) {
+  if (onDark) {
+    return (
+      <span
+        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+          isEcosystemTag(tag) ? "bg-primary-500/25 text-blue-100" : "bg-white/10 text-white/70"
+        }`}
+      >
+        {tag}
+      </span>
+    );
+  }
   return (
     <span
-      className={
-        isEcosystemTag(tag)
-          ? "rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700"
-          : "rounded-full bg-paper px-2.5 py-1 text-xs font-medium text-ink-500 shadow-[inset_0_0_0_1px_var(--color-line)]"
-      }
+      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+        isEcosystemTag(tag) ? "bg-primary-50 text-primary-700" : "bg-paper text-ink-500"
+      }`}
     >
       {tag}
     </span>
   );
 }
 
-/** The proof metric - visibly more present than a tag (larger, tabular,
-    its own row) but still an editorial line, not a KPI-card treatment. */
-function ProofLine({ proof }: { proof: string }) {
-  return <p className="mt-3 text-[15px] font-medium text-ink-950 tabular-nums">{proof}</p>;
-}
-
-function ProjectActions({ project }: { project: Project }) {
+function ProjectActions({ project, onDark = false }: { project: Project; onDark?: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
       {project.links.map((link, i) => {
         const external = link.href.startsWith("http");
-        // The first link is always this project's one primary CTA
-        // ("Explore project" for the internal route it has, or the
-        // single external action where it has no internal page at all -
-        // Google Ads Explorer/Numerspace). Only it gets the heavier
-        // weight; GitHub/Live demo stay understated secondaries.
         const primary = i === 0;
         const Icon = external ? ArrowUpRight : ArrowRight;
         return (
@@ -102,14 +114,20 @@ function ProjectActions({ project }: { project: Project }) {
             key={link.label}
             href={link.href}
             {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-            className={`group/action flex items-center gap-1.5 text-sm transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:text-primary-600 ${
-              primary ? "font-medium text-ink-950" : "text-ink-500"
+            className={`group/action flex items-center gap-1.5 text-sm transition-colors duration-[var(--duration-fast)] ${
+              onDark
+                ? primary
+                  ? "font-medium text-white hover:text-blue-200"
+                  : "text-white/60 hover:text-white"
+                : primary
+                  ? "font-medium text-ink-950 hover:text-primary-600"
+                  : "text-ink-500 hover:text-primary-600"
             }`}
           >
             {link.label}
             <Icon
               aria-hidden
-              className="size-3.5 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] group-hover/action:translate-x-0.5"
+              className="size-3.5 transition-transform duration-[var(--duration-fast)] group-hover/action:translate-x-0.5"
             />
           </a>
         );
@@ -118,183 +136,219 @@ function ProjectActions({ project }: { project: Project }) {
   );
 }
 
-function Intro({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+/* ---------------------------------------------------------------- HERO */
+
+function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; projects: Project[] }) {
   const tt = T[lang];
+  /* Only the layers that actually exist. The hero is composed on white and
+     reads correctly with no art at all, so a missing file is a quieter
+     hero rather than a broken one. */
+  /* Back to front, each quieter than the one behind it. The opacities are
+     the "keep generated grounds quiet" rule applied literally: at full
+     strength the glass shapes competed with the headline sitting on top of
+     them, which is the same objection that killed the ambient texture on
+     the calculator answer plate. */
+  const layers = (
+    [
+      { src: "/lab/layer-orb.jpg", depth: 0.06, className: "object-cover mix-blend-multiply opacity-70" },
+      { src: "/lab/layer-ribbons.jpg", depth: 0.14, className: "object-cover mix-blend-multiply opacity-50" },
+      { src: "/lab/layer-shapes.jpg", depth: 0.24, className: "object-cover mix-blend-multiply opacity-35" },
+    ] as const
+  ).filter((l) => hasArt(l.src));
+
   return (
-    // pb-6/md:pb-8 (was pb-8/md:pb-12): the stat row that used to fill
-    // this space is gone, and with it the reason for the larger gap -
-    // per this round's "reduce hero height, keep it spacious, not
-    // cramped" brief.
-    <Section tone="paper" size="md" className="pb-6! md:pb-8!">
-      <PortraitContainer>
+    /* WHITE AND CENTRED. This band used to be an ink-950 slab with a blue
+       gradient over it; that was rejected outright ("no black gradient
+       hero"). The page opens on paper now, the art carries the colour, and
+       the statement sits in the middle of it the way a product's own
+       landing page opens. */
+    <section className="relative isolate overflow-hidden bg-paper pt-20 pb-24 text-center md:pt-28 md:pb-32">
+      {layers.length > 0 ? (
+        <ParallaxField layers={[...layers]} />
+      ) : (
+        /* THE AMBIENT FALLBACK, and it is not a placeholder. Three soft
+           brand blooms on the same drift keyframes the art layers use, so
+           the hero has colour and motion from CSS alone. The generated
+           illustration is an upgrade to this, never a dependency of it -
+           which matters because the art is produced by a queue that can be
+           slow or down, and a hero that renders as a blank white box in
+           that case would be the wrong trade. */
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="parallax-drift absolute -top-40 left-1/2 h-[38rem] w-[38rem] -translate-x-[70%] rounded-full bg-[radial-gradient(circle,var(--color-primary-400)_0%,transparent_70%)] opacity-25" />
+          <div className="parallax-drift-slow absolute -top-24 left-1/2 h-[32rem] w-[32rem] translate-x-[10%] rounded-full bg-[radial-gradient(circle,var(--color-primary-300)_0%,transparent_70%)] opacity-30" />
+          <div className="parallax-drift absolute top-32 left-1/2 h-[26rem] w-[26rem] -translate-x-[10%] rounded-full bg-[radial-gradient(circle,#7c3aed_0%,transparent_70%)] opacity-[0.12]" />
+        </div>
+      )}
+      {/* Keeps the type legible over whatever sits underneath, without
+          flattening it. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-paper/60 via-paper/45 to-paper"
+      />
+
+      <div className="altor-container relative">
         <Reveal>
-          <div className="text-center">
-            <p className="altor-eyebrow mb-6 text-ink-400">{t.lab.label}</p>
-            <h1 className="mx-auto max-w-[16ch] text-balance text-h1-fluid font-medium text-ink-950">
-              {tt.heroPrefix}{" "}
-              <span className="relative inline-flex translate-y-[0.03em] items-center gap-[0.3em] whitespace-nowrap rounded-full bg-primary-100 px-[0.32em] pb-[0.05em] align-baseline">
-                <span aria-hidden className="inline-block size-[0.28em] shrink-0 rounded-full bg-primary-600" />
-                {tt.heroHighlight}
-              </span>
-            </h1>
-            {/* mt-5 (was mt-6): the stat row's removal already opens up
-                room below; a slightly tighter heading-to-body gap keeps
-                the hero from reading as emptier than before rather than
-                just shorter. */}
-            <p className="mx-auto mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-950/65">
-              {t.lab.intro}
-            </p>
-          </div>
+          <p className="text-[13px] font-medium text-ink-400">{t.lab.label}</p>
+          <h1 className="mx-auto mt-4 max-w-4xl text-[clamp(2.5rem,1.6rem+3.6vw,4.5rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance text-ink-950">
+            {tt.heroPrefix}{" "}
+            <span className="bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+              {tt.heroHighlight}
+            </span>
+          </h1>
         </Reveal>
-      </PortraitContainer>
-    </Section>
+        <Reveal delay={90}>
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-pretty text-ink-600">
+            {t.lab.intro}
+          </p>
+        </Reveal>
+
+        {/* WHAT'S INSIDE, above the fold. Still the six real projects and
+            still jump links into the bands below - but each entry now
+            carries that project's own `proof`, so the opening states the
+            Lab's scale instead of only naming its parts.
+
+            The mechanism is taken from mobbin.com/mcp, which opens by
+            saying how much it holds ("621,500+ shipped screens") and only
+            then shows the evidence. Its surface is not taken: no card
+            imagery, no borrowed palette, nothing about how that page
+            looks. Claim first, witnesses below, is the transferable part.
+
+            This also retires six single-label pills. A box around one word
+            is a fence, not a card (anti-patterns.md #6, whose detector is
+            content-node diversity per card <= 1); these hold two real
+            nodes now - a name and a sourced number - so the tile earns
+            its ground.
+
+            NOTHING HERE IS COMPUTED. Every number is the project's own
+            `proof` string from content.ts, already sourced and already
+            rendered inside its band; `withJourneyCount` fills the Journey
+            Library's live {count}/{categories} tokens exactly as the band
+            does. All six carry one today, but `proof` is nullable by
+            design and the second line is therefore conditional: a project
+            without a real number shows its name alone. An absent line,
+            never an invented one. */}
+        <Reveal delay={160}>
+          <ul className="mx-auto mt-10 grid max-w-3xl list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            {projects.map((p) => {
+              const proof = p.proof ? withJourneyCount(p.proof) : null;
+              return (
+                <li key={p.slug}>
+                  <a
+                    href={`#${p.slug}`}
+                    className="flex h-full flex-col gap-0.5 rounded-card bg-paper-soft px-4 py-3 text-left transition-colors hover:bg-blue-50"
+                  >
+                    <span className="text-[14px] leading-snug font-medium text-ink-950">{p.name}</span>
+                    {proof && <span className="text-[13px] text-ink-500 tabular-nums">{proof}</span>}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </Reveal>
+      </div>
+    </section>
   );
 }
 
-function ProjectPanel({
-  project, lang, layout = "stack", delay,
+/* --------------------------------------------------------------- BANDS */
+
+/** The ground each band sits on: plain tone, alternating.
+
+    NO ART HERE. Two generated grounds were tried behind these bands and
+    removed on sight - they had been produced for the abandoned dark-hero
+    direction, so they were deep navy, and a dark image at low opacity
+    under a light band does not read as texture, it reads as dirt: the
+    whole stripe went muddy grey. A band earns its separation from the one
+    above it by changing TONE, which it already does. The generated art
+    stays where it works, in the hero, where it is light art on a light
+    ground at full strength. */
+const GROUNDS = ["paper", "tint"] as const;
+
+function ProjectBand({
+  project, lang, index, total,
 }: {
   project: Project;
   lang: Lang;
-  layout?: "stack" | "stack-reverse" | "wide" | "wide-reverse";
-  delay: number;
+  index: number;
+  total: number;
 }) {
+  const tt = T[lang];
   const desc = withJourneyCount(project.desc);
   const proof = project.proof ? withJourneyCount(project.proof) : null;
-  const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout });
-
-  const header = (
-    <div className={layout === "wide" || layout === "wide-reverse" ? "pb-7 md:pb-9" : ""}>
-      <h2 className="text-[1.375rem] leading-[1.15] font-semibold tracking-tight text-ink-950 text-balance">
-        {project.name}
-      </h2>
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {project.tags.map((tag) => <TagPill key={tag} tag={tag} />)}
-      </div>
-      {proof && <ProofLine proof={proof} />}
-      <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-ink-950/65">{desc}</p>
-      <div className="mt-4">
-        <ProjectActions project={project} />
-      </div>
-    </div>
-  );
-
-  const isWide = layout === "wide" || layout === "wide-reverse";
-  const reverse = layout === "stack-reverse" || layout === "wide-reverse";
+  const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "wide" });
+  const tinted = GROUNDS[index % GROUNDS.length] === "tint";
+  // Alternate which side the visual takes, so the eye moves across the
+  // page rather than down a single column.
+  const flip = index % 2 === 1;
 
   return (
-    <Reveal delay={delay}>
-      {/* `group` here (not on the article) is what lets the preview's
-          `group-hover:scale-[1.01]` and this card's own `hover:` styles
-          both key off the SAME hover root that HoverLift already tracks. */}
-      <HoverLift distance={2} className="group h-full">
-        <article
-          className={`flex h-full flex-col overflow-hidden rounded-card bg-paper-soft px-7 pt-7 transition-colors duration-[var(--duration-base)] sm:px-9 sm:pt-9 ${
-            isWide ? "gap-2" : "gap-6"
-          }`}
+    <section
+      id={project.slug}
+      className={`relative isolate overflow-hidden scroll-mt-24 py-16 md:py-24 ${
+        tinted ? "bg-paper-soft" : "bg-paper"
+      }`}
+    >
+
+      <div className="altor-container relative">
+        <div
+          className={`grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-16`}
         >
-          {isWide ? (
-            <div
-              className={`grid grid-cols-1 items-end gap-6 md:gap-8 ${
-                layout === "wide-reverse"
-                  ? "md:grid-cols-[minmax(0,1.22fr)_minmax(0,0.78fr)]"
-                  : "md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
-              }`}
-            >
-              {reverse ? (
-                // Explicit col-start placement, not `order` - `order` on a
-                // grid item also reorders it into the auto-placement
-                // sequence, which silently swapped which fr-track each
-                // side landed in (the preview ended up in the NARROW
-                // column, the opposite of "finale, visual-dominant"). DOM
-                // order stays header-then-preview (so mobile still stacks
-                // text-first with no extra styling); only the desktop grid
-                // position is reassigned.
-                <>
-                  <div className="md:col-start-2 md:row-start-1">{header}</div>
-                  <div className="md:col-start-1 md:row-start-1">{preview}</div>
-                </>
-              ) : (
-                <>
-                  {header}
-                  {preview}
-                </>
+          {/* The text column parks while the visual scrolls past it. */}
+          <Reveal className={flip ? "lg:col-start-2 lg:row-start-1" : ""}>
+            <div className="lg:sticky lg:top-28">
+              <p className="text-[13px] font-medium text-ink-400 tabular-nums">
+                {tt.sectionLabel(index + 1, total)}
+              </p>
+              <h2 className="mt-3 text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+                {project.name}
+              </h2>
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {project.tags.map((tag) => <TagPill key={tag} tag={tag} />)}
+              </div>
+              {proof && (
+                <p className="mt-4 text-[15px] font-medium text-ink-950 tabular-nums">{proof}</p>
               )}
+              <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-ink-600">{desc}</p>
+              <div className="mt-6">
+                <ProjectActions project={project} />
+              </div>
             </div>
-          ) : reverse ? (
-            <>
-              {preview}
-              {header}
-            </>
-          ) : (
-            <>
-              {header}
-              {preview}
-            </>
-          )}
-        </article>
-      </HoverLift>
-    </Reveal>
-  );
-}
+          </Reveal>
 
-/* Six projects, six compositions sharing one system:
-
-   Row 1 - the two lifecycle projects, side by side, both "stack"
-   (text above preview - the natural shape at half width). Their shared
-   "Lifecycle" tag renders in the accent colour on both (isEcosystemTag),
-   the understated cue that they're one system without merging the cards.
-
-   Row 2 - A/B Test Playbook, full width, "wide": text left, its
-   three-column example noticeably wider on the right - this is the
-   ~15-25% larger visual the brief asked for, and reads naturally at
-   full width where the half-width row above couldn't fit it.
-
-   Row 3 - Dashboard Builder ("stack", text-first) beside the Google Ads
-   explorer ("stack-reverse", visual-first) - two panels that are
-   genuinely differently composed rather than a matched pair.
-
-   Row 4 - Numerspace, full width, "wide-reverse": preview LEFT (mirroring
-   row 2's text-left so the page doesn't repeat one axis), and the widest
-   preview column on the page - the finale the brief asked for, not just
-   the last item in the list. */
-function Projects({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const all = t.lab.projects;
-  return (
-    // pt-6/md:pt-8 (was pt-4/md:pt-6): a touch more room now that the
-    // hero's stat row is gone, so the two sections don't read as
-    // touching.
-    <Section tone="paper" size="md" className="pt-6! md:pt-8!">
-      <PortraitContainer>
-        <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <ProjectPanel project={all[0]} lang={lang} delay={0} />
-            <ProjectPanel project={all[1]} lang={lang} delay={60} />
-          </div>
-          <ProjectPanel project={all[2]} lang={lang} layout="wide" delay={120} />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <ProjectPanel project={all[3]} lang={lang} delay={180} />
-            <ProjectPanel project={all[4]} lang={lang} layout="stack-reverse" delay={240} />
-          </div>
-          <ProjectPanel project={all[5]} lang={lang} layout="wide-reverse" delay={300} />
+          {/* The real tool, staged. */}
+          <Reveal delay={80} className={flip ? "lg:col-start-1 lg:row-start-1" : ""}>
+            <div className="rounded-card bg-paper p-4 shadow-card sm:p-6">
+              <div className="overflow-hidden rounded-xl">{preview}</div>
+            </div>
+          </Reveal>
         </div>
-      </PortraitContainer>
-    </Section>
+      </div>
+    </section>
   );
 }
+
+/* ---------------------------------------------------------------- PAGE */
 
 export default function LabIndexPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? "/tr/lab" : "/lab";
+  const projects = t.lab.projects as unknown as Project[];
+
   return (
     <>
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
-        <Intro t={t} lang={lang} />
-        <Projects t={t} lang={lang} />
-        {/* FinalCta is a shared component (Site.tsx, ~11 page families) —
-            consumed exactly as before, not modified. */}
+        <LabHero t={t} lang={lang} projects={projects} />
+        {projects.map((project, i) => (
+          <ProjectBand
+            key={project.slug}
+            project={project}
+            lang={lang}
+            index={i}
+            total={projects.length}
+          />
+        ))}
         <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />

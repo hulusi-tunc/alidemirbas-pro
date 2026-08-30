@@ -46,12 +46,14 @@ const T = {
 const HERO = {
   en: {
     eyebrow: "Calculators",
-    title: "Growth math, without the spreadsheet.",
+    // Shortened 2026-08-30 - it now sits above the search field rather than
+    // alone in a band, and a two-line title pushed the field down the fold.
+    title: "Growth math, no spreadsheet.",
     sub: "A collection of practical calculators covering growth, acquisition, retention, experimentation and unit economics - no account, no tracking of your inputs.",
   },
   tr: {
     eyebrow: "Hesaplayıcılar",
-    title: "Excel'e gerek kalmadan büyüme matematiği.",
+    title: "Excel'siz büyüme matematiği.",
     sub: "Büyüme, edinme, elde tutma, deneysel test ve birim ekonomisini kapsayan pratik hesaplayıcılardan oluşan bir koleksiyon - hesap gerektirmez, girdileriniz izlenmez.",
   },
 };
@@ -186,33 +188,43 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
         langHref={lang === "en" ? "/tr/calculators" : "/calculators"}
       />
       <main>
-        {/* The calculator family's stage: the site's first homepage hero
-            ground (ink-950, blue radial wash, faint vertical rules), same
-            as every calculator detail page. The cream one-off this page
-            used to run is retired - the family has a language now. */}
-        <section
-          data-tone="dark"
-          className="relative isolate overflow-hidden border-b border-line bg-ink-950 pt-16 pb-14 md:pt-20 md:pb-16"
-        >
-          <div
-            aria-hidden
-            className="absolute inset-x-0 top-[-18rem] -z-10 h-[36rem] bg-[radial-gradient(50%_50%_at_50%_50%,var(--color-blue-600)_0%,transparent_70%)] opacity-40"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px)] [background-size:calc(100%/8)_100%]"
-          />
-          <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
-            <h1 className="mx-auto max-w-2xl bg-gradient-to-r from-primary-300 to-white bg-clip-text text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-transparent">
-              {hero.title}
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-pretty text-white/70">{hero.sub}</p>
-          </div>
-        </section>
+        {/* The calculator family's stage, LIGHT (2026-08-30). The dark
+            ink-950 band with the blue radial wash is retired: it was the
+            site's first homepage hero, ported here, and it read as the
+            page's loudest element while carrying only a title and a
+            subtitle. The family opens white now and lets colour arrive
+            where the product is - the tinted category icons below, and the
+            blue answer plate on each detail page.
 
-        <section className="pt-10 pb-24">
+            PURE white here, unlike the detail template's stage, and the
+            difference is decided by what sits on the ground rather than by
+            taste: this band holds type and nothing else, so it can open at
+            full white; the detail stage holds the white tool card and
+            needs one step of ground under it to keep the card readable.
+            Safe from the padding-only seam rule because the seam to the
+            search row below is ~100px, well under the 220px an
+            identical-ground gap has to clear.
+
+            No wash and no gradient title - a tinted glow on white is the
+            "modern SaaS look" default, and the point here is a clean open,
+            not a second effect. Colour arrives one row down, in the
+            per-category icon tints. */}
+        {/* ONE white band, hero and library together. The stage was briefly
+            tinted `paper-soft` to give the seam between two white sections
+            something to be - but the honest fix was to stop having two
+            sections. Search is the primary action on an index of 21 tools,
+            so it moved up into the hero, and with the title, the search and
+            the results in one continuous flow there is no seam left to
+            solve: no tint, no rule, white throughout. */}
+        <section className="bg-paper pt-16 pb-24 md:pt-20">
           <div className="mx-auto max-w-320 px-6 sm:px-12">
-            <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
+            <CalculatorLibrary
+              lang={lang}
+              entries={entries}
+              categoryFacets={categoryFacets}
+              heroTitle={hero.title}
+              heroSub={hero.sub}
+            />
           </div>
         </section>
       </main>
@@ -238,14 +250,15 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
       <>
         <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
         <main>
-          <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-14">
+          {/* Light stage, same call as the listing and the detail template. */}
+          <section className="bg-paper-soft pt-24 pb-14">
             <div className="altor-container">
-              <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white">
+              <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-ink-400 transition-colors hover:text-ink-900">
                 <ArrowLeft aria-hidden className="size-3.5" />
                 {T[lang].title}
               </Link>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{textTool.title[lang]}</h1>
-              <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{textTool.desc[lang]}</p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink-950 sm:text-4xl">{textTool.title[lang]}</h1>
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-500">{textTool.desc[lang]}</p>
             </div>
           </section>
           <div className="altor-container max-w-2xl py-12">

@@ -153,6 +153,7 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
                   input={input}
                   value={raw[input.key] ?? ""}
                   error={errors[input.key]}
+                  placeholder={examplePlaceholder(spec, activeMode, input.key)}
                   onChange={(v) => setRaw((r) => ({ ...r, [input.key]: v }))}
                 />
               ))}
@@ -164,13 +165,13 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
               field-gap of air when the form is tall. */}
           <div aria-hidden className="min-h-6 flex-1" />
 
-          {/* btn-keep-tone: the stage band is data-tone="dark", which flips
-              a primary button to the white dark-ground plate - but this one
-              sits on the card's WHITE half inside that band, so it opts out
-              and keeps the brand-blue plate the light ground calls for.
-              `sm` is the compact 40px tier - the 56px control read as
-              oversized in this panel. */}
-          <Button type="submit" variant="primary" size="sm" className="btn-keep-tone w-full">
+          {/* `sm` is the compact 40px tier - the 56px control read as
+              oversized in this panel. (This carried `btn-keep-tone` while
+              the stage band was data-tone="dark" and would otherwise have
+              flipped the primary to its white dark-ground plate. The band
+              is light as of 2026-08-30, so there is no flip to opt out of
+              and the class is gone rather than left as a no-op.) */}
+          <Button type="submit" variant="primary" size="sm" className="w-full">
             {lang === "en" ? "Calculate" : "Hesapla"}
           </Button>
         </form>
@@ -268,6 +269,21 @@ function prettyFormula(
   return pretty.replace(/\//g, "÷").replace(/\*/g, "×");
 }
 
+/* A field's placeholder: the catalog's own documented example figure for
+   that input, mode-aware (each mode documents its own example over its own
+   inputs). Real catalog data, never an invented number - and it is the same
+   example the worked-example strip under the tool derives, so a reader who
+   types the placeholders back in gets exactly the figure shown there. */
+function examplePlaceholder(
+  spec: RuntimeCalcSpec,
+  mode: NonNullable<RuntimeCalcSpec["modes"]>[number] | undefined,
+  key: string,
+): string | undefined {
+  const input = (mode && spec.examplesByMode?.[mode.id]?.input) ?? spec.exampleInput;
+  const value = input?.[key];
+  return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
+}
+
 /* The ghost the empty panel shows: the catalog's own documented example
    output for the primary metric, already formatted by the catalog
    ("5.00x", "720.00"). Mode-aware, because each mode documents its own
@@ -287,11 +303,16 @@ function ScalarInput({
   input,
   value,
   error,
+  placeholder,
   onChange,
 }: {
   input: RuntimeCalcSpec["inputs"][number];
   value: string;
   error?: string;
+  /** The catalog's own documented example figure for this field - a real
+      number, shown greyed so the field says what shape of input it wants
+      (and at what magnitude) instead of sitting blank. */
+  placeholder?: string;
   onChange: (v: string) => void;
 }) {
   const id = useId();
@@ -339,10 +360,11 @@ function ScalarInput({
         inputMode="decimal"
         step="any"
         value={value}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errId : undefined}
-        className="rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
+        className="rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow placeholder:text-ink-300 focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
       />
       {error && (
         <span id={errId} className="text-xs text-red-600">

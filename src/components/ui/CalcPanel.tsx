@@ -69,7 +69,7 @@ export function CalcPanel({
             answers your numbers the way the button answers your pointer.
             Clean at rest: three ambient pixel textures were tried here and
             every one read as noise behind the number. */}
-        <div className="relative isolate flex overflow-hidden bg-primary-600 p-6 md:p-8">
+        <div className="relative isolate flex flex-col overflow-hidden bg-primary-600 p-6 md:p-8">
           <PixelBurst pulse={answerPulse} />
           {plateWatermark && (
             <span
@@ -83,8 +83,15 @@ export function CalcPanel({
               the answer leads the plate, the watermark and footnote hold
               the ground beneath it. */}
           <div className="relative w-full">{results}</div>
+          {/* In normal flow, pushed down by `mt-auto` - NOT absolutely
+              positioned. Absolute put it at the plate's bottom edge
+              regardless of the content above, and on a phone (where the
+              plate is only as tall as its content, the 380px floor being
+              desktop-only) it landed on top of the result hint. Flow keeps
+              it last on short plates and still bottom-anchored on tall
+              ones, which is all `absolute` was ever buying. */}
           {plateFootnote && (
-            <p className="pointer-events-none absolute bottom-5 left-6 font-mono text-[12px] text-white/50 md:left-8">
+            <p className="relative mt-auto pt-8 font-mono text-[12px] text-white/50">
               {plateFootnote}
             </p>
           )}

@@ -670,12 +670,30 @@
      fifteen call sites by hand. Call sites that need a different weight
      or tracking (the footers) already stack utilities on top, and
      utilities win the cascade. */
+  /* THE MONO RAIL IS RETIRED (2026-08-30 style pass). This was 11px mono,
+     0.12em tracking, uppercase - the site's old signature, and the exact
+     thing reviewed as unreadable ("uppercase lock, so small"). It is used
+     at ~35 call sites, so it is fixed HERE rather than edited into each:
+     a plain-case label at a size someone can actually read.
+
+     `text-transform: none` is stated rather than simply dropped because
+     six call sites still add their own `uppercase` utility; without this
+     they would keep shouting while the rest of the site stopped. Utility
+     classes win on specificity, so those are unset individually below. */
   .altor-eyebrow {
-    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 0.6875rem;
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-family: inherit;
+    font-size: 0.8125rem; /* 13px */
+    font-weight: 500;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* The six call sites that re-add `uppercase` (footer column heads and a
+     few page eyebrows) - overridden here so the retirement is total and
+     none of them has to be hunted down individually. */
+  .altor-eyebrow.uppercase {
+    text-transform: none;
+    letter-spacing: normal;
   }
 
   /* Scroll reveal — progressive enhancement, content is in the HTML. */
@@ -715,6 +733,49 @@
     }
     to {
       transform: translateX(-50%);
+    }
+  }
+
+  /* The Lab hero's parallax layers drifting while nothing is scrolling, so
+     the field is alive on arrival rather than only on input. Two speeds,
+     assigned alternately, so layers never travel in lockstep. Transform
+     only - composited, no layout or paint per frame. Neutralised with
+     every other animation by the reduced-motion block above. */
+  .parallax-drift {
+    animation: parallax-drift 18s ease-in-out infinite;
+  }
+
+  .parallax-drift-slow {
+    animation: parallax-drift 26s ease-in-out infinite reverse;
+  }
+
+  @keyframes parallax-drift {
+    0%,
+    100% {
+      translate: 0 0;
+      scale: 1;
+    }
+    50% {
+      translate: -1.5% -2%;
+      scale: 1.04;
+    }
+  }
+
+  /* The mobile menu panel arriving: a short rise and fade, no blur - it is
+     a surface sliding in, not a value resolving. Neutralised with every
+     other animation by the reduced-motion block above. */
+  .nav-panel-in {
+    animation: nav-panel-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes nav-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 

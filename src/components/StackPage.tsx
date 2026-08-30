@@ -67,7 +67,11 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
         {/* Centered per this round's site-wide request ("tüm başlıkları
             ortala") - was left-aligned (`max-w-md`, no `mx-auto`). */}
         <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="altor-eyebrow mb-4 text-ink-400">{t.stack.eyebrow}</p>
+          {/* Plain case, not the mono-uppercase `.altor-eyebrow` rail. That
+              micro-label was retired from the calculator family in the
+              2026-08-30 pass ("uppercase + small" reads as a lock-up, not
+              as a label) and this page follows the same rule. */}
+          <p className="mb-4 text-[13px] font-medium text-ink-400">{t.stack.eyebrow}</p>
           {/* text-h1-fluid + font-medium: the exact LOCKED heading token
               from the approved Contact pilot (PORTRAIT-DESIGN-SOURCE-
               AUDIT.md §4/§7) — same real Portrait clamp/letter-spacing
@@ -84,15 +88,54 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-function ToolCard({ name, tool, tag }: { name: string; tool: Tool; tag: string }) {
+/* ONE TINT PER CATEGORY, keyed by the real group title in stack.ts - the
+   same system the calculator library already runs (`CATEGORY_TINT` in
+   ui/CalculatorLibrary.tsx), extended here so the two pages read as one
+   design rather than two.
+
+   Why colour is the right lever on this page: 40 tools in 8 groups were
+   rendering as 40 identical cards down 4,200px, so the only thing telling
+   a reader they had moved from Analytics to CRM was a heading they had
+   already scrolled past. The tint gives each group its own zone, which is
+   a real job (semantic distinction), not decoration.
+
+   The ground is the `-50` step, not the `-100` the calculators use on
+   their small round tiles: this is a full card, and at `-100` eight of
+   them stacked read as a paint chart. The logo tile stays WHITE on every
+   tint, because the logos carry real brand colour of their own and a
+   tinted plate underneath fights them.
+
+   Both classes are written out in full. Tailwind scans source for literal
+   class strings, so deriving the dot from the ground at runtime (a
+   `.replace("-50", "-400")`) would compile to nothing - the utility never
+   appears literally anywhere for the scanner to find. */
+const GROUP_TINT: Record<string, { card: string; dot: string }> = {
+  "Design & Build": { card: "bg-fuchsia-50", dot: "bg-fuchsia-400" },
+  "Web & Product Analytics": { card: "bg-blue-50", dot: "bg-blue-400" },
+  "Mobile / Attribution (MMP)": { card: "bg-violet-50", dot: "bg-violet-400" },
+  "BI / Data Visualization": { card: "bg-emerald-50", dot: "bg-emerald-400" },
+  "CRM & Engagement": { card: "bg-teal-50", dot: "bg-teal-400" },
+  "SEO & Content": { card: "bg-amber-50", dot: "bg-amber-400" },
+  "CRO / A-B Test / Experimentation": { card: "bg-rose-50", dot: "bg-rose-400" },
+  "Work Management": { card: "bg-slate-100", dot: "bg-slate-400" },
+};
+
+const FALLBACK_TINT = { card: "bg-paper-soft", dot: "bg-ink-300" };
+
+/* Soft fill, no stroke - the surface pattern the 2026-08-30 style pass made
+   site-wide, and the same one the calculator cards use. The card was white
+   with a `line-soft` border; the tint now does the separating, and the logo
+   tile flips to white so it still reads as a plate on top rather than
+   dissolving into its own card. */
+function ToolCard({ name, tool, tag, tint }: { name: string; tool: Tool; tag: string; tint: string }) {
   return (
-    <div className="flex items-center gap-4 rounded-card border border-line-soft bg-paper p-5">
+    <div className={`flex items-center gap-4 rounded-card p-5 ${tint}`}>
       {/* Real favicon, same `resolveLogo(tool)` helper/domain-per-tool data
           `StackShowcase.tsx` already uses on Home - not re-fetched or
           re-derived here. `alt=""`: decorative next to the tool's own
           visible name right beside it (unlike Home's grid, where the
           logo is the ONLY label on a bare tile and needs its own alt). */}
-      <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-paper-soft ring-1 ring-line-soft">
+      <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-paper">
         <Image src={resolveLogo(tool)} alt="" fill sizes="56px" className="object-contain p-3" />
       </span>
       <div className="min-w-0">
@@ -108,13 +151,22 @@ function Groups({ lang }: { lang: Lang }) {
     <Section tone="paper" size="md">
       <PortraitContainer>
         <div className="flex flex-col gap-10">
-          {stackGroups.map((group, gi) => (
+          {stackGroups.map((group, gi) => {
+            const tint = GROUP_TINT[group.title.en] ?? FALLBACK_TINT;
+            return (
             <Reveal key={group.title.en} delay={gi * 40}>
-              {/* Uppercase, tracked, muted eyebrow-style heading (matches
-                  a user-supplied reference layout) - no border, unlike
-                  the previous plain-list heading, since a bordered card
-                  grid underneath already gives its own visual separation. */}
-              <h2 className="text-xs font-semibold tracking-[0.08em] text-ink-400 uppercase">
+              {/* A real subhead, at the same size and weight the calculator
+                  pages give theirs (`EditorialColumn`). It was a 12px
+                  muted uppercase label, which under-set a genuine section
+                  heading and used the retired micro-label pattern.
+
+                  The dot repeats the group's own tint at full strength, so
+                  the heading and the cards under it are visibly one zone -
+                  the tint at `-50` is quiet by design, and this is what
+                  makes it legible as a system rather than as eight
+                  slightly different whites. */}
+              <h2 className="flex items-center gap-2.5 text-[15px] font-semibold text-ink-950">
+                <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${tint.dot}`} />
                 {group.title[lang]}
               </h2>
               {/* 2-column card grid at sm+ (matches the reference), 1
@@ -122,11 +174,12 @@ function Groups({ lang }: { lang: Lang }) {
                   Test / Experimentation") simply renders one card. */}
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {group.tools.map((tool) => (
-                  <ToolCard key={tool.name} name={tool.name} tool={tool} tag={tool.tag[lang]} />
+                  <ToolCard key={tool.name} name={tool.name} tool={tool} tag={tool.tag[lang]} tint={tint.card} />
                 ))}
               </div>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       </PortraitContainer>
     </Section>

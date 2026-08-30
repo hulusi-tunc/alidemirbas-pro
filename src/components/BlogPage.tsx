@@ -76,7 +76,10 @@ export default function BlogPage({ lang }: { lang: Lang }) {
         <Section tone="paper" size="md" className="pb-8! md:pb-10!">
           <PortraitContainer>
             <div className="mx-auto max-w-2xl text-center">
-              <p className="altor-eyebrow mb-4 text-ink-400">{t.eyebrow}</p>
+              {/* Plain case, matching Stack, Contact and the calculator
+                  family - the mono-uppercase `.altor-eyebrow` rail was
+                  retired in the 2026-08-30 pass. */}
+              <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
               <h1 className="text-h1-fluid font-medium text-ink-950">{t.title}</h1>
             </div>
           </PortraitContainer>

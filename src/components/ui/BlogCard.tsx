@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { BlogCover, COVERS, categoryAccent, type CoverSpec } from "./BlogCover";
-import { HoverLift } from "./HoverLift";
 import type { BlogPost } from "@/lib/blog";
 
 /* Editorial article card — REFINEMENT ROUND. Replaces the old pastel
@@ -49,22 +48,35 @@ export function BlogCard({
   const dotClass =
     accent === "experimentation" ? "bg-primary-600" : accent === "growth" ? "bg-neutral-600" : "bg-ink-700";
 
+  /* No lift and no stroke: a soft filled card that answers the pointer
+     with a colour change only (the translate-and-shadow hover was reviewed
+     as cheap and came off site-wide in the 2026-08-30 pass), and no scale
+     on the cover either - a cover that grows inside a clipped box is the
+     same effect wearing a different name. */
   return (
-    <HoverLift distance={2}>
       <Link
         href={href}
-        className={`group flex h-full overflow-hidden rounded-card border border-line-soft transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-line-strong ${
-          featured ? "flex-col md:flex-row" : "flex-col"
+        className={`group flex h-full overflow-hidden rounded-card bg-paper-soft transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:bg-blue-50 ${
+          featured ? "flex-col md:flex-row md:items-stretch" : "flex-col"
         }`}
       >
+        {/* THE FEATURED COVER KEEPS THE GRID'S OWN 16/10. It used to be
+            `md:aspect-auto`, so its height was dictated by the text column
+            beside it and the artwork was cropped to whatever that came to -
+            the two things flagged in review, a top card that read as too
+            thin and a cover that did not match the ratio of the cards under
+            it. Holding the ratio and letting the card take its height from
+            the cover fixes both at once. */}
         <span
-          className={`block shrink-0 overflow-hidden transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01] ${
-            featured ? "aspect-[16/10] md:aspect-auto md:w-[46%]" : "aspect-[16/10]"
+          className={`block shrink-0 overflow-hidden ${
+            featured ? "aspect-[16/10] md:w-[52%]" : "aspect-[16/10]"
           }`}
         >
           <BlogCover spec={spec} size={featured ? "featured" : "grid"} />
         </span>
-        <span className={`flex flex-1 flex-col gap-2 ${featured ? "p-6 sm:p-8" : "p-5"}`}>
+        <span
+          className={`flex flex-1 flex-col gap-2 ${featured ? "p-6 sm:p-8 md:justify-center" : "p-5"}`}
+        >
           <span className="flex items-center gap-1.5 text-xs text-ink-500">
             <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${dotClass}`} />
             {post.category}
@@ -81,7 +93,15 @@ export function BlogCard({
               {post.excerpt}
             </span>
           )}
-          <span className="mt-auto flex items-center gap-3 pt-2 text-xs text-ink-400">
+          {/* Grid cards push the meta to the bottom so a row of them lines
+              up; the featured card centres its text beside a tall cover, so
+              pushing the meta down there would open a gap in the middle of
+              the block instead of tidying anything. */}
+          <span
+            className={`flex items-center gap-3 text-xs text-ink-400 ${
+              featured ? "mt-3" : "mt-auto pt-2"
+            }`}
+          >
             <span>{formatDate(post.date, lang)}</span>
             {featured && (
               <span className="ml-auto flex items-center gap-1 font-medium text-ink-950 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5">
@@ -92,6 +112,5 @@ export function BlogCard({
           </span>
         </span>
       </Link>
-    </HoverLift>
   );
 }
