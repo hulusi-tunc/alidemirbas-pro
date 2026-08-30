@@ -310,8 +310,8 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             const external = action.href.startsWith("http");
             return (
               <Reveal key={project.slug} delay={i * 60}>
-                <article className="flex h-full flex-col rounded-2xl border border-line bg-paper p-6 sm:p-7">
-                  <div className="overflow-hidden rounded-xl bg-paper-soft p-3 sm:p-4 [&>div]:!shadow-none">
+                <article className="flex h-full flex-col">
+                  <div className="overflow-hidden rounded-2xl bg-ink-950 p-5 sm:p-6 [&>div]:!shadow-none">
                     {preview}
                   </div>
                   <h3 className="mt-6 text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
