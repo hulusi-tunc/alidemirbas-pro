@@ -170,17 +170,19 @@ export default function CalculatorDetailTemplate({
       </div>
 
       {content.faq.length > 0 && (
-        /* A real section on its own band, at the same rank as "What this
-           number means" - not an appendix. The accordion keeps its shared
-           styling; only the heading and the ground are this page's own. */
-        <section className="mt-14 bg-paper-soft">
-          <div className="mx-auto max-w-[760px] px-5 py-12 sm:px-6">
-            <h2 className="text-[1.35rem] font-semibold tracking-[-0.015em] text-ink-950">
-              {t.faq}
-            </h2>
-            <div className="mt-4">
-              <FaqAccordion items={[...content.faq]} />
-            </div>
+        /* A real section at the same rank as "What this number means" - not
+           an appendix - and on WHITE rather than its own tinted band. The
+           band was there to mark the FAQ as a section back when the items
+           were ruled rows with nothing else to separate them; now each
+           question is a filled card, so the section reads as a block on its
+           own and a second ground behind it only made the cards fight their
+           backdrop. */
+        <section className="mx-auto mt-14 max-w-[760px] px-5 sm:px-6">
+          <h2 className="text-[1.35rem] font-semibold tracking-[-0.015em] text-ink-950">
+            {t.faq}
+          </h2>
+          <div className="mt-4">
+            <FaqAccordion items={[...content.faq]} />
           </div>
         </section>
       )}
