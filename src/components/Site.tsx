@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
+import { LAB_PREVIEWS } from "@/components/ui/LabPreviews";
 import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
@@ -277,59 +278,63 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/** Lab, as a numbered index rather than a card grid. Six equal cards made the
-    reader weigh all six; a list lets them scan the names and stop at one. The
-    grid itself is still what /lab renders - this is the home page's summary of
-    it, not a replacement for it. */
-function Lab({ t }: { t: (typeof copy)[Lang] }) {
+/** Lab, as bordered cards - frame on top, title, description, one action
+    pill below - reusing the exact illustrative preview LabIndexPage
+    already builds for that project (LabPreviews.tsx) instead of a fake
+    "product screenshot": real journey-canvas nodes, real category counts,
+    the real AB-004 record, honestly-labelled bar/row illustrations for the
+    two tools with no single number to show. A user-supplied reference for
+    this layout used AI-generated screenshot mockups with garbled,
+    meaningless UI text baked into the images - realistic-looking fabricated
+    evidence, which this project's own constitution (AGENTS.md, anti-
+    patterns.md #9) bans outright. Same card shape, same one-per-project
+    frame-then-text-then-button structure; every pixel inside the frame is
+    real.
+
+    One column, full-width cards on narrow viewports; two columns side by
+    side from `md` up. */
+function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   return (
     <section id="lab" className="bg-paper-soft py-24 md:py-28">
       <div className="altor-container">
         <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
 
-        <Reveal delay={90}>
-          <ul className="mt-14 border-b border-line">
-            {t.lab.projects.map((project, i) => {
-              const href = project.links[0].href;
-              const external = href.startsWith("http");
-              return (
-                <li key={project.slug} className="border-t border-line">
-                  <Link
-                    href={href}
+        <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2">
+          {t.lab.projects.map((project, i) => {
+            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack" });
+            // Prefer the real GitHub link when one exists; five of six
+            // projects have one. The Canonical Journey Library doesn't (it
+            // lives at /lab/journeys, not a separate repo) - falling back to
+            // its own first link rather than fabricating a GitHub URL.
+            const action = project.links.find((l) => l.href.includes("github.com")) ?? project.links[0];
+            const external = action.href.startsWith("http");
+            return (
+              <Reveal key={project.slug} delay={i * 60}>
+                <article className="flex h-full flex-col rounded-2xl border border-line bg-paper p-6 sm:p-7">
+                  <div className="overflow-hidden rounded-xl bg-paper-soft p-3 sm:p-4 [&>div]:!shadow-none">
+                    {preview}
+                  </div>
+                  <h3 className="mt-6 text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
+                  <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
+                    {withJourneyCount(project.desc)}
+                  </p>
+                  <a
+                    href={action.href}
                     {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="group grid grid-cols-[2.75rem_minmax(0,1fr)] items-baseline gap-4 py-6 transition-[padding,background-color] duration-200 ease-out-soft hover:bg-paper-soft hover:pl-3 lg:grid-cols-[2.75rem_minmax(0,20rem)_minmax(0,1fr)_1.5rem]"
+                    className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
                   >
-                    <span className="tnum font-mono text-xs text-ink-400">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="text-xl font-semibold text-ink-950">{project.name}</span>
-                    <span>
-                      <span className="block max-w-[60ch] text-[0.9375rem] leading-relaxed text-ink-600">
-                        {withJourneyCount(project.desc)}
-                      </span>
-                      <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-                        {project.tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="font-mono text-[11px] text-ink-400">
-                            {withJourneyCount(tag)}
-                          </span>
-                        ))}
-                      </span>
-                    </span>
-                    <ArrowUpRight
-                      aria-hidden
-                      className="hidden size-4 self-center justify-self-end text-ink-400 transition-colors group-hover:text-blue-600 lg:block"
-                    />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </Reveal>
+                    {action.label}
+                  </a>
+                </article>
+              </Reveal>
+            );
+          })}
+        </div>
 
-        <Reveal delay={140}>
+        <Reveal delay={t.lab.projects.length * 60 + 40}>
           <Link
             href={t.nav.labHref}
-            className="mt-10 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+            className="mt-14 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
           >
             {t.home.labMore}
             <ArrowRight aria-hidden className="size-3.5" />
@@ -559,7 +564,7 @@ export default function Site({ lang }: { lang: Lang }) {
             now - components kept below, just not rendered. Re-add
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
-        <Lab t={t} />
+        <Lab t={t} lang={lang} />
         <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
         <FinalCta t={t} />
