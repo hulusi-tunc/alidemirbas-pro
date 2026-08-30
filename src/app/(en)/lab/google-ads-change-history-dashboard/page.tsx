@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import SkillProductPage from "@/components/SkillProductPage";
+import ChangeHistoryExplorerPage from "@/components/ChangeHistoryExplorerPage";
 import { getChangeHistoryContent } from "@/lib/skill-pages/change-history";
 import { pageAlternates } from "@/lib/seo";
 
@@ -17,5 +17,5 @@ export const metadata: Metadata = content
 
 export default function ChangeHistoryExplorer() {
   if (!content) notFound();
-  return <SkillProductPage lang="en" content={content} />;
+  return <ChangeHistoryExplorerPage lang="en" content={content} />;
 }
