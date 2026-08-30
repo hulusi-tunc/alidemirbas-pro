@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
@@ -253,15 +252,17 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
 
 /* --------------------------------------------------------------- BANDS */
 
-/** The ground each band sits on. Four grounds cycling, so no project
-    shares a backdrop with the one above or below it, and two of them
-    carry generated art. */
-const GROUNDS = [
-  { key: "paper", art: null as string | null },
-  { key: "tint", art: "/lab/ground-flow.jpg" },
-  { key: "paper", art: null },
-  { key: "tint", art: "/lab/ground-glass.jpg" },
-] as const;
+/** The ground each band sits on: plain tone, alternating.
+
+    NO ART HERE. Two generated grounds were tried behind these bands and
+    removed on sight - they had been produced for the abandoned dark-hero
+    direction, so they were deep navy, and a dark image at low opacity
+    under a light band does not read as texture, it reads as dirt: the
+    whole stripe went muddy grey. A band earns its separation from the one
+    above it by changing TONE, which it already does. The generated art
+    stays where it works, in the hero, where it is light art on a light
+    ground at full strength. */
+const GROUNDS = ["paper", "tint"] as const;
 
 function ProjectBand({
   project, lang, index, total,
@@ -275,8 +276,7 @@ function ProjectBand({
   const desc = withJourneyCount(project.desc);
   const proof = project.proof ? withJourneyCount(project.proof) : null;
   const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "wide" });
-  const ground = GROUNDS[index % GROUNDS.length];
-  const tinted = ground.key === "tint";
+  const tinted = GROUNDS[index % GROUNDS.length] === "tint";
   // Alternate which side the visual takes, so the eye moves across the
   // page rather than down a single column.
   const flip = index % 2 === 1;
@@ -288,19 +288,6 @@ function ProjectBand({
         tinted ? "bg-paper-soft" : "bg-paper"
       }`}
     >
-      {ground.art && hasArt(ground.art) && (
-        <Image
-          src={ground.art}
-          alt=""
-          aria-hidden
-          fill
-          sizes="100vw"
-          /* Very low opacity: this is a ground, not a picture. Busy
-             texture behind content was rejected in review on the
-             calculator plate, and the same restraint applies here. */
-          className="-z-10 object-cover opacity-[0.18]"
-        />
-      )}
 
       <div className="altor-container relative">
         <div
