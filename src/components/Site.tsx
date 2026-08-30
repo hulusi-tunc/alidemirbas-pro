@@ -119,7 +119,12 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
       // the only thing still asking the reader to cross a tone boundary at
       // the top of the site. Ink on paper, hairline rules, and the portrait
       // plate left as the one place colour does any work.
-      className="relative isolate flex flex-col overflow-hidden border-b border-line bg-paper pt-16 pb-16 lg:pt-20 lg:pb-20"
+      // Tinted stage, no rule under it. The hero and the Work band below
+      // were both white, so a hairline was doing all the seam work; one
+      // step of ground does it without a stroke, and matches the stage on
+      // every calculator page. Deleting the line without the tint would
+      // leave a padding-only seam - this project's own known defect.
+      className="relative isolate flex flex-col overflow-hidden bg-paper-soft pt-16 pb-16 lg:pt-20 lg:pb-20"
     >
 
       <div className="relative flex flex-1 flex-col justify-center">
@@ -459,7 +464,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
     // used for the Contact form zone) - explicitly lighter than the old
     // black footer, per request. Link/heading colors flip from
     // white-on-dark to ink-on-light using the same token ramp.
-    <footer className="border-t border-line bg-paper-soft pt-16 pb-8">
+    <footer className="bg-paper-soft pt-16 pb-8">
       <div className="altor-container">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-16">
           <Link href={home} className="shrink-0 text-[15px] font-semibold tracking-tight text-ink-950">

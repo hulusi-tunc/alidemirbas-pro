@@ -207,7 +207,11 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
             "modern SaaS look" default, and the point here is a clean open,
             not a second effect. Colour arrives one row down, in the
             per-category icon tints. */}
-        <section className="border-b border-line bg-paper pt-16 pb-14 md:pt-20 md:pb-16">
+        {/* Tinted rather than white-with-a-rule: the stage and the grid
+            below it were both white, so a hairline was doing all the
+            seam work. One step of ground does it without a stroke, and
+            matches the detail pages' own stage. */}
+        <section className="bg-paper-soft pt-16 pb-14 md:pt-20 md:pb-16">
           <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
             <h1 className="mx-auto max-w-2xl text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-ink-950">
               {hero.title}
@@ -245,7 +249,7 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
         <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
         <main>
           {/* Light stage, same call as the listing and the detail template. */}
-          <section className="border-b border-line bg-paper-soft pt-24 pb-14">
+          <section className="bg-paper-soft pt-24 pb-14">
             <div className="altor-container">
               <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-ink-400 transition-colors hover:text-ink-900">
                 <ArrowLeft aria-hidden className="size-3.5" />

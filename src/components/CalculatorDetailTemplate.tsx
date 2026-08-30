@@ -95,7 +95,11 @@ export default function CalculatorDetailTemplate({
           product is - is the mechanism, and the reason the wash and the
           gradient title are gone rather than re-tinted: a coloured glow on
           white is a default, not a decision. */}
-      <section className="border-b border-line bg-paper-soft">
+      {/* No border under the band: the ground change from paper-soft to
+          white IS the seam, and a hairline drawn on top of it is the
+          stroke-heavy habit the site has left. A band needs a line only
+          where it meets its own colour. */}
+      <section className="bg-paper-soft">
         <div className="mx-auto max-w-[880px] px-5 pt-10 pb-12 sm:px-6 md:pt-14 md:pb-14">
           <header className="text-center">
             <Link
@@ -169,7 +173,7 @@ export default function CalculatorDetailTemplate({
         /* A real section on its own band, at the same rank as "What this
            number means" - not an appendix. The accordion keeps its shared
            styling; only the heading and the ground are this page's own. */
-        <section className="mt-14 border-y border-line bg-paper-soft">
+        <section className="mt-14 bg-paper-soft">
           <div className="mx-auto max-w-[760px] px-5 py-12 sm:px-6">
             <h2 className="text-[1.35rem] font-semibold tracking-[-0.015em] text-ink-950">
               {t.faq}
