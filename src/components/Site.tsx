@@ -293,6 +293,20 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
 
     One column, full-width cards on narrow viewports; two columns side by
     side from `md` up. */
+// One distinct panel color per Lab project, keyed by slug so it stays
+// stable regardless of array order. Deliberately outside the site's
+// established token palette (site-owner direction, not a taste pick) -
+// each a deep, muted, editorial-dark hue so the set reads as one family
+// despite the range of hues.
+const LAB_PANEL_COLOR: Record<string, string> = {
+  "claude-lifecycle": "#152049", // navy
+  "lifecycle-card-archive": "#1c3829", // dark green
+  "ab-test-playbook": "#3a1930", // wine
+  "dashboard-builder": "#0f3336", // deep teal
+  "google-ads-change-history-dashboard": "#2a1f42", // plum
+  numerspace: "#3a2412", // rust brown
+};
+
 function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   return (
     <section id="lab" className="bg-paper-soft py-24 md:py-28">
@@ -311,7 +325,10 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             return (
               <Reveal key={project.slug} delay={i * 60}>
                 <article className="flex h-full flex-col">
-                  <div className="overflow-hidden rounded-2xl bg-ink-950 p-5 sm:p-6 [&>div]:!shadow-none">
+                  <div
+                    className="overflow-hidden rounded-2xl p-5 sm:p-6 [&>div]:!shadow-none"
+                    style={{ backgroundColor: LAB_PANEL_COLOR[project.slug] ?? "#152049" }}
+                  >
                     {preview}
                   </div>
                   <h3 className="mt-6 text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
