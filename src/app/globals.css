@@ -670,12 +670,30 @@
      fifteen call sites by hand. Call sites that need a different weight
      or tracking (the footers) already stack utilities on top, and
      utilities win the cascade. */
+  /* THE MONO RAIL IS RETIRED (2026-08-30 style pass). This was 11px mono,
+     0.12em tracking, uppercase - the site's old signature, and the exact
+     thing reviewed as unreadable ("uppercase lock, so small"). It is used
+     at ~35 call sites, so it is fixed HERE rather than edited into each:
+     a plain-case label at a size someone can actually read.
+
+     `text-transform: none` is stated rather than simply dropped because
+     six call sites still add their own `uppercase` utility; without this
+     they would keep shouting while the rest of the site stopped. Utility
+     classes win on specificity, so those are unset individually below. */
   .altor-eyebrow {
-    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 0.6875rem;
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-family: inherit;
+    font-size: 0.8125rem; /* 13px */
+    font-weight: 500;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* The six call sites that re-add `uppercase` (footer column heads and a
+     few page eyebrows) - overridden here so the retirement is total and
+     none of them has to be hunted down individually. */
+  .altor-eyebrow.uppercase {
+    text-transform: none;
+    letter-spacing: normal;
   }
 
   /* Scroll reveal — progressive enhancement, content is in the HTML. */

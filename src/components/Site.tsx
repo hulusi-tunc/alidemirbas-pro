@@ -255,7 +255,9 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
 
         <Reveal delay={90}>
           <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-8">
-            <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">
+            {/* Plain case, like every other label since the mono rail was
+                retired. */}
+            <p className="text-[13px] font-medium text-ink-400">
               {t.home.work.primaryLabel}
             </p>
             <div>
@@ -266,11 +268,14 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
         </Reveal>
 
         <Reveal delay={140}>
-          <ul className="mt-12 md:ml-[11rem]">
+          {/* Soft filled rows rather than a ruled table: three hairlines
+              stacked under three lines of prose was the stroke-heavy habit
+              the site has left, and the rows read as a list either way. */}
+          <ul className="mt-12 flex list-none flex-col gap-2.5 p-0 md:ml-[11rem]">
             {t.home.work.rest.map((item, i) => (
               <li
                 key={item.title}
-                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 border-t border-line py-4"
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 rounded-xl bg-paper-soft px-5 py-4"
               >
                 <span className="tnum pt-0.5 font-mono text-xs text-ink-400">
                   {String(i + 2).padStart(2, "0")}
