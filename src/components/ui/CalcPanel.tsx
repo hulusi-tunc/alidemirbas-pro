@@ -47,11 +47,11 @@ export function CalcPanel({
   plateFootnote?: ReactNode;
 }) {
   return (
-    // No stroke and no radius: the white inputs half and the brand plate
-    // draw the card's shape themselves, square-edged like the site's
-    // buttons and blocks (a hairline and rounded corners were both
-    // reviewed here and removed).
-    <div className="overflow-hidden bg-paper">
+    // Soft-cornered and strokeless: the white inputs half and the brand
+    // plate draw the card's shape themselves. It was square through the
+    // hard-technical phase; the 2026-08-30 style pass rounds it with the
+    // rest of the site (`rounded-card`, 20px).
+    <div className="overflow-hidden rounded-card bg-paper">
       {/* min-height so a two-field calculator still gets a card with real
           presence - the working surface is the page's anchor and a stubby
           strip doesn't read as one. Bigger tools grow past it naturally. */}

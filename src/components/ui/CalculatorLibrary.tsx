@@ -4,14 +4,31 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  Activity,
+  CalendarClock,
+  Coins,
+  Divide,
+  Eye,
   FlaskConical,
   Funnel,
+  Gauge,
+  Gem,
+  Link2,
   Mail,
   Megaphone,
+  MousePointerClick,
+  PieChart,
   RefreshCw,
+  Scale,
   Search,
+  ShoppingCart,
+  Target,
   TrendingUp,
   Type,
+  UserCheck,
+  UserMinus,
+  UserPlus,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -64,8 +81,43 @@ const T = {
   },
 } as const;
 
-/* One Lucide icon per library group - the icon rule: always the real icon
+/* One Lucide icon PER CALCULATOR - each tool wears its own meaning, not
+   its category's (a category icon repeated across four cards reads as a
+   rendering bug, not a system). The icon rule holds: always the real icon
    from the site's one set, never a drawn stand-in. */
+const SLUG_ICON: Record<string, LucideIcon> = {
+  // Ads
+  roas: Coins,
+  cpc: MousePointerClick,
+  cpm: Eye,
+  cac: UserPlus,
+  // Revenue & Unit Economics
+  aov: ShoppingCart,
+  "gross-margin": PieChart,
+  "break-even-point": Scale,
+  ltv: Gem,
+  "ltv-cac-ratio": Divide,
+  "cac-payback-period": CalendarClock,
+  // Retention & SaaS
+  "retention-rate": UserCheck,
+  nrr: Activity,
+  "logo-churn": UserMinus,
+  "rule-of-40": Gauge,
+  // Conversion & Funnel
+  cr: Target,
+  "funnel-analysis-multistep": Funnel,
+  // Experimentation
+  "ab-test": FlaskConical,
+  "sample-size-calculator": Users,
+  // Email & CRM
+  "email-performance": Mail,
+  // Text tools
+  "utm-builder": Link2,
+  "character-counter": Type,
+};
+
+/* Category fallback, for a future calculator added before anyone picks it
+   an icon of its own. */
 const CATEGORY_ICON: Record<string, LucideIcon> = {
   ads: Megaphone,
   "revenue-unit-economics": TrendingUp,
@@ -81,13 +133,13 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
     (which varied the retired two-shape badge) is accepted and ignored so
     that call site keeps compiling. */
 export function EntryCard({ entry }: { entry: CalcEntry; index?: number }) {
-  const Icon = CATEGORY_ICON[entry.categoryKey] ?? TrendingUp;
+  const Icon = SLUG_ICON[entry.slug] ?? CATEGORY_ICON[entry.categoryKey] ?? TrendingUp;
   return (
     <Link
       href={entry.href}
-      className="group flex flex-col gap-2.5 border border-line bg-paper p-6 transition-colors hover:border-blue-400"
+      className="group flex flex-col gap-2.5 rounded-card bg-paper-soft p-6 transition-[background-color,box-shadow] hover:bg-paper hover:shadow-card"
     >
-      <span aria-hidden className="mb-1 grid size-10 place-items-center bg-blue-50 text-primary-600">
+      <span aria-hidden className="mb-1 grid size-10 place-items-center rounded-full bg-blue-100 text-primary-600">
         <Icon className="size-5" />
       </span>
       <span className="text-base font-semibold tracking-tight text-ink-950">{entry.name}</span>
@@ -119,10 +171,10 @@ function FacetChip({
       type="button"
       aria-pressed={checked}
       onClick={onToggle}
-      className={`flex items-center gap-1.5 border px-3 py-1.5 text-sm transition-colors ${
+      className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm transition-colors ${
         checked
-          ? "border-primary-600 bg-primary-600 text-white"
-          : "border-line bg-paper text-ink-700 hover:border-blue-400"
+          ? "bg-primary-600 text-white"
+          : "bg-paper-soft text-ink-700 hover:bg-blue-50 hover:text-primary-700"
       }`}
     >
       {label}
@@ -168,7 +220,7 @@ export function CalculatorLibrary({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.searchPlaceholder}
             aria-label={t.searchPlaceholder}
-            className="box-border w-full border border-line bg-paper py-2.5 pr-4 pl-10 text-sm text-ink-950 outline-none transition-colors focus:border-primary-600"
+            className="box-border w-full rounded-full bg-paper-soft py-2.5 pr-4 pl-10 text-sm text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
           />
           <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-400" />
         </div>
@@ -198,7 +250,7 @@ export function CalculatorLibrary({
         {results.length === 0 ? (
           /* The same designed dead end the two Lab libraries use - count,
              message, one recovery action - on the site tokens. */
-          <div className="my-8 border border-line bg-paper py-14 text-center">
+          <div className="my-8 rounded-card bg-paper-soft py-14 text-center">
             <p className="text-[13px] font-medium text-ink-400 tabular-nums">
               0 / {entries.length}
             </p>
