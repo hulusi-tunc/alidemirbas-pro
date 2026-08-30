@@ -11,7 +11,11 @@ export function LabProjectGrid({ t }: { t: (typeof copy)[Lang] }) {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {t.lab.projects.map((project, i) => (
         <Reveal key={project.slug} delay={i * 80}>
-          <article className="group flex h-full flex-col border border-line p-6 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_32px_-16px_rgba(10,16,32,0.18)]">
+          {/* Soft filled card, and a hover that is a colour change only:
+              the lift-and-shadow this used to do (translate + a 32px
+              shadow) was reviewed as cheap, and it belonged to the
+              stroke-heavy direction the site has left. */}
+          <article className="group flex h-full flex-col rounded-card bg-paper-soft p-6 transition-colors duration-200 hover:bg-blue-50">
             <h3 className="text-lg font-semibold tracking-tight text-ink-950">{project.name}</h3>
             <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-600">
               {withJourneyCount(project.desc)}

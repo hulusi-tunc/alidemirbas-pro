@@ -4,14 +4,31 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  Activity,
+  CalendarClock,
+  Coins,
+  Divide,
+  Eye,
   FlaskConical,
   Funnel,
+  Gauge,
+  Gem,
+  Link2,
   Mail,
   Megaphone,
+  MousePointerClick,
+  PieChart,
   RefreshCw,
+  Scale,
   Search,
+  ShoppingCart,
+  Target,
   TrendingUp,
   Type,
+  UserCheck,
+  UserMinus,
+  UserPlus,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -64,8 +81,43 @@ const T = {
   },
 } as const;
 
-/* One Lucide icon per library group - the icon rule: always the real icon
+/* One Lucide icon PER CALCULATOR - each tool wears its own meaning, not
+   its category's (a category icon repeated across four cards reads as a
+   rendering bug, not a system). The icon rule holds: always the real icon
    from the site's one set, never a drawn stand-in. */
+const SLUG_ICON: Record<string, LucideIcon> = {
+  // Ads
+  roas: Coins,
+  cpc: MousePointerClick,
+  cpm: Eye,
+  cac: UserPlus,
+  // Revenue & Unit Economics
+  aov: ShoppingCart,
+  "gross-margin": PieChart,
+  "break-even-point": Scale,
+  ltv: Gem,
+  "ltv-cac-ratio": Divide,
+  "cac-payback-period": CalendarClock,
+  // Retention & SaaS
+  "retention-rate": UserCheck,
+  nrr: Activity,
+  "logo-churn": UserMinus,
+  "rule-of-40": Gauge,
+  // Conversion & Funnel
+  cr: Target,
+  "funnel-analysis-multistep": Funnel,
+  // Experimentation
+  "ab-test": FlaskConical,
+  "sample-size-calculator": Users,
+  // Email & CRM
+  "email-performance": Mail,
+  // Text tools
+  "utm-builder": Link2,
+  "character-counter": Type,
+};
+
+/* Category fallback, for a future calculator added before anyone picks it
+   an icon of its own. */
 const CATEGORY_ICON: Record<string, LucideIcon> = {
   ads: Megaphone,
   "revenue-unit-economics": TrendingUp,
@@ -81,23 +133,39 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
     (which varied the retired two-shape badge) is accepted and ignored so
     that call site keeps compiling. */
 export function EntryCard({ entry }: { entry: CalcEntry; index?: number }) {
-  const Icon = CATEGORY_ICON[entry.categoryKey] ?? TrendingUp;
+  const Icon = SLUG_ICON[entry.slug] ?? CATEGORY_ICON[entry.categoryKey] ?? TrendingUp;
   return (
+    /* Two shapes, one card. On mobile it is a compact ROW - icon at the
+       left as the scanning anchor, two lines of description at most - so
+       four or five land on a phone screen instead of two near-identical
+       tall blocks. From `sm` up it is the stacked card the grid wants.
+       `sm:contents` dissolves the mobile text wrapper at that breakpoint,
+       so the same markup gives both layouts with no duplicated content. */
     <Link
       href={entry.href}
-      className="group flex flex-col gap-2.5 border border-line bg-paper p-6 transition-colors hover:border-blue-400"
+      /* Hover is a quiet brand tint and nothing else - the white-plate-plus-
+         shadow lift this used to do was reviewed as cheap. The card stays
+         flat on its ground; only the colour temperature moves. */
+      className="group flex gap-4 rounded-card bg-paper-soft p-4 transition-colors hover:bg-blue-50 sm:flex-col sm:gap-2.5 sm:p-6"
     >
-      <span aria-hidden className="mb-1 grid size-10 place-items-center bg-blue-50 text-primary-600">
+      <span
+        aria-hidden
+        className="grid size-10 shrink-0 place-items-center rounded-full bg-blue-100 text-primary-600 sm:mb-1"
+      >
         <Icon className="size-5" />
       </span>
-      <span className="text-base font-semibold tracking-tight text-ink-950">{entry.name}</span>
-      <span className="text-sm leading-relaxed text-ink-600">{entry.description}</span>
-      <span className="mt-auto flex items-center justify-between gap-2 pt-1.5">
-        <span className="text-[12px] text-ink-400">{entry.categoryLabel}</span>
-        <ArrowRight
-          aria-hidden
-          className="size-3.5 shrink-0 text-ink-200 transition-colors group-hover:text-blue-600"
-        />
+      <span className="flex min-w-0 flex-1 flex-col sm:contents">
+        <span className="text-base font-semibold tracking-tight text-ink-950">{entry.name}</span>
+        <span className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-600 sm:mt-0 sm:line-clamp-none">
+          {entry.description}
+        </span>
+        <span className="mt-2 flex items-center justify-between gap-2 sm:mt-auto sm:pt-1.5">
+          <span className="text-[12px] text-ink-400">{entry.categoryLabel}</span>
+          <ArrowRight
+            aria-hidden
+            className="size-3.5 shrink-0 text-ink-200 transition-colors group-hover:text-blue-600"
+          />
+        </span>
       </span>
     </Link>
   );
@@ -119,10 +187,10 @@ function FacetChip({
       type="button"
       aria-pressed={checked}
       onClick={onToggle}
-      className={`flex items-center gap-1.5 border px-3 py-1.5 text-sm transition-colors ${
+      className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm transition-colors ${
         checked
-          ? "border-primary-600 bg-primary-600 text-white"
-          : "border-line bg-paper text-ink-700 hover:border-blue-400"
+          ? "bg-primary-600 text-white"
+          : "bg-paper-soft text-ink-700 hover:bg-blue-50 hover:text-primary-700"
       }`}
     >
       {label}
@@ -168,7 +236,7 @@ export function CalculatorLibrary({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.searchPlaceholder}
             aria-label={t.searchPlaceholder}
-            className="box-border w-full border border-line bg-paper py-2.5 pr-4 pl-10 text-sm text-ink-950 outline-none transition-colors focus:border-primary-600"
+            className="box-border w-full rounded-full bg-paper-soft py-2.5 pr-4 pl-10 text-sm text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
           />
           <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-400" />
         </div>
@@ -181,24 +249,38 @@ export function CalculatorLibrary({
           filter is multi-select and a chip row reads that way, where a
           checkbox sidebar read as a form. Selected chips take the brand
           plate, exactly the active-state grammar the mode selector on the
-          detail pages already uses. */}
-      <div className="mt-5 flex flex-wrap gap-2">
-        {categoryFacets.map((f) => (
-          <FacetChip
-            key={f.id}
-            label={f.label}
-            count={f.count}
-            checked={category.has(f.id)}
-            onToggle={() => toggle(f.id)}
-          />
-        ))}
+          detail pages already uses.
+
+          ON MOBILE IT IS A SCROLLING RAIL, not a wrapped block: seven chips
+          wrap onto four lines on a phone, which pushes the actual results
+          off the first screen - the filter costing more space than the
+          content it filters. One swipeable line, snapping to a chip, with
+          a fade at the edge so it reads as scrollable. It goes back to
+          wrapping at `sm`, where the whole set fits in one or two lines. */}
+      <div className="relative mt-5">
+        <div className="no-scrollbar -mx-6 flex snap-x snap-mandatory gap-2 overflow-x-auto px-6 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          {categoryFacets.map((f) => (
+            <div key={f.id} className="shrink-0 snap-start">
+              <FacetChip
+                label={f.label}
+                count={f.count}
+                checked={category.has(f.id)}
+                onToggle={() => toggle(f.id)}
+              />
+            </div>
+          ))}
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-paper to-transparent sm:hidden"
+        />
       </div>
 
       <div className="mt-8">
         {results.length === 0 ? (
           /* The same designed dead end the two Lab libraries use - count,
              message, one recovery action - on the site tokens. */
-          <div className="my-8 border border-line bg-paper py-14 text-center">
+          <div className="my-8 rounded-card bg-paper-soft py-14 text-center">
             <p className="text-[13px] font-medium text-ink-400 tabular-nums">
               0 / {entries.length}
             </p>

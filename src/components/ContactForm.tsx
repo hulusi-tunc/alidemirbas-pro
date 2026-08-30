@@ -164,9 +164,10 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           applies.
 
           `rounded-full!`/`px-6!` (round 2): Portrait's real buttons are
-          true pills. Scoped, per-instance override via a forced (`!`)
-          utility — NOT a change to Button.tsx itself, which keeps its own
-          `rounded-none` default everywhere else on the site.
+          true pills. The `rounded-full!` half is now redundant - the
+          2026-08-30 style pass made the pill Button.tsx's own default
+          site-wide - and is kept only so `px-6!` reads as one intact
+          override rather than a mystery half.
 
           `variant="ink"` + the `--btn-fill` override (ROUND 3 correction):
           round 2 used `variant="primary"`, whose resting fill is brand

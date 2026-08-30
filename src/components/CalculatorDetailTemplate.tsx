@@ -126,7 +126,7 @@ export default function CalculatorDetailTemplate({
               white half. Monospace, no heading competing with the prose
               below it. */}
           {(page.workedExample || workedExampleFallback) && (
-            <div className="mt-4 bg-paper px-5 py-4">
+            <div className="mt-4 rounded-card bg-paper px-5 py-4">
               <p className="text-[13px] font-medium text-blue-700">{t.workedExample}</p>
               {page.workedExample ? (
                 <p className="mt-2 overflow-x-auto font-mono text-[13px] whitespace-nowrap text-ink-700">
@@ -195,7 +195,7 @@ export default function CalculatorDetailTemplate({
               <Link
                 key={r.href}
                 href={r.href}
-                className="group flex items-center justify-between gap-2 rounded-lg border border-line bg-paper px-3.5 py-3 transition-colors hover:border-blue-400"
+                className="group flex items-center justify-between gap-2 rounded-xl bg-paper-soft px-4 py-3 transition-colors hover:bg-blue-50"
               >
                 <span className="text-[13px] leading-snug text-ink-800">{r.name}</span>
                 <ArrowRight

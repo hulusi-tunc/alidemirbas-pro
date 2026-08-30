@@ -129,9 +129,15 @@
      reference are written against these names; re-theming means re-pointing
      this block only. */
 
-  /* Borders. `--color-line` / `--color-line-strong` are the originals. */
-  --color-line: #e4e7ee;
-  --color-line-strong: #cdd2dd;
+  /* Borders. SOFTENED (2026-08-30 style pass): the site is no longer
+     stroke-heavy, and rather than deleting ~200 borders one at a time -
+     which would leave surfaces with no edge at all where they still need
+     one - the line tokens themselves recede. A border is now a hint that
+     a surface ends, not a drawn frame around it. Pair with a fill
+     (`bg-paper-soft`) or `--shadow-card` where a surface needs to read as
+     a real object. */
+  --color-line: #eef0f5; /* was #e4e7ee */
+  --color-line-strong: #dfe3ec; /* was #cdd2dd */
   --color-line-brand: var(--color-primary-600);
   --color-line-brand-subtle: var(--color-primary-200);
   --color-line-inverse: var(--color-ink-800); /* rules on a dark plate */
@@ -211,12 +217,12 @@
      corner — it silently lands on 10px instead. The clamps are guardrails, not
      design steps.
 
-     THE ONE DELIBERATE SQUARE CASE IS THE BUTTON. `Button` opts out of this
-     scale entirely and is `rounded-none` at every variant and size, so its
-     edges can sit flush on the editorial grid and a pair of CTAs reads as one
-     segmented bar. That is the reference's own decision and its reasoning is
-     recorded in `src/components/ui/Button.tsx`; it is not an instance of a
-     general rule.
+     THE BUTTON IS A PILL and opts out of this numbered scale entirely, at
+     `--radius-pill` below — every variant and size. It used to be the one
+     deliberately square component (edges flush on the editorial grid); the
+     2026-08-30 style pass retired that along with the rest of the
+     hard-technical direction. Reasoning is recorded in
+     `src/components/ui/Button.tsx`.
 
      CIRCLES REMAIN A SHAPE, NOT A RADIUS. Status dots, radio controls,
      spinners, pill-shaped rating badges and the avatar keep `rounded-full` and
@@ -226,16 +232,24 @@
      Where a comp specifies a corner this scale has no step for — the hero
      artwork's 16px and 20px panels — the call site writes it literally and says
      so. Those are artwork geometry, not UI surfaces. */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
+  /* SOFTENED SCALE (2026-08-30 style pass). The 10px ceiling above belonged
+     to the earlier hard-technical direction - square edges, heavy strokes,
+     everything flush to the editorial grid. That direction is retired: the
+     site is soft now, and the radius scale is the one place that decision
+     can be made once for ~190 call sites instead of edited into each. Every
+     step moved up; the old numbers are kept in comments so a corner that
+     was deliberately tight can be read back. */
+  --radius-xs: 6px; /* was 4 */
+  --radius-sm: 8px; /* was 6 */
+  --radius-md: 10px; /* was 8 */
+  --radius-lg: 14px; /* was 10 */
 
-  /* Ceiling clamp — not design steps, guardrails. */
-  --radius-xl: 10px;
-  --radius-2xl: 10px;
-  --radius-3xl: 10px;
-  --radius-4xl: 10px;
+  /* No longer a clamp: the larger steps are real steps again, for panels
+     and full-bleed surfaces that carry their own soft corner. */
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
+  --radius-3xl: 26px;
+  --radius-4xl: 32px;
 
   /* --- CONTACT PILOT (DESIGN-MIGRATION-PLAN.md §5) -----------------------
      `--radius-card`: a dedicated token for card-class surfaces, sourced
@@ -243,12 +257,17 @@
      see DESIGN-MIGRATION-PLAN.md §0. Deliberately its OWN token rather
      than raising `--radius-lg` (10px): raising `--radius-lg` itself would
      silently round every existing `rounded-lg` call site site-wide, and
-     the Button's `rounded-none` is a separate, explicit opt-out that must
+     the Button's own pill radius is a separate, explicit opt-out that must
      stay untouched by this. Generates `rounded-card` alongside the
      existing scale, above its 10px ceiling by design (a ceiling on the
      numbered steps, not on every future named token). First (only)
      consumer: the Contact page's form-surface card, this pilot. */
-  --radius-card: 1rem; /* 16px */
+  --radius-card: 1.25rem; /* 20px - raised with the softened scale above */
+
+  /* The pill. Buttons, chips, filters and the search field all take this:
+     the site's controls are pill-shaped now, and naming it means a future
+     change is one line rather than a find-and-replace over every control. */
+  --radius-pill: 9999px;
 
   /* --- Elevation (restrained, never “floaty SaaS”) ---------------------- */
   --shadow-hairline: 0 0 0 1px rgb(10 16 32 / 0.06);
@@ -499,8 +518,8 @@
      in @theme is the only global statement about corners.
 
      The focus ring keeps a radius of its own — it traces the control it is on,
-     and `Button` restates `focus-visible:rounded-none` locally because it is
-     square by design. */
+     and `Button` restates `focus-visible:rounded-full` locally because it is
+     a pill by design. */
   :focus-visible {
     outline: 2px solid var(--color-blue-600);
     outline-offset: 2px;
@@ -869,6 +888,20 @@
   --badge-wash: var(--color-badge-dark-wash);
   --badge-border: var(--color-badge-dark-border);
   --badge-ink: var(--color-badge-dark-ink);
+}
+
+/* A horizontal rail that scrolls without showing a bar. For filter rows and
+   tab strips on narrow screens, where wrapping a set of chips onto four
+   lines costs more vertical space than the content below is worth. Paired
+   with `snap-x` at the call site so a swipe lands on a chip rather than
+   between two. */
+@utility no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @utility section-badge {

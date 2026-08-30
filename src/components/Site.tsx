@@ -179,8 +179,10 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
             {/* portrait plate: the photograph on a blue field, framed by rules */}
             <Reveal delay={120} className="hidden lg:block">
               <div className="relative mx-auto w-full max-w-sm">
-                <div aria-hidden className="absolute -inset-3 border border-line" />
-                <div className="relative aspect-4/5 overflow-hidden bg-blue-600">
+                {/* The square double-frame this plate used to carry came off
+                    with the hard-technical direction: one soft rounded plate,
+                    no drawn frame around it. */}
+                <div className="relative aspect-4/5 overflow-hidden rounded-3xl bg-blue-600">
                   <Image
                     src="/portrait.jpg"
                     alt="Ali Demirbaş"

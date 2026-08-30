@@ -120,8 +120,10 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
                     role="radio"
                     aria-checked={m.id === modeId}
                     onClick={() => setModeId(m.id)}
-                    className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-                      m.id === modeId ? "border-ink-900 bg-ink-900 text-white" : "border-line text-ink-700 hover:border-ink-900"
+                    className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
+                      m.id === modeId
+                        ? "bg-primary-600 text-white"
+                        : "bg-paper-soft text-ink-700 hover:bg-blue-50 hover:text-primary-700"
                     }`}
                   >
                     {m.label}
@@ -305,7 +307,7 @@ function ScalarInput({
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errId : undefined}
-          className="rounded-md border border-line bg-white px-3 py-2 text-ink-950 outline-none focus:border-primary-600"
+          className="rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
         >
           <option value="" disabled>
             {"— select —"}
@@ -340,7 +342,7 @@ function ScalarInput({
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errId : undefined}
-        className="rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-primary-600"
+        className="rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
       />
       {error && (
         <span id={errId} className="text-xs text-red-600">
@@ -375,7 +377,7 @@ function FunnelInputs({
               value={s.label}
               onChange={(e) => update(i, "label", e.target.value)}
               placeholder={lang === "en" ? `Stage ${i + 1} (e.g. Visit)` : `${i + 1}. aşama (örn. Ziyaret)`}
-              className="w-full rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-primary-600"
+              className="w-full rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
             />
           </label>
           <label className="w-32 text-sm">
@@ -386,7 +388,7 @@ function FunnelInputs({
               value={s.count}
               onChange={(e) => update(i, "count", e.target.value)}
               placeholder="0"
-              className="w-full rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-primary-600"
+              className="w-full rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
             />
           </label>
           {stages.length > 2 && (
@@ -394,7 +396,7 @@ function FunnelInputs({
               type="button"
               onClick={() => setStages(stages.filter((_, idx) => idx !== i))}
               aria-label={lang === "en" ? `Remove stage ${i + 1}` : `${i + 1}. aşamayı kaldır`}
-              className="rounded-md border border-line px-2 text-sm text-neutral-500 hover:border-red-400 hover:text-red-600"
+              className="rounded-full bg-paper-soft px-2.5 text-sm text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
             >
               ×
             </button>
@@ -405,7 +407,7 @@ function FunnelInputs({
         <button
           type="button"
           onClick={() => setStages([...stages, { label: "", count: "" }])}
-          className="mt-1 self-start rounded-md border border-line px-3 py-1.5 text-sm text-ink-700 hover:border-ink-900"
+          className="mt-1 self-start rounded-full bg-paper-soft px-3.5 py-1.5 text-sm text-ink-700 transition-colors hover:bg-blue-50 hover:text-primary-700"
         >
           {lang === "en" ? "+ Add stage" : "+ Aşama ekle"}
         </button>
