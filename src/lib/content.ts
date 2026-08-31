@@ -428,9 +428,9 @@ export const copy = {
         },
       },
       carousel: {
-        eyebrow: "The library",
-        title: "{count} lifecycle journeys",
-        body: "Explore reusable journey patterns across acquisition, activation, retention, identity, consent and more. Start from an existing lifecycle structure instead of a blank canvas.",
+        eyebrow: "The pattern library",
+        title: "26 real journey patterns, each with its own blueprint",
+        body: "Every pattern ships a documented step-by-step blueprint - real waits, real channels, real branch conditions - not a template stretched to fit. Three of the 26 are worked out below exactly as the engine's own knowledge base defines them.",
       },
       faq: {
         eyebrow: "FAQ",
@@ -1075,9 +1075,9 @@ export const copy = {
         },
       },
       carousel: {
-        eyebrow: "Kütüphane",
-        title: "{count} lifecycle journey",
-        body: "Edinme, aktivasyon, elde tutma, kimlik, rıza ve daha fazlasında yeniden kullanılabilir journey kalıplarını keşfet. Boş bir sayfa yerine mevcut bir lifecycle yapısından başla.",
+        eyebrow: "Pattern kütüphanesi",
+        title: "Her biri kendi planına sahip 26 gerçek journey pattern'i",
+        body: "Her pattern, dokümante edilmiş adım adım bir plan taşır - gerçek bekleme süreleri, gerçek kanallar, gerçek dallanma koşulları - şablonun zorla uydurulması değil. 26'sından üçü, aşağıda motorun kendi bilgi tabanında tanımlandığı haliyle açılıyor.",
       },
       faq: {
         eyebrow: "SSS",

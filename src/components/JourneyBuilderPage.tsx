@@ -7,24 +7,32 @@ import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { JourneyLibraryCta } from "@/components/ui/JourneyFlows";
-import { JourneyCarousel, type CarouselSlide } from "@/components/ui/JourneyCarousel";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { HeroVideoCard } from "@/components/ui/HeroVideoCard";
-import { JOURNEY_SCALE } from "@/lib/journey-marketing";
 import { copy, type Lang } from "@/lib/content";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, softwareApplication } from "@/lib/schema";
 
 /* Product page for the Lifecycle Marketing Journey Builder.
 
-   Peerbie-composition pass (this round): the page previously led with a
-   text/graph hero and worked through Scale/Stories/Anatomy/Inspector/
-   Library/HowItWorks bands - all real, all removed per explicit
-   site-owner direction in favour of this leaner shape: a video-first
-   hero, three "why different" feature stories, a real-journey carousel,
-   an FAQ, and a page-local final CTA. Every visual is still real: ACQ-01,
-   ACQ-05 and CON-38 are journey ids verified against src/canonical/*.ts,
-   not invented, and JOURNEY_SCALE.journeys stays a live count. */
+   Peerbie-composition pass: the page previously led with a text/graph
+   hero and worked through Scale/Stories/Anatomy/Inspector/Library/
+   HowItWorks bands - all real, all removed per explicit site-owner
+   direction in favour of this leaner shape: a video-first hero, three
+   "why different" feature panels, a real-pattern flow section, an FAQ,
+   and a page-local final CTA.
+
+   Real-data pass: the feature panels and the pattern section used to
+   show either Gemini-generated "journey screenshots" or real screenshots
+   of the Canonical Journey Library (/lab/journeys - a different, generic
+   281-journey subsystem, NOT this product's own output; ACQ-01/CON-38
+   are that library's ids, not claude-lifecycle's). Both were wrong for
+   this page. Every visual below is now a small React component rendered
+   from claude-lifecycle's own real repository (cloned and read directly -
+   knowledge/journey-patterns/*.md front matter and step-blueprint tables,
+   docs/data-quality-score.md's own worked example, knowledge/channels/
+   *.md's hard character limits) - see PATTERNS below for the exact
+   source of every number. */
 
 const REPO = "https://github.com/ali-demirbas/claude-lifecycle";
 
@@ -284,39 +292,138 @@ function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   );
 }
 
-/* ---- 11 · Journey carousel — five real journeys, swiped ---------------
-   Slides are real journeys already covered elsewhere on this page
-   (ACQ-01, ACQ-05, CON-38 and the identity/audience path each render on)
-   - the carousel is a second, glanceable view of the same real library,
-   not a second data source. */
+/* ---- 11 · Pattern flow section — three real patterns, real blueprints
+   Replaces the old five-slide image carousel (Gemini renders of the
+   Canonical Journey Library - a different subsystem, see the header
+   comment). Each card below is drawn from one real
+   knowledge/journey-patterns/<slug>.md file's own "Step blueprint
+   (standard, N steps)" table - the exact wait/channel/intent/branch the
+   engine's knowledge base defines, not a mockup of one. */
+
+type FlowChannel = "email" | "push" | "sms" | "in-app";
+
+const CHANNEL_STYLE: Record<FlowChannel, { label: string; badge: string; bar: string }> = {
+  email: { label: "Email", badge: "bg-violet-50 text-violet-700", bar: "bg-violet-500" },
+  push: { label: "Push", badge: "bg-sky-50 text-sky-700", bar: "bg-sky-500" },
+  sms: { label: "SMS", badge: "bg-teal-50 text-teal-700", bar: "bg-teal-500" },
+  "in-app": { label: "In-app", badge: "bg-amber-50 text-amber-700", bar: "bg-amber-500" },
+};
+
+type FlowStep = { wait: string; channel: FlowChannel; intent: string; branch?: string };
+type Pattern = { name: { en: string; tr: string }; trigger: string; steps: FlowStep[]; exit: { en: string; tr: string } };
+
+/** Source: knowledge/journey-patterns/abandoned-cart.md, winback.md,
+    trial-conversion.md - front matter (trigger/depth) and each file's own
+    "Step blueprint (standard, N steps)" table, copied verbatim. */
+const PATTERNS: Pattern[] = [
+  {
+    name: { en: "Abandoned cart", tr: "Terk edilmiş sepet" },
+    trigger: "add_to_cart",
+    steps: [
+      { wait: "+1h", channel: "email", intent: "Reminder: cart contents, zero pressure" },
+      { wait: "+20h", channel: "push", intent: "Short nudge, deeplink to cart", branch: "if not opened" },
+      { wait: "+24h", channel: "email", intent: "Objection handling: shipping/returns/trust" },
+      { wait: "+48h", channel: "email", intent: "Social proof on cart items", branch: "if clicked, no purchase" },
+      { wait: "+72h", channel: "push", intent: "Last call, no fake urgency" },
+    ],
+    exit: { en: "purchase · 7-day window", tr: "purchase · 7 günlük pencere" },
+  },
+  {
+    name: { en: "Trial conversion", tr: "Deneme dönüşümü" },
+    trigger: "trial_start",
+    steps: [
+      { wait: "+1h", channel: "email", intent: "Welcome: the one action that predicts success" },
+      { wait: "+2d", channel: "in-app", intent: "Nudge toward the core feature", branch: "if no feature used" },
+      { wait: "+2d", channel: "email", intent: "Use-case deepening or \"what's blocking you?\"", branch: "split on feature use" },
+      { wait: "midpoint", channel: "email", intent: "Progress recap, what stays behind on free" },
+      { wait: "−72h", channel: "email", intent: "Expiry notice: date, price, plain and factual" },
+      { wait: "−24h", channel: "push", intent: "Last call, real deadline only", branch: "if not clicked" },
+    ],
+    exit: { en: "subscription_start", tr: "subscription_start" },
+  },
+  {
+    name: { en: "Winback", tr: "Winback" },
+    trigger: "segment: lapsed",
+    steps: [
+      { wait: "on entry", channel: "email", intent: "What changed since you left, no discount" },
+      { wait: "+5d", channel: "email", intent: "Personalized best-of, restates original value" },
+      { wait: "+7d", channel: "sms", intent: "Short direct reminder, one link", branch: "if steps 1-2 not opened" },
+      { wait: "+10d", channel: "email", intent: "Incentive, gated on LTV tier, needs approval" },
+    ],
+    exit: { en: "purchase or session_start", tr: "purchase veya session_start" },
+  },
+];
+
+function PatternFlowCard({ pattern, lang }: { pattern: Pattern; lang: Lang }) {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-card border border-line bg-paper shadow-[0_0_0_1px_rgb(0_0_0/0.04),0_8px_24px_-16px_rgb(10_16_32/0.15)]">
+      <div className="border-b border-line px-5 py-4">
+        <p className="text-sm font-semibold text-ink-950">{pattern.name[lang]}</p>
+        <p className="mt-0.5 font-mono text-[11px] text-ink-400">{pattern.trigger}</p>
+      </div>
+      <div className="flex flex-col gap-0 px-5 py-5">
+        {/* Trigger pill */}
+        <div className="flex justify-center">
+          <span className="rounded-full bg-ink-950 px-3 py-1 text-[11px] font-medium text-white">
+            {pattern.trigger}
+          </span>
+        </div>
+        {pattern.steps.map((step, i) => {
+          const cs = CHANNEL_STYLE[step.channel];
+          return (
+            <div key={i} className="flex flex-col items-center">
+              <span aria-hidden className="h-4 w-px bg-line-strong" />
+              {step.branch && (
+                <span className="-mt-1 mb-1 rounded-full bg-paper-soft px-2 py-0.5 text-[10px] text-ink-500">
+                  {step.branch}
+                </span>
+              )}
+              <div className="flex w-full items-stretch overflow-hidden rounded-lg border border-line">
+                <span aria-hidden className={`w-1 shrink-0 ${cs.bar}`} />
+                <div className="flex-1 bg-paper-soft/60 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${cs.badge}`}>{cs.label}</span>
+                    <span className="font-mono text-[10.5px] text-ink-400">{step.wait}</span>
+                  </div>
+                  <p className="mt-1 text-[12px] leading-snug text-ink-700">{step.intent}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <span aria-hidden className="h-4 w-px self-center bg-line-strong" />
+        <div className="flex justify-center">
+          <span className="rounded-full bg-emerald-600 px-3 py-1 text-[11px] font-medium text-white">
+            {pattern.exit[lang]}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CarouselSection({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.journeyBuilder.carousel;
-  const n = JOURNEY_SCALE.journeys.toLocaleString(lang === "en" ? "en-US" : "tr-TR");
-  const slides: CarouselSlide[] = [
-    { src: "/images/claude-lifecycle/08-journey-acq-01.jpg", alt: "ACQ-01 - anonymous intent to known identity", caption: "ACQ-01 · Acquisition" },
-    { src: "/images/claude-lifecycle/09-journey-explicit-path.jpg", alt: "Every lifecycle decision has an explicit path", caption: "ACQ-05 · Qualification" },
-    { src: "/images/claude-lifecycle/10-journey-con-38.jpg", alt: "CON-38 - suppression to release", caption: "CON-38 · Consent" },
-    { src: "/images/claude-lifecycle/11-journey-handoff.jpg", alt: "Structured state transfer bridge between two journeys", caption: "ACQ-01 → ACQ-05 · Handoff" },
-    { src: "/images/claude-lifecycle/12-journey-segment.jpg", alt: "Audience segment definition and build", caption: "Audience segment" },
-  ];
   return (
     <ProductSection tone="paper" space="xl" className="overflow-hidden">
       <PortraitContainer>
-        <ProductHeading eyebrow={c.eyebrow} title={c.title.replace("{count}", n)} body={c.body} align="center" />
-        <Reveal delay={100} className="mt-14">
-          <JourneyCarousel slides={slides} />
+        <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
+        <Reveal delay={100} className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+          {PATTERNS.map((p) => (
+            <PatternFlowCard key={p.name.en} pattern={p} lang={lang} />
+          ))}
         </Reveal>
         <Reveal delay={160} className="mt-12 flex flex-wrap justify-center gap-2.5">
-          <JourneyLibraryCta lang={lang} label={t.journeyBuilder.pageCta.secondary} />
           <a
-            href={REPO}
+            href={`${REPO}/tree/main/knowledge/journey-patterns`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-12 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-medium text-ink-700 transition-colors hover:border-ink-300 hover:text-ink-950"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-5 text-sm font-medium text-white transition-colors hover:bg-primary-600"
           >
-            {t.abTesting.repoLink}
+            {lang === "en" ? "See all 26 patterns" : "26 pattern'in tümünü gör"}
             <ArrowUpRight aria-hidden className="size-3.5" />
           </a>
+          <JourneyLibraryCta lang={lang} label={t.journeyBuilder.pageCta.secondary} />
         </Reveal>
       </PortraitContainer>
     </ProductSection>
