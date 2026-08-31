@@ -736,29 +736,53 @@
     }
   }
 
-  /* The Lab hero's parallax layers drifting while nothing is scrolling, so
-     the field is alive on arrival rather than only on input. Two speeds,
-     assigned alternately, so layers never travel in lockstep. Transform
-     only - composited, no layout or paint per frame. Neutralised with
-     every other animation by the reduced-motion block above. */
-  .parallax-drift {
-    animation: parallax-drift 18s ease-in-out infinite;
+  /* ---- LAB ILLUSTRATIONS ------------------------------------------------
+     The Lab page's figures are drawn in code and animate on their own
+     clock, so the sections read as alive rather than as stills in slots.
+     Every one of these is transform or opacity only - composited, never
+     re-laying-out - and all of them stop under the global reduced-motion
+     rule above. */
+
+  /* The dot matrix breathing, the same grain the button's pixel dissolve
+     uses. Scale, not opacity alone, so the field reads as depth. */
+  .lab-matrix {
+    animation: lab-matrix 9s ease-in-out infinite;
   }
 
-  .parallax-drift-slow {
-    animation: parallax-drift 26s ease-in-out infinite reverse;
+  @keyframes lab-matrix {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.06); }
   }
 
-  @keyframes parallax-drift {
-    0%,
-    100% {
-      translate: 0 0;
-      scale: 1;
-    }
-    50% {
-      translate: -1.5% -2%;
-      scale: 1.04;
-    }
+  /* Concentric arcs turning at three different rates. */
+  .lab-spin { animation: lab-spin 26s linear infinite; }
+  .lab-spin-slow { animation: lab-spin 46s linear infinite; }
+  .lab-spin-reverse { animation: lab-spin 34s linear infinite reverse; }
+
+  @keyframes lab-spin {
+    to { rotate: 360deg; }
+  }
+
+  /* A pulse travelling from the hub down a branch. The dash pattern is a
+     short lit segment on a long gap, so moving the offset sends one
+     packet along the path rather than marching ants. */
+  .lab-pulse {
+    animation: lab-pulse 3.2s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  }
+
+  @keyframes lab-pulse {
+    from { stroke-dashoffset: 200; }
+    to { stroke-dashoffset: -40; }
+  }
+
+  /* Stacked plates drifting a hair out of phase with each other. */
+  .lab-float {
+    animation: lab-float 7s ease-in-out infinite;
+  }
+
+  @keyframes lab-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -6px; }
   }
 
   /* The mobile menu panel arriving: a short rise and fade, no blur - it is
