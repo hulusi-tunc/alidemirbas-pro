@@ -59,7 +59,6 @@ const T = {
       "The tool reports; it does not grade. It will say a campaign hasn't changed in 23 days. It will not say that neglecting it was a mistake - judging whether a change was good, risky or overdue is explicitly out of scope, and the dashboard has no severity colours or bare badges for that reason.",
     bullets: [
       "Answers who changed this campaign's budget last week, and what it was before.",
-      "Separates changes made by a person from changes made by an automation - a script, a bidding rule, a Recommendation.",
       "Shows which campaigns haven't been touched in 30+ days, and which category of change is most common right now.",
       "Rule Matches, off by default, lets you set your own magnitude thresholds in the browser; a match reads \"crossed the threshold you set\", always shown with the exact number beside it.",
       "Stops rather than guesses: an unrecognised column, an ambiguous date like 03/04/2026, or an uncategorised change combination exits with a structured status telling you which flag to re-run with.",
@@ -113,7 +112,6 @@ const T = {
       "Araç raporlar, not vermez. Bir kampanyanın 23 gündür değişmediğini söyler; bunun bir ihmal olduğunu söylemez. Bir değişikliğin iyi, riskli ya da gecikmiş olduğuna karar vermek bilinçli olarak kapsam dışı - pano bu yüzden ne önem derecesi rengi ne de açıklamasız bir rozet kullanıyor.",
     bullets: [
       "Bu kampanyanın bütçesini geçen hafta kim değiştirmiş, öncesinde neydi - cevaplar.",
-      "İnsanın yaptığı değişiklikle otomasyonun yaptığını ayırır: bir script, bir teklif kuralı, bir Recommendation.",
       "30+ gündür dokunulmamış kampanyaları ve şu an en sık görülen değişiklik kategorisini gösterir.",
       "Varsayılan olarak kapalı olan Rule Matches, kendi büyüklük eşiklerinizi tarayıcıda ayarlamanızı sağlar; bir eşleşme \"belirlediğiniz eşiği aştı\" demektir ve her zaman tam sayısıyla birlikte görünür.",
       "Tahmin etmek yerine durur: tanınmayan bir sütun, 03/04/2026 gibi belirsiz bir tarih ya da kategorize edilemeyen bir değişiklik bileşimi, hangi bayrakla yeniden çalıştıracağınızı söyleyen yapılandırılmış bir durum çıktısıyla sonlanır.",
