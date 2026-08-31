@@ -6,6 +6,8 @@ import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { basePathFor } from "@/components/BlogPage";
 import { copy, type Lang } from "@/lib/content";
 import type { BlogPost } from "@/lib/blog";
+import { breadcrumbList } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -20,9 +22,15 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
+  const breadcrumb = breadcrumbList([
+    { name: c.footer.home, url: home },
+    { name: c.nav.blog, url: base },
+    { name: post.title, url: `${base}/${post.slug}` },
+  ]);
 
   return (
     <>
+      <JsonLdScript data={breadcrumb} />
       <SiteHeader t={c} anchorBase={home} langHref={base} />
       <main>
         {/* pt-40 -> pt-24: SiteHeader is now a real, solid header, not an

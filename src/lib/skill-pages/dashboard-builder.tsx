@@ -103,6 +103,14 @@ export function getDashboardBuilderContent(lang: Lang): SkillProductContent | nu
     faq: [],
     relatedTitle: t.relatedTitle,
     related,
+    // A repository/plugin, not a hosted app - "Built and tested as a Claude
+    // Code plugin" (step2Desc above) is the page's own real claim, restated
+    // here rather than invented for the schema.
+    appSchema: {
+      type: "SoftwareApplication",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Cross-platform (Claude Code plugin)",
+    },
   };
 }
 

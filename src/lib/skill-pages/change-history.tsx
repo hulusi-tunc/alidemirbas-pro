@@ -229,5 +229,12 @@ export function getChangeHistoryContent(lang: Lang): SkillProductContent | null 
     faq: [...t.faq],
     relatedTitle: t.relatedTitle,
     related,
+    // Restates the page's own verified claim (step2Desc above): "Python 3
+    // and its standard library are the only requirements."
+    appSchema: {
+      type: "SoftwareApplication",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Cross-platform (Python 3, standard library only)",
+    },
   };
 }

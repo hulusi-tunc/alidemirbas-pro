@@ -9,6 +9,8 @@ import { InstallationStepper } from "@/components/ui/InstallationStepper";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import type { SkillProductContent } from "@/components/SkillProductPage";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
+import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
 
 /* Google Ads Change History Explorer - same Peerbie-composition pass as
@@ -299,8 +301,48 @@ export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lan
   const t = T[lang];
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? `/tr/lab/${content.slug}` : `/lab/${content.slug}`;
+  const path = lang === "en" ? `/lab/${content.slug}` : `/tr/lab/${content.slug}`;
+
+  // Same construction SkillProductPage.tsx uses for the two products still
+  // on the generic template - kept in step with it deliberately, since this
+  // page's `content` comes from the exact same getChangeHistoryContent()
+  // that feeds appSchema/installSteps.
+  const appUrl =
+    content.primaryLinks.find((l) => l.href.includes("github.com"))?.href ??
+    content.primaryLinks.find((l) => l.href.startsWith("http"))?.href ??
+    content.primaryLinks[0]?.href;
+  const jsonLd: object[] = [
+    breadcrumbList([
+      { name: copyT.footer.home, url: home },
+      { name: copyT.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+      { name: content.title, url: path },
+    ]),
+  ];
+  if (content.appSchema && appUrl) {
+    jsonLd.push(
+      softwareApplication({
+        name: content.title,
+        description: content.sub,
+        url: appUrl,
+        applicationCategory: content.appSchema.applicationCategory,
+        operatingSystem: content.appSchema.operatingSystem ?? "Cross-platform",
+        ...(appUrl.includes("github.com") ? { codeRepository: appUrl } : {}),
+      }),
+    );
+  }
+  if (content.installSteps.length > 0) {
+    jsonLd.push(
+      howTo({
+        name: content.installTitle,
+        description: content.whatItDoes.body,
+        steps: content.installSteps.map((s) => ({ name: s.title, text: s.desc ?? s.title })),
+      }),
+    );
+  }
+
   return (
     <>
+      <JsonLdScript data={jsonLd} />
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
       <main>
         <Hero c={content} t={t} lang={lang} />

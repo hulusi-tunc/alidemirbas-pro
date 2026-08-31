@@ -9,6 +9,8 @@ import { LAB_PREVIEWS, type Project } from "@/components/ui/LabPreviews";
 import { ParallaxField } from "@/components/ui/ParallaxField";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
+import { breadcrumbList } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
 /* Lab index — LANDING-PAGE REDESIGN (2026-08-31).
 
@@ -334,9 +336,14 @@ export default function LabIndexPage({ lang }: { lang: Lang }) {
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? "/tr/lab" : "/lab";
   const projects = t.lab.projects as unknown as Project[];
+  const breadcrumb = breadcrumbList([
+    { name: t.footer.home, url: home },
+    { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+  ]);
 
   return (
     <>
+      <JsonLdScript data={breadcrumb} />
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <LabHero t={t} lang={lang} projects={projects} />

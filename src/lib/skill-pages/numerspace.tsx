@@ -219,5 +219,10 @@ export function getNumerspaceContent(lang: Lang): SkillProductContent | null {
     faq: [...t.faq],
     relatedTitle: t.relatedTitle,
     related,
+    // A hosted calculator site with nothing to install and no account -
+    // "UtilitiesApplication" rather than this site's own "BusinessApplication"
+    // calculators, since Numerspace spans finance, health, career and more,
+    // not marketing metrics specifically.
+    appSchema: { type: "WebApplication", applicationCategory: "UtilitiesApplication" },
   };
 }

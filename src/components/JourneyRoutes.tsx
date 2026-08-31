@@ -10,6 +10,8 @@ import LabShell from "@/components/LabShell";
 import { resolveDetailSlug } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
+import { breadcrumbList } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
 /* One journey, in the two shapes it is asked for.
 
@@ -62,9 +64,22 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
   const { detail, merged } = resolved;
   const t = copy[lang].lab.page;
   const basePath = basePathFor(lang);
+  // Skipped for a merged id: it's noindex with its canonical pointing at
+  // the survivor (see journeyMetadata above), so it isn't the page search
+  // engines should be reading a breadcrumb from - the survivor's own page
+  // already carries one.
+  const breadcrumb = merged
+    ? null
+    : breadcrumbList([
+        { name: copy[lang].footer.home, url: lang === "en" ? "/" : "/tr" },
+        { name: copy[lang].nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+        { name: t.title, url: basePath },
+        { name: `${detail.id} ${detail.name}`, url: `${basePath}/${detail.slug}` },
+      ]);
 
   return (
     <LabShell lang={lang}>
+      {breadcrumb && <JsonLdScript data={breadcrumb} />}
       <div className="px-4 py-7 md:px-8 md:py-10">
         <div className={`mx-auto ${PAGE_MEASURE}`}>
           <Link

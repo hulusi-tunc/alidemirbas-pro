@@ -22,6 +22,8 @@ import {
 import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
+import { breadcrumbList, webApplication } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
 /* Top-level section, a sibling of Lab and Stack - not a Lab project. Uses
    the same SiteHeader/SiteFooter chrome as About/Stack, not LabShell.
@@ -178,8 +180,15 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
     count: groupCounts.get(g)!,
   }));
 
+  const homeHref = lang === "en" ? "/" : "/tr";
+  const breadcrumb = breadcrumbList([
+    { name: copy[lang].footer.home, url: homeHref },
+    { name: copy[lang].nav.calculators, url: base },
+  ]);
+
   return (
     <div className="min-h-screen bg-paper text-ink-950">
+      <JsonLdScript data={breadcrumb} />
       <SiteHeader
         t={copy[lang]}
         anchorBase={lang === "en" ? "/" : "/tr"}
@@ -244,8 +253,23 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
      example and no "what this number means" - running them through the
      calculator template would mean inventing all four. */
   if (textTool) {
+    const path = `${base}/${slug}`;
+    const jsonLd = [
+      breadcrumbList([
+        { name: c.footer.home, url: home },
+        { name: c.nav.calculators, url: base },
+        { name: textTool.title[lang], url: path },
+      ]),
+      webApplication({
+        name: textTool.title[lang],
+        description: textTool.desc[lang],
+        url: path,
+        applicationCategory: "UtilitiesApplication",
+      }),
+    ];
     return (
       <>
+        <JsonLdScript data={jsonLd} />
         <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
         <main>
           {/* Light stage, same call as the listing and the detail template. */}
@@ -298,8 +322,28 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
       <CalculatorTool spec={runtime} lang={lang} />
     );
 
+  const path = `${base}/${slug}`;
+  // Same fallback order calculatorDetailMetadata() uses for its own meta
+  // description: authored Phase 4 copy first, the catalog-derived plain-
+  // English formula otherwise. Never the tagline, which is UI-only prose.
+  const appDescription = content.seo.seoDescription ?? correctedFormulaPlainEnglish(spec!);
+  const jsonLd = [
+    breadcrumbList([
+      { name: c.footer.home, url: home },
+      { name: c.nav.calculators, url: base },
+      { name: title, url: path },
+    ]),
+    webApplication({
+      name: title,
+      description: appDescription,
+      url: path,
+      applicationCategory: "BusinessApplication",
+    }),
+  ];
+
   return (
     <>
+      <JsonLdScript data={jsonLd} />
       <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
       <main>
         <CalculatorDetailTemplate

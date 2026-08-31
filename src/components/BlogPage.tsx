@@ -4,6 +4,8 @@ import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { BlogLibrary } from "@/components/ui/BlogLibrary";
 import { copy, type Lang } from "@/lib/content";
 import { getAllBlogPosts, getBlogFacets } from "@/lib/blog";
+import { breadcrumbList } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
 /* Blog index — PORTRAIT PILOT (PORTRAIT-DESIGN-SOURCE-AUDIT.md is this
    round's source of truth; the Contact-approved tokens/patterns below are
@@ -53,9 +55,14 @@ export default function BlogPage({ lang }: { lang: Lang }) {
   const home = lang === "en" ? "/" : "/tr";
   const posts = getAllBlogPosts(lang);
   const facets = getBlogFacets(posts);
+  const breadcrumb = breadcrumbList([
+    { name: c.footer.home, url: home },
+    { name: c.nav.blog, url: basePathFor(lang) },
+  ]);
 
   return (
     <>
+      <JsonLdScript data={breadcrumb} />
       <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? "/tr/blog" : "/blog"} />
       <main>
         {/* Light heading, replacing the old full-bleed dark `bg-ink-950`

@@ -12,6 +12,8 @@ import {
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
+import { breadcrumbList } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
 /* JourneyBrowser reads filter state via useSearchParams, which forces its
    subtree to client-render during prerendering (Next's own documented
@@ -71,9 +73,15 @@ function JourneyBrowserFallback({ lang, t, basePath }: {
 export default function LabPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
+  const breadcrumb = breadcrumbList([
+    { name: t.footer.home, url: lang === "en" ? "/" : "/tr" },
+    { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+    { name: t.lab.page.title, url: basePath },
+  ]);
 
   return (
     <LabShell lang={lang}>
+      <JsonLdScript data={breadcrumb} />
       <div className="border-b border-line px-4 py-6 md:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-center gap-3">

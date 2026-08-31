@@ -12,6 +12,8 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { HeroVideoCard } from "@/components/ui/HeroVideoCard";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
 import { copy, type Lang } from "@/lib/content";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
+import { breadcrumbList, softwareApplication } from "@/lib/schema";
 
 /* Product page for the Lifecycle Marketing Journey Builder.
 
@@ -296,8 +298,27 @@ export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? "/tr/lab/claude-lifecycle" : "/lab/claude-lifecycle";
+  const path = lang === "en" ? "/lab/claude-lifecycle" : "/tr/lab/claude-lifecycle";
+  const jsonLd = [
+    breadcrumbList([
+      { name: t.footer.home, url: home },
+      { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+      { name: t.journeyBuilder.title, url: path },
+    ]),
+    // A TypeScript library/repository, not a hosted app - REPO is the same
+    // constant the hero's own GitHub link uses.
+    softwareApplication({
+      name: t.journeyBuilder.title,
+      description: t.journeyBuilder.sub,
+      url: REPO,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Cross-platform (TypeScript)",
+      codeRepository: REPO,
+    }),
+  ];
   return (
     <>
+      <JsonLdScript data={jsonLd} />
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <Hero t={t} lang={lang} />
