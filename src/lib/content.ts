@@ -415,16 +415,16 @@ export const copy = {
         eyebrow: "Why claude-lifecycle",
         title: "Why claude-lifecycle is different",
         feature1: {
-          title: "Every path is explicit",
-          body: "Conditions are not vague decision points. Each branch must lead to another state, a handoff or an explicit exit.",
+          title: "Data quality is scored, not assumed",
+          body: "A 0-100 Data Quality Score decides journey depth before a single journey is written: under 40 buys simple 3-5 step flows, 40-69 standard 4-7 step flows with one branch, 70+ unlocks branched 7-12 step behavioral journeys. The same portfolio never ships to a three-event startup and a mature e-commerce store.",
         },
         feature2: {
-          title: "Handoffs carry state",
-          body: "A handoff transfers lifecycle context from one journey to the next instead of treating every workflow as an isolated automation.",
+          title: "A portfolio, not a listicle",
+          body: "Eligibility is computed per pattern from required-event signatures across 26 real patterns - abandoned cart, trial conversion, winback and more - each with its own default channels and depth range. What your data can't support yet becomes a tracking plan naming exactly which event unlocks it, not a locked feature.",
         },
         feature3: {
-          title: "Reusable lifecycle architecture",
-          body: "Build journeys as reusable lifecycle patterns instead of isolated automation flows. Extend them, connect them through handoffs, and keep the underlying state logic explicit.",
+          title: "Copy is an engineered artifact",
+          body: "Every channel carries hard limits, not house style guesses: email subject 20-50 characters, SMS 160 GSM-7 characters, push title 40 / body 120. A reviewer agent checks each message against its channel's rules before you see it.",
         },
       },
       carousel: {
@@ -1062,16 +1062,16 @@ export const copy = {
         eyebrow: "Neden claude-lifecycle",
         title: "claude-lifecycle neden farklı",
         feature1: {
-          title: "Her yol açıkça tanımlı",
-          body: "Koşullar belirsiz karar noktaları değildir. Her dal başka bir duruma, bir devire ya da açık bir çıkışa bağlanmak zorundadır.",
+          title: "Veri kalitesi ölçülür, varsayılmaz",
+          body: "0-100 arası bir Data Quality Score, tek bir journey yazılmadan önce derinliği belirler: 40'ın altı basit 3-5 adımlık akış, 40-69 arası tek dallanmalı standart 4-7 adım, 70 ve üzeri davranışsal dallanmalı 7-12 adımlık journey'lerin kapısını açar. Aynı portföy üç event'i olan bir startup'a da olgun bir e-ticaret sitesine de gitmez.",
         },
         feature2: {
-          title: "Devirler durumu taşır",
-          body: "Bir devir, lifecycle bağlamını bir journey'den diğerine aktarır — her workflow'u izole bir otomasyon gibi ele almak yerine.",
+          title: "Liste değil, portföy",
+          body: "Uygunluk, 26 gerçek pattern'in (terk edilmiş sepet, deneme dönüşümü, winback ve daha fazlası) her biri için gerekli event imzasından hesaplanır - her birinin kendi varsayılan kanalları ve derinlik aralığı vardır. Verinizin henüz desteklemediği şey kilitli bir özellik değil, hangi event'in onu açacağını söyleyen bir tracking plan olur.",
         },
         feature3: {
-          title: "Yeniden kullanılabilir lifecycle mimarisi",
-          body: "Journey'leri izole otomasyon akışları yerine yeniden kullanılabilir lifecycle kalıpları olarak kur. Onları genişlet, devirlerle birbirine bağla ve altta yatan durum mantığını açık tut.",
+          title: "Copy, mühendislik ürünüdür",
+          body: "Her kanalın kendi kesin kuralı vardır, tahmine dayalı üslup değil: e-posta konu başlığı 20-50 karakter, SMS 160 GSM-7 karakter, push başlık 40 / gövde 120 karakter. Bir reviewer agent, her mesajı sen görmeden önce kendi kanalının kurallarına göre denetler.",
         },
       },
       carousel: {

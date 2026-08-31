@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Lock } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
@@ -95,7 +95,137 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   );
 }
 
-/* ---- 10 · Why different — two large feature visuals ------------------ */
+/* ---- 09 · Why-different panels — real data, drawn as clean UI cards --
+   Replaces the three Gemini-generated "journey screenshot" images (and,
+   before that, screenshots of the Canonical Journey Library - a
+   different, generic subsystem, not this product's own output). Every
+   number and label below is copied from the claude-lifecycle repo
+   itself: docs/data-quality-score.md (DQS bands + the doc's own worked
+   example, 69), knowledge/journey-patterns/*.md front matter
+   (depth_range, default_channels - abandoned-cart, trial-conversion,
+   winback), the README's own portfolio example table (Replenishment
+   blocked on missing item-level params), and knowledge/channels/*.md
+   (email/sms/push hard character limits). Nothing here is a screenshot
+   and nothing is invented - it's the site's own design system rendering
+   real facts, the same pattern ChangeHistoryExplorerPage.tsx uses for
+   its three feature panels. */
+
+const PANEL_CARD = "overflow-hidden rounded-card border border-line bg-paper shadow-[0_0_0_1px_rgb(0_0_0/0.04),0_8px_24px_-16px_rgb(10_16_32/0.15)]";
+
+/** Feature 1 - "Data quality is scored, not assumed." A segmented 0-100
+    meter with the three real depth bands, marked at the doc's own worked
+    example (DQS 69, an e-commerce store one point short of branched). */
+function DqsDepthPanel({ lang }: { lang: Lang }) {
+  const t = {
+    en: { label: "Data Quality Score", worked: "Worked example (e-commerce, GA4)", bands: ["Simple · 3-5 steps", "Standard · 4-7 steps", "Branched · 7-12 steps"] },
+    tr: { label: "Data Quality Score", worked: "Örnek hesap (e-ticaret, GA4)", bands: ["Basit · 3-5 adım", "Standart · 4-7 adım", "Dallanmalı · 7-12 adım"] },
+  }[lang];
+  return (
+    <div className={PANEL_CARD}>
+      <div className="p-6">
+        <div className="flex items-baseline justify-between">
+          <p className="text-sm font-medium text-ink-950">{t.label}</p>
+          <p className="font-mono text-2xl font-semibold text-primary-600 tabular-nums">69</p>
+        </div>
+        <p className="mt-1 text-xs text-ink-500">{t.worked}</p>
+        {/* 0–40 / 40–70 / 70–100, widths proportional to the real bands,
+            marker at the real worked-example score (69% of the 0-100
+            scale = 69, positioned against the whole bar, not one band). */}
+        <div className="relative mt-4">
+          <div className="flex h-2.5 overflow-hidden rounded-full bg-paper-soft">
+            <div className="h-full w-[40%] bg-ink-200" />
+            <div className="h-full w-[30%] bg-primary-300" />
+            <div className="h-full w-[30%] bg-primary-600" />
+          </div>
+          <span
+            aria-hidden
+            style={{ left: "69%" }}
+            className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-ink-950 shadow"
+          />
+        </div>
+        <ul className="mt-4 flex flex-col gap-1.5 text-[13px] text-ink-600">
+          {t.bands.map((b, i) => (
+            <li key={b} className={`flex items-center gap-2 ${i === 1 ? "font-medium text-ink-950" : ""}`}>
+              <span aria-hidden className={`size-1.5 rounded-full ${i === 0 ? "bg-ink-300" : i === 1 ? "bg-primary-400" : "bg-primary-600"}`} />
+              {b}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/** Feature 2 - "A portfolio, not a listicle." Three real patterns from
+    knowledge/journey-patterns/*.md (depth_range, default_channels), plus
+    the README's own "blocked" example so a reader sees both real
+    outcomes the engine actually produces. */
+function PortfolioPanel({ lang }: { lang: Lang }) {
+  const rows = [
+    { name: lang === "en" ? "Abandoned cart" : "Terk edilmiş sepet", steps: lang === "en" ? "3-8 steps" : "3-8 adım", channels: ["Email", "Push"], blocked: false },
+    { name: lang === "en" ? "Trial conversion" : "Deneme dönüşümü", steps: lang === "en" ? "4-10 steps" : "4-10 adım", channels: ["Email", "In-app", "Push"], blocked: false },
+    { name: "Winback", steps: lang === "en" ? "3-6 steps" : "3-6 adım", channels: ["Email", "SMS"], blocked: false },
+    {
+      name: lang === "en" ? "Replenishment" : "Yeniden stoklama",
+      steps: lang === "en" ? "missing item-level params" : "ürün seviyesi parametre eksik",
+      channels: [],
+      blocked: true,
+    },
+  ];
+  return (
+    <div className={PANEL_CARD}>
+      <ul className="divide-y divide-line">
+        {rows.map((r) => (
+          <li key={r.name} className={`flex items-center justify-between gap-3 px-5 py-3.5 ${r.blocked ? "opacity-60" : ""}`}>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-ink-950">{r.name}</p>
+              <p className="mt-0.5 text-xs text-ink-500">{r.steps}</p>
+            </div>
+            {r.blocked ? (
+              <span className="flex shrink-0 items-center gap-1 rounded-full bg-paper-soft px-2.5 py-1 text-[11px] font-medium text-ink-500">
+                <Lock aria-hidden className="size-3" />
+                {lang === "en" ? "blocked" : "kilitli"}
+              </span>
+            ) : (
+              <div className="flex shrink-0 gap-1.5">
+                {r.channels.map((c) => (
+                  <span key={c} className="rounded-full bg-primary-50 px-2.5 py-1 text-[11px] font-medium text-primary-700">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** Feature 3 - "Copy is an engineered artifact." Real hard character
+    limits from knowledge/channels/email.md, sms.md, push.md - not house
+    style, actual validator-enforced numbers. */
+function ChannelRulesPanel({ lang }: { lang: Lang }) {
+  const rows = [
+    { channel: lang === "en" ? "Email" : "E-posta", limits: lang === "en" ? "Subject 20-50 · Body ≤350 · CTA ≤20" : "Konu 20-50 · Gövde ≤350 · CTA ≤20" },
+    { channel: "SMS", limits: lang === "en" ? "Body ≤160 (GSM-7)" : "Gövde ≤160 (GSM-7)" },
+    { channel: "Push", limits: lang === "en" ? "Title ≤40 · Body ≤120" : "Başlık ≤40 · Gövde ≤120" },
+  ];
+  return (
+    <div className={PANEL_CARD}>
+      <ul className="divide-y divide-line">
+        {rows.map((r) => (
+          <li key={r.channel} className="flex items-center justify-between gap-4 px-5 py-4">
+            <span className="w-20 shrink-0 text-sm font-medium text-ink-950">{r.channel}</span>
+            <span className="text-right font-mono text-[12.5px] text-ink-600">{r.limits}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ---- 10 · Why different — real-data panels, not screenshots ----------- */
 function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.journeyBuilder.whyDifferent;
   return (
@@ -124,19 +254,7 @@ function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             title={c.feature1.title}
             body={c.feature1.body}
             side="right"
-            visual={
-              <div className="overflow-hidden rounded-card border border-line">
-                <div className="relative aspect-[16/10] w-full">
-                  <Image
-                    src="/images/claude-lifecycle/03-explicit-paths.jpg"
-                    alt="Every branch in a claude-lifecycle journey resolves to another state, a handoff or an explicit exit"
-                    fill
-                    sizes="(min-width: 1024px) 55vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            }
+            visual={<DqsDepthPanel lang={lang} />}
           />
         </PortraitContainer>
       </ProductSection>
@@ -147,19 +265,7 @@ function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             title={c.feature2.title}
             body={c.feature2.body}
             side="left"
-            visual={
-              <div className="overflow-hidden rounded-card border border-line">
-                <div className="relative aspect-[16/10] w-full">
-                  <Image
-                    src="/images/claude-lifecycle/04-state-handoff.jpg"
-                    alt="A handoff transfers lifecycle state from one journey to another"
-                    fill
-                    sizes="(min-width: 1024px) 55vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            }
+            visual={<PortfolioPanel lang={lang} />}
           />
         </PortraitContainer>
       </ProductSection>
@@ -170,19 +276,7 @@ function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             title={c.feature3.title}
             body={c.feature3.body}
             side="right"
-            visual={
-              <div className="overflow-hidden rounded-card border border-line">
-                <div className="relative aspect-[16/10] w-full">
-                  <Image
-                    src="/images/claude-lifecycle/05-journey-architecture.jpg"
-                    alt="ACQ-01, a real acquisition journey, as a reusable state machine"
-                    fill
-                    sizes="(min-width: 1024px) 55vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            }
+            visual={<ChannelRulesPanel lang={lang} />}
           />
         </PortraitContainer>
       </ProductSection>
