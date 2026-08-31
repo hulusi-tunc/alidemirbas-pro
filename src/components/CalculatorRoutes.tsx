@@ -39,22 +39,20 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/t
 // this codebase already draws elsewhere (a calculator detail page's
 // `heroTitle` override vs. its own `seoTitle`).
 const T = {
-  en: { title: "Marketing Calculators", intro: "Quick, correct formulas for the numbers marketing teams check daily. No account, no tracking of your inputs." },
-  tr: { title: "Pazarlama Hesaplayıcıları", intro: "Pazarlama ekiplerinin günlük kontrol ettiği rakamlar için hızlı ve doğru formüller. Hesap gerektirmez, girdileriniz izlenmez." },
+  en: { title: "Free Marketing & Growth Calculators", intro: "Free marketing calculators for ROAS, CAC, CPC, CPM, retention, conversion rates, A/B testing and unit economics. No signup required." },
+  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları." },
 };
 
 const HERO = {
   en: {
-    eyebrow: "Calculators",
-    // Shortened 2026-08-30 - it now sits above the search field rather than
-    // alone in a band, and a two-line title pushed the field down the fold.
-    title: "Growth math, no spreadsheet.",
-    sub: "A collection of practical calculators covering growth, acquisition, retention, experimentation and unit economics - no account, no tracking of your inputs.",
+    eyebrow: "Free Marketing & Growth Calculators",
+    title: "Calculate what drives growth.",
+    sub: "Free calculators for growth, acquisition, retention, experimentation and unit economics. From ROAS and CAC to conversion rates and A/B testing - calculate the metrics that matter, with no signup or tracking.",
   },
   tr: {
-    eyebrow: "Hesaplayıcılar",
-    title: "Excel'siz büyüme matematiği.",
-    sub: "Büyüme, edinme, elde tutma, deneysel test ve birim ekonomisini kapsayan pratik hesaplayıcılardan oluşan bir koleksiyon - hesap gerektirmez, girdileriniz izlenmez.",
+    eyebrow: "Ücretsiz Pazarlama & Growth Hesaplayıcıları",
+    title: "Büyümeyi etkileyen metrikleri hesaplayın.",
+    sub: "Growth, acquisition, retention, A/B testleri ve birim ekonomisi için ücretsiz hesaplama araçları. ROAS ve CAC'den dönüşüm oranlarına kadar ihtiyaç duyduğunuz metrikleri üyelik gerektirmeden kolayca hesaplayın.",
   },
 };
 

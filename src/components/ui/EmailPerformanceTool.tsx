@@ -212,7 +212,7 @@ export default function EmailPerformanceTool({ spec, lang }: { spec: RuntimeCalc
                         computable ? "text-white" : "text-white/35"
                       }`}
                     >
-                      {computable ? formatByUnit(value, output.unit) : "—"}
+                      {computable ? formatByUnit(value, output.unit, lang) : "—"}
                     </span>
                   </div>
                   <p className="mt-0.5 text-[12.5px] leading-snug text-white/60">{t.metrics[key]}</p>

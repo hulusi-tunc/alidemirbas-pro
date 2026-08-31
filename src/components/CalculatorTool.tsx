@@ -215,14 +215,14 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
             <>
               <PrimaryResult
                 label={primary.label}
-                value={results ? formatByUnit(results[primary.key], primary.unit) : ""}
+                value={results ? formatByUnit(results[primary.key], primary.unit, lang) : ""}
                 ready={Boolean(results)}
               />
               <SecondaryResults
                 items={rest.map((o) => ({
                   key: o.key,
                   label: o.label,
-                  value: results ? formatByUnit(results[o.key], o.unit) : "",
+                  value: results ? formatByUnit(results[o.key], o.unit, lang) : "",
                   ready: Boolean(results),
                 }))}
               />
