@@ -36,20 +36,21 @@ export function AboutTimeline({
         aria-pressed={detailed}
         className="flex items-center gap-2.5 [font-family:var(--font-mono-plex)]"
       >
-        <span className="text-[13px]" style={{ color: detailed ? "#7c9296" : "#22333a" }}>
+        <span className={`text-[13px] ${detailed ? "text-ink-400" : "text-ink-900"}`}>
           {labels.simple}
         </span>
         <span
           aria-hidden
-          className="relative inline-block h-6 w-11 rounded-full transition-colors"
-          style={{ background: detailed ? "#22333a" : "#8fb0b3" }}
+          className={`relative inline-block h-6 w-11 rounded-full transition-colors ${
+            detailed ? "bg-primary-600" : "bg-ink-200"
+          }`}
         >
           <span
             className="absolute top-[3px] size-[18px] rounded-full transition-[left]"
-            style={{ background: "#dcedee", left: detailed ? "23px" : "3px" }}
+            style={{ left: detailed ? "23px" : "3px" }}
           />
         </span>
-        <span className="text-[13px]" style={{ color: detailed ? "#22333a" : "#7c9296" }}>
+        <span className={`text-[13px] ${detailed ? "text-ink-900" : "text-ink-400"}`}>
           {labels.detailed}
         </span>
       </button>
@@ -60,15 +61,14 @@ export function AboutTimeline({
             key={job.company ?? job.title}
             className="grid grid-cols-[minmax(0,72px)_28px_minmax(0,1fr)] gap-x-3 pb-12 sm:grid-cols-[minmax(0,1fr)_56px_minmax(0,1.6fr)] sm:gap-x-0 sm:pb-16"
           >
-            <div className="pt-1 text-right text-sm sm:text-lg" style={{ color: "#45585c" }}>
+            <div className="pt-1 text-right text-sm text-ink-500 sm:text-lg">
               {job.dates}
             </div>
             <div className="relative flex justify-center">
-              <span aria-hidden className="absolute top-3 -bottom-2 w-0.5" style={{ background: "#b9d4d6" }} />
+              <span aria-hidden className="absolute top-3 -bottom-2 w-0.5 bg-line-strong" />
               <span
                 aria-hidden
-                className="relative mt-1.5 size-3 rounded-full border-[2.5px]"
-                style={{ borderColor: "#22333a", background: "#dcedee" }}
+                className="relative mt-1.5 size-3 rounded-full border-[2.5px] border-primary-600 bg-paper"
               />
             </div>
             <div className="max-w-[640px]">
@@ -82,7 +82,7 @@ export function AboutTimeline({
                 )}
               </h3>
               {detailed && (
-                <p className="mt-4 text-base leading-relaxed sm:text-lg" style={{ color: "#45585c" }}>
+                <p className="mt-4 text-base leading-relaxed text-ink-500 sm:text-lg">
                   {job.info}
                 </p>
               )}
@@ -90,15 +90,15 @@ export function AboutTimeline({
                 <ul className="mt-6 flex list-none flex-col gap-3 p-0">
                   {job.subs.map((sub) => (
                     <li key={sub.title} className="grid grid-cols-[100px_minmax(0,1fr)] items-baseline gap-3 sm:grid-cols-[130px_minmax(0,1fr)] sm:gap-5">
-                      <span className="text-sm" style={{ color: "#7c9296" }}>{sub.dates}</span>
+                      <span className="text-sm text-ink-400">{sub.dates}</span>
                       <span className="text-[15px] font-bold sm:text-base">{sub.title}</span>
                     </li>
                   ))}
                 </ul>
               )}
               {detailed && job.bottom && (
-                <p className="mt-4 text-base leading-relaxed sm:text-lg" style={{ color: "#45585c" }}>
-                  <strong style={{ color: "#22333a" }}>{labels.bottomLine}</strong>{" "}
+                <p className="mt-4 text-base leading-relaxed text-ink-500 sm:text-lg">
+                  <strong className="text-ink-900">{labels.bottomLine}</strong>{" "}
                   <span className="[font-family:var(--font-mono-plex)]">→</span> {job.bottom}
                 </p>
               )}

@@ -1,56 +1,31 @@
 import Image from "next/image";
-import Link from "next/link";
-import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 
+import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { AboutTimeline, type TimelineJob } from "@/components/ui/AboutTimeline";
-import type { Lang } from "@/lib/content";
+import { Reveal } from "@/components/ui/Reveal";
+import { copy, type Lang } from "@/lib/content";
 
-/* About page — converted from a user-supplied "Portfolio" mockup
-   (Space Grotesk / IBM Plex Mono, teal-sage palette, vertical timeline
-   with a Simple/Detailed toggle). This is a DELIBERATE one-off: unlike
-   every other page on this site (Contact/Stack/Blog/Lab/Calculators/
-   404/Home), it does NOT use the shared Portrait system
-   (SiteHeader/SiteFooter/PortraitContainer/Section/ink-950 tokens) or
-   Geist — the mockup specifies its own colors/fonts, and reproducing
-   them exactly means not forcing them through the other pages' tokens.
-   Nothing here touches globals.css, Site.tsx or any other shared
-   primitive; every other page keeps its exact current look.
+/* About page — BROUGHT ONTO THE SITE (2026-08-31).
 
-   FONTS: loaded here via next/font/google, scoped to this page's own
-   wrapper (`spaceGrotesk.variable`/`plexMono.variable` classNames) —
-   not applied at the root layout, so Geist and every other page are
-   unaffected.
+   This was a deliberate one-off: a user-supplied "Portfolio" mockup with
+   its own fonts (Space Grotesk / IBM Plex Mono), its own teal-sage
+   palette, its own bare wordmark header and a footer carrying no site
+   navigation at all. It was reviewed as reading "yabancı gibi" - like a
+   different site - and the missing header was called out by name.
 
-   CONTENT: the hero copy, the "8+ years building..." line and each
-   job's `info`/`bottom` text are the mockup's own copy, used as given.
-   The FACTS underneath (dates, titles, companies) are real - matched
-   against `content.ts`'s own `about.timeline` (kept as this site's
-   source of truth for the raw facts; not imported here since this
-   page's copy is phrased differently by design) - the mockup's own
-   year-only date ranges are a deliberate simplification of the more
-   precise month-level periods `content.ts` carries. TR copy below is a
-   direct translation of the same EN copy (not separately invented),
-   using this site's own already-established TR job titles
-   (`content.ts`'s `about.timeline` TR entries) so the two languages
-   describe the same real roles consistently.
+   So the mockup's SKIN is gone and its SUBSTANCE is kept. The page now
+   uses SiteHeader/SiteFooter/FinalCta, the site's own Geist and its
+   paper/ink/primary tokens, and the section rhythm every other page
+   uses (tinted stage -> white -> tinted -> white). What survives is
+   what was real: the hero statement, the current-role paragraph with
+   its live company link, the eight-years line, and the timeline with
+   its Simple/Detailed toggle - whose dates, titles and companies match
+   `content.ts`'s own `about.timeline`, this site's source of truth for
+   those facts.
 
-   NAV: the mockup's own header is a bare, unlinked wordmark and its
-   footer carries no site navigation or language switch at all. Wiring
-   the wordmark to home and adding a small EN/TR link is the one
-   necessary addition beyond the mockup itself - without it this page
-   would be a dead end with no way back into the rest of the site or to
-   its own translation, which no other page on this site does. */
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-space-grotesk",
-});
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono-plex",
-});
+   `AboutTimeline` was retoned in the same pass: its hardcoded teal
+   hexes are now the shared tokens, so it inherits future palette
+   changes instead of drifting away from them again. */
 
 const JOBS: Record<Lang, TimelineJob[]> = {
   en: [
@@ -196,105 +171,104 @@ const T = {
 
 export default function AboutPage({ lang }: { lang: Lang }) {
   const t = T[lang];
+  const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const jobs = JOBS[lang];
-  const year = new Date().getFullYear();
 
   return (
-    <div
-      className={`about-portfolio ${spaceGrotesk.variable} ${plexMono.variable} min-h-screen [font-family:var(--font-space-grotesk)] antialiased`}
-      style={{ background: "#dcedee", color: "#22333a" }}
-    >
-      {/* Scoped to this page only — the mockup's own link/selection
-          styling (see this file's own top comment on why this page
-          doesn't share the rest of the site's tokens). */}
-      <style>{`
-        .about-portfolio a { color: #22333a; text-decoration-thickness: 1.5px; text-underline-offset: 4px; text-decoration-color: #7c9296; }
-        .about-portfolio a:hover { text-decoration-color: #22333a; }
-        .about-portfolio ::selection { background: #22333a; color: #dcedee; }
-      `}</style>
-      <a
-        href="#about-main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2"
-      >
-        Skip to content
-      </a>
-
-      <header className="flex items-center justify-center gap-3 px-8 pt-9">
-        <Link
-          href={home}
-          className="rounded-xl px-6 py-3 text-xl font-bold tracking-tight no-underline"
-          style={{ background: "#e7f3f4", boxShadow: "0 2px 10px rgba(34,51,58,0.06)" }}
-        >
-          {t.wordmark}
-        </Link>
-        <Link
-          href={t.langHref}
-          className="rounded-xl px-3 py-3 text-sm font-medium no-underline"
-          style={{ background: "#e7f3f4", boxShadow: "0 2px 10px rgba(34,51,58,0.06)" }}
-        >
-          {t.langLabel}
-        </Link>
-      </header>
-
-      <section className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-6 pt-12 sm:px-10 md:grid-cols-[minmax(0,1.1fr)_minmax(240px,0.9fr)] md:gap-12 md:pt-16">
-        <h1 className="text-balance text-[clamp(2rem,5.2vw,4.5rem)] leading-[1.12] font-bold tracking-tight">
-          {t.heroPrefix}
-          <code className="font-normal [font-family:var(--font-mono-plex)]">{t.heroCode}</code>
-          {t.heroSuffix}
-        </h1>
-        <Image
-          src="/portrait.jpg"
-          alt="Ali Demirbaş"
-          width={640}
-          height={800}
-          className="w-full contrast-[1.02] grayscale mix-blend-multiply"
-        />
-      </section>
-
-      <main id="about-main" className="mx-auto max-w-[1280px] px-6 sm:px-10">
-        <section className="max-w-[620px] pt-16 md:ml-[44%] md:pt-18">
-          <p className="m-0 text-lg leading-relaxed sm:text-xl">
-            {t.introPrefix}
-            <a href={t.companyHref} target="_blank" rel="noreferrer">{t.company}</a>
-            {t.introSuffix}
-          </p>
-          <p className="mt-6 text-lg leading-relaxed sm:text-xl">{t.contact}</p>
-        </section>
-
-        <section className="pt-20 md:pt-28">
-          <h2 className="max-w-[22ch] text-[clamp(1.75rem,4.2vw,3.5rem)] leading-[1.18] font-bold tracking-tight">
-            {t.h2}
-          </h2>
-        </section>
-
-        <section className="pt-16 pb-8 md:pt-24">
-          <div className="max-w-[620px] md:ml-[44%]">
-            <p className="text-xl leading-relaxed font-medium sm:text-2xl">
-              {t.subLines.map((line, i) => (
-                <span key={line}>
-                  {line}
-                  {i < t.subLines.length - 1 && <br />}
-                </span>
-              ))}
-            </p>
+    <>
+      <SiteHeader t={c} anchorBase={home} langHref={t.langHref} />
+      <main>
+        {/* THE OPENING. Portrait beside the statement, on the site's own
+            tinted stage - the same shape the other pages open with, so
+            arriving here from anywhere else is not a jump. */}
+        <section className="bg-paper-soft pt-16 pb-16 md:pt-20 md:pb-20">
+          <div className="altor-container">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
+              <Reveal>
+                <p className="text-[13px] font-medium text-ink-400">{c.nav.about}</p>
+                <h1 className="mt-4 max-w-3xl text-[clamp(2rem,1.4rem+2.6vw,3.25rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+                  {t.heroPrefix}
+                  <span className="text-primary-600">{t.heroCode}</span>
+                  {t.heroSuffix}
+                </h1>
+              </Reveal>
+              <Reveal delay={100}>
+                <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-3xl bg-blue-600">
+                  <Image
+                    src="/portrait.jpg"
+                    alt="Ali Demirbaş"
+                    width={640}
+                    height={800}
+                    className="w-full object-cover opacity-95 grayscale"
+                  />
+                  <div aria-hidden className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
+                </div>
+              </Reveal>
+            </div>
           </div>
-          <AboutTimeline jobs={jobs} labels={t.toggle} />
         </section>
-      </main>
 
-      <footer
-        className="mx-auto flex max-w-[1280px] flex-wrap items-baseline justify-between gap-4 px-6 py-8 sm:px-10"
-        style={{ borderTop: "2px solid #b9d4d6" }}
-      >
-        <p className="m-0 text-sm" style={{ color: "#45585c" }}>
-          © {year} {t.wordmark} 👋
-        </p>
-        <div className="flex gap-6 text-sm">
-          <a href="mailto:mehmetalidemirbas@gmail.com">{t.footerEmailLabel}</a>
-          <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer">LinkedIn</a>
-        </div>
-      </footer>
-    </div>
+        {/* Where he is now, and how to reach him. */}
+        <section className="bg-paper py-16 md:py-20">
+          <div className="altor-container">
+            <Reveal>
+              <div className="max-w-[62ch]">
+                <p className="text-lg leading-relaxed text-pretty text-ink-700">
+                  {t.introPrefix}
+                  <a
+                    href={t.companyHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
+                  >
+                    {t.company}
+                  </a>
+                  {t.introSuffix}
+                </p>
+                <p className="mt-5 text-lg leading-relaxed text-ink-700 [&_a]:text-blue-700 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-blue-800">
+                  {t.contact}
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* The statement, and the three lines that qualify it. */}
+        <section className="bg-paper-soft py-16 md:py-24">
+          <div className="altor-container">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+              <Reveal>
+                <h2 className="max-w-[20ch] text-[clamp(1.75rem,1.3rem+1.8vw,2.5rem)] leading-[1.15] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+                  {t.h2}
+                </h2>
+              </Reveal>
+              <Reveal delay={80}>
+                <ul className="flex list-none flex-col gap-3 p-0 lg:pt-2">
+                  {t.subLines.map((line) => (
+                    <li
+                      key={line}
+                      className="rounded-xl bg-paper px-5 py-3.5 text-[17px] font-medium text-ink-900"
+                    >
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* The record. Real dates, titles and companies. */}
+        <section className="bg-paper py-16 md:py-20">
+          <div className="altor-container">
+            <AboutTimeline jobs={jobs} labels={t.toggle} />
+          </div>
+        </section>
+
+        <FinalCta t={c} />
+      </main>
+      <SiteFooter t={c} lang={lang} />
+    </>
   );
 }
