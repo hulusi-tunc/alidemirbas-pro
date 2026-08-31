@@ -1,12 +1,8 @@
-import fs from "node:fs";
-import path from "node:path";
-
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { Reveal } from "@/components/ui/Reveal";
 import { LAB_PREVIEWS, type Project } from "@/components/ui/LabPreviews";
-import { ParallaxField } from "@/components/ui/ParallaxField";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
@@ -19,12 +15,11 @@ import { JsonLdScript } from "@/components/ui/JsonLdScript";
    brief was that it should read as a product landing page - sections that
    differentiate, grounds that change, scroll that has movement in it.
 
-   THE STRUCTURE. An atmospheric opening, then one BAND PER PROJECT rather
-   than one card per project. Each band owns a full stripe of the page, and
-   the ground alternates through a fixed cycle (paper -> tinted-with-art ->
-   paper -> tinted-with-art ...) so no two neighbours share a backdrop -
-   the "her section farklı" note, executed as a real ground change rather
-   than a border.
+   THE STRUCTURE. A clean opening, then one BAND PER PROJECT rather than
+   one card per project. Each band owns a full stripe of the page and the
+   ground alternates paper -> tinted -> paper, so no two neighbours share a
+   backdrop - the "her section farklı" note, executed as a real tone change
+   rather than a border.
 
    THE SCROLL. Inside every band the text column is `lg:sticky` and the
    visual is what moves past it, so the project's name and claim stay
@@ -43,10 +38,14 @@ import { JsonLdScript } from "@/components/ui/JsonLdScript";
    (AGENTS.md), and these pages exist precisely to prove the tools are
    real.
 
-   THE GENERATED ART IS GROUND ONLY. The hero backdrop and the two band
-   grounds are Higgsfield-generated abstract fields (public/lab/*). They
-   carry no information, so they sit behind content at low opacity and
-   never depict an interface, a chart, or a figure. */
+   NO BACKDROP ART, ANYWHERE ON THIS PAGE. Three were tried and all three
+   were rejected: an ink-950 hero slab with a blue gradient, CSS brand
+   blooms, and Higgsfield-generated parallax layers behind the hero, plus
+   two generated grounds behind the bands. The page carries itself on type,
+   tone changes between bands, and the real tool previews - which is the
+   quieter and, on this evidence, the correct answer. `ParallaxField` and
+   the generated files are deleted rather than left switched off, so
+   nobody re-enables them by accident. */
 
 const T = {
   en: {
@@ -62,18 +61,6 @@ const T = {
     sectionLabel: (i: number, total: number) => `${String(i).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
   },
 } as const;
-
-/** Whether a generated ground has actually been produced yet.
-
-    The grounds are art, not content: the page's composition is carried by
-    its own tone changes, and every band reads correctly with nothing
-    behind it. So a missing file degrades to the plain ground rather than
-    to a broken image - which also means a fresh clone, or a run before the
-    art is regenerated, never renders a 404 rectangle. Server component, so
-    this is a build-time check with no client cost. */
-function hasArt(src: string) {
-  return fs.existsSync(path.join(process.cwd(), "public", src));
-}
 
 /** The one tag the two lifecycle projects share - the understated cue
     that they're parts of the same system without merging their cards. */
@@ -142,52 +129,16 @@ function ProjectActions({ project, onDark = false }: { project: Project; onDark?
 
 function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; projects: Project[] }) {
   const tt = T[lang];
-  /* Only the layers that actually exist. The hero is composed on white and
-     reads correctly with no art at all, so a missing file is a quieter
-     hero rather than a broken one. */
-  /* Back to front, each quieter than the one behind it. The opacities are
-     the "keep generated grounds quiet" rule applied literally: at full
-     strength the glass shapes competed with the headline sitting on top of
-     them, which is the same objection that killed the ambient texture on
-     the calculator answer plate. */
-  const layers = (
-    [
-      { src: "/lab/layer-orb.jpg", depth: 0.06, className: "object-cover mix-blend-multiply opacity-70" },
-      { src: "/lab/layer-ribbons.jpg", depth: 0.14, className: "object-cover mix-blend-multiply opacity-50" },
-      { src: "/lab/layer-shapes.jpg", depth: 0.24, className: "object-cover mix-blend-multiply opacity-35" },
-    ] as const
-  ).filter((l) => hasArt(l.src));
 
   return (
-    /* WHITE AND CENTRED. This band used to be an ink-950 slab with a blue
-       gradient over it; that was rejected outright ("no black gradient
-       hero"). The page opens on paper now, the art carries the colour, and
-       the statement sits in the middle of it the way a product's own
-       landing page opens. */
-    <section className="relative isolate overflow-hidden bg-paper pt-20 pb-24 text-center md:pt-28 md:pb-32">
-      {layers.length > 0 ? (
-        <ParallaxField layers={[...layers]} />
-      ) : (
-        /* THE AMBIENT FALLBACK, and it is not a placeholder. Three soft
-           brand blooms on the same drift keyframes the art layers use, so
-           the hero has colour and motion from CSS alone. The generated
-           illustration is an upgrade to this, never a dependency of it -
-           which matters because the art is produced by a queue that can be
-           slow or down, and a hero that renders as a blank white box in
-           that case would be the wrong trade. */
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="parallax-drift absolute -top-40 left-1/2 h-[38rem] w-[38rem] -translate-x-[70%] rounded-full bg-[radial-gradient(circle,var(--color-primary-400)_0%,transparent_70%)] opacity-25" />
-          <div className="parallax-drift-slow absolute -top-24 left-1/2 h-[32rem] w-[32rem] translate-x-[10%] rounded-full bg-[radial-gradient(circle,var(--color-primary-300)_0%,transparent_70%)] opacity-30" />
-          <div className="parallax-drift absolute top-32 left-1/2 h-[26rem] w-[26rem] -translate-x-[10%] rounded-full bg-[radial-gradient(circle,#7c3aed_0%,transparent_70%)] opacity-[0.12]" />
-        </div>
-      )}
-      {/* Keeps the type legible over whatever sits underneath, without
-          flattening it. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-paper/60 via-paper/45 to-paper"
-      />
-
+    /* CLEAN WHITE, AND NOTHING BEHIND IT. This band has been through three
+       backdrops - an ink-950 slab with a blue gradient, then CSS brand
+       blooms, then the generated parallax layers - and every one of them
+       was rejected. The decision now is that the hero has no ground at
+       all: paper, centred type, the six real projects under it. The art
+       that was here is not "temporarily off", it is gone; the page gets
+       its interest from the banded sections below instead. */
+    <section className="bg-paper pt-20 pb-24 text-center md:pt-28 md:pb-32">
       <div className="altor-container relative">
         <Reveal>
           <p className="text-[13px] font-medium text-ink-400">{t.lab.label}</p>

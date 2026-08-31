@@ -736,31 +736,6 @@
     }
   }
 
-  /* The Lab hero's parallax layers drifting while nothing is scrolling, so
-     the field is alive on arrival rather than only on input. Two speeds,
-     assigned alternately, so layers never travel in lockstep. Transform
-     only - composited, no layout or paint per frame. Neutralised with
-     every other animation by the reduced-motion block above. */
-  .parallax-drift {
-    animation: parallax-drift 18s ease-in-out infinite;
-  }
-
-  .parallax-drift-slow {
-    animation: parallax-drift 26s ease-in-out infinite reverse;
-  }
-
-  @keyframes parallax-drift {
-    0%,
-    100% {
-      translate: 0 0;
-      scale: 1;
-    }
-    50% {
-      translate: -1.5% -2%;
-      scale: 1.04;
-    }
-  }
-
   /* The mobile menu panel arriving: a short rise and fade, no blur - it is
      a surface sliding in, not a value resolving. Neutralised with every
      other animation by the reduced-motion block above. */
