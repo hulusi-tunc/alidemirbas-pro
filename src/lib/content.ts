@@ -129,7 +129,7 @@ export const copy = {
         {
           name: "Google Ads Change History Explorer",
           slug: "google-ads-change-history-dashboard",
-          desc: "Turns Google Ads change history into a searchable dashboard - showing what changed, who changed it, when it happened and how significant it was.",
+          desc: "Turns Google Ads change history into a searchable dashboard - the exact campaign, category, old value, new value and timestamp behind every change.",
           tags: ["Google Ads", "Analytics", "Python"],
           proof: "Zero dependencies · 57 self-tests",
           links: [
@@ -796,7 +796,7 @@ export const copy = {
         {
           name: "Google Ads Değişiklik Geçmişi Gezgini",
           slug: "google-ads-change-history-dashboard",
-          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - ne değişti, kim değiştirdi, ne zaman oldu ve ne kadar önemliydi.",
+          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - her değişikliğin arkasındaki tam kampanya, kategori, eski değer, yeni değer ve zaman damgası.",
           tags: ["Google Ads", "Analitik", "Python"],
           proof: "Sıfır bağımlılık · 57 self-test",
           links: [

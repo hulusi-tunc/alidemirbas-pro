@@ -91,11 +91,6 @@ const T = {
         a: "CSV, TSV, and pre-flattened ChangeEvent JSON. It will not read an XLSX file or a Google Sheets URL directly - export to one of those three first.",
       },
       {
-        id: "unknown-columns",
-        q: "My export's column names don't match. What happens?",
-        a: "It stops and tells you, rather than guessing. The run exits non-zero with a structured JSON status naming the columns it could not map, and you re-run with --mapping-file. The mapping is then fingerprinted and saved, so the next export in the same shape needs no flag at all.",
-      },
-      {
         id: "offline",
         q: "Does the dashboard need to be online?",
         a: "No. It is a single HTML file with no CDN references, so it works fully offline and can be sent to someone as one attachment. Filters, the activity timeline, the account and campaign drill-down, the category distribution and the searchable change explorer all run in the browser from data embedded in that file.",
@@ -148,11 +143,6 @@ const T = {
         id: "formats",
         q: "Hangi dışa aktarma biçimlerini kabul ediyor?",
         a: "CSV, TSV ve düzleştirilmiş ChangeEvent JSON. XLSX dosyasını ya da bir Google Sheets bağlantısını doğrudan okumaz - önce bu üç biçimden birine aktarın.",
-      },
-      {
-        id: "unknown-columns",
-        q: "Dışa aktarımımın sütun adları uyuşmuyor, ne olur?",
-        a: "Tahmin etmez, durur ve söyler. Çalıştırma, eşleştiremediği sütunları adlandıran yapılandırılmış bir JSON durumuyla sıfırdan farklı çıkar; --mapping-file ile yeniden çalıştırırsınız. Eşleştirme sonra parmak izine bağlanıp kaydedilir, aynı biçimdeki bir sonraki dosyada hiçbir bayrak gerekmez.",
       },
       {
         id: "offline",

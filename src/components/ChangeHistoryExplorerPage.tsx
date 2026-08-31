@@ -1,90 +1,310 @@
-import { ArrowRight, ArrowUpRight, Check, ShieldAlert, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
-import { ChangeHistoryPreview } from "@/components/ui/LabPreviews";
-import { InstallationStepper } from "@/components/ui/InstallationStepper";
+import { CodeTabs } from "@/components/ui/CodeTabs";
+import { ToolSelectorCards, type ToolOption } from "@/components/ui/InstallationStepper";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
+import { Code2, MousePointer2, Terminal } from "lucide-react";
 
-/* Google Ads Change History Explorer - same Peerbie-composition pass as
-   claude-lifecycle's JourneyBuilderPage (centered hero with a dominant
-   real visual, three "why different" feature stories, install, FAQ, a
-   page-local final CTA), applied to a different real product. No new
-   image/video assets exist for this one, so every visual here is either
-   the site's own existing ChangeHistoryPreview illustration or a new
-   small panel built the same way - real behaviour already documented in
-   change-history.tsx (57 self-test checks, the human/automation split,
-   Rule Matches, the stop-not-guess error path), never an invented claim.
+/* Google Ads Change History Explorer.
 
-   Deliberately NOT a change to SkillProductPage.tsx: that template is
-   shared with numerspace and dashboard-builder, and this pass is scoped
-   to the one page the site-owner asked for. */
+   REBUILT (this pass) around the tool's actual features rather than a
+   generic "why different" template: Change Explorer, Before/After,
+   Activity + Campaign Last Changes, and Rule Matches are the real,
+   named sections of the tool's own single-file dashboard (see the
+   cloned repo's README - "Filters, Summary, Activity Timeline, User
+   Activity split by human/automation, Account/Campaign drill-down,
+   Category Distribution, Rule Matches, Campaign Last Changes, and a
+   sortable/searchable Change Explorer with a before/after detail
+   panel"). The old "Human or automation" panel is gone - the real
+   Change Explorer table already carries that attribution inline (an
+   "Automation" badge in the same USER column as "User A"), so a
+   separate feature slot for it was inventing a distinction the real UI
+   doesn't make.
+
+   EVERY EXAMPLE ROW BELOW IS REAL, not invented for this page: pulled
+   directly from examples/dashboard-demo.html in the cloned repository -
+   the tool's own real (synthetic-input, real-output) demo file - not
+   typed up from memory. Campaign names (Alpha/Beta/Gamma/Delta),
+   account names (Account A/B), user labels (User A/B/C, already
+   --mask-users-masked in the source file), old/new values, dates and
+   the exact Change Explorer column order all come from that file. The
+   Rule Matches magnitude defaults (Budget ±50%, Target CPA ±30%,
+   Target ROAS ±30%, Bid/CPC ±50%) and the structural rule defaults
+   (Campaign paused/removed/Ad group removed on, Campaign enabled off)
+   are read from the demo file's own "Configure rules" panel, not
+   guessed - they don't match what an earlier draft of this page
+   assumed (±20/±15/±10). The one explicitly-labelled hypothetical is
+   the Rule Matches "if you set Budget to ±20%" example, which computes
+   its percentage from a real row rather than inventing one. */
+
+const REAL = {
+  // Column order and every value here: examples/dashboard-demo.html,
+  // Change Explorer table, read directly.
+  explorerRows: [
+    { user: "User A", account: "Account B", campaign: "Campaign Alpha", adGroup: "—", category: "Status", en: { date: "Aug 17, 2026 · 9:45 AM", old: "Enabled", new: "Paused" }, tr: { date: "17 Ağu 2026 · 09:45", old: "Etkin", new: "Duraklatıldı" } },
+    { user: "User C", account: "Account B", campaign: "Campaign Gamma", adGroup: "—", category: "Budget", en: { date: "Aug 6, 2026 · 10:00 AM", old: "50,000", new: "45,000" }, tr: { date: "6 Ağu 2026 · 10:00", old: "50.000", new: "45.000" } },
+    { user: "Automation", account: "Account A", campaign: "Campaign Beta", adGroup: "—", category: "Budget", en: { date: "Aug 3, 2026 · 2:22 PM", old: "80,000", new: "100,000" }, tr: { date: "3 Ağu 2026 · 14:22", old: "80.000", new: "100.000" } },
+    { user: "User A", account: "Account A", campaign: "Campaign Alpha", adGroup: "Ad Group 1", category: "Bidding", en: { date: "Aug 1, 2026 · 9:15 AM", old: "3.50", new: "4.20" }, tr: { date: "1 Ağu 2026 · 09:15", old: "3,50", new: "4,20" } },
+  ],
+  // Campaign Last Changes table, same file, read directly - exact dates,
+  // not the "days since" figure (the real UI computes that against the
+  // visitor's own clock, which is honest live but would drift on a
+  // static page).
+  lastChanges: [
+    { campaign: "Campaign Beta", account: "Account A", date: { en: "Aug 3, 2026", tr: "3 Ağu 2026" } },
+    { campaign: "Campaign Alpha", account: "Account A", date: { en: "Aug 4, 2026", tr: "4 Ağu 2026" } },
+    { campaign: "Campaign Gamma", account: "Account B", date: { en: "Aug 6, 2026", tr: "6 Ağu 2026" } },
+    { campaign: "Campaign Delta", account: "Account B", date: { en: "Aug 7, 2026", tr: "7 Ağu 2026" } },
+    { campaign: "Campaign Alpha", account: "Account B", date: { en: "Aug 17, 2026", tr: "17 Ağu 2026" } },
+  ],
+  // "Account / Campaign Activity" bars, same file.
+  accountActivity: [
+    { account: "Account A", count: 6 },
+    { account: "Account B", count: 4 },
+  ],
+  totalChanges: 10,
+  period: { en: "Aug 1 - 17, 2026", tr: "1 - 17 Ağustos 2026" },
+  // "Configure rules" panel defaults, same file - read with the checkbox
+  // enabled, not assumed.
+  magnitudeRules: [
+    { label: { en: "Budget change", tr: "Bütçe değişimi" }, value: 50 },
+    { label: { en: "Target CPA change", tr: "Target CPA değişimi" }, value: 30 },
+    { label: { en: "Target ROAS change", tr: "Target ROAS değişimi" }, value: 30 },
+    { label: { en: "Bid/CPC change", tr: "Teklif/TBM değişimi" }, value: 50 },
+  ],
+  structuralRules: [
+    { label: { en: "Campaign paused", tr: "Kampanya duraklatıldı" }, on: true },
+    { label: { en: "Campaign removed", tr: "Kampanya kaldırıldı" }, on: true },
+    { label: { en: "Ad group removed", tr: "Reklam grubu kaldırıldı" }, on: true },
+    { label: { en: "Campaign enabled", tr: "Kampanya etkinleştirildi" }, on: false },
+  ],
+};
 
 const T = {
   en: {
+    eyebrow: "Lab / Google Ads",
+    title: "See exactly what changed in Google Ads.",
+    sub: "Turn Google Ads Change History into a searchable dashboard with the exact campaign, category, old value, new value and timestamp behind every change.",
     proof: ["57 self-test checks pass", "Zero dependencies", "Works fully offline"],
-    whyEyebrow: "Why it's different",
-    whyTitle: "Reports. Doesn't grade.",
-    feature1: {
-      title: "Human or automation - never guessed",
-      body: "Every change is attributed to a person or to the automation that made it - a script, a bidding rule, a Recommendation - so a budget swing doesn't get pinned on the wrong actor.",
-    },
-    feature2: {
-      title: "Rule Matches, on your own thresholds",
-      body: "Off by default. Set a magnitude threshold in the browser and a match reads \"crossed the threshold you set\", always shown with the exact number beside it - never a bare severity colour.",
-    },
-    feature3: {
-      title: "Stops rather than guesses",
-      body: "An unrecognised column, an ambiguous date, or an uncategorised change combination exits with a structured status naming exactly which flag to re-run with.",
-    },
+
+    explorerEyebrow: "Change Explorer",
+    explorerTitle: "Find any change in seconds.",
+    explorerSub: "Search and filter by account, campaign, ad group, category, user or automation, date range and change type - then open any row for the full before/after detail.",
+    explorerCols: ["Date", "User", "Account", "Campaign", "Ad group", "Category", "Old value", "New value"],
+
+    baEyebrow: "Before / After",
+    baTitle: "Before and after, without digging through logs.",
+    baSub: "Open a change and see the previous value beside the new one, with the campaign, ad group and exact timestamp attached.",
+
+    actEyebrow: "Activity",
+    actTitle: "See what changed - and what hasn't.",
+    actSub: "One view of how often each account changes; another of which campaigns haven't had a change logged recently.",
+    actActivityLabel: "Account activity",
+    actLastLabel: "Campaign last changes",
+    actTotal: (n: number, period: string) => `${n} changes · ${period}`,
+
+    rulesEyebrow: "Rule Matches",
+    rulesTitle: "Set your own change thresholds.",
+    rulesSub: "Off by default. Set a magnitude threshold and a structural rule like a paused or removed campaign, computed entirely in the browser - no re-run needed to change a threshold.",
+    rulesMagnitudeLabel: "Magnitude (±% change)",
+    rulesStructuralLabel: "Structural",
+    rulesExampleLabel: "Example - with Budget change set to ±20%",
+    rulesExampleNote: "crosses your ±20% rule",
+    principleTitle: "Factual by design.",
+    principleBody: "The dashboard reports what happened. It doesn't label a change as good, bad or risky.",
+
+    fileEyebrow: "Single file",
+    fileTitle: "Your change history stays in one file.",
+    fileSub: "The dashboard is generated as a single HTML file with no CDN dependency. Open it locally, archive it or share it as an attachment.",
+    fileFlow: ["Google Ads export", "Run", "dashboard.html"],
+    fileFormats: "CSV · TSV · ChangeEvent JSON",
+
     installEyebrow: "Install",
+    installTitle: "Install",
     installSub: "No account, no API key, no dependencies to install.",
+    toolStepLabel: "Built for",
+    claudeTab: "Claude Code",
+    pythonTab: "Python",
+    selfTestNote: "57 built-in checks pass on the current version.",
+    reliabilityTitle: "Built to fail explicitly.",
+    reliabilityBody: "Ambiguous dates or unknown columns stop the run instead of being silently interpreted.",
+    viewRepo: "Read the repository",
+
     faqEyebrow: "FAQ",
     ctaEyebrow: "OPEN SOURCE",
     ctaTitle: "Read the change history your account already logged.",
   },
   tr: {
+    eyebrow: "Lab / Google Ads",
+    title: "Google Ads'te tam olarak ne değişti görün.",
+    sub: "Google Ads Değişiklik Geçmişi'ni aranabilir bir dashboard'a çevirin - her değişikliğin arkasındaki tam kampanya, kategori, eski değer, yeni değer ve zaman damgasıyla.",
     proof: ["57 self-test kontrolü geçiyor", "Sıfır bağımlılık", "Tamamen çevrimdışı çalışır"],
-    whyEyebrow: "Neden farklı",
-    whyTitle: "Raporlar. Not vermez.",
-    feature1: {
-      title: "İnsan mı, otomasyon mu - tahmin edilmez",
-      body: "Her değişiklik bir kişiye ya da onu yapan otomasyona (bir script, bir teklif kuralı, bir Recommendation) atfedilir - bir bütçe değişikliği yanlış aktöre mal edilmez.",
-    },
-    feature2: {
-      title: "Kendi eşiğinizle Rule Matches",
-      body: "Varsayılan olarak kapalı. Tarayıcıda bir büyüklük eşiği belirleyin; bir eşleşme \"belirlediğiniz eşiği aştı\" der, her zaman tam sayısıyla birlikte - hiçbir zaman açıklamasız bir önem rengiyle değil.",
-    },
-    feature3: {
-      title: "Tahmin etmek yerine durur",
-      body: "Tanınmayan bir sütun, belirsiz bir tarih ya da kategorize edilemeyen bir değişiklik bileşimi, tam olarak hangi bayrakla yeniden çalıştırılacağını adlandıran yapılandırılmış bir durumla sonlanır.",
-    },
+
+    explorerEyebrow: "Change Explorer",
+    explorerTitle: "Herhangi bir değişikliği saniyeler içinde bulun.",
+    explorerSub: "Hesaba, kampanyaya, reklam grubuna, kategoriye, kullanıcıya ya da otomasyona, tarih aralığına ve değişiklik türüne göre arayın ve filtreleyin - sonra herhangi bir satırı açıp tam öncesi/sonrası detayını görün.",
+    explorerCols: ["Tarih", "Kullanıcı", "Hesap", "Kampanya", "Reklam grubu", "Kategori", "Eski değer", "Yeni değer"],
+
+    baEyebrow: "Öncesi / Sonrası",
+    baTitle: "Loglara dalmadan öncesi ve sonrası.",
+    baSub: "Bir değişikliği açın, önceki değeri kampanya, reklam grubu ve tam zaman damgasıyla birlikte yeni değerin yanında görün.",
+
+    actEyebrow: "Aktivite",
+    actTitle: "Ne değişti - ne değişmedi görün.",
+    actSub: "Bir tarafta her hesabın ne sıklıkla değiştiği; diğer tarafta hangi kampanyalara son zamanlarda bir değişiklik kaydedilmediği.",
+    actActivityLabel: "Hesap aktivitesi",
+    actLastLabel: "Kampanya son değişiklikleri",
+    actTotal: (n: number, period: string) => `${n} değişiklik · ${period}`,
+
+    rulesEyebrow: "Rule Matches",
+    rulesTitle: "Kendi değişiklik eşiklerinizi belirleyin.",
+    rulesSub: "Varsayılan olarak kapalı. Bir büyüklük eşiği ve duraklatılmış ya da kaldırılmış kampanya gibi yapısal bir kural belirleyin - tamamen tarayıcıda hesaplanır, eşiği değiştirmek için yeniden çalıştırmaya gerek yok.",
+    rulesMagnitudeLabel: "Büyüklük (±% değişim)",
+    rulesStructuralLabel: "Yapısal",
+    rulesExampleLabel: "Örnek - Bütçe değişimi ±%20 olarak ayarlandığında",
+    rulesExampleNote: "±%20 kuralınızı aşıyor",
+    principleTitle: "Tasarım gereği tarafsız.",
+    principleBody: "Pano ne olduğunu raporlar. Bir değişikliği iyi, kötü ya da riskli olarak etiketlemez.",
+
+    fileEyebrow: "Tek dosya",
+    fileTitle: "Değişiklik geçmişiniz tek bir dosyada kalır.",
+    fileSub: "Pano, CDN bağımlılığı olmayan tek bir HTML dosyası olarak üretilir. Yerelde açın, arşivleyin ya da ek olarak paylaşın.",
+    fileFlow: ["Google Ads dışa aktarımı", "Çalıştır", "dashboard.html"],
+    fileFormats: "CSV · TSV · ChangeEvent JSON",
+
     installEyebrow: "Kurulum",
+    installTitle: "Kurulum",
     installSub: "Hesap yok, API anahtarı yok, kurulacak bağımlılık yok.",
+    toolStepLabel: "Şunun için geliştirildi",
+    claudeTab: "Claude Code",
+    pythonTab: "Python",
+    selfTestNote: "Mevcut sürümde 57 yerleşik kontrol geçiyor.",
+    reliabilityTitle: "Açıkça başarısız olacak şekilde kuruldu.",
+    reliabilityBody: "Belirsiz tarihler ya da tanınmayan sütunlar, sessizce yorumlanmak yerine çalıştırmayı durdurur.",
+    viewRepo: "Repoyu okuyun",
+
     faqEyebrow: "SSS",
     ctaEyebrow: "AÇIK KAYNAK",
     ctaTitle: "Hesabınızın zaten kaydettiği değişiklik geçmişini okuyun.",
   },
 } as const;
 
+const TOOL_OPTIONS: ToolOption[] = [
+  { id: "claude-code", label: "Claude Code", icon: Terminal },
+  { id: "cursor", label: "Cursor", icon: MousePointer2 },
+  { id: "codex", label: "Codex", icon: Code2 },
+];
+
+const CLAUDE_CODE_CMD = `/plugin marketplace add ali-demirbas/google-ads-change-history-dashboard\n/plugin install google-ads-change-history-dashboard@google-ads-change-history-dashboard`;
+const PYTHON_CMD = `python3 ads_change_history.py run <export.csv> --out-dir ./out --open`;
+const SELF_TEST_CMD = `python3 ads_change_history.py self-test`;
+
+/* ---- Shared bits -------------------------------------------------- */
+
+/** A plain macOS-style browser chrome, purely decorative framing (three
+    dots, an address-bar-shaped strip) around a real data visual - never
+    a screenshot of an actual browser, just the "this is a page you'd
+    open" cue the hero needs. */
+function BrowserChrome({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_0_0_1px_rgb(0_0_0/0.06),0_24px_48px_-16px_rgb(10_16_32/0.18)]">
+      <div className="flex items-center gap-3 border-b border-line bg-paper-soft px-4 py-2.5">
+        <div className="flex gap-1.5">
+          <span aria-hidden className="size-2.5 rounded-full bg-[#ff5f57]" />
+          <span aria-hidden className="size-2.5 rounded-full bg-[#febc2e]" />
+          <span aria-hidden className="size-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <div className="flex-1 truncate rounded-md bg-paper px-3 py-1 text-center font-mono text-[11px] text-ink-400">
+          {title}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function CategoryBadge({ category }: { category: string }) {
+  const styles: Record<string, string> = {
+    Status: "bg-emerald-50 text-emerald-700",
+    Budget: "bg-primary-50 text-primary-700",
+    Bidding: "bg-violet-50 text-violet-700",
+    Keyword: "bg-sky-50 text-sky-700",
+  };
+  return (
+    <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${styles[category] ?? "bg-paper-soft text-ink-600"}`}>
+      {category}
+    </span>
+  );
+}
+
+/** The real Change Explorer table, real rows - `compact` drops the Ad
+    group column and shows fewer rows for the hero's condensed preview. */
+function ExplorerTable({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
+  const t = T[lang];
+  const rows = compact ? REAL.explorerRows.slice(0, 3) : REAL.explorerRows;
+  const cols = compact ? t.explorerCols.filter((_, i) => i !== 4) : t.explorerCols;
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px] border-collapse text-left text-[12.5px]">
+        <thead>
+          <tr className="border-b border-line text-[11px] tracking-wide text-ink-400 uppercase">
+            {cols.map((c) => (
+              <th key={c} className="px-3 py-2 font-medium whitespace-nowrap">
+                {c}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} className="border-b border-line last:border-0">
+              <td className="px-3 py-2.5 font-mono text-[11.5px] whitespace-nowrap text-ink-500">{r[lang].date}</td>
+              <td className="px-3 py-2.5 whitespace-nowrap">
+                {r.user === "Automation" ? (
+                  <span className="rounded-full bg-sand-50 px-2 py-0.5 text-[11px] font-medium text-neutral-700">
+                    {r.user}
+                  </span>
+                ) : (
+                  <span className="text-ink-800">{r.user}</span>
+                )}
+              </td>
+              <td className="px-3 py-2.5 whitespace-nowrap text-ink-600">{r.account}</td>
+              <td className="px-3 py-2.5 whitespace-nowrap font-medium text-ink-900">{r.campaign}</td>
+              {!compact && <td className="px-3 py-2.5 whitespace-nowrap text-ink-500">{r.adGroup}</td>}
+              <td className="px-3 py-2.5 whitespace-nowrap">
+                <CategoryBadge category={r.category} />
+              </td>
+              <td className="px-3 py-2.5 font-mono whitespace-nowrap text-[#c65d3f]">{r[lang].old}</td>
+              <td className="px-3 py-2.5 font-mono whitespace-nowrap text-emerald-700">{r[lang].new}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ---- 01 · Hero ------------------------------------------------------ */
 function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
   return (
     <section className="relative isolate overflow-hidden bg-paper pt-16 pb-24 md:pt-20 md:pb-32">
       <PortraitContainer className="text-center">
         <Reveal>
-          <p className="altor-eyebrow mb-5 text-ink-400">{c.eyebrow}</p>
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{c.title}</h1>
+          <p className="altor-eyebrow mb-5 text-ink-400">{t.eyebrow}</p>
+          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.title}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.sub}</p>
         </Reveal>
         {repo && (
           <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
@@ -99,152 +319,257 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
             </a>
           </Reveal>
         )}
-        <Reveal delay={180} className="mt-7">
-          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-[13px] text-ink-500">
+        {/* Trust strip - small, not the hero's main event anymore. */}
+        <Reveal delay={180} className="mt-6">
+          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[12.5px] text-ink-500">
             {t.proof.map((item) => (
               <li key={item} className="flex items-center gap-1.5">
-                <Check aria-hidden className="size-3.5 shrink-0 text-primary-600" />
+                <Check aria-hidden className="size-3 shrink-0 text-primary-600" />
                 {item}
               </li>
             ))}
           </ul>
         </Reveal>
 
-        <Reveal delay={220} className="mx-auto mt-16 max-w-lg">
-          <div className="scale-[1.15] overflow-hidden rounded-t-[12px] shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_24px_48px_-16px_rgb(10_16_32/0.18)]">
-            <ChangeHistoryPreview lang={lang} />
-          </div>
+        <Reveal delay={220} className="mx-auto mt-14 max-w-3xl text-left">
+          <BrowserChrome title="dashboard.html">
+            <ExplorerTable lang={lang} compact />
+          </BrowserChrome>
         </Reveal>
       </PortraitContainer>
     </section>
   );
 }
 
-/* Small illustrative panels for the three feature stories - built the
-   same way JourneyCanvasPreview is: real vocabulary from the tool's own
-   documented behaviour (change-history.tsx), nothing invented. */
-function AttributionPanel({ lang }: { lang: Lang }) {
-  const T2 = {
-    // "User A" - the tool's own --mask-users placeholder label (see FAQ),
-    // not an invented name, so this stays illustrative rather than
-    // reading as a real person's activity.
-    en: [
-      { who: "User A", what: "Campaign budget updated", kind: "Person" },
-      { who: "Auto-bidding rule", what: "Bid strategy changed", kind: "Automation" },
-    ],
-    tr: [
-      { who: "User A", what: "Kampanya bütçesi güncellendi", kind: "Kişi" },
-      { who: "Otomatik teklif kuralı", what: "Teklif stratejisi değişti", kind: "Otomasyon" },
-    ],
-  }[lang];
+/* ---- 02 · Change Explorer -------------------------------------------- */
+function ChangeExplorerSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   return (
-    <div className="flex flex-col gap-2.5 rounded-card border border-line bg-paper p-5">
-      {T2.map((row) => (
-        <div key={row.what} className="flex items-center justify-between gap-3 rounded-md bg-paper-soft px-3 py-2.5">
-          <div className="min-w-0">
-            <p className="truncate text-[13px] font-medium text-ink-900">{row.what}</p>
-            <p className="truncate text-[12px] text-ink-500">{row.who}</p>
+    <ProductSection tone="paper" space="xl">
+      <PortraitContainer>
+        <ProductHeading eyebrow={t.explorerEyebrow} title={t.explorerTitle} body={t.explorerSub} align="center" />
+        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
+          <BrowserChrome title="dashboard.html — Change Explorer">
+            <ExplorerTable lang={lang} />
+          </BrowserChrome>
+        </Reveal>
+      </PortraitContainer>
+    </ProductSection>
+  );
+}
+
+/* ---- 03 · Before / After ---------------------------------------------- */
+function BeforeAfterCard({ row, lang }: { row: (typeof REAL.explorerRows)[number]; lang: Lang }) {
+  return (
+    <div className="rounded-card border border-line bg-paper p-4">
+      <p className="truncate text-[13px] font-medium text-ink-900">{row.campaign}</p>
+      <p className="mt-0.5 text-[11.5px] leading-snug text-ink-500">
+        {row.account} · {row[lang].date}
+      </p>
+      <div className="mt-3 flex items-center gap-2">
+        <span className="rounded-md bg-[#fdf3f0] px-2.5 py-1.5 font-mono text-[13px] text-[#c65d3f] line-through decoration-1">
+          {row[lang].old}
+        </span>
+        <ArrowRight aria-hidden className="size-3.5 shrink-0 text-ink-300" />
+        <span className="rounded-md bg-emerald-50 px-2.5 py-1.5 font-mono text-[13px] font-medium text-emerald-700">
+          {row[lang].new}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function BeforeAfterSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  return (
+    <ProductSection tone="soft" space="lg">
+      <PortraitContainer>
+        <ProductBenefitStory
+          eyebrow={t.baEyebrow}
+          title={t.baTitle}
+          body={t.baSub}
+          side="right"
+          visual={
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {REAL.explorerRows.slice(1).map((row, i) => (
+                <BeforeAfterCard key={i} row={row} lang={lang} />
+              ))}
+            </div>
+          }
+        />
+      </PortraitContainer>
+    </ProductSection>
+  );
+}
+
+/* ---- 04 · Activity + Campaign Last Changes ----------------------------- */
+function ActivitySection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const maxCount = Math.max(...REAL.accountActivity.map((a) => a.count));
+  return (
+    <ProductSection tone="paper" space="lg">
+      <PortraitContainer>
+        <ProductHeading eyebrow={t.actEyebrow} title={t.actTitle} body={t.actSub} align="center" />
+        <Reveal delay={100} className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-6 text-left md:grid-cols-2">
+          <div className="rounded-card border border-line bg-paper p-5">
+            <p className="text-[13px] font-medium text-ink-950">{t.actActivityLabel}</p>
+            <p className="mt-0.5 text-[11.5px] text-ink-400">{t.actTotal(REAL.totalChanges, REAL.period[lang])}</p>
+            <div className="mt-4 flex flex-col gap-3">
+              {REAL.accountActivity.map((a) => (
+                <div key={a.account}>
+                  <div className="flex items-baseline justify-between text-[12.5px]">
+                    <span className="font-medium text-ink-800">{a.account}</span>
+                    <span className="font-mono text-ink-500">{a.count}</span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-paper-soft">
+                    <div className="h-full rounded-full bg-primary-500" style={{ width: `${(a.count / maxCount) * 100}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <span
-            className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${
-              row.kind === "Person" || row.kind === "Kişi"
-                ? "bg-primary-100 text-primary-700"
-                : "bg-sand-50 text-neutral-700"
-            }`}
-          >
-            {row.kind}
-          </span>
-        </div>
-      ))}
-    </div>
+          <div className="rounded-card border border-line bg-paper p-5">
+            <p className="text-[13px] font-medium text-ink-950">{t.actLastLabel}</p>
+            <ul className="mt-4 flex flex-col divide-y divide-line">
+              {REAL.lastChanges.map((row, i) => (
+                <li key={i} className="flex items-center justify-between gap-3 py-2.5 text-[12.5px]">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-ink-900">{row.campaign}</p>
+                    <p className="truncate text-[11.5px] text-ink-500">{row.account}</p>
+                  </div>
+                  <span className="shrink-0 font-mono text-[11.5px] text-ink-500">{row.date[lang]}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+      </PortraitContainer>
+    </ProductSection>
   );
 }
 
-function RuleMatchPanel({ lang }: { lang: Lang }) {
-  const T2 = {
-    en: { rule: "Budget change > 20%", match: "Campaign \"Search - Brand\" budget +34%", note: "crossed the threshold you set" },
-    tr: { rule: "Bütçe değişimi > %20", match: "\"Search - Brand\" kampanyası bütçesi +%34", note: "belirlediğiniz eşiği aştı" },
-  }[lang];
+/* ---- 05 · Rule Matches -------------------------------------------------- */
+function RuleMatchesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const exampleRow = REAL.explorerRows[2]; // Campaign Beta, 80,000 -> 100,000 (+25%)
   return (
-    <div className="rounded-card border border-line bg-paper p-5">
-      <div className="flex items-center gap-2 rounded-md bg-paper-soft px-3 py-2.5 shadow-[inset_0_0_0_1px_var(--color-line)]">
-        <SlidersHorizontal aria-hidden className="size-3.5 text-ink-400" />
-        <span className="text-xs text-ink-500">{T2.rule}</span>
-      </div>
-      <div className="mt-3 rounded-md bg-primary-50/70 px-3 py-2.5">
-        <p className="text-[13px] font-medium text-ink-900">{T2.match}</p>
-        <p className="mt-1 text-[12px] text-primary-700">{T2.note}</p>
-      </div>
-    </div>
+    <ProductSection tone="soft" space="lg">
+      <PortraitContainer>
+        <ProductHeading eyebrow={t.rulesEyebrow} title={t.rulesTitle} body={t.rulesSub} align="center" />
+        <Reveal delay={100} className="mx-auto mt-12 max-w-2xl text-left">
+          <div className="rounded-card border border-line bg-paper p-6">
+            <p className="altor-eyebrow text-ink-400">{t.rulesMagnitudeLabel}</p>
+            <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3">
+              {REAL.magnitudeRules.map((r) => (
+                <div key={r.label.en} className="flex items-center justify-between text-[13px]">
+                  <span className="text-ink-700">{r.label[lang]}</span>
+                  <span className="font-mono text-ink-950">±{r.value}%</span>
+                </div>
+              ))}
+            </div>
+            <p className="altor-eyebrow mt-6 text-ink-400">{t.rulesStructuralLabel}</p>
+            <div className="mt-3 flex flex-col gap-2">
+              {REAL.structuralRules.map((r) => (
+                <label key={r.label.en} className="flex items-center gap-2.5 text-[13px] text-ink-700">
+                  <span
+                    aria-hidden
+                    className={`flex size-4 shrink-0 items-center justify-center rounded border ${
+                      r.on ? "border-primary-600 bg-primary-600" : "border-line-strong bg-paper"
+                    }`}
+                  >
+                    {r.on && <Check aria-hidden className="size-3 text-white" />}
+                  </span>
+                  {r.label[lang]}
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-6 border-t border-line pt-5">
+              <p className="text-[12px] font-medium text-ink-400">{t.rulesExampleLabel}</p>
+              <div className="mt-2 flex items-center justify-between gap-3 rounded-md bg-primary-50/70 px-3.5 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] font-medium text-ink-900">
+                    {exampleRow.campaign} · {exampleRow[lang].old} → {exampleRow[lang].new}
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-primary-700">{t.rulesExampleNote}</p>
+                </div>
+                <span className="shrink-0 font-mono text-sm font-semibold text-primary-700">+25%</span>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+        <Reveal delay={140} className="mx-auto mt-8 max-w-2xl border-l-2 border-primary-600 py-1 pl-5 text-left">
+          <p className="text-sm font-medium text-ink-950">{t.principleTitle}</p>
+          <p className="mt-1 text-[13px] leading-relaxed text-ink-600">{t.principleBody}</p>
+        </Reveal>
+      </PortraitContainer>
+    </ProductSection>
   );
 }
 
-function StopPanel({ lang }: { lang: Lang }) {
-  const T2 = {
-    en: { col: "chg_type", flag: "--mapping-file" },
-    tr: { col: "chg_type", flag: "--mapping-file" },
-  }[lang];
-  const label = lang === "en" ? "Unrecognised column" : "Tanınmayan sütun";
-  const rerun = lang === "en" ? "Re-run with" : "Şununla yeniden çalıştırın";
+/* ---- 06 · One file, fully offline --------------------------------------- */
+function OneFileSection({ t }: { t: (typeof T)[Lang] }) {
   return (
-    <div className="rounded-card border border-line bg-paper p-5">
-      <div className="flex items-start gap-2.5 rounded-md bg-[#fdf3f0] px-3 py-3">
-        <ShieldAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-[#c65d3f]" />
-        <div className="min-w-0">
-          <p className="text-[13px] font-medium text-ink-900">
-            {label}: <span className="font-mono">{T2.col}</span>
-          </p>
-          <p className="mt-1 text-[12px] text-ink-600">
-            {rerun} <span className="font-mono text-ink-900">{T2.flag}</span>
-          </p>
-        </div>
-      </div>
-    </div>
+    <ProductSection tone="paper" space="lg">
+      <PortraitContainer>
+        <ProductHeading eyebrow={t.fileEyebrow} title={t.fileTitle} body={t.fileSub} align="center" />
+        <Reveal delay={100} className="mx-auto mt-10 flex max-w-xl flex-wrap items-center justify-center gap-3">
+          {t.fileFlow.map((step, i) => (
+            <div key={step} className="flex items-center gap-3">
+              <span className="rounded-full border border-line-strong bg-paper px-4 py-2 text-sm font-medium text-ink-800">
+                {step}
+              </span>
+              {i < t.fileFlow.length - 1 && <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-300" />}
+            </div>
+          ))}
+        </Reveal>
+        <Reveal delay={140} className="mt-5 text-center">
+          <p className="font-mono text-[12.5px] text-ink-400">{t.fileFormats}</p>
+        </Reveal>
+      </PortraitContainer>
+    </ProductSection>
   );
 }
 
-function WhyDifferent({ lang, t }: { lang: Lang; t: (typeof T)[Lang] }) {
-  return (
-    <>
-      <ProductSection tone="paper" space="md" className="pb-0! md:pb-0!">
-        <PortraitContainer>
-          <ProductHeading eyebrow={t.whyEyebrow} title={t.whyTitle} align="center" />
-        </PortraitContainer>
-      </ProductSection>
-
-      <ProductSection tone="paper" space="lg">
-        <PortraitContainer>
-          <ProductBenefitStory title={t.feature1.title} body={t.feature1.body} side="right" visual={<AttributionPanel lang={lang} />} />
-        </PortraitContainer>
-      </ProductSection>
-
-      <ProductSection tone="soft" space="lg">
-        <PortraitContainer>
-          <ProductBenefitStory title={t.feature2.title} body={t.feature2.body} side="left" visual={<RuleMatchPanel lang={lang} />} />
-        </PortraitContainer>
-      </ProductSection>
-
-      <ProductSection tone="paper" space="lg">
-        <PortraitContainer>
-          <ProductBenefitStory title={t.feature3.title} body={t.feature3.body} side="right" visual={<StopPanel lang={lang} />} />
-        </PortraitContainer>
-      </ProductSection>
-    </>
-  );
-}
-
-function Install({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
+/* ---- 07 · Install -------------------------------------------------------- */
+function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
+  const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer className="max-w-2xl">
-        <ProductHeading eyebrow={t.installEyebrow} title={c.installTitle} body={t.installSub} align="center" />
-        {/* The stepper itself stays left-aligned inside the centered
-            header, same split the Mobbin-style reference this was
-            modelled on uses: a centered intro, a left-aligned numbered
-            list below it. */}
+        <ProductHeading eyebrow={t.installEyebrow} title={t.installTitle} body={t.installSub} align="center" />
         <Reveal delay={80} className="mt-10">
-          <InstallationStepper steps={c.installSteps} />
+          <p className="mb-3 text-[13px] font-medium text-ink-500">{t.toolStepLabel}</p>
+          <ToolSelectorCards options={TOOL_OPTIONS} activeId="claude-code" />
         </Reveal>
+        <Reveal delay={120} className="mt-8">
+          <CodeTabs
+            tabs={[
+              { id: "claude", label: t.claudeTab, code: CLAUDE_CODE_CMD },
+              { id: "python", label: t.pythonTab, code: PYTHON_CMD },
+            ]}
+            copyLabel={lang === "en" ? "Copy" : "Kopyala"}
+            copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
+          />
+        </Reveal>
+        <Reveal delay={150} className="mt-6 flex flex-wrap items-center gap-2 text-[12.5px] text-ink-500">
+          <span className="rounded-md border border-line bg-paper px-2.5 py-1 font-mono text-[11.5px] text-ink-700">
+            {SELF_TEST_CMD}
+          </span>
+          <span>{t.selfTestNote}</span>
+        </Reveal>
+        <Reveal delay={180} className="mt-8 border-l-2 border-line-strong py-0.5 pl-4">
+          <p className="text-sm font-medium text-ink-950">{t.reliabilityTitle}</p>
+          <p className="mt-1 text-[13px] leading-relaxed text-ink-600">{t.reliabilityBody}</p>
+        </Reveal>
+        {repo && (
+          <Reveal delay={200} className="mt-6">
+            <a
+              href={repo.href}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+            >
+              {t.viewRepo} →
+            </a>
+          </Reveal>
+        )}
       </PortraitContainer>
     </ProductSection>
   );
@@ -309,10 +634,6 @@ export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lan
   const langHref = lang === "en" ? `/tr/lab/${content.slug}` : `/lab/${content.slug}`;
   const path = lang === "en" ? `/lab/${content.slug}` : `/tr/lab/${content.slug}`;
 
-  // Same construction SkillProductPage.tsx uses for the two products still
-  // on the generic template - kept in step with it deliberately, since this
-  // page's `content` comes from the exact same getChangeHistoryContent()
-  // that feeds appSchema/installSteps.
   const appUrl =
     content.primaryLinks.find((l) => l.href.includes("github.com"))?.href ??
     content.primaryLinks.find((l) => l.href.startsWith("http"))?.href ??
@@ -352,8 +673,12 @@ export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lan
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
       <main>
         <Hero c={content} t={t} lang={lang} />
-        <WhyDifferent lang={lang} t={t} />
-        <Install c={content} t={t} />
+        <ChangeExplorerSection t={t} lang={lang} />
+        <BeforeAfterSection t={t} lang={lang} />
+        <ActivitySection t={t} lang={lang} />
+        <RuleMatchesSection t={t} lang={lang} />
+        <OneFileSection t={t} />
+        <Install c={content} t={t} lang={lang} />
         <Faq c={content} t={t} />
         <Related c={content} />
         <PageCta c={content} t={t} />
