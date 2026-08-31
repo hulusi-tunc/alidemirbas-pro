@@ -45,6 +45,7 @@ const T = {
       body: "An unrecognised column, an ambiguous date, or an uncategorised change combination exits with a structured status naming exactly which flag to re-run with.",
     },
     installEyebrow: "Install",
+    installSub: "No account, no API key, no dependencies to install.",
     faqEyebrow: "FAQ",
     ctaEyebrow: "OPEN SOURCE",
     ctaTitle: "Read the change history your account already logged.",
@@ -66,6 +67,7 @@ const T = {
       body: "Tanınmayan bir sütun, belirsiz bir tarih ya da kategorize edilemeyen bir değişiklik bileşimi, tam olarak hangi bayrakla yeniden çalıştırılacağını adlandıran yapılandırılmış bir durumla sonlanır.",
     },
     installEyebrow: "Kurulum",
+    installSub: "Hesap yok, API anahtarı yok, kurulacak bağımlılık yok.",
     faqEyebrow: "SSS",
     ctaEyebrow: "AÇIK KAYNAK",
     ctaTitle: "Hesabınızın zaten kaydettiği değişiklik geçmişini okuyun.",
@@ -235,7 +237,11 @@ function Install({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer className="max-w-2xl">
-        <ProductHeading eyebrow={t.installEyebrow} title={c.installTitle} />
+        <ProductHeading eyebrow={t.installEyebrow} title={c.installTitle} body={t.installSub} align="center" />
+        {/* The stepper itself stays left-aligned inside the centered
+            header, same split the Mobbin-style reference this was
+            modelled on uses: a centered intro, a left-aligned numbered
+            list below it. */}
         <Reveal delay={80} className="mt-10">
           <InstallationStepper steps={c.installSteps} />
         </Reveal>

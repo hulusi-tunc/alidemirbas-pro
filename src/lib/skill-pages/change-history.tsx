@@ -1,7 +1,25 @@
+import { Code2, MoreHorizontal, MousePointer2, Terminal } from "lucide-react";
 import type { SkillProductContent } from "@/components/SkillProductPage";
+import { CodeBlock, ToolSelectorCards, type ToolOption } from "@/components/ui/InstallationStepper";
 import { getAllSkillProjects, getSkillProject, githubUrl } from "@/lib/skill-catalog";
 import { withJourneyCount } from "@/lib/archive";
 import type { Lang } from "@/lib/content";
+
+/* The tool picker every install flow will eventually need (numerspace and
+   dashboard-builder don't have one yet - this is the first). Claude Code
+   is the only one this skill is actually built and tested for today;
+   Cursor/Codex/Other are shown INACTIVE (greyed, per ToolSelectorCards'
+   own documented contract - "marks which one(s) the current guide
+   actually verified rather than implying interactivity that isn't
+   there") rather than omitted, since more editors are coming and the
+   picker should already have somewhere to put them. Only the "Other"
+   label is language-dependent - the rest are proper product names. */
+const toolOptions = (lang: Lang): ToolOption[] => [
+  { id: "claude-code", label: "Claude Code", icon: Terminal },
+  { id: "cursor", label: "Cursor", icon: MousePointer2 },
+  { id: "codex", label: "Codex", icon: Code2 },
+  { id: "other", label: lang === "en" ? "Other" : "Diğer", icon: MoreHorizontal },
+];
 
 /* The Google Ads Change History Explorer's product page.
 
@@ -48,6 +66,8 @@ const T = {
       "--mask-users replaces human names with User A / User B for external sharing, and keeps the same label for the same person across runs.",
     ],
     installTitle: "Install",
+    toolStepTitle: "Pick your AI tool",
+    toolStepDesc: "Built and tested for Claude Code today - support for other editors may follow.",
     step1Title: "As a Claude Code plugin",
     step1Desc: "Add the marketplace, then install the plugin.",
     step2Title: "Or run it directly, no Claude required",
@@ -56,6 +76,8 @@ const T = {
     step3Desc:
       "The built-in suite runs the whole pipeline end to end on synthetic data. 57 checks pass on the current version.",
     viewRepo: "Read the repository",
+    copyLabel: "Copy",
+    copiedLabel: "Copied",
     faqTitle: "Frequently asked questions",
     faq: [
       {
@@ -103,6 +125,8 @@ const T = {
       "--mask-users, dışarıyla paylaşım için kişi adlarını User A / User B ile değiştirir ve aynı kişiye çalıştırmalar arasında aynı etiketi verir.",
     ],
     installTitle: "Kurulum",
+    toolStepTitle: "AI aracını seçin",
+    toolStepDesc: "Bugün Claude Code için geliştirildi ve test edildi - diğer editörler için destek gelebilir.",
     step1Title: "Claude Code eklentisi olarak",
     step1Desc: "Önce marketplace'i ekleyin, sonra eklentiyi kurun.",
     step2Title: "Ya da doğrudan çalıştırın, Claude gerekmez",
@@ -111,6 +135,8 @@ const T = {
     step3Desc:
       "Yerleşik test paketi tüm hattı sentetik veri üzerinde uçtan uca çalıştırır. Mevcut sürümde 57 kontrol geçiyor.",
     viewRepo: "Repoyu okuyun",
+    copyLabel: "Kopyala",
+    copiedLabel: "Kopyalandı",
     faqTitle: "Sık sorulan sorular",
     faq: [
       {
@@ -145,16 +171,6 @@ const T = {
 
 const SLUG = "google-ads-change-history-dashboard";
 
-/** The dark code plate the install steps use, same treatment as the
-    dashboard-builder page's clone line. */
-function Code({ children }: { children: React.ReactNode }) {
-  return (
-    <code className="block overflow-x-auto rounded-md border border-line bg-ink-950 px-4 py-3 font-mono text-xs leading-relaxed whitespace-pre text-white/85">
-      {children}
-    </code>
-  );
-}
-
 export function getChangeHistoryContent(lang: Lang): SkillProductContent | null {
   const project = getSkillProject(lang, SLUG);
   if (!project) return null;
@@ -186,31 +202,41 @@ export function getChangeHistoryContent(lang: Lang): SkillProductContent | null 
     installSteps: [
       {
         n: 1,
-        title: t.step1Title,
-        desc: t.step1Desc,
-        content: (
-          <Code>
-            {`/plugin marketplace add ali-demirbas/${SLUG}\n/plugin install ${SLUG}@${SLUG}`}
-          </Code>
-        ),
+        title: t.toolStepTitle,
+        desc: t.toolStepDesc,
+        content: <ToolSelectorCards options={toolOptions(lang)} activeId="claude-code" />,
       },
       {
         n: 2,
-        title: t.step2Title,
-        desc: t.step2Desc,
+        title: t.step1Title,
+        desc: t.step1Desc,
         content: (
-          <Code>
-            {`python3 ads_change_history.py run <export.csv> --out-dir ./out --open`}
-          </Code>
+          <CodeBlock
+            code={`/plugin marketplace add ali-demirbas/${SLUG}\n/plugin install ${SLUG}@${SLUG}`}
+            copyLabel={t.copyLabel}
+            copiedLabel={t.copiedLabel}
+          />
         ),
       },
       {
         n: 3,
+        title: t.step2Title,
+        desc: t.step2Desc,
+        content: (
+          <CodeBlock
+            code="python3 ads_change_history.py run <export.csv> --out-dir ./out --open"
+            copyLabel={t.copyLabel}
+            copiedLabel={t.copiedLabel}
+          />
+        ),
+      },
+      {
+        n: 4,
         title: t.step3Title,
         desc: t.step3Desc,
         content: (
           <div className="flex flex-col gap-3">
-            <Code>{`python3 ads_change_history.py self-test`}</Code>
+            <CodeBlock code="python3 ads_change_history.py self-test" copyLabel={t.copyLabel} copiedLabel={t.copiedLabel} />
             {repo ? (
               <a
                 href={repo}
