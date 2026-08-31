@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Lock } from "lucide-react";
 
@@ -8,7 +7,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { JourneyLibraryCta } from "@/components/ui/JourneyFlows";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import { HeroVideoCard } from "@/components/ui/HeroVideoCard";
 import { copy, type Lang } from "@/lib/content";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, softwareApplication } from "@/lib/schema";
@@ -18,21 +16,27 @@ import { breadcrumbList, softwareApplication } from "@/lib/schema";
    Peerbie-composition pass: the page previously led with a text/graph
    hero and worked through Scale/Stories/Anatomy/Inspector/Library/
    HowItWorks bands - all real, all removed per explicit site-owner
-   direction in favour of this leaner shape: a video-first hero, three
-   "why different" feature panels, a real-pattern flow section, an FAQ,
-   and a page-local final CTA.
+   direction in favour of this leaner shape: a hero, three "why
+   different" feature panels, a real-pattern flow section, an FAQ, and a
+   page-local final CTA.
 
-   Real-data pass: the feature panels and the pattern section used to
-   show either Gemini-generated "journey screenshots" or real screenshots
-   of the Canonical Journey Library (/lab/journeys - a different, generic
-   281-journey subsystem, NOT this product's own output; ACQ-01/CON-38
-   are that library's ids, not claude-lifecycle's). Both were wrong for
-   this page. Every visual below is now a small React component rendered
-   from claude-lifecycle's own real repository (cloned and read directly -
+   Real-data pass: every photographic/video asset this page used to carry
+   (the hero's "demo" video and its poster, the three "fragment" images
+   floating around the hero and the final CTA, the three old feature
+   images, the five old carousel slides) was either a Gemini/Veo-generated
+   fake or a real screenshot of the wrong product (the Canonical Journey
+   Library at /lab/journeys - a different, generic 281-journey subsystem,
+   NOT this product's own output; ACQ-01/CON-38 are that library's ids,
+   not claude-lifecycle's). The AI-generated ones were confirmed, not
+   assumed: every one of those files carries an identical Google C2PA
+   content-credential signature embedded in the file itself. All of it is
+   gone. Every visual below is now a small React component rendered from
+   claude-lifecycle's own real repository (cloned and read directly -
    knowledge/journey-patterns/*.md front matter and step-blueprint tables,
    docs/data-quality-score.md's own worked example, knowledge/channels/
    *.md's hard character limits) - see PATTERNS below for the exact
-   source of every number. */
+   source of every number. No photo, no video, no AI-generated image
+   remains on this page. */
 
 const REPO = "https://github.com/ali-demirbas/claude-lifecycle";
 
@@ -75,28 +79,16 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           </ul>
         </Reveal>
 
-        {/* Video-first product visual, with floating real-fragment
-            decoration around it - the same three fragments the final CTA
-            uses, echoed here per the Peerbie hero's own composition
-            (a dominant screenshot with a few decorative shapes drifting
-            past its edges), desktop only. */}
-        <Reveal delay={220} className="relative mx-auto mt-16 max-w-4xl">
-          <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
-            <div className="absolute -top-8 -left-14 w-32 -rotate-6 opacity-90">
-              <Image src="/images/claude-lifecycle/13-fragment-trigger.jpg" alt="" width={280} height={175} className="rounded-lg shadow-lg" />
-            </div>
-            <div className="absolute -top-10 -right-10 w-36 rotate-3 opacity-90">
-              <Image src="/images/claude-lifecycle/14-fragment-handoff.jpg" alt="" width={280} height={175} className="rounded-lg shadow-lg" />
-            </div>
-            <div className="absolute -bottom-10 -left-8 w-32 rotate-2 opacity-90">
-              <Image src="/images/claude-lifecycle/15-fragment-validated.jpg" alt="" width={280} height={175} className="rounded-lg shadow-lg" />
-            </div>
-          </div>
-          <HeroVideoCard
-            poster="/images/claude-lifecycle/08-journey-acq-01.jpg"
-            posterAlt="ACQ-01, a real acquisition journey, as a claude-lifecycle state machine"
-            video="/images/claude-lifecycle/02-hero-workflow-demo.mp4"
-          />
+        {/* The hero visual used to be an AI-generated "demo" video and
+            poster - traced to a batch of Gemini/Veo-generated assets (all
+            of it, plus the three "fragment" decorations below, carry an
+            identical Google C2PA content-credential signature embedded in
+            the files themselves: none of it was a real recording of this
+            product). Replaced with the same real, code-rendered flow
+            diagram the pattern section below uses - one full real pattern
+            (trial-conversion, 6 real steps), not a screenshot of anything. */}
+        <Reveal delay={220} className="mx-auto mt-16 max-w-sm">
+          <PatternFlowCard pattern={PATTERNS[1]} lang={lang} />
         </Reveal>
       </PortraitContainer>
     </section>
@@ -454,19 +446,6 @@ function PageCta({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.journeyBuilder.pageCta;
   return (
     <section className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      {/* Floating fragments - desktop only, purely decorative */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
-        <div className="absolute top-[14%] left-[8%] w-40 -rotate-6 opacity-90">
-          <Image src="/images/claude-lifecycle/13-fragment-trigger.jpg" alt="" width={320} height={200} className="rounded-lg" />
-        </div>
-        <div className="absolute top-[18%] right-[10%] w-44 rotate-3 opacity-90">
-          <Image src="/images/claude-lifecycle/14-fragment-handoff.jpg" alt="" width={320} height={200} className="rounded-lg" />
-        </div>
-        <div className="absolute bottom-[16%] left-[14%] w-40 rotate-2 opacity-90">
-          <Image src="/images/claude-lifecycle/15-fragment-validated.jpg" alt="" width={320} height={200} className="rounded-lg" />
-        </div>
-      </div>
-
       <PortraitContainer className="relative text-center">
         <Reveal>
           <p className="altor-eyebrow mb-5 text-white/45">{c.eyebrow}</p>
