@@ -5,50 +5,102 @@ import { getAllSkillProjects, getSkillProject, githubUrl } from "@/lib/skill-cat
 import { withJourneyCount } from "@/lib/archive";
 import type { Lang } from "@/lib/content";
 
-/* First real instantiation of the Skill Product Page template - proves
-   the template renders and routes correctly. dashboard-builder was
-   picked because it's a real Lab project with no dedicated page yet
-   (ab-test-playbook and the Journey Library already have bespoke pages
-   and are left alone).
+/* dashboard-builder's content module, consumed by the bespoke
+   DashboardBuilderPage.tsx (not the generic SkillProductPage template -
+   see that page's own header comment for why it moved off it).
 
-   Every field below is either copied verbatim from the existing
-   copy.lab.projects entry (name/desc/tags/links - see content.ts) or a
-   generic, verifiably-true instruction ("clone the repo", "see the
-   repository for exact commands") - no invented install commands, no
-   fabricated FAQ. That's why there's no `faq` field here: no real FAQ
-   copy exists yet for this project, and FaqAccordion / the Faq section
-   simply don't render when it's empty. */
+   `name`/`desc`/`tags`/`links` are copied verbatim from the existing
+   copy.lab.projects entry in content.ts. The three install methods
+   (marketplace, local plugin clone, skills CLI) are the repo's own
+   README "Install" section, read directly - not invented. The FAQ was
+   written after cloning ali-demirbas/dashboard-builder and reading
+   README.md, comparability-rules.md, data-quality-gate.md,
+   kpi-framework.md and analysis-playbook.md in full; every claim in it
+   (the comparability engine's four states, the 11-template filter
+   logic, the insight engine's 8-question gate and SUPPRESS, and the
+   "no real account data" rule from CLAUDE.md) traces to that reading,
+   not to this page's own guess. The installSteps below feed only the
+   HowTo JSON-LD (title/desc) - DashboardBuilderPage.tsx renders its own
+   CodeTabs with the same three real commands, the way
+   ChangeHistoryExplorerPage.tsx already does for its own install
+   section. */
 
 const T = {
   en: {
     eyebrow: "Lab",
     installTitle: "Install",
-    step1Title: "Clone the repository",
-    step1Desc: "Everything needed to run it is in the repo itself.",
-    step2Title: "Open it in Claude Code",
-    step2Desc: "Built and tested as a Claude Code plugin.",
-    step3Title: "Follow the repository's setup steps",
-    step3Desc: "Exact commands and configuration live in the repo's own README - this page won't duplicate them and risk them going stale.",
+    step1Title: "As a Claude Code plugin",
+    step1Desc: "Add the marketplace, then install the plugin.",
+    step2Title: "Or clone it as a local plugin",
+    step2Desc: "No marketplace step - point Claude Code at the folder directly.",
+    step3Title: "Or install with the skills CLI",
+    step3Desc: "skills.sh installs every skill in the repo in one command.",
     viewRepo: "View the repository",
     whatItDoesTitle: "What it does",
     howItWorksTitle: "Built as",
     relatedTitle: "Other Lab projects",
     repoLabel: "View on GitHub",
+    faqTitle: "Frequently asked questions",
+    faq: [
+      {
+        id: "does-it-fix-my-numbers",
+        q: "Does it fix or reconcile numbers that don't match?",
+        a: "No - it explains why they don't match and states what each one is actually valid for. The comparability engine classifies a mismatch (attribution window, denominator, counting unit) rather than picking a winner or averaging the two. Reconciliation here means naming the specific counting mechanic, not producing one merged figure.",
+      },
+      {
+        id: "which-templates",
+        q: "How does it decide which of the 11 dashboard templates to offer?",
+        a: "Three filters, in order: what your data's structure can support, what business question you're actually asking, and what the data can answer at a defensible confidence level. Only templates that clear all three are offered - never a manually-picked \"vertical\" template that the data doesn't actually back up.",
+      },
+      {
+        id: "why-not-more-observations",
+        q: "Why does it sometimes surface fewer than 5 observations, or none?",
+        a: "Every candidate observation runs through an 8-question gate before it's shown - is it real, statistically supportable, material, economically sized, actionable. Failing any of the first three suppresses it outright. Suppression is deliberate: an output padded with statistically meaningless moves reads as thorough and is worse than a short one.",
+      },
+      {
+        id: "real-account-data",
+        q: "Does the repo contain real account or business data?",
+        a: "No. CLAUDE.md's own maintenance rules forbid it - every example, test fixture and research citation uses synthetic data or a cited public source, never a real account export.",
+      },
+    ],
   },
   tr: {
     eyebrow: "Lab",
     installTitle: "Kurulum",
-    step1Title: "Repoyu klonlayın",
-    step1Desc: "Çalıştırmak için gereken her şey reponun içinde.",
-    step2Title: "Claude Code'da açın",
-    step2Desc: "Bir Claude Code eklentisi olarak geliştirildi ve test edildi.",
-    step3Title: "Repodaki kurulum adımlarını izleyin",
-    step3Desc: "Tam komutlar ve yapılandırma reponun kendi README'sinde - bu sayfa onları tekrarlayıp eskimesini göze almıyor.",
+    step1Title: "Claude Code eklentisi olarak",
+    step1Desc: "Önce marketplace'i ekleyin, sonra eklentiyi kurun.",
+    step2Title: "Ya da yerel eklenti olarak klonlayın",
+    step2Desc: "Marketplace adımı yok - Claude Code'u doğrudan klasöre yönlendirin.",
+    step3Title: "Ya da skills CLI ile kurun",
+    step3Desc: "skills.sh, repodaki her skill'i tek komutla kurar.",
     viewRepo: "Repoyu görüntüle",
     whatItDoesTitle: "Ne işe yarar",
     howItWorksTitle: "Şu şekilde geliştirildi",
     relatedTitle: "Diğer Lab projeleri",
     repoLabel: "GitHub'da görüntüle",
+    faqTitle: "Sık sorulan sorular",
+    faq: [
+      {
+        id: "does-it-fix-my-numbers",
+        q: "Uyuşmayan sayıları düzeltiyor ya da uzlaştırıyor mu?",
+        a: "Hayır - neden uyuşmadıklarını açıklar ve her birinin gerçekte ne için geçerli olduğunu söyler. Comparability engine, bir uyuşmazlığı (attribution penceresi, payda, sayım birimi) sınıflandırır; bir kazanan seçmez ya da ikisini ortalamaz. Buradaki uzlaştırma, tek bir birleşik rakam üretmek değil, tam sayım mekanizmasını adlandırmaktır.",
+      },
+      {
+        id: "which-templates",
+        q: "11 dashboard şablonundan hangisini sunacağına nasıl karar veriyor?",
+        a: "Sırasıyla üç filtre: verinizin yapısının neyi destekleyebileceği, gerçekte hangi iş sorusunu sorduğunuz ve verinin savunulabilir bir güven düzeyinde neyi yanıtlayabileceği. Yalnızca üçünü de geçen şablonlar sunulur - verinin gerçekten desteklemediği elle seçilmiş bir \"vertical\" şablon asla.",
+      },
+      {
+        id: "why-not-more-observations",
+        q: "Bazen neden 5'ten az gözlem, hatta hiç gözlem çıkmıyor?",
+        a: "Her aday gözlem gösterilmeden önce 8 soruluk bir kapıdan geçer: gerçek mi, istatistiksel olarak desteklenebilir mi, önemli mi, ekonomik olarak ölçeklendirilebilir mi, aksiyona dönüştürülebilir mi. İlk üçünden birini geçemeyen doğrudan bastırılır. Bastırma bilinçlidir: istatistiksel olarak anlamsız hareketlerle dolu bir çıktı kapsamlı görünür ama kısa bir çıktıdan daha kötüdür.",
+      },
+      {
+        id: "real-account-data",
+        q: "Repo gerçek hesap ya da işletme verisi içeriyor mu?",
+        a: "Hayır. CLAUDE.md'nin kendi bakım kuralları buna izin vermiyor - her örnek, test fixture'ı ve araştırma alıntısı sentetik veri ya da kaynak gösterilen bir kamu kaynağı kullanıyor, gerçek bir hesap dışa aktarımı asla.",
+      },
+    ],
   },
 } as const;
 
@@ -77,30 +129,34 @@ export function getDashboardBuilderContent(lang: Lang): SkillProductContent | nu
         n: 1,
         title: t.step1Title,
         desc: t.step1Desc,
+        content: (
+          <code className="block whitespace-pre rounded-md border border-line bg-ink-950 px-4 py-3 font-mono text-xs text-white/85">
+            {"/plugin marketplace add ali-demirbas/dashboard-builder\n/plugin install dashboard-builder@dashboard-builder"}
+          </code>
+        ),
+      },
+      {
+        n: 2,
+        title: t.step2Title,
+        desc: t.step2Desc,
         content: repo ? (
-          <code className="block rounded-md border border-line bg-ink-950 px-4 py-3 font-mono text-xs text-white/85">
-            git clone {repo}.git
+          <code className="block whitespace-pre rounded-md border border-line bg-ink-950 px-4 py-3 font-mono text-xs text-white/85">
+            {`git clone ${repo}.git\nclaude --plugin-dir ./dashboard-builder`}
           </code>
         ) : undefined,
       },
-      { n: 2, title: t.step2Title, desc: t.step2Desc },
       {
         n: 3,
         title: t.step3Title,
         desc: t.step3Desc,
-        content: repo ? (
-          <a
-            href={repo}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            {t.viewRepo} →
-          </a>
-        ) : undefined,
+        content: (
+          <code className="block rounded-md border border-line bg-ink-950 px-4 py-3 font-mono text-xs text-white/85">
+            npx skills add ali-demirbas/dashboard-builder --all
+          </code>
+        ),
       },
     ],
-    faq: [],
+    faq: t.faq.map((f) => ({ id: f.id, q: f.q, a: f.a })),
     relatedTitle: t.relatedTitle,
     related,
     // A repository/plugin, not a hosted app - "Built and tested as a Claude
