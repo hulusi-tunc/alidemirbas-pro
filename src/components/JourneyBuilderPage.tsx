@@ -420,7 +420,7 @@ function CarouselSection({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             rel="noreferrer"
             className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-5 text-sm font-medium text-white transition-colors hover:bg-primary-600"
           >
-            {lang === "en" ? "See all 26 patterns" : "26 pattern'in tümünü gör"}
+            {lang === "en" ? "Browse the pattern library" : "Pattern kütüphanesine göz at"}
             <ArrowUpRight aria-hidden className="size-3.5" />
           </a>
           <JourneyLibraryCta lang={lang} label={t.journeyBuilder.pageCta.secondary} />

@@ -420,7 +420,7 @@ export const copy = {
         },
         feature2: {
           title: "A portfolio, not a listicle",
-          body: "Eligibility is computed per pattern from required-event signatures across 26 real patterns - abandoned cart, trial conversion, winback and more - each with its own default channels and depth range. What your data can't support yet becomes a tracking plan naming exactly which event unlocks it, not a locked feature.",
+          body: "Eligibility is computed per pattern from required-event signatures across the engine's documented pattern library - abandoned cart, trial conversion, winback and more - each scaling its own depth and channels to what your data actually supports. What your data can't support yet becomes a tracking plan naming exactly which event unlocks it, not a locked feature.",
         },
         feature3: {
           title: "Copy is an engineered artifact",
@@ -428,9 +428,9 @@ export const copy = {
         },
       },
       carousel: {
-        eyebrow: "The pattern library",
-        title: "26 real journey patterns, each with its own blueprint",
-        body: "Every pattern ships a documented step-by-step blueprint - real waits, real channels, real branch conditions - not a template stretched to fit. Three of the 26 are worked out below exactly as the engine's own knowledge base defines them.",
+        eyebrow: "The pattern engine",
+        title: "One engine, a different portfolio for every business",
+        body: "26 documented blueprints are the knowledge base, not a fixed catalog - each one scales its own depth (3 to 12 steps), branches and channels to what your data actually supports, so no two businesses get the same output. Three are worked out below exactly as the engine's own knowledge base defines them.",
       },
       faq: {
         eyebrow: "FAQ",
@@ -1067,7 +1067,7 @@ export const copy = {
         },
         feature2: {
           title: "Liste değil, portföy",
-          body: "Uygunluk, 26 gerçek pattern'in (terk edilmiş sepet, deneme dönüşümü, winback ve daha fazlası) her biri için gerekli event imzasından hesaplanır - her birinin kendi varsayılan kanalları ve derinlik aralığı vardır. Verinizin henüz desteklemediği şey kilitli bir özellik değil, hangi event'in onu açacağını söyleyen bir tracking plan olur.",
+          body: "Uygunluk, motorun dokümante edilmiş pattern kütüphanesindeki (terk edilmiş sepet, deneme dönüşümü, winback ve daha fazlası) her pattern için gerekli event imzasından hesaplanır - her biri kendi derinliğini ve kanallarını verinizin gerçekten desteklediği şeye göre ölçekler. Verinizin henüz desteklemediği şey kilitli bir özellik değil, hangi event'in onu açacağını söyleyen bir tracking plan olur.",
         },
         feature3: {
           title: "Copy, mühendislik ürünüdür",
@@ -1075,9 +1075,9 @@ export const copy = {
         },
       },
       carousel: {
-        eyebrow: "Pattern kütüphanesi",
-        title: "Her biri kendi planına sahip 26 gerçek journey pattern'i",
-        body: "Her pattern, dokümante edilmiş adım adım bir plan taşır - gerçek bekleme süreleri, gerçek kanallar, gerçek dallanma koşulları - şablonun zorla uydurulması değil. 26'sından üçü, aşağıda motorun kendi bilgi tabanında tanımlandığı haliyle açılıyor.",
+        eyebrow: "Pattern motoru",
+        title: "Tek motor, her işletme için farklı bir portföy",
+        body: "26 dokümante edilmiş blueprint, sabit bir katalog değil, bilgi tabanıdır - her biri kendi derinliğini (3 ila 12 adım), dallanmasını ve kanallarını verinizin gerçekten desteklediği şeye göre ölçekler; bu yüzden hiçbir iki işletme aynı çıktıyı almaz. Aşağıda üçü, motorun kendi bilgi tabanında tanımlandığı haliyle açılıyor.",
       },
       faq: {
         eyebrow: "SSS",
