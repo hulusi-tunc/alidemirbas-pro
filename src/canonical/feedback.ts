@@ -125,7 +125,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "feedback-eligibility",
     category: "feedback",
     goal: "eligibility-qualification",
-    channels: ["email", "in-app", "push", "sms"],
+    channels: ["email", "in-app", "push"],
     name: "Feedback eligibility → ask, suppress or delay",
     shortName: "Feedback Request",
     purpose:
@@ -766,7 +766,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "negative-feedback-issue-check",
     category: "feedback",
     goal: "escalation-exception",
-    channels: ["email", "in-app", "push", "task"],
+    channels: ["email", "in-app", "task"],
     name: "Negative feedback → issue check → resolve, acknowledge or escalate",
     shortName: "Negative Feedback Recovery",
     purpose:

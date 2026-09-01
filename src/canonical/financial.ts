@@ -640,7 +640,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "payment-failure-recovery",
     category: "financial",
     goal: "recovery-retry",
-    channels: ["email", "in-app", "push", "sms", "whatsapp"],
+    channels: ["email", "in-app", "push", "sms"],
     name: "Payment failure → classify → recover, alternate or exit",
     shortName: "Payment Failure Recovery",
     purpose:

@@ -1529,7 +1529,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "contactability-repair",
     category: "consent",
     goal: "delivery-confirmation",
-    channels: ["in-app", "sms"],
+    channels: ["in-app", "sms", "email"],
     name: "Contact point unreachable → alternate route → corrected or suppressed",
     shortName: "Contact Recovery",
     purpose:

@@ -1989,9 +1989,7 @@
       "goal": "relationship-recovery-intervention",
       "channels": [
         "email",
-        "push",
-        "sms",
-        "whatsapp",
+        "in-app",
         "task"
       ],
       "name": "Missing activation requirement → resolve blocker → resume",
@@ -2227,8 +2225,7 @@
       "channels": [
         "email",
         "in-app",
-        "push",
-        "sms"
+        "push"
       ],
       "name": "Struggling user detection → proactive assistance → recovery or exit",
       "shortName": "Onboarding Help",
@@ -3105,8 +3102,7 @@
       "goal": "relationship-recovery-intervention",
       "channels": [
         "email",
-        "push",
-        "sms"
+        "push"
       ],
       "name": "Dormant non-customer reactivation → return → re-qualification or exit",
       "shortName": "Dormant Lead Reactivation",
@@ -6351,7 +6347,8 @@
       "goal": "delivery-confirmation",
       "channels": [
         "in-app",
-        "sms"
+        "sms",
+        "email"
       ],
       "name": "Contact point unreachable → alternate route → corrected or suppressed",
       "shortName": "Contact Recovery",
@@ -6672,8 +6669,7 @@
       "channels": [
         "email",
         "in-app",
-        "push",
-        "sms"
+        "push"
       ],
       "name": "Feedback eligibility → ask, suppress or delay",
       "shortName": "Feedback Request",
@@ -7342,7 +7338,6 @@
       "channels": [
         "email",
         "in-app",
-        "push",
         "task"
       ],
       "name": "Negative feedback → issue check → resolve, acknowledge or escalate",
@@ -25156,8 +25151,7 @@
         "email",
         "in-app",
         "push",
-        "sms",
-        "whatsapp"
+        "sms"
       ],
       "name": "Payment failure → classify → recover, alternate or exit",
       "shortName": "Payment Failure Recovery",
@@ -41639,11 +41633,7 @@
       "slug": "channel-selection",
       "category": "communication",
       "goal": "delivery-confirmation",
-      "channels": [
-        "email",
-        "push",
-        "sms"
-      ],
+      "channels": [],
       "name": "Channel selection → choose route → prepare message",
       "shortName": "Channel Routing",
       "purpose": "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
@@ -41681,8 +41671,7 @@
               "mode": "append"
             }
           ],
-          "next": "c.multi",
-          "execution": "communication"
+          "next": "c.multi"
         },
         {
           "id": "c.multi",
@@ -41711,8 +41700,7 @@
               "mode": "append"
             }
           ],
-          "next": "a.prepare",
-          "execution": "communication"
+          "next": "a.prepare"
         },
         {
           "id": "a.single",
@@ -41724,8 +41712,7 @@
               "mode": "append"
             }
           ],
-          "next": "a.prepare",
-          "execution": "communication"
+          "next": "a.prepare"
         },
         {
           "id": "a.prepare",
@@ -41737,8 +41724,7 @@
               "mode": "append"
             }
           ],
-          "next": "h.send-ready",
-          "execution": "communication"
+          "next": "h.send-ready"
         },
         {
           "id": "h.send-ready",
@@ -41766,9 +41752,7 @@
       "slug": "send-revalidation",
       "category": "communication",
       "goal": "readiness-revalidation",
-      "channels": [
-        "email"
-      ],
+      "channels": [],
       "name": "Message prepared → revalidate state → send or suppress",
       "shortName": "Send Eligibility Check",
       "purpose": "Check the message is still true immediately before it goes, and stop it if it is not.",
@@ -41878,8 +41862,7 @@
               "mode": "append"
             }
           ],
-          "next": "a.send",
-          "execution": "communication"
+          "next": "a.send"
         },
         {
           "id": "a.send",
@@ -41891,8 +41874,7 @@
               "mode": "append"
             }
           ],
-          "next": "h.attempt",
-          "execution": "communication"
+          "next": "h.attempt"
         },
         {
           "id": "h.attempt",
@@ -41918,9 +41900,7 @@
       "slug": "send-attempt",
       "category": "communication",
       "goal": "delivery-confirmation",
-      "channels": [
-        "email"
-      ],
+      "channels": [],
       "name": "Send attempt → accepted, failed or unknown",
       "shortName": "Send Attempt Status",
       "purpose": "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
@@ -41958,8 +41938,7 @@
               "mode": "append"
             }
           ],
-          "next": "w.acceptance",
-          "execution": "communication"
+          "next": "w.acceptance"
         },
         {
           "id": "w.acceptance",
@@ -42298,7 +42277,9 @@
       "channels": [
         "email",
         "push",
-        "sms"
+        "sms",
+        "in-app",
+        "whatsapp"
       ],
       "name": "Delivery failure → classify → retry, fallback or stop",
       "shortName": "Message Delivery Recovery",

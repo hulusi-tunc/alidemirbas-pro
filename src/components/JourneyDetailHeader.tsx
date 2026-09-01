@@ -17,7 +17,7 @@ import type { copy, Lang } from "@/lib/content";
    only where the journey actually has them. A journey with `channels: []`
    renders nothing there rather than "no channels" or "internal": the empty
    array is a statement about execution, not a missing field, and labelling
-   it would turn 194 journeys into a page-wide apology. */
+   it would turn 197 journeys into a page-wide apology. */
 
 export default function JourneyDetailHeader({
   detail,

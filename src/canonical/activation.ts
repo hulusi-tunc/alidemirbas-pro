@@ -395,7 +395,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "activation-blocker-resolution",
     category: "activation",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "push", "sms", "whatsapp", "task"],
+    channels: ["email", "in-app", "task"],
     name: "Missing activation requirement → resolve blocker → resume",
     shortName: "Onboarding Blocker Reminder",
     purpose:
@@ -613,7 +613,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "struggling-user-assistance",
     category: "activation",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "in-app", "push", "sms"],
+    channels: ["email", "in-app", "push"],
     name: "Struggling user detection → proactive assistance → recovery or exit",
     shortName: "Onboarding Help",
     purpose:
@@ -1470,7 +1470,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "dormant-non-customer-reactivation",
     category: "activation",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "push", "sms"],
+    channels: ["email", "push"],
     name: "Dormant non-customer reactivation → return → re-qualification or exit",
     shortName: "Dormant Lead Reactivation",
     purpose:

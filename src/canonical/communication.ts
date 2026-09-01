@@ -732,7 +732,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "channel-selection",
     category: "communication",
     goal: "delivery-confirmation",
-    channels: ["email", "push", "sms"],
+    channels: [],
     name: "Channel selection → choose route → prepare message",
     shortName: "Channel Routing",
     purpose:
@@ -765,7 +765,6 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Select the primary route - the smallest valid set capable of satisfying the obligation. Sending on every available channel is not thoroughness; it is one event arriving four times, and the recipient reads the repetition as a fault in the system",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.multi",
-        execution: "communication",
       },
       {
         id: "c.multi",
@@ -790,7 +789,6 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create explicitly coordinated deliveries, each aware of the others, so the obligation closes once rather than once per channel. Uncoordinated parallel sends produce an obligation that closes three times and a recipient who is told three times",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.prepare",
-        execution: "communication",
       },
       {
         id: "a.single",
@@ -798,7 +796,6 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the single primary route and the fallback that would be tried if it fails. The fallback is held in reserve - it is a route for later rather than a second message now",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.prepare",
-        execution: "communication",
       },
       {
         id: "a.prepare",
@@ -806,7 +803,6 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Prepare the channel-compatible message instance, referencing the business facts rather than restating them independently. Channel selection never alters the facts - a truncated message says less than the full one, and it must not say something different",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "h.send-ready",
-        execution: "communication",
       },
       {
         id: "h.send-ready",
@@ -837,7 +833,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "send-revalidation",
     category: "communication",
     goal: "readiness-revalidation",
-    channels: ["email"],
+    channels: [],
     name: "Message prepared → revalidate state → send or suppress",
     shortName: "Send Eligibility Check",
     purpose:
@@ -937,7 +933,6 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Regenerate the content from current data before sending. Sending a stale amount, date or status is worse than sending nothing, because the recipient acts on it and then has to be told it was wrong",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.send",
-        execution: "communication",
       },
       {
         id: "a.send",
@@ -945,7 +940,6 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the message as validated at send time, with what was checked and against what version. Historical sent messages are never mutated afterwards - what was sent is what was sent, and rewriting it removes the evidence that a wrong thing went out",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "h.attempt",
-        execution: "communication",
       },
       {
         id: "h.attempt",
@@ -974,7 +968,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "send-attempt",
     category: "communication",
     goal: "delivery-confirmation",
-    channels: ["email"],
+    channels: [],
     name: "Send attempt → accepted, failed or unknown",
     shortName: "Send Attempt Status",
     purpose:
@@ -1008,7 +1002,6 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist the message id, the attempt id, the channel, the provider and its reference, the submission time and the content version reference. The attempt is written before its outcome is known, so an outcome arriving hours later has something to attach to",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "w.acceptance",
-        execution: "communication",
       },
       {
         id: "w.acceptance",
@@ -1310,7 +1303,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "delivery-recovery",
     category: "communication",
     goal: "recovery-retry",
-    channels: ["email", "push", "sms"],
+    channels: ["email", "push", "sms", "in-app", "whatsapp"],
     name: "Delivery failure → classify → retry, fallback or stop",
     shortName: "Message Delivery Recovery",
     purpose:
