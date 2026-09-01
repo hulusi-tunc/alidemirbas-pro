@@ -3,7 +3,16 @@ import { getAllSkillProjects, getSkillProject } from "@/lib/skill-catalog";
 import { withJourneyCount } from "@/lib/archive";
 import type { Lang } from "@/lib/content";
 
-/* Numerspace's page on this site.
+/* Numerspace's content module, consumed by the bespoke NumerspacePage.tsx
+   (not the generic SkillProductPage template - see that page's own
+   header comment). This module still supplies whatItDoes/howItWorks/
+   installSteps for the HowTo/WebApplication JSON-LD and for `faq`/
+   `related`, which the bespoke page renders as-is.
+
+   The FAQ's old "finding" question (how do I find a calculator) was
+   dropped this pass - NumerspacePage.tsx's own Categories section, new
+   this pass, now answers that visually, so the question was redundant
+   rather than removed for length alone.
 
    Numerspace is the one Lab project that is a hosted product rather than
    a repository, and that changes what this page is FOR. The other five
@@ -86,11 +95,6 @@ const T = {
         a: "The tools are built on recognised formulas - Mifflin-St Jeor, Devine and Hamwi among the health ones - and on official regional sources for the tools that depend on regulation, such as tax and labour rules. They are a strong reference rather than professional advice: for a legal, financial or medical decision, check with someone qualified before acting.",
       },
       {
-        id: "finding",
-        q: "How do I find a specific calculator?",
-        a: "Either search from the home page, or work down through a category. The catalogue is organised into 13 tool-bearing categories, from Finance and Health to Marketing Analytics and Unit Conversion.",
-      },
-      {
         id: "requests",
         q: "Can I ask for a calculator that isn't there?",
         a: "Yes - the contact page takes suggestions, and requests are reviewed and added to the roadmap. The same page is where an incorrect formula or an out-of-date regulation should be reported.",
@@ -143,11 +147,6 @@ const T = {
         id: "accuracy",
         q: "Sonuçlar ne kadar güvenilir?",
         a: "Araçlar kabul görmüş formüllere - sağlık tarafında Mifflin-St Jeor, Devine, Hamwi - ve mevzuata bağlı araçlarda resmî kaynaklara (SGK, GİB, TÜFE) dayanıyor. Sonuçlar güçlü bir referans; uzman görüşü değil. Yasal, finansal ya da tıbbi bir kararda adımı atmadan önce bir uzmana danışın.",
-      },
-      {
-        id: "finding",
-        q: "Belirli bir hesaplayıcıyı nasıl bulurum?",
-        a: "Ya ana sayfadan arayın ya da kategoriden ilerleyin. Katalog, Finans ve Sağlık'tan Pazarlama Analitiği ve Birim Dönüşümü'ne kadar araç barındıran 13 kategoriye ayrılmış.",
       },
       {
         id: "requests",
