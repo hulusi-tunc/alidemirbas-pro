@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 
 import JourneyBrowser from "@/components/JourneyBrowser";
 import CommunicationJourneyBrowser from "@/components/CommunicationJourneyBrowser";
@@ -138,17 +138,34 @@ function CommunicationBrowserFallback({ lang, t, basePath, rows }: {
   );
 }
 
-/** One row of the hub split link block - real counts, computed from the same
-    rows the two child pages themselves list from, never restated by hand. */
-function SplitLink({ href, label, count, nodesLabel }: { href: string; label: string; count: number; nodesLabel: string }) {
+/** One half of the split, on the hub page. A real card rather than the one-line
+    link this started as: /lab/journeys no longer carries the list itself, so
+    these two ARE the page's content and have to say what each half is. Counts
+    are computed from the same rows the child pages list from - never restated
+    by hand. */
+function SplitCard({ href, label, blurb, count, resultsLabel, browseLabel }: {
+  href: string;
+  label: string;
+  blurb: string;
+  count: number;
+  resultsLabel: string;
+  browseLabel: string;
+}) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-3 border border-line bg-paper px-4 py-3 text-sm transition-colors hover:border-neutral-400 hover:bg-paper-soft"
+      className="group flex flex-col gap-2 border border-line bg-paper p-5 transition-colors hover:border-neutral-400 hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
     >
-      <span className="font-medium text-ink-900">{label}</span>
-      <span className="font-mono text-xs text-ink-500 tabular-nums">
-        {count} {nodesLabel}
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-base font-semibold tracking-tight text-ink-950">{label}</span>
+        <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
+          {count} {resultsLabel}
+        </span>
+      </div>
+      <p className="text-sm leading-relaxed text-ink-500">{blurb}</p>
+      <span className="mt-1 flex items-center gap-1.5 text-sm font-medium text-blue-600">
+        {browseLabel}
+        <ArrowRight aria-hidden className="size-3.5 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
       </span>
     </Link>
   );
@@ -168,16 +185,18 @@ function SplitLink({ href, label, count, nodesLabel }: { href: string; label: st
    title/intro, rather than a forked copy of the whole page. `rows`/`title`/
    `intro` default to the full unified library, so the existing
    `/lab/journeys` route (still this page's default call) is unchanged.
-   `showSplitLinks` renders the two child pages' entry point ONLY on the
-   parent/unfiltered view - the split pages themselves don't link back to
-   siblings they're not showing. */
+   `hub` turns /lab/journeys into exactly that - a parent that hands off to
+   its two children rather than duplicating them. It carries no list of its
+   own: every journey now lives on the communication or internal page, and
+   listing all 281 here as well made the split decorative. The child pages
+   keep the search and Goal filter over their own half. */
 export default function LabPage({
   lang,
   rows = JOURNEY_ROWS,
   title,
   intro,
   extraCrumb,
-  showSplitLinks = false,
+  hub = false,
   browser = "flat",
 }: {
   lang: Lang;
@@ -185,7 +204,8 @@ export default function LabPage({
   title?: string;
   intro?: string;
   extraCrumb?: { name: string; url: string };
-  showSplitLinks?: boolean;
+  /** Parent view: the two child pages' cards INSTEAD of a list of journeys. */
+  hub?: boolean;
   /** "grouped" renders CommunicationJourneyBrowser (cards grouped by Goal,
       see that file's own comment) instead of the flat JourneyBrowser row
       list - used only by /lab/journeys/communication today. */
@@ -194,7 +214,8 @@ export default function LabPage({
   const t = copy[lang];
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   const pageTitle = title ?? t.lab.page.title;
-  const pageIntro = intro ?? withCanonicalCount(t.lab.page.intro);
+  const pageIntro =
+    intro ?? withCanonicalCount(hub ? t.lab.journeysSplit.hubIntro : t.lab.page.intro);
   const crumbs: BreadcrumbItem[] = [
     { name: t.footer.home, url: lang === "en" ? "/" : "/tr" },
     { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
@@ -206,7 +227,7 @@ export default function LabPage({
   return (
     <LabShell lang={lang}>
       <JsonLdScript data={breadcrumb} />
-      <div className="border-b border-line px-4 py-6 md:px-8">
+      <div className={`px-4 py-6 md:px-8 ${hub ? "" : "border-b border-line"}`}>
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-xl font-semibold tracking-tight text-ink-950">{pageTitle}</h1>
@@ -215,24 +236,29 @@ export default function LabPage({
             </span>
           </div>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">{pageIntro}</p>
-          {showSplitLinks ? (
-            <div className="mt-5 grid max-w-2xl grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <SplitLink
+          {hub ? (
+            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <SplitCard
                 href={`${basePath}/communication`}
                 label={t.lab.journeysSplit.communicationLabel}
+                blurb={t.lab.journeysSplit.communicationBlurb}
                 count={COMMUNICATION_JOURNEY_ROWS.length}
-                nodesLabel={t.lab.page.results}
+                resultsLabel={t.lab.page.results}
+                browseLabel={t.lab.journeysSplit.browse}
               />
-              <SplitLink
+              <SplitCard
                 href={`${basePath}/internal`}
                 label={t.lab.journeysSplit.internalLabel}
+                blurb={t.lab.journeysSplit.internalBlurb}
                 count={INTERNAL_JOURNEY_ROWS.length}
-                nodesLabel={t.lab.page.results}
+                resultsLabel={t.lab.page.results}
+                browseLabel={t.lab.journeysSplit.browse}
               />
             </div>
           ) : null}
         </div>
       </div>
+      {hub ? null : (
       <div className="px-4 py-6 md:px-8">
         {/* Wider than the header block: three card columns need the room, and
             the grid is the page - everything above it stays secondary. */}
@@ -260,6 +286,7 @@ export default function LabPage({
           )}
         </div>
       </div>
+      )}
     </LabShell>
   );
 }
