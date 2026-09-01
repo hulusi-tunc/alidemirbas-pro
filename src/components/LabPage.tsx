@@ -3,11 +3,12 @@ import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 
 import JourneyBrowser from "@/components/JourneyBrowser";
-import CommunicationJourneyBrowser from "@/components/CommunicationJourneyBrowser";
+import JourneyGallery from "@/components/JourneyGallery";
 import JourneyRowCard from "@/components/JourneyRowCard";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import LabShell from "@/components/LabShell";
 import {
+  CATEGORY_META,
   COMMUNICATION_JOURNEY_ROWS,
   INTERNAL_JOURNEY_ROWS,
   JOURNEY_ROWS,
@@ -15,7 +16,7 @@ import {
   withCanonicalCount,
   type JourneyRow,
 } from "@/lib/canonical-view";
-import { GOALS, GOAL_LABEL, type Goal } from "@/lib/journey-taxonomy";
+import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList, type BreadcrumbItem } from "@/lib/schema";
@@ -70,31 +71,26 @@ function JourneyBrowserFallback({ lang, t, basePath, rows }: {
   );
 }
 
-/* The grouped (by Goal) fallback for /lab/communication-journeys - mirrors
-   JourneyBrowserFallback's role (CommunicationJourneyBrowser also calls
-   useJourneyFilters, which reads useSearchParams and so forces the same
-   client-render-during-prerender behavior) but renders every group's cards
-   in full rather than reproducing the client component's own "show more"
-   truncation - there is no interactivity to truncate FOR before hydration,
-   so showing everything is the honest inert state, not a smaller one. */
-function CommunicationBrowserFallback({ lang, t, basePath, rows }: {
+/* The gallery's prerender fallback. JourneyGallery calls useJourneyFilters,
+   which reads useSearchParams and so cannot render during static
+   generation; without this the list would be missing from the initial HTML
+   until hydration. Same sections in the same order, every card shown (there
+   is no "show more" to honour before there is any interactivity), and an
+   inert copy of the controls above it. */
+function GalleryFallback({ lang, t, basePath, rows }: {
   lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
   basePath: string;
   rows: readonly JourneyRow[];
 }) {
-  const byGoal = new Map<Goal, JourneyRow[]>();
+  const labels = copy[lang].lab.journeysSplit;
+  const byCat = new Map<string, JourneyRow[]>();
   for (const j of rows) {
-    const arr = byGoal.get(j.goal) ?? [];
+    const arr = byCat.get(j.category) ?? [];
     arr.push(j);
-    byGoal.set(j.goal, arr);
+    byCat.set(j.category, arr);
   }
-  // Same size-descending order as the client component - see its own
-  // comment for why; the two must agree or the list visibly reorders on
-  // hydration.
-  const groups = GOALS.filter((g) => byGoal.has(g))
-    .map((g) => ({ goal: g, items: byGoal.get(g)! }))
-    .sort((a, b) => b.items.length - a.items.length);
+  const sections = CATEGORY_META.filter((c) => byCat.has(c.id)).map((c) => ({ meta: c, items: byCat.get(c.id)! }));
 
   return (
     <div>
@@ -102,34 +98,39 @@ function CommunicationBrowserFallback({ lang, t, basePath, rows }: {
         <Search aria-hidden className="size-4 shrink-0 text-neutral-500" />
         <span className="text-sm text-neutral-500">{t.searchPlaceholder}</span>
       </div>
-      <div className="mt-3">
-        <div className="w-full border border-line bg-paper px-4 py-2.5 text-sm text-ink-900 opacity-60 sm:w-auto">
-          {t.allGoals}
-        </div>
-      </div>
-      <div className="mt-8 flex flex-col gap-10">
-        {groups.map((group) => (
-          <section key={group.goal}>
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[15px] font-semibold tracking-tight text-ink-950">{GOAL_LABEL[group.goal][lang]}</h2>
-              <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-                {group.items.length}{" "}
-                {copy[lang].lab.journeysSplit.journeysLabel[group.items.length === 1 ? 0 : 1]}
+      <div className="mt-8 flex flex-col gap-12">
+        {sections.map(({ meta, items }) => (
+          <section key={meta.id}>
+            <div className="flex items-start gap-3">
+              <span
+                aria-hidden
+                className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-md bg-paper-soft font-mono text-[10px] font-semibold tracking-tight text-ink-500"
+              >
+                {items[0]?.id.split("-")[0] ?? ""}
               </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <h2 className="text-base font-semibold tracking-tight text-ink-950">{meta.title}</h2>
+                  <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
+                    {items.length} {labels.journeysLabel[items.length === 1 ? 0 : 1]}
+                  </span>
+                </div>
+                <p className="mt-1 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-500">{meta.purpose}</p>
+              </div>
             </div>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {group.items.map((j) => (
+            <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {items.map((j) => (
                 <JourneyIdeaCard
                   key={j.id}
                   href={`${basePath}/${j.slug}`}
                   id={j.id}
-                  name={j.name}
-                  shortName={j.shortName}
+                  title={j.shortName ?? j.name}
                   categoryTitle={j.categoryTitle}
                   purpose={j.purpose}
                   nodeCount={j.nodeCount}
                   nodesLabel={t.nodesLabel}
                   channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+                  internalLabel={labels.internalBadge}
                 />
               ))}
             </div>
@@ -177,13 +178,13 @@ function SplitSection({ href, label, blurb, rows, lang, t, basePath, browseAllLa
             key={j.id}
             href={`${basePath}/${j.slug}`}
             id={j.id}
-            name={j.name}
-            shortName={j.shortName}
+            title={j.shortName ?? j.name}
             categoryTitle={j.categoryTitle}
             purpose={j.purpose}
             nodeCount={j.nodeCount}
             nodesLabel={t.nodesLabel}
             channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+            internalLabel={copy[lang].lab.journeysSplit.internalBadge}
           />
         ))}
       </div>
@@ -233,6 +234,7 @@ export default function LabPage({
   extraCrumb,
   hub = false,
   browser = "flat",
+  journeyType,
 }: {
   lang: Lang;
   rows?: readonly JourneyRow[];
@@ -241,10 +243,14 @@ export default function LabPage({
   extraCrumb?: { name: string; url: string };
   /** Parent view: the two child pages' cards INSTEAD of a list of journeys. */
   hub?: boolean;
-  /** "grouped" renders CommunicationJourneyBrowser (cards grouped by Goal,
-      see that file's own comment) instead of the flat JourneyBrowser row
-      list - used only by /lab/communication-journeys today. */
-  browser?: "flat" | "grouped";
+  /** "gallery" renders JourneyGallery - category sections of cards, with
+      search plus Category/Channel/Goal filters - instead of the flat
+      JourneyBrowser row list. Both split pages use it. */
+  browser?: "flat" | "gallery";
+  /** Which half a gallery page is showing. Required by "gallery"; the
+      gallery uses it for the type switch, which is a link to the other
+      route rather than a dropdown. */
+  journeyType?: "communication" | "internal";
 }) {
   const t = copy[lang];
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
@@ -304,14 +310,21 @@ export default function LabPage({
         {/* Wider than the header block: three card columns need the room, and
             the grid is the page - everything above it stays secondary. */}
         <div className="mx-auto max-w-6xl">
-          {browser === "grouped" ? (
-            <Suspense fallback={<CommunicationBrowserFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} />}>
-              <CommunicationJourneyBrowser
+          {browser === "gallery" && journeyType ? (
+            <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} />}>
+              <JourneyGallery
                 lang={lang}
                 t={t.lab.page}
                 rows={rows}
                 merged={MERGED_REDIRECTS}
                 basePath={basePath}
+                categories={CATEGORY_META}
+                journeyType={journeyType}
+                siblingHref={
+                  journeyType === "communication"
+                    ? lang === "en" ? "/lab/internal-journeys" : "/tr/lab/internal-journeys"
+                    : lang === "en" ? "/lab/communication-journeys" : "/tr/lab/communication-journeys"
+                }
               />
             </Suspense>
           ) : (

@@ -216,15 +216,23 @@ export const copy = {
            groups of exactly one - 5 of the 22 communication groups - and
            "1 journeys" is wrong where "281 journeys" never was. */
         journeysLabel: ["journey", "journeys"],
+        /* Gallery controls. `internalBadge` is the card marker for a journey
+           with no channels - it has to read as a statement ("this one
+           reaches nobody"), not as a missing value. */
+        internalBadge: "Internal",
+        categoryFilterLabel: "Category",
+        allCategories: "All categories",
+        channelFilterLabel: "Channel",
+        allChannels: "All channels",
         communication: {
           title: "Communication journeys",
           intro:
-            "{count} of the library's journeys carry at least one action that reaches a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task). Search, or filter by goal - each entry is a graph, not a sequence.",
+            "{count} of the library's journeys carry at least one action that reaches a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task). Grouped by category - search, or filter by category, channel or goal.",
         },
         internal: {
           title: "Internal journeys",
           intro:
-            "{count} of the library's journeys resolve entirely inside the system - no message, no human route, nothing that reaches a person. State machines with no communication of their own. Search, or filter by goal - each entry is a graph, not a sequence.",
+            "{count} of the library's journeys resolve entirely inside the system - no message, no human route, nothing that reaches a person. State machines with no communication of their own, grouped by category - search, or filter by category or goal.",
         },
       },
     },
@@ -854,7 +862,7 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Ara, ya da goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
         searchPlaceholder: "Journey ara...",
         goalLabel: "Goal",
         allGoals: "Tüm Goal'ler",
@@ -897,15 +905,20 @@ export const copy = {
         // Turkish takes no plural after a numeral, so both entries are
         // deliberately identical - same as page.decisionsLabel above.
         journeysLabel: ["journey", "journey"],
+        internalBadge: "Internal",
+        categoryFilterLabel: "Kategori",
+        allCategories: "Tüm kategoriler",
+        channelFilterLabel: "Kanal",
+        allChannels: "Tüm kanallar",
         communication: {
           title: "İletişim journey'leri",
           intro:
-            "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Ara, ya da goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+            "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
         },
         internal: {
           title: "Internal journey'ler",
           intro:
-            "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor - mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Ara, ya da goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+            "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor - mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
         },
       },
     },

@@ -19,6 +19,8 @@ export default function LabJourneysInternalTr() {
       title={t.title}
       intro={t.intro.replace("{count}", String(INTERNAL_JOURNEY_ROWS.length))}
       extraCrumb={{ name: copy.tr.lab.journeysSplit.internalLabel, url: "/tr/lab/internal-journeys" }}
+      browser="gallery"
+      journeyType="internal"
     />
   );
 }

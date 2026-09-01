@@ -40,6 +40,16 @@ export function withCanonicalCount(text: string): string {
 }
 
 const CATEGORY_TITLE = new Map<CategoryId, string>(CATEGORIES.map((c) => [c.id, c.title]));
+
+/** Category identity for the gallery's section headers - the title and the
+    category's OWN `purpose` from src/canonical/index.ts, not a sentence
+    written for the UI. Ordered as the canonical library orders them. */
+export type CategoryMeta = { id: CategoryId; title: string; purpose: string };
+export const CATEGORY_META: readonly CategoryMeta[] = CATEGORIES.map((c) => ({
+  id: c.id,
+  title: c.title,
+  purpose: c.purpose,
+}));
 const BY_SLUG = new Map<string, CanonicalJourney>(JOURNEYS.map((j) => [j.slug, j]));
 
 /** Where a journey's trigger evidence comes from - the one property that

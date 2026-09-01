@@ -1,88 +1,93 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-/* A compact grid card, as opposed to JourneyRowCard's full-width row.
+/* One journey in the gallery grid, as opposed to JourneyRowCard's full-width
+   row (still the shape the A/B library settled for scan-everything archives).
 
    MECHANISM SOURCE: Klaviyo's "Flows / Browse Ideas" screen (reviewed
-   2026-09) - its grouped-by-outcome sections of small idea cards (title +
-   variant subtitle + one-line description + a footer row of channel/
-   platform badges), used for a curated subset (their flow templates) rather
-   than a scan-everything archive. That distinction is why this card exists
-   ALONGSIDE JourneyRowCard rather than replacing it: JourneyRowCard's own
-   comment settled "a row, not a card" for the full 281-journey library
-   (a column of rows scans faster than a grid the eye has to serpentine) -
-   still true there. This card is for /lab/communication-journeys
-   specifically, a curated 87-journey subset grouped by Goal, where a grid
-   of outcome-grouped cards is the more legible shape - same reasoning
-   Klaviyo's own "Prevent lost sales" / "Nurture subscribers" sections use
-   for their curated flow set, not their raw workflow list.
+   2026-09) - grouped sections of small template cards, each one title +
+   secondary metadata + a clamped description + a footer badge, whole card
+   clickable. What was deliberately NOT taken: its platform badges (Shopify
+   and friends - this library integrates with nothing and a badge would be
+   fabricated), its personalized "Recommended for you" carousel (no account
+   to personalize for), its template variants ("Standard", "A/B Test",
+   "Localized" - the canonical library counts those as one journey by rule),
+   and any performance or conversion figure.
 
-   SURFACE LEFT OUT: Klaviyo's per-flow platform icon (Shopify bag), its
-   personalized "Recommended for you" carousel (this page has no user
-   account to personalize for - would be fabricated), and its own short
-   marketing flow names (this site's journeys keep their real canonical
-   name, however long, rather than a shorter name invented for the card).
-   Channel badges are plain text pills, not icons - this codebase has no
-   established icon-per-channel mapping anywhere else (JourneyRowCard's own
-   channel line is already plain mono text), and inventing one here risked
-   a set of icons nobody could verify meant what they seemed to. */
+   THE CANONICAL NAME IS NOT ON THE CARD. It was, briefly: the card led with
+   `shortName` and put `name` underneath in grey. The brief this round asks
+   for the opposite and it is right - "Cancellation intent -> understand
+   state -> save or proceed" under "Cancellation Save" is a second title
+   competing with the first, in a grid where the eye is scanning titles. The
+   canonical name still leads the DETAIL page, where there is room for it and
+   a graph for it to describe. */
+
 export default function JourneyIdeaCard({
   href,
   id,
-  name,
-  shortName,
+  title,
   categoryTitle,
   purpose,
   nodeCount,
   nodesLabel,
   channelLabels,
+  internalLabel,
 }: {
   href: string;
   id: string;
-  name: string;
-  /** The plain-language label. When a journey has one the card leads with
-      it and demotes the canonical `name` to the line beneath, which is the
-      whole point of the field - see CanonicalJourney.shortName. */
-  shortName?: string;
+  /** The journey's plain-language name (CanonicalJourney.shortName). */
+  title: string;
   categoryTitle: string;
   purpose: string;
   nodeCount: number;
   nodesLabel: string;
-  /** Empty for a journey with no message/human route - renders no badge row
-      rather than a placeholder, same rule as JourneyRowCard. */
+  /** The journey's real execution channels, localised and ordered. Empty on
+      an internal journey, which gets `internalLabel` instead - the two must
+      not look alike, because one can reach a person and the other cannot. */
   channelLabels: readonly string[];
+  internalLabel: string;
 }) {
+  const isInternal = channelLabels.length === 0;
+
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col gap-2 rounded-lg border border-line bg-paper p-4 transition-colors hover:border-neutral-400 hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+      className="group flex h-full flex-col rounded-lg border border-line bg-paper transition-colors hover:border-neutral-400 hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* Header, ruled off from the body - the reference's one structural
+          move worth keeping: it gives every card in a row the same anchor
+          line whatever the title wraps to. */}
+      <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
         <div className="min-w-0">
-          <p className="font-mono text-[10px] tracking-[0.08em] text-ink-400 tabular-nums">{id}</p>
-          <p className="mt-0.5 text-[14.5px] leading-snug font-medium tracking-tight text-ink-950">
-            {shortName ?? name}
-          </p>
-          {shortName ? (
-            <p className="mt-0.5 text-[12px] leading-snug text-ink-400">{name}</p>
-          ) : null}
+          <p className="text-[14.5px] leading-snug font-semibold tracking-tight text-ink-950">{title}</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+            {isInternal ? (
+              <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600">
+                {internalLabel}
+              </span>
+            ) : (
+              channelLabels.map((label) => (
+                <span key={label} className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700">
+                  {label}
+                </span>
+              ))
+            )}
+          </div>
         </div>
         <ArrowRight
           aria-hidden
-          className="mt-1 size-4 shrink-0 text-ink-300 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5 group-hover:text-ink-600"
+          className="mt-0.5 size-4 shrink-0 text-ink-300 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5 group-hover:text-ink-600"
         />
       </div>
-      <p className="text-xs text-ink-500">{categoryTitle}</p>
-      <p className="line-clamp-2 text-[13px] leading-relaxed text-ink-600">{purpose}</p>
-      <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-2">
-        {channelLabels.map((label) => (
-          <span key={label} className="rounded-full bg-paper-soft px-2 py-0.5 text-[10px] font-medium text-ink-600">
-            {label}
+
+      <div className="flex flex-1 flex-col gap-3 px-4 py-3">
+        <p className="line-clamp-3 text-[13px] leading-relaxed text-ink-600">{purpose}</p>
+        <div className="mt-auto flex items-center justify-between gap-3">
+          <span className="truncate text-[11px] text-ink-400">{categoryTitle}</span>
+          <span className="shrink-0 font-mono text-[10px] text-ink-400 tabular-nums">
+            {id} · {nodeCount} {nodesLabel}
           </span>
-        ))}
-        <span className="ml-auto shrink-0 font-mono text-[10px] text-ink-400 tabular-nums">
-          {nodeCount} {nodesLabel}
-        </span>
+        </div>
       </div>
     </Link>
   );

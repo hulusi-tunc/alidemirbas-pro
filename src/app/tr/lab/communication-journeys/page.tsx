@@ -19,7 +19,8 @@ export default function LabJourneysCommunicationTr() {
       title={t.title}
       intro={t.intro.replace("{count}", String(COMMUNICATION_JOURNEY_ROWS.length))}
       extraCrumb={{ name: copy.tr.lab.journeysSplit.communicationLabel, url: "/tr/lab/communication-journeys" }}
-      browser="grouped"
+      browser="gallery"
+      journeyType="communication"
     />
   );
 }
