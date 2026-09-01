@@ -565,6 +565,10 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         event: "feedback_received",
         evidence: {
           requires: ["feedback submitted through any channel, attributable to a person and an experience"],
+          insufficientAlone: [
+            "a survey opened but never submitted",
+            "an internal note about the person that the person did not write",
+          ],
           source: "declared",
         },
         next: "a.persist",
@@ -1075,6 +1079,10 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         event: "actionable_issue_created",
         evidence: {
           requires: ["a formally created issue with a type, a severity and a related entity"],
+          insufficientAlone: [
+            "a negative sentiment score with no operational failure identified behind it",
+            "a support conversation that has not yet concluded anything is actually wrong",
+          ],
           source: "authoritative",
         },
         next: "a.capture",

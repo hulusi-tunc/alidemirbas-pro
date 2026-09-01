@@ -1146,6 +1146,10 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         event: "remedy_decision_required",
         evidence: {
           requires: ["a confirmed issue with an unresolved obligation and no remedy yet selected"],
+          insufficientAlone: [
+            "a complaint received but not yet established as an operational fault, which is FBK-44's question",
+            "a refund request, which presumes the remedy this journey has not yet decided",
+          ],
           source: "authoritative",
         },
         next: "a.obligation",

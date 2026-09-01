@@ -1990,6 +1990,11 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "x.unresolved",
           },
           {
+            label: "Failed at a different stage",
+            when: "a later attempt cleared the stage that was named and failed at one that has not been named yet",
+            to: "c.stage",
+          },
+          {
             label: "Removed",
             when: "the configuration was removed before any attempt succeeded",
             to: "x.abandoned",

@@ -582,6 +582,10 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         event: "authoritative_ownership_change",
         evidence: {
           requires: ["a recorded change of owner on an entity with active obligations"],
+          insufficientAlone: [
+            "a request to change ownership that nobody with authority has approved",
+            "an owner becoming unavailable, which is OWN-55's escalation and not a transfer",
+          ],
           source: "authoritative",
         },
         next: "a.record",
@@ -1402,6 +1406,10 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
           requires: [
             "a change to a subject that already carries an approval, before that approval has been fully executed or the work completed",
           ],
+          insufficientAlone: [
+            "a cosmetic change to the subject that touches nothing the approval rested on",
+            "a change made after execution, which is a new subject rather than a changed one",
+          ],
           source: "authoritative",
         },
         next: "a.compare",
@@ -1752,6 +1760,10 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a change to who holds decision authority: an approver leaving, a role change, authority revoked, organisational responsibility moving, an approval limit changing, or a delegation beginning or ending",
+          ],
+          insufficientAlone: [
+            "an approver being temporarily unavailable, which is a routing question and not a change of authority",
+            "a change to who does the work, which is OWN-54's ownership",
           ],
           source: "authoritative",
         },

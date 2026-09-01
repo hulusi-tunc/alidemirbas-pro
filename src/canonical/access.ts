@@ -1695,6 +1695,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
             when: "the condition depends on an internal review, a third party, or a fixed period elapsing",
             to: "a.inform-only",
           },
+          {
+            label: "Placed by a security response",
+            when: "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
+            to: "x.security-owned",
+          },
         ],
       },
       {
@@ -1710,6 +1715,13 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "informed, resolution not theirs",
         terminal: false,
         reEntry: "if the condition later becomes something they can satisfy, this qualifies again with the actionable path",
+      },
+      {
+        id: "x.security-owned",
+        kind: "exit",
+        state: "restriction announced by the security response; no separate notice sent",
+        terminal: false,
+        reEntry: "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
       },
       {
         id: "c.reachable",

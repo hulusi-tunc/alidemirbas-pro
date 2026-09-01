@@ -1236,6 +1236,10 @@
             "requires": [
               "a captured lead with a recorded entry reason and no destination it is ready for"
             ],
+            "insufficientAlone": [
+              "a lead that is ready for a destination and simply has not been routed yet, which is ACQ-04's case",
+              "a submission with no permission for ongoing contact recorded against it"
+            ],
             "source": "declared"
           },
           "next": "c.basis"
@@ -1938,6 +1942,10 @@
             "requires": [
               "an onboarding instance that is open and an activation event that has not been recorded"
             ],
+            "insufficientAlone": [
+              "a completed sign-up with no onboarding instance opened",
+              "activity inside a different product's onboarding"
+            ],
             "source": "authoritative"
           },
           "next": "a.read"
@@ -2094,6 +2102,10 @@
         {
           "event": "a named requirement blocking activation",
           "then": "ACT-13 owns the blocker; generic next-step messaging stops until it is resolved"
+        },
+        {
+          "event": "an assisted setup session scheduled through ACT-14",
+          "then": "ACT-14 owns setup communication until the session outcome is recorded; generic next-step prompts pause rather than compete with a booked call"
         }
       ],
       "guardrails": [
@@ -2412,7 +2424,7 @@
           "branches": [
             {
               "label": "Already handled",
-              "when": "an open support case or an assigned human owner covers the same issue",
+              "when": "an open support case or an assigned human owner covers the same issue, or ACT-13 already owns a named requirement on this instance - the struggle is almost always that requirement, and a help offer beside a blocker reminder is two voices on one problem",
               "to": "x.defer"
             },
             {
@@ -2851,6 +2863,10 @@
             "requires": [
               "a recorded activation, with the use-case that produced it"
             ],
+            "insufficientAlone": [
+              "a first-value milestone recorded once, which is ACT-15's moment and not yet a pattern",
+              "onboarding steps completed without the activation event itself"
+            ],
             "source": "authoritative"
           },
           "next": "a.measure"
@@ -2949,6 +2965,12 @@
           "because": "ACT-14 is pre-activation and triggered by help-seeking. This is post-activation and triggered by silence, where the most common correct answer is that nothing is wrong."
         }
       ],
+      "competition": {
+        "scope": "account",
+        "exclusionGroup": "retention-outreach",
+        "precedence": "lowest in the group - an open issue under human ownership, a live risk case or a declared cancellation intent on the same account each outranks a recovery nudge. Silence that RET-24 is already reading as risk is RET-24's to act on",
+        "onLoss": "suppressed"
+      },
       "entry": "t.stall",
       "nodes": [
         {
@@ -3101,6 +3123,10 @@
           "evidence": {
             "requires": [
               "an onboarding decision that depends on a named role or use-case, with no reliable value available for it"
+            ],
+            "insufficientAlone": [
+              "a role or use-case that can be read from the account itself, which ACT-11 uses without asking",
+              "an optional profile field being empty"
             ],
             "source": "authoritative"
           },
@@ -3924,7 +3950,7 @@
       "competition": {
         "scope": "account",
         "exclusionGroup": "retention-outreach",
-        "precedence": "below an open issue under human ownership, above generic retention intervention",
+        "precedence": "below an open issue under human ownership and below a declared cancellation intent on the same account, above generic retention intervention",
         "onLoss": "suppressed"
       },
       "entry": "t.threshold",
@@ -4420,6 +4446,12 @@
           "because": "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event."
         }
       ],
+      "competition": {
+        "scope": "account",
+        "exclusionGroup": "retention-outreach",
+        "precedence": "above risk-driven escalation and offer follow-up on the same account - a declared intent to leave outranks an inferred risk. Only the offer step ever yields; the cancellation path itself is never obstructed by any contest",
+        "onLoss": "suppressed"
+      },
       "entry": "t.intent",
       "nodes": [
         {
@@ -4483,8 +4515,41 @@
           "id": "a.ask",
           "kind": "action",
           "does": "Ask once, with the cancellation path fully open beside the question. The question is never a step that has to be passed to leave - a reason obtained that way is not information, it is a toll",
-          "next": "a.record-reason",
+          "next": "w.answer",
           "execution": "communication"
+        },
+        {
+          "id": "w.answer",
+          "kind": "wait",
+          "until": [
+            "a reason is given",
+            "cancellation is confirmed",
+            "the cancellation flow is abandoned"
+          ],
+          "onEvent": "c.answered",
+          "timeout": {
+            "after": "the moment the person leaves the point where the question was put",
+            "reason": "a reason is useful only while the choice it informs is still open - an unanswered question is itself an answer, and chasing it is what turns a question into a toll"
+          },
+          "onTimeout": "a.no-reason",
+          "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.answered",
+          "kind": "condition",
+          "asks": "What came back?",
+          "branches": [
+            {
+              "label": "A reason",
+              "when": "the person stated a reason",
+              "to": "a.record-reason"
+            },
+            {
+              "label": "They decided meanwhile",
+              "when": "the cancellation was confirmed or abandoned while the question was still open",
+              "to": "c.decision"
+            }
+          ]
         },
         {
           "id": "a.record-reason",
@@ -7231,6 +7296,10 @@
             "requires": [
               "feedback submitted through any channel, attributable to a person and an experience"
             ],
+            "insufficientAlone": [
+              "a survey opened but never submitted",
+              "an internal note about the person that the person did not write"
+            ],
             "source": "declared"
           },
           "next": "a.persist"
@@ -7791,6 +7860,10 @@
           "evidence": {
             "requires": [
               "a formally created issue with a type, a severity and a related entity"
+            ],
+            "insufficientAlone": [
+              "a negative sentiment score with no operational failure identified behind it",
+              "a support conversation that has not yet concluded anything is actually wrong"
             ],
             "source": "authoritative"
           },
@@ -9239,6 +9312,10 @@
             "requires": [
               "a recorded change of owner on an entity with active obligations"
             ],
+            "insufficientAlone": [
+              "a request to change ownership that nobody with authority has approved",
+              "an owner becoming unavailable, which is OWN-55's escalation and not a transfer"
+            ],
             "source": "authoritative"
           },
           "next": "a.record"
@@ -10184,6 +10261,10 @@
             "requires": [
               "a change to a subject that already carries an approval, before that approval has been fully executed or the work completed"
             ],
+            "insufficientAlone": [
+              "a cosmetic change to the subject that touches nothing the approval rested on",
+              "a change made after execution, which is a new subject rather than a changed one"
+            ],
             "source": "authoritative"
           },
           "next": "a.compare"
@@ -10573,6 +10654,10 @@
           "evidence": {
             "requires": [
               "a change to who holds decision authority: an approver leaving, a role change, authority revoked, organisational responsibility moving, an approval limit changing, or a delegation beginning or ending"
+            ],
+            "insufficientAlone": [
+              "an approver being temporarily unavailable, which is a routing question and not a change of authority",
+              "a change to who does the work, which is OWN-54's ownership"
             ],
             "source": "authoritative"
           },
@@ -14620,6 +14705,11 @@
               "label": "Not theirs to resolve",
               "when": "the condition depends on an internal review, a third party, or a fixed period elapsing",
               "to": "a.inform-only"
+            },
+            {
+              "label": "Placed by a security response",
+              "when": "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
+              "to": "x.security-owned"
             }
           ]
         },
@@ -14636,6 +14726,13 @@
           "state": "informed, resolution not theirs",
           "terminal": false,
           "reEntry": "if the condition later becomes something they can satisfy, this qualifies again with the actionable path"
+        },
+        {
+          "id": "x.security-owned",
+          "kind": "exit",
+          "state": "restriction announced by the security response; no separate notice sent",
+          "terminal": false,
+          "reEntry": "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms"
         },
         {
           "id": "c.reachable",
@@ -15567,6 +15664,10 @@
             "requires": [
               "a verification attempt that did not establish its claim"
             ],
+            "insufficientAlone": [
+              "a verification that expired with no attempt made, which is IDN-81's expiry",
+              "a policy change invalidating an existing verification without anyone having attempted one"
+            ],
             "source": "authoritative"
           },
           "next": "a.classify"
@@ -15606,7 +15707,7 @@
             {
               "label": "Terminal by policy",
               "when": "policy forbids verifying this claim on this basis at all",
-              "to": "x.terminal"
+              "to": "a.explain-terminal"
             }
           ]
         },
@@ -15668,6 +15769,13 @@
             }
           ],
           "next": "x.retry"
+        },
+        {
+          "id": "a.explain-terminal",
+          "kind": "action",
+          "does": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
+          "execution": "communication",
+          "next": "x.terminal"
         },
         {
           "id": "x.retry",
@@ -15744,6 +15852,10 @@
           "evidence": {
             "requires": [
               "a context requiring the actor's control of an identity to be established"
+            ],
+            "insufficientAlone": [
+              "a session that already holds the required assurance",
+              "an authorization question about what an authenticated actor may do"
             ],
             "source": "authoritative"
           },
@@ -23030,6 +23142,11 @@
               "to": "x.unresolved"
             },
             {
+              "label": "Failed at a different stage",
+              "when": "a later attempt cleared the stage that was named and failed at one that has not been named yet",
+              "to": "c.stage"
+            },
+            {
               "label": "Removed",
               "when": "the configuration was removed before any attempt succeeded",
               "to": "x.abandoned"
@@ -30277,6 +30394,10 @@
             "requires": [
               "a confirmed issue with an unresolved obligation and no remedy yet selected"
             ],
+            "insufficientAlone": [
+              "a complaint received but not yet established as an operational fault, which is FBK-44's question",
+              "a refund request, which presumes the remedy this journey has not yet decided"
+            ],
             "source": "authoritative"
           },
           "next": "a.obligation"
@@ -35382,6 +35503,10 @@
             "requires": [
               "a confirmed reservation that can no longer be fulfilled by its assigned provider or resource - unavailability, resource failure, location closure, withdrawn capacity or an operational incident"
             ],
+            "insufficientAlone": [
+              "a customer asking to move the booking, which is their reschedule and not our failure",
+              "a provider's tentative doubt that has not become an inability"
+            ],
             "source": "authoritative"
           },
           "next": "a.scope"
@@ -36335,8 +36460,22 @@
           "id": "a.waitlist",
           "kind": "action",
           "does": "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
-          "next": "x.waitlisted",
+          "next": "w.waitlist",
           "execution": "communication"
+        },
+        {
+          "id": "w.waitlist",
+          "kind": "wait",
+          "until": [
+            "the person takes the waitlist place"
+          ],
+          "onEvent": "x.waitlisted",
+          "timeout": {
+            "after": "the validity of the waitlist offer",
+            "reason": "an offered place nobody took is not a place held - leaving the offer open would put someone on a list they never agreed to be on"
+          },
+          "onTimeout": "x.lapsed",
+          "windowExtendsOnEngagement": false
         },
         {
           "id": "x.waitlisted",
@@ -36497,14 +36636,17 @@
               "mode": "append"
             }
           ],
-          "next": "x.invalid"
+          "next": "h.invalid"
         },
         {
-          "id": "x.invalid",
-          "kind": "exit",
-          "state": "rejected by the process; no judgment was exercised and no reviewer was involved",
-          "terminal": false,
-          "reEntry": "a corrected request is a new request rather than a continuation of this one"
+          "id": "h.invalid",
+          "kind": "handoff",
+          "to": "external:requesting-process",
+          "on": "a request the process itself rejected, with no judgment exercised",
+          "carries": [
+            "which of the target, the action or the requester's standing failed to hold up",
+            "that nobody decided this - it was rejected by the process, and a corrected request is a new request"
+          ]
         },
         {
           "id": "c.deterministic",
@@ -36703,6 +36845,10 @@
           "evidence": {
             "requires": [
               "a valid decision case with a stated scope and a required authority level"
+            ],
+            "insufficientAlone": [
+              "a case whose owner is deliberating within the time allowed",
+              "a work task needing an owner, which is OWN-51's routing"
             ],
             "source": "authoritative"
           },
@@ -37195,6 +37341,10 @@
           "evidence": {
             "requires": [
               "a reviewer identifying a specific fact the decision turns on and which is not available"
+            ],
+            "insufficientAlone": [
+              "a reviewer's curiosity about something the decision does not turn on",
+              "information missing before the case was opened, which DEC-181 holds as pending information"
             ],
             "source": "authoritative"
           },
@@ -43643,6 +43793,10 @@
             "requires": [
               "an issued document version with a party who is to receive it"
             ],
+            "insufficientAlone": [
+              "a document drafted but not issued",
+              "a document already viewed or downloaded by its recipient, which is delivery having happened"
+            ],
             "source": "authoritative"
           },
           "next": "a.recipient"
@@ -43805,6 +43959,10 @@
           "evidence": {
             "requires": [
               "an issued or prepared document version requiring signature by identified parties"
+            ],
+            "insufficientAlone": [
+              "a document that requires acknowledgement rather than an authorised mark",
+              "a signature request already sent, which is the state this journey creates and not the one that starts it"
             ],
             "source": "authoritative"
           },
@@ -45025,6 +45183,10 @@
             "requires": [
               "a material inconsistency - different content under one identifier, an incorrect version distributed, a signature attached to the wrong version, a local copy differing from the authoritative record, several versions claiming current status, or a missing amendment link"
             ],
+            "insufficientAlone": [
+              "two versions that differ by design, such as a draft alongside its issued form",
+              "a formatting difference between two renderings of the same version"
+            ],
             "source": "authoritative"
           },
           "next": "a.collect"
@@ -45790,6 +45952,10 @@
             "requires": [
               "a validated change set with an identified target scope"
             ],
+            "insufficientAlone": [
+              "a change set uploaded but not yet validated",
+              "a change set that only reads the target and mutates nothing"
+            ],
             "source": "authoritative"
           },
           "next": "a.delta"
@@ -45959,7 +46125,7 @@
               "mode": "append"
             }
           ],
-          "next": "w.confirm"
+          "next": "a.present"
         },
         {
           "id": "a.expired",
@@ -51088,6 +51254,10 @@
             "requires": [
               "a confirmed incident with its correlating evidence and affected entities"
             ],
+            "insufficientAlone": [
+              "an alert that has fired and not been confirmed as an incident",
+              "a single failed request with no impact established"
+            ],
             "source": "authoritative"
           },
           "next": "a.scope"
@@ -52414,6 +52584,10 @@
           "evidence": {
             "requires": [
               "a resolved incident meeting the threshold for post-incident review"
+            ],
+            "insufficientAlone": [
+              "an incident resolved without meeting the review threshold policy defines",
+              "a review requested by an individual for an incident the policy does not select"
             ],
             "source": "authoritative"
           },

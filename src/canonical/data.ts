@@ -514,6 +514,10 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
         event: "validated_change_set_ready_to_mutate",
         evidence: {
           requires: ["a validated change set with an identified target scope"],
+          insufficientAlone: [
+            "a change set uploaded but not yet validated",
+            "a change set that only reads the target and mutates nothing",
+          ],
           source: "authoritative",
         },
         next: "a.delta",
@@ -657,7 +661,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Regenerate the delta against current state and present it again. The previous confirmation was for a different mutation and does not carry - a confirmation reused across a regenerated delta is an approval of something nobody saw",
         writes: [{ field: "intake_log", mode: "append" }],
-        next: "w.confirm",
+        next: "a.present",
       },
       {
         id: "a.expired",

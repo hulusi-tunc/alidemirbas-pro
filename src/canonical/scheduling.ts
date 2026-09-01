@@ -1972,6 +1972,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           requires: [
             "a confirmed reservation that can no longer be fulfilled by its assigned provider or resource - unavailability, resource failure, location closure, withdrawn capacity or an operational incident",
           ],
+          insufficientAlone: [
+            "a customer asking to move the booking, which is their reschedule and not our failure",
+            "a provider's tentative doubt that has not become an inability",
+          ],
           source: "authoritative",
         },
         next: "a.scope",
@@ -2893,8 +2897,21 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.waitlist",
         kind: "action",
         does: "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
-        next: "x.waitlisted",
+        next: "w.waitlist",
         execution: "communication",
+      },
+      {
+        id: "w.waitlist",
+        kind: "wait",
+        until: ["the person takes the waitlist place"],
+        onEvent: "x.waitlisted",
+        timeout: {
+          after: "the validity of the waitlist offer",
+          reason:
+            "an offered place nobody took is not a place held - leaving the offer open would put someone on a list they never agreed to be on",
+        },
+        onTimeout: "x.lapsed",
+        windowExtendsOnEngagement: false,
       },
       {
         id: "x.waitlisted",

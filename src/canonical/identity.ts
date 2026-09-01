@@ -719,6 +719,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         event: "verification_attempt_failed",
         evidence: {
           requires: ["a verification attempt that did not establish its claim"],
+          insufficientAlone: [
+            "a verification that expired with no attempt made, which is IDN-81's expiry",
+            "a policy change invalidating an existing verification without anyone having attempted one",
+          ],
           source: "authoritative",
         },
         next: "a.classify",
@@ -753,7 +757,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Terminal by policy",
             when: "policy forbids verifying this claim on this basis at all",
-            to: "x.terminal",
+            to: "a.explain-terminal",
           },
         ],
       },
@@ -805,6 +809,13 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Retry with backoff, recording nothing against the person's verification history. Our failure is not their rejection, and the distinction has to survive into whatever reads that history later",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.retry",
+      },
+      {
+        id: "a.explain-terminal",
+        kind: "action",
+        does: "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
+        execution: "communication",
+        next: "x.terminal",
       },
       {
         id: "x.retry",
@@ -883,6 +894,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         event: "authentication_required",
         evidence: {
           requires: ["a context requiring the actor's control of an identity to be established"],
+          insufficientAlone: [
+            "a session that already holds the required assurance",
+            "an authorization question about what an authenticated actor may do",
+          ],
           source: "authoritative",
         },
         next: "a.assurance",

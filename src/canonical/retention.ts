@@ -607,7 +607,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       scope: "account",
       exclusionGroup: "retention-outreach",
       precedence:
-        "below an open issue under human ownership, above generic retention intervention",
+        "below an open issue under human ownership and below a declared cancellation intent on the same account, above generic retention intervention",
       onLoss: "suppressed",
     },
     entry: "t.threshold",
@@ -1069,6 +1069,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event.",
       },
     ],
+    competition: {
+      scope: "account",
+      exclusionGroup: "retention-outreach",
+      precedence:
+        "above risk-driven escalation and offer follow-up on the same account - a declared intent to leave outranks an inferred risk. Only the offer step ever yields; the cancellation path itself is never obstructed by any contest",
+      onLoss: "suppressed",
+    },
     entry: "t.intent",
     nodes: [
       {
@@ -1132,8 +1139,34 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.ask",
         kind: "action",
         does: "Ask once, with the cancellation path fully open beside the question. The question is never a step that has to be passed to leave - a reason obtained that way is not information, it is a toll",
-        next: "a.record-reason",
+        next: "w.answer",
         execution: "communication",
+      },
+      {
+        id: "w.answer",
+        kind: "wait",
+        until: ["a reason is given", "cancellation is confirmed", "the cancellation flow is abandoned"],
+        onEvent: "c.answered",
+        timeout: {
+          after: "the moment the person leaves the point where the question was put",
+          reason:
+            "a reason is useful only while the choice it informs is still open - an unanswered question is itself an answer, and chasing it is what turns a question into a toll",
+        },
+        onTimeout: "a.no-reason",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.answered",
+        kind: "condition",
+        asks: "What came back?",
+        branches: [
+          { label: "A reason", when: "the person stated a reason", to: "a.record-reason" },
+          {
+            label: "They decided meanwhile",
+            when: "the cancellation was confirmed or abandoned while the question was still open",
+            to: "c.decision",
+          },
+        ],
       },
       {
         id: "a.record-reason",

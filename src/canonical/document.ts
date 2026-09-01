@@ -586,6 +586,10 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "issued_document_requires_distribution",
         evidence: {
           requires: ["an issued document version with a party who is to receive it"],
+          insufficientAlone: [
+            "a document drafted but not issued",
+            "a document already viewed or downloaded by its recipient, which is delivery having happened",
+          ],
           source: "authoritative",
         },
         next: "a.recipient",
@@ -727,6 +731,10 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "document_requires_signature",
         evidence: {
           requires: ["an issued or prepared document version requiring signature by identified parties"],
+          insufficientAlone: [
+            "a document that requires acknowledgement rather than an authorised mark",
+            "a signature request already sent, which is the state this journey creates and not the one that starts it",
+          ],
           source: "authoritative",
         },
         next: "a.define",
@@ -1798,6 +1806,10 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a material inconsistency - different content under one identifier, an incorrect version distributed, a signature attached to the wrong version, a local copy differing from the authoritative record, several versions claiming current status, or a missing amendment link",
+          ],
+          insufficientAlone: [
+            "two versions that differ by design, such as a draft alongside its issued form",
+            "a formatting difference between two renderings of the same version",
           ],
           source: "authoritative",
         },

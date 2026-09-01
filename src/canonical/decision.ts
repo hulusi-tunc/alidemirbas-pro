@@ -280,15 +280,17 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record INVALID or REJECTED_FROM_PROCESS. This is a rejection by the process rather than by a reviewer, and the distinction is worth keeping because nobody exercised judgment - a requester told they were declined will ask who decided, and here the answer is nobody",
         writes: [{ field: "decision_log", mode: "append" }],
-        next: "x.invalid",
+        next: "h.invalid",
       },
       {
-        id: "x.invalid",
-        kind: "exit",
-        state: "rejected by the process; no judgment was exercised and no reviewer was involved",
-        terminal: false,
-        reEntry:
-          "a corrected request is a new request rather than a continuation of this one",
+        id: "h.invalid",
+        kind: "handoff",
+        to: "external:requesting-process",
+        on: "a request the process itself rejected, with no judgment exercised",
+        carries: [
+          "which of the target, the action or the requester's standing failed to hold up",
+          "that nobody decided this - it was rejected by the process, and a corrected request is a new request",
+        ],
       },
       {
         id: "c.deterministic",
@@ -464,6 +466,10 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "decision_case_requires_ownership",
         evidence: {
           requires: ["a valid decision case with a stated scope and a required authority level"],
+          insufficientAlone: [
+            "a case whose owner is deliberating within the time allowed",
+            "a work task needing an owner, which is OWN-51's routing",
+          ],
           source: "authoritative",
         },
         next: "a.eligible",
@@ -905,6 +911,10 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a reviewer identifying a specific fact the decision turns on and which is not available",
+          ],
+          insufficientAlone: [
+            "a reviewer's curiosity about something the decision does not turn on",
+            "information missing before the case was opened, which DEC-181 holds as pending information",
           ],
           source: "authoritative",
         },

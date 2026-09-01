@@ -1220,6 +1220,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           requires: [
             "a captured lead with a recorded entry reason and no destination it is ready for",
           ],
+          insufficientAlone: [
+            "a lead that is ready for a destination and simply has not been routed yet, which is ACQ-04's case",
+            "a submission with no permission for ongoing contact recorded against it",
+          ],
           source: "declared",
         },
         next: "c.basis",

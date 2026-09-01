@@ -337,6 +337,10 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "incident_confirmed",
         evidence: {
           requires: ["a confirmed incident with its correlating evidence and affected entities"],
+          insufficientAlone: [
+            "an alert that has fired and not been confirmed as an incident",
+            "a single failed request with no impact established",
+          ],
           source: "authoritative",
         },
         next: "a.scope",
@@ -1480,6 +1484,10 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "incident_qualifies_for_review",
         evidence: {
           requires: ["a resolved incident meeting the threshold for post-incident review"],
+          insufficientAlone: [
+            "an incident resolved without meeting the review threshold policy defines",
+            "a review requested by an individual for an incident the policy does not select",
+          ],
           source: "authoritative",
         },
         next: "a.review",

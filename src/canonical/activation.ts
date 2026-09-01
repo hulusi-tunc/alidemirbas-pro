@@ -257,6 +257,10 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           requires: [
             "an onboarding instance that is open and an activation event that has not been recorded",
           ],
+          insufficientAlone: [
+            "a completed sign-up with no onboarding instance opened",
+            "activity inside a different product's onboarding",
+          ],
           source: "authoritative",
         },
         next: "a.read",
@@ -408,6 +412,10 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         event: "a named requirement blocking activation",
         then: "ACT-13 owns the blocker; generic next-step messaging stops until it is resolved",
+      },
+      {
+        event: "an assisted setup session scheduled through ACT-14",
+        then: "ACT-14 owns setup communication until the session outcome is recorded; generic next-step prompts pause rather than compete with a booked call",
       },
     ],
     guardrails: [
@@ -710,7 +718,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         branches: [
           {
             label: "Already handled",
-            when: "an open support case or an assigned human owner covers the same issue",
+            when: "an open support case or an assigned human owner covers the same issue, or ACT-13 already owns a named requirement on this instance - the struggle is almost always that requirement, and a help offer beside a blocker reminder is two voices on one problem",
             to: "x.defer",
           },
           {
@@ -1139,6 +1147,10 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "core_activation_completed",
         evidence: {
           requires: ["a recorded activation, with the use-case that produced it"],
+          insufficientAlone: [
+            "a first-value milestone recorded once, which is ACT-15's moment and not yet a pattern",
+            "onboarding steps completed without the activation event itself",
+          ],
           source: "authoritative",
         },
         next: "a.measure",
@@ -1238,6 +1250,13 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACT-14 is pre-activation and triggered by help-seeking. This is post-activation and triggered by silence, where the most common correct answer is that nothing is wrong.",
       },
     ],
+    competition: {
+      scope: "account",
+      exclusionGroup: "retention-outreach",
+      precedence:
+        "lowest in the group - an open issue under human ownership, a live risk case or a declared cancellation intent on the same account each outranks a recovery nudge. Silence that RET-24 is already reading as risk is RET-24's to act on",
+      onLoss: "suppressed",
+    },
     entry: "t.stall",
     nodes: [
       {
@@ -1383,6 +1402,10 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "an onboarding decision that depends on a named role or use-case, with no reliable value available for it",
+          ],
+          insufficientAlone: [
+            "a role or use-case that can be read from the account itself, which ACT-11 uses without asking",
+            "an optional profile field being empty",
           ],
           source: "authoritative",
         },
