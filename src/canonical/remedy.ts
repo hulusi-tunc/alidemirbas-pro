@@ -316,7 +316,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "return-authorization",
     category: "remedy",
     goal: "eligibility-qualification",
-    channels: ["task"],
+    channels: ["task", "email"],
     name: "Return request → eligibility → authorize, reject or review",
     shortName: "Return Request",
     purpose:
@@ -435,6 +435,13 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record RETURN_REJECTED with the reason drawn from the policy that ruled it out",
         writes: [{ field: "return_log", mode: "append" }],
+        next: "a.notify-rejection",
+      },
+      {
+        id: "a.notify-rejection",
+        kind: "action",
+        does: "Tell the requester the return was refused and the governing reason, whether policy ruled it out directly or a reviewer did. Someone holding an item they were told nothing about goes on believing a return is still coming",
+        execution: "communication",
         next: "x.rejected",
       },
       {
@@ -487,6 +494,13 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record RETURN_AUTHORIZED with the scope, the method and the validity. Authorising a return permits the resource to come back and decides nothing about whether money is owed - refund eligibility is a separate question with its own rules and its own answer",
         writes: [{ field: "return_log", mode: "append" }],
+        next: "a.notify-authorization",
+      },
+      {
+        id: "a.notify-authorization",
+        kind: "action",
+        does: "Tell the requester the return is authorised, within what scope and by what method, and that authorisation permits the resource to come back without deciding that money is owed. Leaving them to discover the answer from the transit lifecycle makes the next step arrive before the decision does",
+        execution: "communication",
         next: "h.transit",
       },
       {

@@ -1105,9 +1105,30 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Not authorised",
             when: "the request comes from someone who cannot make it",
-            to: "x.unauthorized",
+            to: "a.notify-unauthorized",
           },
         ],
+      },
+      {
+        id: "a.notify-unauthorized",
+        kind: "action",
+        does: "Tell the requester that no closure took place and why this request cannot perform it, without disclosing account state they are not entitled to. A closure request that disappears leaves the requester believing an account is closed when it is not",
+        execution: "communication",
+        next: "x.unauthorized",
+      },
+      {
+        id: "a.notify-cannot-close",
+        kind: "action",
+        does: "Name the state that prevents closure, without inventing a route around it. Where nothing the requester can do would change it, saying so is the answer - an unresolvable block reported as silence reads as a request still being processed",
+        execution: "communication",
+        next: "x.cannot-close",
+      },
+      {
+        id: "a.confirm-closure",
+        kind: "action",
+        does: "Confirm the account relationship is closed and state plainly what closure is not - it is not subscription cancellation and it is not data deletion, both of which have their own lifecycles and their own evidence. Sent only after closure is verified, never on the request",
+        execution: "communication",
+        next: "h.dependencies",
       },
       {
         id: "x.unauthorized",
@@ -1134,7 +1155,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Blocked, not recoverable",
             when: "something prevents closure that the account holder cannot resolve",
-            to: "x.cannot-close",
+            to: "a.notify-cannot-close",
           },
         ],
       },
@@ -1214,7 +1235,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "condition",
         asks: "Did the closure take effect?",
         branches: [
-          { label: "Closed", when: "the account no longer permits prohibited operations", to: "h.dependencies" },
+          { label: "Closed", when: "the account no longer permits prohibited operations", to: "a.confirm-closure" },
           { label: "Not fully applied", when: "the account remains active somewhere", to: "h.escalate" },
         ],
       },

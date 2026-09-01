@@ -1263,6 +1263,13 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record REJECTED with the reason drawn from the policy that ruled it out",
         writes: [{ field: "refund_log", mode: "append" }],
+        next: "a.notify-rejection",
+      },
+      {
+        id: "a.notify-rejection",
+        kind: "action",
+        does: "Tell the requester the refund was refused and the governing reason, whether that came from policy directly or from a reviewer. A refusal recorded and never sent leaves someone waiting on a decision that has already been made",
+        execution: "communication",
         next: "x.rejected",
       },
       {
@@ -1278,8 +1285,15 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record UNDER_REVIEW and gather whatever the decision requires. Nothing moves while it is under review",
         writes: [{ field: "refund_log", mode: "append" }],
-        next: "w.decision",
+        next: "a.acknowledge-review",
         execution: "human",
+      },
+      {
+        id: "a.acknowledge-review",
+        kind: "action",
+        does: "Tell the requester the refund is under review and what that state means, without implying an outcome. The wait for a human decision is the longest silence in this journey and the one most easily read as no answer coming",
+        execution: "communication",
+        next: "w.decision",
       },
       {
         id: "w.decision",
