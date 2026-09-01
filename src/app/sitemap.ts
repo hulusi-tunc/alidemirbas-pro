@@ -12,11 +12,10 @@ const routes = [
   "", "/about", "/lab", "/lab/journeys",
   // The library's own two-way split by whether a journey's work reaches a
   // person (canonical-view.ts's COMMUNICATION_JOURNEY_ROWS/
-  // INTERNAL_JOURNEY_ROWS) - list pages in their own right, not individual
-  // journey detail pages, so they're listed here rather than folded into
-  // the `/lab/journeys/${slug}` spread below (see the priority carve-out
-  // for these two exact paths further down).
-  "/lab/journeys/communication", "/lab/journeys/internal",
+  // INTERNAL_JOURNEY_ROWS). Deliberately NOT under /lab/journeys/: that
+  // segment is owned by journey slugs and their modal interceptor - see
+  // LabPage.tsx. They are ordinary /lab pages and take the default priority.
+  "/lab/communication-journeys", "/lab/internal-journeys",
   "/lab/ab-testing", "/lab/dashboard-builder", "/stack", "/contact", "/blog",
   // The Journey Builder product page. /lab/journeys above is the LIBRARY;
   // this is the product page in front of it, added this round.
@@ -55,8 +54,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // counterpart to list.
   return routes.flatMap((path) => {
     const en = `${SITE_URL}${path}`;
-    const isSplitListPage = path === "/lab/journeys/communication" || path === "/lab/journeys/internal";
-    const priority = path === "" ? 1 : path.startsWith("/lab/journeys/") && !isSplitListPage ? 0.4 : 0.7;
+    const priority = path === "" ? 1 : path.startsWith("/lab/journeys/") ? 0.4 : 0.7;
     const isEnOnlyPost = path.startsWith("/blog/");
 
     if (isEnOnlyPost) {

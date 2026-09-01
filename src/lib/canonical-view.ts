@@ -366,8 +366,8 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
 }));
 
 /** The library's two-way split by whether a journey's own work ever reaches
-    a person - added for the two dedicated `/lab/journeys/communication` and
-    `/lab/journeys/internal` list pages, alongside (not replacing) the full
+    a person - added for the two dedicated `/lab/communication-journeys` and
+    `/lab/internal-journeys` list pages, alongside (not replacing) the full
     unified list at `/lab/journeys` itself.
 
     `channels.length > 0` is not a second, driftable notion of

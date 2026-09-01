@@ -11,7 +11,7 @@ import { ArrowRight } from "lucide-react";
    ALONGSIDE JourneyRowCard rather than replacing it: JourneyRowCard's own
    comment settled "a row, not a card" for the full 281-journey library
    (a column of rows scans faster than a grid the eye has to serpentine) -
-   still true there. This card is for /lab/journeys/communication
+   still true there. This card is for /lab/communication-journeys
    specifically, a curated 87-journey subset grouped by Goal, where a grid
    of outcome-grouped cards is the more legible shape - same reasoning
    Klaviyo's own "Prevent lost sales" / "Nurture subscribers" sections use

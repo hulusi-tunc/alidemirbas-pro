@@ -7,7 +7,7 @@ import { pageAlternates } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "İletişim journey'leri - Canonical Journey Kütüphanesi",
   description: `Kendi işi bir kişiye ulaşan ${COMMUNICATION_JOURNEY_ROWS.length} canonical journey - mesajla ya da birine yönlendirerek. Aranabilir, goal'e göre filtrelenebilir.`,
-  alternates: pageAlternates("/lab/journeys/communication", "tr"),
+  alternates: pageAlternates("/lab/communication-journeys", "tr"),
 };
 
 export default function LabJourneysCommunicationTr() {
@@ -18,7 +18,7 @@ export default function LabJourneysCommunicationTr() {
       rows={COMMUNICATION_JOURNEY_ROWS}
       title={t.title}
       intro={t.intro.replace("{count}", String(COMMUNICATION_JOURNEY_ROWS.length))}
-      extraCrumb={{ name: copy.tr.lab.journeysSplit.communicationLabel, url: "/tr/lab/journeys/communication" }}
+      extraCrumb={{ name: copy.tr.lab.journeysSplit.communicationLabel, url: "/tr/lab/communication-journeys" }}
       browser="grouped"
     />
   );

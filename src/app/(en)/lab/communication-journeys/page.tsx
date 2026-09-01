@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Communication journeys - Canonical Journey Library",
   description:
     `${COMMUNICATION_JOURNEY_ROWS.length} canonical journeys whose own work reaches a person - by message or by routing to someone. Searchable, filterable by goal.`,
-  alternates: pageAlternates("/lab/journeys/communication", "en"),
+  alternates: pageAlternates("/lab/communication-journeys", "en"),
 };
 
 export default function LabJourneysCommunication() {
@@ -19,7 +19,7 @@ export default function LabJourneysCommunication() {
       rows={COMMUNICATION_JOURNEY_ROWS}
       title={t.title}
       intro={t.intro.replace("{count}", String(COMMUNICATION_JOURNEY_ROWS.length))}
-      extraCrumb={{ name: copy.en.lab.journeysSplit.communicationLabel, url: "/lab/journeys/communication" }}
+      extraCrumb={{ name: copy.en.lab.journeysSplit.communicationLabel, url: "/lab/communication-journeys" }}
       browser="grouped"
     />
   );

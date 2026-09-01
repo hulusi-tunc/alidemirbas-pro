@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Internal journeys - Canonical Journey Library",
   description:
     `${INTERNAL_JOURNEY_ROWS.length} canonical journeys that resolve entirely inside the system - no message, no human route. Searchable, filterable by goal.`,
-  alternates: pageAlternates("/lab/journeys/internal", "en"),
+  alternates: pageAlternates("/lab/internal-journeys", "en"),
 };
 
 export default function LabJourneysInternal() {
@@ -19,7 +19,7 @@ export default function LabJourneysInternal() {
       rows={INTERNAL_JOURNEY_ROWS}
       title={t.title}
       intro={t.intro.replace("{count}", String(INTERNAL_JOURNEY_ROWS.length))}
-      extraCrumb={{ name: copy.en.lab.journeysSplit.internalLabel, url: "/lab/journeys/internal" }}
+      extraCrumb={{ name: copy.en.lab.journeysSplit.internalLabel, url: "/lab/internal-journeys" }}
     />
   );
 }

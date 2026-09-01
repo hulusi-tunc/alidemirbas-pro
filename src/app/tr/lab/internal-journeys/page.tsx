@@ -7,7 +7,7 @@ import { pageAlternates } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Internal journey'ler - Canonical Journey Kütüphanesi",
   description: `Tamamen sistemin içinde çözülen ${INTERNAL_JOURNEY_ROWS.length} canonical journey - mesaj yok, insana yönlendirme yok. Aranabilir, goal'e göre filtrelenebilir.`,
-  alternates: pageAlternates("/lab/journeys/internal", "tr"),
+  alternates: pageAlternates("/lab/internal-journeys", "tr"),
 };
 
 export default function LabJourneysInternalTr() {
@@ -18,7 +18,7 @@ export default function LabJourneysInternalTr() {
       rows={INTERNAL_JOURNEY_ROWS}
       title={t.title}
       intro={t.intro.replace("{count}", String(INTERNAL_JOURNEY_ROWS.length))}
-      extraCrumb={{ name: copy.tr.lab.journeysSplit.internalLabel, url: "/tr/lab/journeys/internal" }}
+      extraCrumb={{ name: copy.tr.lab.journeysSplit.internalLabel, url: "/tr/lab/internal-journeys" }}
     />
   );
 }

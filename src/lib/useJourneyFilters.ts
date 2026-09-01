@@ -9,7 +9,7 @@ import type { Lang } from "@/lib/content";
 
 /* The search/goal filter state machine, extracted from JourneyBrowser.tsx
    unchanged (2026-09) so a second list renderer - the grouped card view on
-   /lab/journeys/communication - can share it exactly rather than
+   /lab/communication-journeys - can share it exactly rather than
    reimplementing (and inevitably drifting from) the same URL-sync,
    debounce and merged-id-redirect behavior. JourneyBrowser.tsx itself now
    calls this hook instead of carrying the logic inline; its own rendering

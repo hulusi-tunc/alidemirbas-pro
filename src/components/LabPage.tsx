@@ -69,7 +69,7 @@ function JourneyBrowserFallback({ lang, t, basePath, rows }: {
   );
 }
 
-/* The grouped (by Goal) fallback for /lab/journeys/communication - mirrors
+/* The grouped (by Goal) fallback for /lab/communication-journeys - mirrors
    JourneyBrowserFallback's role (CommunicationJourneyBrowser also calls
    useJourneyFilters, which reads useSearchParams and so forces the same
    client-render-during-prerender behavior) but renders every group's cards
@@ -204,11 +204,19 @@ function SplitSection({ href, label, blurb, rows, lang, t, basePath, browseAllLa
    re-add it (see git history before this comment) if that stops being true.
 
    PARAMETRIZED (2026-09) for the two child list pages under this same route
-   - /lab/journeys/communication and /lab/journeys/internal - which reuse
+   - /lab/communication-journeys and /lab/internal-journeys - which reuse
    this exact component with a filtered `rows` set and their own
    title/intro, rather than a forked copy of the whole page. `rows`/`title`/
    `intro` default to the full unified library, so the existing
    `/lab/journeys` route (still this page's default call) is unchanged.
+   The two child pages are NOT under /lab/journeys/ - that single segment
+   belongs to journey slugs, and the @modal slot's `(.)[slug]` interceptor
+   claims every one-segment path under it. A list page there either 500s
+   (unlisted param, dynamicParams=false) or gets silently intercepted, which
+   changes the URL and leaves the hub on screen. They live at
+   /lab/communication-journeys and /lab/internal-journeys instead; the
+   hierarchy is carried by this hub and the breadcrumb, not by the path.
+
    `hub` turns /lab/journeys into exactly that - a parent that hands off to
    its two children rather than duplicating them. It carries no list of its
    own: every journey now lives on the communication or internal page, and
@@ -232,7 +240,7 @@ export default function LabPage({
   hub?: boolean;
   /** "grouped" renders CommunicationJourneyBrowser (cards grouped by Goal,
       see that file's own comment) instead of the flat JourneyBrowser row
-      list - used only by /lab/journeys/communication today. */
+      list - used only by /lab/communication-journeys today. */
   browser?: "flat" | "grouped";
 }) {
   const t = copy[lang];
@@ -266,7 +274,7 @@ export default function LabPage({
         <div className="px-4 py-8 md:px-8">
           <div className="mx-auto flex max-w-6xl flex-col gap-12">
             <SplitSection
-              href={`${basePath}/communication`}
+              href={lang === "en" ? "/lab/communication-journeys" : "/tr/lab/communication-journeys"}
               label={t.lab.journeysSplit.communicationLabel}
               blurb={t.lab.journeysSplit.communicationBlurb}
               rows={COMMUNICATION_JOURNEY_ROWS}
@@ -276,7 +284,7 @@ export default function LabPage({
               browseAllLabel={t.lab.journeysSplit.browseAll}
             />
             <SplitSection
-              href={`${basePath}/internal`}
+              href={lang === "en" ? "/lab/internal-journeys" : "/tr/lab/internal-journeys"}
               label={t.lab.journeysSplit.internalLabel}
               blurb={t.lab.journeysSplit.internalBlurb}
               rows={INTERNAL_JOURNEY_ROWS}
