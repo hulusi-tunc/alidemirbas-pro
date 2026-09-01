@@ -206,6 +206,13 @@ export const copy = {
         communicationLabel: "Communication journeys",
         internalLabel: "Internal journeys",
         hubIntro: "Split by whether a journey's own work ever reaches a person.",
+        showMore: "Show more ({count})",
+        showLess: "Show less",
+        /* Singular/plural pair, same convention (and same reason) as
+           `page.decisionsLabel` above: grouping by Goal produces real
+           groups of exactly one - 5 of the 22 communication groups - and
+           "1 journeys" is wrong where "281 journeys" never was. */
+        journeysLabel: ["journey", "journeys"],
         communication: {
           title: "Communication journeys",
           intro:
@@ -879,6 +886,11 @@ export const copy = {
         communicationLabel: "İletişim journey'leri",
         internalLabel: "Internal journey'ler",
         hubIntro: "Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı.",
+        showMore: "Daha fazla göster ({count})",
+        showLess: "Daha az göster",
+        // Turkish takes no plural after a numeral, so both entries are
+        // deliberately identical - same as page.decisionsLabel above.
+        journeysLabel: ["journey", "journey"],
         communication: {
           title: "İletişim journey'leri",
           intro:

@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 
 import JourneyRowCard from "@/components/JourneyRowCard";
 import type { JourneyRow, MergedRedirect } from "@/lib/canonical-view";
-import { GOALS, GOAL_LABEL, isGoalId, type Goal } from "@/lib/journey-taxonomy";
+import { GOALS, GOAL_LABEL, type Goal } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
+import { useJourneyFilters } from "@/lib/useJourneyFilters";
 import type { copy, Lang } from "@/lib/content";
 
 /* The list. It takes rows as props and imports nothing from the canonical
@@ -44,115 +43,8 @@ export default function JourneyBrowser({
   merged: readonly MergedRedirect[];
   basePath: string;
 }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const urlQuery = searchParams.get("q") ?? "";
-  const goalParam = searchParams.get("goal");
-  const goal: Goal | null = goalParam && isGoalId(goalParam) ? goalParam : null;
-
-  // The search box is buffered locally so typing feels instant and doesn't
-  // wait on a router round-trip; it stays in sync with the URL in both
-  // directions (browser back/forward changes urlQuery, which flows back in).
-  // Adjusted during render rather than in an effect - the documented React
-  // pattern for resetting local state when a derived value changes, since
-  // doing it in an effect would cause an extra, avoidable render.
-  const [query, setQuery] = useState(urlQuery);
-  const [syncedQuery, setSyncedQuery] = useState(urlQuery);
-  if (urlQuery !== syncedQuery) {
-    setSyncedQuery(urlQuery);
-    setQuery(urlQuery);
-  }
-
-  /* The one place filter state is written to the URL.
-
-     Uses the native History API rather than `router.push`/`replace`, which is
-     what Next documents for query-string-only updates (see next/dist/docs/
-     .../linking-and-navigating.md § Native History API: pushState and
-     replaceState "integrate into the Next.js Router, allowing you to sync
-     with usePathname and useSearchParams"). It is not a preference: on this
-     route `router.push` to a URL that differs from the current one only in
-     its query string is coalesced away and emits no navigation at all, so
-     clearing the last filter left the old query in the address bar while the
-     list below it had already reset. pushState has no such dedupe, and still
-     produces a real history entry for back/forward.
-
-     It also reads the LIVE query string rather than the `searchParams`
-     captured when this callback was created: the debounced search write
-     below fires up to 400ms after its own render, and anything that changed
-     the URL in between - picking a Goal, or Clear all - would otherwise be
-     undone by that stale snapshot being written back. Only ever called from
-     an event handler or a timeout, never during render, so `window` is
-     always available here. */
-  const setParams = useCallback(
-    (updates: Record<string, string | null>, mode: "push" | "replace") => {
-      const params = new URLSearchParams(window.location.search);
-      for (const [key, value] of Object.entries(updates)) {
-        if (value) params.set(key, value);
-        else params.delete(key);
-      }
-      const qs = params.toString();
-      const url = qs ? `${pathname}?${qs}` : pathname;
-      if (mode === "push") window.history.pushState(null, "", url);
-      else window.history.replaceState(null, "", url);
-    },
-    [pathname],
-  );
-
-  // Debounced URL sync for the search box - replace, so a paused-then-resumed
-  // typing session doesn't spam browser history with one entry per pause.
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (query.trim() !== urlQuery.trim()) {
-        setParams({ q: query.trim() || null }, "replace");
-      }
-    }, 400);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
-
-  const setGoal = (g: Goal | null) => setParams({ goal: g }, "push");
-
-  /* Names the params to drop rather than resetting to a bare pathname, so
-     this stays honest if another one is ever added. */
-  const clearAll = () => {
-    setQuery("");
-    setParams({ q: null, goal: null }, "push");
-  };
-
-  /* The searchable text per row, lowercased once for the whole list rather
-     than rebuilt on every keystroke - concatenating and case-folding five
-     fields across 281 rows per character typed is real work, and none of it
-     depends on the query. Category and Category Title stay in here: Category
-     is no longer a filter, but it is still something people search by. */
-  const haystack = useMemo(
-    () =>
-      allRows.map((j) =>
-        [j.id, j.name, j.purpose, j.category, j.categoryTitle, GOAL_LABEL[j.goal][lang]]
-          .join(" ")
-          .toLocaleLowerCase(lang),
-      ),
-    [allRows, lang],
-  );
-
-  const { rows, mergedHit } = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase(lang);
-    const byGoal = (j: JourneyRow) => goal === null || j.goal === goal;
-
-    const matched = allRows.filter(
-      (j, i) => (!q || haystack[i].includes(q)) && byGoal(j),
-    );
-
-    /* A merged id is not a journey and matches nothing, which would leave
-       someone holding an old reference at a dead end. Answer with the journey
-       that absorbed it instead, and say which id they typed. */
-    const hit = merged.find((m) => m.from.toLocaleLowerCase(lang) === q) ?? null;
-    const survivor = hit ? allRows.filter((j) => j.id === hit.to) : null;
-
-    return { rows: survivor ?? matched, mergedHit: hit };
-  }, [query, goal, lang, allRows, merged, haystack]);
-
-  const activeCount = (goal ? 1 : 0) + (query.trim() ? 1 : 0);
+  const { query, setQuery, goal, setGoal, rows, mergedHit, activeCount, clearAll } =
+    useJourneyFilters(allRows, merged, lang);
 
   const removeFilterLabel = (label: string) => t.removeFilterLabel.replace("{label}", label);
 
