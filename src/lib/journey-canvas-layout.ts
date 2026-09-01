@@ -94,14 +94,29 @@ export type CanvasLayout = {
    handoff resolves to internal-or-external - none of these are the rare
    case like Exit's `terminal` (5/436), so unlike Exit, the extra row has to
    be in every card's reserved footprint, not just the occasional one. */
+/* These are the SLOTS the layout reserves. The cards overflow VISIBLY, so a
+   slot shorter than its card does not clip - it lets the badge row and the
+   state pill draw outside the card's own border, which reads as a rendering
+   fault rather than as a missing line. That also means `scrollHeight` will
+   not find it: the only measurement that does is the card's height with the
+   slot released (`height: auto`), compared against the slot.
+
+   Every number below is the worst case measured that way across all 281
+   journeys, not an estimate. The tallest node in a row sets that row's
+   height, so a kind's slot only costs vertical space in rows that actually
+   contain it. `action` is the outlier - the widest channel-badge row in the
+   library (delivery-recovery#a.retry) wraps to a second line and needs the
+   full 183. Re-measure after changing anything inside
+   JourneyCanvasNodes.tsx; the padding, the badges and the line-clamps all
+   feed these. */
 const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
-  trigger: { width: 245, height: 110 },
-  action: { width: 288, height: 152 },
-  condition: { width: 264, height: 122 },
-  wait: { width: 260, height: 54 },
-  handoff: { width: 245, height: 120 },
-  outcome: { width: 245, height: 82 },
-  exit: { width: 208, height: 62 },
+  trigger: { width: 245, height: 129 },
+  action: { width: 288, height: 183 },
+  condition: { width: 264, height: 139 },
+  wait: { width: 260, height: 57 },
+  handoff: { width: 245, height: 131 },
+  outcome: { width: 245, height: 104 },
+  exit: { width: 208, height: 89 },
 };
 
 /* Column spacing must clear the widest card (288px) with real room either
