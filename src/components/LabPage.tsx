@@ -138,36 +138,60 @@ function CommunicationBrowserFallback({ lang, t, basePath, rows }: {
   );
 }
 
-/** One half of the split, on the hub page. A real card rather than the one-line
-    link this started as: /lab/journeys no longer carries the list itself, so
-    these two ARE the page's content and have to say what each half is. Counts
-    are computed from the same rows the child pages list from - never restated
-    by hand. */
-function SplitCard({ href, label, blurb, count, resultsLabel, browseLabel }: {
+/** One half of the split on the hub page: what it is, how big it is, and a
+    look at what is actually inside it.
+
+    The hub used to be two one-line link boxes and a screenful of white, which
+    is what "you go in and it's empty" was about - the page said two halves
+    exist without showing either. It now previews each half with real journey
+    cards, so the split is legible before you commit to a page.
+
+    The preview is the half's three largest graphs by node count - a real,
+    computed ordering, not an editorial "featured" claim. Every card carries
+    its own node count, so the rule is visible on the cards themselves. */
+function SplitSection({ href, label, blurb, rows, lang, t, basePath, browseAllLabel }: {
   href: string;
   label: string;
   blurb: string;
-  count: number;
-  resultsLabel: string;
-  browseLabel: string;
+  rows: readonly JourneyRow[];
+  lang: Lang;
+  t: (typeof copy)[Lang]["lab"]["page"];
+  basePath: string;
+  browseAllLabel: string;
 }) {
+  const preview = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
   return (
-    <Link
-      href={href}
-      className="group flex flex-col gap-2 border border-line bg-paper p-5 transition-colors hover:border-neutral-400 hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-    >
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-base font-semibold tracking-tight text-ink-950">{label}</span>
+    <section>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 className="text-base font-semibold tracking-tight text-ink-950">{label}</h2>
         <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-          {count} {resultsLabel}
+          {rows.length} {t.results}
         </span>
       </div>
-      <p className="text-sm leading-relaxed text-ink-500">{blurb}</p>
-      <span className="mt-1 flex items-center gap-1.5 text-sm font-medium text-blue-600">
-        {browseLabel}
+      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-500">{blurb}</p>
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {preview.map((j) => (
+          <JourneyIdeaCard
+            key={j.id}
+            href={`${basePath}/${j.slug}`}
+            id={j.id}
+            name={j.name}
+            categoryTitle={j.categoryTitle}
+            purpose={j.purpose}
+            nodeCount={j.nodeCount}
+            nodesLabel={t.nodesLabel}
+            channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+          />
+        ))}
+      </div>
+      <Link
+        href={href}
+        className="group mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+      >
+        {browseAllLabel.replace("{count}", String(rows.length))}
         <ArrowRight aria-hidden className="size-3.5 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
-      </span>
-    </Link>
+      </Link>
+    </section>
   );
 }
 
@@ -227,7 +251,7 @@ export default function LabPage({
   return (
     <LabShell lang={lang}>
       <JsonLdScript data={breadcrumb} />
-      <div className={`px-4 py-6 md:px-8 ${hub ? "" : "border-b border-line"}`}>
+      <div className="border-b border-line px-4 py-6 md:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-xl font-semibold tracking-tight text-ink-950">{pageTitle}</h1>
@@ -236,28 +260,34 @@ export default function LabPage({
             </span>
           </div>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">{pageIntro}</p>
-          {hub ? (
-            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
-              <SplitCard
-                href={`${basePath}/communication`}
-                label={t.lab.journeysSplit.communicationLabel}
-                blurb={t.lab.journeysSplit.communicationBlurb}
-                count={COMMUNICATION_JOURNEY_ROWS.length}
-                resultsLabel={t.lab.page.results}
-                browseLabel={t.lab.journeysSplit.browse}
-              />
-              <SplitCard
-                href={`${basePath}/internal`}
-                label={t.lab.journeysSplit.internalLabel}
-                blurb={t.lab.journeysSplit.internalBlurb}
-                count={INTERNAL_JOURNEY_ROWS.length}
-                resultsLabel={t.lab.page.results}
-                browseLabel={t.lab.journeysSplit.browse}
-              />
-            </div>
-          ) : null}
         </div>
       </div>
+      {hub ? (
+        <div className="px-4 py-8 md:px-8">
+          <div className="mx-auto flex max-w-6xl flex-col gap-12">
+            <SplitSection
+              href={`${basePath}/communication`}
+              label={t.lab.journeysSplit.communicationLabel}
+              blurb={t.lab.journeysSplit.communicationBlurb}
+              rows={COMMUNICATION_JOURNEY_ROWS}
+              lang={lang}
+              t={t.lab.page}
+              basePath={basePath}
+              browseAllLabel={t.lab.journeysSplit.browseAll}
+            />
+            <SplitSection
+              href={`${basePath}/internal`}
+              label={t.lab.journeysSplit.internalLabel}
+              blurb={t.lab.journeysSplit.internalBlurb}
+              rows={INTERNAL_JOURNEY_ROWS}
+              lang={lang}
+              t={t.lab.page}
+              basePath={basePath}
+              browseAllLabel={t.lab.journeysSplit.browseAll}
+            />
+          </div>
+        </div>
+      ) : null}
       {hub ? null : (
       <div className="px-4 py-6 md:px-8">
         {/* Wider than the header block: three card columns need the room, and
