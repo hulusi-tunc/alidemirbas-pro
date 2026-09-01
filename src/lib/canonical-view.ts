@@ -7,7 +7,7 @@ import {
   byId,
   resolveJourneyId,
 } from "@/canonical";
-import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId } from "@/canonical/types";
+import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId, SignalSource } from "@/canonical/types";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
 /* The read model the archive renders from.
@@ -166,6 +166,21 @@ export type FlowNode = {
       ordinary case is not flagged: 431 of 436 exits allow re-entry, so a
       badge saying so on all of them is not information. */
   terminal: boolean;
+  /** Trigger nodes only - how this trigger's evidence was established
+      (TriggerNode.evidence.source). Real schema field, surfaced on the card
+      itself rather than left inside `meta`'s free-text detail list, per the
+      Journey Node System design exploration's "secondary states are badges,
+      not new shapes" mechanism. */
+  evidenceSource?: SignalSource;
+  /** Condition nodes only - branch count (n.branches.length). A condition's
+      branch count is real layout-relevant information (79% of the library's
+      conditions are binary, 21% fan wider) - not invented for display. */
+  branchCount?: number;
+  /** Handoff nodes only - whether the destination lies outside the canonical
+      library (`to` starts with `external:`) rather than resolving to a real
+      journey. Already computed once for the headline text below; exposed
+      here too so the card can badge it without re-deriving it. */
+  external?: boolean;
 };
 
 const humanEvent = (event: string): string => {
@@ -204,6 +219,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
           ...(n.evidence.insufficientAlone ?? []).map((r) => `not enough on its own: ${r}`),
         ],
         edges: [edge(n.next)],
+        evidenceSource: n.evidence.source,
       };
     case "action":
       return {
@@ -221,6 +237,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         detail: null,
         meta: [],
         edges: n.branches.map((b) => edge(b.to, b.label, b.when)),
+        branchCount: n.branches.length,
       };
     case "wait":
       return {
@@ -262,6 +279,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
           ...(n.suppresses ?? []).map((s) => `suppresses: ${s}`),
         ],
         edges: [edge(n.to)],
+        external: n.to.startsWith("external:"),
       };
   }
 };

@@ -88,12 +88,18 @@ export type CanvasLayout = {
    grammar change - see the file's own top comment) for on-canvas
    readability, while preserving each kind's relative footprint (Action
    still clearly the largest, Exit/Wait still clearly the smallest). */
+/* trigger/condition/handoff bumped again (2026-09 pass) to reserve room for
+   a real schema-backed secondary pill each now always carries: every
+   trigger has an `evidence.source`, every condition has ≥2 `branches`, every
+   handoff resolves to internal-or-external - none of these are the rare
+   case like Exit's `terminal` (5/436), so unlike Exit, the extra row has to
+   be in every card's reserved footprint, not just the occasional one. */
 const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
-  trigger: { width: 245, height: 82 },
+  trigger: { width: 245, height: 110 },
   action: { width: 288, height: 152 },
-  condition: { width: 264, height: 92 },
+  condition: { width: 264, height: 122 },
   wait: { width: 260, height: 54 },
-  handoff: { width: 245, height: 92 },
+  handoff: { width: 245, height: 120 },
   outcome: { width: 245, height: 82 },
   exit: { width: 208, height: 62 },
 };
@@ -397,7 +403,7 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
       // whatever node happens to occupy the row in between.
       //
       // The jog is measured from the SOURCE ROW'S tallest node, not from
-      // this particular source node's own bottom edge - a Condition (92
+      // this particular source node's own bottom edge - a Condition (122
       // tall) and an Action (152 tall) can share a row (SCH-178's
       // `c.outcome`/`a.unknown`, top-aligned like every row here), and a
       // label jogged only clear of the shorter node still lands inside the
