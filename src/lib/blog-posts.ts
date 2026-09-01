@@ -15,6 +15,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Growth Metrics",
     topic: "Unit Economics",
     contentType: "Article",
+    pullQuote:
+      "A channel can post a great ratio at low volume and fall apart the moment you push more budget through it.",
     sections: [
       {
         heading: "The ratio hides its own denominator",
@@ -48,6 +50,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Growth Metrics",
     topic: "Retention",
     contentType: "Article",
+    pullQuote:
+      "A curve that's still declining meaningfully at D30 has a different problem than one that's flat by D7 at a lower level than you'd like.",
     sections: [
       {
         heading: "A curve, not a single number",
@@ -81,6 +85,7 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Growth Metrics",
     topic: "Advertising",
     contentType: "Article",
+    pullQuote: "Neither number is wrong; they're answering different questions.",
     sections: [
       {
         heading: "ROAS is simple; attribution isn't",
@@ -114,6 +119,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Lifecycle & CRM",
     topic: "Lifecycle Marketing",
     contentType: "Article",
+    pullQuote:
+      "If your \"journey\" only ever runs once, on a schedule, for a static list - it's a campaign wearing a journey's name.",
     sections: [
       {
         heading: "The entry condition is the whole difference",
@@ -147,6 +154,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Experimentation",
     topic: "A/B Testing",
     contentType: "Article",
+    pullQuote:
+      "The primary metric decides who wins; the guardrail decides whether the win is allowed to count.",
     sections: [
       {
         heading: "Winning the metric you're watching isn't the same as winning",

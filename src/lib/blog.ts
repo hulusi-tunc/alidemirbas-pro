@@ -18,10 +18,21 @@ export type BlogPost = {
   topic?: string;
   contentType?: string;
   sections: BlogSection[];
+  /** A pull-quote for the post detail page - always a VERBATIM sentence
+      lifted from one of this post's own `sections[].body` (never written
+      fresh for display), so the quote can't drift from what the post
+      actually says. Optional so a post can go without one rather than
+      forcing a weak pull from thin material. */
+  pullQuote?: string;
   /** Internal links relevant to the post - the calculator or Lab tool it
       references, so the post actually connects to the rest of the site. */
   related?: { href: string; label: string }[];
 };
+
+/** Single real byline - this is a one-author blog (see AboutPage.tsx's own
+    "Mobile App Growth Lead, Aksigorta" line), so this is a shared constant
+    rather than a per-post field to keep in sync. */
+export const BLOG_AUTHOR = { name: "Ali Demirbaş", role: "Mobile App Growth Lead, Aksigorta" };
 
 // EN only for now, matching the same precedent already established for
 // calculator Phase 4 content (calc-content.ts): real long-form writing is

@@ -210,9 +210,29 @@ function Diagram({ kind, spec }: { kind: CoverSpec["diagram"]; spec: CoverSpec }
   }
 }
 
-export function BlogCover({ spec, size = "grid" }: { spec: CoverSpec; size?: "grid" | "featured" }) {
+export function BlogCover({ spec, size = "grid" }: { spec: CoverSpec; size?: "grid" | "featured" | "compact" }) {
   const a = ACCENT[spec.accent];
   const featured = size === "featured";
+
+  /* "compact" — the small square thumbnail beside a title in a list row
+     (BlogLibrary's featured+list split). Same ground/tag/type-mark system
+     as the other two sizes, just the tag and diagram dropped: at ~64px
+     there's no room for a third element, and the mark alone (e.g. "LTV")
+     is already this cover's whole identity. */
+  if (size === "compact") {
+    return (
+      <div aria-hidden className={`flex h-full w-full items-center justify-center overflow-hidden p-2 ${a.ground}`}>
+        <span className={`text-center text-[11px] leading-tight font-semibold tracking-tight ${a.big}`}>
+          {spec.lines.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div
       aria-hidden

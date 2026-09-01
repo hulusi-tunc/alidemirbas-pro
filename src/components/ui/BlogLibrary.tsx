@@ -1,13 +1,59 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 
-import { BlogCard } from "./BlogCard";
+import { BlogCard, fallbackCover } from "./BlogCard";
+import { BlogCover, COVERS, categoryAccent } from "./BlogCover";
 import { PortraitContainer } from "./PortraitContainer";
 import { Section } from "./Section";
 import type { BlogFacetCount, BlogPost } from "@/lib/blog";
 import type { Lang } from "@/lib/content";
+
+function formatDate(iso: string, lang: Lang) {
+  const d = new Date(iso);
+  return d.toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { year: "numeric", month: "short", day: "numeric" });
+}
+
+/* One row of the "Latest" split's compact list - a small square cover,
+   the category dot + date, and the title. No excerpt: the featured card
+   beside it already carries the one long summary this slot needs, and a
+   list of four is meant to be scanned, not read.
+
+   MECHANISM SOURCE: adapted from a Figma Community personal-blog
+   template ("Articler", reviewed 2026-08) - that reference's own
+   "featured card + compact list" split, and its list row's small-
+   thumbnail + icon-meta + title shape. Its surface (lavender/peach
+   palette, circular photo thumbnails, a comment count) is NOT carried
+   over - this list row uses BlogCover's real accent system in a small
+   square instead of photography, and drops the comment count entirely
+   since this blog has no comments feature to report a real count for. */
+function BlogCompactRow({ post, href, lang }: { post: BlogPost; href: string; lang: Lang }) {
+  const spec = COVERS[post.slug] ?? fallbackCover(post.category);
+  const accent = categoryAccent(post.category);
+  const dotClass = accent === "experimentation" ? "bg-primary-600" : accent === "growth" ? "bg-neutral-600" : "bg-ink-700";
+  return (
+    <Link href={href} className="group flex items-start gap-4 py-4 first:pt-0 last:pb-0">
+      <span className="block size-16 shrink-0 overflow-hidden rounded-md">
+        <BlogCover spec={spec} size="compact" />
+      </span>
+      <span className="flex min-w-0 flex-col gap-1.5">
+        <span className="flex items-center gap-1.5 text-xs text-ink-500">
+          <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${dotClass}`} />
+          {post.category}
+          <span aria-hidden className="text-ink-300">
+            &middot;
+          </span>
+          <span className="font-mono">{formatDate(post.date, lang)}</span>
+        </span>
+        <span className="text-[15px] leading-[1.35] font-semibold tracking-tight text-ink-950 transition-colors duration-[var(--duration-fast)] group-hover:text-primary-700">
+          {post.title}
+        </span>
+      </span>
+    </Link>
+  );
+}
 
 /* Editorial blog library — REFINEMENT ROUND. Was a filtered-database
    shell (a permanent desktop sidebar with sort radios and category/topic
@@ -180,26 +226,33 @@ export function BlogLibrary({
               {t.clearFilters}
             </button>
           </div>
-        ) : (
-          <div className={isDefaultView ? "mt-10 flex flex-col gap-10" : "mt-8 flex flex-col gap-10"}>
-            {featured && (
-              <BlogCard key={featured.slug} post={featured} href={`${basePath}/${featured.slug}`} lang={lang} featured />
-            )}
+        ) : isDefaultView && featured ? (
+          /* DEFAULT VIEW: featured card + a compact list beside it, not a
+             plain grid - the split this blog's own real post count (5)
+             actually fits, adapted from the Articler reference's
+             "featured + list" mechanism (see BlogCompactRow's comment).
+             At 5 posts, "featured + list of 4" uses every real post with
+             no orphan row; a plain N-column grid was the thing under
+             review here (see the retired comment this replaced, about a
+             stranded last card). Revisit the split point if the archive
+             grows enough that a list of the rest gets too long to scan. */
+          <div className="mt-10 grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+            <BlogCard post={featured} href={`${basePath}/${featured.slug}`} lang={lang} featured />
             {rest.length > 0 && (
-              /* TWO columns, not three. With five posts the third column
-                 left the last card stranded alone on its own row beside
-                 two empty cells - the page's most visible patch of dead
-                 canvas, and at the bottom where it read as "we ran out".
-                 Two columns divides the four non-featured posts evenly and
-                 gives each cover the larger frame the review already asked
-                 for. Revisit when the post count makes three columns land
-                 evenly again; the orphan comes back at 4 and 7 posts. */
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="flex flex-col divide-y divide-line">
                 {rest.map((post) => (
-                  <BlogCard key={post.slug} post={post} href={`${basePath}/${post.slug}`} lang={lang} />
+                  <BlogCompactRow key={post.slug} post={post} href={`${basePath}/${post.slug}`} lang={lang} />
                 ))}
               </div>
             )}
+          </div>
+        ) : (
+          // Filtered/searched view: a plain grid of whatever matched - no
+          // "featured" editorializing over a subset the visitor chose.
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {filtered.map((post) => (
+              <BlogCard key={post.slug} post={post} href={`${basePath}/${post.slug}`} lang={lang} />
+            ))}
           </div>
         )}
       </PortraitContainer>

@@ -2,6 +2,8 @@ import { SiteFooter, SiteHeader } from "@/components/Site";
 import { Section } from "@/components/ui/Section";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { BlogLibrary } from "@/components/ui/BlogLibrary";
+import { BlogCover, COVERS } from "@/components/ui/BlogCover";
+import { fallbackCover } from "@/components/ui/BlogCard";
 import { copy, type Lang } from "@/lib/content";
 import { getAllBlogPosts, getBlogFacets } from "@/lib/blog";
 import { breadcrumbList } from "@/lib/schema";
@@ -49,6 +51,40 @@ export function basePathFor(lang: Lang) {
   return lang === "en" ? "/blog" : "/tr/blog";
 }
 
+/* Two-cover staggered collage beside the hero H1 - the asymmetric-hero
+   mechanism from the Articler Figma reference (2026-08 review), rebuilt
+   with this site's own real BlogCover system in place of that
+   reference's travel photography. Two real, existing posts, picked for
+   visual range (a two-line ratio cover and a one-line single-word
+   cover) rather than strict recency - a curatorial choice, not a claim
+   about which posts are newest (BlogLibrary's own featured slot already
+   makes that claim, correctly, further down the page). */
+const HERO_COVER_SLUGS = ["the-guardrail-metric-most-ab-tests-forget", "ltv-cac-ratio-doesnt-tell-you-when-to-scale"];
+
+function HeroCoverCollage({ posts }: { posts: ReturnType<typeof getAllBlogPosts> }) {
+  const covers = HERO_COVER_SLUGS.map((slug) => posts.find((p) => p.slug === slug)).filter((p): p is NonNullable<typeof p> => !!p);
+  if (covers.length < 2) return null;
+  return (
+    // Hidden below `lg`: BlogCover's "grid" size is sized for a full
+    // BlogCard-width frame, and this collage's two side-by-side cards
+    // have no room for that type scale at a phone or tablet width - the
+    // text overflowed its card there. The hero already reads fine as
+    // text-only at that width (this is the same layout it always had
+    // before this pass); the collage is a wide-screen decoration, not
+    // load-bearing content.
+    <div className="hidden w-full grid-cols-2 items-end gap-4 lg:grid">
+      {covers.map((post, i) => (
+        <span
+          key={post.slug}
+          className={`block aspect-[3/4] overflow-hidden rounded-card ${i === 0 ? "mt-10" : ""}`}
+        >
+          <BlogCover spec={COVERS[post.slug] ?? fallbackCover(post.category)} size="grid" />
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function BlogPage({ lang }: { lang: Lang }) {
   const c = copy[lang];
   const t = T[lang];
@@ -82,13 +118,26 @@ export default function BlogPage({ lang }: { lang: Lang }) {
             dead air below the H1. */}
         <Section tone="paper" size="md" className="pb-8! md:pb-10!">
           <PortraitContainer>
-            <div className="mx-auto max-w-2xl text-center">
-              {/* Plain case, matching Stack, Contact and the calculator
-                  family - the mono-uppercase `.altor-eyebrow` rail was
-                  retired in the 2026-08-30 pass. */}
-              <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
-              <h1 className="text-h1-fluid font-medium text-ink-950">{t.title}</h1>
-            </div>
+            {posts.length > 0 ? (
+              <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.7fr)] lg:gap-16">
+                <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:max-w-none lg:text-left">
+                  <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
+                  <h1 className="text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+                </div>
+                <HeroCoverCollage posts={posts} />
+              </div>
+            ) : (
+              // No posts (TR today) - the collage has nothing real to show,
+              // so this keeps the plain centered heading rather than an
+              // empty or placeholder pair of covers.
+              <div className="mx-auto max-w-2xl text-center">
+                {/* Plain case, matching Stack, Contact and the calculator
+                    family - the mono-uppercase `.altor-eyebrow` rail was
+                    retired in the 2026-08-30 pass. */}
+                <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
+                <h1 className="text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+              </div>
+            )}
           </PortraitContainer>
         </Section>
         <BlogLibrary

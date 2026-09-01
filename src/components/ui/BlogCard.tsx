@@ -19,7 +19,9 @@ import type { BlogPost } from "@/lib/blog";
    component, not a forked "FeaturedCard": the brief's whole point is one
    system with real hierarchy, not two unrelated card designs. */
 
-function fallbackCover(category: string): CoverSpec {
+/** Exported so BlogLibrary's compact-list rows can resolve the same real
+    cover a full BlogCard would - one cover-resolution rule, not two. */
+export function fallbackCover(category: string): CoverSpec {
   // Any post without a hand-authored entry in COVERS (a future post,
   // before someone writes its own cover spec) still gets a real,
   // non-empty cover rather than a blank rectangle - the category name
