@@ -158,6 +158,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Work accepted → queue → process → complete or fail",
+    shortName: "Asynchronous Work Processing",
     purpose:
       "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
     entity: {
@@ -364,6 +365,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Queue lag → measure → prioritise, scale or degrade",
+    shortName: "Queue Lag Management",
     purpose:
       "Respond to a queue that cannot keep up, measured by how old the unfinished work is rather than by how much of it there is.",
     entity: {
@@ -532,6 +534,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Work stalled → detect lack of progress → recover, fail or escalate",
+    shortName: "Stalled Work Recovery",
     purpose:
       "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
     entity: {
@@ -682,6 +685,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Retryable failure → backoff → retry → resolve or exhaust",
+    shortName: "Retry Management",
     purpose:
       "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
     entity: {
@@ -866,6 +870,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Duplicate work detected → deduplicate → reuse, suppress or reconcile",
+    shortName: "Work Deduplication",
     purpose:
       "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
     entity: {
@@ -999,6 +1004,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Partial processing → preserve completed work → retry only the failed scope",
+    shortName: "Partial Processing Recovery",
     purpose:
       "Recover the part of a composite operation that failed, without re-running the part that worked.",
     entity: {
@@ -1138,6 +1144,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "Dead-letter entry → diagnose → replay, correct or close",
+    shortName: "Dead-Letter Recovery",
     purpose:
       "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
     entity: {
@@ -1307,6 +1314,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Worker or processor failure → reclaim work → resume safely",
+    shortName: "Worker Failure Recovery",
     purpose:
       "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
     entity: {
@@ -1471,6 +1479,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Backlog recovery → revalidate → controlled drain → normal state",
+    shortName: "Backlog Recovery",
     purpose:
       "Work through an accumulated backlog deliberately, discarding what has gone stale and pacing what has not.",
     entity: {
@@ -1619,6 +1628,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Technical completion → verify business outcome → finalize or reconcile",
+    shortName: "Business Outcome Verification",
     purpose:
       "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",
     entity: {

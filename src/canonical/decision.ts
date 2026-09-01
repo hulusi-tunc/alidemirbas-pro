@@ -1111,6 +1111,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: [],
     name: "Approval decision → revalidate target → execute, hold or invalidate",
+    shortName: "Approval Execution Validation",
     purpose:
       "Carry an authorization into execution, having checked it still applies to what it was granted against.",
     entity: {
@@ -1345,6 +1346,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: [],
     name: "Rejection decision → record reason → remediate, close or reapply",
+    shortName: "Rejection Resolution",
     purpose:
       "Treat a refusal as the business outcome it is, and say what if anything the requester can do next.",
     entity: {
@@ -1510,6 +1512,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: [],
     name: "Partial approval → split scope → execute approved, resolve remaining",
+    shortName: "Partial Approval Resolution",
     purpose:
       "Make the authorized and unauthorized halves of one request explicit, so only the first can move.",
     entity: {
@@ -1674,6 +1677,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Approval validity or expiry → revalidate → use, expire or renew review",
+    shortName: "Approval Expiry Revalidation",
     purpose:
       "Answer, at the moment of use, whether an approval is still one - in time, in context and in count.",
     entity: {

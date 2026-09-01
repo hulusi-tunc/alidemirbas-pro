@@ -338,6 +338,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "Due-state change → recalculate priority → resolve or escalate",
+    shortName: "Overdue State Recalculation",
     purpose:
       "Change what an unresolved obligation costs operationally when it becomes due or overdue, rather than only announcing that it has.",
     entity: {
@@ -663,6 +664,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Expiry reached → validate current state → expire, extend or replace",
+    shortName: "Expiry Validation",
     purpose:
       "Check what the entity actually is at the moment the expiry fires, before applying anything the timer was written to apply.",
     entity: {
@@ -776,6 +778,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Grace period entry → temporary continuity → recover or terminate",
+    shortName: "Grace Period Management",
     purpose:
       "Keep limited continuity while something recoverable is unresolved, without pretending the normal active state still exists.",
     entity: {
@@ -921,6 +924,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "Temporary exception → validity window → revert or formalise",
+    shortName: "Temporary Exception Expiry",
     purpose:
       "Stop an exception granted for a reason from becoming a permanent state nobody remembers deciding on.",
     entity: {
@@ -1066,6 +1070,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Temporary state → explicit expiry → restore or transition",
+    shortName: "Temporary State Expiry",
     purpose:
       "Give any time-bound state a defined ending, and revalidate before returning anything to what it was.",
     entity: {
@@ -1210,6 +1215,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Reversible state → reversal window → confirm or restore",
+    shortName: "State Reversal",
     purpose:
       "Undo a transition within its window while restoring only what is independently still valid.",
     entity: {
@@ -1349,6 +1355,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Expired state → re-entry eligibility → renew, requalify or remain expired",
+    shortName: "Expired State Re-Entry",
     purpose:
       "Decide how something expired can become valid again, through the mechanism that actually restores validity rather than by editing the expiry away.",
     entity: {
@@ -1462,6 +1469,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Scheduled future transition → validate at execution → apply, cancel or recalculate",
+    shortName: "Scheduled Transition Validation",
     purpose:
       "Treat a scheduled transition as an intention recorded in the past, and check it against the present before applying it.",
     entity: {

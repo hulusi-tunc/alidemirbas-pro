@@ -152,6 +152,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Integration connection → authenticate → validate → activate",
+    shortName: "Integration Activation",
     purpose:
       "Make an integration active only once it has been proven to do the thing it exists for, rather than once a credential has been saved.",
     entity: {
@@ -302,6 +303,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Integration credential or authorization change → revalidate → continue or degrade",
+    shortName: "Integration Authorization Revalidation",
     purpose:
       "Recheck what an integration can still do whenever its authorization changes, rather than assuming valid credentials mean unchanged access.",
     entity: {
@@ -414,6 +416,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Integration health degradation → diagnose → recover, degrade or escalate",
+    shortName: "Integration Health Recovery",
     purpose:
       "Scope a deteriorating integration to what is actually failing, and let recovery be established by evidence rather than by a metric returning to normal.",
     entity: {
@@ -554,6 +557,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "External request → pending outcome → confirm, fail or unknown",
+    shortName: "External Request Reconciliation",
     purpose:
       "Keep submitting an external operation and completing one as separate states, and let an unknown outcome stay unknown.",
     entity: {
@@ -668,6 +672,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "External outcome → local state reconciliation → apply or investigate",
+    shortName: "External Outcome Reconciliation",
     purpose:
       "Apply an external outcome to local state only after establishing that it belongs here, has not already been applied, and still describes what is true.",
     entity: {
@@ -833,6 +838,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Integration failure → stop unsafe operations → diagnose → restore",
+    shortName: "Integration Failure Recovery",
     purpose:
       "Stop sending into an integration that cannot work, while keeping enough state to recover without repeating anything the provider may already have done.",
     entity: {
@@ -981,6 +987,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Integration failure → queue or hold work → recover → controlled resume",
+    shortName: "Integration Work Hold",
     purpose:
       "Keep work that a failed integration blocked, but only where it can later be revalidated and safely resumed.",
     entity: {
@@ -1147,6 +1154,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Integration reconnect → backfill → deduplicate → reconcile",
+    shortName: "Integration Backfill Reconciliation",
     purpose:
       "Close the gap an outage left in what we know, without recreating everything that would have happened if the events had arrived on time.",
     entity: {
@@ -1302,6 +1310,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Synchronization conflict → determine authority → reconcile or hold",
+    shortName: "Synchronization Conflict Resolution",
     purpose:
       "Settle a cross-system disagreement using an explicit authority rule, and hold rather than guess where none exists.",
     entity: {
@@ -1439,6 +1448,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "External dependency unavailable → degrade capability → alternate or recover",
+    shortName: "Dependency Degradation Recovery",
     purpose:
       "Lose only the capability that actually depends on an unavailable provider, and keep every uncertain outcome uncertain.",
     entity: {

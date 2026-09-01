@@ -188,6 +188,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Ownership assignment → validate authority → assign or reject",
+    shortName: "Ownership Assignment",
     purpose:
       "Establish an accountable controller for an entity, by an explicit act rather than by inference.",
     entity: {
@@ -448,6 +449,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Ownership transfer request → validate → pending acceptance or reject",
+    shortName: "Ownership Transfer Validation",
     purpose:
       "Propose a future controller without disturbing the one the entity currently has.",
     entity: {
@@ -613,6 +615,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Ownership transfer acceptance → revalidate → execute or expire",
+    shortName: "Ownership Transfer Execution",
     purpose:
       "Check that a transfer accepted today is still the transfer that was proposed.",
     entity: {
@@ -749,6 +752,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Ownership cutover → assign new owner → reconcile old owner",
+    shortName: "Ownership Cutover",
     purpose:
       "Move control from one party to another without the entity being uncontrolled in between.",
     entity: {
@@ -869,6 +873,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Delegation request → define scope → grant or reject",
+    shortName: "Delegation Authorization",
     purpose:
       "Let somebody act on an owner's behalf, inside a boundary, without moving anything.",
     entity: {
@@ -1055,6 +1060,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Temporary delegation → expire → revoke, extend or restore",
+    shortName: "Temporary Delegation Expiry",
     purpose:
       "End borrowed authority at its boundary, checking first that the boundary still belongs to a delegation that exists.",
     entity: {
@@ -1249,6 +1255,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Delegation revoked → remove delegated authority → preserve independent access",
+    shortName: "Delegation Revocation",
     purpose:
       "Take back exactly what was lent, and nothing the delegate had of their own.",
     entity: {
@@ -1381,6 +1388,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Owner unavailable or invalid → protect entity → recover ownership",
+    shortName: "Ownership Recovery",
     purpose:
       "Hold an entity safely when its owner cannot act, without handing it to whoever is nearest.",
     entity: {

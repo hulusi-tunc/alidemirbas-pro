@@ -165,6 +165,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Financial obligation created → due → satisfied or outstanding",
+    shortName: "Financial Obligation Tracking",
     purpose:
       "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
     entity: {
@@ -326,6 +327,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Payment initiated → pending → success, failure or unknown",
+    shortName: "Payment Outcome Resolution",
     purpose:
       "Keep initiating a payment and knowing what happened to it as separate states, with a third state for not knowing.",
     entity: {
@@ -459,6 +461,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Payment authorization → capture → settle or release",
+    shortName: "Payment Settlement Lifecycle",
     purpose:
       "Model the actual commitment of funds, where reserving, taking and receiving are three different things.",
     entity: {
@@ -833,6 +836,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Payment unknown → reconcile → confirm success or failure",
+    shortName: "Unknown Payment Reconciliation",
     purpose:
       "Find out what actually happened to a payment whose outcome we lost sight of, before anything is charged again.",
     entity: {
@@ -1001,6 +1005,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Financial obligation satisfied → reconcile balance → release dependent state",
+    shortName: "Balance Reconciliation",
     purpose:
       "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
     entity: {
@@ -1341,6 +1346,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Refund approved → execute → confirm or reconcile",
+    shortName: "Refund Execution Verification",
     purpose:
       "Move the money and confirm it arrived, keeping that separate from having decided it should.",
     entity: {
@@ -1485,6 +1491,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "risk-compliance",
     channels: [],
     name: "Financial dispute or chargeback → evidence → decision → reconcile",
+    shortName: "Financial Dispute Reconciliation",
     purpose:
       "Run a transaction-level dispute through the authority that decides it, without treating the claim as a finding.",
     entity: {
@@ -1645,6 +1652,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Financial reconciliation → detect mismatch → correct or escalate",
+    shortName: "Financial Reconciliation",
     purpose:
       "Restore financial consistency by explaining the difference and adjusting it, never by editing the record that is inconvenient.",
     entity: {

@@ -86,6 +86,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Anonymous intent → known identity → qualified entry",
+    shortName: "Anonymous Identity Resolution",
     purpose:
       "Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.",
     entity: {
@@ -219,6 +220,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: [],
     name: "Captured interest → qualification → appropriate destination",
+    shortName: "Interest Qualification Routing",
     purpose:
       "Route first-party interest to the destination its own content justifies, instead of treating every capture as either a sales lead or a subscriber.",
     entity: {
@@ -338,6 +340,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Intent escalation → higher-intent journey handoff",
+    shortName: "Intent Escalation Handoff",
     purpose:
       "Move ownership when someone in a low-intent lifecycle does something that no longer fits it, and make sure the journey being left behind actually goes quiet.",
     entity: {
@@ -607,6 +610,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Qualification state change → route, re-route or exit",
+    shortName: "Qualification State Routing",
     purpose:
       "Treat qualification as a reversible state whose routing depends on why it changed, rather than a label applied once and trusted afterwards.",
     entity: {
@@ -802,6 +806,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Dynamic eligibility → eligible or ineligible → consequence",
+    shortName: "Eligibility Recalculation",
     purpose:
       "Re-decide eligibility as the underlying data changes, and separate what it forbids next from what it does not undo.",
     entity: {
@@ -928,6 +933,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Intent decay → de-prioritise → cooldown or exit",
+    shortName: "Intent Decay",
     purpose:
       "Let a recorded high-intent state expire when the evidence behind it goes stale, instead of pursuing someone on the strength of something they did once.",
     entity: {
@@ -1071,6 +1077,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Commercial destination reached → acquisition suppression → lifecycle handoff",
+    shortName: "Acquisition Exit Handoff",
     purpose:
       "Make acquisition give up ownership the moment the outcome it existed to cause is recorded, and stop what it has already queued.",
     entity: {
@@ -1306,6 +1313,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Explicit commercial decline → reason → terminal, cooldown or recycle",
+    shortName: "Commercial Decline Routing",
     purpose:
       "Route a negative commercial outcome by its cause rather than filing every one of them under lost.",
     entity: {

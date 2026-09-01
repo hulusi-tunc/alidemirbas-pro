@@ -168,6 +168,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Fulfillment request → validate → accept, reject or hold",
+    shortName: "Fulfillment Request Validation",
     purpose:
       "Decide whether we are taking responsibility for delivering something, as a state distinct from having been asked.",
     entity: {
@@ -320,6 +321,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Accepted fulfillment → availability check → allocate, backorder or reject",
+    shortName: "Fulfillment Allocation",
     purpose:
       "Establish whether the resources to satisfy an accepted obligation actually exist, in the scope and window that would serve it.",
     entity: {
@@ -479,6 +481,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Resource allocation → reserve → confirm, release or reallocate",
+    shortName: "Resource Reservation",
     purpose:
       "Bind specific capacity to one obligation until it is consumed or deliberately let go.",
     entity: {
@@ -665,6 +668,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Fulfillment execution → progress → complete, partial or fail",
+    shortName: "Fulfillment Execution",
     purpose:
       "Track what the obligation's scope actually reaches, rather than what an internal step reported.",
     entity: {
@@ -848,6 +852,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Fulfillment exception → diagnose → recover, substitute or fail",
+    shortName: "Fulfillment Exception Recovery",
     purpose:
       "Change only the part of an obligation the operational problem actually touches.",
     entity: {
@@ -1227,6 +1232,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Dispatch or handoff → track → delivered, failed or unknown",
+    shortName: "Delivery Outcome Tracking",
     purpose:
       "Transfer execution to whoever performs the delivery while the obligation stays ours and stays open.",
     entity: {
@@ -1547,6 +1553,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Delivery confirmation → acceptance or issue window → finalize",
+    shortName: "Delivery Acceptance Finalization",
     purpose:
       "Separate arriving from being agreed to have arrived correctly, wherever that difference has business meaning.",
     entity: {
@@ -1685,6 +1692,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Fulfillment cancellation → stop future work → release resources → reconcile",
+    shortName: "Fulfillment Cancellation Reconciliation",
     purpose:
       "Stop what remains of an obligation while keeping everything that already happened.",
     entity: {

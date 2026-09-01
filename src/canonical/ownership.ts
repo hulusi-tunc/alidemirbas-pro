@@ -291,6 +291,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: [],
     name: "Assignment → acceptance → active responsibility",
+    shortName: "Assignment Acceptance",
     purpose:
       "Keep proposed responsibility and accepted responsibility as different states, so work nobody has taken is visible as such.",
     entity: {
@@ -439,6 +440,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Owner assignment → context transfer → work start",
+    shortName: "Ownership Context Transfer",
     purpose:
       "Give a new owner what they need to continue an existing obligation, rather than an entity with their name on it.",
     entity: {
@@ -1159,6 +1161,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: [],
     name: "Multi-party approval → aggregate required decisions → authorised or blocked",
+    shortName: "Multi-Party Approval",
     purpose:
       "Combine several genuinely independent approval decisions strictly according to the governing policy, and refuse to proceed where no policy defines how.",
     entity: {
@@ -1589,6 +1592,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: [],
     name: "Approval rejected → revision eligibility → resubmit or close",
+    shortName: "Approval Re-Entry",
     purpose:
       "Keep rejection from being either a dead end by default or a retry loop, and make sure a rejected version cannot quietly execute later.",
     entity: {

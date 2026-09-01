@@ -173,6 +173,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Data intake → identify format → parse or reject",
+    shortName: "Data Parsing",
     purpose:
       "Get an incoming dataset into a stable readable form, without touching anything real while doing it.",
     entity: {
@@ -307,6 +308,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Parsed data → validate schema and semantics → accept, reject or quarantine",
+    shortName: "Data Validation",
     purpose:
       "Establish that the data is valid for the target it is going into, record by record where that is meaningful.",
     entity: {
@@ -700,6 +702,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Import execution → apply idempotently → complete, partial or fail",
+    shortName: "Import Execution",
     purpose:
       "Apply a fixed validated change set to production state, keeping every record's outcome.",
     entity: {
@@ -861,6 +864,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Partial import → isolate failed scope → correct → resume",
+    shortName: "Partial Import Recovery",
     purpose:
       "Fix only what did not land, without touching the records that already did.",
     entity: {
@@ -1043,6 +1047,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Migration plan → map source to target → validate readiness",
+    shortName: "Migration Readiness Validation",
     purpose:
       "Prove the target can carry the source's meaning before anything is moved.",
     entity: {
@@ -1199,6 +1204,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Migration execute → copy and transform → verify population",
+    shortName: "Migration Verification",
     purpose:
       "Move the population and then prove the result still means what the source meant.",
     entity: {
@@ -1327,6 +1333,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Cutover → switch authority → observe → stabilize or roll back",
+    shortName: "Cutover Stabilization",
     purpose:
       "Change which system is authoritative, once, with a way back that was defined before it was needed.",
     entity: {
@@ -1496,6 +1503,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Historical backfill → scope window → apply without replaying stale actions",
+    shortName: "Historical Backfill",
     purpose:
       "Repair a gap in the record without re-enacting the things those events would have caused.",
     entity: {
@@ -1656,6 +1664,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Data transformation error → reconcile → correct, roll forward or roll back",
+    shortName: "Transformation Error Recovery",
     purpose:
       "Undo the wrong mutation without undoing the right things that happened after it.",
     entity: {

@@ -146,6 +146,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Entitlement qualification → grant, deny or pending",
+    shortName: "Entitlement Qualification",
     purpose:
       "Establish whether a right actually exists, as a state distinct from being eligible for one or having paid toward one.",
     entity: {
@@ -290,6 +291,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Entitlement grant → provision → verify availability",
+    shortName: "Entitlement Provisioning",
     purpose:
       "Hold the distance between a right being granted and the thing behind it actually working.",
     entity: {
@@ -444,6 +446,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Entitlement change → recalculate scope → expand, reduce or preserve",
+    shortName: "Entitlement Recalculation",
     purpose:
       "Apply only the difference between the old and new rights, rather than re-applying a whole scope over a working one.",
     entity: {
@@ -561,6 +564,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Entitlement loss → revoke future capability → reconcile existing obligations",
+    shortName: "Entitlement Revocation",
     purpose:
       "Stop future use of a right that has ended without cancelling what was validly created while it was held.",
     entity: {
@@ -689,6 +693,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Access request → authorization check → allow, deny or step up",
+    shortName: "Access Authorization",
     purpose:
       "Decide at the moment of the attempt whether this actor may take this action on this resource.",
     entity: {
@@ -797,6 +802,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Credential issued → activate → use, expire or revoke",
+    shortName: "Credential Lifecycle",
     purpose:
       "Run an access artifact through its own validity lifecycle, separately from the right it represents.",
     entity: {
@@ -998,6 +1004,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Credential compromise or revocation → disable → replace or re-authenticate",
+    shortName: "Credential Revocation",
     purpose:
       "Take a credential out of use immediately, and let any replacement come through its own authorised path.",
     entity: {
@@ -1129,6 +1136,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Access suspension → restricted state → restore or terminate",
+    shortName: "Access Suspension",
     purpose:
       "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
     entity: {
@@ -1309,6 +1317,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Capability restoration → revalidate → restore safely",
+    shortName: "Capability Restoration",
     purpose:
       "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
     entity: {
@@ -1424,6 +1433,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Deprovision request → dependency check → remove, retain or escalate",
+    shortName: "Deprovisioning Reconciliation",
     purpose:
       "Remove a capability that is no longer authorised, after establishing that nothing still depends on the thing being removed.",
     entity: {

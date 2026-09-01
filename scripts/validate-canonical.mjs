@@ -107,9 +107,10 @@ for (const j of all) {
      a message send attempt) against "Delivery Tracking" (FUL-265, an actual
      parcel) - the exact two facts CMS-206's own reusable rule exists to keep
      apart. */
-  if (j.shortName !== undefined) {
-    if (!String(j.shortName).trim()) err("shortname_empty", w, "shortName is present but empty");
-    else if (seenShortNames.has(j.shortName))
+  if (!j.shortName || !String(j.shortName).trim()) {
+    err("shortname_missing", w, "no shortName - every journey needs a plain-language label, it is what cards and page titles show");
+  } else {
+    if (seenShortNames.has(j.shortName))
       err("duplicate_shortname", w, `shortName "${j.shortName}" is already used by another journey`);
     else seenShortNames.add(j.shortName);
   }

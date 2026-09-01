@@ -181,6 +181,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "root-cause-diagnostic-correlation",
     channels: [],
     name: "Correlated failure detection → incident candidate → confirm or reject",
+    shortName: "Incident Confirmation",
     purpose:
       "Establish whether several failures actually share a cause, before treating them as one thing.",
     entity: {
@@ -469,6 +470,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Incident → contain and mitigate → preserve critical operations",
+    shortName: "Incident Containment",
     purpose:
       "Reduce the damage now, without pretending the cause has been dealt with.",
     entity: {
@@ -819,6 +821,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "root-cause-diagnostic-correlation",
     channels: [],
     name: "Root cause investigation → hypothesis → confirm or reject → corrective action",
+    shortName: "Root Cause Investigation",
     purpose:
       "Find the thing that actually explains the incident, rather than the thing that was nearest to it.",
     entity: {
@@ -967,6 +970,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Recovery action → restore service → verify or continue",
+    shortName: "Service Recovery Verification",
     purpose:
       "Act on the cause and then check the affected population, not the command's return code.",
     entity: {
@@ -1151,6 +1155,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Service restored → observation window → stable or relapse",
+    shortName: "Recovery Stability Monitoring",
     purpose:
       "Hold the incident open long enough to know the recovery held.",
     entity: {
@@ -1293,6 +1298,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Incident resolution → close operational response → preserve residual cases",
+    shortName: "Incident Closure Reconciliation",
     purpose:
       "Close the shared failure without closing the individual problems it caused.",
     entity: {
@@ -1652,6 +1658,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "root-cause-diagnostic-correlation",
     channels: [],
     name: "Incident pattern recurrence → detect systemic weakness → escalate prevention",
+    shortName: "Recurring Incident Prevention",
     purpose:
       "Notice when the same weakness keeps producing incidents, and stop treating each one as new.",
     entity: {

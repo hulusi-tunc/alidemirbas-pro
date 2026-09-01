@@ -184,6 +184,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Business event → communication obligation → create or suppress",
+    shortName: "Communication Obligation Creation",
     purpose:
       "Decide whether anyone is actually owed a message about what happened, before any message exists.",
     entity: {
@@ -321,6 +322,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: [],
     name: "Communication obligation → resolve recipient → ready, hold or fail",
+    shortName: "Recipient Resolution",
     purpose:
       "Establish who is actually owed this, and where they can currently be reached.",
     entity: {
@@ -541,6 +543,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: [],
     name: "Communication purpose → permission and preference check → allow, suppress or alternate",
+    shortName: "Channel Eligibility Resolution",
     purpose:
       "Decide whether a working destination may carry this particular message, given what it is for.",
     entity: {
@@ -1128,6 +1131,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Delivery outcome → delivered, failed or unknown → update communication",
+    shortName: "Delivery Outcome Reconciliation",
     purpose:
       "Derive the real delivery state from what the channel reports, attached to the exact attempt it concerns.",
     entity: {
@@ -1530,6 +1534,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Communication outcome → close obligation or escalate unreachable",
+    shortName: "Communication Obligation Closure",
     purpose:
       "Close the obligation against what it actually required, and escalate the ones that could not be met.",
     entity: {

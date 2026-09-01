@@ -178,6 +178,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Continuing relationship created → validate → activate or pending",
+    shortName: "Relationship Activation",
     purpose:
       "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
     entity: {
@@ -363,6 +364,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Future effective start → wait → revalidate → activate or abort",
+    shortName: "Future Activation Revalidation",
     purpose:
       "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
     entity: {
@@ -781,6 +783,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Renewal execution → financial and dependency check → new term active",
+    shortName: "Renewal Execution",
     purpose: "Make the new term exist, once the things it depends on have actually happened.",
     entity: {
       scope: "the renewal operation and the new term it would create",
@@ -1007,6 +1010,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Renewal payment failure → grace or recover → renew or lapse",
+    shortName: "Renewal Payment Recovery",
     purpose:
       "Decide what the relationship does while a failed renewal payment is being chased, without ending it by reflex.",
     entity: {
@@ -1203,6 +1207,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Plan or terms change request → validate → schedule, apply or reject",
+    shortName: "Plan Change Validation",
     purpose:
       "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
     entity: {
@@ -1498,6 +1503,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Cancellation request → determine effective end → schedule or cancel now",
+    shortName: "Cancellation Effective-Date Resolution",
     purpose:
       "Establish whether and when a relationship will end, while the current term keeps running until it does.",
     entity: {
@@ -1696,6 +1702,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Scheduled cancellation → revalidate at effective time → end or preserve",
+    shortName: "Scheduled Cancellation Revalidation",
     purpose:
       "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
     entity: {
@@ -1804,6 +1811,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Suspension or hold → restrict relationship → restore or end",
+    shortName: "Relationship Suspension",
     purpose:
       "Hold a relationship in a state where it cannot operate normally and has not ended.",
     entity: {
@@ -1990,6 +1998,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Relationship end → final reconciliation → former or expired state",
+    shortName: "Continuing Relationship End Reconciliation",
     purpose:
       "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
     entity: {

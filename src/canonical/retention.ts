@@ -126,6 +126,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "health-risk-signal-scoring",
     channels: [],
     name: "Engagement state change → reclassify → appropriate lifecycle",
+    shortName: "Engagement Reclassification",
     purpose:
       "Hold engagement as a state that moves in both directions, and decide separately whether a movement is worth acting on.",
     entity: {
@@ -260,6 +261,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "health-risk-signal-scoring",
     channels: [],
     name: "Expected usage miss → context check → observe or intervene",
+    shortName: "Usage Gap Assessment",
     purpose:
       "Read a missed usage expectation as evidence only where an expectation genuinely existed, and only where something else corroborates it.",
     entity: {
@@ -374,6 +376,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-recovery-intervention",
     channels: [],
     name: "Health deterioration → diagnose cause → recovery route",
+    shortName: "Health Deterioration Diagnosis",
     purpose:
       "Send a deteriorating relationship to the mechanism that is actually breaking it, and never to a generic retention campaign in its place.",
     entity: {
@@ -943,6 +946,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-recovery-intervention",
     channels: [],
     name: "Recovery signal → observation buffer → stable or relapse",
+    shortName: "Recovery Stability Check",
     purpose:
       "Keep the distance between a good sign and an actual recovery, so a relapse is still being watched for when it happens.",
     entity: {
@@ -1248,6 +1252,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Cancellation completed → stop retention → resolve remaining relationship",
+    shortName: "Cancellation Wind-Down",
     purpose:
       "End retention ownership the moment cancellation is real, and manage what is still outstanding without pretending the relationship is either fully over or still winnable.",
     entity: {

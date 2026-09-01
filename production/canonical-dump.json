@@ -7,6 +7,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Anonymous intent → known identity → qualified entry",
+      "shortName": "Anonymous Identity Resolution",
       "purpose": "Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.",
       "entity": {
         "scope": "anonymous_profile, reconciled onto person or account",
@@ -140,6 +141,7 @@
       "goal": "routing-assignment",
       "channels": [],
       "name": "Captured interest → qualification → appropriate destination",
+      "shortName": "Interest Qualification Routing",
       "purpose": "Route first-party interest to the destination its own content justifies, instead of treating every capture as either a sales lead or a subscriber.",
       "entity": {
         "scope": "lead, resolved onto person or account",
@@ -263,6 +265,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Intent escalation → higher-intent journey handoff",
+      "shortName": "Intent Escalation Handoff",
       "purpose": "Move ownership when someone in a low-intent lifecycle does something that no longer fits it, and make sure the journey being left behind actually goes quiet.",
       "entity": {
         "scope": "person plus the entity the new intent is about",
@@ -547,6 +550,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Qualification state change → route, re-route or exit",
+      "shortName": "Qualification State Routing",
       "purpose": "Treat qualification as a reversible state whose routing depends on why it changed, rather than a label applied once and trusted afterwards.",
       "entity": {
         "scope": "lead, account or opportunity",
@@ -778,6 +782,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Dynamic eligibility → eligible or ineligible → consequence",
+      "shortName": "Eligibility Recalculation",
       "purpose": "Re-decide eligibility as the underlying data changes, and separate what it forbids next from what it does not undo.",
       "entity": {
         "scope": "person, account or the business entity the rule is about",
@@ -921,6 +926,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Intent decay → de-prioritise → cooldown or exit",
+      "shortName": "Intent Decay",
       "purpose": "Let a recorded high-intent state expire when the evidence behind it goes stale, instead of pursuing someone on the strength of something they did once.",
       "entity": {
         "scope": "person plus the intent context that was recorded",
@@ -1083,6 +1089,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Commercial destination reached → acquisition suppression → lifecycle handoff",
+      "shortName": "Acquisition Exit Handoff",
       "purpose": "Make acquisition give up ownership the moment the outcome it existed to cause is recorded, and stop what it has already queued.",
       "entity": {
         "scope": "person or account plus the destination entity",
@@ -1323,6 +1330,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Explicit commercial decline → reason → terminal, cooldown or recycle",
+      "shortName": "Commercial Decline Routing",
       "purpose": "Route a negative commercial outcome by its cause rather than filing every one of them under lost.",
       "entity": {
         "scope": "lead, opportunity or account",
@@ -2574,6 +2582,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Activation achieved → stop onboarding → adoption handoff",
+      "shortName": "Onboarding Completion Handoff",
       "purpose": "Make onboarding let go the moment activation is recorded, including the messages it has already queued.",
       "entity": {
         "scope": "person or account plus the onboarding instance being closed",
@@ -3303,6 +3312,7 @@
       "goal": "health-risk-signal-scoring",
       "channels": [],
       "name": "Engagement state change → reclassify → appropriate lifecycle",
+      "shortName": "Engagement Reclassification",
       "purpose": "Hold engagement as a state that moves in both directions, and decide separately whether a movement is worth acting on.",
       "entity": {
         "scope": "person or account, per product or service relationship",
@@ -3441,6 +3451,7 @@
       "goal": "health-risk-signal-scoring",
       "channels": [],
       "name": "Expected usage miss → context check → observe or intervene",
+      "shortName": "Usage Gap Assessment",
       "purpose": "Read a missed usage expectation as evidence only where an expectation genuinely existed, and only where something else corroborates it.",
       "entity": {
         "scope": "person or account plus the product or use-case the expectation belongs to",
@@ -3549,6 +3560,7 @@
       "goal": "relationship-recovery-intervention",
       "channels": [],
       "name": "Health deterioration → diagnose cause → recovery route",
+      "shortName": "Health Deterioration Diagnosis",
       "purpose": "Send a deteriorating relationship to the mechanism that is actually breaking it, and never to a generic retention campaign in its place.",
       "entity": {
         "scope": "person, account, subscription or customer relationship - whichever the health state is held against",
@@ -4155,6 +4167,7 @@
       "goal": "relationship-recovery-intervention",
       "channels": [],
       "name": "Recovery signal → observation buffer → stable or relapse",
+      "shortName": "Recovery Stability Check",
       "purpose": "Keep the distance between a good sign and an actual recovery, so a relapse is still being watched for when it happens.",
       "entity": {
         "scope": "person or account plus the health or risk context that deteriorated",
@@ -4481,6 +4494,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Cancellation completed → stop retention → resolve remaining relationship",
+      "shortName": "Cancellation Wind-Down",
       "purpose": "End retention ownership the moment cancellation is real, and manage what is still outstanding without pretending the relationship is either fully over or still winnable.",
       "entity": {
         "scope": "the subscription, membership or service relationship that ended",
@@ -4853,6 +4867,7 @@
       "goal": "consent-permission",
       "channels": [],
       "name": "Permission capture → validate scope → activate or reject",
+      "shortName": "Permission Validation",
       "purpose": "Turn a permission decision into an auditable record of what exactly was authorised, rather than a flag that says yes.",
       "entity": {
         "scope": "person plus the permission record, keyed by purpose, channel and scope",
@@ -5001,6 +5016,7 @@
       "goal": "consent-permission",
       "channels": [],
       "name": "Preference capture → persist → personalise eligible communication",
+      "shortName": "Preference Capture",
       "purpose": "Record how someone would like permitted communication done, in a store that structurally cannot become permission.",
       "entity": {
         "scope": "person plus the declared-preference profile",
@@ -5092,6 +5108,7 @@
       "goal": "consent-permission",
       "channels": [],
       "name": "Preference change → recalculate active journeys → suppress or adapt",
+      "shortName": "Preference Recalculation",
       "purpose": "Make a preference change reach the messages already sitting in a queue, not just the profile field.",
       "entity": {
         "scope": "person plus the preference plus every active journey instance and queued action it touches",
@@ -5191,6 +5208,7 @@
       "goal": "consent-permission",
       "channels": [],
       "name": "Communication frequency change → recalculate cadence → apply prospectively",
+      "shortName": "Frequency Recalculation",
       "purpose": "Recalculate how often optional communication may go out, without letting that quietly reach the messages someone has to receive.",
       "entity": {
         "scope": "person plus the communication classes the frequency preference actually governs",
@@ -5323,6 +5341,7 @@
       "goal": "consent-permission",
       "channels": [],
       "name": "Consent or permission change → immediate enforcement → propagate",
+      "shortName": "Permission Change Enforcement",
       "purpose": "Stop affected communication the moment permission changes, and let the distributed systems catch up afterwards.",
       "entity": {
         "scope": "person plus the permission record that changed, at its purpose, channel and scope",
@@ -5460,6 +5479,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Channel contactability change → recalculate reachability → route or suppress",
+      "shortName": "Contactability Recalculation",
       "purpose": "Track whether a channel can reach someone, as a state entirely separate from whether it may, and keep each destination's route health separately so future sending routes around what is broken.",
       "entity": {
         "scope": "person plus the specific contact point - this address, this number, this device token",
@@ -5695,6 +5715,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Communication suppression → reason → release or persist",
+      "shortName": "Communication Suppression",
       "purpose": "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
       "entity": {
         "scope": "the person, message or journey instance the suppression applies to, at the scope recorded with it",
@@ -5823,6 +5844,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Communication cooldown → hold optional messaging → re-evaluate",
+      "shortName": "Communication Cooldown",
       "purpose": "Reduce optional communication pressure for a while, without touching permission and without covering more than it needs to.",
       "entity": {
         "scope": "person or account plus the communication context the cooldown was created for",
@@ -5959,6 +5981,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Permission conflict → fail-safe state → reconcile → restore",
+      "shortName": "Permission Conflict Resolution",
       "purpose": "Hold optional communication closed while two systems disagree about permission, and reconcile on evidence rather than on whichever value allows more.",
       "entity": {
         "scope": "person plus the specific permission type, channel and purpose that disagrees",
@@ -8075,6 +8098,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Declared need or preference signal → persist → recalculate relevant experience",
+      "shortName": "Declared Context Recalculation",
       "purpose": "Let something a person has told us about their situation reach the decisions that actually depend on it, and nothing else.",
       "entity": {
         "scope": "person or account plus the declared attribute, at the scope it was declared for",
@@ -8395,6 +8419,7 @@
       "goal": "health-risk-signal-scoring",
       "channels": [],
       "name": "Relationship signal → evidence accumulation → state reassessment",
+      "shortName": "Relationship State Reassessment",
       "purpose": "Accumulate signals as dated evidence, and let a relationship label exist only where a policy defined what it means.",
       "entity": {
         "scope": "person or account plus the relationship context the signal was observed in",
@@ -8702,6 +8727,7 @@
       "goal": "routing-assignment",
       "channels": [],
       "name": "Assignment → acceptance → active responsibility",
+      "shortName": "Assignment Acceptance",
       "purpose": "Keep proposed responsibility and accepted responsibility as different states, so work nobody has taken is visible as such.",
       "entity": {
         "scope": "the work item plus this specific assignment of it",
@@ -8884,6 +8910,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Owner assignment → context transfer → work start",
+      "shortName": "Ownership Context Transfer",
       "purpose": "Give a new owner what they need to continue an existing obligation, rather than an entity with their name on it.",
       "entity": {
         "scope": "the business entity plus the owner now responsible for it",
@@ -9708,6 +9735,7 @@
       "goal": "decision-approval",
       "channels": [],
       "name": "Multi-party approval → aggregate required decisions → authorised or blocked",
+      "shortName": "Multi-Party Approval",
       "purpose": "Combine several genuinely independent approval decisions strictly according to the governing policy, and refuse to proceed where no policy defines how.",
       "entity": {
         "scope": "the approval package, the action and subject version it authorises, and each authority's individual decision",
@@ -10197,6 +10225,7 @@
       "goal": "decision-approval",
       "channels": [],
       "name": "Approval rejected → revision eligibility → resubmit or close",
+      "shortName": "Approval Re-Entry",
       "purpose": "Keep rejection from being either a dead end by default or a retry loop, and make sure a rejected version cannot quietly execute later.",
       "entity": {
         "scope": "the rejected approval request and the exact subject version it rejected",
@@ -10757,6 +10786,7 @@
       "goal": "escalation-exception",
       "channels": [],
       "name": "Due-state change → recalculate priority → resolve or escalate",
+      "shortName": "Overdue State Recalculation",
       "purpose": "Change what an unresolved obligation costs operationally when it becomes due or overdue, rather than only announcing that it has.",
       "entity": {
         "scope": "the obligation or work item whose due state changed",
@@ -11105,6 +11135,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Expiry reached → validate current state → expire, extend or replace",
+      "shortName": "Expiry Validation",
       "purpose": "Check what the entity actually is at the moment the expiry fires, before applying anything the timer was written to apply.",
       "entity": {
         "scope": "the time-bound entity and the specific version of it the timer was scheduled against",
@@ -11232,6 +11263,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Grace period entry → temporary continuity → recover or terminate",
+      "shortName": "Grace Period Management",
       "purpose": "Keep limited continuity while something recoverable is unresolved, without pretending the normal active state still exists.",
       "entity": {
         "scope": "the subscription, account, entitlement or obligation whose primary validity ended",
@@ -11384,6 +11416,7 @@
       "goal": "escalation-exception",
       "channels": [],
       "name": "Temporary exception → validity window → revert or formalise",
+      "shortName": "Temporary Exception Expiry",
       "purpose": "Stop an exception granted for a reason from becoming a permanent state nobody remembers deciding on.",
       "entity": {
         "scope": "the exception itself - its scope, the authority that granted it and the state it departs from",
@@ -11537,6 +11570,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Temporary state → explicit expiry → restore or transition",
+      "shortName": "Temporary State Expiry",
       "purpose": "Give any time-bound state a defined ending, and revalidate before returning anything to what it was.",
       "entity": {
         "scope": "the entity plus the temporary state placed on it",
@@ -11700,6 +11734,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Reversible state → reversal window → confirm or restore",
+      "shortName": "State Reversal",
       "purpose": "Undo a transition within its window while restoring only what is independently still valid.",
       "entity": {
         "scope": "the transition itself - what changed, when, and which of its side effects have already run",
@@ -11846,6 +11881,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Expired state → re-entry eligibility → renew, requalify or remain expired",
+      "shortName": "Expired State Re-Entry",
       "purpose": "Decide how something expired can become valid again, through the mechanism that actually restores validity rather than by editing the expiry away.",
       "entity": {
         "scope": "the expired entity, kept distinct from any replacement created for it",
@@ -11959,6 +11995,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Scheduled future transition → validate at execution → apply, cancel or recalculate",
+      "shortName": "Scheduled Transition Validation",
       "purpose": "Treat a scheduled transition as an intention recorded in the past, and check it against the present before applying it.",
       "entity": {
         "scope": "the scheduled transition plus the target entity and the version it expected to find",
@@ -12702,6 +12739,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Entitlement qualification → grant, deny or pending",
+      "shortName": "Entitlement Qualification",
       "purpose": "Establish whether a right actually exists, as a state distinct from being eligible for one or having paid toward one.",
       "entity": {
         "scope": "the person or account plus the specific entitlement, at its own scope and validity",
@@ -12855,6 +12893,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Entitlement grant → provision → verify availability",
+      "shortName": "Entitlement Provisioning",
       "purpose": "Hold the distance between a right being granted and the thing behind it actually working.",
       "entity": {
         "scope": "the entitlement plus the resource or capability being provisioned for it",
@@ -13036,6 +13075,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Entitlement change → recalculate scope → expand, reduce or preserve",
+      "shortName": "Entitlement Recalculation",
       "purpose": "Apply only the difference between the old and new rights, rather than re-applying a whole scope over a working one.",
       "entity": {
         "scope": "the entitlement whose basis changed, and the delta between its previous and new scope",
@@ -13169,6 +13209,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Entitlement loss → revoke future capability → reconcile existing obligations",
+      "shortName": "Entitlement Revocation",
       "purpose": "Stop future use of a right that has ended without cancelling what was validly created while it was held.",
       "entity": {
         "scope": "the entitlement that ended, plus the resources and commitments that depended on it",
@@ -13301,6 +13342,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Access request → authorization check → allow, deny or step up",
+      "shortName": "Access Authorization",
       "purpose": "Decide at the moment of the attempt whether this actor may take this action on this resource.",
       "entity": {
         "scope": "the individual access request - one actor, one action, one resource",
@@ -13410,6 +13452,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Credential issued → activate → use, expire or revoke",
+      "shortName": "Credential Lifecycle",
       "purpose": "Run an access artifact through its own validity lifecycle, separately from the right it represents.",
       "entity": {
         "scope": "the individual credential - its id, owner, scope and validity",
@@ -13641,6 +13684,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Credential compromise or revocation → disable → replace or re-authenticate",
+      "shortName": "Credential Revocation",
       "purpose": "Take a credential out of use immediately, and let any replacement come through its own authorised path.",
       "entity": {
         "scope": "the specific credentials affected, and their owner",
@@ -13788,6 +13832,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Access suspension → restricted state → restore or terminate",
+      "shortName": "Access Suspension",
       "purpose": "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
       "entity": {
         "scope": "the account or person plus the specific capability scope being restricted",
@@ -13988,6 +14033,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Capability restoration → revalidate → restore safely",
+      "shortName": "Capability Restoration",
       "purpose": "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
       "entity": {
         "scope": "the person or account plus each capability being considered for restoration",
@@ -14111,6 +14157,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Deprovision request → dependency check → remove, retain or escalate",
+      "shortName": "Deprovisioning Reconciliation",
       "purpose": "Remove a capability that is no longer authorised, after establishing that nothing still depends on the thing being removed.",
       "entity": {
         "scope": "the provisioned resource or capability, and the entitlement whose end triggered its removal",
@@ -14915,6 +14962,7 @@
       "goal": "identity-verification",
       "channels": [],
       "name": "Verification requirement → collect evidence → resume blocked process",
+      "shortName": "Verification Dependency Resolution",
       "purpose": "Hold a verification dependency as its own state, blocking only the process that needs it and releasing it only after everything else is rechecked.",
       "entity": {
         "scope": "the blocked process plus the verification requirement holding it",
@@ -15129,6 +15177,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Document submitted → validate → accept, reject or replace",
+      "shortName": "Document Verification",
       "purpose": "Keep uploading a document and satisfying a requirement as separate facts, and keep an acceptance bound to the requirement it was assessed against.",
       "entity": {
         "scope": "the submitted document, the requirement it is offered against, and its owner",
@@ -15666,6 +15715,7 @@
       "goal": "identity-verification",
       "channels": [],
       "name": "Step-up requirement → stronger authentication → resume or deny",
+      "shortName": "Step-Up Authentication",
       "purpose": "Raise identity assurance for a sensitive action, then check the action is still authorised before it runs.",
       "entity": {
         "scope": "the actor, the specific protected action and the authentication context around it",
@@ -15797,6 +15847,7 @@
       "goal": "risk-compliance",
       "channels": [],
       "name": "Authentication failure pattern → security check → recover or restrict",
+      "shortName": "Authentication Risk Assessment",
       "purpose": "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
       "entity": {
         "scope": "the account plus the authentication activity observed against it",
@@ -15914,6 +15965,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Account recovery request → prove control → restore secure access",
+      "shortName": "Account Recovery Verification",
       "purpose": "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
       "entity": {
         "scope": "the account plus this recovery case",
@@ -16138,6 +16190,7 @@
       "goal": "change-versioning",
       "channels": [],
       "name": "Identity attribute change → verify if required → update → propagate",
+      "shortName": "Identity Attribute Update",
       "purpose": "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
       "entity": {
         "scope": "the person or account plus the specific attribute changing",
@@ -16338,6 +16391,7 @@
       "goal": "escalation-exception",
       "channels": [],
       "name": "Suspected account compromise → contain → verify → recover or clear",
+      "shortName": "Account Compromise Recovery",
       "purpose": "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
       "entity": {
         "scope": "the account plus this security incident and the scope it affects",
@@ -16924,6 +16978,7 @@
       "goal": "relationship-hierarchy-structure",
       "channels": [],
       "name": "Entity relationship created → validate → activate or reject",
+      "shortName": "Relationship Validation",
       "purpose": "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
       "entity": {
         "scope": "the relationship, plus the two entities it connects, in the direction it was created",
@@ -17069,6 +17124,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Relationship change → recalculate rights and obligations → continue",
+      "shortName": "Relationship Impact Recalculation",
       "purpose": "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
       "entity": {
         "scope": "the relationship that changed and the entities connected by it",
@@ -17242,6 +17298,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Relationship end → remove future dependency → reconcile existing obligations",
+      "shortName": "Entity Relationship End Reconciliation",
       "purpose": "Stop what a relationship was carrying forward without cancelling what it validly produced.",
       "entity": {
         "scope": "the relationship that ended and the entities it connected",
@@ -17374,6 +17431,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Role change → authority and capability delta → apply",
+      "shortName": "Role Authority Update",
       "purpose": "Move what someone may do next, by the difference between two roles, without disturbing what they did under the old one.",
       "entity": {
         "scope": "the person or member, the role, and the account or organisation the role is held in",
@@ -17500,6 +17558,7 @@
       "goal": "relationship-hierarchy-structure",
       "channels": [],
       "name": "Parent state change → determine child impact → propagate selectively",
+      "shortName": "Parent State Propagation",
       "purpose": "Let a parent's state reach only the children that genuinely depend on it, through a rule someone actually wrote.",
       "entity": {
         "scope": "the parent whose state changed, and each child evaluated individually against the dependency model",
@@ -17653,6 +17712,7 @@
       "goal": "relationship-hierarchy-structure",
       "channels": [],
       "name": "Child state change → recalculate aggregate parent state",
+      "shortName": "Parent State Aggregation",
       "purpose": "Derive a parent's state from its children through an explicit aggregation policy, recomputed from source rather than nudged by whichever child reported last.",
       "entity": {
         "scope": "the parent and the full collection of children the policy reads",
@@ -17772,6 +17832,7 @@
       "goal": "merge-consolidation",
       "channels": [],
       "name": "Duplicate entity detected → assess → keep separate, link or merge",
+      "shortName": "Duplicate Entity Assessment",
       "purpose": "Assess whether two records are the same entity, and route the answer - without consolidating anything.",
       "entity": {
         "scope": "the candidate set of records suspected of representing one entity",
@@ -17893,6 +17954,7 @@
       "goal": "relationship-hierarchy-structure",
       "channels": [],
       "name": "Entity link → shared context → preserve independent identity",
+      "shortName": "Entity Linking",
       "purpose": "Record that two entities are related and let defined context cross between them, while both remain two entities.",
       "entity": {
         "scope": "the link itself, plus the two entities it connects",
@@ -18014,6 +18076,7 @@
       "goal": "relationship-hierarchy-structure",
       "channels": [],
       "name": "Entity split required → create separate records → allocate history and state safely",
+      "shortName": "Entity Split",
       "purpose": "Separate what should never have been one record, or what must now be managed apart, without copying the things that do not divide.",
       "entity": {
         "scope": "the source entity and the entities that result from the split",
@@ -18183,6 +18246,7 @@
       "goal": "escalation-exception",
       "channels": [],
       "name": "Required relationship missing → orphan state → resolve or reassign",
+      "shortName": "Orphan Relationship Recovery",
       "purpose": "Make a missing required relationship an explicit, findable state rather than a null field that active work quietly runs against.",
       "entity": {
         "scope": "the entity missing its required relationship, and the relationship type that is absent",
@@ -18563,6 +18627,7 @@
       "goal": "merge-consolidation",
       "channels": [],
       "name": "Identity or entity merge → reconcile → consolidate → verify",
+      "shortName": "Entity Merge",
       "purpose": "Consolidate records that represent one entity, after every dependent state has been reconciled under its own authority rule.",
       "entity": {
         "scope": "the source entities, the canonical target, and the merge operation itself as an auditable record",
@@ -18773,6 +18838,7 @@
       "goal": "merge-consolidation",
       "channels": [],
       "name": "Merge conflict → safe state → resolve → continue or abort",
+      "shortName": "Merge Conflict Resolution",
       "purpose": "Fail safe wherever consolidating would require inventing an authority the system does not have.",
       "entity": {
         "scope": "the merge operation and the specific state in conflict",
@@ -18999,6 +19065,7 @@
       "goal": "merge-consolidation",
       "channels": [],
       "name": "Account consolidation → dependency reconciliation → unified relationship",
+      "shortName": "Account Consolidation",
       "purpose": "Unify business structure across accounts while every person involved stays a separate person.",
       "entity": {
         "scope": "the accounts being consolidated and the canonical structure that results",
@@ -19211,6 +19278,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Primary relationship transfer → validate new primary → transfer dependencies",
+      "shortName": "Primary Relationship Transfer",
       "purpose": "Move a dependent entity to a new primary, carrying only what the primary relationship actually governs.",
       "entity": {
         "scope": "the dependent entity, its outgoing primary and its incoming one",
@@ -19375,6 +19443,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Role or responsibility handover → effective-time transfer → continue",
+      "shortName": "Responsibility Handover",
       "purpose": "Move a role between two people at a defined moment, without changing anything before it or rewriting anything behind it.",
       "entity": {
         "scope": "the role or responsibility, its outgoing holder and its incoming one",
@@ -19809,6 +19878,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Account closure → reconcile external and commercial dependencies → finalize",
+      "shortName": "Account Closure Reconciliation",
       "purpose": "Make sure nothing that lives outside the account is assumed to have ended because the account did.",
       "entity": {
         "scope": "the closing account plus each external or commercial dependency, individually",
@@ -19998,6 +20068,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Closure completed → wind-down → former or terminal account state",
+      "shortName": "Account Closure Wind-Down",
       "purpose": "Stop normal account activity while letting the obligations that outlive closure actually finish.",
       "entity": {
         "scope": "the closed account and the obligations still outstanding against it",
@@ -20116,6 +20187,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Data deletion request → validate scope → hold, delete or retain required data",
+      "shortName": "Data Deletion Validation",
       "purpose": "Decide what a deletion request actually covers, and keep only what an authoritative retention obligation genuinely requires.",
       "entity": {
         "scope": "the data subject, this deletion request, and the data scope it names",
@@ -20310,6 +20382,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Data deletion execution → propagate → verify or reconcile failure",
+      "shortName": "Data Deletion Reconciliation",
       "purpose": "Carry a deletion through every system it has to reach, and keep any part that did not arrive visible.",
       "entity": {
         "scope": "the deletion job and each affected system's operation individually",
@@ -20710,6 +20783,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Integration connection → authenticate → validate → activate",
+      "shortName": "Integration Activation",
       "purpose": "Make an integration active only once it has been proven to do the thing it exists for, rather than once a credential has been saved.",
       "entity": {
         "scope": "the individual integration connection, with its own credentials, scopes and validated capabilities",
@@ -20882,6 +20956,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Integration credential or authorization change → revalidate → continue or degrade",
+      "shortName": "Integration Authorization Revalidation",
       "purpose": "Recheck what an integration can still do whenever its authorization changes, rather than assuming valid credentials mean unchanged access.",
       "entity": {
         "scope": "the integration connection and the authorization that changed",
@@ -21010,6 +21085,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Integration health degradation → diagnose → recover, degrade or escalate",
+      "shortName": "Integration Health Recovery",
       "purpose": "Scope a deteriorating integration to what is actually failing, and let recovery be established by evidence rather than by a metric returning to normal.",
       "entity": {
         "scope": "the integration connection, assessed per capability rather than as a whole",
@@ -21178,6 +21254,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "External request → pending outcome → confirm, fail or unknown",
+      "shortName": "External Request Reconciliation",
       "purpose": "Keep submitting an external operation and completing one as separate states, and let an unknown outcome stay unknown.",
       "entity": {
         "scope": "the individual external operation, keyed by its own correlation and idempotency identifiers",
@@ -21300,6 +21377,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "External outcome → local state reconciliation → apply or investigate",
+      "shortName": "External Outcome Reconciliation",
       "purpose": "Apply an external outcome to local state only after establishing that it belongs here, has not already been applied, and still describes what is true.",
       "entity": {
         "scope": "the external operation the outcome refers to, and the local entity it would change",
@@ -21477,6 +21555,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Integration failure → stop unsafe operations → diagnose → restore",
+      "shortName": "Integration Failure Recovery",
       "purpose": "Stop sending into an integration that cannot work, while keeping enough state to recover without repeating anything the provider may already have done.",
       "entity": {
         "scope": "the failed integration or capability, and the operations that depend on it",
@@ -21644,6 +21723,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Integration failure → queue or hold work → recover → controlled resume",
+      "shortName": "Integration Work Hold",
       "purpose": "Keep work that a failed integration blocked, but only where it can later be revalidated and safely resumed.",
       "entity": {
         "scope": "the failed integration and the individual work items blocked on it",
@@ -21839,6 +21919,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Integration reconnect → backfill → deduplicate → reconcile",
+      "shortName": "Integration Backfill Reconciliation",
       "purpose": "Close the gap an outage left in what we know, without recreating everything that would have happened if the events had arrived on time.",
       "entity": {
         "scope": "the integration connection and the specific synchronization window the outage created",
@@ -22027,6 +22108,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Synchronization conflict → determine authority → reconcile or hold",
+      "shortName": "Synchronization Conflict Resolution",
       "purpose": "Settle a cross-system disagreement using an explicit authority rule, and hold rather than guess where none exists.",
       "entity": {
         "scope": "the synchronized entity and the specific fields in disagreement",
@@ -22185,6 +22267,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "External dependency unavailable → degrade capability → alternate or recover",
+      "shortName": "Dependency Degradation Recovery",
       "purpose": "Lose only the capability that actually depends on an unavailable provider, and keep every uncertain outcome uncertain.",
       "entity": {
         "scope": "the external dependency and each capability that depends on it",
@@ -22756,6 +22839,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Work accepted → queue → process → complete or fail",
+      "shortName": "Asynchronous Work Processing",
       "purpose": "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
       "entity": {
         "scope": "the individual work item, keyed by its own idempotency and correlation identifiers",
@@ -22995,6 +23079,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Queue lag → measure → prioritise, scale or degrade",
+      "shortName": "Queue Lag Management",
       "purpose": "Respond to a queue that cannot keep up, measured by how old the unfinished work is rather than by how much of it there is.",
       "entity": {
         "scope": "the queue or workload class that is lagging, assessed per class",
@@ -23181,6 +23266,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Work stalled → detect lack of progress → recover, fail or escalate",
+      "shortName": "Stalled Work Recovery",
       "purpose": "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
       "entity": {
         "scope": "the individual in-flight work item and the worker that holds it",
@@ -23343,6 +23429,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Retryable failure → backoff → retry → resolve or exhaust",
+      "shortName": "Retry Management",
       "purpose": "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
       "entity": {
         "scope": "the work item together with its durable attempt history",
@@ -23557,6 +23644,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Duplicate work detected → deduplicate → reuse, suppress or reconcile",
+      "shortName": "Work Deduplication",
       "purpose": "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
       "entity": {
         "scope": "the logical business operation, and the work instances claiming to be it",
@@ -23700,6 +23788,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Partial processing → preserve completed work → retry only the failed scope",
+      "shortName": "Partial Processing Recovery",
       "purpose": "Recover the part of a composite operation that failed, without re-running the part that worked.",
       "entity": {
         "scope": "the composite job and each child operation individually",
@@ -23849,6 +23938,7 @@
       "goal": "escalation-exception",
       "channels": [],
       "name": "Dead-letter entry → diagnose → replay, correct or close",
+      "shortName": "Dead-Letter Recovery",
       "purpose": "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
       "entity": {
         "scope": "the dead-lettered item, linked to the original work it came from",
@@ -24031,6 +24121,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Worker or processor failure → reclaim work → resume safely",
+      "shortName": "Worker Failure Recovery",
       "purpose": "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
       "entity": {
         "scope": "the failed worker and each in-flight work item it owned",
@@ -24209,6 +24300,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Backlog recovery → revalidate → controlled drain → normal state",
+      "shortName": "Backlog Recovery",
       "purpose": "Work through an accumulated backlog deliberately, discarding what has gone stale and pacing what has not.",
       "entity": {
         "scope": "the accumulated backlog, inventoried by workload class",
@@ -24378,6 +24470,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Technical completion → verify business outcome → finalize or reconcile",
+      "shortName": "Business Outcome Verification",
       "purpose": "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",
       "entity": {
         "scope": "the completed technical job and the business entity it was meant to change",
@@ -24526,6 +24619,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Financial obligation created → due → satisfied or outstanding",
+      "shortName": "Financial Obligation Tracking",
       "purpose": "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
       "entity": {
         "scope": "the obligation itself - its amount, its currency, its payer and the business entity it arose from",
@@ -24695,6 +24789,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Payment initiated → pending → success, failure or unknown",
+      "shortName": "Payment Outcome Resolution",
       "purpose": "Keep initiating a payment and knowing what happened to it as separate states, with a third state for not knowing.",
       "entity": {
         "scope": "the individual payment attempt, keyed by its own idempotency key and provider reference",
@@ -24832,6 +24927,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Payment authorization → capture → settle or release",
+      "shortName": "Payment Settlement Lifecycle",
       "purpose": "Model the actual commitment of funds, where reserving, taking and receiving are three different things.",
       "entity": {
         "scope": "the payment transaction across its authorization, capture and settlement states",
@@ -25287,6 +25383,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Payment unknown → reconcile → confirm success or failure",
+      "shortName": "Unknown Payment Reconciliation",
       "purpose": "Find out what actually happened to a payment whose outcome we lost sight of, before anything is charged again.",
       "entity": {
         "scope": "the single payment attempt whose outcome could not be established",
@@ -25474,6 +25571,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Financial obligation satisfied → reconcile balance → release dependent state",
+      "shortName": "Balance Reconciliation",
       "purpose": "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
       "entity": {
         "scope": "the obligation and the financial event being applied to it",
@@ -25863,6 +25961,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Refund approved → execute → confirm or reconcile",
+      "shortName": "Refund Execution Verification",
       "purpose": "Move the money and confirm it arrived, keeping that separate from having decided it should.",
       "entity": {
         "scope": "the approved refund and the original transaction it is issued against",
@@ -26028,6 +26127,7 @@
       "goal": "risk-compliance",
       "channels": [],
       "name": "Financial dispute or chargeback → evidence → decision → reconcile",
+      "shortName": "Financial Dispute Reconciliation",
       "purpose": "Run a transaction-level dispute through the authority that decides it, without treating the claim as a finding.",
       "entity": {
         "scope": "the dispute and the specific transaction it contests",
@@ -26219,6 +26319,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Financial reconciliation → detect mismatch → correct or escalate",
+      "shortName": "Financial Reconciliation",
       "purpose": "Restore financial consistency by explaining the difference and adjusting it, never by editing the record that is inconvenient.",
       "entity": {
         "scope": "the set of financial records that disagree - transactions, obligations, refunds and settlement state together",
@@ -26407,6 +26508,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Fulfillment request → validate → accept, reject or hold",
+      "shortName": "Fulfillment Request Validation",
       "purpose": "Decide whether we are taking responsibility for delivering something, as a state distinct from having been asked.",
       "entity": {
         "scope": "the fulfillment request and, once accepted, the obligation it creates",
@@ -26577,6 +26679,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Accepted fulfillment → availability check → allocate, backorder or reject",
+      "shortName": "Fulfillment Allocation",
       "purpose": "Establish whether the resources to satisfy an accepted obligation actually exist, in the scope and window that would serve it.",
       "entity": {
         "scope": "the obligation and the resources it requires, at the location and time that would serve this recipient",
@@ -26749,6 +26852,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Resource allocation → reserve → confirm, release or reallocate",
+      "shortName": "Resource Reservation",
       "purpose": "Bind specific capacity to one obligation until it is consumed or deliberately let go.",
       "entity": {
         "scope": "the allocation itself - a link between a specific resource quantity and one fulfillment obligation",
@@ -26957,6 +27061,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Fulfillment execution → progress → complete, partial or fail",
+      "shortName": "Fulfillment Execution",
       "purpose": "Track what the obligation's scope actually reaches, rather than what an internal step reported.",
       "entity": {
         "scope": "the fulfillment obligation and the scope of it that has been satisfied",
@@ -27161,6 +27266,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Fulfillment exception → diagnose → recover, substitute or fail",
+      "shortName": "Fulfillment Exception Recovery",
       "purpose": "Change only the part of an obligation the operational problem actually touches.",
       "entity": {
         "scope": "the exception and the scope of the obligation it affects",
@@ -27607,6 +27713,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Dispatch or handoff → track → delivered, failed or unknown",
+      "shortName": "Delivery Outcome Tracking",
       "purpose": "Transfer execution to whoever performs the delivery while the obligation stays ours and stays open.",
       "entity": {
         "scope": "the handoff to a delivery executor, and the obligation behind it",
@@ -27961,6 +28068,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Delivery confirmation → acceptance or issue window → finalize",
+      "shortName": "Delivery Acceptance Finalization",
       "purpose": "Separate arriving from being agreed to have arrived correctly, wherever that difference has business meaning.",
       "entity": {
         "scope": "the delivered fulfillment and the recipient whose acceptance may still be required",
@@ -28117,6 +28225,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Fulfillment cancellation → stop future work → release resources → reconcile",
+      "shortName": "Fulfillment Cancellation Reconciliation",
       "purpose": "Stop what remains of an obligation while keeping everything that already happened.",
       "entity": {
         "scope": "the obligation, split into what is completed, what is in progress and what has not started",
@@ -29100,6 +29209,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Return authorized → in transit, received, lost or expired",
+      "shortName": "Return Transit Resolution",
       "purpose": "Track whether an authorised return actually comes back, and hold the states where it might not have.",
       "entity": {
         "scope": "the authorised return and the resource travelling under it",
@@ -29298,6 +29408,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Returned item or deliverable → inspect → accept, reject or partial",
+      "shortName": "Return Inspection",
       "purpose": "Judge what came back against the conditions it was authorised under, keeping receipt and acceptance apart.",
       "entity": {
         "scope": "the returned resource as received, and the return case it arrived under",
@@ -29452,6 +29563,7 @@
       "goal": "compensation-remedy",
       "channels": [],
       "name": "Replacement decision → allocate → fulfill → confirm",
+      "shortName": "Replacement Fulfillment",
       "purpose": "Deliver a second time against the same promise, tied to the defect it exists to resolve.",
       "entity": {
         "scope": "the replacement case, linking the original fulfillment to the new one",
@@ -29628,6 +29740,7 @@
       "goal": "compensation-remedy",
       "channels": [],
       "name": "Reperformance or correction → execute → verify corrected outcome",
+      "shortName": "Corrective Reperformance",
       "purpose": "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
       "entity": {
         "scope": "the original fulfillment or service, and the corrective obligation created against it",
@@ -29980,6 +30093,7 @@
       "goal": "compensation-remedy",
       "channels": [],
       "name": "Remedy execution → verify outcome → close or continue recovery",
+      "shortName": "Remedy Outcome Verification",
       "purpose": "Check that the remedy actually satisfied the obligation, rather than that it was carried out.",
       "entity": {
         "scope": "the remedy and the issue it was chosen to resolve",
@@ -30169,6 +30283,7 @@
       "goal": "compensation-remedy",
       "channels": [],
       "name": "Compensation decision → eligibility → grant or reject → deliver",
+      "shortName": "Compensation Eligibility",
       "purpose": "Decide separately whether impact warrants something beyond fixing the problem, and confirm it actually arrived.",
       "entity": {
         "scope": "the compensation case and the experience or issue that prompted it",
@@ -30397,6 +30512,7 @@
       "goal": "compensation-remedy",
       "channels": [],
       "name": "Post-remedy reopen → validate recurrence → continue or new issue",
+      "shortName": "Remedy Recurrence Assessment",
       "purpose": "Tell a recurrence of the same problem apart from a new one, and from a remedy that never actually finished.",
       "entity": {
         "scope": "the previously resolved issue and the new report made against it",
@@ -30559,6 +30675,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Continuing relationship created → validate → activate or pending",
+      "shortName": "Relationship Activation",
       "purpose": "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
       "entity": {
         "scope": "the continuing relationship record - a subscription, contract, membership, policy, licence or service agreement",
@@ -30764,6 +30881,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Future effective start → wait → revalidate → activate or abort",
+      "shortName": "Future Activation Revalidation",
       "purpose": "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
       "entity": {
         "scope": "the future-dated continuing relationship and its scheduled activation",
@@ -31242,6 +31360,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Renewal execution → financial and dependency check → new term active",
+      "shortName": "Renewal Execution",
       "purpose": "Make the new term exist, once the things it depends on have actually happened.",
       "entity": {
         "scope": "the renewal operation and the new term it would create",
@@ -31490,6 +31609,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Renewal payment failure → grace or recover → renew or lapse",
+      "shortName": "Renewal Payment Recovery",
       "purpose": "Decide what the relationship does while a failed renewal payment is being chased, without ending it by reflex.",
       "entity": {
         "scope": "the continuing relationship and the renewal obligation whose payment failed",
@@ -31707,6 +31827,7 @@
       "goal": "change-versioning",
       "channels": [],
       "name": "Plan or terms change request → validate → schedule, apply or reject",
+      "shortName": "Plan Change Validation",
       "purpose": "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
       "entity": {
         "scope": "the continuing relationship and the change request raised against it",
@@ -32022,6 +32143,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Cancellation request → determine effective end → schedule or cancel now",
+      "shortName": "Cancellation Effective-Date Resolution",
       "purpose": "Establish whether and when a relationship will end, while the current term keeps running until it does.",
       "entity": {
         "scope": "the continuing relationship and the cancellation request raised against it",
@@ -32235,6 +32357,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Scheduled cancellation → revalidate at effective time → end or preserve",
+      "shortName": "Scheduled Cancellation Revalidation",
       "purpose": "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
       "entity": {
         "scope": "the continuing relationship and the scheduled termination standing against it",
@@ -32355,6 +32478,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Suspension or hold → restrict relationship → restore or end",
+      "shortName": "Relationship Suspension",
       "purpose": "Hold a relationship in a state where it cannot operate normally and has not ended.",
       "entity": {
         "scope": "the continuing relationship and the suspension standing against it",
@@ -32559,6 +32683,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Relationship end → final reconciliation → former or expired state",
+      "shortName": "Continuing Relationship End Reconciliation",
       "purpose": "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
       "entity": {
         "scope": "the ended continuing relationship and the state that depended on it",
@@ -32909,6 +33034,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Availability query → evaluate capacity → offer valid options",
+      "shortName": "Availability Evaluation",
       "purpose": "Produce the options that are genuinely bookable right now, and say plainly that nothing is being held.",
       "entity": {
         "scope": "the availability request and the schedulable resource or service it asks about",
@@ -33092,6 +33218,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Slot hold → reserve temporarily → confirm, expire or release",
+      "shortName": "Temporary Slot Hold",
       "purpose": "Protect specific capacity for a bounded moment while a booking is being completed, without pretending it is a booking.",
       "entity": {
         "scope": "the hold, the capacity it protects and the requester who owns it",
@@ -33283,6 +33410,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Reservation request → validate → confirm, reject or pending",
+      "shortName": "Reservation Validation",
       "purpose": "Turn a request for a specific time into a commitment both sides can rely on, or say clearly that it did not.",
       "entity": {
         "scope": "the reservation request, the requester and the resource or service it names",
@@ -33521,6 +33649,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Reservation confirmed → prepare → upcoming or ready",
+      "shortName": "Reservation Readiness",
       "purpose": "Get the conditions for a successful service in place, without letting them move the time that was promised.",
       "entity": {
         "scope": "the confirmed reservation and the preparation running against it",
@@ -33699,6 +33828,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Reschedule request → recheck availability → move, reject or preserve original",
+      "shortName": "Reschedule Validation",
       "purpose": "Move a commitment to a new time without ever leaving the customer holding neither.",
       "entity": {
         "scope": "the existing reservation and the reschedule request raised against it",
@@ -33893,6 +34023,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Reservation cancellation → stop commitment → release capacity → reconcile",
+      "shortName": "Reservation Cancellation Reconciliation",
       "purpose": "End a future time commitment cleanly, returning the capacity and leaving the money to be decided elsewhere.",
       "entity": {
         "scope": "the reservation and the cancellation acting on it",
@@ -34112,6 +34243,7 @@
       "goal": "readiness-revalidation",
       "channels": [],
       "name": "Scheduled time approaches → revalidate → check in, start or exception",
+      "shortName": "Pre-Service Revalidation",
       "purpose": "Start a service from what the booking is now, not from a confirmation issued weeks ago.",
       "entity": {
         "scope": "the confirmed reservation and the occurrence about to begin",
@@ -34331,6 +34463,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Attendance or service start → complete, partial or interrupted",
+      "shortName": "Service Completion",
       "purpose": "Separate the fact that someone turned up from the question of whether they got what they came for.",
       "entity": {
         "scope": "the reservation occurrence and the service delivered inside it",
@@ -34603,6 +34736,7 @@
       "goal": "escalation-exception",
       "channels": [],
       "name": "No-show or missed appointment → validate → rebook, close or consequence",
+      "shortName": "No-Show Validation",
       "purpose": "Establish that one confirmed booking did not happen because the customer did not attend, having ruled out every other explanation.",
       "entity": {
         "scope": "the single reservation occurrence that did not take place",
@@ -36900,6 +37034,7 @@
       "goal": "decision-approval",
       "channels": [],
       "name": "Approval decision → revalidate target → execute, hold or invalidate",
+      "shortName": "Approval Execution Validation",
       "purpose": "Carry an authorization into execution, having checked it still applies to what it was granted against.",
       "entity": {
         "scope": "the approved decision and the target action it authorizes",
@@ -37155,6 +37290,7 @@
       "goal": "decision-approval",
       "channels": [],
       "name": "Rejection decision → record reason → remediate, close or reapply",
+      "shortName": "Rejection Resolution",
       "purpose": "Treat a refusal as the business outcome it is, and say what if anything the requester can do next.",
       "entity": {
         "scope": "the decision case and the rejection issued against it",
@@ -37333,6 +37469,7 @@
       "goal": "decision-approval",
       "channels": [],
       "name": "Partial approval → split scope → execute approved, resolve remaining",
+      "shortName": "Partial Approval Resolution",
       "purpose": "Make the authorized and unauthorized halves of one request explicit, so only the first can move.",
       "entity": {
         "scope": "the decision case and the partitions of its requested scope",
@@ -37520,6 +37657,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Approval validity or expiry → revalidate → use, expire or renew review",
+      "shortName": "Approval Expiry Revalidation",
       "purpose": "Answer, at the moment of use, whether an approval is still one - in time, in context and in count.",
       "entity": {
         "scope": "the approval decision and the boundaries it was granted within",
@@ -38385,6 +38523,7 @@
       "goal": "risk-compliance",
       "channels": [],
       "name": "Policy check → evaluate → pass, block or review",
+      "shortName": "Policy Evaluation",
       "purpose": "Decide whether a specific action is permitted under the rules that actually govern it, at the version that actually applies.",
       "entity": {
         "scope": "the policy evaluation, the actor or entity it concerns, and the proposed action",
@@ -38564,6 +38703,7 @@
       "goal": "risk-compliance",
       "channels": [],
       "name": "Risk signal → correlate evidence → clear, monitor, restrict or review",
+      "shortName": "Risk Evidence Assessment",
       "purpose": "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
       "entity": {
         "scope": "the risk case and the actor, account, transaction or resource it concerns",
@@ -38824,6 +38964,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Risk threshold crossed → apply scoped restriction → review or release",
+      "shortName": "Risk Restriction Management",
       "purpose": "Stop the smallest thing that manages the risk, and keep a stated route back.",
       "entity": {
         "scope": "the risk case and the specific capability or action being restricted",
@@ -39024,6 +39165,7 @@
       "goal": "risk-compliance",
       "channels": [],
       "name": "Policy violation detected → validate → correct, restrict or escalate",
+      "shortName": "Policy Violation Validation",
       "purpose": "Establish that a rule was actually broken, against the version that governed it, before anything follows from that.",
       "entity": {
         "scope": "the violation case, the entity or action it concerns, and the policy version it is judged under",
@@ -39299,6 +39441,7 @@
       "goal": "risk-compliance",
       "channels": [],
       "name": "Compliance requirement → collect and verify → satisfied or blocked",
+      "shortName": "Compliance Requirement Verification",
       "purpose": "Hold one mandatory requirement as its own state, blocking only what genuinely depends on it.",
       "entity": {
         "scope": "the compliance requirement and the specific process depending on it",
@@ -39549,6 +39692,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Compliance or policy hold → preserve state → resolve → resume or terminate",
+      "shortName": "Compliance Hold Resolution",
       "purpose": "Pause what a policy question makes unsafe, and leave everything else running.",
       "entity": {
         "scope": "the entity or process on hold, and the hold acting on it",
@@ -39738,6 +39882,7 @@
       "goal": "escalation-exception",
       "channels": [],
       "name": "Exception request → validate authority → approve, reject or review",
+      "shortName": "Policy Exception Review",
       "purpose": "Ask for a controlled deviation from a named rule, over a stated scope, from someone entitled to ask.",
       "entity": {
         "scope": "the exception request and the specific policy, action or entity it concerns",
@@ -39990,6 +40135,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Exception granted → apply scoped override → expire or revoke",
+      "shortName": "Policy Exception Lifecycle",
       "purpose": "Let an authorized deviation apply exactly where it was authorized, and stop applying the moment it should.",
       "entity": {
         "scope": "the granted exception and each action it is invoked against",
@@ -40250,6 +40396,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Limit or quota reached → block, wait, increase or reset",
+      "shortName": "Limit Enforcement",
       "purpose": "Treat a limit being reached as the limit working, and give the constrained action a real path forward.",
       "entity": {
         "scope": "the entity and the specific limit or quota constraining it",
@@ -40477,6 +40624,7 @@
       "goal": "change-versioning",
       "channels": [],
       "name": "Policy or risk state changed → re-evaluate affected work → resume, restrict or preserve",
+      "shortName": "Risk State Recalculation",
       "purpose": "Apply a change where the new authority actually reaches, and leave the past alone.",
       "entity": {
         "scope": "the policy or risk state change and the work it actually touches",
@@ -40882,6 +41030,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Business event → communication obligation → create or suppress",
+      "shortName": "Communication Obligation Creation",
       "purpose": "Decide whether anyone is actually owed a message about what happened, before any message exists.",
       "entity": {
         "scope": "the business event, the recipient it concerns, and the communication obligation it may create",
@@ -41034,6 +41183,7 @@
       "goal": "routing-assignment",
       "channels": [],
       "name": "Communication obligation → resolve recipient → ready, hold or fail",
+      "shortName": "Recipient Resolution",
       "purpose": "Establish who is actually owed this, and where they can currently be reached.",
       "entity": {
         "scope": "the communication obligation and the recipient with their candidate destinations",
@@ -41284,6 +41434,7 @@
       "goal": "consent-permission",
       "channels": [],
       "name": "Communication purpose → permission and preference check → allow, suppress or alternate",
+      "shortName": "Channel Eligibility Resolution",
       "purpose": "Decide whether a working destination may carry this particular message, given what it is for.",
       "entity": {
         "scope": "the obligation, the recipient's destinations, and the purpose being evaluated against them",
@@ -41944,6 +42095,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Delivery outcome → delivered, failed or unknown → update communication",
+      "shortName": "Delivery Outcome Reconciliation",
       "purpose": "Derive the real delivery state from what the channel reports, attached to the exact attempt it concerns.",
       "entity": {
         "scope": "the delivery attempt and the outcomes reported against it",
@@ -42392,6 +42544,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Communication outcome → close obligation or escalate unreachable",
+      "shortName": "Communication Obligation Closure",
       "purpose": "Close the obligation against what it actually required, and escalate the ones that could not be met.",
       "entity": {
         "scope": "the communication obligation and every delivery made against it",
@@ -42618,6 +42771,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Document requirement → determine artifact → create, reuse or waive",
+      "shortName": "Document Requirement Resolution",
       "purpose": "Decide whether a new artifact is genuinely needed, or whether one already exists that answers the requirement.",
       "entity": {
         "scope": "the business process and the artifact requirement it has reached",
@@ -42767,6 +42921,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Document draft → populate → validate → ready or blocked",
+      "shortName": "Document Readiness Validation",
       "purpose": "Build the contents from authoritative sources and prove they are complete before anything is issued.",
       "entity": {
         "scope": "the draft and the source entities its contents came from",
@@ -42943,6 +43098,7 @@
       "goal": "change-versioning",
       "channels": [],
       "name": "Ready document → issue → immutable issued version",
+      "shortName": "Document Issuance",
       "purpose": "Freeze the artifact at a version that can be identified, referenced and never quietly changed.",
       "entity": {
         "scope": "the document and the specific version being issued",
@@ -43476,6 +43632,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Signed document → validate completion → effective or pending condition",
+      "shortName": "Document Effectiveness Validation",
       "purpose": "Establish when a document actually starts doing something, which is not when it was signed.",
       "entity": {
         "scope": "the completed document version and the effect it is to have",
@@ -43775,6 +43932,7 @@
       "goal": "change-versioning",
       "channels": [],
       "name": "Document change → new version or amendment → supersede prospectively",
+      "shortName": "Document Versioning",
       "purpose": "Change an issued artifact by creating a successor, leaving what it replaces exactly as it was.",
       "entity": {
         "scope": "the document lineage and the successor version or amendment being created",
@@ -43987,6 +44145,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Document expiry → revalidate requirement → renew, replace or close",
+      "shortName": "Document Expiry Resolution",
       "purpose": "End future reliance on a time-limited artifact, and stop only what genuinely needs it to be current.",
       "entity": {
         "scope": "the time-limited document and the processes depending on its current validity",
@@ -44197,6 +44356,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Document revocation or withdrawal → stop future reliance → reconcile",
+      "shortName": "Document Revocation Reconciliation",
       "purpose": "Withdraw an artifact by an authority's decision, exactly as far as that decision reaches.",
       "entity": {
         "scope": "the revoked document version and the revocation acting on it",
@@ -44791,6 +44951,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Data intake → identify format → parse or reject",
+      "shortName": "Data Parsing",
       "purpose": "Get an incoming dataset into a stable readable form, without touching anything real while doing it.",
       "entity": {
         "scope": "the intake and the source artifact or dataset it carries",
@@ -44946,6 +45107,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Parsed data → validate schema and semantics → accept, reject or quarantine",
+      "shortName": "Data Validation",
       "purpose": "Establish that the data is valid for the target it is going into, record by record where that is meaningful.",
       "entity": {
         "scope": "the parsed dataset and the target's schema and business rules",
@@ -45396,6 +45558,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Import execution → apply idempotently → complete, partial or fail",
+      "shortName": "Import Execution",
       "purpose": "Apply a fixed validated change set to production state, keeping every record's outcome.",
       "entity": {
         "scope": "the import job and the frozen change set it applies",
@@ -45584,6 +45747,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Partial import → isolate failed scope → correct → resume",
+      "shortName": "Partial Import Recovery",
       "purpose": "Fix only what did not land, without touching the records that already did.",
       "entity": {
         "scope": "the partially applied import and the per-record outcomes it produced",
@@ -45794,6 +45958,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Migration plan → map source to target → validate readiness",
+      "shortName": "Migration Readiness Validation",
       "purpose": "Prove the target can carry the source's meaning before anything is moved.",
       "entity": {
         "scope": "the migration, the source population and the target model",
@@ -45977,6 +46142,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Migration execute → copy and transform → verify population",
+      "shortName": "Migration Verification",
       "purpose": "Move the population and then prove the result still means what the source meant.",
       "entity": {
         "scope": "the migration run, the frozen source scope and the target population it produced",
@@ -46132,6 +46298,7 @@
       "goal": "change-versioning",
       "channels": [],
       "name": "Cutover → switch authority → observe → stabilize or roll back",
+      "shortName": "Cutover Stabilization",
       "purpose": "Change which system is authoritative, once, with a way back that was defined before it was needed.",
       "entity": {
         "scope": "the migration, the source system or state, and the target that would replace it",
@@ -46328,6 +46495,7 @@
       "goal": "data-integrity",
       "channels": [],
       "name": "Historical backfill → scope window → apply without replaying stale actions",
+      "shortName": "Historical Backfill",
       "purpose": "Repair a gap in the record without re-enacting the things those events would have caused.",
       "entity": {
         "scope": "the backfill, its defined window, and the target records inside it",
@@ -46510,6 +46678,7 @@
       "goal": "reconciliation-correction",
       "channels": [],
       "name": "Data transformation error → reconcile → correct, roll forward or roll back",
+      "shortName": "Transformation Error Recovery",
       "purpose": "Undo the wrong mutation without undoing the right things that happened after it.",
       "entity": {
         "scope": "the erroneous data change operation and the records it affected",
@@ -46709,6 +46878,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Ownership assignment → validate authority → assign or reject",
+      "shortName": "Ownership Assignment",
       "purpose": "Establish an accountable controller for an entity, by an explicit act rather than by inference.",
       "entity": {
         "scope": "the ownable entity and the ownership relationship being created on it",
@@ -47011,6 +47181,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Ownership transfer request → validate → pending acceptance or reject",
+      "shortName": "Ownership Transfer Validation",
       "purpose": "Propose a future controller without disturbing the one the entity currently has.",
       "entity": {
         "scope": "the entity, its current owner, the proposed owner and the transfer request between them",
@@ -47191,6 +47362,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Ownership transfer acceptance → revalidate → execute or expire",
+      "shortName": "Ownership Transfer Execution",
       "purpose": "Check that a transfer accepted today is still the transfer that was proposed.",
       "entity": {
         "scope": "the transfer request and the acceptance made against its specific version",
@@ -47348,6 +47520,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Ownership cutover → assign new owner → reconcile old owner",
+      "shortName": "Ownership Cutover",
       "purpose": "Move control from one party to another without the entity being uncontrolled in between.",
       "entity": {
         "scope": "the entity and both ownership relationships during the change",
@@ -47489,6 +47662,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Delegation request → define scope → grant or reject",
+      "shortName": "Delegation Authorization",
       "purpose": "Let somebody act on an owner's behalf, inside a boundary, without moving anything.",
       "entity": {
         "scope": "the delegation, the delegator, the delegate and the target entity",
@@ -47705,6 +47879,7 @@
       "goal": "expiry-renewal",
       "channels": [],
       "name": "Temporary delegation → expire → revoke, extend or restore",
+      "shortName": "Temporary Delegation Expiry",
       "purpose": "End borrowed authority at its boundary, checking first that the boundary still belongs to a delegation that exists.",
       "entity": {
         "scope": "the time-bounded delegation and the version this expiry was scheduled against",
@@ -47920,6 +48095,7 @@
       "goal": "access-entitlement-change",
       "channels": [],
       "name": "Delegation revoked → remove delegated authority → preserve independent access",
+      "shortName": "Delegation Revocation",
       "purpose": "Take back exactly what was lent, and nothing the delegate had of their own.",
       "entity": {
         "scope": "the delegation and the capabilities that exist because of it",
@@ -48071,6 +48247,7 @@
       "goal": "ownership-transfer",
       "channels": [],
       "name": "Owner unavailable or invalid → protect entity → recover ownership",
+      "shortName": "Ownership Recovery",
       "purpose": "Hold an entity safely when its owner cannot act, without handing it to whoever is nearest.",
       "entity": {
         "scope": "the entity and its ownership state while the owner cannot exercise control",
@@ -48267,6 +48444,7 @@
       "goal": "eligibility-qualification",
       "channels": [],
       "name": "Change candidate → eligibility → ready or blocked",
+      "shortName": "Change Eligibility",
       "purpose": "Decide which targets a change may reach at all, before anyone starts preparing any of them.",
       "entity": {
         "scope": "the change or version, and each target evaluated against it",
@@ -48410,6 +48588,7 @@
       "goal": "readiness-revalidation",
       "channels": [],
       "name": "Change preparation → resolve dependencies → ready or hold",
+      "shortName": "Change Readiness",
       "purpose": "Get an eligible target into a state where the change can actually be applied to it.",
       "entity": {
         "scope": "the target and the preparation the change requires of it",
@@ -48577,6 +48756,7 @@
       "goal": "scheduling-commitment",
       "channels": [],
       "name": "Change scheduled → wait → revalidate → execute or cancel",
+      "shortName": "Scheduled Change Revalidation",
       "purpose": "Check, at the moment of execution, that the change scheduled earlier is still the right one for this target.",
       "entity": {
         "scope": "the scheduled change and the target it is scheduled against",
@@ -48758,6 +48938,7 @@
       "goal": "delivery-confirmation",
       "channels": [],
       "name": "Change execution → apply → verify, fail or unknown",
+      "shortName": "Change Execution Verification",
       "purpose": "Establish that the target actually ended up in the state the change intended, rather than that a command was accepted.",
       "entity": {
         "scope": "the change execution against one target",
@@ -48995,6 +49176,7 @@
       "goal": "change-versioning",
       "channels": [],
       "name": "Staged rollout → pilot cohort → health gate → expand or hold",
+      "shortName": "Staged Rollout Expansion",
       "purpose": "Widen a change only when the targets that already took it show it is safe to widen.",
       "entity": {
         "scope": "the rollout, its target population and the cohorts it progresses through",
@@ -49203,6 +49385,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Rollout pause → freeze expansion → diagnose → resume, roll back or end",
+      "shortName": "Rollout Pause Resolution",
       "purpose": "Stop the change spreading while the question of what to do about it is still open.",
       "entity": {
         "scope": "the rollout, and the changed and unchanged populations at the moment it paused",
@@ -49357,6 +49540,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Change failure threshold → rollback decision → execute or forward recover",
+      "shortName": "Rollback Decision",
       "purpose": "Decide whether going back is actually safer than going on, before anyone starts going back.",
       "entity": {
         "scope": "the failing rollout or change and the targets it affects",
@@ -49507,6 +49691,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Rollback execution → restore → verify stability",
+      "shortName": "Rollback Verification",
       "purpose": "Return the affected targets to a known-good state and prove that they actually work there.",
       "entity": {
         "scope": "the rollback operation and the targets it is reverting",
@@ -49721,6 +49906,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Individual target change failure → retry, isolate or remediate",
+      "shortName": "Target Change Recovery",
       "purpose": "Recover one target that could not take the change, and notice when it stops being one target.",
       "entity": {
         "scope": "the individual target and its failed change attempt",
@@ -49924,6 +50110,7 @@
       "goal": "progression-milestone",
       "channels": [],
       "name": "Change completed → observe → close, reopen or deprecate previous version",
+      "shortName": "Change Stability Review",
       "purpose": "Wait long enough to know the change held, and keep what a recovery would need until it clearly does not.",
       "entity": {
         "scope": "the completed rollout, the changed population and the exception targets",
@@ -50277,6 +50464,7 @@
       "goal": "root-cause-diagnostic-correlation",
       "channels": [],
       "name": "Correlated failure detection → incident candidate → confirm or reject",
+      "shortName": "Incident Confirmation",
       "purpose": "Establish whether several failures actually share a cause, before treating them as one thing.",
       "entity": {
         "scope": "the incident candidate and every individual failure correlated into it",
@@ -50612,6 +50800,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Incident → contain and mitigate → preserve critical operations",
+      "shortName": "Incident Containment",
       "purpose": "Reduce the damage now, without pretending the cause has been dealt with.",
       "entity": {
         "scope": "the incident and the mitigations applied against its impact",
@@ -51012,6 +51201,7 @@
       "goal": "root-cause-diagnostic-correlation",
       "channels": [],
       "name": "Root cause investigation → hypothesis → confirm or reject → corrective action",
+      "shortName": "Root Cause Investigation",
       "purpose": "Find the thing that actually explains the incident, rather than the thing that was nearest to it.",
       "entity": {
         "scope": "the incident and the investigation into what caused it",
@@ -51193,6 +51383,7 @@
       "goal": "recovery-retry",
       "channels": [],
       "name": "Recovery action → restore service → verify or continue",
+      "shortName": "Service Recovery Verification",
       "purpose": "Act on the cause and then check the affected population, not the command's return code.",
       "entity": {
         "scope": "the incident, the recovery action and the capability it is meant to restore",
@@ -51407,6 +51598,7 @@
       "goal": "suspension-restoration",
       "channels": [],
       "name": "Service restored → observation window → stable or relapse",
+      "shortName": "Recovery Stability Monitoring",
       "purpose": "Hold the incident open long enough to know the recovery held.",
       "entity": {
         "scope": "the incident and the recovered service under observation",
@@ -51569,6 +51761,7 @@
       "goal": "cancellation-termination",
       "channels": [],
       "name": "Incident resolution → close operational response → preserve residual cases",
+      "shortName": "Incident Closure Reconciliation",
       "purpose": "Close the shared failure without closing the individual problems it caused.",
       "entity": {
         "scope": "the incident and the individual cases and obligations linked to it",
@@ -51987,6 +52180,7 @@
       "goal": "root-cause-diagnostic-correlation",
       "channels": [],
       "name": "Incident pattern recurrence → detect systemic weakness → escalate prevention",
+      "shortName": "Recurring Incident Prevention",
       "purpose": "Notice when the same weakness keeps producing incidents, and stop treating each one as new.",
       "entity": {
         "scope": "the family of materially similar incidents and the weakness they may share",

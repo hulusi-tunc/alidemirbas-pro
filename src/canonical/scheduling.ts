@@ -171,6 +171,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Availability query → evaluate capacity → offer valid options",
+    shortName: "Availability Evaluation",
     purpose:
       "Produce the options that are genuinely bookable right now, and say plainly that nothing is being held.",
     entity: {
@@ -335,6 +336,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Slot hold → reserve temporarily → confirm, expire or release",
+    shortName: "Temporary Slot Hold",
     purpose:
       "Protect specific capacity for a bounded moment while a booking is being completed, without pretending it is a booking.",
     entity: {
@@ -513,6 +515,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Reservation request → validate → confirm, reject or pending",
+    shortName: "Reservation Validation",
     purpose:
       "Turn a request for a specific time into a commitment both sides can rely on, or say clearly that it did not.",
     entity: {
@@ -732,6 +735,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Reservation confirmed → prepare → upcoming or ready",
+    shortName: "Reservation Readiness",
     purpose:
       "Get the conditions for a successful service in place, without letting them move the time that was promised.",
     entity: {
@@ -895,6 +899,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Reschedule request → recheck availability → move, reject or preserve original",
+    shortName: "Reschedule Validation",
     purpose:
       "Move a commitment to a new time without ever leaving the customer holding neither.",
     entity: {
@@ -1068,6 +1073,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Reservation cancellation → stop commitment → release capacity → reconcile",
+    shortName: "Reservation Cancellation Reconciliation",
     purpose:
       "End a future time commitment cleanly, returning the capacity and leaving the money to be decided elsewhere.",
     entity: {
@@ -1271,6 +1277,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "readiness-revalidation",
     channels: [],
     name: "Scheduled time approaches → revalidate → check in, start or exception",
+    shortName: "Pre-Service Revalidation",
     purpose:
       "Start a service from what the booking is now, not from a confirmation issued weeks ago.",
     entity: {
@@ -1478,6 +1485,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Attendance or service start → complete, partial or interrupted",
+    shortName: "Service Completion",
     purpose:
       "Separate the fact that someone turned up from the question of whether they got what they came for.",
     entity: {
@@ -1711,6 +1719,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "No-show or missed appointment → validate → rebook, close or consequence",
+    shortName: "No-Show Validation",
     purpose:
       "Establish that one confirmed booking did not happen because the customer did not attend, having ruled out every other explanation.",
     entity: {

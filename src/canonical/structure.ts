@@ -147,6 +147,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-hierarchy-structure",
     channels: [],
     name: "Entity relationship created → validate → activate or reject",
+    shortName: "Relationship Validation",
     purpose:
       "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
     entity: {
@@ -289,6 +290,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Relationship change → recalculate rights and obligations → continue",
+    shortName: "Relationship Impact Recalculation",
     purpose:
       "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
     entity: {
@@ -449,6 +451,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Relationship end → remove future dependency → reconcile existing obligations",
+    shortName: "Entity Relationship End Reconciliation",
     purpose:
       "Stop what a relationship was carrying forward without cancelling what it validly produced.",
     entity: {
@@ -572,6 +575,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Role change → authority and capability delta → apply",
+    shortName: "Role Authority Update",
     purpose:
       "Move what someone may do next, by the difference between two roles, without disturbing what they did under the old one.",
     entity: {
@@ -688,6 +692,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-hierarchy-structure",
     channels: [],
     name: "Parent state change → determine child impact → propagate selectively",
+    shortName: "Parent State Propagation",
     purpose:
       "Let a parent's state reach only the children that genuinely depend on it, through a rule someone actually wrote.",
     entity: {
@@ -835,6 +840,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-hierarchy-structure",
     channels: [],
     name: "Child state change → recalculate aggregate parent state",
+    shortName: "Parent State Aggregation",
     purpose:
       "Derive a parent's state from its children through an explicit aggregation policy, recomputed from source rather than nudged by whichever child reported last.",
     entity: {
@@ -947,6 +953,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "merge-consolidation",
     channels: [],
     name: "Duplicate entity detected → assess → keep separate, link or merge",
+    shortName: "Duplicate Entity Assessment",
     purpose:
       "Assess whether two records are the same entity, and route the answer - without consolidating anything.",
     entity: {
@@ -1069,6 +1076,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-hierarchy-structure",
     channels: [],
     name: "Entity link → shared context → preserve independent identity",
+    shortName: "Entity Linking",
     purpose:
       "Record that two entities are related and let defined context cross between them, while both remain two entities.",
     entity: {
@@ -1178,6 +1186,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-hierarchy-structure",
     channels: [],
     name: "Entity split required → create separate records → allocate history and state safely",
+    shortName: "Entity Split",
     purpose:
       "Separate what should never have been one record, or what must now be managed apart, without copying the things that do not divide.",
     entity: {
@@ -1318,6 +1327,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "Required relationship missing → orphan state → resolve or reassign",
+    shortName: "Orphan Relationship Recovery",
     purpose:
       "Make a missing required relationship an explicit, findable state rather than a null field that active work quietly runs against.",
     entity: {

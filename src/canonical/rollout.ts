@@ -178,6 +178,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Change candidate → eligibility → ready or blocked",
+    shortName: "Change Eligibility",
     purpose:
       "Decide which targets a change may reach at all, before anyone starts preparing any of them.",
     entity: {
@@ -305,6 +306,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "readiness-revalidation",
     channels: [],
     name: "Change preparation → resolve dependencies → ready or hold",
+    shortName: "Change Readiness",
     purpose:
       "Get an eligible target into a state where the change can actually be applied to it.",
     entity: {
@@ -452,6 +454,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Change scheduled → wait → revalidate → execute or cancel",
+    shortName: "Scheduled Change Revalidation",
     purpose:
       "Check, at the moment of execution, that the change scheduled earlier is still the right one for this target.",
     entity: {
@@ -616,6 +619,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Change execution → apply → verify, fail or unknown",
+    shortName: "Change Execution Verification",
     purpose:
       "Establish that the target actually ended up in the state the change intended, rather than that a command was accepted.",
     entity: {
@@ -810,6 +814,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Staged rollout → pilot cohort → health gate → expand or hold",
+    shortName: "Staged Rollout Expansion",
     purpose:
       "Widen a change only when the targets that already took it show it is safe to widen.",
     entity: {
@@ -1003,6 +1008,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Rollout pause → freeze expansion → diagnose → resume, roll back or end",
+    shortName: "Rollout Pause Resolution",
     purpose:
       "Stop the change spreading while the question of what to do about it is still open.",
     entity: {
@@ -1140,6 +1146,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Change failure threshold → rollback decision → execute or forward recover",
+    shortName: "Rollback Decision",
     purpose:
       "Decide whether going back is actually safer than going on, before anyone starts going back.",
     entity: {
@@ -1273,6 +1280,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Rollback execution → restore → verify stability",
+    shortName: "Rollback Verification",
     purpose:
       "Return the affected targets to a known-good state and prove that they actually work there.",
     entity: {
@@ -1455,6 +1463,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Individual target change failure → retry, isolate or remediate",
+    shortName: "Target Change Recovery",
     purpose:
       "Recover one target that could not take the change, and notice when it stops being one target.",
     entity: {
@@ -1638,6 +1647,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Change completed → observe → close, reopen or deprecate previous version",
+    shortName: "Change Stability Review",
     purpose:
       "Wait long enough to know the change held, and keep what a recovery would need until it clearly does not.",
     entity: {

@@ -969,6 +969,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Activation achieved → stop onboarding → adoption handoff",
+    shortName: "Onboarding Completion Handoff",
     purpose:
       "Make onboarding let go the moment activation is recorded, including the messages it has already queued.",
     entity: {

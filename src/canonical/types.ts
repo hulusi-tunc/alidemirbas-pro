@@ -364,11 +364,11 @@ export interface CanonicalJourney {
       rather than anything with "Delivery" in it because its rule is that
       submitting a message is not proof the recipient received it.
 
-      Optional: the 87 journeys that carry communication have one, the
-      remaining internal journeys have not been named yet and fall back to
-      `name`. Where present it must be unique across the library - the
-      validator checks that. */
-  shortName?: string;
+      Required on every journey, and unique across the library - the
+      validator enforces both. It started optional while only the 87
+      communication journeys had one; all 281 are named now, so a new
+      journey without one is an omission rather than a stage. */
+  shortName: string;
   purpose: string;
   /** What the journey is about, which is what its exits and suppressions are
       scoped to. A journey about one order does not close because a different

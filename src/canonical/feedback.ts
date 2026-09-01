@@ -1435,6 +1435,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Declared need or preference signal → persist → recalculate relevant experience",
+    shortName: "Declared Context Recalculation",
     purpose:
       "Let something a person has told us about their situation reach the decisions that actually depend on it, and nothing else.",
     entity: {
@@ -1741,6 +1742,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "health-risk-signal-scoring",
     channels: [],
     name: "Relationship signal → evidence accumulation → state reassessment",
+    shortName: "Relationship State Reassessment",
     purpose:
       "Accumulate signals as dated evidence, and let a relationship label exist only where a policy defined what it means.",
     entity: {

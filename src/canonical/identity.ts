@@ -342,6 +342,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "identity-verification",
     channels: [],
     name: "Verification requirement → collect evidence → resume blocked process",
+    shortName: "Verification Dependency Resolution",
     purpose:
       "Hold a verification dependency as its own state, blocking only the process that needs it and releasing it only after everything else is rechecked.",
     entity: {
@@ -536,6 +537,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Document submitted → validate → accept, reject or replace",
+    shortName: "Document Verification",
     purpose:
       "Keep uploading a document and satisfying a requirement as separate facts, and keep an acceptance bound to the requirement it was assessed against.",
     entity: {
@@ -1017,6 +1019,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "identity-verification",
     channels: [],
     name: "Step-up requirement → stronger authentication → resume or deny",
+    shortName: "Step-Up Authentication",
     purpose:
       "Raise identity assurance for a sensitive action, then check the action is still authorised before it runs.",
     entity: {
@@ -1139,6 +1142,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "risk-compliance",
     channels: [],
     name: "Authentication failure pattern → security check → recover or restrict",
+    shortName: "Authentication Risk Assessment",
     purpose:
       "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
     entity: {
@@ -1252,6 +1256,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Account recovery request → prove control → restore secure access",
+    shortName: "Account Recovery Verification",
     purpose:
       "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
     entity: {
@@ -1453,6 +1458,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Identity attribute change → verify if required → update → propagate",
+    shortName: "Identity Attribute Update",
     purpose:
       "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
     entity: {
@@ -1629,6 +1635,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "Suspected account compromise → contain → verify → recover or clear",
+    shortName: "Account Compromise Recovery",
     purpose:
       "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
     entity: {

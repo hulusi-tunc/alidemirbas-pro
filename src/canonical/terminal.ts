@@ -164,6 +164,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "merge-consolidation",
     channels: [],
     name: "Identity or entity merge → reconcile → consolidate → verify",
+    shortName: "Entity Merge",
     purpose:
       "Consolidate records that represent one entity, after every dependent state has been reconciled under its own authority rule.",
     entity: {
@@ -351,6 +352,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "merge-consolidation",
     channels: [],
     name: "Merge conflict → safe state → resolve → continue or abort",
+    shortName: "Merge Conflict Resolution",
     purpose:
       "Fail safe wherever consolidating would require inventing an authority the system does not have.",
     entity: {
@@ -551,6 +553,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "merge-consolidation",
     channels: [],
     name: "Account consolidation → dependency reconciliation → unified relationship",
+    shortName: "Account Consolidation",
     purpose:
       "Unify business structure across accounts while every person involved stays a separate person.",
     entity: {
@@ -732,6 +735,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Primary relationship transfer → validate new primary → transfer dependencies",
+    shortName: "Primary Relationship Transfer",
     purpose:
       "Move a dependent entity to a new primary, carrying only what the primary relationship actually governs.",
     entity: {
@@ -878,6 +882,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Role or responsibility handover → effective-time transfer → continue",
+    shortName: "Responsibility Handover",
     purpose:
       "Move a role between two people at a defined moment, without changing anything before it or rewriting anything behind it.",
     entity: {
@@ -1249,6 +1254,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Account closure → reconcile external and commercial dependencies → finalize",
+    shortName: "Account Closure Reconciliation",
     purpose:
       "Make sure nothing that lives outside the account is assumed to have ended because the account did.",
     entity: {
@@ -1405,6 +1411,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Closure completed → wind-down → former or terminal account state",
+    shortName: "Account Closure Wind-Down",
     purpose:
       "Stop normal account activity while letting the obligations that outlive closure actually finish.",
     entity: {
@@ -1510,6 +1517,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Data deletion request → validate scope → hold, delete or retain required data",
+    shortName: "Data Deletion Validation",
     purpose:
       "Decide what a deletion request actually covers, and keep only what an authoritative retention obligation genuinely requires.",
     entity: {
@@ -1692,6 +1700,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Data deletion execution → propagate → verify or reconcile failure",
+    shortName: "Data Deletion Reconciliation",
     purpose:
       "Carry a deletion through every system it has to reach, and keep any part that did not arrive visible.",
     entity: {

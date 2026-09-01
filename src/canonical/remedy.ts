@@ -517,6 +517,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Return authorized → in transit, received, lost or expired",
+    shortName: "Return Transit Resolution",
     purpose:
       "Track whether an authorised return actually comes back, and hold the states where it might not have.",
     entity: {
@@ -681,6 +682,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Returned item or deliverable → inspect → accept, reject or partial",
+    shortName: "Return Inspection",
     purpose:
       "Judge what came back against the conditions it was authorised under, keeping receipt and acceptance apart.",
     entity: {
@@ -812,6 +814,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Replacement decision → allocate → fulfill → confirm",
+    shortName: "Replacement Fulfillment",
     purpose:
       "Deliver a second time against the same promise, tied to the defect it exists to resolve.",
     entity: {
@@ -973,6 +976,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Reperformance or correction → execute → verify corrected outcome",
+    shortName: "Corrective Reperformance",
     purpose:
       "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
     entity: {
@@ -1283,6 +1287,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Remedy execution → verify outcome → close or continue recovery",
+    shortName: "Remedy Outcome Verification",
     purpose:
       "Check that the remedy actually satisfied the obligation, rather than that it was carried out.",
     entity: {
@@ -1440,6 +1445,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Compensation decision → eligibility → grant or reject → deliver",
+    shortName: "Compensation Eligibility",
     purpose:
       "Decide separately whether impact warrants something beyond fixing the problem, and confirm it actually arrived.",
     entity: {
@@ -1654,6 +1660,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Post-remedy reopen → validate recurrence → continue or new issue",
+    shortName: "Remedy Recurrence Assessment",
     purpose:
       "Tell a recurrence of the same problem apart from a new one, and from a remedy that never actually finished.",
     entity: {

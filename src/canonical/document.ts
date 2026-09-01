@@ -177,6 +177,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Document requirement → determine artifact → create, reuse or waive",
+    shortName: "Document Requirement Resolution",
     purpose:
       "Decide whether a new artifact is genuinely needed, or whether one already exists that answers the requirement.",
     entity: {
@@ -311,6 +312,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Document draft → populate → validate → ready or blocked",
+    shortName: "Document Readiness Validation",
     purpose:
       "Build the contents from authoritative sources and prove they are complete before anything is issued.",
     entity: {
@@ -466,6 +468,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Ready document → issue → immutable issued version",
+    shortName: "Document Issuance",
     purpose:
       "Freeze the artifact at a version that can be identified, referenced and never quietly changed.",
     entity: {
@@ -922,6 +925,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Signed document → validate completion → effective or pending condition",
+    shortName: "Document Effectiveness Validation",
     purpose:
       "Establish when a document actually starts doing something, which is not when it was signed.",
     entity: {
@@ -1193,6 +1197,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Document change → new version or amendment → supersede prospectively",
+    shortName: "Document Versioning",
     purpose:
       "Change an issued artifact by creating a successor, leaving what it replaces exactly as it was.",
     entity: {
@@ -1375,6 +1380,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Document expiry → revalidate requirement → renew, replace or close",
+    shortName: "Document Expiry Resolution",
     purpose:
       "End future reliance on a time-limited artifact, and stop only what genuinely needs it to be current.",
     entity: {
@@ -1561,6 +1567,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: [],
     name: "Document revocation or withdrawal → stop future reliance → reconcile",
+    shortName: "Document Revocation Reconciliation",
     purpose:
       "Withdraw an artifact by an authority's decision, exactly as far as that decision reaches.",
     entity: {
