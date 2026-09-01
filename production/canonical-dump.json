@@ -9125,19 +9125,7 @@
         {
           "id": "a.record",
           "kind": "action",
-          "does": "Record the previous owner, the next owner, the reason and the effective time, appended to the ownership chain",
-          "writes": [
-            {
-              "field": "ownership_chain",
-              "mode": "append"
-            }
-          ],
-          "next": "a.history"
-        },
-        {
-          "id": "a.history",
-          "kind": "action",
-          "does": "Leave every historical action, decision, payment, document, approval and obligation attributed exactly as it occurred. This is done first rather than last, because everything after it is tempted to rewrite it - and a new owner appearing as the author of last year's approvals produces a record that is not merely wrong but actively misleading to anyone auditing it",
+          "does": "Record the previous owner, the next owner, the reason and the effective time, appended to the ownership chain - and in the same act leave every historical action, decision, payment, document, approval and obligation attributed exactly as it occurred. Preserving authorship is a property of how the change is written rather than a state the entity passes through, and it belongs here because everything after this point is tempted to rewrite it: a new owner appearing as the author of last year's approvals produces a record that is not merely wrong but actively misleading to anyone auditing it",
           "writes": [
             {
               "field": "ownership_chain",
@@ -22653,7 +22641,7 @@
             "after": "the period beyond which an unreconnected dependency stops being an interruption and starts being a decision",
             "reason": "a broken connection nobody has reconnected is a churn signal long before it is reported as one, and it must be handed over while that is still true"
           },
-          "onTimeout": "h.abandoned",
+          "onTimeout": "a.unreconnected",
           "windowExtendsOnEngagement": false
         },
         {
@@ -22700,13 +22688,44 @@
           "reEntry": "connecting the same provider again is a new connection and enters through activation, not through this journey"
         },
         {
+          "id": "a.unreconnected",
+          "kind": "action",
+          "does": "Record that the recovery window closed with the connection still broken, as a dated fact about this integration rather than a conclusion about the relationship. A connection somebody chose not to restore is one signal, and it may be the deliberate end of a use case rather than a customer leaving",
+          "next": "c.relationship-signal"
+        },
+        {
+          "id": "c.relationship-signal",
+          "kind": "condition",
+          "asks": "Is there independent evidence that the relationship itself is at risk?",
+          "branches": [
+            {
+              "label": "Corroborated",
+              "when": "risk evidence from another source already exists against this relationship, so the unreconnected integration adds to a picture rather than being the whole of it",
+              "to": "h.abandoned"
+            },
+            {
+              "label": "This break is the only signal",
+              "when": "nothing else indicates the relationship is at risk",
+              "to": "x.unreconnected"
+            }
+          ]
+        },
+        {
+          "id": "x.unreconnected",
+          "kind": "exit",
+          "state": "recovery window closed, connection still broken, relationship not labelled at risk",
+          "terminal": false,
+          "reEntry": "a further disconnection event, or a re-authorisation attempt, opens recovery again"
+        },
+        {
           "id": "h.abandoned",
           "kind": "handoff",
           "to": "RET-24",
           "on": "a connection the holder could re-authorise and has not, past the point where the break is still being treated as an interruption",
           "carries": [
             "which capabilities have been unavailable and for how long",
-            "what was already said about the break and on which routes"
+            "what was already said about the break and on which routes",
+            "that this is one contributing signal alongside evidence that already existed, not a churn conclusion drawn from a broken connection"
           ]
         }
       ],
@@ -30243,7 +30262,7 @@
             {
               "label": "No remedy is owed",
               "when": "the obligation turns out to be satisfied, or no remedy applies under policy",
-              "to": "x.no-remedy"
+              "to": "a.no-remedy"
             }
           ]
         },
@@ -30286,6 +30305,13 @@
             "the original transaction and the unresolved scope the refund would cover",
             "the explicit fact that this journey selected the remedy and did not decide the refund is owed"
           ]
+        },
+        {
+          "id": "a.no-remedy",
+          "kind": "action",
+          "does": "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists. This journey opens from a confirmed issue - reaching no remedy and saying nothing leaves the person believing the question is still open",
+          "execution": "communication",
+          "next": "x.no-remedy"
         },
         {
           "id": "x.no-remedy",
@@ -36992,7 +37018,8 @@
       "category": "decision",
       "goal": "recovery-retry",
       "channels": [
-        "email"
+        "email",
+        "task"
       ],
       "name": "More information required → collect → revalidate → resume review",
       "shortName": "More Information Request",
@@ -37043,12 +37070,29 @@
               "mode": "append"
             }
           ],
-          "next": "a.request"
+          "next": "c.source-type"
+        },
+        {
+          "id": "c.source-type",
+          "kind": "condition",
+          "asks": "Who actually holds the outstanding information?",
+          "branches": [
+            {
+              "label": "The requester or another external party",
+              "when": "only someone outside the organisation can supply it",
+              "to": "a.request"
+            },
+            {
+              "label": "Someone inside the organisation",
+              "when": "an internal owner, team or system holds it, or is the one authorised to produce it",
+              "to": "a.request-internal"
+            }
+          ]
         },
         {
           "id": "a.request",
           "kind": "action",
-          "does": "Request the information from the source that actually holds it, which is not always the requester - asking a customer for something an internal system already has is the most common version of this failure",
+          "does": "Request what is still outstanding from the external source, naming it precisely. Re-requesting the whole requirement asks for things already given, which reads as the first submission having been ignored - and asking a customer for something an internal system already holds is the most common version of this failure",
           "writes": [
             {
               "field": "decision_log",
@@ -37057,6 +37101,19 @@
           ],
           "next": "w.info",
           "execution": "communication"
+        },
+        {
+          "id": "a.request-internal",
+          "kind": "action",
+          "does": "Raise the outstanding requirement as owned work against the internal holder, carrying the blocked decision and its unchanged deadline. An internal evidence gap routed down a customer channel asks the wrong party on a route they never agreed to",
+          "writes": [
+            {
+              "field": "decision_log",
+              "mode": "append"
+            }
+          ],
+          "next": "w.info",
+          "execution": "human"
         },
         {
           "id": "w.info",
@@ -37140,7 +37197,7 @@
             {
               "label": "It does, within the request budget",
               "when": "further rounds are permitted and the case has not used them all",
-              "to": "a.request-remaining"
+              "to": "c.source-type"
             },
             {
               "label": "It does not, or the budget is exhausted",
@@ -37148,19 +37205,6 @@
               "to": "h.resume"
             }
           ]
-        },
-        {
-          "id": "a.request-remaining",
-          "kind": "action",
-          "does": "Request only the part that is still outstanding, naming it precisely. Re-requesting the whole requirement asks the requester for things they have already given, which reads as the first submission having been ignored",
-          "writes": [
-            {
-              "field": "decision_log",
-              "mode": "append"
-            }
-          ],
-          "next": "w.info",
-          "execution": "communication"
         },
         {
           "id": "a.deadline",

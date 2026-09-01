@@ -880,7 +880,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "information-requirement",
     category: "decision",
     goal: "recovery-retry",
-    channels: ["email"],
+    channels: ["email", "task"],
     name: "More information required → collect → revalidate → resume review",
     shortName: "More Information Request",
     purpose:
@@ -922,15 +922,40 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record AWAITING_INFORMATION and preserve everything the review has already established. The case is paused rather than reset - more information required is not a rejection, and a reviewer returning to it should not be starting again from the beginning",
         writes: [{ field: "decision_log", mode: "append" }],
-        next: "a.request",
+        next: "c.source-type",
+      },
+      {
+        id: "c.source-type",
+        kind: "condition",
+        asks: "Who actually holds the outstanding information?",
+        branches: [
+          {
+            label: "The requester or another external party",
+            when: "only someone outside the organisation can supply it",
+            to: "a.request",
+          },
+          {
+            label: "Someone inside the organisation",
+            when: "an internal owner, team or system holds it, or is the one authorised to produce it",
+            to: "a.request-internal",
+          },
+        ],
       },
       {
         id: "a.request",
         kind: "action",
-        does: "Request the information from the source that actually holds it, which is not always the requester - asking a customer for something an internal system already has is the most common version of this failure",
+        does: "Request what is still outstanding from the external source, naming it precisely. Re-requesting the whole requirement asks for things already given, which reads as the first submission having been ignored - and asking a customer for something an internal system already holds is the most common version of this failure",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.info",
         execution: "communication",
+      },
+      {
+        id: "a.request-internal",
+        kind: "action",
+        does: "Raise the outstanding requirement as owned work against the internal holder, carrying the blocked decision and its unchanged deadline. An internal evidence gap routed down a customer channel asks the wrong party on a route they never agreed to",
+        writes: [{ field: "decision_log", mode: "append" }],
+        next: "w.info",
+        execution: "human",
       },
       {
         id: "w.info",
@@ -1011,7 +1036,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "It does, within the request budget",
             when: "further rounds are permitted and the case has not used them all",
-            to: "a.request-remaining",
+            to: "c.source-type",
           },
           {
             label: "It does not, or the budget is exhausted",
@@ -1019,14 +1044,6 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "h.resume",
           },
         ],
-      },
-      {
-        id: "a.request-remaining",
-        kind: "action",
-        does: "Request only the part that is still outstanding, naming it precisely. Re-requesting the whole requirement asks the requester for things they have already given, which reads as the first submission having been ignored",
-        writes: [{ field: "decision_log", mode: "append" }],
-        next: "w.info",
-        execution: "communication",
       },
       {
         id: "a.deadline",

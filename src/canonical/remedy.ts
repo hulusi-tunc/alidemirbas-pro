@@ -1236,7 +1236,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "No remedy is owed",
             when: "the obligation turns out to be satisfied, or no remedy applies under policy",
-            to: "x.no-remedy",
+            to: "a.no-remedy",
           },
         ],
       },
@@ -1273,6 +1273,13 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "the original transaction and the unresolved scope the refund would cover",
           "the explicit fact that this journey selected the remedy and did not decide the refund is owed",
         ],
+      },
+      {
+        id: "a.no-remedy",
+        kind: "action",
+        does: "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists. This journey opens from a confirmed issue - reaching no remedy and saying nothing leaves the person believing the question is still open",
+        execution: "communication",
+        next: "x.no-remedy",
       },
       {
         id: "x.no-remedy",

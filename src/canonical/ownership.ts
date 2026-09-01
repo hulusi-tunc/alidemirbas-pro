@@ -589,14 +589,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.record",
         kind: "action",
-        does: "Record the previous owner, the next owner, the reason and the effective time, appended to the ownership chain",
-        writes: [{ field: "ownership_chain", mode: "append" }],
-        next: "a.history",
-      },
-      {
-        id: "a.history",
-        kind: "action",
-        does: "Leave every historical action, decision, payment, document, approval and obligation attributed exactly as it occurred. This is done first rather than last, because everything after it is tempted to rewrite it - and a new owner appearing as the author of last year's approvals produces a record that is not merely wrong but actively misleading to anyone auditing it",
+        does: "Record the previous owner, the next owner, the reason and the effective time, appended to the ownership chain - and in the same act leave every historical action, decision, payment, document, approval and obligation attributed exactly as it occurred. Preserving authorship is a property of how the change is written rather than a state the entity passes through, and it belongs here because everything after this point is tempted to rewrite it: a new owner appearing as the author of last year's approvals produces a record that is not merely wrong but actively misleading to anyone auditing it",
         writes: [{ field: "ownership_chain", mode: "append" }],
         next: "a.inventory",
       },

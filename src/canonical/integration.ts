@@ -1721,7 +1721,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
           after: "the period beyond which an unreconnected dependency stops being an interruption and starts being a decision",
           reason: "a broken connection nobody has reconnected is a churn signal long before it is reported as one, and it must be handed over while that is still true",
         },
-        onTimeout: "h.abandoned",
+        onTimeout: "a.unreconnected",
         windowExtendsOnEngagement: false,
       },
       {
@@ -1768,6 +1768,36 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         reEntry: "connecting the same provider again is a new connection and enters through activation, not through this journey",
       },
       {
+        id: "a.unreconnected",
+        kind: "action",
+        does: "Record that the recovery window closed with the connection still broken, as a dated fact about this integration rather than a conclusion about the relationship. A connection somebody chose not to restore is one signal, and it may be the deliberate end of a use case rather than a customer leaving",
+        next: "c.relationship-signal",
+      },
+      {
+        id: "c.relationship-signal",
+        kind: "condition",
+        asks: "Is there independent evidence that the relationship itself is at risk?",
+        branches: [
+          {
+            label: "Corroborated",
+            when: "risk evidence from another source already exists against this relationship, so the unreconnected integration adds to a picture rather than being the whole of it",
+            to: "h.abandoned",
+          },
+          {
+            label: "This break is the only signal",
+            when: "nothing else indicates the relationship is at risk",
+            to: "x.unreconnected",
+          },
+        ],
+      },
+      {
+        id: "x.unreconnected",
+        kind: "exit",
+        state: "recovery window closed, connection still broken, relationship not labelled at risk",
+        terminal: false,
+        reEntry: "a further disconnection event, or a re-authorisation attempt, opens recovery again",
+      },
+      {
         id: "h.abandoned",
         kind: "handoff",
         to: "RET-24",
@@ -1775,6 +1805,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "which capabilities have been unavailable and for how long",
           "what was already said about the break and on which routes",
+          "that this is one contributing signal alongside evidence that already existed, not a churn conclusion drawn from a broken connection",
         ],
       },
     ],
