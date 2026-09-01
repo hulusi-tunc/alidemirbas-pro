@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
+import { BlogCover, COVERS, categoryAccent } from "@/components/ui/BlogCover";
+import { fallbackCover } from "@/components/ui/BlogCard";
 import { basePathFor } from "@/components/BlogPage";
 import { copy, type Lang } from "@/lib/content";
 import { getAllBlogPosts, BLOG_AUTHOR, type BlogPost } from "@/lib/blog";
@@ -16,23 +18,38 @@ function formatDate(iso: string) {
 
 /* Single post page.
 
-   REWORKED this pass, per the same "Articler" Figma reference used for
-   the blog index (see BlogPage.tsx/BlogLibrary.tsx's own comments): a
-   byline, an on-this-page TOC rail, a pull-quote pulled out of the
-   body, a tags row, real share links, and prev/next - none of which the
-   plain heading+paragraph shell before this pass had. As before, the
-   reference's surface (its palette, its comment counts) isn't carried
-   over; the mechanisms are rebuilt in this site's own ink/paper/primary
-   tokens and real content:
+   REWORKED across two passes. First pass, per the "Articler" Figma
+   reference also used for the blog index (see BlogPage.tsx/
+   BlogLibrary.tsx's own comments): a byline, an on-this-page TOC rail, a
+   pull-quote pulled out of the body, a tags row, real share links, and
+   prev/next - none of which the plain heading+paragraph shell before
+   that pass had.
 
+   SECOND PASS (2026-09), per a different Figma Community reference -
+   "A Blog Template" by Mika Matikainen
+   (figma.com/design/n3yq6xL6s3bP4BTm2lrkRm, "Article desktop" frame),
+   picked by the user specifically for the article/post-detail page
+   (Articler's own inner page didn't fit, per their own review) - added
+   the two mechanisms that reference had and this page didn't: an
+   author bio card (richer than the hero byline chip) and a "What to
+   read next" related-POSTS grid, distinct from the existing "Related
+   tools" block. Not carried over from that reference: its newsletter
+   signup box (no real subscription backend exists to wire it to - a
+   fake form would be exactly the kind of non-functional affordance
+   this site avoids) and its illustrated decorative header art
+   (BlogCover already fills that role, typographically, for this site).
+
+   Every real-content rule from the first pass still holds:
    - The pull-quote is `post.pullQuote` - a verbatim sentence from the
      post's own sections (see blog-posts.ts), never new copy.
-   - The byline is BLOG_AUTHOR (lib/blog.ts) - this is a one-author
-     blog, so it's a shared constant instead of invented per-post data.
+   - The byline/bio is BLOG_AUTHOR (lib/blog.ts) - one-author blog, so
+     it's a shared constant instead of invented per-post data; `bio`
+     restates the same real role and this blog's own real subject line.
    - The TOC is computed directly from `post.sections[].heading` - no
      new content, just the post's own structure surfaced as navigation.
-   - Prev/next are the real adjacent posts in blog-posts.ts's own array
-     order - never invented titles. */
+   - Prev/next and "What to read next" are real other posts from
+     blog-posts.ts - never invented titles; "next to read" picks
+     same-category posts first, then whatever's left, newest first. */
 export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPost }) {
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
@@ -47,6 +64,20 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
   const index = all.findIndex((p) => p.slug === post.slug);
   const prev = index > 0 ? all[index - 1] : null;
   const next = index >= 0 && index < all.length - 1 ? all[index + 1] : null;
+
+  // "What to read next" - a Figma "A Blog Template" mechanism (2026-09
+  // review) this page didn't have: related POSTS, not related tools.
+  // Same-category posts first, then whatever's left, newest first within
+  // each group - never a random pick, and never padded past what's real.
+  const relatedPosts = all
+    .filter((p) => p.slug !== post.slug)
+    .sort((a, b) => {
+      const aSame = a.category === post.category ? 0 : 1;
+      const bSame = b.category === post.category ? 0 : 1;
+      if (aSame !== bSame) return aSame - bSame;
+      return b.date.localeCompare(a.date);
+    })
+    .slice(0, 3);
 
   const pageUrl = `${SITE_URL}${base}/${post.slug}`;
   const shareX = `https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(pageUrl)}`;
@@ -145,12 +176,55 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
               </a>
             </div>
 
+            {/* Author bio - richer than the hero byline chip (name + role
+                only): a short real bio card, the "who wrote this" a reader
+                reaches for after finishing, not before starting. */}
+            <div className="mt-10 flex items-start gap-4 rounded-card border border-line bg-paper-soft p-5">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-paper text-sm font-semibold text-ink-700">
+                {BLOG_AUTHOR.name
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-ink-950">{BLOG_AUTHOR.name}</p>
+                <p className="mt-1 text-sm leading-relaxed text-ink-600">{BLOG_AUTHOR.bio}</p>
+              </div>
+            </div>
+
             {post.related && post.related.length > 0 && (
               <div className="mt-10 border-t border-line pt-10">
                 <RelatedGrid
                   title="Related tools"
                   items={post.related.map((r) => ({ href: r.href, name: r.label }))}
                 />
+              </div>
+            )}
+
+            {relatedPosts.length > 0 && (
+              <div className="mt-10 border-t border-line pt-10">
+                <p className="mb-4 text-sm font-medium tracking-wide text-neutral-500 uppercase">What to read next</p>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {relatedPosts.map((p) => {
+                    const spec = COVERS[p.slug] ?? fallbackCover(p.category);
+                    const accent = categoryAccent(p.category);
+                    const dotClass = accent === "experimentation" ? "bg-primary-600" : accent === "growth" ? "bg-neutral-600" : "bg-ink-700";
+                    return (
+                      <Link key={p.slug} href={`${base}/${p.slug}`} className="group flex flex-col gap-2.5">
+                        <span className="block aspect-[16/10] overflow-hidden rounded-lg">
+                          <BlogCover spec={spec} size="grid" />
+                        </span>
+                        <span className="flex items-center gap-1.5 text-xs text-ink-500">
+                          <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${dotClass}`} />
+                          {p.category}
+                        </span>
+                        <span className="text-[15px] leading-[1.3] font-semibold text-ink-950 transition-colors duration-[var(--duration-fast)] group-hover:text-primary-700">
+                          {p.title}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

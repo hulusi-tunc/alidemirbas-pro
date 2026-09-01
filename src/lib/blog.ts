@@ -31,8 +31,14 @@ export type BlogPost = {
 
 /** Single real byline - this is a one-author blog (see AboutPage.tsx's own
     "Mobile App Growth Lead, Aksigorta" line), so this is a shared constant
-    rather than a per-post field to keep in sync. */
-export const BLOG_AUTHOR = { name: "Ali Demirbaş", role: "Mobile App Growth Lead, Aksigorta" };
+    rather than a per-post field to keep in sync. `bio` restates the same
+    real role plus this blog's own real subject (its H1 on /blog: "Writing
+    on growth, CRM and lifecycle marketing") - not a new claim. */
+export const BLOG_AUTHOR = {
+  name: "Ali Demirbaş",
+  role: "Mobile App Growth Lead, Aksigorta",
+  bio: "Ali Demirbaş is the Mobile App Growth Lead at Aksigorta. He writes about growth, lifecycle marketing and the metrics behind them.",
+};
 
 // EN only for now, matching the same precedent already established for
 // calculator Phase 4 content (calc-content.ts): real long-form writing is
