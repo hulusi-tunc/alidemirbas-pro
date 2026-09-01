@@ -1051,7 +1051,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "issue-ownership-and-closure",
     category: "feedback",
     goal: "escalation-exception",
-    channels: ["task"],
+    channels: ["task", "email", "in-app"],
     name: "Complaint or issue created → ownership → resolution → confirmation",
     shortName: "Complaint Resolution",
     purpose:
@@ -1174,7 +1174,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Confirmation required",
             when: "the fix is only verifiable from their side, or policy requires their agreement",
-            to: "w.confirm",
+            to: "c.confirm-route",
           },
           {
             label: "Not required",
@@ -1182,6 +1182,30 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             to: "a.close",
           },
         ],
+      },
+      {
+        id: "c.confirm-route",
+        kind: "condition",
+        asks: "Is there a permitted route to ask them?",
+        branches: [
+          {
+            label: "A route exists",
+            when: "a permitted, deliverable destination for this person is available for issue correspondence",
+            to: "a.request-confirmation",
+          },
+          {
+            label: "No route",
+            when: "no permitted destination is available, or the reporter cannot be reached on any of them",
+            to: "a.close-unconfirmed",
+          },
+        ],
+      },
+      {
+        id: "a.request-confirmation",
+        kind: "action",
+        does: "Ask whether the specific issue they raised is now resolved, against the fix that was actually performed. Waiting for a confirmation nobody was asked for is not a confirmation state, it is a timeout dressed as one",
+        execution: "communication",
+        next: "w.confirm",
       },
       {
         id: "w.confirm",
@@ -1219,7 +1243,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.close-unconfirmed",
         kind: "action",
-        does: "Close under the bounded closure rule, recording explicitly that the fix completed and the person never confirmed. Confirmed and unconfirmed closures are different facts and are never written the same way",
+        does: "Close under the bounded closure rule, recording explicitly that the fix completed and the person never confirmed. Confirmed and unconfirmed closures are different facts and are never written the same way - and, where closure was unconfirmed because no permitted route to the reporter existed, that reason is recorded as itself rather than as silence",
         writes: [{ field: "issue_log", mode: "append" }],
         next: "x.closed-unconfirmed",
       },
@@ -1386,7 +1410,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "MORE_INFORMATION_REQUIRED",
             when: "the review cannot conclude on what it has",
-            to: "w.more-info",
+            to: "a.request-more-info",
           },
         ],
       },
@@ -1407,6 +1431,20 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Update the effective business state to match the conclusion - upheld leaves the decision standing, reversed replaces its effect, modified supersedes it in part. In every case the original decision, the appeal and the review outcome all remain readable; nothing is edited in place, because the record of what was decided and then changed is the point of having an appeal process at all",
         writes: [{ field: "appeal_log", mode: "append" }],
+        next: "a.communicate-outcome",
+      },
+      {
+        id: "a.request-more-info",
+        kind: "action",
+        does: "Ask the appellant for the specific evidence the review is missing, naming only what is missing and leaving the appeal deadline where it was. Suspending a review for information nobody requested makes the appellant responsible for a gap they were never told about",
+        execution: "communication",
+        next: "w.more-info",
+      },
+      {
+        id: "a.communicate-outcome",
+        kind: "action",
+        does: "State the review's conclusion, which effective state now applies as a result, and what remains available procedurally. An appeal that concludes in silence leaves the appellant holding the original decision and no way to know it was reconsidered",
+        execution: "communication",
         next: "x.concluded",
       },
       {
@@ -1562,7 +1600,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "missing-critical-data",
     category: "feedback",
     goal: "recovery-retry",
-    channels: ["email", "in-app"],
+    channels: ["email", "in-app", "task"],
     name: "Missing critical data → request or resolve → resume",
     shortName: "Missing Information Reminder",
     purpose:
@@ -1616,7 +1654,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "It has to be provided",
             when: "no system holds it and someone has to supply it",
-            to: "a.request",
+            to: "c.provider",
           },
         ],
       },
@@ -1627,11 +1665,35 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         next: "c.valid",
       },
       {
+        id: "c.provider",
+        kind: "condition",
+        asks: "Who can actually supply the missing item?",
+        branches: [
+          {
+            label: "The customer or account holder",
+            when: "only the person the record is about holds it, or policy requires it from them directly",
+            to: "a.request",
+          },
+          {
+            label: "Someone inside the organisation",
+            when: "an internal owner, team or operator holds it, or is the one authorised to produce it",
+            to: "a.request-internal",
+          },
+        ],
+      },
+      {
         id: "a.request",
         kind: "action",
-        does: "Request it from the actor who can actually provide it - which is often not the customer - stating what it unblocks, so the request is answerable rather than merely received",
+        does: "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
         next: "w.received",
         execution: "communication",
+      },
+      {
+        id: "a.request-internal",
+        kind: "action",
+        does: "Raise the request as owned work against the internal party who holds the item, carrying the blocked process and the running deadline. Routing an internal dependency down a customer channel asks the wrong person on a route they never agreed to",
+        next: "w.received",
+        execution: "human",
       },
       {
         id: "w.received",

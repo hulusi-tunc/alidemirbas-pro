@@ -575,6 +575,13 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.actor",
         kind: "action",
         does: "Establish who is responsible for acting and what the action actually is. A pre-expiry message addressed to someone who cannot perform the renewal is a notification pretending to be a call to action",
+        next: "a.prompt-action",
+      },
+      {
+        id: "a.prompt-action",
+        kind: "action",
+        does: "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point after which that action stops being available. Establishing who must act and then waiting for them to act, without ever telling them, is a call to action nobody received",
+        execution: "communication",
         next: "w.resolution",
       },
       {
