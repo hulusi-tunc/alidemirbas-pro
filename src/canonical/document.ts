@@ -786,6 +786,47 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         onEvent: "c.event",
         timeout: {
+          after: "the last point at which a reminder could still change the outcome, taken from the request's own validity window rather than a fixed interval",
+          reason:
+            "the useful reminder point comes before expiry, not at it - a request that lapses without a second touch was never given the chance the window was for",
+        },
+        onTimeout: "c.reminder-useful",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.reminder-useful",
+        kind: "condition",
+        asks: "Would a reminder still change anything?",
+        branches: [
+          {
+            label: "It would",
+            when: "signatures are still outstanding, the exact version is still current, the request is still valid, and no reminder has been sent on it yet",
+            to: "a.remind",
+          },
+          {
+            label: "It would not",
+            when: "a reminder has already been sent, or the version or request no longer stands",
+            to: "w.expiry",
+          },
+        ],
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Remind only the signers still outstanding, naming the action left and the real validity boundary. One reminder, and any signature, decline or supersession cancels it immediately - a second chase turns a request into pressure",
+        execution: "communication",
+        next: "w.expiry",
+      },
+      {
+        id: "w.expiry",
+        kind: "wait",
+        until: [
+          "a required signer signs",
+          "a signer declines",
+          "the document version is superseded",
+        ],
+        onEvent: "c.event",
+        timeout: {
           after: "the validity window where one is defined, and the process's own review point where none is",
           reason:
             "a signature request open indefinitely leaves a process waiting on an agreement that will not arrive, with nobody having decided to abandon it",

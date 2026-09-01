@@ -2358,7 +2358,14 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.offer-holder",
         kind: "action",
-        does: "Tell the party who holds the decision what is blocked and for whom, and tell the blocked party that the decision now sits elsewhere. Either half sent alone leaves somebody waiting on a person who does not know they are being waited on",
+        does: "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
+        next: "a.notify-blocked-party",
+        execution: "communication",
+      },
+      {
+        id: "a.notify-blocked-party",
+        kind: "action",
+        does: "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway. Told only that they hit a limit, they wait on a person who does not know they are being waited on",
         next: "w.capacity",
         execution: "communication",
       },

@@ -335,6 +335,36 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
+        id: "c.stalled-step",
+        kind: "condition",
+        asks: "Is the same prerequisite actually blocking activation?",
+        branches: [
+          {
+            label: "A named blocker is holding it",
+            when: "authoritative state shows one mandatory prerequisite unchanged and preventing activation, not merely a quiet interval",
+            to: "h.blocker",
+          },
+          {
+            label: "No blocker; simply incomplete",
+            when: "setup has not advanced but nothing identifiable is preventing it",
+            to: "a.read",
+          },
+        ],
+      },
+      {
+        id: "h.blocker",
+        kind: "handoff",
+        to: "ACT-13",
+        on: "one named mandatory prerequisite established as the thing preventing activation, rather than a general lack of progress",
+        carries: [
+          "the exact outstanding prerequisite and how long it has stayed unchanged",
+          "the onboarding route and the milestones already completed",
+        ],
+        suppresses: [
+          "the generic next-step prompt for this prerequisite while the blocker journey owns it",
+        ],
+      },
+      {
         id: "c.window",
         kind: "condition",
         asks: "Is the onboarding window still open?",
@@ -342,7 +372,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Still open",
             when: "the window fixed at entry has not expired",
-            to: "a.read",
+            to: "c.stalled-step",
           },
           {
             label: "Closed",

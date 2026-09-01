@@ -1275,15 +1275,65 @@
           "id": "w.window",
           "kind": "wait",
           "until": [
-            "a meaningful progression signal"
+            "a meaningful progression signal",
+            "permission for this nurture is withdrawn",
+            "the permitted route to this person stops being deliverable"
           ],
-          "onEvent": "h.progressed",
+          "onEvent": "c.window-event",
           "timeout": {
             "after": "the bounded nurture window fixed when the lead entered",
             "reason": "the window is what makes this nurture rather than a permanent messaging state, and it is set once at entry"
           },
           "onTimeout": "a.sunset",
           "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.window-event",
+          "kind": "condition",
+          "asks": "What ended the wait?",
+          "branches": [
+            {
+              "label": "They progressed",
+              "when": "a meaningful progression signal arrived",
+              "to": "h.progressed"
+            },
+            {
+              "label": "Permission withdrawn",
+              "when": "the lawful basis or permission this nurture relied on no longer covers it",
+              "to": "a.stop-permission"
+            },
+            {
+              "label": "Route lost",
+              "when": "no permitted destination for this person is deliverable any more",
+              "to": "a.stop-contactability"
+            }
+          ]
+        },
+        {
+          "id": "a.stop-permission",
+          "kind": "action",
+          "does": "Invalidate the nurture already queued against this instance and append the reason. A window that only ends on progression or its own clock keeps sending after the permission it depended on has gone",
+          "next": "x.permission-ended"
+        },
+        {
+          "id": "a.stop-contactability",
+          "kind": "action",
+          "does": "Stop this nurture route without recording it as disengagement. A destination that stopped working says nothing about whether the person is still interested, and filing route failure as a lack of interest loses a lead twice",
+          "next": "x.unreachable"
+        },
+        {
+          "id": "x.permission-ended",
+          "kind": "exit",
+          "state": "nurture stopped; permission no longer covers it",
+          "terminal": false,
+          "reEntry": "a new valid permission plus a new qualifying reason starts a new window"
+        },
+        {
+          "id": "x.unreachable",
+          "kind": "exit",
+          "state": "nurture stopped; no permitted route is deliverable",
+          "terminal": false,
+          "reEntry": "a repaired or newly permitted route, while the entry reason is still live, resumes nurture"
         },
         {
           "id": "h.progressed",
@@ -1546,7 +1596,48 @@
             ],
             "source": "declared"
           },
-          "next": "c.declared"
+          "next": "c.email-route"
+        },
+        {
+          "id": "c.email-route",
+          "kind": "condition",
+          "asks": "Is the destination they supplied actually usable for this?",
+          "branches": [
+            {
+              "label": "Usable",
+              "when": "the supplied destination is valid, deliverable and permitted for fulfilling what was asked for",
+              "to": "c.declared"
+            },
+            {
+              "label": "Not usable",
+              "when": "no valid deliverable destination was supplied, or it is not permitted for this fulfilment",
+              "to": "c.declared-no-route"
+            }
+          ]
+        },
+        {
+          "id": "c.declared-no-route",
+          "kind": "condition",
+          "asks": "What did they ask for, given we cannot deliver to them?",
+          "branches": [
+            {
+              "label": "Asked for a person",
+              "when": "the request was for contact rather than for material",
+              "to": "h.person"
+            },
+            {
+              "label": "Asked for the material",
+              "when": "the request was for something we would have sent, and there is nowhere to send it",
+              "to": "x.no-delivery-route"
+            }
+          ]
+        },
+        {
+          "id": "x.no-delivery-route",
+          "kind": "exit",
+          "state": "captured with nothing deliverable; the request was not fulfilled",
+          "terminal": false,
+          "reEntry": "a valid permitted destination, supplied later, makes the same request fulfillable"
         },
         {
           "id": "c.declared",
@@ -1931,6 +2022,36 @@
           ]
         },
         {
+          "id": "c.stalled-step",
+          "kind": "condition",
+          "asks": "Is the same prerequisite actually blocking activation?",
+          "branches": [
+            {
+              "label": "A named blocker is holding it",
+              "when": "authoritative state shows one mandatory prerequisite unchanged and preventing activation, not merely a quiet interval",
+              "to": "h.blocker"
+            },
+            {
+              "label": "No blocker; simply incomplete",
+              "when": "setup has not advanced but nothing identifiable is preventing it",
+              "to": "a.read"
+            }
+          ]
+        },
+        {
+          "id": "h.blocker",
+          "kind": "handoff",
+          "to": "ACT-13",
+          "on": "one named mandatory prerequisite established as the thing preventing activation, rather than a general lack of progress",
+          "carries": [
+            "the exact outstanding prerequisite and how long it has stayed unchanged",
+            "the onboarding route and the milestones already completed"
+          ],
+          "suppresses": [
+            "the generic next-step prompt for this prerequisite while the blocker journey owns it"
+          ]
+        },
+        {
           "id": "c.window",
           "kind": "condition",
           "asks": "Is the onboarding window still open?",
@@ -1938,7 +2059,7 @@
             {
               "label": "Still open",
               "when": "the window fixed at entry has not expired",
-              "to": "a.read"
+              "to": "c.stalled-step"
             },
             {
               "label": "Closed",
@@ -6993,14 +7114,14 @@
         {
           "id": "a.ask-light",
           "kind": "action",
-          "does": "Make the small ask, once, with no follow-up sequence behind it",
+          "does": "Make the small ask, once, with no follow-up sequence behind it. A rating or a one-tap response can go wherever the person already is, including an interruptive route where permission for one exists",
           "next": "w.response",
           "execution": "communication"
         },
         {
           "id": "a.ask-heavy",
           "kind": "action",
-          "does": "Make the substantial ask, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint",
+          "does": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint. A request that attaches somebody's name and reputation to the organisation is not an interruption to be tapped past; it needs somewhere they can read it twice",
           "next": "w.response",
           "execution": "communication"
         },
@@ -31393,7 +31514,7 @@
             {
               "label": "Defined",
               "when": "the governing terms state the notice period, the renewal model and the terms that would apply",
-              "to": "c.blockers"
+              "to": "c.notice-required"
             },
             {
               "label": "Not defined",
@@ -31411,6 +31532,30 @@
             "the relationship, its term end and what the terms do say",
             "the explicit fact that no notice period or price was invented in order to proceed"
           ]
+        },
+        {
+          "id": "c.notice-required",
+          "kind": "condition",
+          "asks": "Do the governing terms require notice to actually be given?",
+          "branches": [
+            {
+              "label": "Notice is required",
+              "when": "the terms oblige us to tell them the term is renewing before it does",
+              "to": "a.notice"
+            },
+            {
+              "label": "No notice obligation",
+              "when": "the terms define the model and the period but require no notification",
+              "to": "c.blockers"
+            }
+          ]
+        },
+        {
+          "id": "a.notice",
+          "kind": "action",
+          "does": "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if they do nothing. Having defined a notice period is not the same as having given notice, and an auto-renew that reaches execution silently is exactly the case the obligation exists for. This is notice, not a request - it is never treated as the decision",
+          "execution": "communication",
+          "next": "c.blockers"
         },
         {
           "id": "c.blockers",
@@ -35396,6 +35541,13 @@
               "mode": "append"
             }
           ],
+          "next": "a.notify-provider-cancel"
+        },
+        {
+          "id": "a.notify-provider-cancel",
+          "kind": "action",
+          "does": "Tell the customer the confirmed commitment can no longer be kept, that the failure is ours and not theirs, and that they are not recorded as having cancelled or missed it. Sent before any remedy or refund is worked out - waiting for the consequence means the person finds out their booking is gone from a message about money",
+          "execution": "communication",
           "next": "c.remedy"
         },
         {
@@ -41202,7 +41354,14 @@
         {
           "id": "a.offer-holder",
           "kind": "action",
-          "does": "Tell the party who holds the decision what is blocked and for whom, and tell the blocked party that the decision now sits elsewhere. Either half sent alone leaves somebody waiting on a person who does not know they are being waited on",
+          "does": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
+          "next": "a.notify-blocked-party",
+          "execution": "communication"
+        },
+        {
+          "id": "a.notify-blocked-party",
+          "kind": "action",
+          "does": "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway. Told only that they hit a limit, they wait on a person who does not know they are being waited on",
           "next": "w.capacity",
           "execution": "communication"
         },
@@ -43713,6 +43872,46 @@
         },
         {
           "id": "w.signatures",
+          "kind": "wait",
+          "until": [
+            "a required signer signs",
+            "a signer declines",
+            "the document version is superseded"
+          ],
+          "onEvent": "c.event",
+          "timeout": {
+            "after": "the last point at which a reminder could still change the outcome, taken from the request's own validity window rather than a fixed interval",
+            "reason": "the useful reminder point comes before expiry, not at it - a request that lapses without a second touch was never given the chance the window was for"
+          },
+          "onTimeout": "c.reminder-useful",
+          "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.reminder-useful",
+          "kind": "condition",
+          "asks": "Would a reminder still change anything?",
+          "branches": [
+            {
+              "label": "It would",
+              "when": "signatures are still outstanding, the exact version is still current, the request is still valid, and no reminder has been sent on it yet",
+              "to": "a.remind"
+            },
+            {
+              "label": "It would not",
+              "when": "a reminder has already been sent, or the version or request no longer stands",
+              "to": "w.expiry"
+            }
+          ]
+        },
+        {
+          "id": "a.remind",
+          "kind": "action",
+          "does": "Remind only the signers still outstanding, naming the action left and the real validity boundary. One reminder, and any signature, decline or supersession cancels it immediately - a second chase turns a request into pressure",
+          "execution": "communication",
+          "next": "w.expiry"
+        },
+        {
+          "id": "w.expiry",
           "kind": "wait",
           "until": [
             "a required signer signs",

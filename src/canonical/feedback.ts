@@ -450,14 +450,14 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.ask-light",
         kind: "action",
-        does: "Make the small ask, once, with no follow-up sequence behind it",
+        does: "Make the small ask, once, with no follow-up sequence behind it. A rating or a one-tap response can go wherever the person already is, including an interruptive route where permission for one exists",
         next: "w.response",
         execution: "communication",
       },
       {
         id: "a.ask-heavy",
         kind: "action",
-        does: "Make the substantial ask, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint",
+        does: "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint. A request that attaches somebody's name and reputation to the organisation is not an interruption to be tapped past; it needs somewhere they can read it twice",
         next: "w.response",
         execution: "communication",
       },

@@ -1259,8 +1259,12 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.window",
         kind: "wait",
-        until: ["a meaningful progression signal"],
-        onEvent: "h.progressed",
+        until: [
+          "a meaningful progression signal",
+          "permission for this nurture is withdrawn",
+          "the permitted route to this person stops being deliverable",
+        ],
+        onEvent: "c.window-event",
         timeout: {
           after: "the bounded nurture window fixed when the lead entered",
           reason:
@@ -1268,6 +1272,54 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "a.sunset",
         windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.window-event",
+        kind: "condition",
+        asks: "What ended the wait?",
+        branches: [
+          {
+            label: "They progressed",
+            when: "a meaningful progression signal arrived",
+            to: "h.progressed",
+          },
+          {
+            label: "Permission withdrawn",
+            when: "the lawful basis or permission this nurture relied on no longer covers it",
+            to: "a.stop-permission",
+          },
+          {
+            label: "Route lost",
+            when: "no permitted destination for this person is deliverable any more",
+            to: "a.stop-contactability",
+          },
+        ],
+      },
+      {
+        id: "a.stop-permission",
+        kind: "action",
+        does: "Invalidate the nurture already queued against this instance and append the reason. A window that only ends on progression or its own clock keeps sending after the permission it depended on has gone",
+        next: "x.permission-ended",
+      },
+      {
+        id: "a.stop-contactability",
+        kind: "action",
+        does: "Stop this nurture route without recording it as disengagement. A destination that stopped working says nothing about whether the person is still interested, and filing route failure as a lack of interest loses a lead twice",
+        next: "x.unreachable",
+      },
+      {
+        id: "x.permission-ended",
+        kind: "exit",
+        state: "nurture stopped; permission no longer covers it",
+        terminal: false,
+        reEntry: "a new valid permission plus a new qualifying reason starts a new window",
+      },
+      {
+        id: "x.unreachable",
+        kind: "exit",
+        state: "nurture stopped; no permitted route is deliverable",
+        terminal: false,
+        reEntry: "a repaired or newly permitted route, while the entry reason is still live, resumes nurture",
       },
       {
         id: "h.progressed",
@@ -1491,7 +1543,48 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "declared",
         },
-        next: "c.declared",
+        next: "c.email-route",
+      },
+      {
+        id: "c.email-route",
+        kind: "condition",
+        asks: "Is the destination they supplied actually usable for this?",
+        branches: [
+          {
+            label: "Usable",
+            when: "the supplied destination is valid, deliverable and permitted for fulfilling what was asked for",
+            to: "c.declared",
+          },
+          {
+            label: "Not usable",
+            when: "no valid deliverable destination was supplied, or it is not permitted for this fulfilment",
+            to: "c.declared-no-route",
+          },
+        ],
+      },
+      {
+        id: "c.declared-no-route",
+        kind: "condition",
+        asks: "What did they ask for, given we cannot deliver to them?",
+        branches: [
+          {
+            label: "Asked for a person",
+            when: "the request was for contact rather than for material",
+            to: "h.person",
+          },
+          {
+            label: "Asked for the material",
+            when: "the request was for something we would have sent, and there is nowhere to send it",
+            to: "x.no-delivery-route",
+          },
+        ],
+      },
+      {
+        id: "x.no-delivery-route",
+        kind: "exit",
+        state: "captured with nothing deliverable; the request was not fulfilled",
+        terminal: false,
+        reEntry: "a valid permitted destination, supplied later, makes the same request fulfillable",
       },
       {
         id: "c.declared",

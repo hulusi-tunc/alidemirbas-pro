@@ -2096,6 +2096,13 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "reservation_log", mode: "append" },
           { field: "suppressed_sends", mode: "append" },
         ],
+        next: "a.notify-provider-cancel",
+      },
+      {
+        id: "a.notify-provider-cancel",
+        kind: "action",
+        does: "Tell the customer the confirmed commitment can no longer be kept, that the failure is ours and not theirs, and that they are not recorded as having cancelled or missed it. Sent before any remedy or refund is worked out - waiting for the consequence means the person finds out their booking is gone from a message about money",
+        execution: "communication",
         next: "c.remedy",
       },
       {

@@ -599,7 +599,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Defined",
             when: "the governing terms state the notice period, the renewal model and the terms that would apply",
-            to: "c.blockers",
+            to: "c.notice-required",
           },
           {
             label: "Not defined",
@@ -617,6 +617,30 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "the relationship, its term end and what the terms do say",
           "the explicit fact that no notice period or price was invented in order to proceed",
         ],
+      },
+      {
+        id: "c.notice-required",
+        kind: "condition",
+        asks: "Do the governing terms require notice to actually be given?",
+        branches: [
+          {
+            label: "Notice is required",
+            when: "the terms oblige us to tell them the term is renewing before it does",
+            to: "a.notice",
+          },
+          {
+            label: "No notice obligation",
+            when: "the terms define the model and the period but require no notification",
+            to: "c.blockers",
+          },
+        ],
+      },
+      {
+        id: "a.notice",
+        kind: "action",
+        does: "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if they do nothing. Having defined a notice period is not the same as having given notice, and an auto-renew that reaches execution silently is exactly the case the obligation exists for. This is notice, not a request - it is never treated as the decision",
+        execution: "communication",
+        next: "c.blockers",
       },
       {
         id: "c.blockers",
