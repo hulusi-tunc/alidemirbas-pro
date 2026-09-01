@@ -195,6 +195,28 @@ export const copy = {
           reset: "Reset zoom",
         },
       },
+      /* Two dedicated child list pages under /lab/journeys, splitting the
+         same JOURNEY_ROWS by whether a journey's own work ever reaches a
+         person (canonical-view.ts's COMMUNICATION_JOURNEY_ROWS /
+         INTERNAL_JOURNEY_ROWS) - added alongside the full unified list
+         above, not replacing it. All other list microcopy (search
+         placeholder, goal filter, empty state, card labels) is shared from
+         `page` above; only title/intro/crumb differ per split. */
+      journeysSplit: {
+        communicationLabel: "Communication journeys",
+        internalLabel: "Internal journeys",
+        hubIntro: "Split by whether a journey's own work ever reaches a person.",
+        communication: {
+          title: "Communication journeys",
+          intro:
+            "{count} of the library's journeys carry at least one action that reaches a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task). Search, or filter by goal - each entry is a graph, not a sequence.",
+        },
+        internal: {
+          title: "Internal journeys",
+          intro:
+            "{count} of the library's journeys resolve entirely inside the system - no message, no human route, nothing that reaches a person. State machines with no communication of their own. Search, or filter by goal - each entry is a graph, not a sequence.",
+        },
+      },
     },
     about: {
       metaTitle: "About - Ali Demirbaş",
@@ -851,6 +873,21 @@ export const copy = {
           zoomOut: "Uzaklaştır",
           fitToView: "Sığdır",
           reset: "Yakınlaştırmayı sıfırla",
+        },
+      },
+      journeysSplit: {
+        communicationLabel: "İletişim journey'leri",
+        internalLabel: "Internal journey'ler",
+        hubIntro: "Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı.",
+        communication: {
+          title: "İletişim journey'leri",
+          intro:
+            "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Ara, ya da goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+        },
+        internal: {
+          title: "Internal journey'ler",
+          intro:
+            "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor - mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Ara, ya da goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
         },
       },
     },

@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function LabJourneysTr() {
-  return <LabPage lang="tr" />;
+  return <LabPage lang="tr" showSplitLinks />;
 }

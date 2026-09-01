@@ -365,6 +365,30 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   preview: buildJourneyPreview(flowNodesOf(j)),
 }));
 
+/** The library's two-way split by whether a journey's own work ever reaches
+    a person - added for the two dedicated `/lab/journeys/communication` and
+    `/lab/journeys/internal` list pages, alongside (not replacing) the full
+    unified list at `/lab/journeys` itself.
+
+    `channels.length > 0` is not a second, driftable notion of
+    "communication": scripts/validate-canonical.mjs's own "channels must be
+    USED, not merely plausible" rule already forces every journey that
+    declares a channel to carry at least one action marked
+    `execution: "communication"` (a message) or `"human"` (a routed task),
+    and forces the reverse too - a journey with such an action but no
+    declared channel fails validation just the same. So filtering on
+    `channels` here and filtering on action `execution` would always agree;
+    `channels` is simply the one field that is already on JourneyRow. */
+export const COMMUNICATION_JOURNEY_ROWS: readonly JourneyRow[] = JOURNEY_ROWS.filter(
+  (j) => j.channels.length > 0,
+);
+
+/** The complement - journeys that resolve entirely inside the system: no
+    message, no human route, nothing that reaches a person. */
+export const INTERNAL_JOURNEY_ROWS: readonly JourneyRow[] = JOURNEY_ROWS.filter(
+  (j) => j.channels.length === 0,
+);
+
 function detailOf(j: CanonicalJourney): JourneyDetail {
   const withDirection = flowNodesOf(j);
 
