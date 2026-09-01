@@ -125,19 +125,15 @@ const JOBS: Record<Lang, TimelineJob[]> = {
 const T = {
   en: {
     wordmark: "Ali Demirbaş",
-    heroPrefix: "I drive ",
-    heroCode: "growth()",
-    heroSuffix: " with data, build lifecycle programs that retain, and turn marketing into measurable outcomes.",
-    introPrefix: "Currently, I'm Mobile App Growth Lead at ",
+    heroText: "I work at the intersection of growth, lifecycle, and product — turning data into better customer experiences.",
+    introPrefix: "Currently, I lead mobile growth at ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
-    introSuffix: ", driving user acquisition and engagement for one of Turkey's largest insurers.",
-    contact: (
-      <>
-        <a href="mailto:mehmetalidemirbas@gmail.com">Email me</a>, or shout over on{" "}
-        <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer">LinkedIn</a>.
-      </>
-    ),
+    introSuffix: ", focusing on acquisition, activation, engagement, and digital customer experiences.",
+    outsideWork: "Outside my day-to-day work, I build practical tools, frameworks, and open-source projects around growth and lifecycle marketing.",
+    exploreLabel: "Explore my work",
+    exploreHref: "/lab",
+    linkedinLabel: "Connect on LinkedIn",
     h2: "Over eight years bridging data and marketing into measurable growth.",
     subLines: ["8+ years building.", "Growth, lifecycle, and analytics.", "From startups to enterprises."],
     toggle: { simple: "Simple", detailed: "Detailed", at: "at", bottomLine: "Bottom Line" },
@@ -147,19 +143,15 @@ const T = {
   },
   tr: {
     wordmark: "Ali Demirbaş",
-    heroPrefix: "Veriyle ",
-    heroCode: "growth()",
-    heroSuffix: " sağlıyor, elde tutan lifecycle programları kuruyor ve pazarlamayı ölçülebilir sonuçlara dönüştürüyorum.",
-    introPrefix: "Şu anda, Türkiye'nin en büyük sigorta şirketlerinden birinde ",
+    heroText: "Growth, lifecycle ve ürünün kesişiminde çalışıyor, veriyi daha iyi müşteri deneyimlerine dönüştürüyorum.",
+    introPrefix: "Şu anda ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
-    introSuffix: "'da Mobil Uygulama Büyüme Lideri olarak kullanıcı kazanımını ve etkileşimi yönetiyorum.",
-    contact: (
-      <>
-        <a href="mailto:mehmetalidemirbas@gmail.com">Bana e-posta at</a>, ya da{" "}
-        <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer">LinkedIn</a>&apos;de bul beni.
-      </>
-    ),
+    introSuffix: "'da mobil büyüme çalışmalarına liderlik ediyor; kullanıcı kazanımı, aktivasyon, etkileşim ve dijital müşteri deneyimi üzerine çalışıyorum.",
+    outsideWork: "Bunun yanında growth ve lifecycle marketing alanlarında araçlar, framework'ler ve açık kaynak projeler geliştiriyorum.",
+    exploreLabel: "Çalışmalarıma göz at",
+    exploreHref: "/tr/lab",
+    linkedinLabel: "LinkedIn'de bağlantı kur",
     h2: "Sekiz yılı aşkın süredir veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
     subLines: ["8+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lardan kurumsala."],
     toggle: { simple: "Basit", detailed: "Detaylı", at: "@", bottomLine: "Özet" },
@@ -188,9 +180,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
               <Reveal>
                 <p className="text-[13px] font-medium text-ink-400">{c.nav.about}</p>
                 <h1 className="mt-4 max-w-3xl text-[clamp(2rem,1.4rem+2.6vw,3.25rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
-                  {t.heroPrefix}
-                  <span className="text-primary-600">{t.heroCode}</span>
-                  {t.heroSuffix}
+                  {t.heroText}
                 </h1>
               </Reveal>
               <Reveal delay={100}>
@@ -226,8 +216,25 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                   </a>
                   {t.introSuffix}
                 </p>
-                <p className="mt-5 text-lg leading-relaxed text-ink-700 [&_a]:text-blue-700 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-blue-800">
-                  {t.contact}
+                <p className="mt-5 text-lg leading-relaxed text-pretty text-ink-700">{t.outsideWork}</p>
+                <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-lg leading-relaxed text-ink-700">
+                  <a
+                    href={t.exploreHref}
+                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
+                  >
+                    {t.exploreLabel}
+                  </a>
+                  <span aria-hidden className="text-ink-400">
+                    ·
+                  </span>
+                  <a
+                    href="https://www.linkedin.com/in/ali-demirbas/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
+                  >
+                    {t.linkedinLabel}
+                  </a>
                 </p>
               </div>
             </Reveal>
