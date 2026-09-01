@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
+import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import {
   ProductBenefitStory,
   ProductHeading,
@@ -326,22 +327,21 @@ function Install({ t }: { t: (typeof copy)[Lang] }) {
 }
 
 /* ---- 10 · FAQ -------------------------------------------------------- */
+/* Same FaqAccordion (soft filled cards, blue-tinted open state) every
+   other product page on the site uses - was a hand-rolled hairline-
+   divided list before this pass, the one FAQ on the site that didn't
+   match. content.ts's abTesting.faq array has no `id` field (it predates
+   FaqAccordion), so ids are generated the same way
+   JourneyBuilderPage.tsx's Faq already does for the same situation. */
 function Faq({ t }: { t: (typeof copy)[Lang] }) {
   const c = t.abTesting;
   return (
     <ProductSection tone="soft" space="md">
-      <PortraitContainer>
+      <PortraitContainer className="max-w-3xl">
         <ProductHeading eyebrow={c.product.faqEyebrow} title={c.faqTitle} body={c.faqIntro} />
-        <div className="mt-10 max-w-3xl">
-          {c.faq.map((item, i) => (
-            <Reveal key={item.q} delay={i * 50}>
-              <div className="border-t border-line py-6 last:border-b">
-                <h3 className="text-base font-medium tracking-tight text-ink-950">{item.q}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-ink-950/65">{item.a}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal delay={80} className="mt-10">
+          <FaqAccordion items={c.faq.map((item, i) => ({ id: `ab-faq-${i}`, ...item }))} />
+        </Reveal>
       </PortraitContainer>
     </ProductSection>
   );
