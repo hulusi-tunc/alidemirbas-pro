@@ -2254,6 +2254,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: ["in-app", "email"],
     name: "Usage limit reached → capacity path → upgrade, wait for reset or stay blocked",
+    shortName: "Usage Limit Alert",
     purpose:
       "Meet somebody at the moment a limit stops them with the three facts that decide what happens next - what the limit is, when it resets, and whether more capacity can be bought - without any of it reading as an accusation.",
     entity: {

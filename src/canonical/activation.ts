@@ -106,6 +106,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: ["task"],
     name: "New entry → onboarding route → appropriate path",
+    shortName: "Onboarding Route Assignment",
     purpose:
       "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
     entity: {
@@ -232,6 +233,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: ["email", "in-app"],
     name: "Onboarding progress → next best setup step → activation",
+    shortName: "Onboarding Nurture",
     purpose:
       "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
     entity: {
@@ -395,6 +397,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-recovery-intervention",
     channels: ["email", "push", "sms", "whatsapp", "task"],
     name: "Missing activation requirement → resolve blocker → resume",
+    shortName: "Onboarding Blocker Reminder",
     purpose:
       "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
     entity: {
@@ -612,6 +615,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-recovery-intervention",
     channels: ["email", "in-app", "push", "sms"],
     name: "Struggling user detection → proactive assistance → recovery or exit",
+    shortName: "Onboarding Help",
     purpose:
       "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
     entity: {
@@ -872,6 +876,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: ["email", "in-app", "push"],
     name: "First value milestone → recognition → next meaningful action",
+    shortName: "First Value Milestone",
     purpose:
       "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
     entity: {
@@ -1081,6 +1086,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: ["email", "in-app"],
     name: "Early adoption → usage depth → habit or stable use",
+    shortName: "Adoption Nurture",
     purpose:
       "Carry an account from having produced value once to producing it repeatedly, measured against its own use-case.",
     entity: {
@@ -1187,6 +1193,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-recovery-intervention",
     channels: ["email", "push"],
     name: "Adoption stall → diagnose missing value → recover or re-route",
+    shortName: "Adoption Recovery",
     purpose:
       "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
     entity: {
@@ -1329,6 +1336,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: ["email", "in-app"],
     name: "Role or use-case discovery → relevant onboarding adaptation",
+    shortName: "Onboarding Personalization",
     purpose:
       "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
     entity: {
@@ -1463,6 +1471,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-recovery-intervention",
     channels: ["email", "push", "sms"],
     name: "Dormant non-customer reactivation → return → re-qualification or exit",
+    shortName: "Dormant Lead Reactivation",
     purpose:
       "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did.",
     entity: {

@@ -1049,6 +1049,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: ["email", "in-app"],
     name: "Account closure request → validate → resolve blockers → close",
+    shortName: "Account Closure",
     purpose:
       "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
     entity: {
@@ -1876,6 +1877,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: ["email"],
     name: "Deletion request → verify requester → confirm scope and retention → closed",
+    shortName: "Data Deletion Confirmation",
     purpose:
       "Give the person who asked for their data to be removed a durable record of what went, what stayed, under which obligation, and the date the request closed - because a deletion nobody can point to is indistinguishable from one that never happened.",
     entity: {

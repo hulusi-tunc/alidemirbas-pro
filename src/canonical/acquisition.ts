@@ -461,6 +461,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["sales", "task"],
     name: "High-intent action → qualification → human or automated route",
+    shortName: "High-Intent Lead Routing",
     purpose:
       "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
     entity: {
@@ -1188,6 +1189,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: ["email", "in-app"],
     name: "Researching lead → bounded education → progress or sunset",
+    shortName: "Lead Nurture",
     purpose:
       "Give a legitimate but not-yet-ready lead a window of useful education that ends whether or not it worked.",
     entity: {
@@ -1448,6 +1450,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: ["email"],
     name: "Captured interest → readiness check → destination-appropriate first touch",
+    shortName: "New Lead Welcome",
     purpose:
       "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
     entity: {

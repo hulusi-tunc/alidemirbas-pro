@@ -152,6 +152,7 @@ export default function JourneyBrowser({
               href={`${basePath}/${j.slug}`}
               id={j.id}
               name={j.name}
+              shortName={j.shortName}
               goalLabel={GOAL_LABEL[j.goal][lang]}
               categoryTitle={j.categoryTitle}
               nodeCount={j.nodeCount}

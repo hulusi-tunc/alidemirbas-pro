@@ -347,6 +347,28 @@ export interface CanonicalJourney {
       communication at all. */
   channels: readonly ChannelId[];
   name: string;
+  /** A short, plain-language label for the same journey, for readers who
+      are not reading a state machine.
+
+      `name` is the canonical form and stays authoritative: it states the
+      shape of the graph ("State -> transition -> outcome"), which is what a
+      practitioner needs on the detail page and what the slug was derived
+      from. `shortName` is what a list card and a page title show instead,
+      so the library is scannable without decoding a transition arrow.
+
+      It must be TRUE to the journey, not a marketing name reached for
+      because it sounds familiar: TIM-61 is "Deadline Tracking" and not
+      "Deadline Reminder" precisely because its own reusable rule says a
+      deadline governs an obligation "rather than merely schedule
+      communication around a date", and CMS-206 is "Send Attempt Status"
+      rather than anything with "Delivery" in it because its rule is that
+      submitting a message is not proof the recipient received it.
+
+      Optional: the 87 journeys that carry communication have one, the
+      remaining internal journeys have not been named yet and fall back to
+      `name`. Where present it must be unique across the library - the
+      validator checks that. */
+  shortName?: string;
   purpose: string;
   /** What the journey is about, which is what its exits and suppressions are
       scoped to. A journey about one order does not close because a different

@@ -568,6 +568,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: ["email"],
     name: "Document distribution → send or provide access → confirm or fail",
+    shortName: "Document Delivery",
     purpose:
       "Get a specific issued version to the party who should have it, without either fact touching the other.",
     entity: {
@@ -701,6 +702,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email"],
     name: "Signature request → await signatures → signed, declined or expired",
+    shortName: "Signature Reminder",
     purpose:
       "Collect the required signatures against one exact version, and know when they are actually all there.",
     entity: {
@@ -1725,6 +1727,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: ["email"],
     name: "Document or record conflict → determine authoritative version → reconcile",
+    shortName: "Document Conflict Review",
     purpose:
       "Work out which version actually governs, and explain the conflict rather than deleting it.",
     entity: {
@@ -1906,6 +1909,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: ["email", "in-app"],
     name: "Document effective → entitlement active → first use or dormant",
+    shortName: "Document Activation",
     purpose:
       "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
     entity: {

@@ -593,6 +593,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-recovery-intervention",
     channels: ["task"],
     name: "Churn risk escalation → evidence → intervention priority",
+    shortName: "Churn Risk Escalation",
     purpose:
       "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
     entity: {
@@ -778,6 +779,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: ["email", "push"],
     name: "Negative experience → recovery eligibility → appropriate response",
+    shortName: "Service Recovery",
     purpose:
       "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
     entity: {
@@ -1049,6 +1051,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: ["email", "in-app"],
     name: "Cancellation intent → understand state → save or proceed",
+    shortName: "Cancellation Save",
     purpose:
       "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
     entity: {
@@ -1385,6 +1388,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: ["email", "in-app"],
     name: "Retention intervention → outcome → suppress, escalate or exit",
+    shortName: "Retention Offer Follow-Up",
     purpose:
       "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
     entity: {

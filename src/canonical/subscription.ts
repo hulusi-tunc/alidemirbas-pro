@@ -544,6 +544,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email", "in-app", "push", "sms"],
     name: "Renewal window → eligibility → renew, non-renew or review",
+    shortName: "Renewal Reminder",
     purpose:
       "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
     entity: {
@@ -2151,6 +2152,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: ["email", "in-app"],
     name: "Cancellation confirmed → wind-down window → access ends or customer returns",
+    shortName: "Cancellation Confirmation",
     purpose:
       "Carry somebody through the period between deciding to leave and actually losing access, so the end date is never a surprise and returning stays possible right up to it.",
     entity: {

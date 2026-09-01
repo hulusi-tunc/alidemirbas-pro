@@ -1939,6 +1939,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: ["email", "sms"],
     name: "Provider or resource cancellation → reallocate → reschedule, remedy or cancel",
+    shortName: "Booking Reschedule",
     purpose:
       "Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.",
     entity: {
@@ -2155,6 +2156,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "readiness-revalidation",
     channels: ["email", "sms", "in-app"],
     name: "Appointment approaching → prerequisites and revalidation → ready, reminded or at risk",
+    shortName: "Appointment Reminder",
     purpose:
       "Get the customer's side of a confirmed commitment done before the commitment arrives, and send the reminder from what the booking is at that moment rather than from what it was when it was made.",
     entity: {
@@ -2358,6 +2360,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: ["email", "sms"],
     name: "Reservation requested → validate capacity → confirm, re-offer or lapse",
+    shortName: "Booking Confirmation",
     purpose:
       "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
     entity: {
@@ -2543,6 +2546,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: ["email", "sms"],
     name: "No-show confirmed → validate the miss → rebook or close",
+    shortName: "No-Show Follow-Up",
     purpose:
       "Offer a way back to somebody whose booking did not happen, having first established that the miss was theirs and not ours - because a rebooking prompt sent over our own failure is an accusation.",
     entity: {
@@ -2733,6 +2737,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: ["email", "push"],
     name: "Availability searched, no booking → nearest window or waitlist",
+    shortName: "Availability Search Abandonment",
     purpose:
       "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
     entity: {

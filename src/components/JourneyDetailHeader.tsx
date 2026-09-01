@@ -83,8 +83,17 @@ export default function JourneyDetailHeader({
             : "mt-7 text-[clamp(1.625rem,1.1rem+2.1vw,2.5rem)]"
         } max-w-4xl leading-[1.14] font-semibold tracking-[-0.02em] text-balance text-ink-950`}
       >
-        {detail.name}
+        {detail.shortName ?? detail.name}
       </Heading>
+
+      {/* The canonical name, kept under the plain-language title rather than
+          dropped: it states the journey's shape ("State -> transition ->
+          outcome"), which is the thing a practitioner reads the graph
+          against, and it is what the slug was derived from. Only rendered
+          where a shortName actually replaced it as the title. */}
+      {detail.shortName ? (
+        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{detail.name}</p>
+      ) : null}
 
       {/* Narrower than the title and much narrower than the canvas below it:
           the purpose is the one genuinely long-form sentence on the page and

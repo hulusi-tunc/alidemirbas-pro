@@ -127,6 +127,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email", "in-app", "push", "sms"],
     name: "Feedback eligibility → ask, suppress or delay",
+    shortName: "Feedback Request",
     purpose:
       "Decide whether asking is appropriate at all, and hold the gap between asking and hearing back as a real state.",
     entity: {
@@ -333,6 +334,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email", "in-app", "push"],
     name: "Advocacy eligibility → ask, delay or suppress",
+    shortName: "Advocacy Request",
     purpose:
       "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
     entity: {
@@ -548,6 +550,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["email", "in-app", "task"],
     name: "Feedback received → classify → route → close the loop",
+    shortName: "Feedback Follow-Up",
     purpose:
       "Get feedback to the process that can act on it, and keep the record open until anything promised in return has actually happened.",
     entity: {
@@ -765,6 +768,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["email", "in-app", "push", "task"],
     name: "Negative feedback → issue check → resolve, acknowledge or escalate",
+    shortName: "Negative Feedback Recovery",
     purpose:
       "Find out whether an unresolved obligation actually exists before anything that looks like recovery starts.",
     entity: {
@@ -918,6 +922,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email", "in-app"],
     name: "Positive feedback → recognition → advocacy opportunity",
+    shortName: "Positive Feedback Follow-Up",
     purpose:
       "Record a good experience as evidence and acknowledge it, without turning the person into an advocate by arithmetic.",
     entity: {
@@ -1048,6 +1053,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["task"],
     name: "Complaint or issue created → ownership → resolution → confirmation",
+    shortName: "Complaint Resolution",
     purpose:
       "Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.",
     entity: {
@@ -1253,6 +1259,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["email"],
     name: "Appeal or dispute → evidence review → uphold, reverse or modify",
+    shortName: "Appeal Review",
     purpose:
       "Review a decision that has already been made, without erasing it while the review is running.",
     entity: {
@@ -1556,6 +1563,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: ["email", "in-app"],
     name: "Missing critical data → request or resolve → resume",
+    shortName: "Missing Information Reminder",
     purpose:
       "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
     entity: {

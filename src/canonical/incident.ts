@@ -321,6 +321,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["task"],
     name: "Incident confirmed → determine severity and blast radius → assign command",
+    shortName: "Incident Escalation",
     purpose:
       "Establish what is actually affected, how badly, and who is running the response.",
     entity: {
@@ -630,6 +631,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: ["email", "in-app"],
     name: "Incident communication → identify affected cohort → inform, update or close",
+    shortName: "Incident Update",
     purpose:
       "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
     entity: {
@@ -1461,6 +1463,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "root-cause-diagnostic-correlation",
     channels: ["task"],
     name: "Post-incident review → learn → corrective work → verify",
+    shortName: "Post-Incident Review",
     purpose:
       "Turn what the incident showed into work somebody owns and somebody checks.",
     entity: {

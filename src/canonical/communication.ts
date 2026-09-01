@@ -731,6 +731,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: ["email", "push", "sms"],
     name: "Channel selection → choose route → prepare message",
+    shortName: "Channel Routing",
     purpose:
       "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
     entity: {
@@ -835,6 +836,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "readiness-revalidation",
     channels: ["email"],
     name: "Message prepared → revalidate state → send or suppress",
+    shortName: "Send Eligibility Check",
     purpose:
       "Check the message is still true immediately before it goes, and stop it if it is not.",
     entity: {
@@ -971,6 +973,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: ["email"],
     name: "Send attempt → accepted, failed or unknown",
+    shortName: "Send Attempt Status",
     purpose:
       "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
     entity: {
@@ -1305,6 +1308,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: ["email", "push", "sms"],
     name: "Delivery failure → classify → retry, fallback or stop",
+    shortName: "Message Delivery Recovery",
     purpose:
       "Respond to the failure that actually happened, without spreading it wider than the destination it belongs to.",
     entity: {

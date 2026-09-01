@@ -51,7 +51,7 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
     };
   }
   return {
-    title: `${detail.id} ${detail.name} - ${suffix}`,
+    title: `${detail.id} ${detail.shortName ?? detail.name} - ${suffix}`,
     description: detail.purpose,
     alternates: pageAlternates(`/lab/journeys/${detail.slug}`, lang),
   };
@@ -74,7 +74,7 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
         { name: copy[lang].footer.home, url: lang === "en" ? "/" : "/tr" },
         { name: copy[lang].nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
         { name: t.title, url: basePath },
-        { name: `${detail.id} ${detail.name}`, url: `${basePath}/${detail.slug}` },
+        { name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` },
       ]);
 
   return (

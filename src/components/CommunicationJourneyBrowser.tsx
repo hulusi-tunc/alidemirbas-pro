@@ -65,6 +65,7 @@ function GoalGroupSection({
             href={`${basePath}/${j.slug}`}
             id={j.id}
             name={j.name}
+            shortName={j.shortName}
             categoryTitle={j.categoryTitle}
             purpose={j.purpose}
             nodeCount={j.nodeCount}
@@ -231,6 +232,7 @@ export default function CommunicationJourneyBrowser({
               href={`${basePath}/${j.slug}`}
               id={j.id}
               name={j.name}
+              shortName={j.shortName}
               categoryTitle={j.categoryTitle}
               purpose={j.purpose}
               nodeCount={j.nodeCount}

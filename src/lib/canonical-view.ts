@@ -60,6 +60,9 @@ export type JourneyRow = {
   id: string;
   slug: string;
   name: string;
+  /** The plain-language label - see CanonicalJourney.shortName. Undefined on
+      journeys not named yet; every caller falls back to `name`. */
+  shortName?: string;
   purpose: string;
   category: CategoryId;
   categoryTitle: string;
@@ -288,6 +291,9 @@ export type JourneyDetail = {
   id: string;
   slug: string;
   name: string;
+  /** See CanonicalJourney.shortName. The detail page leads with this and
+      keeps `name` beneath it, so the state-machine form is still stated. */
+  shortName?: string;
   purpose: string;
   categoryTitle: string;
   /** The audited discovery goal. The detail page states it under the purpose
@@ -356,6 +362,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   id: j.id,
   slug: j.slug,
   name: j.name,
+  ...(j.shortName ? { shortName: j.shortName } : {}),
   purpose: j.purpose,
   category: j.category,
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
@@ -396,6 +403,7 @@ function detailOf(j: CanonicalJourney): JourneyDetail {
     id: j.id,
     slug: j.slug,
     name: j.name,
+    ...(j.shortName ? { shortName: j.shortName } : {}),
     purpose: j.purpose,
     categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
     goal: j.goal,

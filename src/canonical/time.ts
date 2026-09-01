@@ -140,6 +140,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["email", "push", "sms", "whatsapp"],
     name: "Deadline created → track → complete, escalate or expire",
+    shortName: "Deadline Tracking",
     purpose:
       "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
     entity: {
@@ -491,6 +492,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: ["email", "in-app", "push", "sms"],
     name: "Expiry approaching → eligibility check → renew, complete or let expire",
+    shortName: "Expiry Reminder",
     purpose:
       "Use the window before an expiry only where acting inside it could actually change what happens.",
     entity: {
@@ -1626,6 +1628,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["email", "sms"],
     name: "Customer-owed action → deadline reminder → completed or lapsed",
+    shortName: "Action Required Reminder",
     purpose:
       "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
     entity: {
@@ -1843,6 +1846,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: ["email", "sms"],
     name: "Grace period entered → recover before it ends → restored or lost",
+    shortName: "Grace Period Recovery",
     purpose:
       "Tell the holder that validity has lapsed into a bounded period with reduced function, what still works, when that period ends and the one route back - so grace is a state they are in knowingly rather than one they discover when something stops.",
     entity: {
@@ -2013,6 +2017,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email", "in-app"],
     name: "Expired entitlement touched → re-entry route → requalify, replace or stay expired",
+    shortName: "Expired Access Recovery",
     purpose:
       "Give somebody who has come back to something that expired the one route that actually restores it, at the moment they are asking - because naming the wrong route spends the only intent this ever gets.",
     entity: {

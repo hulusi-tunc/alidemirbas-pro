@@ -1021,6 +1021,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: ["email", "sms"],
     name: "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
+    shortName: "Delivery Delay Alert",
     purpose:
       "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
     entity: {
@@ -1367,6 +1368,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: ["email", "sms"],
     name: "Delivery attempt failed → reason → retry, correct, alternate or return",
+    shortName: "Failed Delivery Recovery",
     purpose:
       "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
     entity: {
@@ -1858,6 +1860,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: ["email", "sms"],
     name: "Dispatch → tracking → delivered → accepted or issue raised",
+    shortName: "Delivery Tracking",
     purpose:
       "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
     entity: {
@@ -2067,6 +2070,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: ["email", "sms"],
     name: "Substitution required → offer alternative → accepted, declined or lapsed",
+    shortName: "Substitution Approval",
     purpose:
       "Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so that nothing different is ever supplied on the assumption they would not have minded.",
     entity: {

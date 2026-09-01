@@ -90,6 +90,7 @@ const all = loaded.flatMap((l) => l.journeys);
 const ids = new Set(all.map((j) => j.id));
 const seenIds = new Set();
 const seenSlugs = new Set();
+const seenShortNames = new Set();
 
 for (const j of all) {
   const w = j.id;
@@ -98,6 +99,20 @@ for (const j of all) {
   seenIds.add(j.id);
   if (seenSlugs.has(j.slug)) err("duplicate_slug", w, `slug "${j.slug}" is used twice`);
   seenSlugs.add(j.slug);
+
+  /* shortName is optional - only the 87 communication journeys carry one so
+     far - but where it exists it is what a card and a page title show, so
+     two journeys answering to the same label is a real collision, not a
+     cosmetic one. Caught once already: "Delivery Status Tracking" (CMS-206,
+     a message send attempt) against "Delivery Tracking" (FUL-265, an actual
+     parcel) - the exact two facts CMS-206's own reusable rule exists to keep
+     apart. */
+  if (j.shortName !== undefined) {
+    if (!String(j.shortName).trim()) err("shortname_empty", w, "shortName is present but empty");
+    else if (seenShortNames.has(j.shortName))
+      err("duplicate_shortname", w, `shortName "${j.shortName}" is already used by another journey`);
+    else seenShortNames.add(j.shortName);
+  }
 
   const nodeIds = new Set();
   for (const n of j.nodes) {

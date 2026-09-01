@@ -1493,6 +1493,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "relationship-hierarchy-structure",
     channels: ["email", "in-app"],
     name: "Relationship invitation → counterparty acceptance → active or expired",
+    shortName: "Invitation Reminder",
     purpose:
       "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
     entity: {

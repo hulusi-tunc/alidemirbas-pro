@@ -144,6 +144,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "identity-verification",
     channels: ["in-app", "email"],
     name: "Identity claim → evidence → verified, rejected or more evidence",
+    shortName: "Identity Verification",
     purpose:
       "Establish confidence in one specific identity claim, bound to the evidence that established it.",
     entity: {
@@ -701,6 +702,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "identity-verification",
     channels: ["in-app", "email"],
     name: "Verification failure → reason → retry, remediate, review or exit",
+    shortName: "Verification Recovery",
     purpose:
       "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
     entity: {
@@ -857,6 +859,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "identity-verification",
     channels: ["sms", "push", "email"],
     name: "Authentication challenge → authenticate, step up or deny",
+    shortName: "Login Verification",
     purpose:
       "Establish that whoever is present controls the required identity, at the assurance the context demands.",
     entity: {
@@ -1815,6 +1818,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: ["email", "sms"],
     name: "Account recovery started → proof of control → access restored or window closed",
+    shortName: "Account Recovery",
     purpose:
       "Carry somebody who cannot authenticate through the evidence their recovery actually requires, inside a stated window, on a route that is no weaker than the login it is standing in for.",
     entity: {
@@ -2005,6 +2009,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["email", "sms"],
     name: "Compromise signal → scoped containment → owner verification → recover or clear",
+    shortName: "Account Security Alert",
     purpose:
       "Ask the owner the one question that resolves a suspected compromise, on a route the suspicion does not touch, while saying plainly whether anything has actually been restricted.",
     entity: {

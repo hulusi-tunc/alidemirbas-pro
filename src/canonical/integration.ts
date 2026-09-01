@@ -1596,6 +1596,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: ["email", "in-app"],
     name: "Integration connection broken → reconnect → restored or degraded",
+    shortName: "Integration Recovery",
     purpose:
       "Tell the person who owns a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and what one step restores it - so a silent dependency failure becomes a decision instead of a slow discovery.",
     entity: {
@@ -1783,6 +1784,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: ["email", "in-app"],
     name: "Integration connection started → validation outcome → active or targeted fix",
+    shortName: "Integration Setup",
     purpose:
       "Tell the person who started a connection which stage it actually failed at and what would fix that stage - because a generic failure sends a capable person to support and an incapable one away for good.",
     entity: {

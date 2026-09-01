@@ -187,6 +187,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Decision request → validate → route, reject or hold",
+    shortName: "Decision Request",
     purpose:
       "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
     entity: {
@@ -436,6 +437,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: ["task"],
     name: "Decision case → assign reviewer → accept, reassign or escalate",
+    shortName: "Review Assignment",
     purpose:
       "Put the case in front of someone who is actually authorized to decide it, and make that ownership explicit.",
     entity: {
@@ -630,6 +632,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Review started → evaluate evidence → decide or request more information",
+    shortName: "Evidence Review",
     purpose:
       "Turn sufficient evidence into an authorized decision, within the scope the reviewer actually holds.",
     entity: {
@@ -879,6 +882,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: ["email"],
     name: "More information required → collect → revalidate → resume review",
+    shortName: "More Information Request",
     purpose:
       "Pause a decision for the fact it is actually missing, without losing the review already done.",
     entity: {
@@ -1878,6 +1882,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["task"],
     name: "Decision escalation → higher authority → decide, return or reassign",
+    shortName: "Decision Escalation",
     purpose:
       "Move a case to an authority that can actually resolve it, carrying the work already done and predetermining nothing.",
     entity: {
@@ -2073,6 +2078,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: ["task"],
     name: "Decision superseded or reopened → revalidate → continue or new decision",
+    shortName: "Decision Re-Review",
     purpose:
       "Let a decision be reconsidered without any part of the original being rewritten.",
     entity: {
@@ -2282,6 +2288,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["email", "in-app"],
     name: "Adverse decision → stated remediation path → corrected or final",
+    shortName: "Adverse Decision Recovery",
     purpose:
       "Tell somebody a decision went against them and which of exactly three things is true - correctable now, reapplicable later, or final - so the outcome arrives as a position they can act on instead of a verdict they have to interpret.",
     entity: {

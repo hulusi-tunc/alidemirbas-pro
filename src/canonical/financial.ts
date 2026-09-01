@@ -639,6 +639,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: ["email", "in-app", "push", "sms", "whatsapp"],
     name: "Payment failure → classify → recover, alternate or exit",
+    shortName: "Payment Failure Recovery",
     purpose:
       "Respond to the reason a payment actually failed, and keep the obligation alive while doing it.",
     entity: {
@@ -1142,6 +1143,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email", "task"],
     name: "Refund request → eligibility → approve, reject or review",
+    shortName: "Refund Request",
     purpose:
       "Turn a refund request into an authorised decision, without money moving on the request itself.",
     entity: {

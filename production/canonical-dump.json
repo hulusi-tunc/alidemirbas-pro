@@ -393,6 +393,7 @@
         "task"
       ],
       "name": "High-intent action → qualification → human or automated route",
+      "shortName": "High-Intent Lead Routing",
       "purpose": "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
       "entity": {
         "scope": "lead, opportunity or account",
@@ -1206,6 +1207,7 @@
         "in-app"
       ],
       "name": "Researching lead → bounded education → progress or sunset",
+      "shortName": "Lead Nurture",
       "purpose": "Give a legitimate but not-yet-ready lead a window of useful education that ends whether or not it worked.",
       "entity": {
         "scope": "lead or person, held against the reason they entered",
@@ -1505,6 +1507,7 @@
         "email"
       ],
       "name": "Captured interest → readiness check → destination-appropriate first touch",
+      "shortName": "New Lead Welcome",
       "purpose": "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
       "entity": {
         "scope": "the individual capture and what it asked for, resolved onto a person",
@@ -1674,6 +1677,7 @@
         "task"
       ],
       "name": "New entry → onboarding route → appropriate path",
+      "shortName": "Onboarding Route Assignment",
       "purpose": "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
       "entity": {
         "scope": "person, account, subscription or trial - the thing that was entered",
@@ -1813,6 +1817,7 @@
         "in-app"
       ],
       "name": "Onboarding progress → next best setup step → activation",
+      "shortName": "Onboarding Nurture",
       "purpose": "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
       "entity": {
         "scope": "person or account plus the onboarding instance",
@@ -1982,6 +1987,7 @@
         "task"
       ],
       "name": "Missing activation requirement → resolve blocker → resume",
+      "shortName": "Onboarding Blocker Reminder",
       "purpose": "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
       "entity": {
         "scope": "the blocking requirement, held against the account or onboarding instance",
@@ -2217,6 +2223,7 @@
         "sms"
       ],
       "name": "Struggling user detection → proactive assistance → recovery or exit",
+      "shortName": "Onboarding Help",
       "purpose": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
       "entity": {
         "scope": "person or account plus the open onboarding or trial instance",
@@ -2479,6 +2486,7 @@
         "push"
       ],
       "name": "First value milestone → recognition → next meaningful action",
+      "shortName": "First Value Milestone",
       "purpose": "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
       "entity": {
         "scope": "person or account plus the product or service context the value was produced in",
@@ -2694,6 +2702,7 @@
         "in-app"
       ],
       "name": "Early adoption → usage depth → habit or stable use",
+      "shortName": "Adoption Nurture",
       "purpose": "Carry an account from having produced value once to producing it repeatedly, measured against its own use-case.",
       "entity": {
         "scope": "person or account plus the product or use-case value comes from",
@@ -2801,6 +2810,7 @@
         "push"
       ],
       "name": "Adoption stall → diagnose missing value → recover or re-route",
+      "shortName": "Adoption Recovery",
       "purpose": "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
       "entity": {
         "scope": "person or account plus the product or use-case that stalled",
@@ -2949,6 +2959,7 @@
         "in-app"
       ],
       "name": "Role or use-case discovery → relevant onboarding adaptation",
+      "shortName": "Onboarding Personalization",
       "purpose": "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
       "entity": {
         "scope": "person or account plus the onboarding context being decided",
@@ -3089,6 +3100,7 @@
         "sms"
       ],
       "name": "Dormant non-customer reactivation → return → re-qualification or exit",
+      "shortName": "Dormant Lead Reactivation",
       "purpose": "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did.",
       "entity": {
         "scope": "person, lead or inactive non-customer account, in the context that went dormant",
@@ -3774,6 +3786,7 @@
         "task"
       ],
       "name": "Churn risk escalation → evidence → intervention priority",
+      "shortName": "Churn Risk Escalation",
       "purpose": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
       "entity": {
         "scope": "customer, account or subscription relationship",
@@ -3972,6 +3985,7 @@
         "push"
       ],
       "name": "Negative experience → recovery eligibility → appropriate response",
+      "shortName": "Service Recovery",
       "purpose": "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
       "entity": {
         "scope": "person or account plus the experience or service entity that failed",
@@ -4264,6 +4278,7 @@
         "in-app"
       ],
       "name": "Cancellation intent → understand state → save or proceed",
+      "shortName": "Cancellation Save",
       "purpose": "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
       "entity": {
         "scope": "the subscription, membership or service relationship being cancelled",
@@ -4620,6 +4635,7 @@
         "in-app"
       ],
       "name": "Retention intervention → outcome → suppress, escalate or exit",
+      "shortName": "Retention Offer Follow-Up",
       "purpose": "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
       "entity": {
         "scope": "the customer, account or subscription plus the retention episode the intervention belongs to",
@@ -6134,6 +6150,7 @@
         "sms"
       ],
       "name": "Contact point added or changed → confirm → permitted or lapsed",
+      "shortName": "Contact Verification",
       "purpose": "Establish that the person who owns a new destination actually asked for it, before anything is ever sent there - and tell the destination it replaces, because a change nobody made is only visible from the address it is being taken away from.",
       "entity": {
         "scope": "the specific contact point being added or changed, plus the identity it is claimed for",
@@ -6314,6 +6331,7 @@
         "sms"
       ],
       "name": "Contact point unreachable → alternate route → corrected or suppressed",
+      "shortName": "Contact Recovery",
       "purpose": "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
       "entity": {
         "scope": "the person plus the one contact point that failed - this address, this number, this token",
@@ -6472,6 +6490,7 @@
         "email"
       ],
       "name": "Frequency reduced → cadence recalculated → kept rather than lost",
+      "shortName": "Frequency Preference Update",
       "purpose": "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
       "entity": {
         "scope": "the person and the optional communication classes the reduced frequency actually governs",
@@ -6634,6 +6653,7 @@
         "sms"
       ],
       "name": "Feedback eligibility → ask, suppress or delay",
+      "shortName": "Feedback Request",
       "purpose": "Decide whether asking is appropriate at all, and hold the gap between asking and hearing back as a real state.",
       "entity": {
         "scope": "person or account plus the specific experience being asked about",
@@ -6842,6 +6862,7 @@
         "push"
       ],
       "name": "Advocacy eligibility → ask, delay or suppress",
+      "shortName": "Advocacy Request",
       "purpose": "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
       "entity": {
         "scope": "person or account plus the relationship context the advocacy would be about",
@@ -7054,6 +7075,7 @@
         "task"
       ],
       "name": "Feedback received → classify → route → close the loop",
+      "shortName": "Feedback Follow-Up",
       "purpose": "Get feedback to the process that can act on it, and keep the record open until anything promised in return has actually happened.",
       "entity": {
         "scope": "the feedback record, linked to the person and the experience it is about",
@@ -7301,6 +7323,7 @@
         "task"
       ],
       "name": "Negative feedback → issue check → resolve, acknowledge or escalate",
+      "shortName": "Negative Feedback Recovery",
       "purpose": "Find out whether an unresolved obligation actually exists before anything that looks like recovery starts.",
       "entity": {
         "scope": "the feedback plus the service or experience entity it describes",
@@ -7468,6 +7491,7 @@
         "in-app"
       ],
       "name": "Positive feedback → recognition → advocacy opportunity",
+      "shortName": "Positive Feedback Follow-Up",
       "purpose": "Record a good experience as evidence and acknowledge it, without turning the person into an advocate by arithmetic.",
       "entity": {
         "scope": "the feedback plus the person or account it came from",
@@ -7605,6 +7629,7 @@
         "task"
       ],
       "name": "Complaint or issue created → ownership → resolution → confirmation",
+      "shortName": "Complaint Resolution",
       "purpose": "Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.",
       "entity": {
         "scope": "the issue or complaint itself",
@@ -7843,6 +7868,7 @@
         "email"
       ],
       "name": "Appeal or dispute → evidence review → uphold, reverse or modify",
+      "shortName": "Appeal Review",
       "purpose": "Review a decision that has already been made, without erasing it while the review is running.",
       "entity": {
         "scope": "the appeal, linked to the original decision it disputes",
@@ -8186,6 +8212,7 @@
         "in-app"
       ],
       "name": "Missing critical data → request or resolve → resume",
+      "shortName": "Missing Information Reminder",
       "purpose": "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
       "entity": {
         "scope": "the business entity that is blocked plus the specific missing requirement",
@@ -8523,6 +8550,7 @@
         "task"
       ],
       "name": "Work created → routing → assignment",
+      "shortName": "Task Assignment",
       "purpose": "Get new work into the smallest responsibility scope that is genuinely valid, and refuse to invent one where the policy is silent.",
       "entity": {
         "scope": "the individual work item - a case, lead, opportunity, task or request",
@@ -8987,6 +9015,7 @@
         "task"
       ],
       "name": "Ownership change → transfer obligations → continue",
+      "shortName": "Ownership Transfer",
       "purpose": "Move responsibility for an active entity without losing anything that was already owed, without letting the clock restart, and without rewriting who did what before the change.",
       "entity": {
         "scope": "the business entity, its previous owner and its next one",
@@ -9286,6 +9315,7 @@
         "task"
       ],
       "name": "Responsibility escalation → higher authority → resolution or return",
+      "shortName": "Ownership Escalation",
       "purpose": "Move a blocker up to the level that can clear it, without the original owner putting the work down by raising it.",
       "entity": {
         "scope": "the work item plus its ownership chain",
@@ -9498,6 +9528,7 @@
         "task"
       ],
       "name": "Approval request → review → approve, reject or request changes",
+      "shortName": "Approval Request",
       "purpose": "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
       "entity": {
         "scope": "the approval request, bound to one specific version of the subject",
@@ -9940,6 +9971,7 @@
         "task"
       ],
       "name": "Material change after approval → impact check → re-approval or continue",
+      "shortName": "Re-Approval Request",
       "purpose": "Work out whether an approval still covers what the subject has become, and re-open only the decisions whose basis stopped being true.",
       "entity": {
         "scope": "the approved subject, its version history and the approvals bound to those versions",
@@ -10322,6 +10354,7 @@
         "task"
       ],
       "name": "Decision authority change → revalidate pending decisions → transfer or continue",
+      "shortName": "Approval Owner Update",
       "purpose": "Re-evaluate decisions against who is actually authorised now, without unapproving history or blindly moving what is pending.",
       "entity": {
         "scope": "the decision process plus the authority holders whose scope changed",
@@ -10513,6 +10546,7 @@
         "whatsapp"
       ],
       "name": "Deadline created → track → complete, escalate or expire",
+      "shortName": "Deadline Tracking",
       "purpose": "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
       "entity": {
         "scope": "the obligation the deadline is attached to - a task, request, case or application",
@@ -10893,6 +10927,7 @@
         "sms"
       ],
       "name": "Expiry approaching → eligibility check → renew, complete or let expire",
+      "shortName": "Expiry Reminder",
       "purpose": "Use the window before an expiry only where acting inside it could actually change what happens.",
       "entity": {
         "scope": "the time-bound entity approaching expiry - a subscription, document, entitlement, credential, approval, reservation, benefit or agreement",
@@ -12106,6 +12141,7 @@
         "sms"
       ],
       "name": "Customer-owed action → deadline reminder → completed or lapsed",
+      "shortName": "Action Required Reminder",
       "purpose": "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
       "entity": {
         "scope": "the outstanding obligation, its owner and its due date",
@@ -12322,6 +12358,7 @@
         "sms"
       ],
       "name": "Grace period entered → recover before it ends → restored or lost",
+      "shortName": "Grace Period Recovery",
       "purpose": "Tell the holder that validity has lapsed into a bounded period with reduced function, what still works, when that period ends and the one route back - so grace is a state they are in knowingly rather than one they discover when something stops.",
       "entity": {
         "scope": "the entity whose primary validity ended, plus the fixed end of the grace period placed on it",
@@ -12492,6 +12529,7 @@
         "in-app"
       ],
       "name": "Expired entitlement touched → re-entry route → requalify, replace or stay expired",
+      "shortName": "Expired Access Recovery",
       "purpose": "Give somebody who has come back to something that expired the one route that actually restores it, at the moment they are asking - because naming the wrong route spends the only intent this ever gets.",
       "entity": {
         "scope": "the expired entity and the holder's attempt to act on it, kept distinct from any replacement issued",
@@ -14310,6 +14348,7 @@
         "in-app"
       ],
       "name": "Access restricted or ending → stated route back → restored or ends",
+      "shortName": "Access Recovery",
       "purpose": "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
       "entity": {
         "scope": "person or account plus the specific restriction or end date placed on it",
@@ -14482,6 +14521,7 @@
         "in-app"
       ],
       "name": "Entitlement or credential issued → activation window → activated or lapsed unclaimed",
+      "shortName": "Activation Reminder",
       "purpose": "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
       "entity": {
         "scope": "the issued entitlement or credential and its activation window",
@@ -14658,6 +14698,7 @@
         "email"
       ],
       "name": "Identity claim → evidence → verified, rejected or more evidence",
+      "shortName": "Identity Verification",
       "purpose": "Establish confidence in one specific identity claim, bound to the evidence that established it.",
       "entity": {
         "scope": "the individual identity claim - which attribute, at what assurance, for what purpose",
@@ -15285,6 +15326,7 @@
         "email"
       ],
       "name": "Verification failure → reason → retry, remediate, review or exit",
+      "shortName": "Verification Recovery",
       "purpose": "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
       "entity": {
         "scope": "the verification instance that failed",
@@ -15456,6 +15498,7 @@
         "email"
       ],
       "name": "Authentication challenge → authenticate, step up or deny",
+      "shortName": "Login Verification",
       "purpose": "Establish that whoever is present controls the required identity, at the assurance the context demands.",
       "entity": {
         "scope": "the authentication session, bound to an actor and an account",
@@ -16511,6 +16554,7 @@
         "sms"
       ],
       "name": "Account recovery started → proof of control → access restored or window closed",
+      "shortName": "Account Recovery",
       "purpose": "Carry somebody who cannot authenticate through the evidence their recovery actually requires, inside a stated window, on a route that is no weaker than the login it is standing in for.",
       "entity": {
         "scope": "one existing account plus this recovery case and its window",
@@ -16700,6 +16744,7 @@
         "sms"
       ],
       "name": "Compromise signal → scoped containment → owner verification → recover or clear",
+      "shortName": "Account Security Alert",
       "purpose": "Ask the owner the one question that resolves a suspected compromise, on a route the suspicion does not touch, while saying plainly whether anything has actually been restricted.",
       "entity": {
         "scope": "the account plus this security incident and the scope it affects",
@@ -18333,6 +18378,7 @@
         "in-app"
       ],
       "name": "Relationship invitation → counterparty acceptance → active or expired",
+      "shortName": "Invitation Reminder",
       "purpose": "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
       "entity": {
         "scope": "the invitation, plus the two parties and the scope of the link it proposes, in the direction it was issued",
@@ -19532,6 +19578,7 @@
         "in-app"
       ],
       "name": "Account closure request → validate → resolve blockers → close",
+      "shortName": "Account Closure",
       "purpose": "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
       "entity": {
         "scope": "the account and this closure request",
@@ -20492,6 +20539,7 @@
         "email"
       ],
       "name": "Deletion request → verify requester → confirm scope and retention → closed",
+      "shortName": "Data Deletion Confirmation",
       "purpose": "Give the person who asked for their data to be removed a durable record of what went, what stayed, under which obligation, and the date the request closed - because a deletion nobody can point to is indistinguishable from one that never happened.",
       "entity": {
         "scope": "the data subject and the single deletion request they raised, bounded by the scope that request names",
@@ -22322,6 +22370,7 @@
         "in-app"
       ],
       "name": "Integration connection broken → reconnect → restored or degraded",
+      "shortName": "Integration Recovery",
       "purpose": "Tell the person who owns a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and what one step restores it - so a silent dependency failure becomes a decision instead of a slow discovery.",
       "entity": {
         "scope": "one connection to one external provider, plus the failure recorded against it",
@@ -22508,6 +22557,7 @@
         "in-app"
       ],
       "name": "Integration connection started → validation outcome → active or targeted fix",
+      "shortName": "Integration Setup",
       "purpose": "Tell the person who started a connection which stage it actually failed at and what would fix that stage - because a generic failure sends a capable person to support and an incapable one away for good.",
       "entity": {
         "scope": "the single connection attempt and the integration it configures",
@@ -25014,6 +25064,7 @@
         "whatsapp"
       ],
       "name": "Payment failure → classify → recover, alternate or exit",
+      "shortName": "Payment Failure Recovery",
       "purpose": "Respond to the reason a payment actually failed, and keep the obligation alive while doing it.",
       "entity": {
         "scope": "the failed attempt, the obligation behind it and the customer relationship it belongs to",
@@ -25582,6 +25633,7 @@
         "task"
       ],
       "name": "Refund request → eligibility → approve, reject or review",
+      "shortName": "Refund Request",
       "purpose": "Turn a refund request into an authorised decision, without money moving on the request itself.",
       "entity": {
         "scope": "the refund request and the original transaction it is made against",
@@ -27309,6 +27361,7 @@
         "sms"
       ],
       "name": "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
+      "shortName": "Delivery Delay Alert",
       "purpose": "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
       "entity": {
         "scope": "the obligation and its timing commitment, with the history of what was promised",
@@ -27710,6 +27763,7 @@
         "sms"
       ],
       "name": "Delivery attempt failed → reason → retry, correct, alternate or return",
+      "shortName": "Failed Delivery Recovery",
       "purpose": "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
       "entity": {
         "scope": "the individual delivery attempt and the obligation it was serving",
@@ -28269,6 +28323,7 @@
         "sms"
       ],
       "name": "Dispatch → tracking → delivered → accepted or issue raised",
+      "shortName": "Delivery Tracking",
       "purpose": "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
       "entity": {
         "scope": "the dispatched obligation, its recipient, and the acceptance window running against it",
@@ -28477,6 +28532,7 @@
         "sms"
       ],
       "name": "Substitution required → offer alternative → accepted, declined or lapsed",
+      "shortName": "Substitution Approval",
       "purpose": "Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so that nothing different is ever supplied on the assumption they would not have minded.",
       "entity": {
         "scope": "the affected scope of the obligation and the single alternative offered against it",
@@ -28657,6 +28713,7 @@
         "email"
       ],
       "name": "Post-completion issue → validate → remedy route",
+      "shortName": "Post-Purchase Issue Recovery",
       "purpose": "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
       "entity": {
         "scope": "the completed fulfillment or service, and the specific problem reported against it",
@@ -28817,6 +28874,7 @@
         "task"
       ],
       "name": "Return request → eligibility → authorize, reject or review",
+      "shortName": "Return Request",
       "purpose": "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
       "entity": {
         "scope": "the return request and the original fulfillment it concerns",
@@ -29727,6 +29785,7 @@
         "in-app"
       ],
       "name": "Remedy selection → resolve obligation → financial handoff if needed",
+      "shortName": "Remedy Confirmation",
       "purpose": "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
       "entity": {
         "scope": "the confirmed issue and the unresolved obligation behind it",
@@ -30918,6 +30977,7 @@
         "sms"
       ],
       "name": "Renewal window → eligibility → renew, non-renew or review",
+      "shortName": "Renewal Reminder",
       "purpose": "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
       "entity": {
         "scope": "the continuing relationship and the renewal cycle currently open on it",
@@ -32693,6 +32753,7 @@
         "in-app"
       ],
       "name": "Cancellation confirmed → wind-down window → access ends or customer returns",
+      "shortName": "Cancellation Confirmation",
       "purpose": "Carry somebody through the period between deciding to leave and actually losing access, so the end date is never a surprise and returning stays possible right up to it.",
       "entity": {
         "scope": "the cancelled relationship plus its effective end date",
@@ -34777,6 +34838,7 @@
         "sms"
       ],
       "name": "Provider or resource cancellation → reallocate → reschedule, remedy or cancel",
+      "shortName": "Booking Reschedule",
       "purpose": "Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.",
       "entity": {
         "scope": "the affected reservations and the provider or resource failure behind them",
@@ -35028,6 +35090,7 @@
         "in-app"
       ],
       "name": "Appointment approaching → prerequisites and revalidation → ready, reminded or at risk",
+      "shortName": "Appointment Reminder",
       "purpose": "Get the customer's side of a confirmed commitment done before the commitment arrives, and send the reminder from what the booking is at that moment rather than from what it was when it was made.",
       "entity": {
         "scope": "the confirmed booking occurrence plus the prerequisites its customer owes against it",
@@ -35230,6 +35293,7 @@
         "sms"
       ],
       "name": "Reservation requested → validate capacity → confirm, re-offer or lapse",
+      "shortName": "Booking Confirmation",
       "purpose": "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
       "entity": {
         "scope": "the reservation request, the requester, and the resource and slot it names",
@@ -35415,6 +35479,7 @@
         "sms"
       ],
       "name": "No-show confirmed → validate the miss → rebook or close",
+      "shortName": "No-Show Follow-Up",
       "purpose": "Offer a way back to somebody whose booking did not happen, having first established that the miss was theirs and not ours - because a rebooking prompt sent over our own failure is an accusation.",
       "entity": {
         "scope": "the single booking occurrence that did not take place",
@@ -35604,6 +35669,7 @@
         "push"
       ],
       "name": "Availability searched, no booking → nearest window or waitlist",
+      "shortName": "Availability Search Abandonment",
       "purpose": "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
       "entity": {
         "scope": "the availability question, the resource and window it asked about, and the absence of any reservation from it",
@@ -35797,6 +35863,7 @@
         "task"
       ],
       "name": "Decision request → validate → route, reject or hold",
+      "shortName": "Decision Request",
       "purpose": "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
       "entity": {
         "scope": "the decision request and the business entity it concerns",
@@ -36082,6 +36149,7 @@
         "task"
       ],
       "name": "Decision case → assign reviewer → accept, reassign or escalate",
+      "shortName": "Review Assignment",
       "purpose": "Put the case in front of someone who is actually authorized to decide it, and make that ownership explicit.",
       "entity": {
         "scope": "the decision case and the reviewer or authority holding it",
@@ -36297,6 +36365,7 @@
         "task"
       ],
       "name": "Review started → evaluate evidence → decide or request more information",
+      "shortName": "Evidence Review",
       "purpose": "Turn sufficient evidence into an authorized decision, within the scope the reviewer actually holds.",
       "entity": {
         "scope": "the decision case and this instance of review against it",
@@ -36575,6 +36644,7 @@
         "email"
       ],
       "name": "More information required → collect → revalidate → resume review",
+      "shortName": "More Information Request",
       "purpose": "Pause a decision for the fact it is actually missing, without losing the review already done.",
       "entity": {
         "scope": "the decision case and the specific information requirement blocking it",
@@ -37673,6 +37743,7 @@
         "task"
       ],
       "name": "Decision escalation → higher authority → decide, return or reassign",
+      "shortName": "Decision Escalation",
       "purpose": "Move a case to an authority that can actually resolve it, carrying the work already done and predetermining nothing.",
       "entity": {
         "scope": "the decision case and the escalation acting on it",
@@ -37887,6 +37958,7 @@
         "task"
       ],
       "name": "Decision superseded or reopened → revalidate → continue or new decision",
+      "shortName": "Decision Re-Review",
       "purpose": "Let a decision be reconsidered without any part of the original being rewritten.",
       "entity": {
         "scope": "the existing decision and the event challenging it",
@@ -38119,6 +38191,7 @@
         "in-app"
       ],
       "name": "Adverse decision → stated remediation path → corrected or final",
+      "shortName": "Adverse Decision Recovery",
       "purpose": "Tell somebody a decision went against them and which of exactly three things is true - correctable now, reapplicable later, or final - so the outcome arrives as a position they can act on instead of a verdict they have to interpret.",
       "entity": {
         "scope": "the adverse decision and the subject it was issued against",
@@ -40629,6 +40702,7 @@
         "email"
       ],
       "name": "Usage limit reached → capacity path → upgrade, wait for reset or stay blocked",
+      "shortName": "Usage Limit Alert",
       "purpose": "Meet somebody at the moment a limit stops them with the three facts that decide what happens next - what the limit is, when it resets, and whether more capacity can be bought - without any of it reading as an accusation.",
       "entity": {
         "scope": "the entity and the one limit constraining it, in one measurement window",
@@ -41420,6 +41494,7 @@
         "sms"
       ],
       "name": "Channel selection → choose route → prepare message",
+      "shortName": "Channel Routing",
       "purpose": "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
       "entity": {
         "scope": "the obligation and the permitted channels available to it",
@@ -41544,6 +41619,7 @@
         "email"
       ],
       "name": "Message prepared → revalidate state → send or suppress",
+      "shortName": "Send Eligibility Check",
       "purpose": "Check the message is still true immediately before it goes, and stop it if it is not.",
       "entity": {
         "scope": "the prepared message instance and the business entity it describes",
@@ -41695,6 +41771,7 @@
         "email"
       ],
       "name": "Send attempt → accepted, failed or unknown",
+      "shortName": "Send Attempt Status",
       "purpose": "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
       "entity": {
         "scope": "the individual delivery attempt, with its provider reference",
@@ -42072,6 +42149,7 @@
         "sms"
       ],
       "name": "Delivery failure → classify → retry, fallback or stop",
+      "shortName": "Message Delivery Recovery",
       "purpose": "Respond to the failure that actually happened, without spreading it wider than the destination it belongs to.",
       "entity": {
         "scope": "the failed delivery, its channel and the destination it was aimed at",
@@ -42986,6 +43064,7 @@
         "email"
       ],
       "name": "Document distribution → send or provide access → confirm or fail",
+      "shortName": "Document Delivery",
       "purpose": "Get a specific issued version to the party who should have it, without either fact touching the other.",
       "entity": {
         "scope": "the issued version, the intended recipient, and the distribution of one to the other",
@@ -43142,6 +43221,7 @@
         "email"
       ],
       "name": "Signature request → await signatures → signed, declined or expired",
+      "shortName": "Signature Reminder",
       "purpose": "Collect the required signatures against one exact version, and know when they are actually all there.",
       "entity": {
         "scope": "the document version, the signature process against it, and each required signer",
@@ -44316,6 +44396,7 @@
         "email"
       ],
       "name": "Document or record conflict → determine authoritative version → reconcile",
+      "shortName": "Document Conflict Review",
       "purpose": "Work out which version actually governs, and explain the conflict rather than deleting it.",
       "entity": {
         "scope": "the document lineage and every conflicting record claiming to be part of it",
@@ -44526,6 +44607,7 @@
         "in-app"
       ],
       "name": "Document effective → entitlement active → first use or dormant",
+      "shortName": "Document Activation",
       "purpose": "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
       "entity": {
         "scope": "the effective document version and the entitlement it confers on its holder",
@@ -45083,6 +45165,7 @@
         "task"
       ],
       "name": "Valid data → preview and impact analysis → confirm or hold",
+      "shortName": "Data Change Approval",
       "purpose": "Show what the mutation would actually do, so an approval attaches to that rather than to a filename.",
       "entity": {
         "scope": "the validated change set and the target state it would mutate",
@@ -50010,6 +50093,7 @@
         "email"
       ],
       "name": "Upgrade blocked by a resolvable prerequisite → prompt → ready or expired",
+      "shortName": "Upgrade Blocker Reminder",
       "purpose": "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
       "entity": {
         "scope": "the target, the change waiting on it, and the named prerequisite that is blocking it",
@@ -50353,6 +50437,7 @@
         "task"
       ],
       "name": "Incident confirmed → determine severity and blast radius → assign command",
+      "shortName": "Incident Escalation",
       "purpose": "Establish what is actually affected, how badly, and who is running the response.",
       "entity": {
         "scope": "the confirmed incident, its blast radius and its operational ownership",
@@ -50713,6 +50798,7 @@
         "in-app"
       ],
       "name": "Incident communication → identify affected cohort → inform, update or close",
+      "shortName": "Incident Update",
       "purpose": "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
       "entity": {
         "scope": "the incident, the affected recipient cohort and the communication obligation it creates",
@@ -51677,6 +51763,7 @@
         "task"
       ],
       "name": "Post-incident review → learn → corrective work → verify",
+      "shortName": "Post-Incident Review",
       "purpose": "Turn what the incident showed into work somebody owns and somebody checks.",
       "entity": {
         "scope": "the resolved incident and the corrective work its review produces",

@@ -142,6 +142,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: ["task"],
     name: "Work created → routing → assignment",
+    shortName: "Task Assignment",
     purpose:
       "Get new work into the smallest responsibility scope that is genuinely valid, and refuse to invent one where the policy is silent.",
     entity: {
@@ -564,6 +565,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: ["task"],
     name: "Ownership change → transfer obligations → continue",
+    shortName: "Ownership Transfer",
     purpose:
       "Move responsibility for an active entity without losing anything that was already owed, without letting the clock restart, and without rewriting who did what before the change.",
     entity: {
@@ -806,6 +808,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["task"],
     name: "Responsibility escalation → higher authority → resolution or return",
+    shortName: "Ownership Escalation",
     purpose:
       "Move a blocker up to the level that can clear it, without the original owner putting the work down by raising it.",
     entity: {
@@ -1005,6 +1008,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Approval request → review → approve, reject or request changes",
+    shortName: "Approval Request",
     purpose:
       "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
     entity: {
@@ -1385,6 +1389,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Material change after approval → impact check → re-approval or continue",
+    shortName: "Re-Approval Request",
     purpose:
       "Work out whether an approval still covers what the subject has become, and re-open only the decisions whose basis stopped being true.",
     entity: {
@@ -1727,6 +1732,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Decision authority change → revalidate pending decisions → transfer or continue",
+    shortName: "Approval Owner Update",
     purpose:
       "Re-evaluate decisions against who is actually authorised now, without unapproving history or blindly moving what is pending.",
     entity: {

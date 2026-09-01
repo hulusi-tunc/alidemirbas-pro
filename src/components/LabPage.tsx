@@ -56,6 +56,7 @@ function JourneyBrowserFallback({ lang, t, basePath, rows }: {
             href={`${basePath}/${j.slug}`}
             id={j.id}
             name={j.name}
+            shortName={j.shortName}
             goalLabel={GOAL_LABEL[j.goal][lang]}
             categoryTitle={j.categoryTitle}
             nodeCount={j.nodeCount}
@@ -123,6 +124,7 @@ function CommunicationBrowserFallback({ lang, t, basePath, rows }: {
                   href={`${basePath}/${j.slug}`}
                   id={j.id}
                   name={j.name}
+                  shortName={j.shortName}
                   categoryTitle={j.categoryTitle}
                   purpose={j.purpose}
                   nodeCount={j.nodeCount}
@@ -176,6 +178,7 @@ function SplitSection({ href, label, blurb, rows, lang, t, basePath, browseAllLa
             href={`${basePath}/${j.slug}`}
             id={j.id}
             name={j.name}
+            shortName={j.shortName}
             categoryTitle={j.categoryTitle}
             purpose={j.purpose}
             nodeCount={j.nodeCount}

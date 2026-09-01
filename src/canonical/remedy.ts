@@ -172,6 +172,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: ["email"],
     name: "Post-completion issue → validate → remedy route",
+    shortName: "Post-Purchase Issue Recovery",
     purpose:
       "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
     entity: {
@@ -317,6 +318,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["task"],
     name: "Return request → eligibility → authorize, reject or review",
+    shortName: "Return Request",
     purpose:
       "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
     entity: {
@@ -1104,6 +1106,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: ["email", "in-app"],
     name: "Remedy selection → resolve obligation → financial handoff if needed",
+    shortName: "Remedy Confirmation",
     purpose:
       "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
     entity: {

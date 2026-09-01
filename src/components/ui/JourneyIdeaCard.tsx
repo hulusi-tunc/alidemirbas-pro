@@ -30,6 +30,7 @@ export default function JourneyIdeaCard({
   href,
   id,
   name,
+  shortName,
   categoryTitle,
   purpose,
   nodeCount,
@@ -39,6 +40,10 @@ export default function JourneyIdeaCard({
   href: string;
   id: string;
   name: string;
+  /** The plain-language label. When a journey has one the card leads with
+      it and demotes the canonical `name` to the line beneath, which is the
+      whole point of the field - see CanonicalJourney.shortName. */
+  shortName?: string;
   categoryTitle: string;
   purpose: string;
   nodeCount: number;
@@ -55,7 +60,12 @@ export default function JourneyIdeaCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-mono text-[10px] tracking-[0.08em] text-ink-400 tabular-nums">{id}</p>
-          <p className="mt-0.5 text-[14.5px] leading-snug font-medium tracking-tight text-ink-950">{name}</p>
+          <p className="mt-0.5 text-[14.5px] leading-snug font-medium tracking-tight text-ink-950">
+            {shortName ?? name}
+          </p>
+          {shortName ? (
+            <p className="mt-0.5 text-[12px] leading-snug text-ink-400">{name}</p>
+          ) : null}
         </div>
         <ArrowRight
           aria-hidden

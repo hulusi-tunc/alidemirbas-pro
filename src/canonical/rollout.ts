@@ -1791,6 +1791,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "readiness-revalidation",
     channels: ["in-app", "email"],
     name: "Upgrade blocked by a resolvable prerequisite → prompt → ready or expired",
+    shortName: "Upgrade Blocker Reminder",
     purpose:
       "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
     entity: {

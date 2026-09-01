@@ -1340,6 +1340,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: ["email", "sms"],
     name: "Contact point added or changed → confirm → permitted or lapsed",
+    shortName: "Contact Verification",
     purpose:
       "Establish that the person who owns a new destination actually asked for it, before anything is ever sent there - and tell the destination it replaces, because a change nobody made is only visible from the address it is being taken away from.",
     entity: {
@@ -1521,6 +1522,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: ["in-app", "sms"],
     name: "Contact point unreachable → alternate route → corrected or suppressed",
+    shortName: "Contact Recovery",
     purpose:
       "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
     entity: {
@@ -1681,6 +1683,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: ["email"],
     name: "Frequency reduced → cadence recalculated → kept rather than lost",
+    shortName: "Frequency Preference Update",
     purpose:
       "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
     entity: {

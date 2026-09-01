@@ -1632,6 +1632,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: ["email", "in-app"],
     name: "Access restricted or ending → stated route back → restored or ends",
+    shortName: "Access Recovery",
     purpose:
       "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
     entity: {
@@ -1805,6 +1806,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: ["email", "in-app"],
     name: "Entitlement or credential issued → activation window → activated or lapsed unclaimed",
+    shortName: "Activation Reminder",
     purpose:
       "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
     entity: {

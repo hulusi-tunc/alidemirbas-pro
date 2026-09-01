@@ -497,6 +497,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Valid data → preview and impact analysis → confirm or hold",
+    shortName: "Data Change Approval",
     purpose:
       "Show what the mutation would actually do, so an approval attaches to that rather than to a filename.",
     entity: {
