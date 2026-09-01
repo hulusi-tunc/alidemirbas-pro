@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LabPage from "@/components/LabPage";
+import JourneyLibraryPage from "@/components/JourneyLibraryPage";
 import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function LabJourneysTr() {
-  return <LabPage lang="tr" hub />;
+  return <JourneyLibraryPage lang="tr" />;
 }

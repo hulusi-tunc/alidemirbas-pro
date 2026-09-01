@@ -202,6 +202,36 @@ export const copy = {
          above, not replacing it. All other list microcopy (search
          placeholder, goal filter, empty state, card labels) is shared from
          `page` above; only title/intro/crumb differ per split. */
+      /* The /lab/journeys HUB, rebuilt (2026-09) in the shape of the
+         /lab/claude-lifecycle product page: a claim, one real artifact as
+         its witness, the two halves, three schema stories, the library
+         spread, one dark plate. Every {count}/{categories}/{rules} is
+         filled by withCanonicalCount from the live library - nothing here
+         is a typed number. */
+      journeysHub: {
+        eyebrow: "Lab / Canonical Journey Library",
+        title: "{count} lifecycle state machines. Every one a graph you can read.",
+        sub: "Domain-neutral journeys across {categories} categories, held together by {rules} orchestration rules. Each one names what starts it, where it forks, how long it waits and which lifecycle owns the person next - and none of them carries message copy.",
+        ctaCommunication: "Communication journeys",
+        ctaInternal: "Internal journeys",
+        proof: ["Domain-neutral", "Graphs, not sequences", "No message copy"],
+        split: {
+          eyebrow: "Two halves",
+          title: "Split by whether the work ever reaches a person.",
+          body: "Every journey lives on exactly one of two pages. The split is not a tag - it is read from the graph: a journey counts as communication only if an action in it actually sends a message or routes work to someone.",
+        },
+        stories: {
+          eyebrow: "What the schema enforces",
+          title: "Three things every journey has to say.",
+        },
+        final: {
+          eyebrow: "Start reading",
+          title: "Pick a half and open a journey.",
+          body: "Both pages search and filter by category and goal; the communication page filters by channel as well.",
+          relatedLabel: "See also",
+          relatedName: "Lifecycle Marketing Journey Builder",
+        },
+      },
       journeysSplit: {
         communicationLabel: "Communication journeys",
         internalLabel: "Internal journeys",
@@ -891,6 +921,30 @@ export const copy = {
           zoomOut: "Uzaklaştır",
           fitToView: "Sığdır",
           reset: "Yakınlaştırmayı sıfırla",
+        },
+      },
+      journeysHub: {
+        eyebrow: "Lab / Canonical Journey Kütüphanesi",
+        title: "{count} lifecycle state machine. Her biri okunabilir bir graf.",
+        sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler ve bunları bir arada tutan {rules} orkestrasyon kuralı. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
+        ctaCommunication: "İletişim journey'leri",
+        ctaInternal: "Internal journey'ler",
+        proof: ["Sektörden bağımsız", "Dizi değil, graf", "Mesaj metni yok"],
+        split: {
+          eyebrow: "İki yarı",
+          title: "Ayrım şu: iş bir kişiye ulaşıyor mu, ulaşmıyor mu.",
+          body: "Her journey iki sayfadan tam olarak birinde. Ayrım bir etiket değil, graftan okunuyor: bir journey ancak içindeki bir action gerçekten mesaj gönderiyor ya da işi birine yönlendiriyorsa iletişim journey'i sayılıyor.",
+        },
+        stories: {
+          eyebrow: "Şemanın zorunlu kıldığı",
+          title: "Her journey'in söylemek zorunda olduğu üç şey.",
+        },
+        final: {
+          eyebrow: "Okumaya başla",
+          title: "Bir yarıyı seç, bir journey aç.",
+          body: "İki sayfa da kategori ve goal'e göre aranıp filtreleniyor; iletişim sayfası kanala göre de.",
+          relatedLabel: "Ayrıca bak",
+          relatedName: "Lifecycle Marketing Journey Builder",
         },
       },
       journeysSplit: {

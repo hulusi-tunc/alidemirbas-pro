@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import Link from "next/link";
-import { ArrowRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 import JourneyBrowser from "@/components/JourneyBrowser";
 import JourneyGallery from "@/components/JourneyGallery";
@@ -9,8 +8,6 @@ import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import LabShell from "@/components/LabShell";
 import {
   CATEGORY_META,
-  COMMUNICATION_JOURNEY_ROWS,
-  INTERNAL_JOURNEY_ROWS,
   JOURNEY_ROWS,
   MERGED_REDIRECTS,
   withCanonicalCount,
@@ -141,64 +138,6 @@ function GalleryFallback({ lang, t, basePath, rows }: {
   );
 }
 
-/** One half of the split on the hub page: what it is, how big it is, and a
-    look at what is actually inside it.
-
-    The hub used to be two one-line link boxes and a screenful of white, which
-    is what "you go in and it's empty" was about - the page said two halves
-    exist without showing either. It now previews each half with real journey
-    cards, so the split is legible before you commit to a page.
-
-    The preview is the half's three largest graphs by node count - a real,
-    computed ordering, not an editorial "featured" claim. Every card carries
-    its own node count, so the rule is visible on the cards themselves. */
-function SplitSection({ href, label, blurb, rows, lang, t, basePath, browseAllLabel }: {
-  href: string;
-  label: string;
-  blurb: string;
-  rows: readonly JourneyRow[];
-  lang: Lang;
-  t: (typeof copy)[Lang]["lab"]["page"];
-  basePath: string;
-  browseAllLabel: string;
-}) {
-  const preview = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
-  return (
-    <section>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="text-base font-semibold tracking-tight text-ink-950">{label}</h2>
-        <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-          {rows.length} {t.results}
-        </span>
-      </div>
-      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-500">{blurb}</p>
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {preview.map((j) => (
-          <JourneyIdeaCard
-            key={j.id}
-            href={`${basePath}/${j.slug}`}
-            id={j.id}
-            title={j.shortName ?? j.name}
-            categoryTitle={j.categoryTitle}
-            purpose={j.purpose}
-            nodeCount={j.nodeCount}
-            nodesLabel={t.nodesLabel}
-            channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
-            internalLabel={copy[lang].lab.journeysSplit.internalBadge}
-          />
-        ))}
-      </div>
-      <Link
-        href={href}
-        className="group mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-      >
-        {browseAllLabel.replace("{count}", String(rows.length))}
-        <ArrowRight aria-hidden className="size-3.5 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
-      </Link>
-    </section>
-  );
-}
-
 /* The archive list. A server component: it reads the canonical library here
    and hands the browser rows, not node graphs. The detail of any one journey
    arrives on its own route.
@@ -221,18 +160,16 @@ function SplitSection({ href, label, blurb, rows, lang, t, basePath, browseAllLa
    /lab/communication-journeys and /lab/internal-journeys instead; the
    hierarchy is carried by this hub and the breadcrumb, not by the path.
 
-   `hub` turns /lab/journeys into exactly that - a parent that hands off to
-   its two children rather than duplicating them. It carries no list of its
-   own: every journey now lives on the communication or internal page, and
-   listing all 281 here as well made the split decorative. The child pages
-   keep the search and Goal filter over their own half. */
+   The parent, /lab/journeys, is NOT this component any more: it is
+   JourneyLibraryPage, a product page in the claude-lifecycle shape that
+   hands off to the two child pages here. This component is the two
+   children's list view (and the historical full-library default). */
 export default function LabPage({
   lang,
   rows = JOURNEY_ROWS,
   title,
   intro,
   extraCrumb,
-  hub = false,
   browser = "flat",
   journeyType,
 }: {
@@ -241,8 +178,6 @@ export default function LabPage({
   title?: string;
   intro?: string;
   extraCrumb?: { name: string; url: string };
-  /** Parent view: the two child pages' cards INSTEAD of a list of journeys. */
-  hub?: boolean;
   /** "gallery" renders JourneyGallery - category sections of cards, with
       search plus Category/Channel/Goal filters - instead of the flat
       JourneyBrowser row list. Both split pages use it. */
@@ -256,7 +191,7 @@ export default function LabPage({
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   const pageTitle = title ?? t.lab.page.title;
   const pageIntro =
-    intro ?? withCanonicalCount(hub ? t.lab.journeysSplit.hubIntro : t.lab.page.intro);
+    intro ?? withCanonicalCount(t.lab.page.intro);
   const crumbs: BreadcrumbItem[] = [
     { name: t.footer.home, url: lang === "en" ? "/" : "/tr" },
     { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
@@ -279,33 +214,6 @@ export default function LabPage({
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">{pageIntro}</p>
         </div>
       </div>
-      {hub ? (
-        <div className="px-4 py-8 md:px-8">
-          <div className="mx-auto flex max-w-6xl flex-col gap-12">
-            <SplitSection
-              href={lang === "en" ? "/lab/communication-journeys" : "/tr/lab/communication-journeys"}
-              label={t.lab.journeysSplit.communicationLabel}
-              blurb={t.lab.journeysSplit.communicationBlurb}
-              rows={COMMUNICATION_JOURNEY_ROWS}
-              lang={lang}
-              t={t.lab.page}
-              basePath={basePath}
-              browseAllLabel={t.lab.journeysSplit.browseAll}
-            />
-            <SplitSection
-              href={lang === "en" ? "/lab/internal-journeys" : "/tr/lab/internal-journeys"}
-              label={t.lab.journeysSplit.internalLabel}
-              blurb={t.lab.journeysSplit.internalBlurb}
-              rows={INTERNAL_JOURNEY_ROWS}
-              lang={lang}
-              t={t.lab.page}
-              basePath={basePath}
-              browseAllLabel={t.lab.journeysSplit.browseAll}
-            />
-          </div>
-        </div>
-      ) : null}
-      {hub ? null : (
       <div className="px-4 py-6 md:px-8">
         {/* Wider than the header block: three card columns need the room, and
             the grid is the page - everything above it stays secondary. */}
@@ -340,7 +248,6 @@ export default function LabPage({
           )}
         </div>
       </div>
-      )}
     </LabShell>
   );
 }

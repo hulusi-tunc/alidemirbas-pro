@@ -44,13 +44,19 @@ export const NODE_KIND_META: Record<
   NodeKind,
   { icon: typeof Zap; rule: string; en: string; tr: string }
 > = {
-  trigger:   { icon: Zap,            rule: "bg-primary-600", en: "Trigger",   tr: "Tetikleyici" },
-  action:    { icon: Play,           rule: "bg-primary-400", en: "Action",    tr: "Aksiyon" },
-  condition: { icon: GitBranch,      rule: "bg-ink-950",     en: "Condition", tr: "Koşul" },
-  wait:      { icon: Clock,          rule: "bg-ink-300",     en: "Wait",      tr: "Bekleme" },
-  handoff:   { icon: ArrowRightLeft, rule: "bg-primary-700", en: "Handoff",   tr: "Devir" },
-  exit:      { icon: LogOut,         rule: "bg-ink-200",     en: "Exit",      tr: "Çıkış" },
-  outcome:   { icon: Flag,           rule: "bg-ink-400",     en: "Outcome",   tr: "Sonuç" },
+  /* Rule colours follow JourneyCanvasNodes.tsx's ACCENT map - the detail
+     canvas every card on this site opens into - so the hub's hero diagram
+     and the canvas it links to speak one language: dark trigger, violet
+     condition, teal wait, indigo handoff, neutral internal action and
+     quiet exit. This kit used to be blue/ink monochrome from before that
+     canvas existed. */
+  trigger:   { icon: Zap,            rule: "bg-ink-950",      en: "Trigger",   tr: "Tetikleyici" },
+  action:    { icon: Play,           rule: "bg-neutral-400",  en: "Action",    tr: "Aksiyon" },
+  condition: { icon: GitBranch,      rule: "bg-violet-600",   en: "Condition", tr: "Koşul" },
+  wait:      { icon: Clock,          rule: "bg-teal-600",     en: "Wait",      tr: "Bekleme" },
+  handoff:   { icon: ArrowRightLeft, rule: "bg-indigo-600",   en: "Handoff",   tr: "Devir" },
+  exit:      { icon: LogOut,         rule: "bg-neutral-300",  en: "Exit",      tr: "Çıkış" },
+  outcome:   { icon: Flag,           rule: "bg-success",      en: "Outcome",   tr: "Sonuç" },
 };
 
 export const kindLabel = (k: NodeKind, lang: Lang) => NODE_KIND_META[k][lang];
@@ -91,7 +97,7 @@ export function JourneyNode({
           {meta[lang]}
         </p>
         <p
-          className={`mt-1 leading-snug text-ink-950 ${
+          className={`mt-1 leading-snug text-ink-950 [overflow-wrap:anywhere] ${
             size === "sm" ? "text-[12px]" : "text-[13px]"
           }`}
         >

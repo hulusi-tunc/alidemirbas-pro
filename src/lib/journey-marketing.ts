@@ -212,14 +212,19 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
    strip so a card reads as a FLOW rather than as an article. Six, not 255:
    the marketing page has no reason to render the whole library. */
 
-/* FIVE, not six: the spread highlights its centre card, and with an even
-   count there is no true centre to highlight. Five also crops symmetrically
-   against the 1280 measure. */
-const SHOWCASE_IDS = ["ACQ-09", "ACT-12", "CON-38", "TIM-65", "OWN-53"] as const;
+/* FOUR (2026-09; was five with a highlighted centre card). Five 320px cards
+   could not fit the 1280 measure and were cropped at both edges - a bleed
+   whose crop line ran through card text, which reads as a fault rather
+   than as continuation. Four fit the measure as a grid at every desktop
+   width, and the centre highlight went with the fifth card: it was the
+   reference's surface, not this library's. */
+const SHOWCASE_IDS = ["ACQ-09", "ACT-12", "CON-38", "TIM-65"] as const;
 
 export type ShowcaseCard = {
   id: string;
   name: string;
+  /** The plain-language name every card on this site leads with. */
+  shortName: string;
   purpose: string;
   categoryTitle: string;
   nodeCount: number;
@@ -236,6 +241,7 @@ export function showcaseCards(lang: Lang): ShowcaseCard[] {
     return {
       id: j.id,
       name: j.name,
+      shortName: j.shortName,
       purpose: j.purpose,
       categoryTitle: cat?.title ?? j.category,
       nodeCount: j.nodes.length,
