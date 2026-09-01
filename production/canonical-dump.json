@@ -25338,12 +25338,17 @@
         {
           "id": "c.alternate",
           "kind": "condition",
-          "asks": "Is an alternative valid payment route available and permitted?",
+          "asks": "Is an alternative valid payment route available, and whose decision is it?",
           "branches": [
             {
-              "label": "Alternative available",
-              "when": "another method or route exists and the customer and business rules allow it",
-              "to": "a.alternate"
+              "label": "A defined fallback the system may use",
+              "when": "another stored method exists and standing authority already covers charging it without asking again",
+              "to": "a.use-alternate"
+            },
+            {
+              "label": "The customer has to choose or authorise one",
+              "when": "an alternative exists but no standing authority covers it, so using it would be charging a method they did not pick",
+              "to": "a.offer-alternate"
             },
             {
               "label": "Nothing further to offer",
@@ -25353,9 +25358,9 @@
           ]
         },
         {
-          "id": "a.alternate",
+          "id": "a.use-alternate",
           "kind": "action",
-          "does": "Offer or use the alternative route according to the customer and business rules, as a new attempt with its own identifiers",
+          "does": "Charge the authorised alternative route as a new attempt with its own identifiers. Reached either because standing authority already covered it or because the customer selected it - in both cases the authority to use this method exists before it is used",
           "writes": [
             {
               "field": "payment_log",
@@ -25363,6 +25368,27 @@
             }
           ],
           "next": "w.recovery"
+        },
+        {
+          "id": "a.offer-alternate",
+          "kind": "action",
+          "does": "Put the available alternatives in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make; an internal action that quietly picks one is a charge they did not authorise",
+          "execution": "communication",
+          "next": "w.alternate-choice"
+        },
+        {
+          "id": "w.alternate-choice",
+          "kind": "wait",
+          "until": [
+            "the customer selects or authorises an alternative method"
+          ],
+          "onEvent": "a.use-alternate",
+          "timeout": {
+            "after": "the recovery window defined for this obligation class",
+            "reason": "an unanswered choice is not a refusal to pay - the obligation goes on to its unpaid consequence rather than being treated as declined"
+          },
+          "onTimeout": "c.next",
+          "windowExtendsOnEngagement": false
         },
         {
           "id": "w.recovery",
@@ -27630,7 +27656,7 @@
               "mode": "append"
             }
           ],
-          "next": "c.threshold"
+          "next": "c.recipient-impact"
         },
         {
           "id": "a.no-estimate",
@@ -27642,7 +27668,38 @@
               "mode": "append"
             }
           ],
+          "next": "c.recipient-impact"
+        },
+        {
+          "id": "c.recipient-impact",
+          "kind": "condition",
+          "asks": "Does the changed timing alter what the recipient should plan around?",
+          "branches": [
+            {
+              "label": "It changes their plans",
+              "when": "the new estimate, or the loss of a reliable one, moves something they arranged their own time or commitments around",
+              "to": "a.delay-update"
+            },
+            {
+              "label": "No material change for them",
+              "when": "the slip stays inside what they were already told to expect and nothing they arranged moves",
+              "to": "c.threshold"
+            }
+          ]
+        },
+        {
+          "id": "a.delay-update",
+          "kind": "action",
+          "does": "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
+          "execution": "communication",
           "next": "c.threshold"
+        },
+        {
+          "id": "a.no-choice-update",
+          "kind": "action",
+          "does": "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left. Escalating in silence tells the recipient nothing is happening at the exact moment most is",
+          "execution": "communication",
+          "next": "h.escalate"
         },
         {
           "id": "c.threshold",
@@ -27674,7 +27731,7 @@
             {
               "label": "Nothing to offer",
               "when": "no option exists that they could meaningfully choose between",
-              "to": "h.escalate"
+              "to": "a.no-choice-update"
             }
           ]
         },
@@ -28088,9 +28145,14 @@
           "asks": "Would an alternative route serve better than another attempt at the same one?",
           "branches": [
             {
-              "label": "An alternative is better",
-              "when": "a collection point, a different window or another executor is more likely to succeed, and policy or the recipient's choice permits it",
+              "label": "An alternative is better, and policy authorises it",
+              "when": "a collection point, a different window or another executor is more likely to succeed, and policy permits the change without asking",
               "to": "a.alternate"
+            },
+            {
+              "label": "An alternative is better, but it is the recipient's to choose",
+              "when": "the change would move where or when they must be present, which policy does not let us decide for them",
+              "to": "a.offer-route"
             },
             {
               "label": "Reattempt the same route",
@@ -28102,7 +28164,7 @@
         {
           "id": "a.alternate",
           "kind": "action",
-          "does": "Use the alternative route according to policy or the recipient's choice, recorded as a change of route rather than a new obligation",
+          "does": "Use the authorised alternative route, recorded as a change of route rather than a new obligation. Reached either because policy permits the change or because the recipient chose it - the authority exists before the route moves",
           "writes": [
             {
               "field": "delivery_log",
@@ -28110,6 +28172,45 @@
             }
           ],
           "next": "h.retry"
+        },
+        {
+          "id": "a.offer-route",
+          "kind": "action",
+          "does": "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way. Moving where somebody has to be, without asking, is a decision taken on their behalf",
+          "execution": "communication",
+          "next": "w.route-choice"
+        },
+        {
+          "id": "w.route-choice",
+          "kind": "wait",
+          "until": [
+            "the recipient selects an alternative",
+            "the recipient declines all of them"
+          ],
+          "onEvent": "c.route-answer",
+          "timeout": {
+            "after": "the window in which the alternatives offered are still actually available",
+            "reason": "an offer of a slot or a collection point stops being true once it is gone, and holding the obligation open against a stale offer is worse than reattempting the route we already have"
+          },
+          "onTimeout": "a.reattempt",
+          "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.route-answer",
+          "kind": "condition",
+          "asks": "What did the recipient say?",
+          "branches": [
+            {
+              "label": "Selected an alternative",
+              "when": "they named one of the offered routes",
+              "to": "a.alternate"
+            },
+            {
+              "label": "Declined all of them",
+              "when": "none of the offered routes works for them and they said so",
+              "to": "h.return"
+            }
+          ]
         },
         {
           "id": "a.reattempt",

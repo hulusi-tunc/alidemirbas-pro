@@ -1077,14 +1077,45 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Update the expected timing, appending to the commitment history. The original commitment is preserved - what was promised and what it became are two facts, and keeping both is the only way a repeated slip becomes visible",
         writes: [{ field: "fulfillment_log", mode: "append" }],
-        next: "c.threshold",
+        next: "c.recipient-impact",
       },
       {
         id: "a.no-estimate",
         kind: "action",
         does: "Record that no reliable estimate exists rather than issuing one. Repeatedly promising dates that do not hold costs more trust than admitting the date is unknown, and each broken date makes the next one worth less",
         writes: [{ field: "fulfillment_log", mode: "append" }],
+        next: "c.recipient-impact",
+      },
+      {
+        id: "c.recipient-impact",
+        kind: "condition",
+        asks: "Does the changed timing alter what the recipient should plan around?",
+        branches: [
+          {
+            label: "It changes their plans",
+            when: "the new estimate, or the loss of a reliable one, moves something they arranged their own time or commitments around",
+            to: "a.delay-update",
+          },
+          {
+            label: "No material change for them",
+            when: "the slip stays inside what they were already told to expect and nothing they arranged moves",
+            to: "c.threshold",
+          },
+        ],
+      },
+      {
+        id: "a.delay-update",
+        kind: "action",
+        does: "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
+        execution: "communication",
         next: "c.threshold",
+      },
+      {
+        id: "a.no-choice-update",
+        kind: "action",
+        does: "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left. Escalating in silence tells the recipient nothing is happening at the exact moment most is",
+        execution: "communication",
+        next: "h.escalate",
       },
       {
         id: "c.threshold",
@@ -1116,7 +1147,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Nothing to offer",
             when: "no option exists that they could meaningfully choose between",
-            to: "h.escalate",
+            to: "a.no-choice-update",
           },
         ],
       },
@@ -1479,9 +1510,14 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "Would an alternative route serve better than another attempt at the same one?",
         branches: [
           {
-            label: "An alternative is better",
-            when: "a collection point, a different window or another executor is more likely to succeed, and policy or the recipient's choice permits it",
+            label: "An alternative is better, and policy authorises it",
+            when: "a collection point, a different window or another executor is more likely to succeed, and policy permits the change without asking",
             to: "a.alternate",
+          },
+          {
+            label: "An alternative is better, but it is the recipient's to choose",
+            when: "the change would move where or when they must be present, which policy does not let us decide for them",
+            to: "a.offer-route",
           },
           {
             label: "Reattempt the same route",
@@ -1493,9 +1529,46 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.alternate",
         kind: "action",
-        does: "Use the alternative route according to policy or the recipient's choice, recorded as a change of route rather than a new obligation",
+        does: "Use the authorised alternative route, recorded as a change of route rather than a new obligation. Reached either because policy permits the change or because the recipient chose it - the authority exists before the route moves",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.retry",
+      },
+      {
+        id: "a.offer-route",
+        kind: "action",
+        does: "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way. Moving where somebody has to be, without asking, is a decision taken on their behalf",
+        execution: "communication",
+        next: "w.route-choice",
+      },
+      {
+        id: "w.route-choice",
+        kind: "wait",
+        until: ["the recipient selects an alternative", "the recipient declines all of them"],
+        onEvent: "c.route-answer",
+        timeout: {
+          after: "the window in which the alternatives offered are still actually available",
+          reason:
+            "an offer of a slot or a collection point stops being true once it is gone, and holding the obligation open against a stale offer is worse than reattempting the route we already have",
+        },
+        onTimeout: "a.reattempt",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.route-answer",
+        kind: "condition",
+        asks: "What did the recipient say?",
+        branches: [
+          {
+            label: "Selected an alternative",
+            when: "they named one of the offered routes",
+            to: "a.alternate",
+          },
+          {
+            label: "Declined all of them",
+            when: "none of the offered routes works for them and they said so",
+            to: "h.return",
+          },
+        ],
       },
       {
         id: "a.reattempt",

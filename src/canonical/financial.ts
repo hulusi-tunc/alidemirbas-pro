@@ -718,12 +718,17 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.alternate",
         kind: "condition",
-        asks: "Is an alternative valid payment route available and permitted?",
+        asks: "Is an alternative valid payment route available, and whose decision is it?",
         branches: [
           {
-            label: "Alternative available",
-            when: "another method or route exists and the customer and business rules allow it",
-            to: "a.alternate",
+            label: "A defined fallback the system may use",
+            when: "another stored method exists and standing authority already covers charging it without asking again",
+            to: "a.use-alternate",
+          },
+          {
+            label: "The customer has to choose or authorise one",
+            when: "an alternative exists but no standing authority covers it, so using it would be charging a method they did not pick",
+            to: "a.offer-alternate",
           },
           {
             label: "Nothing further to offer",
@@ -733,11 +738,31 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "a.alternate",
+        id: "a.use-alternate",
         kind: "action",
-        does: "Offer or use the alternative route according to the customer and business rules, as a new attempt with its own identifiers",
+        does: "Charge the authorised alternative route as a new attempt with its own identifiers. Reached either because standing authority already covered it or because the customer selected it - in both cases the authority to use this method exists before it is used",
         writes: [{ field: "payment_log", mode: "append" }],
         next: "w.recovery",
+      },
+      {
+        id: "a.offer-alternate",
+        kind: "action",
+        does: "Put the available alternatives in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make; an internal action that quietly picks one is a charge they did not authorise",
+        execution: "communication",
+        next: "w.alternate-choice",
+      },
+      {
+        id: "w.alternate-choice",
+        kind: "wait",
+        until: ["the customer selects or authorises an alternative method"],
+        onEvent: "a.use-alternate",
+        timeout: {
+          after: "the recovery window defined for this obligation class",
+          reason:
+            "an unanswered choice is not a refusal to pay - the obligation goes on to its unpaid consequence rather than being treated as declined",
+        },
+        onTimeout: "c.next",
+        windowExtendsOnEngagement: false,
       },
       {
         id: "w.recovery",
