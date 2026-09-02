@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import AbTestBrowser from "@/components/AbTestBrowser";
+import AbTestGallery from "@/components/AbTestGallery";
 import AbTestPlaybookPage from "@/components/AbTestPlaybookPage";
 import LabShell from "@/components/LabShell";
-import { AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail, type Surface } from "@/lib/ab-test-view";
+import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail } from "@/lib/ab-test-view";
 import { pageAlternates } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
@@ -58,7 +58,7 @@ export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
       </div>
       <div className="px-4 py-6 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <AbTestBrowser lang={lang} rows={AB_TEST_ROWS} surfaces={SURFACES as readonly Surface[]} basePath={base} />
+          <AbTestGallery lang={lang} rows={AB_TEST_ROWS} categories={AB_CATEGORIES} surfaces={SURFACES} basePath={base} />
         </div>
       </div>
     </LabShell>

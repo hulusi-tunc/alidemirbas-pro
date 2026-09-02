@@ -52,11 +52,51 @@ export type AbTestRow = {
   category: string;
   surface: Surface;
   setupType: SetupType;
+  /** The card body on the gallery. Real, and the most useful sentence the
+      record has short of the whole playbook. */
+  hypothesis: string;
+  /** Label only - the one metric that decides the winner, shown on the
+      card because the playbook's first rule is that there is exactly one. */
+  primaryKpi: string;
 };
 
 export const AB_TEST_ROWS: readonly AbTestRow[] = TESTS.map((r) => ({
   id: r.id, slug: r.slug, question: r.question, category: r.category, surface: r.surface, setupType: r.setupType,
+  hypothesis: r.hypothesis, primaryKpi: r.primaryKpi.label,
 }));
+
+/** A category as the gallery sections it: its title (which is also its
+    id - the archive has no separate code), the surfaces its tests actually
+    sit on, and its count. Ordered by first appearance in the archive, so
+    AB-001's category opens the page - the order the archive itself has. */
+export type AbCategory = { id: string; surfaces: Surface[]; count: number };
+
+export const AB_CATEGORIES: readonly AbCategory[] = (() => {
+  const m = new Map<string, { surfaces: Set<Surface>; count: number }>();
+  for (const r of TESTS) {
+    const c = m.get(r.category) ?? { surfaces: new Set<Surface>(), count: 0 };
+    c.surfaces.add(r.surface);
+    c.count += 1;
+    m.set(r.category, c);
+  }
+  return [...m.entries()].map(([id, c]) => ({
+    id,
+    surfaces: SURFACES.filter((s) => c.surfaces.has(s)),
+    count: c.count,
+  }));
+})();
+
+/* Surface keys are not prose, so the hyphen becomes a space and the
+   acronyms - which are what most of these keys are - stay upper. No
+   mapping table: that would be a second name for each surface to keep in
+   sync with the data. Lived in AbTestPlaybookPage until the gallery needed
+   it too. */
+const ACRONYMS = new Set(["pdp", "plp", "ui", "saas"]);
+export const surfaceLabel = (surface: string) =>
+  surface
+    .split("-")
+    .map((w) => (ACRONYMS.has(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(" ");
 
 export const ALL_AB_TEST_SLUGS: readonly string[] = TESTS.map((r) => r.slug);
 
