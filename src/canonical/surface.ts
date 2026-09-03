@@ -41,6 +41,10 @@ export type SurfaceAssignment = {
   surface: Surface;
   /** Whether the journey itself sends or routes to a human. */
   communicating: boolean;
+  /** Whether the journey sends a message on a customer channel. A journey
+      that only routes work to a person (sales, task) is not silent for the
+      validator but is a lifecycle state on the product surface. */
+  sends: boolean;
   reason: string;
 };
 
@@ -49,17 +53,18 @@ export function surfaceOf(j: Pick<CanonicalJourney, "id" | "category" | "channel
   const routesToHuman = j.channels.some((c) => c === "sales" || c === "task");
   const communicating = sends || routesToHuman;
   if (MECHANISM_IDS.includes(j.id)) {
-    return { surface: "mechanism", communicating, reason: "listed in MECHANISM_IDS - runtime machinery customer journeys depend on" };
+    return { surface: "mechanism", communicating, sends, reason: "listed in MECHANISM_IDS - runtime machinery customer journeys depend on" };
   }
   if (sends) {
-    return { surface: "customer", communicating: true, reason: `declares a message channel (${j.channels.join(", ")})` };
+    return { surface: "customer", communicating: true, sends, reason: `declares a message channel (${j.channels.join(", ")})` };
   }
   if (CUSTOMER_CATEGORIES.includes(j.category) && CUSTOMER_ENTITY.test(j.entity.scope)) {
     return {
       surface: "customer",
       communicating,
+      sends,
       reason: `silent lifecycle state: category "${j.category}" and a customer-worded entity ("${j.entity.scope.slice(0, 60)}")`,
     };
   }
-  return { surface: "operational", communicating, reason: "no message channel and a system-side entity or category" };
+  return { surface: "operational", communicating, sends, reason: "no message channel and a system-side entity or category" };
 }

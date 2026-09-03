@@ -1,6 +1,6 @@
 {
   "_description": "Per-journey classification for the 3 filters. Canonical id/slug/graph untouched - this is a separate metadata layer, never merged back into src/canonical/.",
-  "count": 255,
+  "count": 283,
   "journeys": [
     {
       "id": "ACQ-01",
@@ -103,6 +103,46 @@
       "goalReviewRequired": true
     },
     {
+      "id": "ACQ-285",
+      "slug": "captured-interest-first-touch",
+      "name": "Captured interest → readiness check → destination-appropriate first touch",
+      "category": "acquisition",
+      "lifecycleStage": "acquisition-qualification",
+      "lifecycleStageReviewRequired": false,
+      "goal": "review-required",
+      "goalReviewRequired": true
+    },
+    {
+      "id": "ACQ-11",
+      "slug": "abandoned-process-recovery",
+      "name": "Process started → abandonment confirmed → recovered, superseded or lapsed",
+      "category": "acquisition",
+      "lifecycleStage": "acquisition-qualification",
+      "lifecycleStageReviewRequired": false,
+      "goal": "recovery-retry",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "ACQ-12",
+      "slug": "abandoned-selection-recovery",
+      "name": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
+      "category": "acquisition",
+      "lifecycleStage": "acquisition-qualification",
+      "lifecycleStageReviewRequired": false,
+      "goal": "recovery-retry",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "ACQ-13",
+      "slug": "unresolved-interest-recovery",
+      "name": "Interest inferred → qualified → resolved into a selection or purchase, or left alone",
+      "category": "acquisition",
+      "lifecycleStage": "acquisition-qualification",
+      "lifecycleStageReviewRequired": false,
+      "goal": "eligibility-qualification",
+      "goalReviewRequired": false
+    },
+    {
       "id": "ACT-11",
       "slug": "onboarding-route-selection",
       "name": "New entry → onboarding route → appropriate path",
@@ -141,16 +181,6 @@
       "lifecycleStageReviewRequired": false,
       "goal": "recovery-retry",
       "goalReviewRequired": false
-    },
-    {
-      "id": "ACT-15",
-      "slug": "first-value-milestone",
-      "name": "First value milestone → recognition → next meaningful action",
-      "category": "activation",
-      "lifecycleStage": "activation-onboarding",
-      "lifecycleStageReviewRequired": false,
-      "goal": "review-required",
-      "goalReviewRequired": true
     },
     {
       "id": "ACT-16",
@@ -293,6 +323,26 @@
       "goalReviewRequired": false
     },
     {
+      "id": "RET-31",
+      "slug": "predicted-need-replenishment",
+      "name": "Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
+      "category": "retention",
+      "lifecycleStage": "engagement-retention",
+      "lifecycleStageReviewRequired": false,
+      "goal": "review-required",
+      "goalReviewRequired": true
+    },
+    {
+      "id": "RET-32",
+      "slug": "lapsed-customer-win-back",
+      "name": "Paid relationship lapsed → outreach permitted → won back, declined or left alone",
+      "category": "retention",
+      "lifecycleStage": "engagement-retention",
+      "lifecycleStageReviewRequired": false,
+      "goal": "cancellation-termination",
+      "goalReviewRequired": false
+    },
+    {
       "id": "CON-31",
       "slug": "permission-capture-and-scope",
       "name": "Permission capture → validate scope → activate or reject",
@@ -383,6 +433,36 @@
       "goalReviewRequired": false
     },
     {
+      "id": "CON-264",
+      "slug": "contact-point-confirmation",
+      "name": "Contact point added or changed → confirm → permitted or lapsed",
+      "category": "consent",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "delivery-confirmation",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "CON-272",
+      "slug": "contactability-repair",
+      "name": "Contact point unreachable → alternate route → corrected or suppressed",
+      "category": "consent",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "consent-permission",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "CON-283",
+      "slug": "frequency-reduction-confirmation",
+      "name": "Frequency reduced → cadence recalculated → kept rather than lost",
+      "category": "consent",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "delivery-confirmation",
+      "goalReviewRequired": false
+    },
+    {
       "id": "FBK-41",
       "slug": "feedback-eligibility",
       "name": "Feedback eligibility → ask, suppress or delay",
@@ -411,26 +491,6 @@
       "lifecycleStageReviewRequired": false,
       "goal": "cancellation-termination",
       "goalReviewRequired": false
-    },
-    {
-      "id": "FBK-44",
-      "slug": "negative-feedback-issue-check",
-      "name": "Negative feedback → issue check → resolve, acknowledge or escalate",
-      "category": "feedback",
-      "lifecycleStage": "cross-lifecycle",
-      "lifecycleStageReviewRequired": false,
-      "goal": "recovery-retry",
-      "goalReviewRequired": false
-    },
-    {
-      "id": "FBK-45",
-      "slug": "positive-feedback-recognition",
-      "name": "Positive feedback → recognition → advocacy opportunity",
-      "category": "feedback",
-      "lifecycleStage": "cross-lifecycle",
-      "lifecycleStageReviewRequired": false,
-      "goal": "review-required",
-      "goalReviewRequired": true
     },
     {
       "id": "FBK-46",
@@ -683,6 +743,36 @@
       "goalReviewRequired": false
     },
     {
+      "id": "TIM-268",
+      "slug": "outstanding-obligation-reminder",
+      "name": "Customer-owed action → deadline reminder → completed or lapsed",
+      "category": "time",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "review-required",
+      "goalReviewRequired": true
+    },
+    {
+      "id": "TIM-274",
+      "slug": "grace-period-recovery",
+      "name": "Grace period entered → recover before it ends → restored or lost",
+      "category": "time",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "suspension-restoration",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "TIM-281",
+      "slug": "expired-entity-re-entry",
+      "name": "Expired entitlement touched → re-entry route → requalify, replace or stay expired",
+      "category": "time",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "eligibility-qualification",
+      "goalReviewRequired": false
+    },
+    {
       "id": "ACC-71",
       "slug": "entitlement-qualification",
       "name": "Entitlement qualification → grant, deny or pending",
@@ -776,6 +866,26 @@
       "id": "ACC-80",
       "slug": "deprovision-with-dependency-check",
       "name": "Deprovision request → dependency check → remove, retain or escalate",
+      "category": "access",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "revocation-access-change",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "ACC-261",
+      "slug": "access-restriction-route-back",
+      "name": "Access restricted or ending → stated route back → restored or ends",
+      "category": "access",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "suspension-restoration",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "ACC-263",
+      "slug": "entitlement-activation-window",
+      "name": "Entitlement or credential issued → activation window → activated or lapsed unclaimed",
       "category": "access",
       "lifecycleStage": "cross-lifecycle",
       "lifecycleStageReviewRequired": false,
@@ -883,6 +993,26 @@
       "goalReviewRequired": false
     },
     {
+      "id": "IDN-270",
+      "slug": "account-recovery-guidance",
+      "name": "Account recovery started → proof of control → access restored or window closed",
+      "category": "identity",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "identity-verification",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "IDN-271",
+      "slug": "compromise-alert-verification",
+      "name": "Compromise signal → scoped containment → owner verification → recover or clear",
+      "category": "identity",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "identity-verification",
+      "goalReviewRequired": false
+    },
+    {
       "id": "REL-91",
       "slug": "relationship-creation",
       "name": "Entity relationship created → validate → activate or reject",
@@ -983,6 +1113,16 @@
       "goalReviewRequired": false
     },
     {
+      "id": "REL-284",
+      "slug": "relationship-invitation",
+      "name": "Relationship invitation → counterparty acceptance → active or expired",
+      "category": "structure",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "expiry-renewal",
+      "goalReviewRequired": false
+    },
+    {
       "id": "TRM-101",
       "slug": "entity-merge-execution",
       "name": "Identity or entity merge → reconcile → consolidate → verify",
@@ -1076,6 +1216,16 @@
       "id": "TRM-110",
       "slug": "data-deletion-execution",
       "name": "Data deletion execution → propagate → verify or reconcile failure",
+      "category": "terminal",
+      "lifecycleStage": "ending-closure",
+      "lifecycleStageReviewRequired": false,
+      "goal": "identity-verification",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "TRM-275",
+      "slug": "deletion-request-confirmation",
+      "name": "Deletion request → verify requester → confirm scope and retention → closed",
       "category": "terminal",
       "lifecycleStage": "ending-closure",
       "lifecycleStageReviewRequired": false,
@@ -1180,6 +1330,26 @@
       "lifecycleStage": "cross-lifecycle",
       "lifecycleStageReviewRequired": false,
       "goal": "revocation-access-change",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "INT-269",
+      "slug": "integration-reconnect-prompt",
+      "name": "Integration connection broken → reconnect → restored or degraded",
+      "category": "integration",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "suspension-restoration",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "INT-278",
+      "slug": "integration-setup-outcome",
+      "name": "Integration connection started → validation outcome → active or targeted fix",
+      "category": "integration",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "recovery-retry",
       "goalReviewRequired": false
     },
     {
@@ -1483,6 +1653,26 @@
       "goalReviewRequired": false
     },
     {
+      "id": "FUL-265",
+      "slug": "dispatch-to-acceptance",
+      "name": "Dispatch → tracking → delivered → accepted or issue raised",
+      "category": "fulfillment",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "reconciliation-correction",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "FUL-276",
+      "slug": "substitution-offer",
+      "name": "Substitution required → offer alternative → accepted, declined or lapsed",
+      "category": "fulfillment",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "review-required",
+      "goalReviewRequired": true
+    },
+    {
       "id": "REM-151",
       "slug": "post-completion-issue",
       "name": "Post-completion issue → validate → remedy route",
@@ -1683,6 +1873,16 @@
       "goalReviewRequired": false
     },
     {
+      "id": "SUB-262",
+      "slug": "cancellation-wind-down-notice",
+      "name": "Cancellation confirmed → wind-down window → access ends or customer returns",
+      "category": "subscription",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "cancellation-termination",
+      "goalReviewRequired": false
+    },
+    {
       "id": "SCH-171",
       "slug": "availability-query",
       "name": "Availability query → evaluate capacity → offer valid options",
@@ -1780,6 +1980,46 @@
       "lifecycleStage": "cross-lifecycle",
       "lifecycleStageReviewRequired": false,
       "goal": "cancellation-termination",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "SCH-266",
+      "slug": "appointment-readiness-reminder",
+      "name": "Appointment approaching → prerequisites and revalidation → ready, reminded or at risk",
+      "category": "scheduling",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "delivery-confirmation",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "SCH-277",
+      "slug": "reservation-outcome-notice",
+      "name": "Reservation requested → validate capacity → confirm, re-offer or lapse",
+      "category": "scheduling",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "delivery-confirmation",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "SCH-280",
+      "slug": "no-show-rebooking",
+      "name": "No-show confirmed → validate the miss → rebook or close",
+      "category": "scheduling",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "cancellation-termination",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "SCH-282",
+      "slug": "availability-searched-no-booking",
+      "name": "Availability searched, no booking → nearest window or waitlist",
+      "category": "scheduling",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "scheduling-commitment",
       "goalReviewRequired": false
     },
     {
@@ -1883,6 +2123,16 @@
       "goalReviewRequired": false
     },
     {
+      "id": "DEC-267",
+      "slug": "adverse-decision-remediation",
+      "name": "Adverse decision → stated remediation path → corrected or final",
+      "category": "decision",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "reconciliation-correction",
+      "goalReviewRequired": false
+    },
+    {
       "id": "RSK-191",
       "slug": "policy-evaluation",
       "name": "Policy check → evaluate → pass, block or review",
@@ -1980,6 +2230,16 @@
       "lifecycleStage": "cross-lifecycle",
       "lifecycleStageReviewRequired": false,
       "goal": "recovery-retry",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "RSK-273",
+      "slug": "usage-limit-capacity-path",
+      "name": "Usage limit reached → capacity path → upgrade, wait for reset or stay blocked",
+      "category": "risk",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "risk-compliance",
       "goalReviewRequired": false
     },
     {
@@ -2170,6 +2430,16 @@
       "lifecycleStage": "cross-lifecycle",
       "lifecycleStageReviewRequired": false,
       "goal": "reconciliation-correction",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "DOC-286",
+      "slug": "document-effective-notice",
+      "name": "Document effective → entitlement active → first use or dormant",
+      "category": "document",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "revocation-access-change",
       "goalReviewRequired": false
     },
     {
@@ -2450,6 +2720,16 @@
       "lifecycleStage": "cross-lifecycle",
       "lifecycleStageReviewRequired": false,
       "goal": "cancellation-termination",
+      "goalReviewRequired": false
+    },
+    {
+      "id": "RLT-279",
+      "slug": "upgrade-blocker-prompt",
+      "name": "Upgrade blocked by a resolvable prerequisite → prompt → ready or expired",
+      "category": "rollout",
+      "lifecycleStage": "cross-lifecycle",
+      "lifecycleStageReviewRequired": false,
+      "goal": "expiry-renewal",
       "goalReviewRequired": false
     },
     {

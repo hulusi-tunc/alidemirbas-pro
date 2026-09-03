@@ -111,7 +111,7 @@ def analyze_journey(j):
         "hasMultipleExits": len(exit_nodes) > 1,
         "hasTerminalExit": len(terminal_exits) > 0,
         "hasPreemption": bool(j.get("preemptedBy")),
-        "hasCompetition": bool(j.get("competition")),
+        "hasCompetition": bool(j.get("competition")) or bool((j.get("contact") or {}).get("competition") not in (None, "none")),
         "hasDistinctFrom": bool(j.get("distinctFrom")),
         "edges": edges,
     }

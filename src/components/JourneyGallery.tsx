@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Search, X } from "lucide-react";
 
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
-import type { CategoryMeta, JourneyRow, MergedRedirect } from "@/lib/canonical-view";
+import IdeaCard from "@/components/ui/IdeaCard";
+import type { CategoryMeta, JourneyRow, MergedRedirect, PresetRow, SurfaceKey } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNELS, CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { useJourneyFilters } from "@/lib/useJourneyFilters";
@@ -34,7 +35,6 @@ import type { ChannelId } from "@/canonical/types";
 
 const SECTION_PREVIEW_COUNT = 6;
 
-type JourneyType = "all" | "communication" | "internal";
 
 function CategorySection({
   meta,
@@ -43,6 +43,7 @@ function CategorySection({
   t,
   basePath,
   labels,
+  emptyChannelLabel,
 }: {
   meta: CategoryMeta;
   items: readonly JourneyRow[];
@@ -50,6 +51,7 @@ function CategorySection({
   t: (typeof copy)[Lang]["lab"]["page"];
   basePath: string;
   labels: (typeof copy)[Lang]["lab"]["journeysSplit"];
+  emptyChannelLabel: string;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, SECTION_PREVIEW_COUNT);
@@ -91,7 +93,7 @@ function CategorySection({
             nodeCount={j.nodeCount}
             nodesLabel={t.nodesLabel}
             channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
-            internalLabel={labels.internalBadge}
+            internalLabel={emptyChannelLabel}
           />
         ))}
       </div>
@@ -116,8 +118,10 @@ export default function JourneyGallery({
   merged,
   basePath,
   categories,
-  journeyType,
-  siblingHref,
+  surface,
+  surfaceLinks,
+  presets = [],
+  emptyChannelLabel,
 }: {
   lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
@@ -125,12 +129,18 @@ export default function JourneyGallery({
   merged: readonly MergedRedirect[];
   basePath: string;
   categories: readonly CategoryMeta[];
-  /** Which half this page is. The type "filter" is the page itself rather
-      than a dropdown - the two halves are separate routes with their own
-      titles and metadata, so switching type is a navigation, not a state
-      change. `siblingHref` is the other half. */
-  journeyType: Exclude<JourneyType, "all">;
-  siblingHref: string;
+  /** Which surface this page is. The surface "filter" is the page itself
+      rather than a dropdown - the four surfaces are separate routes with
+      their own titles and metadata, so switching is a navigation, not a
+      state change. `surfaceLinks` are the four, this one marked. */
+  surface: SurfaceKey;
+  surfaceLinks: readonly { key: SurfaceKey; href: string; label: string }[];
+  /** Practitioner presets, shown first on the customer surface: the
+      recognisable use cases a practitioner searches by name. */
+  presets?: readonly PresetRow[];
+  /** What a card says where a journey has no channels - a statement about
+      what it is on this surface, never a missing value. */
+  emptyChannelLabel: string;
 }) {
   const { query, setQuery, goal, setGoal, rows, mergedHit, activeCount, isDefaultView, clearAll } =
     useJourneyFilters(allRows, merged, lang);
@@ -175,6 +185,15 @@ export default function JourneyGallery({
       .map((c) => ({ meta: c, items: byCat.get(c.id)! }));
   }, [allRows, categories, isDefault]);
 
+  // Presets answer to their own names and aliases; a category or channel
+  // filter does not apply to them (they are cards over a parent, not rows).
+  const matchingPresets = useMemo(() => {
+    if (!presets.length || category || channel || goal) return isDefault ? presets : [];
+    const q = query.trim().toLowerCase();
+    if (!q) return presets;
+    return presets.filter((p) => [p.name, p.parentName, ...p.aliases].some((x) => x.toLowerCase().includes(q)));
+  }, [presets, query, category, channel, goal, isDefault]);
+
   const clearEverything = () => {
     setCategory("");
     setChannel("");
@@ -186,19 +205,25 @@ export default function JourneyGallery({
 
   return (
     <div>
-      {/* Journey type: the two halves are routes, so this is a link pair
-          rather than a select - it changes the page, its title and its
-          metadata, not just the rows. */}
+      {/* Surface: the four surfaces are routes, so this is a link row rather
+          than a select - it changes the page, its title and its metadata,
+          not just the rows. */}
       <div className="flex flex-wrap gap-2">
-        <span className="border border-ink-950 bg-ink-950 px-3 py-1.5 text-sm font-medium text-paper">
-          {journeyType === "communication" ? labels.communicationLabel : labels.internalLabel}
-        </span>
-        <Link
-          href={siblingHref}
-          className="border border-line bg-paper px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:border-neutral-400 hover:bg-paper-soft"
-        >
-          {journeyType === "communication" ? labels.internalLabel : labels.communicationLabel}
-        </Link>
+        {surfaceLinks.map((l) =>
+          l.key === surface ? (
+            <span key={l.key} className="border border-ink-950 bg-ink-950 px-3 py-1.5 text-sm font-medium text-paper">
+              {l.label}
+            </span>
+          ) : (
+            <Link
+              key={l.key}
+              href={l.href}
+              className="border border-line bg-paper px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:border-neutral-400 hover:bg-paper-soft"
+            >
+              {l.label}
+            </Link>
+          ),
+        )}
       </div>
 
       <div className="mt-3 flex items-center gap-3 border border-line bg-paper px-4 py-2.5 focus-within:border-blue-600">
@@ -291,6 +316,29 @@ export default function JourneyGallery({
         </p>
       ) : null}
 
+      {matchingPresets.length ? (
+        <section className="mt-8">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="text-base font-semibold tracking-tight text-ink-950">{labels.presetsTitle}</h2>
+            <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">{matchingPresets.length}</span>
+          </div>
+          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-ink-500">{labels.presetsIntro}</p>
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {matchingPresets.map((p) => (
+              <IdeaCard
+                key={p.id}
+                href={`${basePath}/${p.slug}`}
+                title={p.name}
+                badges={[{ label: labels.presetBadge, tone: "accent" }]}
+                body={p.applicableWhen}
+                footLeft={`${labels.presetOf} ${p.parentName}`}
+                footRight={p.categoryTitle}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {isDefault ? (
         <div className="mt-8 flex flex-col gap-12">
           {sections.map((s) => (
@@ -302,10 +350,11 @@ export default function JourneyGallery({
               t={t}
               basePath={basePath}
               labels={labels}
+              emptyChannelLabel={emptyChannelLabel}
             />
           ))}
         </div>
-      ) : localFiltered.length === 0 ? (
+      ) : localFiltered.length === 0 && matchingPresets.length === 0 ? (
         <div className="mt-5 border-t border-b border-line py-16 text-center">
           <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase tabular-nums">
             0 / {allRows.length}
@@ -333,7 +382,7 @@ export default function JourneyGallery({
               nodeCount={j.nodeCount}
               nodesLabel={t.nodesLabel}
               channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
-              internalLabel={labels.internalBadge}
+              internalLabel={emptyChannelLabel}
             />
           ))}
         </div>

@@ -6,27 +6,27 @@
       {
         "id": "acquisition",
         "title": "Acquisition, intent & qualification",
-        "count": 10
+        "count": 14
       },
       {
         "id": "activation",
         "title": "Activation, onboarding & early value",
-        "count": 10
+        "count": 9
       },
       {
         "id": "retention",
         "title": "Engagement, health, retention & churn prevention",
-        "count": 9
+        "count": 11
       },
       {
         "id": "consent",
         "title": "Consent, preferences, communication & contactability",
-        "count": 9
+        "count": 12
       },
       {
         "id": "feedback",
         "title": "Feedback, advocacy, referral & relationship signals",
-        "count": 10
+        "count": 8
       },
       {
         "id": "ownership",
@@ -36,32 +36,32 @@
       {
         "id": "time",
         "title": "Time, deadlines, expiry & temporary states",
-        "count": 10
+        "count": 13
       },
       {
         "id": "access",
         "title": "Access, entitlement, credentials & capability",
-        "count": 10
+        "count": 12
       },
       {
         "id": "identity",
         "title": "Identity, verification, authentication & account integrity",
-        "count": 10
+        "count": 12
       },
       {
         "id": "structure",
         "title": "Account structure, identity relationships & entity reconciliation",
-        "count": 10
+        "count": 11
       },
       {
         "id": "terminal",
         "title": "Entity merge, account closure, data lifecycle & terminal states",
-        "count": 10
+        "count": 11
       },
       {
         "id": "integration",
         "title": "Integrations, synchronization, external systems & data consistency",
-        "count": 10
+        "count": 12
       },
       {
         "id": "processing",
@@ -76,7 +76,7 @@
       {
         "id": "fulfillment",
         "title": "Orders, fulfillment, delivery & service completion",
-        "count": 10
+        "count": 12
       },
       {
         "id": "remedy",
@@ -86,22 +86,22 @@
       {
         "id": "subscription",
         "title": "Subscriptions, contracts, renewals & continuing relationships",
-        "count": 10
+        "count": 11
       },
       {
         "id": "scheduling",
         "title": "Scheduling, appointments, reservations & time-bound commitments",
-        "count": 10
+        "count": 14
       },
       {
         "id": "decision",
         "title": "Approvals, decisions, reviews & human-in-the-loop work",
-        "count": 10
+        "count": 11
       },
       {
         "id": "risk",
         "title": "Risk, policy, compliance & exception management",
-        "count": 10
+        "count": 11
       },
       {
         "id": "communication",
@@ -111,7 +111,7 @@
       {
         "id": "document",
         "title": "Documents, records, signatures & versioned artifacts",
-        "count": 10
+        "count": 11
       },
       {
         "id": "data",
@@ -126,7 +126,7 @@
       {
         "id": "rollout",
         "title": "Deployment, rollout, change & version transitions",
-        "count": 10
+        "count": 11
       },
       {
         "id": "incident",
@@ -140,23 +140,23 @@
     "values": [
       {
         "id": "acquisition-qualification",
-        "count": 10
+        "count": 14
       },
       {
         "id": "activation-onboarding",
-        "count": 10
-      },
-      {
-        "id": "engagement-retention",
         "count": 9
       },
       {
+        "id": "engagement-retention",
+        "count": 11
+      },
+      {
         "id": "cross-lifecycle",
-        "count": 216
+        "count": 238
       },
       {
         "id": "ending-closure",
-        "count": 10
+        "count": 11
       }
     ]
   },
@@ -165,22 +165,27 @@
     "values": [
       {
         "id": "cancellation-termination",
-        "count": 28,
+        "count": 31,
         "categorySpread": 16
       },
       {
         "id": "recovery-retry",
-        "count": 27,
-        "categorySpread": 13
+        "count": 29,
+        "categorySpread": 14
       },
       {
         "id": "identity-verification",
-        "count": 24,
+        "count": 27,
         "categorySpread": 11
       },
       {
         "id": "eligibility-qualification",
-        "count": 20,
+        "count": 22,
+        "categorySpread": 12
+      },
+      {
+        "id": "expiry-renewal",
+        "count": 18,
         "categorySpread": 12
       },
       {
@@ -189,14 +194,14 @@
         "categorySpread": 8
       },
       {
-        "id": "expiry-renewal",
-        "count": 16,
-        "categorySpread": 10
+        "id": "reconciliation-correction",
+        "count": 17,
+        "categorySpread": 8
       },
       {
-        "id": "reconciliation-correction",
-        "count": 15,
-        "categorySpread": 7
+        "id": "delivery-confirmation",
+        "count": 14,
+        "categorySpread": 8
       },
       {
         "id": "progression-milestone",
@@ -204,9 +209,9 @@
         "categorySpread": 5
       },
       {
-        "id": "delivery-confirmation",
-        "count": 10,
-        "categorySpread": 7
+        "id": "consent-permission",
+        "count": 9,
+        "categorySpread": 3
       },
       {
         "id": "decision-approval",
@@ -214,14 +219,14 @@
         "categorySpread": 5
       },
       {
+        "id": "suspension-restoration",
+        "count": 9,
+        "categorySpread": 6
+      },
+      {
         "id": "escalation-exception",
         "count": 8,
         "categorySpread": 7
-      },
-      {
-        "id": "consent-permission",
-        "count": 8,
-        "categorySpread": 3
       },
       {
         "id": "change-versioning",
@@ -229,24 +234,24 @@
         "categorySpread": 6
       },
       {
+        "id": "revocation-access-change",
+        "count": 8,
+        "categorySpread": 5
+      },
+      {
         "id": "merge-consolidation",
         "count": 7,
         "categorySpread": 4
       },
       {
-        "id": "suspension-restoration",
-        "count": 6,
-        "categorySpread": 6
-      },
-      {
-        "id": "revocation-access-change",
-        "count": 6,
-        "categorySpread": 4
-      },
-      {
         "id": "risk-compliance",
-        "count": 5,
+        "count": 6,
         "categorySpread": 5
+      },
+      {
+        "id": "scheduling-commitment",
+        "count": 6,
+        "categorySpread": 3
       },
       {
         "id": "data-integrity",
@@ -254,16 +259,11 @@
         "categorySpread": 2
       },
       {
-        "id": "scheduling-commitment",
-        "count": 5,
-        "categorySpread": 3
-      },
-      {
         "id": "compensation-remedy",
         "count": 3,
         "categorySpread": 2
       }
     ],
-    "reviewRequiredCount": 18
+    "reviewRequiredCount": 20
   }
 }

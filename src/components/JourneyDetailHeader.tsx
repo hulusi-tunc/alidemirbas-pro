@@ -59,6 +59,7 @@ export default function JourneyDetailHeader({
             {detail.id}
           </span>
           <span className="font-mono text-xs text-ink-500">{detail.categoryTitle}</span>
+          {detail.preset ? <span className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-wide text-blue-700 uppercase">{t.practitioner.preset}</span> : null}
         </div>
         <div className="flex flex-wrap items-baseline gap-x-2 font-mono text-xs text-ink-500 tabular-nums">
           <span className="whitespace-nowrap">
@@ -83,7 +84,7 @@ export default function JourneyDetailHeader({
             : "mt-7 text-[clamp(1.625rem,1.1rem+2.1vw,2.5rem)]"
         } max-w-4xl leading-[1.14] font-semibold tracking-[-0.02em] text-balance text-ink-950`}
       >
-        {detail.shortName ?? detail.name}
+        {detail.preset ? detail.preset.name : (detail.shortName ?? detail.name)}
       </Heading>
 
       {/* The canonical name, kept under the plain-language title rather than
@@ -91,7 +92,9 @@ export default function JourneyDetailHeader({
           outcome"), which is the thing a practitioner reads the graph
           against, and it is what the slug was derived from. Only rendered
           where a shortName actually replaced it as the title. */}
-      {detail.shortName ? (
+      {detail.preset ? (
+        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{t.practitioner.presetOf} {detail.id} {detail.shortName ?? detail.name} — {detail.name}</p>
+      ) : detail.shortName ? (
         <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{detail.name}</p>
       ) : null}
 

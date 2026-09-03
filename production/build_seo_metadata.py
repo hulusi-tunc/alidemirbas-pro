@@ -20,6 +20,20 @@ def merge(pattern, expected, out_name, expected_ids):
     records = []
     for p in parts:
         records.extend(json.load(open(p)))
+    # The journey parts were written for an earlier corpus: ids merged since
+    # are dropped (a merged id must not carry detail-page metadata), and a
+    # journey added since gets a record derived from its own canonical
+    # fields, flagged for SEO review because its wording was not reviewed.
+    records = [r for r in records if r["id"] in expected_ids]
+    have = {r["id"] for r in records}
+    if out_name == "journey-seo-metadata.json":
+        dump = json.load(open("canonical-dump.json"))
+        for j in dump["journeys"]:
+            if j["id"] in expected_ids and j["id"] not in have:
+                title = f"{j.get('shortName') or j['name']} Lifecycle Journey Example"
+                desc = j["purpose"].split(" - ")[0].rstrip(".")
+                if len(desc) > 150: desc = desc[:147].rsplit(" ", 1)[0] + "..."
+                records.append({"id": j["id"], "slug": j["slug"], "seoTitle": title, "seoDescription": desc, "titleCharacterCount": len(title), "descriptionCharacterCount": len(desc), "primaryIntent": "customer journey examples", "secondaryIntent": f"{(j.get('shortName') or j['name']).lower()} journey", "canonicalPath": f"/lab/journeys/{j['slug']}", "index": True, "follow": True, "sitemap": True, "sourceBasis": ["name", "purpose"], "needsSeoReview": True, "reviewReason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"})
     assert len(records) == expected, f"{out_name}: got {len(records)}, expected {expected}"
 
     ids = [r["id"] for r in records]
@@ -52,17 +66,28 @@ def merge(pattern, expected, out_name, expected_ids):
                 "the slug, which this round does not do."
             )
 
+    # The A/B parts predate the /library/ route segment; the live route is
+    # /lab/ab-testing/library/{slug} (AbTestRoutes.tsx) and the canonical
+    # path has to say so.
+    if out_name == "ab-test-seo-metadata.json":
+        for r in records:
+            if r["canonicalPath"].startswith("/lab/ab-testing/") and "/library/" not in r["canonicalPath"]:
+                r["canonicalPath"] = "/lab/ab-testing/library/" + r["canonicalPath"][len("/lab/ab-testing/"):]
     records.sort(key=lambda r: (r["id"].split("-")[0], int(r["id"].split("-")[1])))
     json.dump(records, open(out_name, "w"), ensure_ascii=False, indent=2)
     print(f"{out_name}: {len(records)} records from {len(parts)} parts")
     return records
 
 
-ab_ids = {r["id"] for r in json.load(open(AB_CANON))}
+try:
+    ab_ids = {r["id"] for r in json.load(open(AB_CANON))}
+except FileNotFoundError:
+    # The A/B canon lives in another repository; the site's own frozen copy carries the same ids.
+    ab_ids = {r["id"] for r in json.load(open("../src/data/ab-tests.json"))}
 jr_ids = {r["identity"]["id"] for r in json.load(open("journey-view-model.json"))}
 
 ab = merge("seo_out/ab_part*.json", 211, "ab-test-seo-metadata.json", ab_ids)
-jr = merge("seo_out/jr_part*.json", 255, "journey-seo-metadata.json", jr_ids)
+jr = merge("seo_out/jr_part*.json", len(jr_ids), "journey-seo-metadata.json", jr_ids)
 
 print(f"\ntotal indexable detail pages: {len(ab) + len(jr)}")
 print(f"needsSeoReview: ab {sum(1 for r in ab if r['needsSeoReview'])}, journey {sum(1 for r in jr if r['needsSeoReview'])}")

@@ -109,6 +109,12 @@ for (const r of abTests) {
 
 /* ==================================================================== JOURNEYS */
 const journeys = rj("production/journey-view-model.json");
+/* vNext discovery lives on the canonical dump (aliases, use cases, presets)
+   and is the practitioner's vocabulary: "cart abandonment", "dunning",
+   "OTP". It is indexed alongside the journey's own words so a search by the
+   name a practitioner already uses lands on the canonical journey. */
+const canonicalDump = rj("production/canonical-dump.json");
+const discoveryById = new Map(canonicalDump.journeys.map((j) => [j.id, j.discovery ?? null]));
 const mergedContract = rj("production/journey-merged-id-contract.json");
 const journeyById = new Map(journeys.map((j) => [j.identity.id, j]));
 const aliases = [];
@@ -147,9 +153,13 @@ for (const j of journeys) {
   const stage = lifecycleStageOf(identity.category);
   const normalizedFromStage = JOURNEY_STAGE_TO_NORMALIZED[stage];
   const handoffText = handoffTargets.length ? `Hands off to ${handoffTargets.join(", ")}` : null;
+  const discovery = discoveryById.get(identity.id);
+  const aliasText = discovery?.aliases?.length ? `Also known as ${discovery.aliases.join(", ")}` : null;
+  const presetText = discovery?.presets?.length ? `Presets: ${discovery.presets.map((p) => `${p.name} (${(p.aliases ?? []).join(", ")})`).join("; ")}` : null;
+  const useCaseText = discovery?.useCases?.length ? discovery.useCases.join(". ") : null;
   const searchText = truncate(
-    [identity.title, identity.purpose, entry.trigger, identity.categoryTitle, handoffText, ...exitHeadlines].filter(Boolean).join(". "),
-    2000,
+    [identity.title, identity.purpose, aliasText, presetText, useCaseText, entry.trigger, identity.categoryTitle, handoffText, ...exitHeadlines].filter(Boolean).join(". "),
+    2400,
   );
   docs.push({
     id: `journey:${identity.id}`,
@@ -161,7 +171,7 @@ for (const j of journeys) {
     title: `${identity.id} ${identity.title}`,
     summary: truncate(identity.purpose, 400),
     searchText,
-    keywords: [identity.id],
+    keywords: [identity.id, ...(discovery?.aliases ?? []), ...(discovery?.presets ?? []).flatMap((p) => [p.name, ...(p.aliases ?? [])])],
     category: [identity.category],
     normalizedCategory: uniq([normalizedFromStage]),
     surface: [],
@@ -179,6 +189,13 @@ for (const j of journeys) {
     journeyRelationRefs,
   });
 }
+
+/* Practitioner presets are folded into their parent journey's document
+   (keywords + searchText) rather than indexed as documents of their own:
+   the index schema has exactly five corpus types, and a preset is a view of
+   its parent, not a sixth kind of thing. Their count is recorded for the
+   manifest only. */
+const presetFoldedCount = canonicalDump.journeys.reduce((n, j) => n + (j.discovery?.presets?.length ?? 0), 0);
 
 // Merged journey aliases - the 5 retired ids resolve to their survivor's
 // document, never a document of their own (per journey-merged-id-contract.json,
@@ -358,7 +375,7 @@ for (const slug of liveCalcSlugs) {
    inside a .ts file, not JSON - transcribed verbatim, not paraphrased. */
 const LAB_PROJECTS = [
   { slug: "claude-lifecycle", name: "Lifecycle Marketing Journey Builder", desc: "Looks at the customer data you already track and builds lifecycle journeys around what you can actually measure, segment and act on.", tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"], url: "https://github.com/ali-demirbas/claude-lifecycle", external: true, poweredCorpus: null },
-  { slug: "lifecycle-card-archive", name: "Canonical Journey Library", desc: "255 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.", tags: ["CRM", "Lifecycle Marketing", "255 journeys", "26 categories"], url: "/lab/journeys", external: false, poweredCorpus: "journey" },
+  { slug: "lifecycle-card-archive", name: "Canonical Journey Library", desc: `${journeys.length} domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.`, tags: ["CRM", "Lifecycle Marketing", `${journeys.length} journeys`, "26 categories"], url: "/lab/journeys", external: false, poweredCorpus: "journey" },
   { slug: "ab-test-playbook", name: "A/B Test Playbook", desc: "211 A/B test scenarios across real product journeys, with guidance on what to test, what to measure and what can invalidate the result.", tags: ["Claude Code Plugin", "A/B Testing", "CRO", "211 scenarios"], url: "/lab/ab-testing", external: false, poweredCorpus: "ab-test" },
   { slug: "dashboard-builder", name: "Marketing Dashboard Builder", desc: "Takes messy exports from different marketing platforms, checks what can actually be compared, and turns the data into a decision-ready dashboard.", tags: ["Claude Code Plugin", "Marketing Analytics", "11 dashboard templates", "17 tests"], url: "/lab/dashboard-builder", external: false, poweredCorpus: null },
   { slug: "google-ads-change-history-dashboard", name: "Google Ads Change History Explorer", desc: "Turns a Google Ads change-history export into a searchable dashboard - what changed, who changed it, when, and how significant it was.", tags: ["Python", "Google Ads", "Offline Dashboard", "57 self-tests"], url: "https://github.com/ali-demirbas/google-ads-change-history-dashboard", external: true, poweredCorpus: null },
@@ -598,6 +615,7 @@ writeFileSync(path.join(ROOT, "search/search-manifest.json"), JSON.stringify({
     abTestRecordCount: abTests.length,
     journeyRecordCount: journeys.length,
     mergedJourneyCount: mergedContract.records.length,
+    presetFoldedCount,
     liveCalculatorCount: liveCalcSlugs.length,
     labProductCount: LAB_PROJECTS.length,
     blogArticleCount: BLOG_POSTS.length,

@@ -1,15 +1,17 @@
 {
   "counts": {
-    "totalJourneys": 255,
-    "totalNodes": 3186,
-    "totalEdges": 3816,
+    "totalJourneys": 283,
+    "totalNodes": 3664,
+    "totalEdges": 4412,
     "structuralTypesFound": 7,
     "actionFamilies": 12,
     "reviewRequired": 0
   },
-  "errors": [],
-  "warnings": [
-    "263 action nodes (23.3%) matched no verb family - generic Action treatment applies, not an error"
+  "errors": [
+    "Expected 255 journeys, found 283"
   ],
-  "status": "PASS"
+  "warnings": [
+    "363 action nodes (28.4%) matched no verb family - generic Action treatment applies, not an error"
+  ],
+  "status": "FAIL"
 }

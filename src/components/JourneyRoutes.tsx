@@ -37,8 +37,18 @@ const PAGE_MEASURE = "max-w-[1180px]";
 export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) return {};
-  const { detail, merged } = resolved;
+  const { detail, merged, preset } = resolved;
   const suffix = lang === "en" ? "Canonical Journey Library" : "Canonical Journey Kütüphanesi";
+
+  /* A preset is its own page: its own title, its own canonical, the parent's
+     practitioner view with the preset applied. */
+  if (preset) {
+    return {
+      title: `${preset.name} - ${suffix}`,
+      description: preset.applicableWhen,
+      alternates: pageAlternates(`/lab/journeys/${preset.slug}`, lang),
+    };
+  }
 
   /* A merged id is a real URL because old references deserve to land, but it
      is not a second canonical page for the same journey. */
@@ -61,7 +71,7 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) notFound();
 
-  const { detail, merged } = resolved;
+  const { detail, merged, preset } = resolved;
   const t = copy[lang].lab.page;
   const basePath = basePathFor(lang);
   // Skipped for a merged id: it's noindex with its canonical pointing at
@@ -74,7 +84,12 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
         { name: copy[lang].footer.home, url: lang === "en" ? "/" : "/tr" },
         { name: copy[lang].nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
         { name: t.title, url: basePath },
-        { name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` },
+        ...(preset
+          ? [
+              { name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` },
+              { name: preset.name, url: `${basePath}/${preset.slug}` },
+            ]
+          : [{ name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` }]),
       ]);
 
   return (

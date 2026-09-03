@@ -6,7 +6,7 @@
     "values": [
       {
         "value": "journey",
-        "documentCount": 255,
+        "documentCount": 283,
         "lowUtility": false
       },
       {
@@ -16,7 +16,7 @@
       },
       {
         "value": "calculator",
-        "documentCount": 43,
+        "documentCount": 19,
         "lowUtility": false
       },
       {
@@ -37,7 +37,7 @@
     "values": [
       {
         "value": "acquisition-and-onboarding",
-        "documentCount": 74,
+        "documentCount": 77,
         "lowUtility": false
       },
       {
@@ -47,17 +47,17 @@
       },
       {
         "value": "cart-and-checkout",
-        "documentCount": 32,
+        "documentCount": 28,
         "lowUtility": false
       },
       {
         "value": "saas-and-b2b",
-        "documentCount": 18,
+        "documentCount": 16,
         "lowUtility": false
       },
       {
         "value": "mobile",
-        "documentCount": 15,
+        "documentCount": 12,
         "lowUtility": false
       },
       {
@@ -67,28 +67,28 @@
       },
       {
         "value": "retention-and-engagement",
-        "documentCount": 10,
+        "documentCount": 12,
         "lowUtility": false
       },
       {
         "value": "experimentation-and-testing",
-        "documentCount": 8,
-        "lowUtility": false
-      },
-      {
-        "value": "crm-and-lifecycle",
-        "documentCount": 8,
-        "lowUtility": false
-      },
-      {
-        "value": "advertising-and-media",
-        "documentCount": 7,
+        "documentCount": 4,
         "lowUtility": false
       },
       {
         "value": "unit-economics",
         "documentCount": 4,
         "lowUtility": false
+      },
+      {
+        "value": "advertising-and-media",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "crm-and-lifecycle",
+        "documentCount": 1,
+        "lowUtility": true
       }
     ]
   },
@@ -174,27 +174,27 @@
     "values": [
       {
         "value": "cross-lifecycle",
-        "documentCount": 216,
+        "documentCount": 238,
         "lowUtility": false
       },
       {
         "value": "acquisition-qualification",
-        "documentCount": 63,
+        "documentCount": 67,
         "lowUtility": false
       },
       {
         "value": "engagement-retention",
-        "documentCount": 31,
+        "documentCount": 33,
         "lowUtility": false
       },
       {
         "value": "ending-closure",
-        "documentCount": 14,
+        "documentCount": 15,
         "lowUtility": false
       },
       {
         "value": "activation-onboarding",
-        "documentCount": 10,
+        "documentCount": 9,
         "lowUtility": false
       }
     ]
@@ -205,32 +205,37 @@
     "values": [
       {
         "value": "review-required",
-        "documentCount": 220,
+        "documentCount": 205,
         "lowUtility": false
       },
       {
         "value": "risk-compliance",
-        "documentCount": 50,
+        "documentCount": 51,
         "lowUtility": false
       },
       {
         "value": "cancellation-termination",
-        "documentCount": 28,
+        "documentCount": 31,
         "lowUtility": false
       },
       {
         "value": "recovery-retry",
-        "documentCount": 27,
+        "documentCount": 29,
         "lowUtility": false
       },
       {
         "value": "identity-verification",
-        "documentCount": 24,
+        "documentCount": 27,
         "lowUtility": false
       },
       {
         "value": "eligibility-qualification",
-        "documentCount": 21,
+        "documentCount": 22,
+        "lowUtility": false
+      },
+      {
+        "value": "expiry-renewal",
+        "documentCount": 18,
         "lowUtility": false
       },
       {
@@ -239,28 +244,23 @@
         "lowUtility": false
       },
       {
-        "value": "expiry-renewal",
-        "documentCount": 16,
-        "lowUtility": false
-      },
-      {
         "value": "reconciliation-correction",
-        "documentCount": 15,
+        "documentCount": 17,
         "lowUtility": false
       },
       {
         "value": "delivery-confirmation",
-        "documentCount": 13,
+        "documentCount": 15,
         "lowUtility": false
       },
       {
         "value": "change-versioning",
-        "documentCount": 13,
+        "documentCount": 11,
         "lowUtility": false
       },
       {
         "value": "progression-milestone",
-        "documentCount": 11,
+        "documentCount": 10,
         "lowUtility": false
       },
       {
@@ -269,8 +269,18 @@
         "lowUtility": false
       },
       {
+        "value": "suspension-restoration",
+        "documentCount": 9,
+        "lowUtility": false
+      },
+      {
         "value": "consent-permission",
         "documentCount": 9,
+        "lowUtility": false
+      },
+      {
+        "value": "revocation-access-change",
+        "documentCount": 8,
         "lowUtility": false
       },
       {
@@ -284,23 +294,13 @@
         "lowUtility": false
       },
       {
-        "value": "revocation-access-change",
-        "documentCount": 6,
-        "lowUtility": false
-      },
-      {
-        "value": "suspension-restoration",
-        "documentCount": 6,
-        "lowUtility": false
-      },
-      {
         "value": "data-integrity",
         "documentCount": 6,
         "lowUtility": false
       },
       {
         "value": "scheduling-commitment",
-        "documentCount": 5,
+        "documentCount": 6,
         "lowUtility": false
       },
       {
@@ -312,7 +312,7 @@
   },
   "metric": {
     "dimension": "metric",
-    "distinctValues": 475,
+    "distinctValues": 451,
     "values": [
       {
         "value": "Dönüşüm Oranı (CR)",
@@ -2480,17 +2480,7 @@
         "lowUtility": true
       },
       {
-        "value": "Activation Rate",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
         "value": "AOV",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Bounce Rate (email)",
         "documentCount": 1,
         "lowUtility": true
       },
@@ -2510,37 +2500,7 @@
         "lowUtility": true
       },
       {
-        "value": "Cart Abandonment Rate",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Complaint Rate",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Confidence Interval",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Contribution Margin",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "CPA",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
         "value": "CPC",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "CPL",
         "documentCount": 1,
         "lowUtility": true
       },
@@ -2555,32 +2515,7 @@
         "lowUtility": true
       },
       {
-        "value": "Click-to-Open Rate (CTOR)",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "CTR (ads)",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "D1 Retention",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "DAU/MAU Stickiness",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Delivery Rate",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Web Engagement Rate",
+        "value": "Email Performance",
         "documentCount": 1,
         "lowUtility": true
       },
@@ -2591,11 +2526,6 @@
       },
       {
         "value": "Gross Margin",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "List Growth Rate",
         "documentCount": 1,
         "lowUtility": true
       },
@@ -2615,47 +2545,12 @@
         "lowUtility": true
       },
       {
-        "value": "Marketing ROI",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Minimum Detectable Effect (MDE)",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "MRR",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
         "value": "Net Revenue Retention (NRR)",
         "documentCount": 1,
         "lowUtility": true
       },
       {
-        "value": "Open Rate",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Profit Margin",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
         "value": "Retention Rate",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Revenue per Recipient",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Revenue per Visitor",
         "documentCount": 1,
         "lowUtility": true
       },
@@ -2670,22 +2565,7 @@
         "lowUtility": true
       },
       {
-        "value": "SaaS Quick Ratio",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
         "value": "Sample Size",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Test Duration Estimator",
-        "documentCount": 1,
-        "lowUtility": true
-      },
-      {
-        "value": "Unsubscribe Rate",
         "documentCount": 1,
         "lowUtility": true
       }
@@ -2759,50 +2639,45 @@
   },
   "calculatorNativeCategory": {
     "dimension": "category (calculator native)",
-    "distinctValues": 10,
+    "distinctValues": 9,
     "values": [
-      {
-        "value": "crm-email",
-        "documentCount": 8,
-        "lowUtility": false
-      },
-      {
-        "value": "advertising",
-        "documentCount": 7,
-        "lowUtility": false
-      },
-      {
-        "value": "ecommerce",
-        "documentCount": 6,
-        "lowUtility": false
-      },
-      {
-        "value": "experimentation",
-        "documentCount": 5,
-        "lowUtility": false
-      },
-      {
-        "value": "saas",
-        "documentCount": 5,
-        "lowUtility": false
-      },
       {
         "value": "unit-economics",
         "documentCount": 4,
         "lowUtility": false
       },
       {
-        "value": "mobile-growth",
+        "value": "advertising",
         "documentCount": 3,
         "lowUtility": false
+      },
+      {
+        "value": "saas",
+        "documentCount": 3,
+        "lowUtility": false
+      },
+      {
+        "value": "experimentation",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "ecommerce",
+        "documentCount": 2,
+        "lowUtility": true
       },
       {
         "value": "cro-funnel",
-        "documentCount": 3,
-        "lowUtility": false
+        "documentCount": 2,
+        "lowUtility": true
       },
       {
         "value": "acquisition",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "crm-email",
         "documentCount": 1,
         "lowUtility": true
       },
@@ -2819,37 +2694,37 @@
     "values": [
       {
         "value": "cross-journey-handoff",
-        "documentCount": 227,
+        "documentCount": 240,
         "lowUtility": false
       },
       {
         "value": "wait-timeout",
-        "documentCount": 146,
+        "documentCount": 177,
         "lowUtility": false
       },
       {
         "value": "multi-exit",
-        "documentCount": 135,
+        "documentCount": 164,
         "lowUtility": false
       },
       {
         "value": "backward-edge",
-        "documentCount": 125,
+        "documentCount": 150,
         "lowUtility": false
       },
       {
         "value": "external-handoff",
-        "documentCount": 68,
-        "lowUtility": false
-      },
-      {
-        "value": "competition",
-        "documentCount": 12,
+        "documentCount": 71,
         "lowUtility": false
       },
       {
         "value": "no-re-entry",
-        "documentCount": 5,
+        "documentCount": 13,
+        "lowUtility": false
+      },
+      {
+        "value": "competition",
+        "documentCount": 3,
         "lowUtility": false
       },
       {

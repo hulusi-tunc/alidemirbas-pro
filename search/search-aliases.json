@@ -62,6 +62,39 @@
       "source": "production/journey-merged-id-contract.json"
     },
     {
+      "alias": "FBK-44",
+      "aliasSlugLowercased": "fbk-44",
+      "targetId": "journey:FBK-43",
+      "targetSlug": "feedback-routing-and-loop-closure",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
+      "source": "production/journey-merged-id-contract.json"
+    },
+    {
+      "alias": "FBK-45",
+      "aliasSlugLowercased": "fbk-45",
+      "targetId": "journey:FBK-43",
+      "targetSlug": "feedback-routing-and-loop-closure",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
+      "source": "production/journey-merged-id-contract.json"
+    },
+    {
+      "alias": "ACT-15",
+      "aliasSlugLowercased": "act-15",
+      "targetId": "journey:ACT-17",
+      "targetSlug": "early-adoption-to-stable-use",
+      "resultVisibility": "target-only",
+      "type": "merged-journey",
+      "provenance": "source-derived",
+      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
+      "source": "production/journey-merged-id-contract.json"
+    },
+    {
       "alias": "average order value",
       "targetId": "calculator:aov",
       "provenance": "source-derived",
@@ -76,13 +109,6 @@
       "resultVisibility": "target-only"
     },
     {
-      "alias": "cost per acquisition",
-      "targetId": "calculator:cpa",
-      "provenance": "source-derived",
-      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for cpa: \"cost per acquisition calculator\"",
-      "resultVisibility": "target-only"
-    },
-    {
       "alias": "cost per click",
       "targetId": "calculator:cpc",
       "provenance": "source-derived",
@@ -90,38 +116,10 @@
       "resultVisibility": "target-only"
     },
     {
-      "alias": "cost per lead",
-      "targetId": "calculator:cpl",
-      "provenance": "source-derived",
-      "provenanceDetail": "calculator-seo-map.json secondaryKeywords for cpl: \"cost per lead calculator\"",
-      "resultVisibility": "target-only"
-    },
-    {
       "alias": "cost per mille",
       "targetId": "calculator:cpm",
       "provenance": "source-derived",
       "provenanceDetail": "calculator-seo-map.json secondaryKeywords for cpm: \"cost per mille calculator\"",
-      "resultVisibility": "target-only"
-    },
-    {
-      "alias": "Click-to-Open Rate",
-      "targetId": "calculator:ctor",
-      "provenance": "source-derived",
-      "provenanceDetail": "calculator-catalog.json name spells this out verbatim: \"Click-to-Open Rate (CTOR) Calculator\"",
-      "resultVisibility": "target-only"
-    },
-    {
-      "alias": "MDE",
-      "targetId": "calculator:minimum-detectable-effect",
-      "provenance": "source-derived",
-      "provenanceDetail": "calculator-catalog.json name spells this out verbatim: \"Minimum Detectable Effect (MDE) Calculator\"",
-      "resultVisibility": "target-only"
-    },
-    {
-      "alias": "Minimum Detectable Effect",
-      "targetId": "calculator:minimum-detectable-effect",
-      "provenance": "source-derived",
-      "provenanceDetail": "calculator-catalog.json name spells this out verbatim: \"Minimum Detectable Effect (MDE) Calculator\"",
       "resultVisibility": "target-only"
     },
     {

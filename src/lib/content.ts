@@ -35,11 +35,11 @@ export const copy = {
         rest: [
           {
             title: "Lifecycle and CRM programs",
-            body: "Onboarding, activation, renewal and winback journeys built from the events a product already emits, not from a template.",
+            body: "Customer journeys open on their practitioner view; the other three surfaces open on the graph. Every surface searches and filters by category and goal.",
           },
           {
             title: "Paid acquisition",
-            body: "Google, Meta and app-install channels, run against post-install behaviour rather than install counts.",
+            body: "Müşteri journey'leri uygulayıcı görünümüyle, diğer üç yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
           },
           {
             title: "Experimentation and CRO",
@@ -218,6 +218,10 @@ export const copy = {
           guardrails: "guardrails",
           presets: "Presets",
           technical: "Technical logic",
+          preset: "Preset",
+          presetOf: "preset of",
+          presetOverrides: "sets",
+          presetNoOverrides: "keeps every default of its parent; only the destination and the vocabulary differ",
           relative: { trigger: "after the trigger", "previous-touch": "after the previous touch", attribute: "relative to" },
           roles: { "in-session": "in-session", "low-friction": "low-friction", persistent: "persistent", urgent: "urgent", human: "human" },
           labels: { CANONICAL_RULE: "canonical rule", RECOMMENDED_DEFAULT: "recommended default", CONFIG_REQUIRED: "config required", OPTIONAL_STRATEGY: "optional strategy" },
@@ -266,13 +270,13 @@ export const copy = {
         eyebrow: "Lab / Canonical Journey Library",
         title: "{count} lifecycle state machines. Every one a graph you can read.",
         sub: "Domain-neutral journeys across {categories} categories, held together by {rules} orchestration rules. Each one names what starts it, where it forks, how long it waits and which lifecycle owns the person next - and none of them carries message copy.",
-        ctaCommunication: "Communication journeys",
-        ctaInternal: "Internal journeys",
+        ctaCommunication: "Customer journeys",
+        ctaInternal: "Operational workflows",
         proof: ["Domain-neutral", "Graphs, not sequences", "No message copy"],
         split: {
-          eyebrow: "Two halves",
-          title: "Split by whether the work ever reaches a person.",
-          body: "Every journey lives on exactly one of two pages. The split is not a tag - it is read from the graph: a journey counts as communication only if an action in it actually sends a message or routes work to someone.",
+          eyebrow: "Four surfaces",
+          title: "Split by what the journey is, not by whether it has a channel.",
+          body: "Every journey lives on exactly one of four surfaces, read from the journey itself: customer journeys that reach a person, the silent lifecycle states they depend on, the runtime mechanisms they run on, and the operational workflows that resolve inside the organisation.",
         },
         stories: {
           eyebrow: "What the schema enforces",
@@ -280,11 +284,50 @@ export const copy = {
         },
         final: {
           eyebrow: "Start reading",
-          title: "Pick a half and open a journey.",
-          body: "Both pages search and filter by category and goal; the communication page filters by channel as well.",
+          title: "Pick a surface and open a journey.",
+          body: "Customer journeys open on their practitioner view; the other three surfaces open on the graph. Every surface searches and filters by category and goal.",
         },
       },
       journeysSplit: {
+        /* The four product surfaces. Labels are the practitioner's words;
+           the classification itself is read from each journey by
+           src/canonical/surface.ts, never kept here. */
+        surfaceLabels: {
+          "customer-journeys": "Customer journeys",
+          "lifecycle-states": "Lifecycle states",
+          "runtime-mechanisms": "Runtime mechanisms",
+          "operational-workflows": "Operational workflows",
+        },
+        surfaceBlurbs: {
+          "customer-journeys": "Journeys whose own actions reach a customer - each with a touch plan, channel roles, a contact model and a measurement decision a practitioner can implement without inventing the cadence.",
+          "lifecycle-states": "Silent customer lifecycle states: the state models the communicating journeys depend on. Nothing here sends anything; these are dependencies, not campaigns.",
+          "runtime-mechanisms": "The machinery every journey runs on - send eligibility, contactability, delivery recovery, retry, cooldown. Contracts, not customer journeys.",
+          "operational-workflows": "Internal workflows that resolve inside the organisation: decisions, ownership, incidents, integrations, rollouts. A separate product from the customer surface.",
+        },
+        surfaces: {
+          "customer-journeys": {
+            title: "Customer journeys",
+            intro: "{count} communicating customer journeys and {presets} practitioner presets. Every journey opens on its practitioner view - trigger, who enters, the touch plan with its timing and channel roles, what stops it, what to configure, what to measure - with the graph underneath as the technical logic. Search by the names you already use.",
+          },
+          "lifecycle-states": {
+            title: "Lifecycle states",
+            intro: "{count} silent customer lifecycle states. They send nothing: they hold the state a communicating journey reads, re-reads and hands to. Browse them as dependencies and linked supporting logic, not as campaigns to launch.",
+          },
+          "runtime-mechanisms": {
+            title: "Runtime mechanisms",
+            intro: "{count} runtime mechanisms - the contracts customer journeys rely on for send eligibility, contactability, delivery failure, retry and cooldown. Listed as supporting architecture, not as journeys.",
+          },
+          "operational-workflows": {
+            title: "Operational workflows",
+            intro: "{count} operational workflows that resolve inside the organisation - decisions, ownership, incidents, integrations, rollouts, processing. A separate surface from the customer journeys; they are not migrated to the practitioner view yet.",
+          },
+        },
+        presetsTitle: "Presets",
+        presetsIntro: "Named specialisations of a canonical journey: the same graph, the same touches and exits, with config values, a destination and vocabulary set for a recognisable use case. A preset opens its parent with those values applied.",
+        presetBadge: "Preset",
+        presetOf: "preset of",
+        silentBadge: "Silent state",
+        mechanismBadge: "Mechanism",
         communicationLabel: "Communication journeys",
         internalLabel: "Internal journeys",
         hubIntro: "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Split by whether a journey's own work ever reaches a person - each half is searchable and filterable on its own page, and each entry is a graph, not a sequence.",
@@ -571,7 +614,7 @@ export const copy = {
           },
           {
             q: "How many journeys are included?",
-            a: "The current library contains 281 lifecycle journeys organized across 26 categories.",
+            a: "The current library contains {count} lifecycle journeys organized across {categories} categories.",
           },
           {
             q: "Can I adapt the journeys to my own product?",
@@ -1000,6 +1043,10 @@ export const copy = {
           guardrails: "korkuluklar",
           presets: "Ön ayarlar",
           technical: "Teknik mantık",
+          preset: "Ön ayar",
+          presetOf: "ön ayarı:",
+          presetOverrides: "ayarlar",
+          presetNoOverrides: "ebeveyninin her varsayılanını korur; yalnızca hedef ve sözcük dağarcığı farklıdır",
           relative: { trigger: "tetikleyiciden sonra", "previous-touch": "önceki temastan sonra", attribute: "şuna göre" },
           roles: { "in-session": "oturum içi", "low-friction": "düşük sürtünme", persistent: "kalıcı", urgent: "acil", human: "insan" },
           labels: { CANONICAL_RULE: "kanonik kural", RECOMMENDED_DEFAULT: "önerilen varsayılan", CONFIG_REQUIRED: "yapılandırma gerekli", OPTIONAL_STRATEGY: "opsiyonel strateji" },
@@ -1030,13 +1077,13 @@ export const copy = {
         eyebrow: "Lab / Canonical Journey Kütüphanesi",
         title: "{count} lifecycle state machine. Her biri okunabilir bir graf.",
         sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler ve bunları bir arada tutan {rules} orkestrasyon kuralı. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
-        ctaCommunication: "İletişim journey'leri",
-        ctaInternal: "Internal journey'ler",
+        ctaCommunication: "Müşteri journey'leri",
+        ctaInternal: "Operasyonel iş akışları",
         proof: ["Sektörden bağımsız", "Dizi değil, graf", "Mesaj metni yok"],
         split: {
-          eyebrow: "İki yarı",
-          title: "Ayrım şu: iş bir kişiye ulaşıyor mu, ulaşmıyor mu.",
-          body: "Her journey iki sayfadan tam olarak birinde. Ayrım bir etiket değil, graftan okunuyor: bir journey ancak içindeki bir action gerçekten mesaj gönderiyor ya da işi birine yönlendiriyorsa iletişim journey'i sayılıyor.",
+          eyebrow: "Dört yüzey",
+          title: "Journey'nin bir kanalı olup olmadığına göre değil, ne olduğuna göre ayrılır.",
+          body: "Her journey, journey'nin kendisinden okunan dört yüzeyden tam olarak birinde yaşar: bir kişiye ulaşan müşteri journey'leri, dayandıkları sessiz yaşam döngüsü durumları, üzerinde çalıştıkları çalışma zamanı mekanizmaları ve organizasyon içinde çözülen operasyonel iş akışları.",
         },
         stories: {
           eyebrow: "Şemanın zorunlu kıldığı",
@@ -1044,11 +1091,47 @@ export const copy = {
         },
         final: {
           eyebrow: "Okumaya başla",
-          title: "Bir yarıyı seç, bir journey aç.",
-          body: "İki sayfa da kategori ve goal'e göre aranıp filtreleniyor; iletişim sayfası kanala göre de.",
+          title: "Bir yüzey seç, bir journey aç.",
+          body: "Müşteri journey'leri uygulayıcı görünümüyle, diğer üç yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
         },
       },
       journeysSplit: {
+        surfaceLabels: {
+          "customer-journeys": "Müşteri journey'leri",
+          "lifecycle-states": "Yaşam döngüsü durumları",
+          "runtime-mechanisms": "Çalışma zamanı mekanizmaları",
+          "operational-workflows": "Operasyonel iş akışları",
+        },
+        surfaceBlurbs: {
+          "customer-journeys": "Kendi eylemleri müşteriye ulaşan journey'ler - her biri bir temas planı, kanal rolleri, temas modeli ve ölçüm kararıyla; uygulayıcı kadansı uydurmadan hayata geçirebilir.",
+          "lifecycle-states": "Sessiz müşteri yaşam döngüsü durumları: iletişim kuran journey'lerin dayandığı durum modelleri. Burada hiçbir şey gönderilmez; bunlar kampanya değil bağımlılıktır.",
+          "runtime-mechanisms": "Her journey'nin üzerinde çalıştığı makine - gönderim uygunluğu, ulaşılabilirlik, teslimat kurtarma, yeniden deneme, soğuma. Müşteri journey'si değil, sözleşme.",
+          "operational-workflows": "Organizasyon içinde çözülen iş akışları: kararlar, sahiplik, olaylar, entegrasyonlar, dağıtımlar. Müşteri yüzeyinden ayrı bir ürün.",
+        },
+        surfaces: {
+          "customer-journeys": {
+            title: "Müşteri journey'leri",
+            intro: "{count} iletişim kuran müşteri journey'si ve {presets} uygulayıcı ön ayarı. Her journey uygulayıcı görünümüyle açılır - tetikleyici, kim girer, zamanlaması ve kanal rolleriyle temas planı, neyin durdurduğu, neyin yapılandırılacağı, neyin ölçüleceği - altta teknik mantık olarak graf. Zaten kullandığınız adlarla arayın.",
+          },
+          "lifecycle-states": {
+            title: "Yaşam döngüsü durumları",
+            intro: "{count} sessiz müşteri yaşam döngüsü durumu. Hiçbir şey göndermezler: iletişim kuran bir journey'nin okuduğu, yeniden okuduğu ve devrettiği durumu tutarlar. Başlatılacak kampanyalar olarak değil, bağımlılıklar ve bağlı destek mantığı olarak gezin.",
+          },
+          "runtime-mechanisms": {
+            title: "Çalışma zamanı mekanizmaları",
+            intro: "{count} çalışma zamanı mekanizması - müşteri journey'lerinin gönderim uygunluğu, ulaşılabilirlik, teslimat hatası, yeniden deneme ve soğuma için dayandığı sözleşmeler. Journey olarak değil, destekleyici mimari olarak listelenir.",
+          },
+          "operational-workflows": {
+            title: "Operasyonel iş akışları",
+            intro: "{count} organizasyon içinde çözülen operasyonel iş akışı - kararlar, sahiplik, olaylar, entegrasyonlar, dağıtımlar, işleme. Müşteri journey'lerinden ayrı bir yüzey; henüz uygulayıcı görünümüne taşınmadılar.",
+          },
+        },
+        presetsTitle: "Ön ayarlar",
+        presetsIntro: "Kanonik bir journey'nin adlandırılmış özelleşmeleri: aynı graf, aynı temaslar ve çıkışlar; yapılandırma değerleri, hedef ve sözcük dağarcığı tanınabilir bir kullanım durumu için ayarlanmış. Bir ön ayar, ebeveynini bu değerler uygulanmış olarak açar.",
+        presetBadge: "Ön ayar",
+        presetOf: "ön ayarı:",
+        silentBadge: "Sessiz durum",
+        mechanismBadge: "Mekanizma",
         communicationLabel: "İletişim journey'leri",
         internalLabel: "Internal journey'ler",
         hubIntro: "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı - her iki taraf da kendi sayfasında aranabilir ve filtrelenebilir, ve her kayıt bir dizi değil bir graf.",
@@ -1319,7 +1402,7 @@ export const copy = {
           },
           {
             q: "Kaç journey dahil?",
-            a: "Kütüphane şu anda 26 kategoriye yayılmış 281 lifecycle journey içeriyor.",
+            a: "Kütüphane şu anda {categories} kategoriye yayılmış {count} lifecycle journey içeriyor.",
           },
           {
             q: "Journey'leri kendi ürünüme uyarlayabilir miyim?",

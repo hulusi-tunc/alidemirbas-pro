@@ -1,9 +1,9 @@
 import type {
-  CanonicalJourney, Config, Label, Measurement, OrchestrationStrategy, PriorityClass, RuleStatement, SignalSource, ChannelRole, ChannelStrategy,
+  CanonicalJourney, Config, Label, Measurement, OrchestrationStrategy, PriorityClass, RuleStatement, SignalSource, ChannelRole, ChannelStrategy, Preset,
 } from "@/canonical/types";
 import { byId } from "@/canonical";
 import { semanticEvent, eventText } from "@/canonical/events";
-import { configShort, configText } from "@/canonical/config-text";
+import { configShort, configText, configValueText } from "@/canonical/config-text";
 
 /* The practitioner's view of one Customer Journey, projected from canonical
    data alone - no hand-maintained explanatory copy. Server-only, like
@@ -35,7 +35,7 @@ export type TimelineStep = {
   after?: string;
 };
 
-export type ConfigRow = { key: string; rule: string; class?: string; short: string; full: string; required: boolean; label: Label; usedBy: string[] };
+export type ConfigRow = { key: string; rule: string; class?: string; short: string; full: string; required: boolean; label: Label; usedBy: string[]; /** The value an applied preset sets for this key. */ override?: string };
 
 export type PractitionerView = {
   strategy: OrchestrationStrategy | null;
@@ -52,11 +52,13 @@ export type PractitionerView = {
   collision: { defaultPriority: PriorityClass; pressureClass: string; localCap: string; localCapAppliesTo: string; cooldown: string; competition: string; mandatoryTouches: string[]; noAction: RuleStatement[] } | null;
   measurement: Measurement & { businessMeaning?: string; journeyLabel: string };
   presets: readonly { id: string; name: string; applicableWhen: RuleStatement; overrides: Readonly<Record<string, unknown>>; destination?: string }[];
+  /** The preset this view was projected under, if the URL was a preset's. */
+  preset: { id: string; name: string; applicableWhen: RuleStatement; destination: string | null; overrides: readonly { key: string; value: string }[] } | null;
 };
 
 const labelOf = (c: Config<unknown>): Label => (c.required ? "CONFIG_REQUIRED" : c.default ? "RECOMMENDED_DEFAULT" : "CANONICAL_RULE");
 
-export function practitionerView(j: CanonicalJourney): PractitionerView | null {
+export function practitionerView(j: CanonicalJourney, preset: Preset | null = null): PractitionerView | null {
   if (!j.measurement) return null; // not migrated: no view is better than a half view
   const nodeById = new Map(j.nodes.map((n) => [n.id, n]));
   const trig = nodeById.get(j.entry);
@@ -77,6 +79,9 @@ export function practitionerView(j: CanonicalJourney): PractitionerView | null {
   if (j.contact) { addConfig(j.contact.localCap?.value, "local cap"); addConfig(j.contact.cooldown, "cooldown"); }
   if (j.measurement.businessOutcome?.holdout) addConfig(j.measurement.businessOutcome.holdout, "holdout");
   if (j.measurement.businessOutcome && typeof j.measurement.businessOutcome.window === "object" && "key" in j.measurement.businessOutcome.window) addConfig(j.measurement.businessOutcome.window as Config, "measurement window");
+
+  // ---- an applied preset overrides config values by key and nothing else
+  if (preset) for (const [k, v] of Object.entries(preset.overrides ?? {})) { const row = configs.get(k); if (row) row.override = configValueText(v as never); }
 
   // ---- timeline
   const touches = j.orchestration?.touches ?? [];
@@ -137,5 +142,6 @@ export function practitionerView(j: CanonicalJourney): PractitionerView | null {
     collision,
     measurement: { ...j.measurement, businessMeaning: bo ? eventText(bo.event) : undefined, journeyLabel: j.measurement.journeyOutcome.refs.join(", ") },
     presets: j.discovery?.presets ?? [],
+    preset: preset ? { id: preset.id, name: preset.name, applicableWhen: preset.applicableWhen, destination: preset.destination ?? null, overrides: Object.entries(preset.overrides ?? {}).map(([key, value]) => ({ key, value: configValueText(value as never) })) } : null,
   };
 }

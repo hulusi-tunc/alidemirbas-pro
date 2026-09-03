@@ -31,10 +31,10 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 255", journeys.length === 255);
+check(1, "active journey count = 283", journeys.length === 283);
 
 // 2
-check(2, "merged redirect count = 5", Object.keys(dump.mergedInto).length === 5);
+check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
 
 // 3
 const mergedStillActive = [...mergedIds].filter((m) => journeyIds.has(m));
@@ -179,7 +179,7 @@ let badWait = 0;
 for (const j of journeys) {
   for (const n of j.nodes) {
     if (n.kind === "wait") {
-      if (!n.until?.length || !n.onEvent || !n.timeout?.after?.trim() || !n.onTimeout || typeof n.windowExtendsOnEngagement !== "boolean") badWait++;
+      if (!n.until?.length || !n.onEvent || !(typeof n.timeout?.after === "string" ? n.timeout.after : n.timeout?.after?.key ?? "")?.trim() || !n.onTimeout || typeof n.windowExtendsOnEngagement !== "boolean") badWait++;
     }
   }
 }
@@ -189,8 +189,9 @@ check(17, "timeout/wait semantics internally valid", badWait === 0);
 let badCompetition = 0;
 const groups = {};
 for (const j of journeys) {
-  if (!j.competition) continue;
-  const { scope, exclusionGroup, precedence, onLoss } = j.competition;
+  const competition = j.competition ?? (j.contact && j.contact.competition !== "none" ? j.contact.competition : null);
+  if (!competition) continue;
+  const { scope, exclusionGroup, precedence, onLoss } = competition;
   if (!scope || !exclusionGroup || !precedence || !onLoss) badCompetition++;
   (groups[exclusionGroup] ??= []).push(j.id);
 }
@@ -247,18 +248,18 @@ const requiredGraphFixtures = ["SUB-166", "DOC-216", "RSK-194", "ACQ-10", "RET-2
 const missingGraphFixtures = requiredGraphFixtures.filter((i) => !fixtureIds.has(i));
 check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 
-// 29 — production manifest covers all 255
-check(29, "production manifest covers all 255", manifest.length === 255);
+// 29 — production manifest covers all 283
+check(29, "production manifest covers all 283", manifest.length === 283);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
 check(
   30,
-  "canonical source mutation = 0 (255 journeys / 3186 nodes / 423 rules / 31 global rules / 5 merged, matches validate:canonical baseline)",
-  journeys.length === 255 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3186 &&
+  "canonical source mutation = 0 (283 journeys / 3664 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 283 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3664 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
-    Object.keys(dump.mergedInto).length === 5,
+    Object.keys(dump.mergedInto).length === 8,
 );
 
 console.log(`\nRESULT: ${fails.length === 0 ? "PASS" : `FAIL (${fails.length})`}`);

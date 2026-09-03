@@ -1,5 +1,29 @@
 [
   {
+    "id": "ACC-261",
+    "slug": "access-restriction-route-back",
+    "title": "Access restricted or ending → stated route back → restored or ends",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Access restriction or end recorded",
+    "searchableAliases": [
+      "ACC-261",
+      "access-restriction-route-back"
+    ]
+  },
+  {
+    "id": "ACC-263",
+    "slug": "entitlement-activation-window",
+    "title": "Entitlement or credential issued → activation window → activated or lapsed unclaimed",
+    "category": "access",
+    "categoryTitle": "Access, entitlement, credentials & capability",
+    "triggerLabel": "Entitlement provisioned and reachable",
+    "searchableAliases": [
+      "ACC-263",
+      "entitlement-activation-window"
+    ]
+  },
+  {
     "id": "ACC-71",
     "slug": "entitlement-qualification",
     "title": "Entitlement qualification → grant, deny or pending",
@@ -240,6 +264,54 @@
     ]
   },
   {
+    "id": "ACQ-11",
+    "slug": "abandoned-process-recovery",
+    "title": "Process started → abandonment confirmed → recovered, superseded or lapsed",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Process started",
+    "searchableAliases": [
+      "ACQ-11",
+      "abandoned-process-recovery"
+    ]
+  },
+  {
+    "id": "ACQ-12",
+    "slug": "abandoned-selection-recovery",
+    "title": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Selection recorded",
+    "searchableAliases": [
+      "ACQ-12",
+      "abandoned-selection-recovery"
+    ]
+  },
+  {
+    "id": "ACQ-13",
+    "slug": "unresolved-interest-recovery",
+    "title": "Interest inferred → qualified → resolved into a selection or purchase, or left alone",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Interest signal recorded",
+    "searchableAliases": [
+      "ACQ-13",
+      "unresolved-interest-recovery"
+    ]
+  },
+  {
+    "id": "ACQ-285",
+    "slug": "captured-interest-first-touch",
+    "title": "Captured interest → readiness check → destination-appropriate first touch",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "First party interest captured",
+    "searchableAliases": [
+      "ACQ-285",
+      "captured-interest-first-touch"
+    ]
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "title": "New entry → onboarding route → appropriate path",
@@ -289,15 +361,16 @@
   },
   {
     "id": "ACT-15",
-    "slug": "first-value-milestone",
-    "title": "First value milestone → recognition → next meaningful action",
+    "slug": "act-15",
+    "title": "Early adoption → usage depth → habit or stable use",
     "category": "activation",
     "categoryTitle": "Activation, onboarding & early value",
-    "triggerLabel": "Authoritative first value event",
+    "triggerLabel": null,
     "searchableAliases": [
       "ACT-15",
-      "first-value-milestone"
-    ]
+      "act-15"
+    ],
+    "mergedInto": "ACT-17"
   },
   {
     "id": "ACT-16",
@@ -478,6 +551,42 @@
     "searchableAliases": [
       "CMS-210",
       "communication-closure"
+    ]
+  },
+  {
+    "id": "CON-264",
+    "slug": "contact-point-confirmation",
+    "title": "Contact point added or changed → confirm → permitted or lapsed",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Contact point added or changed",
+    "searchableAliases": [
+      "CON-264",
+      "contact-point-confirmation"
+    ]
+  },
+  {
+    "id": "CON-272",
+    "slug": "contactability-repair",
+    "title": "Contact point unreachable → alternate route → corrected or suppressed",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Contact point recorded undeliverable",
+    "searchableAliases": [
+      "CON-272",
+      "contactability-repair"
+    ]
+  },
+  {
+    "id": "CON-283",
+    "slug": "frequency-reduction-confirmation",
+    "title": "Frequency reduced → cadence recalculated → kept rather than lost",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Frequency preference reduced",
+    "searchableAliases": [
+      "CON-283",
+      "frequency-reduction-confirmation"
     ]
   },
   {
@@ -964,6 +1073,18 @@
     ]
   },
   {
+    "id": "DEC-267",
+    "slug": "adverse-decision-remediation",
+    "title": "Adverse decision → stated remediation path → corrected or final",
+    "category": "decision",
+    "categoryTitle": "Approvals, decisions, reviews & human-in-the-loop work",
+    "triggerLabel": "Adverse decision recorded",
+    "searchableAliases": [
+      "DEC-267",
+      "adverse-decision-remediation"
+    ]
+  },
+  {
     "id": "DOC-211",
     "slug": "document-requirement",
     "title": "Document requirement → determine artifact → create, reuse or waive",
@@ -1084,6 +1205,18 @@
     ]
   },
   {
+    "id": "DOC-286",
+    "slug": "document-effective-notice",
+    "title": "Document effective → entitlement active → first use or dormant",
+    "category": "document",
+    "categoryTitle": "Documents, records, signatures & versioned artifacts",
+    "triggerLabel": "Document recorded effective",
+    "searchableAliases": [
+      "DOC-286",
+      "document-effective-notice"
+    ]
+  },
+  {
     "id": "FBK-41",
     "slug": "feedback-eligibility",
     "title": "Feedback eligibility → ask, suppress or delay",
@@ -1121,27 +1254,29 @@
   },
   {
     "id": "FBK-44",
-    "slug": "negative-feedback-issue-check",
-    "title": "Negative feedback → issue check → resolve, acknowledge or escalate",
+    "slug": "fbk-44",
+    "title": "Feedback received → classify → route → close the loop",
     "category": "feedback",
     "categoryTitle": "Feedback, advocacy, referral & relationship signals",
-    "triggerLabel": "Material negative feedback",
+    "triggerLabel": null,
     "searchableAliases": [
       "FBK-44",
-      "negative-feedback-issue-check"
-    ]
+      "fbk-44"
+    ],
+    "mergedInto": "FBK-43"
   },
   {
     "id": "FBK-45",
-    "slug": "positive-feedback-recognition",
-    "title": "Positive feedback → recognition → advocacy opportunity",
+    "slug": "fbk-45",
+    "title": "Feedback received → classify → route → close the loop",
     "category": "feedback",
     "categoryTitle": "Feedback, advocacy, referral & relationship signals",
-    "triggerLabel": "Credible positive feedback",
+    "triggerLabel": null,
     "searchableAliases": [
       "FBK-45",
-      "positive-feedback-recognition"
-    ]
+      "fbk-45"
+    ],
+    "mergedInto": "FBK-43"
   },
   {
     "id": "FBK-46",
@@ -1441,6 +1576,54 @@
     "searchableAliases": [
       "FUL-150",
       "fulfillment-cancellation"
+    ]
+  },
+  {
+    "id": "FUL-265",
+    "slug": "dispatch-to-acceptance",
+    "title": "Dispatch → tracking → delivered → accepted or issue raised",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Obligation handed to delivery executor",
+    "searchableAliases": [
+      "FUL-265",
+      "dispatch-to-acceptance"
+    ]
+  },
+  {
+    "id": "FUL-276",
+    "slug": "substitution-offer",
+    "title": "Substitution required → offer alternative → accepted, declined or lapsed",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Substitution required with defined alternative",
+    "searchableAliases": [
+      "FUL-276",
+      "substitution-offer"
+    ]
+  },
+  {
+    "id": "IDN-270",
+    "slug": "account-recovery-guidance",
+    "title": "Account recovery started → proof of control → access restored or window closed",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Account recovery case opened",
+    "searchableAliases": [
+      "IDN-270",
+      "account-recovery-guidance"
+    ]
+  },
+  {
+    "id": "IDN-271",
+    "slug": "compromise-alert-verification",
+    "title": "Compromise signal → scoped containment → owner verification → recover or clear",
+    "category": "identity",
+    "categoryTitle": "Identity, verification, authentication & account integrity",
+    "triggerLabel": "Compromise incident opened with scope determined",
+    "searchableAliases": [
+      "IDN-271",
+      "compromise-alert-verification"
     ]
   },
   {
@@ -1804,6 +1987,30 @@
     ]
   },
   {
+    "id": "INT-269",
+    "slug": "integration-reconnect-prompt",
+    "title": "Integration connection broken → reconnect → restored or degraded",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Integration connection failed or deauthorized",
+    "searchableAliases": [
+      "INT-269",
+      "integration-reconnect-prompt"
+    ]
+  },
+  {
+    "id": "INT-278",
+    "slug": "integration-setup-outcome",
+    "title": "Integration connection started → validation outcome → active or targeted fix",
+    "category": "integration",
+    "categoryTitle": "Integrations, synchronization, external systems & data consistency",
+    "triggerLabel": "Integration connection attempt resolved",
+    "searchableAliases": [
+      "INT-278",
+      "integration-setup-outcome"
+    ]
+  },
+  {
     "id": "OPS-121",
     "slug": "async-work-lifecycle",
     "title": "Work accepted → queue → process → complete or fail",
@@ -2053,6 +2260,18 @@
     "searchableAliases": [
       "REL-100",
       "orphaned-entity-resolution"
+    ]
+  },
+  {
+    "id": "REL-284",
+    "slug": "relationship-invitation",
+    "title": "Relationship invitation → counterparty acceptance → active or expired",
+    "category": "structure",
+    "categoryTitle": "Account structure, identity relationships & entity reconciliation",
+    "triggerLabel": "Relationship invitation issued",
+    "searchableAliases": [
+      "REL-284",
+      "relationship-invitation"
     ]
   },
   {
@@ -2405,6 +2624,30 @@
     ]
   },
   {
+    "id": "RET-31",
+    "slug": "predicted-need-replenishment",
+    "title": "Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Expected depletion approaching",
+    "searchableAliases": [
+      "RET-31",
+      "predicted-need-replenishment"
+    ]
+  },
+  {
+    "id": "RET-32",
+    "slug": "lapsed-customer-win-back",
+    "title": "Paid relationship lapsed → outreach permitted → won back, declined or left alone",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Lapsed customer detected",
+    "searchableAliases": [
+      "RET-32",
+      "lapsed-customer-win-back"
+    ]
+  },
+  {
     "id": "RLT-241",
     "slug": "change-eligibility",
     "title": "Change candidate → eligibility → ready or blocked",
@@ -2522,6 +2765,18 @@
     "searchableAliases": [
       "RLT-250",
       "change-completion"
+    ]
+  },
+  {
+    "id": "RLT-279",
+    "slug": "upgrade-blocker-prompt",
+    "title": "Upgrade blocked by a resolvable prerequisite → prompt → ready or expired",
+    "category": "rollout",
+    "categoryTitle": "Deployment, rollout, change & version transitions",
+    "triggerLabel": "Target held on named prerequisite",
+    "searchableAliases": [
+      "RLT-279",
+      "upgrade-blocker-prompt"
     ]
   },
   {
@@ -2645,6 +2900,18 @@
     ]
   },
   {
+    "id": "RSK-273",
+    "slug": "usage-limit-capacity-path",
+    "title": "Usage limit reached → capacity path → upgrade, wait for reset or stay blocked",
+    "category": "risk",
+    "categoryTitle": "Risk, policy, compliance & exception management",
+    "triggerLabel": "Limit reached and action blocked",
+    "searchableAliases": [
+      "RSK-273",
+      "usage-limit-capacity-path"
+    ]
+  },
+  {
     "id": "SCH-171",
     "slug": "availability-query",
     "title": "Availability query → evaluate capacity → offer valid options",
@@ -2765,6 +3032,54 @@
     ]
   },
   {
+    "id": "SCH-266",
+    "slug": "appointment-readiness-reminder",
+    "title": "Appointment approaching → prerequisites and revalidation → ready, reminded or at risk",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Confirmed booking with customer owed prerequisites",
+    "searchableAliases": [
+      "SCH-266",
+      "appointment-readiness-reminder"
+    ]
+  },
+  {
+    "id": "SCH-277",
+    "slug": "reservation-outcome-notice",
+    "title": "Reservation requested → validate capacity → confirm, re-offer or lapse",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Reservation request recorded",
+    "searchableAliases": [
+      "SCH-277",
+      "reservation-outcome-notice"
+    ]
+  },
+  {
+    "id": "SCH-280",
+    "slug": "no-show-rebooking",
+    "title": "No-show confirmed → validate the miss → rebook or close",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "No show recorded against booking",
+    "searchableAliases": [
+      "SCH-280",
+      "no-show-rebooking"
+    ]
+  },
+  {
+    "id": "SCH-282",
+    "slug": "availability-searched-no-booking",
+    "title": "Availability searched, no booking → nearest window or waitlist",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Availability query closed without reservation",
+    "searchableAliases": [
+      "SCH-282",
+      "availability-searched-no-booking"
+    ]
+  },
+  {
     "id": "SUB-161",
     "slug": "continuing-relationship-creation",
     "title": "Continuing relationship created → validate → activate or pending",
@@ -2882,6 +3197,54 @@
     "searchableAliases": [
       "SUB-170",
       "continuing-relationship-end"
+    ]
+  },
+  {
+    "id": "SUB-262",
+    "slug": "cancellation-wind-down-notice",
+    "title": "Cancellation confirmed → wind-down window → access ends or customer returns",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Cancellation confirmed",
+    "searchableAliases": [
+      "SUB-262",
+      "cancellation-wind-down-notice"
+    ]
+  },
+  {
+    "id": "TIM-268",
+    "slug": "outstanding-obligation-reminder",
+    "title": "Customer-owed action → deadline reminder → completed or lapsed",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Customer owed obligation outstanding",
+    "searchableAliases": [
+      "TIM-268",
+      "outstanding-obligation-reminder"
+    ]
+  },
+  {
+    "id": "TIM-274",
+    "slug": "grace-period-recovery",
+    "title": "Grace period entered → recover before it ends → restored or lost",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Grace period started",
+    "searchableAliases": [
+      "TIM-274",
+      "grace-period-recovery"
+    ]
+  },
+  {
+    "id": "TIM-281",
+    "slug": "expired-entity-re-entry",
+    "title": "Expired entitlement touched → re-entry route → requalify, replace or stay expired",
+    "category": "time",
+    "categoryTitle": "Time, deadlines, expiry & temporary states",
+    "triggerLabel": "Holder acted on expired entity",
+    "searchableAliases": [
+      "TIM-281",
+      "expired-entity-re-entry"
     ]
   },
   {
@@ -3122,6 +3485,18 @@
     "searchableAliases": [
       "TRM-110",
       "data-deletion-execution"
+    ]
+  },
+  {
+    "id": "TRM-275",
+    "slug": "deletion-request-confirmation",
+    "title": "Deletion request → verify requester → confirm scope and retention → closed",
+    "category": "terminal",
+    "categoryTitle": "Entity merge, account closure, data lifecycle & terminal states",
+    "triggerLabel": "Data deletion requested by subject",
+    "searchableAliases": [
+      "TRM-275",
+      "deletion-request-confirmation"
     ]
   }
 ]

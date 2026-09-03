@@ -10,6 +10,8 @@ import {
 import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
 import { practitionerView, type PractitionerView } from "@/lib/practitioner-view";
+import { surfaceOf } from "@/canonical/surface";
+import type { Preset } from "@/canonical/types";
 import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId, SignalSource } from "@/canonical/types";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
@@ -69,6 +71,8 @@ export const EVIDENCE_SOURCES: readonly EvidenceSource[] = [
   "inferred",
 ];
 
+export type SurfaceName = "customer" | "mechanism" | "operational";
+
 export type JourneyRow = {
   id: string;
   slug: string;
@@ -93,6 +97,15 @@ export type JourneyRow = {
   /** The execution channels this journey's communication may use. Explicit
       canonical metadata; empty where the journey is entirely internal. */
   channels: readonly ChannelId[];
+  /** Product surface, read from the journey by src/canonical/surface.ts -
+      the one rule the site and the validator share. `communicating` is
+      true only where the journey sends a message on a customer channel;
+      a journey that only routes work to a person is a lifecycle state. */
+  surface: SurfaceName;
+  communicating: boolean;
+  /** Practitioner names the journey answers to (discovery.aliases). */
+  aliases: readonly string[];
+  presetCount: number;
   /** The card's topology thumbnail, laid out here (server, once, at build
       time) rather than in the browser - see lib/journey-preview.ts. */
   preview: JourneyPreview;
@@ -131,6 +144,8 @@ const MERGED_BY_SLUG = new Map<string, MergedRedirect>(
 export const ALL_DETAIL_SLUGS: readonly string[] = [
   ...JOURNEYS.map((j) => j.slug),
   ...MERGED_REDIRECTS.map((m) => m.from.toLowerCase()),
+  // Presets are real URLs: each opens its parent with the preset applied.
+  ...JOURNEYS.flatMap((j) => (j.discovery?.presets ?? []).map((p) => p.id)),
 ];
 
 /** Resolves a search term to a merged redirect, so typing an old id in the
@@ -330,6 +345,12 @@ export type JourneyDetail = {
       orchestration/timing/contact/measurement fields. Null until a journey
       is migrated - no view is better than a half view. */
   practitioner: PractitionerView | null;
+  surface: SurfaceName;
+  communicating: boolean;
+  /** Set when the URL was a preset's: the parent's detail with the preset
+      applied to its practitioner view. */
+  preset: PresetRow | null;
+  presets: readonly { id: string; name: string }[];
 };
 
 /** Breadth-first from the entry, so the order on screen follows the order the
@@ -377,6 +398,9 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
    any earlier in the module would hit its temporal dead zone. */
 export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   id: j.id,
+  ...(() => { const sf = surfaceOf(j); return { surface: sf.surface as SurfaceName, communicating: sf.sends }; })(),
+  aliases: j.discovery?.aliases ?? [],
+  presetCount: j.discovery?.presets?.length ?? 0,
   slug: j.slug,
   name: j.name,
   ...(j.shortName ? { shortName: j.shortName } : {}),
@@ -389,32 +413,75 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   preview: buildJourneyPreview(flowNodesOf(j)),
 }));
 
-/** The library's two-way split by whether a journey's own work ever reaches
-    a person - added for the two dedicated `/lab/communication-journeys` and
-    `/lab/internal-journeys` list pages, alongside (not replacing) the full
-    unified list at `/lab/journeys` itself.
+/* The four product surfaces. The rule is src/canonical/surface.ts's, read
+   per journey - the site never keeps its own notion of what is a customer
+   journey, and the old "has channels / has none" split is gone: a silent
+   customer lifecycle state and an internal operational workflow both have
+   no channels and are different products. */
+export type SurfaceKey = "customer-journeys" | "lifecycle-states" | "runtime-mechanisms" | "operational-workflows";
 
-    `channels.length > 0` is not a second, driftable notion of
-    "communication": scripts/validate-canonical.mjs's own "channels must be
-    USED, not merely plausible" rule already forces every journey that
-    declares a channel to carry at least one action marked
-    `execution: "communication"` (a message) or `"human"` (a routed task),
-    and forces the reverse too - a journey with such an action but no
-    declared channel fails validation just the same. So filtering on
-    `channels` here and filtering on action `execution` would always agree;
-    `channels` is simply the one field that is already on JourneyRow. */
-export const COMMUNICATION_JOURNEY_ROWS: readonly JourneyRow[] = JOURNEY_ROWS.filter(
-  (j) => j.channels.length > 0,
+export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "lifecycle-states", "runtime-mechanisms", "operational-workflows"];
+
+export const SURFACE_PATH: Readonly<Record<SurfaceKey, string>> = {
+  "customer-journeys": "/lab/customer-journeys",
+  "lifecycle-states": "/lab/lifecycle-states",
+  "runtime-mechanisms": "/lab/runtime-mechanisms",
+  "operational-workflows": "/lab/operational-workflows",
+};
+
+export const surfaceKeyOf = (row: Pick<JourneyRow, "surface" | "communicating">): SurfaceKey =>
+  row.surface === "customer"
+    ? row.communicating ? "customer-journeys" : "lifecycle-states"
+    : row.surface === "mechanism" ? "runtime-mechanisms" : "operational-workflows";
+
+export const SURFACE_ROWS: Readonly<Record<SurfaceKey, readonly JourneyRow[]>> = {
+  "customer-journeys": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "customer-journeys"),
+  "lifecycle-states": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "lifecycle-states"),
+  "runtime-mechanisms": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "runtime-mechanisms"),
+  "operational-workflows": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "operational-workflows"),
+};
+
+/** A preset is a named specialisation of a communicating customer journey
+    whose only differences are config values, a destination and vocabulary.
+    It renders as its own card and its own URL and opens the parent's
+    practitioner view with the preset applied - it is never a journey. */
+export type PresetRow = {
+  id: string;
+  slug: string;
+  name: string;
+  parentId: string;
+  parentSlug: string;
+  parentName: string;
+  categoryTitle: string;
+  applicableWhen: string;
+  aliases: readonly string[];
+  overrideKeys: readonly string[];
+  destination: string | null;
+  preset: Preset;
+};
+
+export const PRESET_ROWS: readonly PresetRow[] = JOURNEYS.flatMap((j) =>
+  (j.discovery?.presets ?? []).map((p) => ({
+    id: p.id,
+    slug: p.id,
+    name: p.name,
+    parentId: j.id,
+    parentSlug: j.slug,
+    parentName: j.shortName ?? j.name,
+    categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
+    applicableWhen: p.applicableWhen.text,
+    aliases: p.aliases ?? [],
+    overrideKeys: Object.keys(p.overrides ?? {}),
+    destination: p.destination ?? null,
+    preset: p,
+  })),
 );
+const PRESET_BY_SLUG = new Map(PRESET_ROWS.map((p) => [p.slug, p]));
+for (const p of PRESET_ROWS) if (BY_SLUG.has(p.slug) || MERGED_BY_SLUG.has(p.slug)) throw new Error(`preset slug collides with a journey slug: ${p.slug}`);
 
-/** The complement - journeys that resolve entirely inside the system: no
-    message, no human route, nothing that reaches a person. */
-export const INTERNAL_JOURNEY_ROWS: readonly JourneyRow[] = JOURNEY_ROWS.filter(
-  (j) => j.channels.length === 0,
-);
-
-function detailOf(j: CanonicalJourney): JourneyDetail {
+function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): JourneyDetail {
   const withDirection = flowNodesOf(j);
+  const sf = surfaceOf(j);
 
   return {
     id: j.id,
@@ -441,7 +508,11 @@ function detailOf(j: CanonicalJourney): JourneyDetail {
     competition: j.competition ?? null,
     preemptedBy: j.preemptedBy ?? [],
     nodes: withDirection,
-    practitioner: practitionerView(j),
+    surface: sf.surface as SurfaceName,
+    communicating: sf.sends,
+    preset,
+    presets: (j.discovery?.presets ?? []).map((p) => ({ id: p.id, name: p.name })),
+    practitioner: practitionerView(j, preset?.preset ?? null),
   };
 }
 
@@ -453,16 +524,22 @@ export function journeyDetail(id: string): JourneyDetail | null {
 /** What the detail route resolves a URL segment to. A merged id resolves to
     the journey that absorbed it and says so; anything unknown resolves to
     nothing and the route 404s. */
-export type ResolvedDetail = { detail: JourneyDetail; merged: MergedRedirect | null };
+export type ResolvedDetail = { detail: JourneyDetail; merged: MergedRedirect | null; preset: PresetRow | null };
 
 export function resolveDetailSlug(slug: string): ResolvedDetail | null {
   const j = BY_SLUG.get(slug);
-  if (j) return { detail: detailOf(j), merged: null };
+  if (j) return { detail: detailOf(j), merged: null, preset: null };
+
+  const preset = PRESET_BY_SLUG.get(slug);
+  if (preset) {
+    const parent = byId(preset.parentId);
+    if (parent) return { detail: detailOf(parent, preset), merged: null, preset };
+  }
 
   const merged = MERGED_BY_SLUG.get(slug);
   if (merged) {
     const target = byId(merged.to);
-    if (target) return { detail: detailOf(target), merged };
+    if (target) return { detail: detailOf(target), merged, preset: null };
   }
   return null;
 }

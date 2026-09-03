@@ -27,7 +27,9 @@ const check = (n, desc, ok, extra = "") => {
 
 /* -------------------------------------------------------- 1. document count */
 check(1, "document count matches manifest.totalDocuments", index.length === manifest.totalDocuments, `index=${index.length}, manifest=${manifest.totalDocuments}`);
-check(1.1, "document count matches sourceVersion sum (211+255+43+6+5)", index.length === 211 + 255 + 43 + 6 + 5, `got ${index.length}`);
+const sv = manifest.sourceVersion ?? {};
+const expectedDocs = (sv.abTestRecordCount ?? 211) + (sv.journeyRecordCount ?? 0) + (sv.liveCalculatorCount ?? 43) + (sv.labProductCount ?? 6) + (sv.blogArticleCount ?? 5);
+check(1.1, "document count matches sourceVersion sum (ab-tests + journeys + live calculators + lab projects + posts)", index.length === expectedDocs, `got ${index.length}, expected ${expectedDocs}`);
 
 /* -------------------------------------------------------------- 2. duplicate ID */
 const ids = index.map((d) => d.id);

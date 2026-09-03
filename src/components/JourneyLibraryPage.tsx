@@ -10,8 +10,11 @@ import { BranchFork, JourneyCanvas, JourneyLibrarySpread, TriggerEvidence, WaitT
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import {
-  COMMUNICATION_JOURNEY_ROWS,
-  INTERNAL_JOURNEY_ROWS,
+  PRESET_ROWS,
+  SURFACE_KEYS,
+  SURFACE_PATH,
+  SURFACE_ROWS,
+  type SurfaceKey,
   withCanonicalCount,
   type JourneyRow,
 } from "@/lib/canonical-view";
@@ -95,8 +98,8 @@ function Hero({ lang }: { lang: Lang }) {
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{withCanonicalCount(c.sub)}</p>
         </Reveal>
         <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
-          <Pill href={P(lang, "/lab/communication-journeys")} tone="dark">{c.ctaCommunication}</Pill>
-          <Pill href={P(lang, "/lab/internal-journeys")} tone="outline">{c.ctaInternal}</Pill>
+          <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="dark">{c.ctaCommunication}</Pill>
+          <Pill href={P(lang, SURFACE_PATH["operational-workflows"])} tone="outline">{c.ctaInternal}</Pill>
         </Reveal>
         <Reveal delay={180} className="mt-7">
           <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-[13px] text-ink-500">
@@ -147,22 +150,22 @@ function Scale({ lang }: { lang: Lang }) {
    around a link. */
 function Half({
   lang,
-  rows,
-  label,
-  blurb,
-  href,
+  surfaceKey,
   tone,
   delay,
 }: {
   lang: Lang;
-  rows: readonly JourneyRow[];
-  label: string;
-  blurb: string;
-  href: string;
+  surfaceKey: SurfaceKey;
   tone: "dark" | "outline";
   delay: number;
 }) {
   const t = copy[lang];
+  const rows = SURFACE_ROWS[surfaceKey];
+  const label = t.lab.journeysSplit.surfaceLabels[surfaceKey];
+  const blurb = t.lab.journeysSplit.surfaceBlurbs[surfaceKey];
+  const href = P(lang, SURFACE_PATH[surfaceKey]);
+  const emptyChannelLabel =
+    surfaceKey === "lifecycle-states" ? t.lab.journeysSplit.silentBadge : surfaceKey === "runtime-mechanisms" ? t.lab.journeysSplit.mechanismBadge : t.lab.journeysSplit.internalBadge;
   const preview = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
   const basePath = P(lang, "/lab/journeys");
   return (
@@ -177,6 +180,15 @@ function Half({
         </span>
       </div>
       <p className="mt-2 text-[15px] leading-relaxed text-ink-950/65">{blurb}</p>
+      {surfaceKey === "customer-journeys" ? (
+        <p className="mt-3 flex flex-wrap gap-1.5">
+          {PRESET_ROWS.map((p) => (
+            <Link key={p.id} href={`${basePath}/${p.slug}`} className="rounded border border-line bg-paper-soft px-2 py-0.5 text-[12px] font-medium text-ink-700 transition-colors hover:border-neutral-400">
+              {p.name}
+            </Link>
+          ))}
+        </p>
+      ) : null}
       <div className="mt-6 flex flex-1 flex-col gap-3">
         {preview.map((j) => (
           <JourneyIdeaCard
@@ -189,7 +201,7 @@ function Half({
             nodeCount={j.nodeCount}
             nodesLabel={t.lab.page.nodesLabel}
             channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
-            internalLabel={t.lab.journeysSplit.internalBadge}
+            internalLabel={emptyChannelLabel}
           />
         ))}
       </div>
@@ -210,24 +222,9 @@ function Split({ lang }: { lang: Lang }) {
       <PortraitContainer>
         <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
         <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-          <Half
-            lang={lang}
-            rows={COMMUNICATION_JOURNEY_ROWS}
-            label={t.lab.journeysSplit.communicationLabel}
-            blurb={t.lab.journeysSplit.communicationBlurb}
-            href={P(lang, "/lab/communication-journeys")}
-            tone="dark"
-            delay={80}
-          />
-          <Half
-            lang={lang}
-            rows={INTERNAL_JOURNEY_ROWS}
-            label={t.lab.journeysSplit.internalLabel}
-            blurb={t.lab.journeysSplit.internalBlurb}
-            href={P(lang, "/lab/internal-journeys")}
-            tone="outline"
-            delay={140}
-          />
+          {SURFACE_KEYS.map((k, i) => (
+            <Half key={k} lang={lang} surfaceKey={k} tone={k === "customer-journeys" ? "dark" : "outline"} delay={80 + i * 60} />
+          ))}
         </div>
       </PortraitContainer>
     </ProductSection>
@@ -302,8 +299,8 @@ function Library({ lang }: { lang: Lang }) {
           <JourneyLibrarySpread lang={lang} />
         </Reveal>
         <Reveal delay={160} className="mt-12 flex flex-wrap justify-center gap-2.5">
-          <Pill href={P(lang, "/lab/communication-journeys")} tone="dark">{h.ctaCommunication}</Pill>
-          <Pill href={P(lang, "/lab/internal-journeys")} tone="outline">{h.ctaInternal}</Pill>
+          <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="dark">{h.ctaCommunication}</Pill>
+          <Pill href={P(lang, SURFACE_PATH["operational-workflows"])} tone="outline">{h.ctaInternal}</Pill>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -322,8 +319,8 @@ function Final({ lang }: { lang: Lang }) {
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/70">{c.body}</p>
         </Reveal>
         <Reveal delay={90} className="mt-9 flex flex-wrap justify-center gap-3">
-          <Pill href={P(lang, "/lab/communication-journeys")} tone="light">{copy[lang].lab.journeysHub.ctaCommunication}</Pill>
-          <Pill href={P(lang, "/lab/internal-journeys")} tone="ghost">{copy[lang].lab.journeysHub.ctaInternal}</Pill>
+          <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="light">{copy[lang].lab.journeysHub.ctaCommunication}</Pill>
+          <Pill href={P(lang, SURFACE_PATH["operational-workflows"])} tone="ghost">{copy[lang].lab.journeysHub.ctaInternal}</Pill>
         </Reveal>
       </PortraitContainer>
     </section>

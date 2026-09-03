@@ -10,8 +10,12 @@ import {
   CATEGORY_META,
   JOURNEY_ROWS,
   MERGED_REDIRECTS,
+  PRESET_ROWS,
+  SURFACE_KEYS,
+  SURFACE_PATH,
   withCanonicalCount,
   type JourneyRow,
+  type SurfaceKey,
 } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -171,7 +175,7 @@ export default function LabPage({
   intro,
   extraCrumb,
   browser = "flat",
-  journeyType,
+  surface,
 }: {
   lang: Lang;
   rows?: readonly JourneyRow[];
@@ -182,10 +186,10 @@ export default function LabPage({
       search plus Category/Channel/Goal filters - instead of the flat
       JourneyBrowser row list. Both split pages use it. */
   browser?: "flat" | "gallery";
-  /** Which half a gallery page is showing. Required by "gallery"; the
-      gallery uses it for the type switch, which is a link to the other
-      route rather than a dropdown. */
-  journeyType?: "communication" | "internal";
+  /** Which surface a gallery page is showing. Required by "gallery"; the
+      gallery uses it for the surface switch, which is a row of links to the
+      other routes rather than a dropdown. */
+  surface?: SurfaceKey;
 }) {
   const t = copy[lang];
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
@@ -218,7 +222,7 @@ export default function LabPage({
         {/* Wider than the header block: three card columns need the room, and
             the grid is the page - everything above it stays secondary. */}
         <div className="mx-auto max-w-6xl">
-          {browser === "gallery" && journeyType ? (
+          {browser === "gallery" && surface ? (
             <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} />}>
               <JourneyGallery
                 lang={lang}
@@ -227,11 +231,15 @@ export default function LabPage({
                 merged={MERGED_REDIRECTS}
                 basePath={basePath}
                 categories={CATEGORY_META}
-                journeyType={journeyType}
-                siblingHref={
-                  journeyType === "communication"
-                    ? lang === "en" ? "/lab/internal-journeys" : "/tr/lab/internal-journeys"
-                    : lang === "en" ? "/lab/communication-journeys" : "/tr/lab/communication-journeys"
+                surface={surface}
+                surfaceLinks={SURFACE_KEYS.map((k) => ({ key: k, href: (lang === "en" ? "" : "/tr") + SURFACE_PATH[k], label: t.lab.journeysSplit.surfaceLabels[k] }))}
+                presets={surface === "customer-journeys" ? PRESET_ROWS : []}
+                emptyChannelLabel={
+                  surface === "lifecycle-states"
+                    ? t.lab.journeysSplit.silentBadge
+                    : surface === "runtime-mechanisms"
+                      ? t.lab.journeysSplit.mechanismBadge
+                      : t.lab.journeysSplit.internalBadge
                 }
               />
             </Suspense>

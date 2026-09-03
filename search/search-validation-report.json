@@ -1,9 +1,12 @@
 {
   "_description": "Output of search/search-validator.mjs - regenerate by re-running that script.",
   "summary": {
-    "pass": 34,
-    "fail": 0,
-    "totalDocuments": 520
+    "pass": 32,
+    "fail": 2,
+    "totalDocuments": 524
   },
-  "failures": []
+  "failures": [
+    "30. search fixture queries pass (excluding disclosed known gaps - see run-query-fixtures.mjs) — 9 failure(s): MDE, CTOR, checkout, click through rate, cost per lead",
+    "31. EN/TR normalization regression (accented/ASCII and slash/space query pairs return the same top result) — \"DAU/MAU\"->undefined vs \"dau mau\"->undefined"
+  ]
 }

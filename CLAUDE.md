@@ -18,7 +18,12 @@ Playwright/Puppeteer QA harnesses that are not wired into CI. Only four validato
 scripts; the rest must be run by hand with `node`:
 
 ```bash
-npm run validate:canonical            # journey graph invariants — the real gate for src/canonical/
+npm run validate:canonical            # journey graph invariants + vNext rules — the real gate for src/canonical/
+node scripts/surface-assignment.mjs   # production/surface-assignment.json (customer / mechanism / operational)
+node scripts/build-event-registry.mjs # regenerates src/canonical/events.ts from scripts/event-curation.json
+node scripts/vnext-readiness.mjs [out] # readiness scorer; VNEXT_CUSTOMER_READINESS.json when a path is given
+node scripts/vnext-recipes.mjs        # production/vnext-recipes.md (implementation recipes, generated)
+node scripts/vnext-changelog.mjs      # VNEXT_MIGRATION_CHANGELOG.md (generated)
 npm run dump:canonical                # regenerates production/canonical-dump.json
 npm run validate:journey-production   # asserts production/ artifacts against frozen baselines
 npm run validate:seo                  # title/description corpus + cannibalization clustering
@@ -35,14 +40,17 @@ node production/calculators/test-calculators.mjs
 
 **Known-failing today, from pre-existing drift — not from your change:**
 
-- `npm run validate:journey-production` fails checks 1 and 30. They hardcode `255` journeys /
-  `3186` nodes, but the live library is `281` / `3524`. Baselines live at
-  `production/validate-journey-production.mjs:34` and `:251-262` and are edited by hand.
 - `node seo/seo-validator.mjs` fails check 14. It expects `43` calculator content files; there
   are `19`, matching the 19 live slugs.
+- `node search/search-validator.mjs` fails checks 30 and 31, and `node search/run-query-fixtures.mjs`
+  fails 9 fixtures. All of them expect calculator documents (MDE, CTOR, cart-abandonment, ...) that
+  left the live catalog when it went from 43 to 19; the index is rebuilt from the 19 live files.
+- `production/build_seo_metadata.py` needs the A/B canon from another repository; it falls back to
+  `src/data/ab-tests.json` for ids.
 
-`npm run validate:canonical` and `npm run validate:seo` pass. Re-run a validator before and
-after your change so you can tell your failures from the inherited ones.
+`npm run validate:canonical`, `npm run validate:journey-production` and `npm run validate:seo`
+pass. Re-run a validator before and after your change so you can tell your failures from the
+inherited ones.
 
 ## Architecture
 
@@ -87,7 +95,21 @@ Four routes are EN-only by design: `blog/[slug]`, `experiment-a`, `experiment-b`
 `src/canonical/` is **hand-authored TypeScript**: `types.ts` plus 26 flat domain files, each
 exporting exactly `<DOMAIN>_JOURNEYS` and `<DOMAIN>_RULES`, aggregated by `index.ts`. A journey
 is a **graph, not a sequence** — an `entry` node plus nodes that name their own successors.
-Currently 281 journeys / 3524 nodes / 5 merged (retired) ids.
+Currently 283 journeys / 3664 nodes / 8 merged (retired) ids.
+
+**vNext (Customer Journeys).** Every customer-surface journey carries the vNext contract
+(`eligibility`, `suppressions`, `implementation`, `measurement`, `discovery`; communicating ones
+also `contact`, `channelStrategy`, `orchestration`). The presence of `measurement` is the
+migration marker and turns the vNext validator rules from warnings into errors for that
+journey. Waits carry a `Config` (`required: true`, or a default with `confidence` and an honest
+`basis`), `until` values are registry ids from the generated `src/canonical/events.ts`, and every
+exit has a `class`. Warnings on vNext journeys must be fixed or recorded in
+`production/vnext-warning-reviews.json`; the validator counts unreviewed ones. Product
+surfaces are read per journey by `src/canonical/surface.ts` (customer journeys / lifecycle
+states / runtime mechanisms / operational workflows) and rendered by `SURFACE_ROWS` in
+`src/lib/canonical-view.ts`; presets (`discovery.presets`) are their own URLs under
+`/lab/journeys/<preset-id>` and open the parent's practitioner view (`src/lib/practitioner-view.ts`).
+See `JOURNEY_VNEXT_ARCHITECTURE.md`, `ARCHITECTURE_PATCH_0_5.md` and `VNEXT_MIGRATION_REPORT.md`.
 
 Data flows **`src/canonical/index.ts` → `src/lib/canonical-view.ts` → pages**. That adapter is the
 only bridge and it is **server-only**: `JOURNEY_ROWS` and the preview thumbnails are computed
@@ -161,7 +183,7 @@ validators write.
 
 Hand-authored: everything in `src/`, every contract JSON in `seo/` and `search/`, and the
 validators themselves. Several validators and the search index generator **hardcode corpus
-counts** (`211` ab-tests, `255` journeys, `43` calculators, `5` blog posts, `520` search docs), so
+counts** (`211` ab-tests, `283` journeys, `3664` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
 adding a record fails them until those constants are updated in lockstep. `build-search-index.mjs`
 also duplicates the goal taxonomy from `src/lib/journey-taxonomy.ts` by hand — plain Node cannot
 resolve the `@/` alias, and the copy must be kept in sync manually.

@@ -10460,7 +10460,11 @@
     "title": "ACC-71 Entitlement qualification → grant, deny or pending",
     "summary": "Establish whether a right actually exists, as a state distinct from being eligible for one or having paid toward one.",
     "keywords": [
-      "ACC-71"
+      "ACC-71",
+      "entitlement qualification",
+      "entitlement check",
+      "access right established",
+      "grant or deny a right"
     ],
     "category": [
       "access"
@@ -10808,7 +10812,11 @@
     "title": "ACC-78 Access suspension → restricted state → restore or terminate",
     "summary": "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
     "keywords": [
-      "ACC-78"
+      "ACC-78",
+      "access suspension",
+      "suspend account",
+      "restricted access state",
+      "partial suspension"
     ],
     "category": [
       "access"
@@ -10865,7 +10873,11 @@
     "title": "ACC-79 Capability restoration → revalidate → restore safely",
     "summary": "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
     "keywords": [
-      "ACC-79"
+      "ACC-79",
+      "capability restoration",
+      "restore access",
+      "reinstatement",
+      "lift suspension"
     ],
     "category": [
       "access"
@@ -10956,6 +10968,124 @@
     }
   },
   {
+    "id": "journey:ACC-261",
+    "type": "journey",
+    "slug": "access-restriction-route-back",
+    "url": "/lab/journeys/access-restriction-route-back",
+    "urlTr": "/tr/lab/journeys/access-restriction-route-back",
+    "external": false,
+    "title": "ACC-261 Access restricted or ending → stated route back → restored or ends",
+    "summary": "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
+    "keywords": [
+      "ACC-261",
+      "access recovery",
+      "restriction notice",
+      "account restricted notice",
+      "access ending notice",
+      "suspension notice"
+    ],
+    "category": [
+      "access"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "suspension-restoration"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/access-restriction-route-back",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-36"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-78",
+          "because": "ACC-78 decides and records the restriction and its release condition. This journey is what the account holder is told about it, and it sends nothing until that decision exists."
+        },
+        {
+          "targetId": "journey:ACC-74",
+          "because": "ACC-74 ends future use of a lost entitlement. Here the point is the window before that takes effect, which is the only period in which the person can still act."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:ACC-263",
+    "type": "journey",
+    "slug": "entitlement-activation-window",
+    "url": "/lab/journeys/entitlement-activation-window",
+    "urlTr": "/tr/lab/journeys/entitlement-activation-window",
+    "external": false,
+    "title": "ACC-263 Entitlement or credential issued → activation window → activated or lapsed unclaimed",
+    "summary": "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
+    "keywords": [
+      "ACC-263",
+      "activation reminder",
+      "unused entitlement reminder",
+      "claim your access",
+      "credential activation reminder",
+      "licence activation"
+    ],
+    "category": [
+      "access"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "revocation-access-change"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/entitlement-activation-window",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACC-72",
+          "because": "ACC-72 provisions the capability and confirms it is technically reachable. This starts once that is true and is about whether the holder ever uses it."
+        },
+        {
+          "targetId": "journey:ACC-76",
+          "because": "ACC-76 tracks the credential's own issue/expire/revoke lifecycle. Here the only question is first use inside the window."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:ACQ-01",
     "type": "journey",
     "slug": "anonymous-intent-to-qualified-entry",
@@ -10965,7 +11095,11 @@
     "title": "ACQ-01 Anonymous intent → known identity → qualified entry",
     "summary": "Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.",
     "keywords": [
-      "ACQ-01"
+      "ACQ-01",
+      "anonymous identity resolution",
+      "anonymous visitor intent",
+      "identity stitching",
+      "known-visitor resolution"
     ],
     "category": [
       "acquisition"
@@ -11020,7 +11154,11 @@
     "title": "ACQ-02 Captured interest → qualification → appropriate destination",
     "summary": "Route first-party interest to the destination its own content justifies, instead of treating every capture as either a sales lead or a subscriber.",
     "keywords": [
-      "ACQ-02"
+      "ACQ-02",
+      "interest qualification routing",
+      "lead routing",
+      "form submission routing",
+      "inbound interest triage"
     ],
     "category": [
       "acquisition"
@@ -11076,7 +11214,11 @@
     "title": "ACQ-03 Intent escalation → higher-intent journey handoff",
     "summary": "Move ownership when someone in a low-intent lifecycle does something that no longer fits it, and make sure the journey being left behind actually goes quiet.",
     "keywords": [
-      "ACQ-03"
+      "ACQ-03",
+      "intent escalation",
+      "intent upgrade",
+      "lifecycle escalation",
+      "higher-intent handoff"
     ],
     "category": [
       "acquisition"
@@ -11125,7 +11267,12 @@
     "title": "ACQ-04 High-intent action → qualification → human or automated route",
     "summary": "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
     "keywords": [
-      "ACQ-04"
+      "ACQ-04",
+      "high-intent lead routing",
+      "sales handoff",
+      "MQL to SQL routing",
+      "demo request routing",
+      "lead assignment"
     ],
     "category": [
       "acquisition"
@@ -11148,8 +11295,7 @@
     "tags": [
       "cross-journey-handoff",
       "external-handoff",
-      "preemption",
-      "competition"
+      "preemption"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -11180,7 +11326,12 @@
     "title": "ACQ-05 Qualification state change → route, re-route or exit",
     "summary": "Treat qualification as a reversible state whose routing depends on why it changed, rather than a label applied once and trusted afterwards.",
     "keywords": [
-      "ACQ-05"
+      "ACQ-05",
+      "qualification state routing",
+      "lead qualification",
+      "MQL and SQL state",
+      "disqualification routing",
+      "lead recycling"
     ],
     "category": [
       "acquisition"
@@ -11232,7 +11383,11 @@
     "title": "ACQ-06 Dynamic eligibility → eligible or ineligible → consequence",
     "summary": "Re-decide eligibility as the underlying data changes, and separate what it forbids next from what it does not undo.",
     "keywords": [
-      "ACQ-06"
+      "ACQ-06",
+      "eligibility recalculation",
+      "dynamic eligibility",
+      "eligibility rule re-evaluation",
+      "entitlement eligibility check"
     ],
     "category": [
       "acquisition"
@@ -11281,7 +11436,11 @@
     "title": "ACQ-07 Intent decay → de-prioritise → cooldown or exit",
     "summary": "Let a recorded high-intent state expire when the evidence behind it goes stale, instead of pursuing someone on the strength of something they did once.",
     "keywords": [
-      "ACQ-07"
+      "ACQ-07",
+      "intent decay",
+      "lead decay",
+      "intent expiry",
+      "stale intent de-prioritisation"
     ],
     "category": [
       "acquisition"
@@ -11337,7 +11496,11 @@
     "title": "ACQ-08 Commercial destination reached → acquisition suppression → lifecycle handoff",
     "summary": "Make acquisition give up ownership the moment the outcome it existed to cause is recorded, and stop what it has already queued.",
     "keywords": [
-      "ACQ-08"
+      "ACQ-08",
+      "acquisition exit",
+      "conversion handoff",
+      "acquisition suppression on conversion",
+      "stop marketing on purchase"
     ],
     "category": [
       "acquisition"
@@ -11386,7 +11549,12 @@
     "title": "ACQ-09 Researching lead → bounded education → progress or sunset",
     "summary": "Give a legitimate but not-yet-ready lead a window of useful education that ends whether or not it worked.",
     "keywords": [
-      "ACQ-09"
+      "ACQ-09",
+      "lead nurture",
+      "nurture sequence",
+      "drip education",
+      "researching lead nurture",
+      "top-of-funnel nurture"
     ],
     "category": [
       "acquisition"
@@ -11440,7 +11608,11 @@
     "title": "ACQ-10 Explicit commercial decline → reason → terminal, cooldown or recycle",
     "summary": "Route a negative commercial outcome by its cause rather than filing every one of them under lost.",
     "keywords": [
-      "ACQ-10"
+      "ACQ-10",
+      "commercial decline routing",
+      "closed-lost routing",
+      "lost reason handling",
+      "closed-lost recycling"
     ],
     "category": [
       "acquisition"
@@ -11492,6 +11664,297 @@
     }
   },
   {
+    "id": "journey:ACQ-11",
+    "type": "journey",
+    "slug": "abandoned-process-recovery",
+    "url": "/lab/journeys/abandoned-process-recovery",
+    "urlTr": "/tr/lab/journeys/abandoned-process-recovery",
+    "external": false,
+    "title": "ACQ-11 Process started → abandonment confirmed → recovered, superseded or lapsed",
+    "summary": "Return a person to a resumable process they started and did not complete - a checkout, an application, a quote, a registration - while it is still resumable, without ever asserting a state the system does not hold.",
+    "keywords": [
+      "ACQ-11",
+      "checkout abandonment",
+      "abandoned checkout",
+      "checkout recovery",
+      "begin checkout recovery",
+      "abandoned application",
+      "abandoned quote",
+      "incomplete registration",
+      "Checkout Abandonment",
+      "cart recovery (checkout stage)",
+      "abandoned cart checkout",
+      "checkout abandonment",
+      "begin checkout recovery",
+      "Quote Abandonment",
+      "quote abandonment",
+      "abandoned quote",
+      "quote follow-up",
+      "unaccepted proposal",
+      "Application Abandonment",
+      "application abandonment",
+      "incomplete application",
+      "abandoned form",
+      "application follow-up",
+      "Incomplete Registration",
+      "incomplete registration",
+      "abandoned sign-up",
+      "registration follow-up",
+      "unfinished account setup"
+    ],
+    "category": [
+      "acquisition"
+    ],
+    "normalizedCategory": [
+      "acquisition-and-onboarding"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "acquisition-qualification"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "recovery-retry"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/abandoned-process-recovery",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-134"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-08",
+          "because": "ACQ-08 makes acquisition give up ownership the moment a destination is reached. This journey pursues one specific unfinished process and gives up when it completes, closes or is superseded."
+        },
+        {
+          "targetId": "journey:SCH-282",
+          "because": "SCH-282 follows an availability enquiry that holds nothing. A process has state the person can return to, which is what makes recovery honest."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:ACQ-12",
+    "type": "journey",
+    "slug": "abandoned-selection-recovery",
+    "url": "/lab/journeys/abandoned-selection-recovery",
+    "urlTr": "/tr/lab/journeys/abandoned-selection-recovery",
+    "external": false,
+    "title": "ACQ-12 Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
+    "summary": "Return a person to items they selected - a cart, a basket, a saved list - and did not carry into a process, while the selection still stands and the items are still available, without asserting a state the system does not hold.",
+    "keywords": [
+      "ACQ-12",
+      "cart abandonment",
+      "abandoned cart",
+      "add-to-cart abandonment",
+      "basket reminder",
+      "saved item reminder",
+      "wishlist reminder",
+      "abandoned basket",
+      "Cart Abandonment",
+      "cart abandonment",
+      "abandoned cart",
+      "abandoned basket",
+      "add-to-cart abandonment",
+      "Saved Item Reminder",
+      "saved item reminder",
+      "wishlist reminder",
+      "saved for later",
+      "favourites reminder"
+    ],
+    "category": [
+      "acquisition"
+    ],
+    "normalizedCategory": [
+      "acquisition-and-onboarding"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "acquisition-qualification"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "recovery-retry"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/abandoned-selection-recovery",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-11"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-11",
+          "because": "ACQ-11 pursues a process with state, an expiry and a resume destination. A selection has no process state and no expiry, which is why this journey never names a deadline and hands over the moment a process starts."
+        },
+        {
+          "targetId": "journey:ACQ-13",
+          "because": "ACQ-13 works from inferred attention. A selection is a recorded fact the person created, and the touch can show it back to them."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:ACQ-13",
+    "type": "journey",
+    "slug": "unresolved-interest-recovery",
+    "url": "/lab/journeys/unresolved-interest-recovery",
+    "urlTr": "/tr/lab/journeys/unresolved-interest-recovery",
+    "external": false,
+    "title": "ACQ-13 Interest inferred → qualified → resolved into a selection or purchase, or left alone",
+    "summary": "Follow up qualified, unresolved attention to an item, category or search - browsing that ended in neither a selection nor a process - with at most one touch, and record no-action as the normal outcome whenever the attention does not qualify.",
+    "keywords": [
+      "ACQ-13",
+      "browse abandonment",
+      "product view abandonment",
+      "search abandonment",
+      "browse recovery",
+      "viewed but not added",
+      "category interest follow-up",
+      "Browse Abandonment",
+      "browse abandonment",
+      "category abandonment",
+      "browse recovery",
+      "Product View Abandonment",
+      "product view abandonment",
+      "viewed product reminder",
+      "viewed but not added",
+      "Search Abandonment",
+      "search abandonment",
+      "abandoned search",
+      "search follow-up"
+    ],
+    "category": [
+      "acquisition"
+    ],
+    "normalizedCategory": [
+      "acquisition-and-onboarding"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "acquisition-qualification"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "eligibility-qualification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/unresolved-interest-recovery",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-12",
+          "because": "ACQ-12 works from a selection the person recorded. Interest is inferred from attention, which is why a qualification step stands before any instance and no-action is the common outcome."
+        },
+        {
+          "targetId": "journey:SCH-282",
+          "because": "SCH-282 follows an availability enquiry with restorable state. A search here holds nothing; it is attention, not an enquiry."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:ACQ-285",
+    "type": "journey",
+    "slug": "captured-interest-first-touch",
+    "url": "/lab/journeys/captured-interest-first-touch",
+    "urlTr": "/tr/lab/journeys/captured-interest-first-touch",
+    "external": false,
+    "title": "ACQ-285 Captured interest → readiness check → destination-appropriate first touch",
+    "summary": "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
+    "keywords": [
+      "ACQ-285",
+      "new lead welcome",
+      "welcome email",
+      "lead capture fulfilment",
+      "content download delivery",
+      "welcome sequence"
+    ],
+    "category": [
+      "acquisition"
+    ],
+    "normalizedCategory": [
+      "acquisition-and-onboarding"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "acquisition-qualification"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "review-required"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "external-handoff",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/captured-interest-first-touch",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-02",
+          "because": "ACQ-02 decides which destination a capture justifies and records that decision with its own state. This journey is what the person receives once that decision exists, and it invents no destination of its own."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:ACT-11",
     "type": "journey",
     "slug": "onboarding-route-selection",
@@ -11501,7 +11964,11 @@
     "title": "ACT-11 New entry → onboarding route → appropriate path",
     "summary": "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
     "keywords": [
-      "ACT-11"
+      "ACT-11",
+      "onboarding route assignment",
+      "assisted vs self-serve onboarding",
+      "onboarding path selection",
+      "onboarding triage"
     ],
     "category": [
       "activation"
@@ -11556,7 +12023,12 @@
     "title": "ACT-12 Onboarding progress → next best setup step → activation",
     "summary": "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
     "keywords": [
-      "ACT-12"
+      "ACT-12",
+      "onboarding nurture",
+      "setup reminders",
+      "onboarding inactivity",
+      "getting-started sequence",
+      "activation nurture"
     ],
     "category": [
       "activation"
@@ -11580,8 +12052,7 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "preemption",
-      "competition"
+      "preemption"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -11590,6 +12061,9 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [
+        {
+          "targetId": "journey:ACT-13"
+        },
         {
           "targetId": "journey:ACT-16"
         }
@@ -11607,7 +12081,12 @@
     "title": "ACT-13 Missing activation requirement → resolve blocker → resume",
     "summary": "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
     "keywords": [
-      "ACT-13"
+      "ACT-13",
+      "onboarding blocker reminder",
+      "missing requirement reminder",
+      "integration not connected reminder",
+      "setup blocker",
+      "activation blocker"
     ],
     "category": [
       "activation"
@@ -11665,7 +12144,12 @@
     "title": "ACT-14 Struggling user detection → proactive assistance → recovery or exit",
     "summary": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
     "keywords": [
-      "ACT-14"
+      "ACT-14",
+      "onboarding help",
+      "struggling user rescue",
+      "proactive assistance",
+      "stuck in setup",
+      "assisted setup offer"
     ],
     "category": [
       "activation"
@@ -11711,58 +12195,6 @@
     }
   },
   {
-    "id": "journey:ACT-15",
-    "type": "journey",
-    "slug": "first-value-milestone",
-    "url": "/lab/journeys/first-value-milestone",
-    "urlTr": "/tr/lab/journeys/first-value-milestone",
-    "external": false,
-    "title": "ACT-15 First value milestone → recognition → next meaningful action",
-    "summary": "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
-    "keywords": [
-      "ACT-15"
-    ],
-    "category": [
-      "activation"
-    ],
-    "normalizedCategory": [
-      "acquisition-and-onboarding"
-    ],
-    "surface": [],
-    "funnelStage": [
-      "activation-onboarding"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/first-value-milestone",
-    "searchAliases": [],
-    "boost": {},
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:ACT-17"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:ACT-16",
-          "because": "The same event can drive both, and they do opposite work. ACT-16 stops what onboarding still had queued; this one speaks to the person about what they just did."
-        }
-      ]
-    }
-  },
-  {
     "id": "journey:ACT-16",
     "type": "journey",
     "slug": "activation-stops-onboarding",
@@ -11772,7 +12204,11 @@
     "title": "ACT-16 Activation achieved → stop onboarding → adoption handoff",
     "summary": "Make onboarding let go the moment activation is recorded, including the messages it has already queued.",
     "keywords": [
-      "ACT-16"
+      "ACT-16",
+      "onboarding completion",
+      "activation achieved",
+      "stop onboarding messages",
+      "onboarding close-out"
     ],
     "category": [
       "activation"
@@ -11819,7 +12255,13 @@
     "title": "ACT-17 Early adoption → usage depth → habit or stable use",
     "summary": "Carry an account from having produced value once to producing it repeatedly, measured against its own use-case.",
     "keywords": [
-      "ACT-17"
+      "ACT-17",
+      "adoption nurture",
+      "feature adoption",
+      "first value",
+      "milestone recognition",
+      "aha moment follow-up",
+      "activation follow-up"
     ],
     "category": [
       "activation"
@@ -11848,7 +12290,10 @@
     "language": "en+tr",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/lab/journeys/early-adoption-to-stable-use",
-    "searchAliases": [],
+    "searchAliases": [
+      "ACT-15",
+      "act-15"
+    ],
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [
@@ -11874,7 +12319,13 @@
     "title": "ACT-18 Adoption stall → diagnose missing value → recover or re-route",
     "summary": "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
     "keywords": [
-      "ACT-18"
+      "ACT-18",
+      "adoption recovery",
+      "onboarding inactivity",
+      "usage drop",
+      "stalled adoption",
+      "feature stall",
+      "re-engagement (adoption)"
     ],
     "category": [
       "activation"
@@ -11929,7 +12380,11 @@
     "title": "ACT-19 Role or use-case discovery → relevant onboarding adaptation",
     "summary": "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
     "keywords": [
-      "ACT-19"
+      "ACT-19",
+      "onboarding personalization",
+      "role or use-case question",
+      "one-question onboarding survey",
+      "use-case capture"
     ],
     "category": [
       "activation"
@@ -11978,7 +12433,12 @@
     "title": "ACT-20 Dormant non-customer reactivation → return → re-qualification or exit",
     "summary": "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did.",
     "keywords": [
-      "ACT-20"
+      "ACT-20",
+      "dormant lead reactivation",
+      "reactivation",
+      "dormant non-customer",
+      "re-engagement (non-customer)",
+      "cold lead revival"
     ],
     "category": [
       "activation"
@@ -12002,7 +12462,6 @@
       "wait-timeout",
       "cross-journey-handoff",
       "multi-exit",
-      "competition",
       "no-re-entry"
     ],
     "language": "en+tr",
@@ -12502,7 +12961,12 @@
     "title": "CON-31 Permission capture → validate scope → activate or reject",
     "summary": "Turn a permission decision into an auditable record of what exactly was authorised, rather than a flag that says yes.",
     "keywords": [
-      "CON-31"
+      "CON-31",
+      "permission validation",
+      "consent capture",
+      "consent record",
+      "opt-in validation",
+      "consent scope"
     ],
     "category": [
       "consent"
@@ -12549,7 +13013,11 @@
     "title": "CON-32 Preference capture → persist → personalise eligible communication",
     "summary": "Record how someone would like permitted communication done, in a store that structurally cannot become permission.",
     "keywords": [
-      "CON-32"
+      "CON-32",
+      "preference capture",
+      "preference centre",
+      "communication preferences",
+      "channel preference"
     ],
     "category": [
       "consent"
@@ -12594,7 +13062,11 @@
     "title": "CON-33 Preference change → recalculate active journeys → suppress or adapt",
     "summary": "Make a preference change reach the messages already sitting in a queue, not just the profile field.",
     "keywords": [
-      "CON-33"
+      "CON-33",
+      "preference recalculation",
+      "preference change propagation",
+      "queued message recalculation",
+      "apply preference to running journeys"
     ],
     "category": [
       "consent"
@@ -12785,7 +13257,12 @@
     "title": "CON-38 Communication suppression → reason → release or persist",
     "summary": "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
     "keywords": [
-      "CON-38"
+      "CON-38",
+      "communication suppression",
+      "do-not-contact",
+      "suppression list",
+      "send hold",
+      "global suppression"
     ],
     "category": [
       "consent"
@@ -12918,6 +13395,181 @@
         {
           "targetId": "journey:CON-35",
           "because": "CON-35 propagates a state it knows to be right. This one runs when nobody knows which state is right, which is why it starts by closing rather than by deciding."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:CON-264",
+    "type": "journey",
+    "slug": "contact-point-confirmation",
+    "url": "/lab/journeys/contact-point-confirmation",
+    "urlTr": "/tr/lab/journeys/contact-point-confirmation",
+    "external": false,
+    "title": "CON-264 Contact point added or changed → confirm → permitted or lapsed",
+    "summary": "Establish that the person who owns a new destination actually asked for it, before anything is ever sent there - and tell the destination it replaces, because a change nobody made is only visible from the address it is being taken away from.",
+    "keywords": [
+      "CON-264",
+      "contact verification",
+      "email verification",
+      "phone verification",
+      "double opt-in",
+      "contact change confirmation",
+      "verify new address"
+    ],
+    "category": [
+      "consent"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "delivery-confirmation"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/contact-point-confirmation",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-89"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-31",
+          "because": "CON-31 records what was authorised, for which purpose and scope. This runs earlier and answers a different question - whether the destination belongs to the person the permission would be recorded against."
+        },
+        {
+          "targetId": "journey:IDN-89",
+          "because": "IDN-89 changes the attribute and reconciles what depended on it. This is the exchange with the two destinations that decides whether the new one is usable at all."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:CON-272",
+    "type": "journey",
+    "slug": "contactability-repair",
+    "url": "/lab/journeys/contactability-repair",
+    "urlTr": "/tr/lab/journeys/contactability-repair",
+    "external": false,
+    "title": "CON-272 Contact point unreachable → alternate route → corrected or suppressed",
+    "summary": "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
+    "keywords": [
+      "CON-272",
+      "contact recovery",
+      "bounce repair",
+      "undeliverable contact fix",
+      "dead address recovery",
+      "contact point repair"
+    ],
+    "category": [
+      "consent"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "consent-permission"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/contactability-repair",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-36",
+          "because": "CON-36 holds reachability per destination and decides what is suppressed. This journey is the single request to the person that could change that, and it only ever runs on a route CON-36 has already found healthy and permitted."
+        },
+        {
+          "targetId": "journey:CON-38",
+          "because": "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:CON-283",
+    "type": "journey",
+    "slug": "frequency-reduction-confirmation",
+    "url": "/lab/journeys/frequency-reduction-confirmation",
+    "urlTr": "/tr/lab/journeys/frequency-reduction-confirmation",
+    "external": false,
+    "title": "CON-283 Frequency reduced → cadence recalculated → kept rather than lost",
+    "summary": "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
+    "keywords": [
+      "CON-283",
+      "frequency preference update",
+      "send-less confirmation",
+      "frequency reduction",
+      "reduce emails confirmation"
+    ],
+    "category": [
+      "consent"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "delivery-confirmation"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/frequency-reduction-confirmation",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:CON-34",
+          "because": "CON-34 works out which classes the preference governs and recalculates the cadence. This journey is the single confirmation the person receives, and it states nothing the recalculation has not already applied."
+        },
+        {
+          "targetId": "journey:CON-38",
+          "because": "CON-38 records a stop and decides when it releases. A reduction is not a stop, and recording the two as the same state loses exactly the relationship the person was trying to keep."
         }
       ]
     }
@@ -14026,7 +14678,12 @@
     "title": "DEC-184 More information required → collect → revalidate → resume review",
     "summary": "Pause a decision for the fact it is actually missing, without losing the review already done.",
     "keywords": [
-      "DEC-184"
+      "DEC-184",
+      "more information request",
+      "request for information",
+      "missing information on a case",
+      "pending information",
+      "information requirement"
     ],
     "category": [
       "decision"
@@ -14407,6 +15064,64 @@
     }
   },
   {
+    "id": "journey:DEC-267",
+    "type": "journey",
+    "slug": "adverse-decision-remediation",
+    "url": "/lab/journeys/adverse-decision-remediation",
+    "urlTr": "/tr/lab/journeys/adverse-decision-remediation",
+    "external": false,
+    "title": "DEC-267 Adverse decision → stated remediation path → corrected or final",
+    "summary": "Tell somebody a decision went against them and which of exactly three things is true - correctable now, reapplicable later, or final - so the outcome arrives as a position they can act on instead of a verdict they have to interpret.",
+    "keywords": [
+      "DEC-267",
+      "adverse decision recovery",
+      "application rejected notice",
+      "declined with a path",
+      "rejection with next steps",
+      "decision against the customer"
+    ],
+    "category": [
+      "decision"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "reconciliation-correction"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/adverse-decision-remediation",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DEC-186",
+          "because": "DEC-186 records the rejection, its reason category, and the remediation or reapplication semantics policy defines. This says them out loud to the requester and holds the window open while they act."
+        },
+        {
+          "targetId": "journey:RSK-194",
+          "because": "RSK-194 establishes that a rule was broken against the version that governed it. This starts only once that is confirmed and never re-argues whether it happened."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:DOC-211",
     "type": "journey",
     "slug": "document-requirement",
@@ -14562,7 +15277,12 @@
     "title": "DOC-214 Document distribution → send or provide access → confirm or fail",
     "summary": "Get a specific issued version to the party who should have it, without either fact touching the other.",
     "keywords": [
-      "DOC-214"
+      "DOC-214",
+      "document delivery",
+      "send a document",
+      "policy document distribution",
+      "contract copy delivery",
+      "document distribution"
     ],
     "category": [
       "document"
@@ -14609,7 +15329,13 @@
     "title": "DOC-215 Signature request → await signatures → signed, declined or expired",
     "summary": "Collect the required signatures against one exact version, and know when they are actually all there.",
     "keywords": [
-      "DOC-215"
+      "DOC-215",
+      "signature reminder",
+      "e-signature request",
+      "document signing reminder",
+      "contract signature follow-up",
+      "unsigned document reminder",
+      "multi-party signing"
     ],
     "category": [
       "document"
@@ -14871,7 +15597,11 @@
     "title": "DOC-220 Document or record conflict → determine authoritative version → reconcile",
     "summary": "Work out which version actually governs, and explain the conflict rather than deleting it.",
     "keywords": [
-      "DOC-220"
+      "DOC-220",
+      "document conflict review",
+      "version conflict",
+      "which version governs",
+      "duplicate document reconciliation"
     ],
     "category": [
       "document"
@@ -14918,6 +15648,63 @@
     }
   },
   {
+    "id": "journey:DOC-286",
+    "type": "journey",
+    "slug": "document-effective-notice",
+    "url": "/lab/journeys/document-effective-notice",
+    "urlTr": "/tr/lab/journeys/document-effective-notice",
+    "external": false,
+    "title": "DOC-286 Document effective → entitlement active → first use or dormant",
+    "summary": "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
+    "keywords": [
+      "DOC-286",
+      "document activation",
+      "agreement now in force",
+      "policy effective notice",
+      "contract start notice",
+      "entitlement active"
+    ],
+    "category": [
+      "document"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "revocation-access-change"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/document-effective-notice",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:DOC-216",
+          "because": "DOC-216 establishes whether and when the document takes effect and revalidates it at that moment. This journey starts only once that record exists, and it decides nothing about effectiveness itself."
+        },
+        {
+          "targetId": "journey:ACC-263",
+          "because": "ACC-263 runs a claim window on a granted capability that lapses if unused. Here nothing lapses for want of use - the document is in force either way, and dormancy is an observation rather than a loss."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:FBK-41",
     "type": "journey",
     "slug": "feedback-eligibility",
@@ -14927,7 +15714,14 @@
     "title": "FBK-41 Feedback eligibility → ask, suppress or delay",
     "summary": "Decide whether asking is appropriate at all, and hold the gap between asking and hearing back as a real state.",
     "keywords": [
-      "FBK-41"
+      "FBK-41",
+      "feedback request",
+      "NPS survey",
+      "CSAT survey",
+      "review request",
+      "post-experience survey",
+      "rating request",
+      "satisfaction survey"
     ],
     "category": [
       "feedback"
@@ -14948,8 +15742,7 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit",
-      "competition"
+      "multi-exit"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -14976,7 +15769,13 @@
     "title": "FBK-42 Advocacy eligibility → ask, delay or suppress",
     "summary": "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
     "keywords": [
-      "FBK-42"
+      "FBK-42",
+      "advocacy request",
+      "referral request",
+      "testimonial ask",
+      "case study request",
+      "review request (advocacy)",
+      "promoter follow-up"
     ],
     "category": [
       "feedback"
@@ -14997,8 +15796,7 @@
     "tags": [
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit",
-      "competition"
+      "multi-exit"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -15013,8 +15811,8 @@
       ],
       "distinctFrom": [
         {
-          "targetId": "journey:FBK-45",
-          "because": "FBK-45 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it."
+          "targetId": "journey:FBK-43",
+          "because": "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it."
         }
       ]
     }
@@ -15029,7 +15827,14 @@
     "title": "FBK-43 Feedback received → classify → route → close the loop",
     "summary": "Get feedback to the process that can act on it, and keep the record open until anything promised in return has actually happened.",
     "keywords": [
-      "FBK-43"
+      "FBK-43",
+      "feedback follow-up",
+      "negative feedback recovery",
+      "positive feedback follow-up",
+      "feedback routing",
+      "closing the loop",
+      "NPS follow-up",
+      "CSAT follow-up"
     ],
     "category": [
       "feedback"
@@ -15050,123 +15855,32 @@
     "tags": [
       "wait-timeout",
       "cross-journey-handoff",
+      "external-handoff",
       "multi-exit"
     ],
     "language": "en+tr",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/lab/journeys/feedback-routing-and-loop-closure",
-    "searchAliases": [],
-    "boost": {},
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:FBK-45"
-        },
-        {
-          "targetId": "journey:FBK-44"
-        },
-        {
-          "targetId": "journey:DEC-181"
-        },
-        {
-          "targetId": "journey:DEC-181"
-        }
-      ],
-      "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:FBK-44",
-    "type": "journey",
-    "slug": "negative-feedback-issue-check",
-    "url": "/lab/journeys/negative-feedback-issue-check",
-    "urlTr": "/tr/lab/journeys/negative-feedback-issue-check",
-    "external": false,
-    "title": "FBK-44 Negative feedback → issue check → resolve, acknowledge or escalate",
-    "summary": "Find out whether an unresolved obligation actually exists before anything that looks like recovery starts.",
-    "keywords": [
-      "FBK-44"
+    "searchAliases": [
+      "FBK-44",
+      "fbk-44",
+      "FBK-45",
+      "fbk-45"
     ],
-    "category": [
-      "feedback"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "recovery-retry"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/negative-feedback-issue-check",
-    "searchAliases": [],
-    "boost": {},
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:FBK-46"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:RET-26",
-          "because": "RET-26 starts from a recorded failure and asks what response is owed. This starts from someone's account of an experience and asks whether a failure exists at all - which most often it does not."
-        }
-      ]
-    }
-  },
-  {
-    "id": "journey:FBK-45",
-    "type": "journey",
-    "slug": "positive-feedback-recognition",
-    "url": "/lab/journeys/positive-feedback-recognition",
-    "urlTr": "/tr/lab/journeys/positive-feedback-recognition",
-    "external": false,
-    "title": "FBK-45 Positive feedback → recognition → advocacy opportunity",
-    "summary": "Record a good experience as evidence and acknowledge it, without turning the person into an advocate by arithmetic.",
-    "keywords": [
-      "FBK-45"
-    ],
-    "category": [
-      "feedback"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff",
-      "external-handoff"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/positive-feedback-recognition",
-    "searchAliases": [],
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [
         {
           "targetId": "journey:FBK-42"
+        },
+        {
+          "targetId": "journey:FBK-46"
+        },
+        {
+          "targetId": "journey:DEC-181"
+        },
+        {
+          "targetId": "journey:DEC-181"
         }
       ],
       "distinctFrom": []
@@ -15182,7 +15896,14 @@
     "title": "FBK-46 Complaint or issue created → ownership → resolution → confirmation",
     "summary": "Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.",
     "keywords": [
-      "FBK-46"
+      "FBK-46",
+      "complaint resolution",
+      "complaint handling",
+      "issue resolution",
+      "case management",
+      "escalation ladder",
+      "ticket resolution",
+      "service recovery (case)"
     ],
     "category": [
       "feedback"
@@ -15205,8 +15926,7 @@
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
-      "multi-exit",
-      "competition"
+      "multi-exit"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -15232,7 +15952,12 @@
     "title": "FBK-47 Appeal or dispute → evidence review → uphold, reverse or modify",
     "summary": "Review a decision that has already been made, without erasing it while the review is running.",
     "keywords": [
-      "FBK-47"
+      "FBK-47",
+      "appeal review",
+      "dispute review",
+      "decision appeal",
+      "review of a decision",
+      "appeal handling"
     ],
     "category": [
       "feedback"
@@ -15285,7 +16010,11 @@
     "title": "FBK-48 Declared need or preference signal → persist → recalculate relevant experience",
     "summary": "Let something a person has told us about their situation reach the decisions that actually depend on it, and nothing else.",
     "keywords": [
-      "FBK-48"
+      "FBK-48",
+      "declared context recalculation",
+      "zero-party data",
+      "declared need",
+      "self-declared preference signal"
     ],
     "category": [
       "feedback"
@@ -15331,7 +16060,12 @@
     "title": "FBK-49 Missing critical data → request or resolve → resume",
     "summary": "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
     "keywords": [
-      "FBK-49"
+      "FBK-49",
+      "missing information reminder",
+      "missing document request",
+      "incomplete application follow-up",
+      "required data request",
+      "document reminder"
     ],
     "category": [
       "feedback"
@@ -15380,7 +16114,11 @@
     "title": "FBK-50 Relationship signal → evidence accumulation → state reassessment",
     "summary": "Accumulate signals as dated evidence, and let a relationship label exist only where a policy defined what it means.",
     "keywords": [
-      "FBK-50"
+      "FBK-50",
+      "relationship state reassessment",
+      "loyalty state",
+      "relationship evidence",
+      "customer state labelling"
     ],
     "category": [
       "feedback"
@@ -15426,7 +16164,11 @@
     "title": "FIN-131 Financial obligation created → due → satisfied or outstanding",
     "summary": "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
     "keywords": [
-      "FIN-131"
+      "FIN-131",
+      "financial obligation tracking",
+      "invoice outstanding",
+      "amount owed state",
+      "receivable tracking"
     ],
     "category": [
       "financial"
@@ -15593,7 +16335,12 @@
     "title": "FIN-134 Payment failure → classify → recover, alternate or exit",
     "summary": "Respond to the reason a payment actually failed, and keep the obligation alive while doing it.",
     "keywords": [
-      "FIN-134"
+      "FIN-134",
+      "dunning",
+      "failed payment recovery",
+      "card decline recovery",
+      "involuntary churn",
+      "payment retry"
     ],
     "category": [
       "financial"
@@ -15710,7 +16457,11 @@
     "title": "FIN-136 Financial obligation satisfied → reconcile balance → release dependent state",
     "summary": "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
     "keywords": [
-      "FIN-136"
+      "FIN-136",
+      "balance reconciliation",
+      "payment applied",
+      "obligation satisfied",
+      "partial payment handling"
     ],
     "category": [
       "financial"
@@ -15757,7 +16508,11 @@
     "title": "FIN-137 Refund request → eligibility → approve, reject or review",
     "summary": "Turn a refund request into an authorised decision, without money moving on the request itself.",
     "keywords": [
-      "FIN-137"
+      "FIN-137",
+      "refund request",
+      "refund eligibility",
+      "money-back request",
+      "refund decision"
     ],
     "category": [
       "financial"
@@ -15963,7 +16718,11 @@
     "title": "FUL-141 Fulfillment request → validate → accept, reject or hold",
     "summary": "Decide whether we are taking responsibility for delivering something, as a state distinct from having been asked.",
     "keywords": [
-      "FUL-141"
+      "FUL-141",
+      "fulfillment request validation",
+      "order acceptance",
+      "order validation",
+      "accept or reject a fulfilment request"
     ],
     "category": [
       "fulfillment"
@@ -16016,7 +16775,11 @@
     "title": "FUL-142 Accepted fulfillment → availability check → allocate, backorder or reject",
     "summary": "Establish whether the resources to satisfy an accepted obligation actually exist, in the scope and window that would serve it.",
     "keywords": [
-      "FUL-142"
+      "FUL-142",
+      "fulfillment allocation",
+      "availability check",
+      "inventory availability",
+      "capacity check"
     ],
     "category": [
       "fulfillment"
@@ -16071,7 +16834,11 @@
     "title": "FUL-143 Resource allocation → reserve → confirm, release or reallocate",
     "summary": "Bind specific capacity to one obligation until it is consumed or deliberately let go.",
     "keywords": [
-      "FUL-143"
+      "FUL-143",
+      "resource reservation",
+      "inventory reservation",
+      "hold stock for an order",
+      "capacity hold"
     ],
     "category": [
       "fulfillment"
@@ -16121,7 +16888,11 @@
     "title": "FUL-144 Fulfillment execution → progress → complete, partial or fail",
     "summary": "Track what the obligation's scope actually reaches, rather than what an internal step reported.",
     "keywords": [
-      "FUL-144"
+      "FUL-144",
+      "fulfillment execution",
+      "order in progress",
+      "service delivery progress",
+      "execution tracking"
     ],
     "category": [
       "fulfillment"
@@ -16184,7 +16955,11 @@
     "title": "FUL-145 Fulfillment exception → diagnose → recover, substitute or fail",
     "summary": "Change only the part of an obligation the operational problem actually touches.",
     "keywords": [
-      "FUL-145"
+      "FUL-145",
+      "fulfillment exception recovery",
+      "supply exception",
+      "damaged item handling",
+      "out-of-stock after order"
     ],
     "category": [
       "fulfillment"
@@ -16242,7 +17017,12 @@
     "title": "FUL-146 Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
     "summary": "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
     "keywords": [
-      "FUL-146"
+      "FUL-146",
+      "delivery delay alert",
+      "shipping delay notice",
+      "late order notification",
+      "ETA change",
+      "delay with options"
     ],
     "category": [
       "fulfillment"
@@ -16298,7 +17078,11 @@
     "title": "FUL-147 Dispatch or handoff → track → delivered, failed or unknown",
     "summary": "Transfer execution to whoever performs the delivery while the obligation stays ours and stays open.",
     "keywords": [
-      "FUL-147"
+      "FUL-147",
+      "delivery outcome tracking",
+      "carrier tracking",
+      "dispatch tracking",
+      "delivery status"
     ],
     "category": [
       "fulfillment"
@@ -16356,7 +17140,12 @@
     "title": "FUL-148 Delivery attempt failed → reason → retry, correct, alternate or return",
     "summary": "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
     "keywords": [
-      "FUL-148"
+      "FUL-148",
+      "failed delivery recovery",
+      "delivery attempt failed",
+      "redelivery",
+      "missed delivery options",
+      "address correction request"
     ],
     "category": [
       "fulfillment"
@@ -16409,7 +17198,11 @@
     "title": "FUL-149 Delivery confirmation → acceptance or issue window → finalize",
     "summary": "Separate arriving from being agreed to have arrived correctly, wherever that difference has business meaning.",
     "keywords": [
-      "FUL-149"
+      "FUL-149",
+      "delivery acceptance finalization",
+      "proof of delivery",
+      "acceptance window",
+      "post-delivery issue window"
     ],
     "category": [
       "fulfillment"
@@ -16456,7 +17249,11 @@
     "title": "FUL-150 Fulfillment cancellation → stop future work → release resources → reconcile",
     "summary": "Stop what remains of an obligation while keeping everything that already happened.",
     "keywords": [
-      "FUL-150"
+      "FUL-150",
+      "fulfillment cancellation reconciliation",
+      "order cancellation",
+      "cancel an order in progress",
+      "stop remaining fulfilment"
     ],
     "category": [
       "fulfillment"
@@ -16497,6 +17294,125 @@
     }
   },
   {
+    "id": "journey:FUL-265",
+    "type": "journey",
+    "slug": "dispatch-to-acceptance",
+    "url": "/lab/journeys/dispatch-to-acceptance",
+    "urlTr": "/tr/lab/journeys/dispatch-to-acceptance",
+    "external": false,
+    "title": "FUL-265 Dispatch → tracking → delivered → accepted or issue raised",
+    "summary": "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
+    "keywords": [
+      "FUL-265",
+      "delivery tracking",
+      "shipping notification",
+      "order shipped",
+      "out for delivery",
+      "delivery confirmation and acceptance"
+    ],
+    "category": [
+      "fulfillment"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "reconciliation-correction"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/dispatch-to-acceptance",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-149"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-147",
+          "because": "FUL-147 holds the obligation open while an executor performs it and reconciles whatever the executor reports. This is what the recipient is told across that same period, and it sends nothing the executor has not authoritatively reported."
+        },
+        {
+          "targetId": "journey:FUL-149",
+          "because": "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:FUL-276",
+    "type": "journey",
+    "slug": "substitution-offer",
+    "url": "/lab/journeys/substitution-offer",
+    "urlTr": "/tr/lab/journeys/substitution-offer",
+    "external": false,
+    "title": "FUL-276 Substitution required → offer alternative → accepted, declined or lapsed",
+    "summary": "Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so that nothing different is ever supplied on the assumption they would not have minded.",
+    "keywords": [
+      "FUL-276",
+      "substitution approval",
+      "substitute item offer",
+      "replacement item consent",
+      "out-of-stock substitution"
+    ],
+    "category": [
+      "fulfillment"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "review-required"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/substitution-offer",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-36"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-145",
+          "because": "FUL-145 diagnoses the exception, scopes it and decides that a defined alternative exists. This journey is the offer put to the recipient, and it starts only once that decision has been taken."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:IDN-81",
     "type": "journey",
     "slug": "identity-claim-verification",
@@ -16506,7 +17422,12 @@
     "title": "IDN-81 Identity claim → evidence → verified, rejected or more evidence",
     "summary": "Establish confidence in one specific identity claim, bound to the evidence that established it.",
     "keywords": [
-      "IDN-81"
+      "IDN-81",
+      "identity verification",
+      "KYC verification",
+      "ID check",
+      "identity proofing",
+      "document verification"
     ],
     "category": [
       "identity"
@@ -16666,7 +17587,11 @@
     "title": "IDN-84 Verification failure → reason → retry, remediate, review or exit",
     "summary": "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
     "keywords": [
-      "IDN-84"
+      "IDN-84",
+      "verification recovery",
+      "failed verification",
+      "ID check failed",
+      "verification retry"
     ],
     "category": [
       "identity"
@@ -16715,7 +17640,13 @@
     "title": "IDN-85 Authentication challenge → authenticate, step up or deny",
     "summary": "Establish that whoever is present controls the required identity, at the assurance the context demands.",
     "keywords": [
-      "IDN-85"
+      "IDN-85",
+      "login verification",
+      "OTP",
+      "2FA",
+      "MFA challenge",
+      "one-time code",
+      "login code"
     ],
     "category": [
       "identity"
@@ -16817,7 +17748,11 @@
     "title": "IDN-87 Authentication failure pattern → security check → recover or restrict",
     "summary": "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
     "keywords": [
-      "IDN-87"
+      "IDN-87",
+      "authentication risk assessment",
+      "failed login pattern",
+      "brute force detection",
+      "login anomaly"
     ],
     "category": [
       "identity"
@@ -16870,7 +17805,11 @@
     "title": "IDN-88 Account recovery request → prove control → restore secure access",
     "summary": "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
     "keywords": [
-      "IDN-88"
+      "IDN-88",
+      "account recovery verification",
+      "prove control",
+      "recovery proof",
+      "locked-out recovery"
     ],
     "category": [
       "identity"
@@ -16925,7 +17864,11 @@
     "title": "IDN-89 Identity attribute change → verify if required → update → propagate",
     "summary": "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
     "keywords": [
-      "IDN-89"
+      "IDN-89",
+      "identity attribute update",
+      "change of name",
+      "identity data change",
+      "profile identity update"
     ],
     "category": [
       "identity"
@@ -16968,7 +17911,11 @@
     "title": "IDN-90 Suspected account compromise → contain → verify → recover or clear",
     "summary": "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
     "keywords": [
-      "IDN-90"
+      "IDN-90",
+      "account compromise recovery",
+      "account takeover response",
+      "compromise containment",
+      "security incident (account)"
     ],
     "category": [
       "identity"
@@ -17011,6 +17958,130 @@
         {
           "targetId": "journey:ACC-78",
           "because": "Suspension restricts for a stated business reason and expects to be resolved by that reason going away. This restricts on incomplete evidence about an adversary, which is why it opens an investigation rather than a review."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:IDN-270",
+    "type": "journey",
+    "slug": "account-recovery-guidance",
+    "url": "/lab/journeys/account-recovery-guidance",
+    "urlTr": "/tr/lab/journeys/account-recovery-guidance",
+    "external": false,
+    "title": "IDN-270 Account recovery started → proof of control → access restored or window closed",
+    "summary": "Carry somebody who cannot authenticate through the evidence their recovery actually requires, inside a stated window, on a route that is no weaker than the login it is standing in for.",
+    "keywords": [
+      "IDN-270",
+      "account recovery",
+      "forgot password recovery",
+      "locked-out recovery",
+      "recovery link",
+      "regain access"
+    ],
+    "category": [
+      "identity"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "identity-verification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/account-recovery-guidance",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-90"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-88",
+          "because": "IDN-88 decides the recovery basis, judges the evidence and rebuilds secure access. This journey sends nothing that IDN-88 has not already established, and it decides nothing - it is the requester's side of that case."
+        },
+        {
+          "targetId": "journey:IDN-90",
+          "because": "IDN-90 governs a suspected compromise. Here the account is not under suspicion; somebody simply cannot get in, and treating the two the same makes every locked-out person a suspect."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:IDN-271",
+    "type": "journey",
+    "slug": "compromise-alert-verification",
+    "url": "/lab/journeys/compromise-alert-verification",
+    "urlTr": "/tr/lab/journeys/compromise-alert-verification",
+    "external": false,
+    "title": "IDN-271 Compromise signal → scoped containment → owner verification → recover or clear",
+    "summary": "Ask the owner the one question that resolves a suspected compromise, on a route the suspicion does not touch, while saying plainly whether anything has actually been restricted.",
+    "keywords": [
+      "IDN-271",
+      "account security alert",
+      "suspicious login alert",
+      "unusual activity alert",
+      "compromise notification",
+      "security notification",
+      "new device alert"
+    ],
+    "category": [
+      "identity"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "identity-verification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/compromise-alert-verification",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:IDN-88"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:IDN-90",
+          "because": "IDN-90 determines scope, applies reversible containment and concludes the investigation. This journey does none of that; it is the owner's side of the same incident and it starts only once the scope is known."
+        },
+        {
+          "targetId": "journey:IDN-88",
+          "because": "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too."
         }
       ]
     }
@@ -17179,7 +18250,12 @@
     "title": "INC-254 Incident communication → identify affected cohort → inform, update or close",
     "summary": "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
     "keywords": [
-      "INC-254"
+      "INC-254",
+      "incident update",
+      "status page update",
+      "outage communication",
+      "service disruption notice",
+      "incident notification"
     ],
     "category": [
       "incident"
@@ -18016,6 +19092,131 @@
         {
           "targetId": "journey:INT-116",
           "because": "INT-116 is about our integration to a provider failing. This is about the provider itself being unavailable, where an alternate path may exist and the question is what our product can still do."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:INT-269",
+    "type": "journey",
+    "slug": "integration-reconnect-prompt",
+    "url": "/lab/journeys/integration-reconnect-prompt",
+    "urlTr": "/tr/lab/journeys/integration-reconnect-prompt",
+    "external": false,
+    "title": "INT-269 Integration connection broken → reconnect → restored or degraded",
+    "summary": "Tell the person who owns a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and what one step restores it - so a silent dependency failure becomes a decision instead of a slow discovery.",
+    "keywords": [
+      "INT-269",
+      "integration recovery",
+      "reconnect integration",
+      "integration disconnected",
+      "re-authorise connection",
+      "broken integration notice"
+    ],
+    "category": [
+      "integration"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "suspension-restoration"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/integration-reconnect-prompt",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-24"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-112",
+          "because": "INT-112 revalidates capabilities against a changed authorization and sets the connection's state. This journey starts once that state says something is broken, and it never decides what is broken - only what the holder is told."
+        },
+        {
+          "targetId": "journey:INT-116",
+          "because": "INT-116 stops unsafe operations and preserves in-flight work. Here nothing operational happens; the subject is the holder's window to re-authorise before the break becomes permanent."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:INT-278",
+    "type": "journey",
+    "slug": "integration-setup-outcome",
+    "url": "/lab/journeys/integration-setup-outcome",
+    "urlTr": "/tr/lab/journeys/integration-setup-outcome",
+    "external": false,
+    "title": "INT-278 Integration connection started → validation outcome → active or targeted fix",
+    "summary": "Tell the person who started a connection which stage it actually failed at and what would fix that stage - because a generic failure sends a capable person to support and an incapable one away for good.",
+    "keywords": [
+      "INT-278",
+      "integration setup",
+      "connect integration",
+      "integration failed at setup",
+      "connection failed",
+      "integration onboarding"
+    ],
+    "category": [
+      "integration"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "recovery-retry"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/integration-setup-outcome",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:INT-111"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:INT-111",
+          "because": "INT-111 authenticates, checks scope, probes capability and decides whether the connection is active. This journey is what the person configuring it is told about that outcome, and it invents no diagnosis of its own."
+        },
+        {
+          "targetId": "journey:INT-269",
+          "because": "INT-269 addresses an established connection that has broken. Here nothing has ever worked, so there is no prior capability to restore and nothing to describe as degraded."
         }
       ]
     }
@@ -19083,7 +20284,11 @@
     "title": "REL-91 Entity relationship created → validate → activate or reject",
     "summary": "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
     "keywords": [
-      "REL-91"
+      "REL-91",
+      "relationship validation",
+      "link two records",
+      "account linking",
+      "entity relationship creation"
     ],
     "category": [
       "structure"
@@ -19138,7 +20343,11 @@
     "title": "REL-92 Relationship change → recalculate rights and obligations → continue",
     "summary": "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
     "keywords": [
-      "REL-92"
+      "REL-92",
+      "relationship impact recalculation",
+      "relationship change",
+      "linked account change",
+      "dependency recalculation"
     ],
     "category": [
       "structure"
@@ -19192,7 +20401,11 @@
     "title": "REL-93 Relationship end → remove future dependency → reconcile existing obligations",
     "summary": "Stop what a relationship was carrying forward without cancelling what it validly produced.",
     "keywords": [
-      "REL-93"
+      "REL-93",
+      "relationship end reconciliation",
+      "unlink accounts",
+      "relationship ended",
+      "link removal"
     ],
     "category": [
       "structure"
@@ -19238,7 +20451,11 @@
     "title": "REL-94 Role change → authority and capability delta → apply",
     "summary": "Move what someone may do next, by the difference between two roles, without disturbing what they did under the old one.",
     "keywords": [
-      "REL-94"
+      "REL-94",
+      "role authority update",
+      "role change",
+      "permission delta",
+      "admin role change"
     ],
     "category": [
       "structure"
@@ -19534,7 +20751,11 @@
     "title": "REL-100 Required relationship missing → orphan state → resolve or reassign",
     "summary": "Make a missing required relationship an explicit, findable state rather than a null field that active work quietly runs against.",
     "keywords": [
-      "REL-100"
+      "REL-100",
+      "orphan relationship recovery",
+      "orphaned record",
+      "missing parent",
+      "unowned entity"
     ],
     "category": [
       "structure"
@@ -19581,6 +20802,64 @@
     }
   },
   {
+    "id": "journey:REL-284",
+    "type": "journey",
+    "slug": "relationship-invitation",
+    "url": "/lab/journeys/relationship-invitation",
+    "urlTr": "/tr/lab/journeys/relationship-invitation",
+    "external": false,
+    "title": "REL-284 Relationship invitation → counterparty acceptance → active or expired",
+    "summary": "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
+    "keywords": [
+      "REL-284",
+      "invitation reminder",
+      "invite to link accounts",
+      "counterparty invitation",
+      "team invite reminder",
+      "pending invitation"
+    ],
+    "category": [
+      "structure"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "expiry-renewal"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/relationship-invitation",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REL-91",
+          "because": "REL-91 decides whether a link has an authoritative basis and records it active or rejected. This journey exists only in the case where the missing basis is the counterparty's own acceptance, and it establishes nothing itself - it asks."
+        },
+        {
+          "targetId": "journey:SUB-161",
+          "because": "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:REM-151",
     "type": "journey",
     "slug": "post-completion-issue",
@@ -19590,7 +20869,12 @@
     "title": "REM-151 Post-completion issue → validate → remedy route",
     "summary": "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
     "keywords": [
-      "REM-151"
+      "REM-151",
+      "post-purchase issue recovery",
+      "order problem report",
+      "wrong item received",
+      "damaged on arrival",
+      "post-delivery complaint"
     ],
     "category": [
       "remedy"
@@ -19625,8 +20909,8 @@
       ],
       "distinctFrom": [
         {
-          "targetId": "journey:FBK-44",
-          "because": "FBK-44 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it."
+          "targetId": "journey:FBK-43",
+          "because": "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it."
         }
       ]
     }
@@ -19641,7 +20925,12 @@
     "title": "REM-152 Return request → eligibility → authorize, reject or review",
     "summary": "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
     "keywords": [
-      "REM-152"
+      "REM-152",
+      "return request",
+      "return authorisation",
+      "RMA",
+      "return eligibility",
+      "send it back"
     ],
     "category": [
       "remedy"
@@ -19853,7 +21142,11 @@
     "title": "REM-156 Reperformance or correction → execute → verify corrected outcome",
     "summary": "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
     "keywords": [
-      "REM-156"
+      "REM-156",
+      "corrective reperformance",
+      "redo the service",
+      "correction of a wrong outcome",
+      "re-performance"
     ],
     "category": [
       "remedy"
@@ -19911,7 +21204,12 @@
     "title": "REM-157 Remedy selection → resolve obligation → financial handoff if needed",
     "summary": "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
     "keywords": [
-      "REM-157"
+      "REM-157",
+      "remedy confirmation",
+      "remedy selection",
+      "choose a remedy",
+      "resolution options",
+      "refund or replacement choice"
     ],
     "category": [
       "remedy"
@@ -20142,7 +21440,11 @@
     "title": "RET-21 Engagement state change → reclassify → appropriate lifecycle",
     "summary": "Hold engagement as a state that moves in both directions, and decide separately whether a movement is worth acting on.",
     "keywords": [
-      "RET-21"
+      "RET-21",
+      "engagement reclassification",
+      "engagement scoring",
+      "engagement state",
+      "engagement decline detection"
     ],
     "category": [
       "retention"
@@ -20195,7 +21497,12 @@
     "title": "RET-22 Expected usage miss → context check → observe or intervene",
     "summary": "Read a missed usage expectation as evidence only where an expectation genuinely existed, and only where something else corroborates it.",
     "keywords": [
-      "RET-22"
+      "RET-22",
+      "usage gap assessment",
+      "usage drop",
+      "missed usage milestone",
+      "inactivity check",
+      "expected cadence miss"
     ],
     "category": [
       "retention"
@@ -20243,7 +21550,11 @@
     "title": "RET-23 Health deterioration → diagnose cause → recovery route",
     "summary": "Send a deteriorating relationship to the mechanism that is actually breaking it, and never to a generic retention campaign in its place.",
     "keywords": [
-      "RET-23"
+      "RET-23",
+      "health deterioration diagnosis",
+      "churn risk diagnosis",
+      "account health drop",
+      "health score decline routing"
     ],
     "category": [
       "retention"
@@ -20307,7 +21618,12 @@
     "title": "RET-24 Churn risk escalation → evidence → intervention priority",
     "summary": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
     "keywords": [
-      "RET-24"
+      "RET-24",
+      "churn risk escalation",
+      "churn risk",
+      "at-risk account escalation",
+      "customer success alert",
+      "churn prevention (risk)"
     ],
     "category": [
       "retention"
@@ -20329,8 +21645,7 @@
     ],
     "tags": [
       "cross-journey-handoff",
-      "external-handoff",
-      "competition"
+      "external-handoff"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -20362,7 +21677,13 @@
     "title": "RET-26 Negative experience → recovery eligibility → appropriate response",
     "summary": "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
     "keywords": [
-      "RET-26"
+      "RET-26",
+      "service recovery",
+      "service failure apology",
+      "incident follow-up",
+      "experience recovery",
+      "failed delivery follow-up",
+      "outage follow-up"
     ],
     "category": [
       "retention"
@@ -20411,7 +21732,11 @@
     "title": "RET-27 Recovery signal → observation buffer → stable or relapse",
     "summary": "Keep the distance between a good sign and an actual recovery, so a relapse is still being watched for when it happens.",
     "keywords": [
-      "RET-27"
+      "RET-27",
+      "recovery stability check",
+      "recovery observation",
+      "relapse watch",
+      "post-recovery monitoring"
     ],
     "category": [
       "retention"
@@ -20465,7 +21790,13 @@
     "title": "RET-28 Cancellation intent → understand state → save or proceed",
     "summary": "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
     "keywords": [
-      "RET-28"
+      "RET-28",
+      "cancellation save",
+      "cancel flow",
+      "churn prevention (declared intent)",
+      "save offer",
+      "cancellation intercept",
+      "exit survey"
     ],
     "category": [
       "retention"
@@ -20522,7 +21853,11 @@
     "title": "RET-29 Cancellation completed → stop retention → resolve remaining relationship",
     "summary": "End retention ownership the moment cancellation is real, and manage what is still outstanding without pretending the relationship is either fully over or still winnable.",
     "keywords": [
-      "RET-29"
+      "RET-29",
+      "cancellation wind-down",
+      "post-cancellation",
+      "stop retention after cancellation",
+      "cancelled relationship close-out"
     ],
     "category": [
       "retention"
@@ -20566,7 +21901,11 @@
     "title": "RET-30 Retention intervention → outcome → suppress, escalate or exit",
     "summary": "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
     "keywords": [
-      "RET-30"
+      "RET-30",
+      "retention offer follow-up",
+      "save offer outcome",
+      "retention intervention outcome",
+      "offer acceptance tracking"
     ],
     "category": [
       "retention"
@@ -20591,8 +21930,7 @@
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
-      "multi-exit",
-      "competition"
+      "multi-exit"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -20612,6 +21950,132 @@
         {
           "targetId": "journey:RET-27",
           "because": "This asks whether the intervention worked. RET-27 asks whether the improvement lasts, and takes over once this one has a positive answer."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:RET-31",
+    "type": "journey",
+    "slug": "predicted-need-replenishment",
+    "url": "/lab/journeys/predicted-need-replenishment",
+    "urlTr": "/tr/lab/journeys/predicted-need-replenishment",
+    "external": false,
+    "title": "RET-31 Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
+    "summary": "Prompt a person to replenish a consumable or recurring-use item shortly before its usable period is predicted to end, stating the prediction as an estimate, and stop the moment they buy, dismiss, or the cycle passes.",
+    "keywords": [
+      "RET-31",
+      "replenishment reminder",
+      "reorder reminder",
+      "running-low reminder",
+      "consumable refill reminder",
+      "repurchase reminder",
+      "predicted next purchase",
+      "Predicted Next Purchase",
+      "predicted next purchase",
+      "next order reminder",
+      "repeat purchase prompt",
+      "cadence reminder"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "review-required"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/predicted-need-replenishment",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-13",
+          "because": "ACQ-13 works from observed attention. A predicted need rests on a purchase the person made and a usable period, with no attention observed at all."
+        },
+        {
+          "targetId": "journey:RET-32",
+          "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:RET-32",
+    "type": "journey",
+    "slug": "lapsed-customer-win-back",
+    "url": "/lab/journeys/lapsed-customer-win-back",
+    "urlTr": "/tr/lab/journeys/lapsed-customer-win-back",
+    "external": false,
+    "title": "RET-32 Paid relationship lapsed → outreach permitted → won back, declined or left alone",
+    "summary": "Invite a person whose paid relationship ended or went dormant to come back - once, honestly, with whatever has actually changed since they left - after the cancellation's own window has passed and only where the recorded reason and history do not rule it out.",
+    "keywords": [
+      "RET-32",
+      "win-back",
+      "winback campaign",
+      "lapsed customer reactivation",
+      "churned customer recovery",
+      "come-back offer",
+      "former customer outreach",
+      "lapsed subscriber win-back"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/lapsed-customer-win-back",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-20",
+          "because": "ACT-20 reactivates a relationship that never paid. This addresses one that did, which changes the eligibility, the economics and what the invitation may honestly say."
+        },
+        {
+          "targetId": "journey:RET-28",
+          "because": "RET-28 acts at the moment of cancellation intent, inside the cancellation's own window. This starts only after that window and its cooldown have passed."
         }
       ]
     }
@@ -21115,6 +22579,68 @@
         }
       ],
       "distinctFrom": []
+    }
+  },
+  {
+    "id": "journey:RLT-279",
+    "type": "journey",
+    "slug": "upgrade-blocker-prompt",
+    "url": "/lab/journeys/upgrade-blocker-prompt",
+    "urlTr": "/tr/lab/journeys/upgrade-blocker-prompt",
+    "external": false,
+    "title": "RLT-279 Upgrade blocked by a resolvable prerequisite → prompt → ready or expired",
+    "summary": "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
+    "keywords": [
+      "RLT-279",
+      "upgrade blocker reminder",
+      "update blocked by prerequisite",
+      "prepare for the upgrade",
+      "migration prerequisite reminder",
+      "rollout readiness prompt"
+    ],
+    "category": [
+      "rollout"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "expiry-renewal"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/upgrade-blocker-prompt",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RLT-242"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RLT-242",
+          "because": "RLT-242 works out what preparation this change requires and records the blockers that hold the target. This journey is what the holder is told about a blocker, and it sends nothing until that hold exists with a named cause."
+        },
+        {
+          "targetId": "journey:RLT-241",
+          "because": "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite."
+        }
+      ]
     }
   },
   {
@@ -21673,6 +23199,68 @@
     }
   },
   {
+    "id": "journey:RSK-273",
+    "type": "journey",
+    "slug": "usage-limit-capacity-path",
+    "url": "/lab/journeys/usage-limit-capacity-path",
+    "urlTr": "/tr/lab/journeys/usage-limit-capacity-path",
+    "external": false,
+    "title": "RSK-273 Usage limit reached → capacity path → upgrade, wait for reset or stay blocked",
+    "summary": "Meet somebody at the moment a limit stops them with the three facts that decide what happens next - what the limit is, when it resets, and whether more capacity can be bought - without any of it reading as an accusation.",
+    "keywords": [
+      "RSK-273",
+      "usage limit alert",
+      "quota reached",
+      "rate limit reached notice",
+      "plan limit hit",
+      "over the limit"
+    ],
+    "category": [
+      "risk"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "risk-compliance"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/usage-limit-capacity-path",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SUB-166"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RSK-199",
+          "because": "RSK-199 blocks the action, holds the count and governs the reset. This journey adds nothing operational - it is what the person at the block is told, and it sends only figures RSK-199 already treats as authoritative."
+        },
+        {
+          "targetId": "journey:RSK-193",
+          "because": "RSK-193 restricts in response to risk. A limit reached is the limit working, and routing it through a risk message is how ordinary usage gets treated as suspicion."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:SCH-171",
     "type": "journey",
     "slug": "availability-query",
@@ -21729,7 +23317,11 @@
     "title": "SCH-172 Slot hold → reserve temporarily → confirm, expire or release",
     "summary": "Protect specific capacity for a bounded moment while a booking is being completed, without pretending it is a booking.",
     "keywords": [
-      "SCH-172"
+      "SCH-172",
+      "temporary slot hold",
+      "slot reservation hold",
+      "booking capacity hold",
+      "checkout timer for bookings"
     ],
     "category": [
       "scheduling"
@@ -21777,7 +23369,11 @@
     "title": "SCH-173 Reservation request → validate → confirm, reject or pending",
     "summary": "Turn a request for a specific time into a commitment both sides can rely on, or say clearly that it did not.",
     "keywords": [
-      "SCH-173"
+      "SCH-173",
+      "reservation validation",
+      "booking request validation",
+      "confirm a booking",
+      "booking capacity check"
     ],
     "category": [
       "scheduling"
@@ -21833,7 +23429,12 @@
     "title": "SCH-174 Reservation confirmed → prepare → upcoming or ready",
     "summary": "Get the conditions for a successful service in place, without letting them move the time that was promised.",
     "keywords": [
-      "SCH-174"
+      "SCH-174",
+      "reservation readiness",
+      "booking preparation",
+      "pre-service checklist",
+      "prerequisite tracking",
+      "readiness checkpoint"
     ],
     "category": [
       "scheduling"
@@ -21880,7 +23481,11 @@
     "title": "SCH-175 Reschedule request → recheck availability → move, reject or preserve original",
     "summary": "Move a commitment to a new time without ever leaving the customer holding neither.",
     "keywords": [
-      "SCH-175"
+      "SCH-175",
+      "reschedule validation",
+      "move a booking",
+      "change appointment time",
+      "rebooking"
     ],
     "category": [
       "scheduling"
@@ -21932,7 +23537,11 @@
     "title": "SCH-176 Reservation cancellation → stop commitment → release capacity → reconcile",
     "summary": "End a future time commitment cleanly, returning the capacity and leaving the money to be decided elsewhere.",
     "keywords": [
-      "SCH-176"
+      "SCH-176",
+      "reservation cancellation reconciliation",
+      "cancel a booking",
+      "appointment cancellation",
+      "booking cancelled"
     ],
     "category": [
       "scheduling"
@@ -21990,7 +23599,11 @@
     "title": "SCH-177 Scheduled time approaches → revalidate → check in, start or exception",
     "summary": "Start a service from what the booking is now, not from a confirmation issued weeks ago.",
     "keywords": [
-      "SCH-177"
+      "SCH-177",
+      "pre-service check",
+      "arrival window",
+      "check-in",
+      "start-time revalidation"
     ],
     "category": [
       "scheduling"
@@ -22048,7 +23661,11 @@
     "title": "SCH-178 Attendance or service start → complete, partial or interrupted",
     "summary": "Separate the fact that someone turned up from the question of whether they got what they came for.",
     "keywords": [
-      "SCH-178"
+      "SCH-178",
+      "service completion",
+      "appointment completed",
+      "service delivered",
+      "attendance versus outcome"
     ],
     "category": [
       "scheduling"
@@ -22105,7 +23722,11 @@
     "title": "SCH-179 No-show or missed appointment → validate → rebook, close or consequence",
     "summary": "Establish that one confirmed booking did not happen because the customer did not attend, having ruled out every other explanation.",
     "keywords": [
-      "SCH-179"
+      "SCH-179",
+      "no-show validation",
+      "missed appointment detection",
+      "did not attend",
+      "no-show record"
     ],
     "category": [
       "scheduling"
@@ -22168,7 +23789,12 @@
     "title": "SCH-180 Provider or resource cancellation → reallocate → reschedule, remedy or cancel",
     "summary": "Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.",
     "keywords": [
-      "SCH-180"
+      "SCH-180",
+      "provider cancellation",
+      "appointment cancelled by provider",
+      "reallocation",
+      "we cannot keep your booking",
+      "provider-side reschedule"
     ],
     "category": [
       "scheduling"
@@ -22216,6 +23842,248 @@
     }
   },
   {
+    "id": "journey:SCH-266",
+    "type": "journey",
+    "slug": "appointment-readiness-reminder",
+    "url": "/lab/journeys/appointment-readiness-reminder",
+    "urlTr": "/tr/lab/journeys/appointment-readiness-reminder",
+    "external": false,
+    "title": "SCH-266 Appointment approaching → prerequisites and revalidation → ready, reminded or at risk",
+    "summary": "Get the customer's side of a confirmed commitment done before the commitment arrives, and send the reminder from what the booking is at that moment rather than from what it was when it was made.",
+    "keywords": [
+      "SCH-266",
+      "appointment reminder",
+      "booking reminder",
+      "pre-appointment preparation",
+      "reservation reminder",
+      "event reminder"
+    ],
+    "category": [
+      "scheduling"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "delivery-confirmation"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/appointment-readiness-reminder",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-174"
+        },
+        {
+          "targetId": "journey:SCH-177"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SCH-174",
+          "because": "SCH-174 prepares the conditions and records a reminder having been sent as somebody else's fact. This journey is that somebody, and it never moves the confirmed time."
+        },
+        {
+          "targetId": "journey:SCH-177",
+          "because": "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SCH-277",
+    "type": "journey",
+    "slug": "reservation-outcome-notice",
+    "url": "/lab/journeys/reservation-outcome-notice",
+    "urlTr": "/tr/lab/journeys/reservation-outcome-notice",
+    "external": false,
+    "title": "SCH-277 Reservation requested → validate capacity → confirm, re-offer or lapse",
+    "summary": "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
+    "keywords": [
+      "SCH-277",
+      "booking confirmation",
+      "reservation confirmation",
+      "appointment confirmed",
+      "booking request outcome",
+      "slot no longer available"
+    ],
+    "category": [
+      "scheduling"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "delivery-confirmation"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/reservation-outcome-notice",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-173"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SCH-173",
+          "because": "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SCH-280",
+    "type": "journey",
+    "slug": "no-show-rebooking",
+    "url": "/lab/journeys/no-show-rebooking",
+    "urlTr": "/tr/lab/journeys/no-show-rebooking",
+    "external": false,
+    "title": "SCH-280 No-show confirmed → validate the miss → rebook or close",
+    "summary": "Offer a way back to somebody whose booking did not happen, having first established that the miss was theirs and not ours - because a rebooking prompt sent over our own failure is an accusation.",
+    "keywords": [
+      "SCH-280",
+      "no-show follow-up",
+      "missed appointment follow-up",
+      "missed booking",
+      "rebooking offer",
+      "did-not-attend follow-up",
+      "DNA follow-up"
+    ],
+    "category": [
+      "scheduling"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/no-show-rebooking",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SCH-180"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SCH-179",
+          "because": "SCH-179 establishes and records the no-show and decides what consequence policy attaches. This journey is what the customer is told, it never creates the record, and it runs only where policy attached rebooking rather than a consequence."
+        },
+        {
+          "targetId": "journey:SCH-177",
+          "because": "SCH-177 runs as the time approaches and is about getting somebody there. This starts only once the window has closed with nobody there."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SCH-282",
+    "type": "journey",
+    "slug": "availability-searched-no-booking",
+    "url": "/lab/journeys/availability-searched-no-booking",
+    "urlTr": "/tr/lab/journeys/availability-searched-no-booking",
+    "external": false,
+    "title": "SCH-282 Availability searched, no booking → nearest window or waitlist",
+    "summary": "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
+    "keywords": [
+      "SCH-282",
+      "availability search abandonment",
+      "searched but did not book",
+      "no availability follow-up",
+      "waitlist offer",
+      "nearest slot offer"
+    ],
+    "category": [
+      "scheduling"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "scheduling-commitment"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/availability-searched-no-booking",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SCH-171",
+          "because": "SCH-171 answers the question at the moment it is asked and holds nothing. This journey starts only once that answer has produced no booking, and it re-evaluates from scratch rather than reusing what was shown."
+        },
+        {
+          "targetId": "journey:SCH-172",
+          "because": "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:SUB-161",
     "type": "journey",
     "slug": "continuing-relationship-creation",
@@ -22225,7 +24093,11 @@
     "title": "SUB-161 Continuing relationship created → validate → activate or pending",
     "summary": "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
     "keywords": [
-      "SUB-161"
+      "SUB-161",
+      "relationship activation",
+      "subscription start",
+      "contract activation",
+      "membership activation"
     ],
     "category": [
       "subscription"
@@ -22280,7 +24152,11 @@
     "title": "SUB-162 Future effective start → wait → revalidate → activate or abort",
     "summary": "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
     "keywords": [
-      "SUB-162"
+      "SUB-162",
+      "future activation revalidation",
+      "scheduled start",
+      "future-dated subscription",
+      "activation at effective date"
     ],
     "category": [
       "subscription"
@@ -22328,7 +24204,13 @@
     "title": "SUB-163 Renewal window → eligibility → renew, non-renew or review",
     "summary": "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
     "keywords": [
-      "SUB-163"
+      "SUB-163",
+      "renewal reminder",
+      "renewal notice",
+      "auto-renewal notice",
+      "contract renewal",
+      "subscription renewal reminder",
+      "term-end reminder"
     ],
     "category": [
       "subscription"
@@ -22349,8 +24231,7 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff",
-      "competition"
+      "cross-journey-handoff"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -22448,7 +24329,12 @@
     "title": "SUB-165 Renewal payment failure → grace or recover → renew or lapse",
     "summary": "Decide what the relationship does while a failed renewal payment is being chased, without ending it by reflex.",
     "keywords": [
-      "SUB-165"
+      "SUB-165",
+      "renewal payment recovery",
+      "renewal dunning (state)",
+      "failed renewal charge",
+      "grace period",
+      "involuntary churn (renewal)"
     ],
     "category": [
       "subscription"
@@ -22506,7 +24392,11 @@
     "title": "SUB-166 Plan or terms change request → validate → schedule, apply or reject",
     "summary": "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
     "keywords": [
-      "SUB-166"
+      "SUB-166",
+      "plan change validation",
+      "upgrade or downgrade",
+      "change of terms",
+      "plan switch"
     ],
     "category": [
       "subscription"
@@ -22572,7 +24462,11 @@
     "title": "SUB-167 Cancellation request → determine effective end → schedule or cancel now",
     "summary": "Establish whether and when a relationship will end, while the current term keeps running until it does.",
     "keywords": [
-      "SUB-167"
+      "SUB-167",
+      "cancellation effective-date resolution",
+      "cancel subscription request",
+      "when a cancellation takes effect",
+      "cancellation request handling"
     ],
     "category": [
       "subscription"
@@ -22632,7 +24526,10 @@
     "title": "SUB-168 Scheduled cancellation → revalidate at effective time → end or preserve",
     "summary": "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
     "keywords": [
-      "SUB-168"
+      "SUB-168",
+      "scheduled cancellation revalidation",
+      "end-of-term cancellation execution",
+      "scheduled termination check"
     ],
     "category": [
       "subscription"
@@ -22682,7 +24579,11 @@
     "title": "SUB-169 Suspension or hold → restrict relationship → restore or end",
     "summary": "Hold a relationship in a state where it cannot operate normally and has not ended.",
     "keywords": [
-      "SUB-169"
+      "SUB-169",
+      "relationship suspension",
+      "subscription on hold",
+      "pause subscription",
+      "relationship hold"
     ],
     "category": [
       "subscription"
@@ -22737,7 +24638,11 @@
     "title": "SUB-170 Relationship end → final reconciliation → former or expired state",
     "summary": "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
     "keywords": [
-      "SUB-170"
+      "SUB-170",
+      "relationship end reconciliation",
+      "subscription ended",
+      "contract expiry reconciliation",
+      "post-termination obligations"
     ],
     "category": [
       "subscription"
@@ -22784,6 +24689,67 @@
     }
   },
   {
+    "id": "journey:SUB-262",
+    "type": "journey",
+    "slug": "cancellation-wind-down-notice",
+    "url": "/lab/journeys/cancellation-wind-down-notice",
+    "urlTr": "/tr/lab/journeys/cancellation-wind-down-notice",
+    "external": false,
+    "title": "SUB-262 Cancellation confirmed → wind-down window → access ends or customer returns",
+    "summary": "Carry somebody through the period between deciding to leave and actually losing access, so the end date is never a surprise and returning stays possible right up to it.",
+    "keywords": [
+      "SUB-262",
+      "cancellation confirmation",
+      "subscription cancelled notice",
+      "access ends on date",
+      "wind-down notice"
+    ],
+    "category": [
+      "subscription"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/cancellation-wind-down-notice",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:SUB-170"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-28",
+          "because": "RET-28 runs before the decision and may offer an alternative. This starts once cancellation is confirmed, and never re-litigates it."
+        },
+        {
+          "targetId": "journey:SUB-167",
+          "because": "SUB-167 establishes whether and when the relationship ends. This is what the customer is told across that window."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:TIM-61",
     "type": "journey",
     "slug": "deadline-tracking",
@@ -22793,7 +24759,12 @@
     "title": "TIM-61 Deadline created → track → complete, escalate or expire",
     "summary": "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
     "keywords": [
-      "TIM-61"
+      "TIM-61",
+      "deadline tracking",
+      "deadline reminder",
+      "due date reminder",
+      "obligation deadline",
+      "submission deadline reminder"
     ],
     "category": [
       "time"
@@ -22852,7 +24823,11 @@
     "title": "TIM-62 Due-state change → recalculate priority → resolve or escalate",
     "summary": "Change what an unresolved obligation costs operationally when it becomes due or overdue, rather than only announcing that it has.",
     "keywords": [
-      "TIM-62"
+      "TIM-62",
+      "overdue state recalculation",
+      "overdue handling",
+      "past due",
+      "due-state change"
     ],
     "category": [
       "time"
@@ -22902,7 +24877,14 @@
     "title": "TIM-63 Expiry approaching → eligibility check → renew, complete or let expire",
     "summary": "Use the window before an expiry only where acting inside it could actually change what happens.",
     "keywords": [
-      "TIM-63"
+      "TIM-63",
+      "expiry reminder",
+      "expiration notice",
+      "licence expiry reminder",
+      "credential expiry reminder",
+      "card expiry reminder",
+      "document expiry reminder",
+      "pre-expiry notice"
     ],
     "category": [
       "time"
@@ -22921,7 +24903,6 @@
       "learn"
     ],
     "tags": [
-      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
@@ -23002,7 +24983,11 @@
     "title": "TIM-65 Grace period entry → temporary continuity → recover or terminate",
     "summary": "Keep limited continuity while something recoverable is unresolved, without pretending the normal active state still exists.",
     "keywords": [
-      "TIM-65"
+      "TIM-65",
+      "grace period",
+      "dunning grace",
+      "past-due grace",
+      "soft expiry"
     ],
     "category": [
       "time"
@@ -23292,6 +25277,175 @@
     }
   },
   {
+    "id": "journey:TIM-268",
+    "type": "journey",
+    "slug": "outstanding-obligation-reminder",
+    "url": "/lab/journeys/outstanding-obligation-reminder",
+    "urlTr": "/tr/lab/journeys/outstanding-obligation-reminder",
+    "external": false,
+    "title": "TIM-268 Customer-owed action → deadline reminder → completed or lapsed",
+    "summary": "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
+    "keywords": [
+      "TIM-268",
+      "action required reminder",
+      "customer action reminder",
+      "pending action reminder",
+      "outstanding task reminder",
+      "to-do reminder"
+    ],
+    "category": [
+      "time"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "review-required"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "external-handoff",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/outstanding-obligation-reminder",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-131",
+          "because": "FIN-131 holds what is owed as its own state, independent of anything sent about it. This is the sending, and it reads that state rather than defining it - nothing here changes what is owed."
+        },
+        {
+          "targetId": "journey:REM-153",
+          "because": "REM-153 tracks whether the resource actually comes back and holds the states where it might not have. This is the prompt to the person still holding it, and it stops the moment the record says it is no longer outstanding."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:TIM-274",
+    "type": "journey",
+    "slug": "grace-period-recovery",
+    "url": "/lab/journeys/grace-period-recovery",
+    "urlTr": "/tr/lab/journeys/grace-period-recovery",
+    "external": false,
+    "title": "TIM-274 Grace period entered → recover before it ends → restored or lost",
+    "summary": "Tell the holder that validity has lapsed into a bounded period with reduced function, what still works, when that period ends and the one route back - so grace is a state they are in knowingly rather than one they discover when something stops.",
+    "keywords": [
+      "TIM-274",
+      "grace period recovery",
+      "grace period notice",
+      "lapsed subscription grace",
+      "reduced function period",
+      "expired but recoverable"
+    ],
+    "category": [
+      "time"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "suspension-restoration"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/grace-period-recovery",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-65",
+          "because": "TIM-65 grants the grace state, records which capabilities continue and decides what happens when the window closes. This journey is what the holder is told across that window, and it sends nothing until that state exists."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:TIM-281",
+    "type": "journey",
+    "slug": "expired-entity-re-entry",
+    "url": "/lab/journeys/expired-entity-re-entry",
+    "urlTr": "/tr/lab/journeys/expired-entity-re-entry",
+    "external": false,
+    "title": "TIM-281 Expired entitlement touched → re-entry route → requalify, replace or stay expired",
+    "summary": "Give somebody who has come back to something that expired the one route that actually restores it, at the moment they are asking - because naming the wrong route spends the only intent this ever gets.",
+    "keywords": [
+      "TIM-281",
+      "expired access recovery",
+      "expired subscription re-entry",
+      "expired licence renewal route",
+      "lapsed entitlement recovery",
+      "came back after expiry"
+    ],
+    "category": [
+      "time"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "eligibility-qualification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/expired-entity-re-entry",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-69",
+          "because": "TIM-69 decides which mechanism restores validity and issues any replacement. This journey starts from the holder's own attempt and carries them along whichever route that decision names."
+        },
+        {
+          "targetId": "journey:TIM-63",
+          "because": "TIM-63 runs before expiry, while the thing is still valid and can simply be kept. This runs after, where a gap exists on the record and the route back is a different mechanism."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:TRM-101",
     "type": "journey",
     "slug": "entity-merge-execution",
@@ -23499,7 +25653,11 @@
     "title": "TRM-105 Role or responsibility handover → effective-time transfer → continue",
     "summary": "Move a role between two people at a defined moment, without changing anything before it or rewriting anything behind it.",
     "keywords": [
-      "TRM-105"
+      "TRM-105",
+      "responsibility handover",
+      "role handover",
+      "owner transfer",
+      "account manager change"
     ],
     "category": [
       "terminal"
@@ -23558,7 +25716,11 @@
     "title": "TRM-106 Account closure request → validate → resolve blockers → close",
     "summary": "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
     "keywords": [
-      "TRM-106"
+      "TRM-106",
+      "account closure",
+      "close account",
+      "close my account request",
+      "account termination request"
     ],
     "category": [
       "terminal"
@@ -23614,7 +25776,11 @@
     "title": "TRM-107 Account closure → reconcile external and commercial dependencies → finalize",
     "summary": "Make sure nothing that lives outside the account is assumed to have ended because the account did.",
     "keywords": [
-      "TRM-107"
+      "TRM-107",
+      "account closure reconciliation",
+      "external dependency termination",
+      "closure finalisation",
+      "linked service termination"
     ],
     "category": [
       "terminal"
@@ -23660,7 +25826,11 @@
     "title": "TRM-108 Closure completed → wind-down → former or terminal account state",
     "summary": "Stop normal account activity while letting the obligations that outlive closure actually finish.",
     "keywords": [
-      "TRM-108"
+      "TRM-108",
+      "account closure wind-down",
+      "post-closure obligations",
+      "closed account state",
+      "former customer state"
     ],
     "category": [
       "terminal"
@@ -23803,6 +25973,61 @@
     }
   },
   {
+    "id": "journey:TRM-275",
+    "type": "journey",
+    "slug": "deletion-request-confirmation",
+    "url": "/lab/journeys/deletion-request-confirmation",
+    "urlTr": "/tr/lab/journeys/deletion-request-confirmation",
+    "external": false,
+    "title": "TRM-275 Deletion request → verify requester → confirm scope and retention → closed",
+    "summary": "Give the person who asked for their data to be removed a durable record of what went, what stayed, under which obligation, and the date the request closed - because a deletion nobody can point to is indistinguishable from one that never happened.",
+    "keywords": [
+      "TRM-275",
+      "data deletion confirmation",
+      "right to erasure",
+      "data deletion request",
+      "delete my data",
+      "data subject request"
+    ],
+    "category": [
+      "terminal"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "ending-closure"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "identity-verification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "external-handoff",
+      "multi-exit",
+      "no-re-entry"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/deletion-request-confirmation",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:TRM-109",
+          "because": "TRM-109 decides what the request covers, what an authoritative obligation requires keeping, and executes the removal. This journey is only what the requester is told, and it states nothing TRM-109 has not resolved."
+        }
+      ]
+    }
+  },
+  {
     "id": "calculator:ab-test",
     "type": "calculator",
     "slug": "ab-test",
@@ -23840,57 +26065,11 @@
       "use-tool"
     ],
     "tags": [
-      "confidence-interval-calculator",
       "sample-size-calculator"
     ],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/ab-test",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:activation-rate",
-    "type": "calculator",
-    "slug": "activation-rate",
-    "url": "/calculators/activation-rate",
-    "urlTr": "/tr/calculators/activation-rate",
-    "external": false,
-    "title": "Activation Rate Calculator",
-    "summary": "Calculate activation rate from activated users and installs, and see why the activation event itself is product-defined, not universal.",
-    "keywords": [
-      "Activation Rate",
-      "activation rate formula",
-      "how to calculate activation rate",
-      "activation rate example",
-      "what is activation rate",
-      "what is a good activation rate"
-    ],
-    "category": [
-      "mobile-growth"
-    ],
-    "normalizedCategory": [
-      "mobile"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Activation Rate"
-    ],
-    "businessObjective": [
-      "progression-milestone"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "cr",
-      "d1-retention"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/activation-rate",
     "searchAliases": [],
     "boost": {}
   },
@@ -23933,67 +26112,13 @@
       "calculate",
       "use-tool"
     ],
-    "tags": [
-      "revenue-per-visitor"
-    ],
+    "tags": [],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/aov",
     "searchAliases": [
       "average order value"
     ],
-    "boost": {}
-  },
-  {
-    "id": "calculator:bounce-rate-email",
-    "type": "calculator",
-    "slug": "bounce-rate-email",
-    "url": "/calculators/bounce-rate-email",
-    "urlTr": "/tr/calculators/bounce-rate-email",
-    "external": false,
-    "title": "Bounce Rate (email) Calculator",
-    "summary": "Calculate email bounce rate from emails sent and bounced, and see why hard and soft bounces mean very different things.",
-    "keywords": [
-      "Bounce Rate (email)",
-      "bounce rate formula",
-      "how to calculate bounce rate",
-      "bounce rate example",
-      "what is bounce rate",
-      "average bounce rate"
-    ],
-    "category": [
-      "crm-email"
-    ],
-    "normalizedCategory": [
-      "crm-and-lifecycle"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Bounce Rate (email)"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "open-rate",
-      "ctor",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness",
-      "engagement-rate"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/bounce-rate-email",
-    "searchAliases": [],
     "boost": {}
   },
   {
@@ -24034,7 +26159,6 @@
       "use-tool"
     ],
     "tags": [
-      "contribution-margin",
       "roas",
       "cac"
     ],
@@ -24140,243 +26264,6 @@
     "boost": {}
   },
   {
-    "id": "calculator:cart-abandonment",
-    "type": "calculator",
-    "slug": "cart-abandonment",
-    "url": "/calculators/cart-abandonment",
-    "urlTr": "/tr/calculators/cart-abandonment",
-    "external": false,
-    "title": "Cart Abandonment Rate Calculator",
-    "summary": "Calculate cart abandonment rate from carts started and completed purchases, and see why cart-stage and checkout-stage numbers aren't the same.",
-    "keywords": [
-      "Cart Abandonment Rate",
-      "cart abandonment rate formula",
-      "how to calculate cart abandonment rate",
-      "cart abandonment rate example",
-      "what is cart abandonment rate",
-      "checkout abandonment rate calculator",
-      "what is a good cart abandonment rate",
-      "reduce cart abandonment"
-    ],
-    "category": [
-      "ecommerce"
-    ],
-    "normalizedCategory": [
-      "cart-and-checkout"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Cart Abandonment Rate"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "cr"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/cart-abandonment",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:complaint-rate",
-    "type": "calculator",
-    "slug": "complaint-rate",
-    "url": "/calculators/complaint-rate",
-    "urlTr": "/tr/calculators/complaint-rate",
-    "external": false,
-    "title": "Complaint Rate Calculator",
-    "summary": "Calculate email complaint rate from complaints and delivered emails, and see Gmail's own published thresholds for this metric.",
-    "keywords": [
-      "Complaint Rate",
-      "complaint rate formula",
-      "how to calculate complaint rate",
-      "complaint rate example",
-      "what is complaint rate"
-    ],
-    "category": [
-      "crm-email"
-    ],
-    "normalizedCategory": [
-      "crm-and-lifecycle"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Complaint Rate"
-    ],
-    "businessObjective": [
-      "delivery-confirmation"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "open-rate",
-      "ctor",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness",
-      "engagement-rate"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/complaint-rate",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:confidence-interval-calculator",
-    "type": "calculator",
-    "slug": "confidence-interval-calculator",
-    "url": "/calculators/confidence-interval-calculator",
-    "urlTr": "/tr/calculators/confidence-interval-calculator",
-    "external": false,
-    "title": "Confidence Interval Calculator",
-    "summary": "Calculate a confidence interval for one observed conversion rate, with the correct frequentist interpretation and the boundary with A/B significance testing.",
-    "keywords": [
-      "Confidence Interval",
-      "confidence interval formula",
-      "how to calculate confidence interval",
-      "confidence interval example",
-      "what is confidence interval",
-      "what is a good confidence interval"
-    ],
-    "category": [
-      "experimentation"
-    ],
-    "normalizedCategory": [
-      "experimentation-and-testing"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Confidence Interval"
-    ],
-    "businessObjective": [
-      "change-versioning"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ab-test"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/confidence-interval-calculator",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:contribution-margin",
-    "type": "calculator",
-    "slug": "contribution-margin",
-    "url": "/calculators/contribution-margin",
-    "urlTr": "/tr/calculators/contribution-margin",
-    "external": false,
-    "title": "Contribution Margin Calculator",
-    "summary": "Calculate contribution margin from revenue, COGS and other variable costs, and see how it differs from gross margin and profit.",
-    "keywords": [
-      "Contribution Margin",
-      "contribution margin formula",
-      "how to calculate contribution margin",
-      "contribution margin example",
-      "what is contribution margin",
-      "what is a good contribution margin"
-    ],
-    "category": [
-      "ecommerce"
-    ],
-    "normalizedCategory": [
-      "cart-and-checkout"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Contribution Margin"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "gross-margin",
-      "profit-margin",
-      "break-even-point"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/contribution-margin",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:cpa",
-    "type": "calculator",
-    "slug": "cpa",
-    "url": "/calculators/cpa",
-    "urlTr": "/tr/calculators/cpa",
-    "external": false,
-    "title": "CPA Calculator",
-    "summary": "Calculate CPA (cost per acquisition) from total spend and conversions, and see exactly how CPA differs in scope from CAC for the same channel.",
-    "keywords": [
-      "CPA",
-      "cpa formula",
-      "how to calculate cpa",
-      "cpa example",
-      "what is cpa",
-      "cost per acquisition calculator",
-      "cost per conversion calculator"
-    ],
-    "category": [
-      "advertising"
-    ],
-    "normalizedCategory": [
-      "advertising-and-media"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "CPA"
-    ],
-    "businessObjective": [
-      "change-versioning"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "cpc",
-      "cpm",
-      "cpl",
-      "cac"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/cpa",
-    "searchAliases": [
-      "cost per acquisition"
-    ],
-    "boost": {}
-  },
-  {
     "id": "calculator:cpc",
     "type": "calculator",
     "slug": "cpc",
@@ -24412,65 +26299,13 @@
       "use-tool"
     ],
     "tags": [
-      "cpm",
-      "cpa",
-      "cpl",
-      "ctr"
+      "cpm"
     ],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/cpc",
     "searchAliases": [
       "cost per click"
-    ],
-    "boost": {}
-  },
-  {
-    "id": "calculator:cpl",
-    "type": "calculator",
-    "slug": "cpl",
-    "url": "/calculators/cpl",
-    "urlTr": "/tr/calculators/cpl",
-    "external": false,
-    "title": "CPL Calculator",
-    "summary": "Calculate cost per lead (CPL) from spend and leads, and see how it differs in scope from CPA and CAC further down the funnel.",
-    "keywords": [
-      "CPL",
-      "cpl formula",
-      "how to calculate cpl",
-      "cpl example",
-      "what is cpl",
-      "cost per lead calculator"
-    ],
-    "category": [
-      "advertising"
-    ],
-    "normalizedCategory": [
-      "advertising-and-media"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "CPL"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "cpc",
-      "cpm",
-      "cpa",
-      "cac"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/cpl",
-    "searchAliases": [
-      "cost per lead"
     ],
     "boost": {}
   },
@@ -24511,9 +26346,7 @@
       "use-tool"
     ],
     "tags": [
-      "cpc",
-      "cpa",
-      "cpl"
+      "cpc"
     ],
     "language": "en",
     "indexable": true,
@@ -24561,10 +26394,7 @@
       "calculate",
       "use-tool"
     ],
-    "tags": [
-      "activation-rate",
-      "ctr"
-    ],
+    "tags": [],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/cr",
@@ -24572,22 +26402,31 @@
     "boost": {}
   },
   {
-    "id": "calculator:ctor",
+    "id": "calculator:email-performance",
     "type": "calculator",
-    "slug": "ctor",
-    "url": "/calculators/ctor",
-    "urlTr": "/tr/calculators/ctor",
+    "slug": "email-performance",
+    "url": "/calculators/email-performance",
+    "urlTr": "/tr/calculators/email-performance",
     "external": false,
-    "title": "Click-to-Open Rate (CTOR) Calculator",
-    "summary": "Calculate click-to-open rate (CTOR) from clicks and opens, and see why CTOR can legitimately read above 100% without a genuine tracking error.",
+    "title": "Email Performance Calculator",
+    "summary": "Calculate open rate, click-to-open rate, delivery, bounce, unsubscribe, complaint, list growth and revenue per recipient from one set of campaign numbers.",
     "keywords": [
-      "Click-to-Open Rate (CTOR)",
-      "click-to-open rate formula",
-      "how to calculate click-to-open rate",
-      "click-to-open rate example",
-      "what is click-to-open rate",
+      "Email Performance",
+      "email performance formula",
+      "how to calculate email performance",
+      "email performance example",
+      "what is email performance",
+      "email campaign metrics calculator",
+      "email marketing calculator calculator",
+      "open rate calculator",
       "ctor calculator",
-      "what is a good click-to-open rate"
+      "delivery rate calculator",
+      "bounce rate calculator",
+      "unsubscribe rate calculator",
+      "complaint rate calculator",
+      "list growth rate calculator",
+      "revenue per recipient calculator",
+      "what is a good email performance"
     ],
     "category": [
       "crm-email"
@@ -24598,218 +26437,7 @@
     "surface": [],
     "funnelStage": [],
     "metric": [
-      "Click-to-Open Rate (CTOR)"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "open-rate",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness",
-      "engagement-rate"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/ctor",
-    "searchAliases": [
-      "Click-to-Open Rate"
-    ],
-    "boost": {}
-  },
-  {
-    "id": "calculator:ctr",
-    "type": "calculator",
-    "slug": "ctr",
-    "url": "/calculators/ctr",
-    "urlTr": "/tr/calculators/ctr",
-    "external": false,
-    "title": "CTR (ads) Calculator",
-    "summary": "Calculate click-through rate from clicks and impressions, with a worked example and the distinction between CTR and CTOR.",
-    "keywords": [
-      "CTR (ads)",
-      "ctr formula",
-      "how to calculate ctr",
-      "ctr example",
-      "what is ctr",
-      "click-through rate calculator",
-      "average ctr"
-    ],
-    "category": [
-      "advertising"
-    ],
-    "normalizedCategory": [
-      "advertising-and-media"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "CTR (ads)"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "delivery-rate",
-      "open-rate",
-      "ctor",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness",
-      "engagement-rate",
-      "cpc",
-      "cr"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/ctr",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:d1-retention",
-    "type": "calculator",
-    "slug": "d1-retention",
-    "url": "/calculators/d1-retention",
-    "urlTr": "/tr/calculators/d1-retention",
-    "external": false,
-    "title": "Day-N Retention Calculator (D1, D7, D14, D30)",
-    "summary": "Calculate D1, D7, D14, or D30 retention from a signup cohort, and see why retention on different days measures different things.",
-    "keywords": [
-      "D1 Retention",
-      "d1 retention formula",
-      "how to calculate d1 retention",
-      "d1 retention example",
-      "what is d1 retention",
-      "d7 retention calculator",
-      "d30 retention calculator",
-      "what is a good d1 retention"
-    ],
-    "category": [
-      "mobile-growth"
-    ],
-    "normalizedCategory": [
-      "mobile"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "D1 Retention"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "retention-rate",
-      "logo-churn",
-      "activation-rate",
-      "dau-mau-stickiness"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/d1-retention",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:dau-mau-stickiness",
-    "type": "calculator",
-    "slug": "dau-mau-stickiness",
-    "url": "/calculators/dau-mau-stickiness",
-    "urlTr": "/tr/calculators/dau-mau-stickiness",
-    "external": false,
-    "title": "DAU/MAU Stickiness Calculator",
-    "summary": "Calculate DAU/MAU stickiness from daily and monthly active users, and see why it's a proxy for habit formation, not proof of it on its own.",
-    "keywords": [
-      "DAU/MAU Stickiness",
-      "dau/mau stickiness formula",
-      "how to calculate dau/mau stickiness",
-      "dau/mau stickiness example",
-      "what is dau/mau stickiness",
-      "dau/wau stickiness calculator",
-      "what is a good dau/mau stickiness"
-    ],
-    "category": [
-      "mobile-growth"
-    ],
-    "normalizedCategory": [
-      "mobile"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "DAU/MAU Stickiness"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "open-rate",
-      "ctor",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "list-growth-rate",
-      "engagement-rate",
-      "d1-retention"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/dau-mau-stickiness",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:delivery-rate",
-    "type": "calculator",
-    "slug": "delivery-rate",
-    "url": "/calculators/delivery-rate",
-    "urlTr": "/tr/calculators/delivery-rate",
-    "external": false,
-    "title": "Delivery Rate Calculator",
-    "summary": "Calculate email delivery rate from emails sent and delivered, and see why a delivered message isn't guaranteed to reach the inbox.",
-    "keywords": [
-      "Delivery Rate",
-      "delivery rate formula",
-      "how to calculate delivery rate",
-      "delivery rate example",
-      "what is delivery rate"
-    ],
-    "category": [
-      "crm-email"
-    ],
-    "normalizedCategory": [
-      "crm-and-lifecycle"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Delivery Rate"
+      "Email Performance"
     ],
     "businessObjective": [
       "delivery-confirmation"
@@ -24819,70 +26447,11 @@
       "use-tool"
     ],
     "tags": [
-      "ctr",
-      "open-rate",
-      "ctor",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness",
-      "engagement-rate"
+      "cr"
     ],
     "language": "en",
     "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/delivery-rate",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:engagement-rate",
-    "type": "calculator",
-    "slug": "engagement-rate",
-    "url": "/calculators/engagement-rate",
-    "urlTr": "/tr/calculators/engagement-rate",
-    "external": false,
-    "title": "Web Engagement Rate Calculator",
-    "summary": "Calculate engagement rate from engaged sessions and total sessions, and see why the engaged-session threshold is platform-defined, not universal.",
-    "keywords": [
-      "Web Engagement Rate",
-      "web engagement rate formula",
-      "how to calculate web engagement rate",
-      "web engagement rate example",
-      "what is web engagement rate"
-    ],
-    "category": [
-      "cro-funnel"
-    ],
-    "normalizedCategory": [
-      "experimentation-and-testing"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Web Engagement Rate"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "open-rate",
-      "ctor",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/engagement-rate",
+    "canonical": "https://alidemirbas.com.tr/calculators/email-performance",
     "searchAliases": [],
     "boost": {}
   },
@@ -24924,8 +26493,7 @@
       "use-tool"
     ],
     "tags": [
-      "cr",
-      "cart-abandonment"
+      "cr"
     ],
     "language": "en",
     "indexable": true,
@@ -24968,64 +26536,10 @@
       "calculate",
       "use-tool"
     ],
-    "tags": [
-      "contribution-margin",
-      "profit-margin"
-    ],
+    "tags": [],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/gross-margin",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:list-growth-rate",
-    "type": "calculator",
-    "slug": "list-growth-rate",
-    "url": "/calculators/list-growth-rate",
-    "urlTr": "/tr/calculators/list-growth-rate",
-    "external": false,
-    "title": "List Growth Rate Calculator",
-    "summary": "Calculate net email list growth rate from new subscribers, unsubscribes, and starting list size, including how negative growth is handled.",
-    "keywords": [
-      "List Growth Rate",
-      "list growth rate formula",
-      "how to calculate list growth rate",
-      "list growth rate example",
-      "what is list growth rate"
-    ],
-    "category": [
-      "crm-email"
-    ],
-    "normalizedCategory": [
-      "crm-and-lifecycle"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "List Growth Rate"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "open-rate",
-      "ctor",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "dau-mau-stickiness",
-      "engagement-rate"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/list-growth-rate",
     "searchAliases": [],
     "boost": {}
   },
@@ -25065,8 +26579,7 @@
       "use-tool"
     ],
     "tags": [
-      "retention-rate",
-      "d1-retention"
+      "retention-rate"
     ],
     "language": "en",
     "indexable": true,
@@ -25172,146 +26685,6 @@
     "boost": {}
   },
   {
-    "id": "calculator:marketing-roi",
-    "type": "calculator",
-    "slug": "marketing-roi",
-    "url": "/calculators/marketing-roi",
-    "urlTr": "/tr/calculators/marketing-roi",
-    "external": false,
-    "title": "Marketing ROI Calculator",
-    "summary": "Calculate marketing ROI from revenue and cost, and see the exact mathematical relationship between ROI and ROAS.",
-    "keywords": [
-      "Marketing ROI",
-      "marketing roi formula",
-      "how to calculate marketing roi",
-      "marketing roi example",
-      "what is marketing roi",
-      "roi calculator",
-      "what is a good marketing roi"
-    ],
-    "category": [
-      "advertising"
-    ],
-    "normalizedCategory": [
-      "advertising-and-media"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Marketing ROI"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "roas",
-      "profit-margin"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/marketing-roi",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:minimum-detectable-effect",
-    "type": "calculator",
-    "slug": "minimum-detectable-effect",
-    "url": "/calculators/minimum-detectable-effect",
-    "urlTr": "/tr/calculators/minimum-detectable-effect",
-    "external": false,
-    "title": "Minimum Detectable Effect (MDE) Calculator",
-    "summary": "Calculate the relative MDE a test can detect from baseline rate, sample size, power and significance, with the relative-vs-percentage-point distinction made explicit.",
-    "keywords": [
-      "Minimum Detectable Effect (MDE)",
-      "minimum detectable effect formula",
-      "how to calculate minimum detectable effect",
-      "minimum detectable effect example",
-      "what is minimum detectable effect",
-      "what is a good minimum detectable effect"
-    ],
-    "category": [
-      "experimentation"
-    ],
-    "normalizedCategory": [
-      "experimentation-and-testing"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Minimum Detectable Effect (MDE)"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "sample-size-calculator",
-      "test-duration-estimator"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/minimum-detectable-effect",
-    "searchAliases": [
-      "MDE",
-      "Minimum Detectable Effect"
-    ],
-    "boost": {}
-  },
-  {
-    "id": "calculator:mrr",
-    "type": "calculator",
-    "slug": "mrr",
-    "url": "/calculators/mrr",
-    "urlTr": "/tr/calculators/mrr",
-    "external": false,
-    "title": "MRR Calculator",
-    "summary": "Calculate MRR, ARR and MRR growth rate, with the boundary on what counts as recurring revenue and what doesn't.",
-    "keywords": [
-      "MRR",
-      "mrr formula",
-      "how to calculate mrr",
-      "mrr example",
-      "what is mrr",
-      "arr calculator",
-      "mrr growth rate calculator",
-      "what is a good mrr"
-    ],
-    "category": [
-      "saas"
-    ],
-    "normalizedCategory": [
-      "saas-and-b2b"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "MRR"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "saas-quick-ratio"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/mrr",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
     "id": "calculator:nrr",
     "type": "calculator",
     "slug": "nrr",
@@ -25351,8 +26724,7 @@
       "use-tool"
     ],
     "tags": [
-      "logo-churn",
-      "mrr"
+      "logo-churn"
     ],
     "language": "en",
     "indexable": true,
@@ -25360,106 +26732,6 @@
     "searchAliases": [
       "Net Revenue Retention"
     ],
-    "boost": {}
-  },
-  {
-    "id": "calculator:open-rate",
-    "type": "calculator",
-    "slug": "open-rate",
-    "url": "/calculators/open-rate",
-    "urlTr": "/tr/calculators/open-rate",
-    "external": false,
-    "title": "Open Rate Calculator",
-    "summary": "Calculate email open rate from opens and delivered, and see why Apple Mail Privacy Protection can make it look higher than genuine engagement.",
-    "keywords": [
-      "Open Rate",
-      "open rate formula",
-      "how to calculate open rate",
-      "open rate example",
-      "what is open rate",
-      "what is a good open rate",
-      "average open rate"
-    ],
-    "category": [
-      "crm-email"
-    ],
-    "normalizedCategory": [
-      "crm-and-lifecycle"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Open Rate"
-    ],
-    "businessObjective": [
-      "delivery-confirmation"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "ctor",
-      "bounce-rate-email",
-      "unsubscribe-rate",
-      "complaint-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness",
-      "engagement-rate"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/open-rate",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:profit-margin",
-    "type": "calculator",
-    "slug": "profit-margin",
-    "url": "/calculators/profit-margin",
-    "urlTr": "/tr/calculators/profit-margin",
-    "external": false,
-    "title": "Profit Margin Calculator",
-    "summary": "Calculate profit margin from revenue and cost, and see how it differs from markup and from the narrower cost base Gross Margin uses.",
-    "keywords": [
-      "Profit Margin",
-      "profit margin formula",
-      "how to calculate profit margin",
-      "profit margin example",
-      "what is profit margin",
-      "net margin calculator",
-      "what is a good profit margin"
-    ],
-    "category": [
-      "ecommerce"
-    ],
-    "normalizedCategory": [
-      "cart-and-checkout"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Profit Margin"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "gross-margin",
-      "contribution-margin",
-      "marketing-roi"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/profit-margin",
-    "searchAliases": [],
     "boost": {}
   },
   {
@@ -25500,108 +26772,11 @@
       "use-tool"
     ],
     "tags": [
-      "d1-retention",
       "logo-churn"
     ],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/retention-rate",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:revenue-per-recipient",
-    "type": "calculator",
-    "slug": "revenue-per-recipient",
-    "url": "/calculators/revenue-per-recipient",
-    "urlTr": "/tr/calculators/revenue-per-recipient",
-    "external": false,
-    "title": "Revenue per Recipient Calculator",
-    "summary": "Calculate email revenue per recipient from attributed revenue and emails sent, including why \"recipient\" here means every send, not unique people.",
-    "keywords": [
-      "Revenue per Recipient",
-      "revenue per recipient formula",
-      "how to calculate revenue per recipient",
-      "revenue per recipient example",
-      "what is revenue per recipient",
-      "revenue per email calculator",
-      "what is a good revenue per recipient"
-    ],
-    "category": [
-      "crm-email"
-    ],
-    "normalizedCategory": [
-      "crm-and-lifecycle"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Revenue per Recipient"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "revenue-per-visitor",
-      "saas-quick-ratio",
-      "rule-of-40"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/revenue-per-recipient",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:revenue-per-visitor",
-    "type": "calculator",
-    "slug": "revenue-per-visitor",
-    "url": "/calculators/revenue-per-visitor",
-    "urlTr": "/tr/calculators/revenue-per-visitor",
-    "external": false,
-    "title": "Revenue per Visitor Calculator",
-    "summary": "Calculate revenue per visitor from total revenue and visitors, and see how RPV combines conversion rate and AOV into one number.",
-    "keywords": [
-      "Revenue per Visitor",
-      "revenue per visitor formula",
-      "how to calculate revenue per visitor",
-      "revenue per visitor example",
-      "what is revenue per visitor",
-      "rpv calculator",
-      "what is a good revenue per visitor"
-    ],
-    "category": [
-      "ecommerce"
-    ],
-    "normalizedCategory": [
-      "cart-and-checkout"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Revenue per Visitor"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "revenue-per-recipient",
-      "saas-quick-ratio",
-      "rule-of-40",
-      "aov",
-      "cr"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/revenue-per-visitor",
     "searchAliases": [],
     "boost": {}
   },
@@ -25643,9 +26818,7 @@
       "calculate",
       "use-tool"
     ],
-    "tags": [
-      "marketing-roi"
-    ],
+    "tags": [],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/roas",
@@ -25689,62 +26862,10 @@
       "calculate",
       "use-tool"
     ],
-    "tags": [
-      "revenue-per-visitor",
-      "revenue-per-recipient",
-      "saas-quick-ratio",
-      "profit-margin"
-    ],
+    "tags": [],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/rule-of-40",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:saas-quick-ratio",
-    "type": "calculator",
-    "slug": "saas-quick-ratio",
-    "url": "/calculators/saas-quick-ratio",
-    "urlTr": "/tr/calculators/saas-quick-ratio",
-    "external": false,
-    "title": "SaaS Quick Ratio Calculator",
-    "summary": "Calculate SaaS Quick Ratio from new, expansion, churned, and contraction MRR, and see exactly how it differs from NRR and the classic liquidity ratio.",
-    "keywords": [
-      "SaaS Quick Ratio",
-      "saas quick ratio formula",
-      "how to calculate saas quick ratio",
-      "saas quick ratio example",
-      "what is saas quick ratio",
-      "what is a good saas quick ratio"
-    ],
-    "category": [
-      "saas"
-    ],
-    "normalizedCategory": [
-      "saas-and-b2b"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "SaaS Quick Ratio"
-    ],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "revenue-per-visitor",
-      "revenue-per-recipient",
-      "rule-of-40",
-      "nrr"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/saas-quick-ratio",
     "searchAliases": [],
     "boost": {}
   },
@@ -25785,111 +26906,10 @@
       "calculate",
       "use-tool"
     ],
-    "tags": [
-      "minimum-detectable-effect",
-      "test-duration-estimator"
-    ],
+    "tags": [],
     "language": "en",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/calculators/sample-size-calculator",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:test-duration-estimator",
-    "type": "calculator",
-    "slug": "test-duration-estimator",
-    "url": "/calculators/test-duration-estimator",
-    "urlTr": "/tr/calculators/test-duration-estimator",
-    "external": false,
-    "title": "Test Duration Estimator Calculator",
-    "summary": "Estimate how many days an A/B test needs from required sample size and daily traffic per variant, with the peeking and allocation caveats that actually apply.",
-    "keywords": [
-      "Test Duration Estimator",
-      "test duration estimator formula",
-      "how to calculate test duration estimator",
-      "test duration estimator example",
-      "what is test duration estimator",
-      "required runtime calculator",
-      "what is a good test duration estimator"
-    ],
-    "category": [
-      "experimentation"
-    ],
-    "normalizedCategory": [
-      "experimentation-and-testing"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Test Duration Estimator"
-    ],
-    "businessObjective": [
-      "eligibility-qualification"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "sample-size-calculator",
-      "minimum-detectable-effect"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/test-duration-estimator",
-    "searchAliases": [],
-    "boost": {}
-  },
-  {
-    "id": "calculator:unsubscribe-rate",
-    "type": "calculator",
-    "slug": "unsubscribe-rate",
-    "url": "/calculators/unsubscribe-rate",
-    "urlTr": "/tr/calculators/unsubscribe-rate",
-    "external": false,
-    "title": "Unsubscribe Rate Calculator",
-    "summary": "Calculate email unsubscribe rate from unsubscribes and delivered emails, and see how it differs from the more damaging Complaint Rate.",
-    "keywords": [
-      "Unsubscribe Rate",
-      "unsubscribe rate formula",
-      "how to calculate unsubscribe rate",
-      "unsubscribe rate example",
-      "what is unsubscribe rate",
-      "average unsubscribe rate"
-    ],
-    "category": [
-      "crm-email"
-    ],
-    "normalizedCategory": [
-      "crm-and-lifecycle"
-    ],
-    "surface": [],
-    "funnelStage": [],
-    "metric": [
-      "Unsubscribe Rate"
-    ],
-    "businessObjective": [
-      "consent-permission"
-    ],
-    "intent": [
-      "calculate",
-      "use-tool"
-    ],
-    "tags": [
-      "ctr",
-      "delivery-rate",
-      "open-rate",
-      "ctor",
-      "bounce-rate-email",
-      "complaint-rate",
-      "list-growth-rate",
-      "dau-mau-stickiness",
-      "engagement-rate"
-    ],
-    "language": "en",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/calculators/unsubscribe-rate",
     "searchAliases": [],
     "boost": {}
   },
@@ -25940,11 +26960,11 @@
     "urlTr": "/tr/lab/journeys",
     "external": false,
     "title": "Canonical Journey Library",
-    "summary": "255 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
+    "summary": "283 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
     "keywords": [
       "CRM",
       "Lifecycle Marketing",
-      "255 journeys",
+      "283 journeys",
       "26 categories"
     ],
     "category": [],
@@ -25960,7 +26980,7 @@
     "tags": [
       "CRM",
       "Lifecycle Marketing",
-      "255 journeys",
+      "283 journeys",
       "26 categories"
     ],
     "language": "en+tr",
