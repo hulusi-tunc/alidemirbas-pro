@@ -1,0 +1,322 @@
+{
+ "id": "ACT-12",
+ "shortName": "Onboarding Nurture",
+ "strategy": "progressive-recovery",
+ "primitivesUsed": [
+  "entry",
+  "holdout",
+  "state-update",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "persistent holdout",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.active",
+   "event": "onboarding_active_without_activation",
+   "meaning": "an onboarding instance that is open and an activation event that has not been recorded",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an onboarding instance is open for the account and activation is not yet recorded",
+    "the product's own record of setup milestones is readable",
+    "no nurture instance is already open for this onboarding instance",
+    "hard gates (GLB-31) permit lifecycle communication"
+   ],
+   "instanceKey": [
+    "account_id",
+    "onboarding_instance_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "holdout",
+   "node": "t.active",
+   "unit": "instance",
+   "share": {
+    "key": "onboarding.holdout_share",
+    "default": 10,
+    "basis": "example-only",
+    "required": false
+   },
+   "persistent": true
+  },
+  {
+   "type": "state-update",
+   "node": "a.read",
+   "does": "Read which setup milestones are complete and which remain, from the product's own record of what was done rather than from what was sent or opened",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.next-step",
+   "asks": "Is there a critical next step still outstanding?",
+   "branches": [
+    {
+     "label": "A step remains",
+     "observes": null,
+     "test": "at least one incomplete milestone stands between this account and value",
+     "to": "a.surface"
+    },
+    {
+     "label": "Nothing critical left",
+     "observes": null,
+     "test": "the setup work is done and what remains is whether value has actually been produced",
+     "to": "c.ready"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.surface",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "onboarding.step_prompts",
+     "default": 5,
+     "basis": "example-only",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": {
+    "exclusionGroup": "lifecycle-stage",
+    "scope": "person",
+    "precedence": "below the authoritative activation event, which supersedes it wherever it sits",
+    "onLoss": "superseded"
+   },
+   "noActionReasons": [
+    "s.activated",
+    "s.blocker",
+    "s.done-step",
+    "s.window",
+    "s.contest",
+    "s.permission"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.surface",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is inside the product - the next step is best pointed at where it is taken"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the step needs an explanation that survives until the person returns"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.surface",
+   "touch": "t1",
+   "stage": "next-step",
+   "purpose": "Surface the single most useful next action, read from the product's own record of what is done. Never a completed step, never the whole checklist.",
+   "brief": "Surface the single most useful next action. A completed step is never suggested again, and an order is imposed only where one step genuinely depends on another - elsewhere the person picks",
+   "destination": {
+    "target": "next-setup-step",
+    "boundTo": "onboarding_instance_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.next-step"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.surface",
+   "key": "onboarding_instance_id + step id"
+  },
+  {
+   "type": "condition",
+   "node": "c.ready",
+   "asks": "Has activation actually been achieved?",
+   "branches": [
+    {
+     "label": "Activated",
+     "observes": null,
+     "test": "the authoritative activation event has been recorded",
+     "to": "h.activated"
+    },
+    {
+     "label": "Setup complete, value not yet produced",
+     "observes": null,
+     "test": "every milestone is done and no activation event exists - the checklist finished and the product has still not done anything for them",
+     "to": "w.progress"
+    }
+   ]
+  },
+  {
+   "type": "wait",
+   "node": "w.progress",
+   "timing": {
+    "key": "onboarding.step_interval",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.window"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.progress",
+   "cancelOn": [
+    {
+     "event": "setup_milestone_completed",
+     "meaning": "the product's own record marks a setup milestone complete"
+    },
+    {
+     "event": "activation_recorded",
+     "meaning": "the authoritative activation event for this onboarding is recorded"
+    }
+   ],
+   "onEvent": "c.what-happened"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.progress",
+   "reads": "the milestone record re-read from the product: which steps are complete, whether activation is recorded, whether the window is still open",
+   "before": "c.window"
+  },
+  {
+   "type": "condition",
+   "node": "c.what-happened",
+   "asks": "Which event arrived?",
+   "branches": [
+    {
+     "label": "Activation",
+     "observes": null,
+     "test": "the authoritative activation event was recorded",
+     "to": "h.activated"
+    },
+    {
+     "label": "A setup milestone",
+     "observes": null,
+     "test": "progress was made but value has not been produced yet",
+     "to": "a.read"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.stalled-step",
+   "asks": "Is the same prerequisite actually blocking activation?",
+   "branches": [
+    {
+     "label": "A named blocker is holding it",
+     "observes": null,
+     "test": "authoritative state shows one mandatory prerequisite unchanged and preventing activation, not merely a quiet interval",
+     "to": "h.blocker"
+    },
+    {
+     "label": "No blocker; simply incomplete",
+     "observes": null,
+     "test": "setup has not advanced but nothing identifiable is preventing it",
+     "to": "a.read"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.blocker",
+   "to": "ACT-13",
+   "on": "one named mandatory prerequisite established as the thing preventing activation, rather than a general lack of progress",
+   "carries": [
+    "the exact outstanding prerequisite and how long it has stayed unchanged",
+    "the onboarding route and the milestones already completed"
+   ],
+   "suppresses": [
+    "the generic next-step prompt for this prerequisite while the blocker journey owns it"
+   ],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.window",
+   "asks": "Is the onboarding window still open?",
+   "branches": [
+    {
+     "label": "Still open",
+     "observes": null,
+     "test": "the window fixed at entry has not expired",
+     "to": "c.stalled-step"
+    },
+    {
+     "label": "Closed",
+     "observes": null,
+     "test": "the window has expired without activation",
+     "to": "x.window-closed"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.activated",
+   "to": "ACT-16",
+   "on": "the authoritative activation event",
+   "carries": [
+    "which event satisfied activation",
+    "what onboarding still had outstanding, so the right things get invalidated rather than all of them"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.window-closed",
+   "class": "timeout",
+   "state": "onboarding window closed without activation",
+   "reEntry": "a later setup or activation event re-opens this normally; the completed milestones are kept, so a return does not start from the beginning"
+  }
+ ]
+}

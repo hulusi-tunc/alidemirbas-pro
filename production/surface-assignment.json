@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 282,
-    "customer": 134,
+    "journeys": 283,
+    "customer": 135,
     "customer-silent": 67,
-    "customer-communicating": 67,
+    "customer-communicating": 68,
     "mechanism": 24,
     "operational": 124
   },
@@ -119,6 +119,24 @@
       "reason": "declares a message channel (email, push, in-app, sms)"
     },
     {
+      "id": "ACQ-12",
+      "shortName": "Abandoned Selection Recovery",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push, in-app)"
+    },
+    {
+      "id": "ACQ-13",
+      "shortName": "Unresolved Interest Recovery",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push, in-app)"
+    },
+    {
       "id": "ACT-11",
       "shortName": "Onboarding Route Assignment",
       "category": "activation",
@@ -148,15 +166,6 @@
     {
       "id": "ACT-14",
       "shortName": "Onboarding Help",
-      "category": "activation",
-      "surface": "customer",
-      "communicating": true,
-      "silent": false,
-      "reason": "declares a message channel (email, in-app, push)"
-    },
-    {
-      "id": "ACT-15",
-      "shortName": "First Value Milestone",
       "category": "activation",
       "surface": "customer",
       "communicating": true,
@@ -288,6 +297,24 @@
       "communicating": true,
       "silent": false,
       "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "RET-31",
+      "shortName": "Predicted Need Replenishment",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push, in-app)"
+    },
+    {
+      "id": "RET-32",
+      "shortName": "Lapsed Customer Win-Back",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push)"
     },
     {
       "id": "CON-31",
@@ -423,24 +450,6 @@
       "communicating": true,
       "silent": false,
       "reason": "declares a message channel (email, in-app, task)"
-    },
-    {
-      "id": "FBK-44",
-      "shortName": "Negative Feedback Recovery",
-      "category": "feedback",
-      "surface": "customer",
-      "communicating": true,
-      "silent": false,
-      "reason": "declares a message channel (email, in-app, task)"
-    },
-    {
-      "id": "FBK-45",
-      "shortName": "Positive Feedback Follow-Up",
-      "category": "feedback",
-      "surface": "customer",
-      "communicating": true,
-      "silent": false,
-      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "FBK-46",

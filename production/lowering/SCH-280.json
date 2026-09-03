@@ -1,0 +1,354 @@
+{
+ "id": "SCH-280",
+ "shortName": "No-Show Follow-Up",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "exit",
+  "handoff",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.no-show",
+   "event": "no_show_recorded_against_booking",
+   "meaning": "a no-show authoritatively recorded against one confirmed booking; the semantics it was judged under and the window that closed; policy naming rebooking rather than a fee as what follows",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a no-show is recorded against one booking occurrence by the attendance source",
+    "the booking, re-read after the recording lag, genuinely did not happen - not moved, cancelled or attended after all",
+    "the provider or resource could have delivered; a failure on our side goes to reschedule, not follow-up",
+    "hard gates (GLB-31) permit service communication"
+   ],
+   "instanceKey": [
+    "booking_id",
+    "occurrence_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.reread",
+   "does": "Re-read the booking's latest events before anything leaves the building. Attendance and cancellation events land late, and the gap between the record being written and the message being sent is exactly where a correct cancellation gets treated as a miss",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.superseded",
+   "asks": "Did the booking genuinely not happen?",
+   "branches": [
+    {
+     "label": "Superseded or reconciled",
+     "observes": null,
+     "test": "a cancellation, a reschedule or a late attendance event has landed since the no-show was recorded",
+     "to": "x.suppressed"
+    },
+    {
+     "label": "Genuinely missed",
+     "observes": null,
+     "test": "the record still stands after the re-read",
+     "to": "c.provider"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.suppressed",
+   "class": "suppression",
+   "state": "nothing sent; the booking was moved, cancelled or attended after all",
+   "reEntry": "a later booking that is genuinely missed is its own instance"
+  },
+  {
+   "type": "condition",
+   "node": "c.provider",
+   "asks": "Could the provider or resource actually have delivered?",
+   "branches": [
+    {
+     "label": "Deliverable",
+     "observes": null,
+     "test": "the provider and the resource were available and able to deliver for the whole window",
+     "to": "c.rebookable"
+    },
+    {
+     "label": "Our side failed",
+     "observes": null,
+     "test": "the provider, the resource or the location could not have delivered the booking as confirmed",
+     "to": "h.provider"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.provider",
+   "to": "SCH-180",
+   "on": "a missed booking the provider or resource could not have delivered",
+   "carries": [
+    "the window that closed and what was already said to the customer about it",
+    "the evidence that delivery was not possible on our side"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.rebookable",
+   "asks": "Is there anything to offer?",
+   "branches": [
+    {
+     "label": "Rebooking available",
+     "observes": null,
+     "test": "the same commitment can still be met and capacity for it exists",
+     "to": "a.offer"
+    },
+    {
+     "label": "Nothing to rebook onto",
+     "observes": null,
+     "test": "the commitment has lapsed, the entitlement behind it has gone, or no capacity remains",
+     "to": "a.acknowledge"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.acknowledge",
+   "touch": "t-ack",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "no_show.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.reread",
+    "s.provider-fault",
+    "s.no-penalty-language",
+    "s.nothing-to-rebook",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.acknowledge",
+   "touch": "t-ack",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the offer carries the rebooking route and should be kept - the default"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.acknowledge",
+   "touch": "t-ack",
+   "stage": "acknowledgement",
+   "purpose": "State plainly that the booking did not happen and what that means, with no rebooking prompt attached because there is nothing to rebook onto.",
+   "brief": "State plainly that the booking did not happen and what that means, with no rebooking prompt attached because there is nothing to book. An offer with nothing behind it costs more trust than saying nothing would",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.superseded",
+    "c.provider",
+    "c.rebookable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.acknowledge",
+   "key": "occurrence_id + touch id"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer",
+   "touch": "t-offer",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "no_show.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.reread",
+    "s.provider-fault",
+    "s.no-penalty-language",
+    "s.nothing-to-rebook",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer",
+   "touch": "t-offer",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the offer carries the rebooking route and should be kept - the default"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "permission for service messages on the channel is recorded and the rebooking window is short"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer",
+   "touch": "t-offer",
+   "stage": "rebooking-offer",
+   "purpose": "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one within the stated window.",
+   "brief": "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one with the date that route closes. Attaching blame to the miss makes rebooking a confession, and people do not book to confess",
+   "destination": {
+    "target": "rebooking",
+    "boundTo": "booking_id",
+    "mustNotClaim": [
+     "a penalty",
+     "that a slot is held"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.superseded",
+    "c.provider",
+    "c.rebookable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer",
+   "key": "occurrence_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.rebook",
+   "timing": {
+    "key": "no_show.rebooking_window",
+    "class": "response-window",
+    "default": {
+     "min": "7 days",
+     "max": "14 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.closed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.rebook",
+   "cancelOn": [
+    {
+     "event": "rebooked",
+     "meaning": "a new booking is created for the same commitment"
+    },
+    {
+     "event": "rebooking_declined",
+     "meaning": "the customer declines a further booking"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.rebook",
+   "reads": "bookings for the same commitment re-read: a new booking created, a decline recorded, or nothing",
+   "before": "x.closed"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "How did the offer resolve?",
+   "branches": [
+    {
+     "label": "Rebooked",
+     "observes": null,
+     "test": "a new booking exists against the same commitment",
+     "to": "x.rebooked"
+    },
+    {
+     "label": "Declined",
+     "observes": null,
+     "test": "the customer said they do not want another booking",
+     "to": "x.closed"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.rebooked",
+   "class": "success",
+   "state": "rebooked",
+   "reEntry": "the new booking has its own lifecycle and a later miss enters here again"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed",
+   "class": "timeout",
+   "state": "closed with no rebooking",
+   "reEntry": "a request from the customer later reopens booking through the ordinary route, not through this one"
+  }
+ ]
+}

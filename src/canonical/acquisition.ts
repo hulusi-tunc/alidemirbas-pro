@@ -1830,7 +1830,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": { "exclusionGroup": "commerce-recovery", "scope": "person", "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person" , "onLoss": "suppressed" }
     },
     "channelStrategy": {
       "roles": [
@@ -2616,17 +2616,79 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "CANONICAL_RULE",
             "text": "The resumable process is a checkout with a basket: it has items, a resume destination and, usually, a platform-asserted expiry."
           },
-          "overrides": {
-            "recovery.first_check": {
-              "min": "30 minutes",
-              "max": "60 minutes"
-            }
-          },
+          "overrides": {},
           "destination": "checkout-session",
           "aliases": [
             "cart recovery (checkout stage)",
             "abandoned cart checkout",
-            "checkout abandonment"
+            "checkout abandonment",
+            "begin checkout recovery"
+          ]
+        },
+        {
+          "id": "quote-abandonment",
+          "name": "Quote Abandonment",
+          "applicableWhen": {
+            "id": "p.quote",
+            "label": "CANONICAL_RULE",
+            "text": "The resumable process is a quote or proposal the person configured and did not accept; it has a resume destination and an expiry the quoting system asserts."
+          },
+          "overrides": {
+            "recovery.first_check": {
+              "min": "4 hours",
+              "max": "24 hours"
+            }
+          },
+          "destination": "the quote",
+          "aliases": [
+            "quote abandonment",
+            "abandoned quote",
+            "quote follow-up",
+            "unaccepted proposal"
+          ]
+        },
+        {
+          "id": "application-abandonment",
+          "name": "Application Abandonment",
+          "applicableWhen": {
+            "id": "p.application",
+            "label": "CANONICAL_RULE",
+            "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by deadline reminder (TIM-61) through handoff, not by this recovery."
+          },
+          "overrides": {
+            "recovery.first_check": {
+              "min": "4 hours",
+              "max": "24 hours"
+            }
+          },
+          "destination": "the application",
+          "aliases": [
+            "application abandonment",
+            "incomplete application",
+            "abandoned form",
+            "application follow-up"
+          ]
+        },
+        {
+          "id": "incomplete-registration",
+          "name": "Incomplete Registration",
+          "applicableWhen": {
+            "id": "p.registration",
+            "label": "CANONICAL_RULE",
+            "text": "The resumable process is a registration or sign-up left part-way; identity verification, where required, is handed to verification (IDN-81) and never re-asked here."
+          },
+          "overrides": {
+            "recovery.first_check": {
+              "min": "1 hour",
+              "max": "4 hours"
+            }
+          },
+          "destination": "the registration step",
+          "aliases": [
+            "incomplete registration",
+            "abandoned sign-up",
+            "registration follow-up",
+            "unfinished account setup"
           ]
         }
       ]
@@ -2649,5 +2711,1350 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "An incentive, where enabled, appears once and only on the last enabled touch."
     ],
     "reusableRule": "An abandoned process is recovered against its own current state, re-read before every touch, with a bounded plan fixed at entry - never against a snapshot of what the person once had in it."
+  },
+  {
+    "id": "ACQ-12",
+    "slug": "abandoned-selection-recovery",
+    "category": "acquisition",
+    "goal": "recovery-retry",
+    "channels": [
+      "email",
+      "push",
+      "in-app"
+    ],
+    "name": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
+    "shortName": "Abandoned Selection Recovery",
+    "purpose": "Return a person to items they selected - a cart, a basket, a saved list - and did not carry into a process, while the selection still stands and the items are still available, without asserting a state the system does not hold.",
+    "objective": "Bring the person back to the selection as it currently stands and let them act on it; never claim reserved stock, a held price or a discount the system does not assert, and never present an item the platform says is unavailable.",
+    "entity": {
+      "scope": "the recorded selection - the set of items a person put in a cart, basket or saved list - which has no process state and no expiry of its own",
+      "note": "A selection is not a process: nothing is in motion, nothing expires, and the person can return to it or not. That is why this journey has no final notice - there is no honest deadline to name. When the person carries the selection into a process, the process owns recovery from that moment.",
+      "instanceKey": [
+        "person_id",
+        "selection_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A process started from the selection supersedes this instance: Abandoned Process Recovery owns the person from that moment, and every queued touch here is suppressed."
+      }
+    },
+    "eligibility": [
+      "the identity behind the selection resolves to a person we may contact",
+      "the selection holds at least one item the platform currently asserts as available",
+      "the selection has not been carried into a process, and no process is open for its items",
+      "no recovery instance is already open for this selection",
+      "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.converted",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment an order including any item from the selection is recorded by any channel; every touch re-reads the selection first."
+      },
+      {
+        "id": "s.process",
+        "label": "CANONICAL_RULE",
+        "text": "A process started from the selection hands the instance to Abandoned Process Recovery (ACQ-11); the two never message the same person about the same items."
+      },
+      {
+        "id": "s.cleared",
+        "label": "CANONICAL_RULE",
+        "text": "Exit when the person clears the selection or every item becomes unavailable; nothing is sent about items the person cannot act on."
+      },
+      {
+        "id": "s.unavailable-shown",
+        "label": "CANONICAL_RULE",
+        "text": "An item the platform asserts as unavailable is never shown in a touch; a touch about a selection shows only what can still be acted on."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for commercial recovery communication; absent permission is a recorded no-action, never a fallback to another channel."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A process recovery, an open complaint, an open payment recovery or a retention-outreach journey on the same person outranks this journey; its touch is deferred and re-evaluated against current state (GLB-06)."
+      },
+      {
+        "id": "s.cooldown",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "A new selection made inside the cooldown after a lapsed or suppressed instance enters, is tracked, and sends nothing."
+      },
+      {
+        "id": "s.incentive",
+        "label": "OPTIONAL_STRATEGY",
+        "text": "If the company enables an incentive (selection.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person. The library recommends none by default."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "selection.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan has two touches and no final notice"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "selection.cooldown",
+        "rule": "After a lapsed or suppressed instance, a new selection by the same person is tracked but not messaged until the cooldown has passed. A converted selection carries no cooldown.",
+        "class": "cooldown",
+        "default": {
+          "value": {
+            "min": "14 days",
+            "max": "30 days"
+          },
+          "confidence": "low",
+          "basis": "example-only",
+          "avoidWhen": "high-frequency replenishment purchases, where a short cooldown is honest"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "commerce-recovery",
+        "scope": "person",
+        "precedence": "below process recovery - a process in motion outranks a held selection; above interest recovery and predicted-need replenishment for the same person"
+      , "onLoss": "suppressed" }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "low-friction",
+          "channels": [
+            "push",
+            "in-app"
+          ],
+          "when": "an app session or a valid push token exists for this person - the selection is recent and a nudge back beats content"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no low-friction route exists, or the touch has to carry the items as they stand and survive until the person can act"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "progressive-recovery",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "initial-recovery",
+          "action": "a.touch1",
+          "gatedBy": "w.settle",
+          "prerequisites": [
+            "c.state",
+            "c.availability",
+            "c.sendable"
+          ],
+          "purpose": "The selection as it currently stands - only the items still available - and the link that reopens it. Nothing the system does not assert.",
+          "channelRoles": [
+            "low-friction",
+            "persistent"
+          ],
+          "destination": {
+            "target": "selection-resume",
+            "boundTo": "selection_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "an expiry"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "follow-up",
+          "action": "a.touch2",
+          "after": "t1",
+          "gatedBy": "w.second",
+          "prerequisites": [
+            "c.state2",
+            "c.sendable2"
+          ],
+          "purpose": "The selection again, with any genuine change the platform asserts on an item still held - a restored availability, a changed price - and the same link. No urgency the system does not assert.",
+          "channelRoles": [
+            "persistent",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "selection-resume",
+            "boundTo": "selection_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "an expiry"
+            ]
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        }
+      ],
+      "noAction": [
+        "s.converted",
+        "s.process",
+        "s.cleared",
+        "s.unavailable-shown",
+        "s.permission",
+        "s.contest",
+        "s.cooldown"
+      ]
+    },
+    "entry": "t.selected",
+    "nodes": [
+      {
+        "id": "t.selected",
+        "kind": "trigger",
+        "event": "selection_recorded",
+        "evidence": {
+          "requires": [
+            "an authoritative record that one or more items were placed in a selection for this person",
+            "the items, their current availability and current price as the platform asserts them",
+            "the time of the last activity on the selection"
+          ],
+          "insufficientAlone": [
+            "a product view - that is Unresolved Interest Recovery's subject",
+            "an item added and removed inside the same session",
+            "a selection already carried into a process - that is Abandoned Process Recovery's subject",
+            "a selection whose every item the platform asserts as unavailable"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.eligible"
+      },
+      {
+        "id": "c.eligible",
+        "kind": "condition",
+        "asks": "Can this selection be recovered for this person at all?",
+        "branches": [
+          {
+            "label": "Eligible",
+            "when": "the identity resolves to a contactable person, at least one item is available, no process is open for the items, no instance is open for this selection, and commercial recovery permission is recorded",
+            "observes": "selection state, identity resolution, permission record",
+            "to": "a.open"
+          },
+          {
+            "label": "Not eligible",
+            "when": "any of those fails - the reason is recorded as the no-action reason",
+            "observes": "selection state, identity resolution, permission record",
+            "to": "x.no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.open",
+        "kind": "action",
+        "does": "Open the recovery instance against the selection and start the clock from the last activity on it. Activity before the first touch moves the clock; nothing after the first touch extends any window",
+        "writes": [
+          {
+            "field": "recovery_log",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "selection_id",
+        "next": "w.settle"
+      },
+      {
+        "id": "w.settle",
+        "kind": "wait",
+        "until": [
+          "selection_converted",
+          "selection_cleared",
+          "process_started",
+          "selection_changed"
+        ],
+        "onEvent": "c.state",
+        "timeout": {
+          "after": {
+            "key": "selection.first_check",
+            "rule": "The first check waits long enough after the last selection activity that the person has actually left rather than paused, and no longer than the selection is likely to be remembered.",
+            "class": "recovery-window",
+            "default": {
+              "value": {
+                "min": "1 hour",
+                "max": "4 hours"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a shopping cart",
+              "avoidWhen": "a saved list, where a much longer first check is honest - see the Saved Item Reminder preset"
+            },
+            "required": false
+          },
+          "reason": "a person still adding to a selection is not abandoning it; the clock runs from their last activity",
+          "relativeTo": "attribute",
+          "attribute": "last_selection_activity_at"
+        },
+        "onTimeout": "c.state",
+        "recheck": "the selection re-read from the system of record: items present, each item's availability and price as the platform asserts them, no order placed, no process opened",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state",
+        "kind": "condition",
+        "asks": "What is the selection now?",
+        "branches": [
+          {
+            "label": "Converted",
+            "when": "an order including any item from the selection is recorded",
+            "observes": "selection_converted",
+            "to": "x.converted"
+          },
+          {
+            "label": "Cleared",
+            "when": "the person removed every item or deleted the selection",
+            "observes": "selection_cleared",
+            "to": "x.invalid"
+          },
+          {
+            "label": "Carried into a process",
+            "when": "a process was started from the selection",
+            "observes": "process_started",
+            "to": "h.process"
+          },
+          {
+            "label": "Changed, still held",
+            "when": "an item was added or removed and at least one remains - the person is still deciding",
+            "observes": "selection_changed",
+            "to": "a.rearm"
+          },
+          {
+            "label": "Still held",
+            "when": "the selection stands as it was",
+            "observes": "selection state",
+            "to": "c.availability"
+          }
+        ]
+      },
+      {
+        "id": "a.rearm",
+        "kind": "action",
+        "does": "Record the change and re-arm the first wait from the new last activity, a bounded number of times. A person still editing a selection is deciding, not forgetting",
+        "writes": [
+          {
+            "field": "recovery_log",
+            "mode": "append"
+          }
+        ],
+        "attemptBudget": {
+          "key": "selection.change_rearms",
+          "rule": "A change re-arms the wait a bounded number of times; the budget is fixed when the instance opens and does not renew on activity.",
+          "default": {
+            "value": 2,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24: every retry, reminder and re-request runs against a budget fixed when it started"
+          },
+          "required": false
+        },
+        "next": "w.settle"
+      },
+      {
+        "id": "c.availability",
+        "kind": "condition",
+        "asks": "Can any of it still be acted on?",
+        "branches": [
+          {
+            "label": "At least one item available",
+            "when": "the platform asserts at least one selected item as available",
+            "observes": "item availability",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Nothing available",
+            "when": "the platform asserts every selected item as unavailable",
+            "observes": "item_unavailable",
+            "to": "x.unavailable"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the first touch go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.touch1"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record which gate stopped the touch and against which selection, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "next": "x.no-action"
+      },
+      {
+        "id": "a.touch1",
+        "kind": "action",
+        "does": "Show the selection as it stands now - only the items the platform asserts as available - and give the link that reopens it. Claim nothing the system does not assert: no reserved stock, no held price, no discount, no expiry",
+        "execution": "communication",
+        "idempotencyKey": "selection_id + touch id",
+        "writes": [
+          {
+            "field": "recovery_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.second"
+      },
+      {
+        "id": "w.second",
+        "kind": "wait",
+        "until": [
+          "selection_converted",
+          "selection_cleared",
+          "process_started",
+          "item_unavailable",
+          "price_changed"
+        ],
+        "onEvent": "c.state2",
+        "timeout": {
+          "after": {
+            "key": "selection.second_check",
+            "rule": "The second check comes after the person has had time to act on the first touch in their own time, and before the selection stops being something they remember.",
+            "class": "recovery-window",
+            "default": {
+              "value": {
+                "min": "2 days",
+                "max": "4 days"
+              },
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "a second touch inside the same day is pressure, not help",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.state2",
+        "recheck": "the selection re-read from the system of record, plus whether any held item changed in availability or price since the first touch",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state2",
+        "kind": "condition",
+        "asks": "What is the selection now, and did anything about it change?",
+        "branches": [
+          {
+            "label": "Converted",
+            "when": "an order including any item from the selection is recorded",
+            "observes": "selection_converted",
+            "to": "x.converted"
+          },
+          {
+            "label": "Cleared",
+            "when": "the person removed every item or deleted the selection",
+            "observes": "selection_cleared",
+            "to": "x.invalid"
+          },
+          {
+            "label": "Carried into a process",
+            "when": "a process was started from the selection",
+            "observes": "process_started",
+            "to": "h.process"
+          },
+          {
+            "label": "Nothing available",
+            "when": "the platform now asserts every selected item as unavailable",
+            "observes": "item_unavailable",
+            "to": "x.unavailable"
+          },
+          {
+            "label": "Still held",
+            "when": "at least one item is still held and available, changed or not",
+            "observes": "selection state, price_changed, item_unavailable",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the second touch go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and the touch budget is not spent",
+            "observes": "send path stages 1-8, touch budget",
+            "to": "a.touch2"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.touch2",
+        "kind": "action",
+        "does": "Show the selection again with any genuine change the platform asserts on a held item - availability restored, price changed - and the same link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
+        "execution": "communication",
+        "idempotencyKey": "selection_id + touch id",
+        "writes": [
+          {
+            "field": "recovery_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.final"
+      },
+      {
+        "id": "w.final",
+        "kind": "wait",
+        "until": [
+          "selection_converted",
+          "selection_cleared",
+          "process_started"
+        ],
+        "onEvent": "c.state3",
+        "timeout": {
+          "after": {
+            "key": "selection.lifetime",
+            "rule": "The recovery lifetime is the period in which a held selection is still an intent rather than a record; past it nothing further is sent.",
+            "class": "recovery-window",
+            "default": {
+              "value": {
+                "min": "7 days",
+                "max": "14 days"
+              },
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "a selection nobody returns to stops being an intent; pursuing it past that point is pressure",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.state3",
+        "recheck": "the selection re-read from the system of record at the end of the lifetime",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state3",
+        "kind": "condition",
+        "asks": "At the end of the recovery lifetime, what is the selection?",
+        "branches": [
+          {
+            "label": "Converted",
+            "when": "an order including any item from the selection is recorded",
+            "observes": "selection_converted",
+            "to": "x.converted"
+          },
+          {
+            "label": "Cleared",
+            "when": "the person removed every item or deleted the selection",
+            "observes": "selection_cleared",
+            "to": "x.invalid"
+          },
+          {
+            "label": "Carried into a process",
+            "when": "a process was started from the selection",
+            "observes": "process_started",
+            "to": "h.process"
+          },
+          {
+            "label": "Still held",
+            "when": "the selection stands; nothing further is sent",
+            "observes": "selection state",
+            "to": "x.lapsed"
+          }
+        ]
+      },
+      {
+        "id": "x.converted",
+        "kind": "exit",
+        "state": "converted; an order including a selected item is recorded",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a new selection is a new instance; this one is closed as converted"
+      },
+      {
+        "id": "x.invalid",
+        "kind": "exit",
+        "state": "cleared by the person; nothing further is sent",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a new selection is a new instance"
+      },
+      {
+        "id": "x.unavailable",
+        "kind": "exit",
+        "state": "every selected item unavailable; nothing is sent about items that cannot be acted on",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "availability restored is an authoritative event for a later availability journey, not a re-entry here"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the gate that stopped it is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a new selection is a new instance, subject to the cooldown when this one lapsed or was suppressed"
+      },
+      {
+        "id": "x.lapsed",
+        "kind": "exit",
+        "state": "recovery lifetime passed with the selection still held; nothing further is sent",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "a new selection is a new instance, and enters silently while the cooldown runs"
+      },
+      {
+        "id": "h.process",
+        "kind": "handoff",
+        "to": "ACQ-11",
+        "on": "a process started from the selection - the process owns recovery from that moment",
+        "carries": [
+          "the selection and its items",
+          "the recovery touches already sent for the selection, so the process plan counts them against the person"
+        ],
+        "suppresses": [
+          "every queued recovery touch for this selection"
+        ],
+        "contract": {
+          "requiredFields": [
+            "selection_id",
+            "person_id",
+            "logical_process_id",
+            "touches_sent"
+          ]
+        }
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "selection_id",
+          "person_id",
+          "items",
+          "last_selection_activity_at",
+          "resume_destination"
+        ],
+        "optional": [
+          "value",
+          "currency",
+          "category",
+          "has_active_app_session",
+          "item_availability",
+          "item_prices"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.converted",
+          "x.invalid",
+          "x.unavailable",
+          "x.no-action",
+          "x.lapsed",
+          "h.process"
+        ]
+      },
+      "businessOutcome": {
+        "event": "selection_converted",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "selection.holdout_share",
+          "rule": "A persistent per-person holdout is required: people who leave a selection return to it on their own often enough that a treated-only measurement cannot tell the journey's effect from theirs.",
+          "default": {
+            "value": 10,
+            "confidence": "low",
+            "basis": "example-only"
+          },
+          "required": false
+        }
+      },
+      "secondary": [
+        "process_started"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "unavailable_item_shown",
+        "incentive_issued"
+      ],
+      "operational": [
+        "entry_volume",
+        "no_action_rate_by_reason",
+        "channel_role_used_t1",
+        "change_rearm_rate",
+        "process_handoff_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "cart abandonment",
+        "abandoned cart",
+        "add-to-cart abandonment",
+        "basket reminder",
+        "saved item reminder",
+        "wishlist reminder",
+        "abandoned basket"
+      ],
+      "useCases": [
+        "items placed in a cart and left without starting checkout",
+        "a saved list or wishlist the person has not returned to"
+      ],
+      "presets": [
+        {
+          "id": "cart-abandonment",
+          "name": "Cart Abandonment",
+          "applicableWhen": {
+            "id": "p.cart",
+            "label": "CANONICAL_RULE",
+            "text": "The selection is a shopping cart or basket the person filled without starting checkout; the platform asserts item availability and price."
+          },
+          "overrides": {},
+          "destination": "the cart",
+          "aliases": [
+            "cart abandonment",
+            "abandoned cart",
+            "abandoned basket",
+            "add-to-cart abandonment"
+          ]
+        },
+        {
+          "id": "saved-item-reminder",
+          "name": "Saved Item Reminder",
+          "applicableWhen": {
+            "id": "p.saved",
+            "label": "CANONICAL_RULE",
+            "text": "The selection is a saved list or wishlist: a declared interest with no purchase intent asserted, so the first check is much later and a change on a saved item is the honest reason to write."
+          },
+          "overrides": {
+            "selection.first_check": {
+              "min": "3 days",
+              "max": "7 days"
+            },
+            "selection.lifetime": {
+              "min": "14 days",
+              "max": "30 days"
+            }
+          },
+          "destination": "the saved list",
+          "aliases": [
+            "saved item reminder",
+            "wishlist reminder",
+            "saved for later",
+            "favourites reminder"
+          ]
+        }
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-11",
+        "because": "ACQ-11 pursues a process with state, an expiry and a resume destination. A selection has no process state and no expiry, which is why this journey never names a deadline and hands over the moment a process starts."
+      },
+      {
+        "journey": "ACQ-13",
+        "because": "ACQ-13 works from inferred attention. A selection is a recorded fact the person created, and the touch can show it back to them."
+      }
+    ],
+    "guardrails": [
+      "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
+      "An unavailable item is never shown; a selection with nothing available exits silently.",
+      "Opens and clicks are engagement evidence and change nothing; only selection, order and process events move the state.",
+      "A process started from the selection hands over immediately; two recoveries never run against the same items."
+    ],
+    "reusableRule": "A held selection is recovered against its own current state - items, availability, price - re-read before every touch, with no deadline invented for something that has none."
+  },
+  {
+    "id": "ACQ-13",
+    "slug": "unresolved-interest-recovery",
+    "category": "acquisition",
+    "goal": "recovery-retry",
+    "channels": [
+      "email",
+      "push",
+      "in-app"
+    ],
+    "name": "Interest inferred → qualified → resolved into a selection or purchase, or left alone",
+    "shortName": "Unresolved Interest Recovery",
+    "purpose": "Follow up qualified, unresolved attention to an item, category or search - browsing that ended in neither a selection nor a process - with at most one touch, and record no-action as the normal outcome whenever the attention does not qualify.",
+    "objective": "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold; and leave alone everyone whose attention did not qualify.",
+    "entity": {
+      "scope": "an inferred interest - a person's repeated, recent, attributed attention to one item, category or search that ended in neither a selection nor a process",
+      "note": "The trigger is behavioural, not authoritative: nothing was recorded by the person, so a qualification step stands between the signal and any instance. Most signals do not qualify, and no-action is the common outcome by design. One instance per person and interest key; a new key is a new interest.",
+      "instanceKey": [
+        "person_id",
+        "interest_key"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A selection or a process for the same items supersedes the interest: the selection or process journey owns the person from that moment, and the interest instance closes as resolved."
+      }
+    },
+    "eligibility": [
+      "the attention is attributed to a person we may contact - not a bot, not an unattributed session",
+      "the attention meets the company's qualification rule (interest.qualification_rule): repeated, recent, and on something the person could act on",
+      "no selection, order or process exists for the item or category since the attention",
+      "the item or category is currently available as the platform asserts it",
+      "no interest instance is already open for this person and interest key",
+      "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.not-qualified",
+        "label": "CANONICAL_RULE",
+        "text": "Attention that does not meet the qualification rule is recorded as no-action and nothing is sent; a single view is never a reason to write."
+      },
+      {
+        "id": "s.resolved",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment the person records a selection, starts a process or completes a purchase for the item or category; every touch re-reads this first."
+      },
+      {
+        "id": "s.already-held",
+        "label": "CANONICAL_RULE",
+        "text": "Attention to something the person already holds - an item already bought, a plan already on - is not interest and sends nothing."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for commercial recovery communication; absent permission is a recorded no-action."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06)."
+      },
+      {
+        "id": "s.cooldown",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "A new interest inside the cooldown after a lapsed or suppressed instance is tracked and sends nothing; the same interest key re-qualifying inside the cooldown is the same interest."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "interest.touches",
+          "rule": "One touch per qualified interest; the plan has no second touch because nothing the person did asked for one.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph reaches at most one touch per instance"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "interest.cooldown",
+        "rule": "After a lapsed or suppressed instance, a new interest by the same person is tracked but not messaged until the cooldown has passed. A resolved interest carries no cooldown.",
+        "class": "cooldown",
+        "default": {
+          "value": {
+            "min": "14 days",
+            "max": "30 days"
+          },
+          "confidence": "low",
+          "basis": "example-only"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "commerce-recovery",
+        "scope": "person",
+        "precedence": "lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person"
+      , "onLoss": "suppressed" }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "low-friction",
+          "channels": [
+            "push",
+            "in-app"
+          ],
+          "when": "an app session or a valid push token exists for this person - the attention is recent and a route back beats content"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no low-friction route exists, or the touch has to carry the thing looked at and survive until the person can act"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "recovery",
+          "action": "a.touch1",
+          "gatedBy": "w.settle",
+          "prerequisites": [
+            "c.state",
+            "c.sendable"
+          ],
+          "purpose": "The thing they looked at, as it stands now, and a route back to it. Nothing about stock, price or intent that the system does not assert.",
+          "channelRoles": [
+            "low-friction",
+            "persistent"
+          ],
+          "destination": {
+            "target": "interest-subject",
+            "boundTo": "interest_key",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "that they meant to buy it"
+            ]
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        }
+      ],
+      "noAction": [
+        "s.not-qualified",
+        "s.resolved",
+        "s.already-held",
+        "s.permission",
+        "s.contest",
+        "s.cooldown"
+      ]
+    },
+    "entry": "t.interest",
+    "nodes": [
+      {
+        "id": "t.interest",
+        "kind": "trigger",
+        "event": "interest_signal_recorded",
+        "evidence": {
+          "requires": [
+            "attributed attention to one item, category or search, with its timestamps",
+            "the qualification rule's inputs: how often, how recently, and whether a selection or process followed",
+            "the subject's current availability as the platform asserts it"
+          ],
+          "insufficientAlone": [
+            "a single page view",
+            "attention inside a session that ended in a selection or a process - those journeys own it",
+            "an unattributed or automated session",
+            "attention to something the person already holds"
+          ],
+          "source": "behavioral"
+        },
+        "next": "c.qualify"
+      },
+      {
+        "id": "c.qualify",
+        "kind": "condition",
+        "asks": "Does this attention qualify as interest, and is it still unresolved?",
+        "branches": [
+          {
+            "label": "Qualified and unresolved",
+            "when": "the qualification rule is met, no selection, order or process followed, the subject is available, permission is recorded and no instance is open",
+            "observes": "interest signal, selection and process records, availability, permission record",
+            "to": "a.open"
+          },
+          {
+            "label": "Already resolved",
+            "when": "a selection, order or process for the subject exists since the attention",
+            "observes": "selection and process records",
+            "to": "x.resolved"
+          },
+          {
+            "label": "Does not qualify",
+            "when": "the rule is not met, the subject is unavailable or already held, or permission is absent - the reason is recorded",
+            "observes": "qualification rule, availability, permission record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.open",
+        "kind": "action",
+        "does": "Open the interest instance against the person and interest key and start the clock from the last attention. Further attention before the touch moves the clock; nothing after it extends any window",
+        "writes": [
+          {
+            "field": "recovery_log",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + interest_key",
+        "next": "w.settle"
+      },
+      {
+        "id": "w.settle",
+        "kind": "wait",
+        "until": [
+          "selection_recorded",
+          "process_started",
+          "purchase_completed"
+        ],
+        "onEvent": "x.resolved",
+        "timeout": {
+          "after": {
+            "key": "interest.settle_window",
+            "rule": "The touch waits long enough after the last attention that the person has actually left the subject rather than paused on it, and no longer than the attention stays fresh.",
+            "class": "recovery-window",
+            "default": {
+              "value": {
+                "min": "12 hours",
+                "max": "48 hours"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "avoidWhen": "a subject with its own short availability, where the settle window is that minus a margin"
+            },
+            "required": false
+          },
+          "reason": "attention that is still going on is not unresolved; the clock runs from the last of it",
+          "relativeTo": "attribute",
+          "attribute": "last_interest_at"
+        },
+        "onTimeout": "c.state",
+        "recheck": "the interest re-read: still no selection, order or process for the subject; the subject still available; the person still contactable",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state",
+        "kind": "condition",
+        "asks": "Is the interest still unresolved, and is its subject still there?",
+        "branches": [
+          {
+            "label": "Unresolved, subject available",
+            "when": "no selection, order or process followed and the platform asserts the subject as available",
+            "observes": "selection and process records, availability",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Resolved meanwhile",
+            "when": "a selection, order or process for the subject was recorded",
+            "observes": "selection_recorded, process_started, purchase_completed",
+            "to": "x.resolved"
+          },
+          {
+            "label": "Subject gone",
+            "when": "the platform now asserts the subject as unavailable",
+            "observes": "availability",
+            "to": "x.unavailable"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the touch go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.touch1"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why nothing was sent - not qualified, unavailable, already held, no permission, or a gate on the send path - so that no-action, the common outcome here, is a measured one",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "next": "x.no-action"
+      },
+      {
+        "id": "a.touch1",
+        "kind": "action",
+        "does": "Show the thing they looked at as it stands now and give a route back to it. Claim nothing the system does not assert: no reserved stock, no held price, no discount, and no assumption about what they meant",
+        "execution": "communication",
+        "idempotencyKey": "person_id + interest_key + touch id",
+        "writes": [
+          {
+            "field": "recovery_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.after"
+      },
+      {
+        "id": "w.after",
+        "kind": "wait",
+        "until": [
+          "selection_recorded",
+          "process_started",
+          "purchase_completed"
+        ],
+        "onEvent": "x.resolved",
+        "timeout": {
+          "after": {
+            "key": "interest.lifetime",
+            "rule": "After the one touch the instance stays open only long enough to observe a resolution; then it lapses and nothing further is sent.",
+            "class": "observation-window",
+            "default": {
+              "value": {
+                "min": "3 days",
+                "max": "7 days"
+              },
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "the only remaining question is whether the interest resolved; there is no second touch to time",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "x.lapsed",
+        "recheck": "selection, order and process records re-read for the subject",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "x.resolved",
+        "kind": "exit",
+        "state": "resolved; a selection, process or purchase for the subject is recorded and its own journey owns it",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a new interest key is a new interest"
+      },
+      {
+        "id": "x.unavailable",
+        "kind": "exit",
+        "state": "the subject became unavailable; nothing is sent about something the person cannot act on",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a new interest key is a new interest"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the reason is recorded - the common outcome of this journey",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the same interest key re-qualifying inside the cooldown is the same interest; a new key is a new interest"
+      },
+      {
+        "id": "x.lapsed",
+        "kind": "exit",
+        "state": "touched once, not resolved; nothing further is sent",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "a new interest key is a new interest, and enters silently while the cooldown runs"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "interest_key",
+          "subject_type",
+          "subject_ref",
+          "last_interest_at",
+          "attention_count",
+          "resume_destination"
+        ],
+        "optional": [
+          "category",
+          "has_active_app_session",
+          "subject_availability",
+          "query_text"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.resolved",
+          "x.unavailable",
+          "x.no-action",
+          "x.lapsed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "interest.holdout_share",
+          "rule": "A persistent per-person holdout is required: people who browse buy on their own far more often than a touch changes, and without a holdout the journey claims every purchase that followed a view.",
+          "default": {
+            "value": 10,
+            "confidence": "low",
+            "basis": "example-only"
+          },
+          "required": false
+        }
+      },
+      "secondary": [
+        "selection_recorded",
+        "process_started"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "touch_on_unqualified_interest"
+      ],
+      "operational": [
+        "signal_volume",
+        "qualification_rate",
+        "no_action_rate_by_reason",
+        "touch_rate",
+        "resolution_by_type"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "browse abandonment",
+        "product view abandonment",
+        "search abandonment",
+        "browse recovery",
+        "viewed but not added",
+        "category interest follow-up"
+      ],
+      "useCases": [
+        "repeated views of one product with no add to cart",
+        "a category browsed across sessions with no selection",
+        "a repeated search that never led to a selection"
+      ],
+      "presets": [
+        {
+          "id": "browse-abandonment",
+          "name": "Browse Abandonment",
+          "applicableWhen": {
+            "id": "p.browse",
+            "label": "CANONICAL_RULE",
+            "text": "The subject is a category or listing the person browsed repeatedly; the touch points back at the category, never at an item the person did not single out."
+          },
+          "overrides": {},
+          "destination": "the category or listing",
+          "aliases": [
+            "browse abandonment",
+            "category abandonment",
+            "browse recovery"
+          ]
+        },
+        {
+          "id": "product-view-abandonment",
+          "name": "Product View Abandonment",
+          "applicableWhen": {
+            "id": "p.product",
+            "label": "CANONICAL_RULE",
+            "text": "The subject is one item viewed repeatedly; the touch shows that item as it stands and its current availability as the platform asserts it."
+          },
+          "overrides": {
+            "interest.settle_window": {
+              "min": "6 hours",
+              "max": "24 hours"
+            }
+          },
+          "destination": "the item",
+          "aliases": [
+            "product view abandonment",
+            "viewed product reminder",
+            "viewed but not added"
+          ]
+        },
+        {
+          "id": "search-abandonment",
+          "name": "Search Abandonment",
+          "applicableWhen": {
+            "id": "p.search",
+            "label": "CANONICAL_RULE",
+            "text": "The subject is a repeated search that led to no selection; the touch points back at the results as they stand. An availability enquiry that holds something is SCH-282's, not this."
+          },
+          "overrides": {},
+          "destination": "the search results",
+          "aliases": [
+            "search abandonment",
+            "abandoned search",
+            "search follow-up"
+          ]
+        }
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-12",
+        "because": "ACQ-12 works from a selection the person recorded. Interest is inferred from attention, which is why a qualification step stands before any instance and no-action is the common outcome."
+      },
+      {
+        "journey": "SCH-282",
+        "because": "SCH-282 follows an availability enquiry with restorable state. A search here holds nothing; it is attention, not an enquiry."
+      }
+    ],
+    "guardrails": [
+      "A single view is never a reason to write; the qualification rule stands between every signal and every instance.",
+      "Nothing is asserted about stock, price or what the person meant.",
+      "One touch, then observation; there is no second touch because nothing the person did asked for one.",
+      "A selection or process for the subject hands ownership to its own journey immediately."
+    ],
+    "reusableRule": "Inferred interest is acted on only after it qualifies against a stated rule and is re-read as still unresolved; the touch shows the subject as it stands and nothing more, and no-action is the outcome that is measured most."
   },
 ];

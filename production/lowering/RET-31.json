@@ -1,0 +1,547 @@
+{
+ "id": "RET-31",
+ "shortName": "Predicted Need Replenishment",
+ "strategy": "deadline-countdown",
+ "primitivesUsed": [
+  "entry",
+  "holdout",
+  "condition",
+  "state-update",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "persistent holdout"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.predicted",
+   "event": "expected_depletion_approaching",
+   "meaning": "the expected usable period of an acquired consumable is ending, inferred from acquisition history",
+   "evidenceSource": "inferred",
+   "entryFilters": [
+    "a prior purchase of the need by this person, with a usable period the company can compute for it",
+    "no newer purchase of the need since the one the prediction is based on",
+    "no active subscription or auto-replenishment covering the need",
+    "no dismissal recorded for the need in this prediction cycle",
+    "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
+   ],
+   "instanceKey": [
+    "person_id",
+    "need_key"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "holdout",
+   "node": "t.predicted",
+   "unit": "instance",
+   "share": {
+    "key": "replenishment.holdout_share",
+    "default": 10,
+    "basis": "example-only",
+    "required": false
+   },
+   "persistent": true
+  },
+  {
+   "type": "condition",
+   "node": "c.eligible",
+   "asks": "Is there a need to prompt, and may we?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": "purchase record, subscription record, dismissal record, permission record",
+     "test": "no newer purchase, no subscription, no dismissal this cycle, no open instance, and commercial permission recorded",
+     "to": "a.open"
+    },
+    {
+     "label": "Already met",
+     "observes": "purchase_completed",
+     "test": "a newer purchase of the need exists",
+     "to": "x.replenished"
+    },
+    {
+     "label": "Not eligible",
+     "observes": "subscription record, dismissal record, permission record",
+     "test": "a subscription covers it, it was dismissed this cycle, permission is absent, or an instance is open - the reason is recorded",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.open",
+   "does": "Open the instance against the need and the prediction cycle, recording the expected depletion date the prompt will be timed against",
+   "writes": [
+    {
+     "field": "replenishment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.open",
+   "key": "person_id + need_key + prediction cycle"
+  },
+  {
+   "type": "wait",
+   "node": "w.lead",
+   "timing": {
+    "key": "replenishment.lead_time",
+    "class": "reminder-before-attribute",
+    "default": {
+     "min": "3 days",
+     "max": "7 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "expected_depletion_at",
+   "onTimeout": "c.state"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.lead",
+   "cancelOn": [
+    {
+     "event": "purchase_completed",
+     "meaning": "an authoritative purchase for the person, on any subject"
+    },
+    {
+     "event": "replenishment_need_dismissed",
+     "meaning": "the person signals no replenishment is needed"
+    }
+   ],
+   "onEvent": "c.state"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.lead",
+   "reads": "purchases, subscriptions and dismissals for the need re-read from the system of record; the expected depletion date recomputed from the latest purchase",
+   "before": "c.state"
+  },
+  {
+   "type": "condition",
+   "node": "c.state",
+   "asks": "At the lead point, is the need still unmet?",
+   "branches": [
+    {
+     "label": "Still unmet",
+     "observes": "purchase and dismissal records",
+     "test": "no purchase, no subscription and no dismissal since the instance opened",
+     "to": "c.sendable"
+    },
+    {
+     "label": "Replenished",
+     "observes": "purchase_completed",
+     "test": "a purchase of the need is recorded",
+     "to": "x.replenished"
+    },
+    {
+     "label": "Dismissed",
+     "observes": "replenishment_need_dismissed",
+     "test": "the person dismissed the need",
+     "to": "x.dismissed"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable",
+   "asks": "May the lead prompt go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8",
+     "test": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+     "to": "a.touch1"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded as the reason",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-no-action",
+   "does": "Record why nothing was sent and against which need, so no-action is a measured outcome rather than a silent absence",
+   "writes": [
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch1",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "replenishment.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "below process recovery and selection recovery for the same person; above interest recovery",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.replenished",
+    "s.dismissed",
+    "s.subscription",
+    "s.estimate",
+    "s.permission",
+    "s.contest"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch1",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the prompt should carry the item, the estimate and the reorder route and survive until the person can act - the default for a prompt sent days ahead of a need"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push",
+      "in-app"
+     ],
+     "eligibleWhen": "an app session or a valid push token exists and the reorder route is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch1",
+   "touch": "t1",
+   "stage": "lead-prompt",
+   "purpose": "The item, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
+   "brief": "Name the item, say when it is estimated to run out and that this is an estimate from their own purchases, and give the route to reorder. Claim nothing about what they have left, no reserved stock, no held price, no discount",
+   "destination": {
+    "target": "reorder",
+    "boundTo": "need_key",
+    "mustNotClaim": [
+     "how much they have left",
+     "stock is reserved",
+     "the price is held",
+     "a discount applies"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.state",
+    "c.sendable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch1",
+   "key": "person_id + need_key + prediction cycle + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.window",
+   "timing": {
+    "key": "replenishment.follow_margin",
+    "class": "observation-window",
+    "default": {
+     "min": "3 days",
+     "max": "7 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "expected_depletion_at",
+   "onTimeout": "c.outcome"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.window",
+   "cancelOn": [
+    {
+     "event": "purchase_completed",
+     "meaning": "an authoritative purchase for the person, on any subject"
+    },
+    {
+     "event": "replenishment_need_dismissed",
+     "meaning": "the person signals no replenishment is needed"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.window",
+   "reads": "purchases, subscriptions and dismissals for the need re-read from the system of record",
+   "before": "c.outcome"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "After the estimated depletion, what happened?",
+   "branches": [
+    {
+     "label": "Replenished",
+     "observes": "purchase_completed",
+     "test": "a purchase of the need is recorded",
+     "to": "x.replenished"
+    },
+    {
+     "label": "Dismissed",
+     "observes": "replenishment_need_dismissed",
+     "test": "the person dismissed the need",
+     "to": "x.dismissed"
+    },
+    {
+     "label": "Still unmet",
+     "observes": "purchase and dismissal records",
+     "test": "nothing has changed",
+     "to": "c.sendable2"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable2",
+   "asks": "May the follow-up go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8, touch budget",
+     "test": "the send path passes and the touch budget is not spent",
+     "to": "a.touch2"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch2",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "replenishment.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "below process recovery and selection recovery for the same person; above interest recovery",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.replenished",
+    "s.dismissed",
+    "s.subscription",
+    "s.estimate",
+    "s.permission",
+    "s.contest"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch2",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the prompt should carry the item, the estimate and the reorder route and survive until the person can act - the default for a prompt sent days ahead of a need"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push",
+      "in-app"
+     ],
+     "eligibleWhen": "an app session or a valid push token exists and the reorder route is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch2",
+   "touch": "t2",
+   "stage": "follow-up",
+   "purpose": "One follow-up after the estimated depletion has passed unmet, with the same reorder route and no invented urgency.",
+   "brief": "Say once that the estimated point has passed and give the same reorder route. No invented urgency, and no incentive unless policy enables one for the last touch",
+   "destination": {
+    "target": "reorder",
+    "boundTo": "need_key",
+    "mustNotClaim": [
+     "how much they have left",
+     "stock is reserved",
+     "the price is held"
+    ]
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [
+    "c.outcome",
+    "c.sendable2"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch2",
+   "key": "person_id + need_key + prediction cycle + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "replenishment.lifetime",
+    "class": "observation-window",
+    "default": {
+     "min": "14 days",
+     "max": "30 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "purchase_completed",
+     "meaning": "an authoritative purchase for the person, on any subject"
+    },
+    {
+     "event": "replenishment_need_dismissed",
+     "meaning": "the person signals no replenishment is needed"
+    }
+   ],
+   "onEvent": "c.final"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "purchases and dismissals for the need re-read from the system of record",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "condition",
+   "node": "c.final",
+   "asks": "What ended the observation?",
+   "branches": [
+    {
+     "label": "Replenished",
+     "observes": "purchase_completed",
+     "test": "a purchase of the need is recorded",
+     "to": "x.replenished"
+    },
+    {
+     "label": "Dismissed",
+     "observes": "replenishment_need_dismissed",
+     "test": "the person dismissed the need",
+     "to": "x.dismissed"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.replenished",
+   "class": "success",
+   "state": "replenished; a purchase of the need is recorded",
+   "reEntry": "the next prediction cycle, computed from this purchase, opens the next instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.dismissed",
+   "class": "suppression",
+   "state": "dismissed by the person; the need is muted for this cycle",
+   "reEntry": "the next prediction cycle opens a new instance unless the dismissal asked for no more prompts"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-action",
+   "class": "no-action",
+   "state": "no prompt sent; the reason is recorded",
+   "reEntry": "the next prediction cycle opens a new instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "prompted, neither replenished nor dismissed; nothing further this cycle",
+   "reEntry": "the next prediction cycle opens a new instance"
+  }
+ ]
+}

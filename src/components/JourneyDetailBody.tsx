@@ -82,7 +82,7 @@ export const JOURNEY_CANVAS_REGRESSION_FIXTURE: ReadonlySet<string> = new Set([
   "DEC-183",
   "TIM-61",
   "RSK-194",
-  "ACT-15",
+  "ACT-17",
   // Tier 2 - population/distribution coverage
   "TIM-68",
   "CMS-203",

@@ -1355,6 +1355,10 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the specific contact point being added or changed, plus the identity it is claimed for",
       note: "One destination, one confirmation. A second contact point on the same identity is its own instance and confirms on its own terms.",
+      instanceKey: [
+        "contact_point_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1368,6 +1372,227 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "IDN-89 changes the attribute and reconciles what depended on it. This is the exchange with the two destinations that decides whether the new one is usable at all.",
       },
     ],
+    objective: "Make a new or changed contact point usable only when the destination itself confirms it - telling the destination being replaced that it is being replaced - and leave it unusable if it never does.",
+    eligibility: [
+      "a contact point is added or changed for an identity",
+      "the new destination is well-formed and deliverable in principle",
+      "no verification instance is already open for this contact point"
+    ],
+    suppressions: [
+      {
+        "id": "s.nowhere-else",
+        "label": "CANONICAL_RULE",
+        "text": "The confirmation request goes to the new destination itself and nowhere else; a confirmation answered from inside an authenticated session proves control of the session, not of the destination."
+      },
+      {
+        "id": "s.old-told",
+        "label": "CANONICAL_RULE",
+        "text": "A destination being replaced is told it is being replaced, with what it is being replaced by and how to stop it; a silent replacement is how an account is taken over."
+      },
+      {
+        "id": "s.one-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder at the same destination, naming the point after which nothing will be sent there; then nothing more."
+      },
+      {
+        "id": "s.unconfirmed-unusable",
+        "label": "CANONICAL_RULE",
+        "text": "Permission is held by the destination that confirmed and by that destination only; an unconfirmed destination stays unusable for anything."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Verification messages are exempt from pressure caps and marketing permission; only hard gates (GLB-31) apply."
+      }
+    ],
+    contact: {
+      "defaultPriority": "security",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "contact_verification.reminders",
+          "rule": "Only the reminder is discretionary; the confirmation request and the notice to the replaced destination are the verification itself.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph sends one reminder"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "contact_verification.cooldown",
+        "rule": "Verification is per contact point change; a further change is a new instance and supersedes the open one.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the destination being confirmed or replaced is an address - the message goes to that destination itself"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the destination being confirmed or replaced is a number - the message goes to that destination itself"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "CANONICAL_RULE"
+    },
+    orchestration: {
+      "strategy": "two-party-confirmation",
+      "touches": [
+        {
+          "id": "t-old",
+          "stage": "replacement-notice",
+          "action": "a.alert-old",
+          "prerequisites": [
+            "c.replacement"
+          ],
+          "purpose": "Tell the destination being replaced that it is being replaced, what it is being replaced with, and how to stop it.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "dispute-this-change",
+            "boundTo": "contact_point_id"
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-new",
+          "stage": "confirmation-request",
+          "action": "a.confirm-new",
+          "prerequisites": [
+            "c.replacement"
+          ],
+          "purpose": "Ask the new destination itself to confirm, and send that request nowhere else.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "confirm-this-destination",
+            "boundTo": "contact_point_id"
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-remind",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t-new",
+          "gatedBy": "w.confirm",
+          "prerequisites": [],
+          "purpose": "Ask once more, at the same destination, naming the point after which nothing will be sent there at all.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "confirm-this-destination",
+            "boundTo": "contact_point_id"
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        }
+      ],
+      "noAction": [
+        "s.nowhere-else",
+        "s.old-told",
+        "s.one-reminder",
+        "s.unconfirmed-unusable",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "contact_point_id",
+          "identity_id",
+          "destination_kind",
+          "new_destination",
+          "replaced_destination",
+          "confirmation_window_ends_at"
+        ],
+        "optional": [
+          "change_source",
+          "session_ref"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.permitted",
+          "x.lapsed",
+          "x.superseded",
+          "h.disputed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "destination_confirmed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "destination_change_disputed"
+      ],
+      "guardrails": [
+        "confirmation_sent_elsewhere",
+        "replaced_destination_not_told",
+        "unconfirmed_destination_used",
+        "complaint"
+      ],
+      "operational": [
+        "change_volume",
+        "confirmation_rate",
+        "dispute_rate",
+        "reminder_rate",
+        "lapse_rate",
+        "time_to_confirmation"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "contact verification",
+        "email verification",
+        "phone verification",
+        "double opt-in",
+        "contact change confirmation",
+        "verify new address"
+      ],
+      "useCases": [
+        "a new address or number added to an account and confirmed at the destination itself",
+        "a replaced contact point whose previous destination is warned and can dispute"
+      ]
+    },
     entry: "t.contact-point",
     nodes: [
       {
@@ -1410,6 +1635,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the destination being replaced that it is being replaced, what it is being replaced with, and how to stop it - sent to the old destination itself. A takeover is invisible from the address taking over and obvious from the one losing access",
         next: "a.confirm-new",
         execution: "communication",
+        idempotencyKey: "contact_point_id + touch id",
       },
       {
         id: "a.confirm-new",
@@ -1417,22 +1643,30 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask the new destination itself to confirm, and send that request nowhere else. A confirmation answered from inside the account proves control of the account, which was never the thing in doubt",
         next: "w.confirm",
         execution: "communication",
+        idempotencyKey: "contact_point_id + touch id",
       },
       {
         id: "w.confirm",
         kind: "wait",
         until: [
-          "the new destination confirms",
-          "the change is disputed from the destination it replaces",
-          "the contact point is withdrawn or changed again",
+          "destination_confirmed",
+          "destination_change_disputed",
+          "contact_point_changed_again"
         ],
         onEvent: "c.resolution",
         timeout: {
-          after: "the confirmation window defined for this kind of destination",
-          reason: "an unconfirmed destination that stays pending indefinitely gets read as usable by whatever looks at it next",
+          "after": {
+            "key": "contact_verification.confirmation_window",
+            "rule": "The confirmation window is the one defined for this kind of destination; the reminder is placed when it passes unanswered, and the remainder of the window bounds the reminder.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an unconfirmed destination that stays pending indefinitely gets read as usable by whatever looks at it next",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.remind",
         windowExtendsOnEngagement: false,
+        recheck: "the contact point re-read: confirmed, disputed, changed again, or still pending",
       },
       {
         id: "c.resolution",
@@ -1471,6 +1705,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record the confirmation against this destination and this destination only. Permission held by the address it replaced is not lent forward - consent does not travel with a change of address, and treating it as though it does is how a confirmed opt-in becomes an unconfirmed one",
         next: "x.permitted",
+        idempotencyKey: "contact_point_id + confirmation",
       },
       {
         id: "x.permitted",
@@ -1478,6 +1713,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "confirmed and permitted for this destination",
         terminal: false,
         reEntry: "a later change to the same contact point is a new instance with its own confirmation",
+        class: "success",
       },
       {
         id: "a.remind",
@@ -1485,20 +1721,34 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask once more, at the same destination, naming the point after which nothing will be sent there at all. One repeat and no more - a destination that does not answer twice is more likely wrong than busy",
         next: "w.last",
         execution: "communication",
+        idempotencyKey: "contact_point_id + touch id",
       },
       {
         id: "w.last",
         kind: "wait",
         until: [
-          "the new destination confirms",
+          "destination_confirmed"
         ],
         onEvent: "a.activate",
         timeout: {
-          after: "the remainder of the confirmation window",
-          reason: "the window is what keeps an unanswered destination out of every send, rather than merely late",
+          "after": {
+            "key": "contact_verification.window_remainder",
+            "rule": "After the reminder, only the remainder of the original confirmation window is waited; the window is never extended by the reminder.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "the remainder of the confirmation window, counted from the first request",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the window is what keeps an unanswered destination out of every send, rather than merely late",
+          "relativeTo": "attribute",
+          "attribute": "confirmation_window_ends_at"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the contact point re-read at the end of the window",
       },
       {
         id: "x.lapsed",
@@ -1506,6 +1756,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "unconfirmed; the destination stays unusable",
         terminal: false,
         reEntry: "the same destination submitted again starts a fresh confirmation, not a continuation of this one",
+        class: "timeout",
       },
       {
         id: "x.superseded",
@@ -1513,6 +1764,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "superseded before confirmation",
         terminal: false,
         reEntry: "the destination that replaced it runs its own confirmation",
+        class: "invalid-state",
       },
     ],
     guardrails: [

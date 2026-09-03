@@ -245,7 +245,12 @@
     "counts": true
    },
    "priority": "promotional",
-   "competition": "none",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person",
+    "onLoss": "suppressed"
+   },
    "noActionReasons": [
     "s.completed",
     "s.invalid",
@@ -508,7 +513,12 @@
     "counts": true
    },
    "priority": "promotional",
-   "competition": "none",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person",
+    "onLoss": "suppressed"
+   },
    "noActionReasons": [
     "s.completed",
     "s.invalid",
@@ -694,7 +704,12 @@
     "counts": true
    },
    "priority": "promotional",
-   "competition": "none",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person",
+    "onLoss": "suppressed"
+   },
    "noActionReasons": [
     "s.completed",
     "s.invalid",

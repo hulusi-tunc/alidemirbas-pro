@@ -715,6 +715,10 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the document version, the signature process against it, and each required signer",
       note: "The process is bound to a version. Signatures do not carry to a successor - a changed document is a new request.",
+      instanceKey: [
+        "document_version_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -723,6 +727,208 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "DEC-183 is somebody exercising judgment against criteria. This is collecting authorized marks against a fixed artifact - nobody is deciding anything on the merits, and its failure modes are version binding, incomplete sets and expiry rather than authority to conclude.",
       },
     ],
+    objective: "Collect every required signature on one exact document version: request once from each required signer, remind outstanding signers once while a reminder can still change the outcome, and end honestly as fully signed, declined, superseded or expired.",
+    eligibility: [
+      "a document version requires signature, with required signers, their signing authority and any signing order defined",
+      "a signature validity window is either defined by the request's own terms or explicitly recorded as not set",
+      "no signature process is already open for this version"
+    ],
+    suppressions: [
+      {
+        "id": "s.version",
+        "label": "CANONICAL_RULE",
+        "text": "Every request and reminder is bound to the exact document version; a superseded version ends the process and suppresses its outstanding reminders."
+      },
+      {
+        "id": "s.outstanding-only",
+        "label": "CANONICAL_RULE",
+        "text": "A reminder goes only to signers still outstanding, naming the action left and the real validity boundary; a signer who signed is never reminded."
+      },
+      {
+        "id": "s.one-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder per signer; a second is a re-request the process does not make."
+      },
+      {
+        "id": "s.no-invented-deadline",
+        "label": "CANONICAL_RULE",
+        "text": "Where no expiry was set none is invented; an invented signature deadline voids a request nobody agreed to time-limit."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply; pressure caps do not, because a signature request is the process itself, not outreach."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "signature.reminders",
+          "rule": "Only the reminder counts against the cap; the request itself is the process and is never rationed.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph sends one reminder per signer"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "signature.cooldown",
+        "rule": "Signature is per document version; a new version is a new process and no cooldown applies between versions.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the request is bound to a document version and must be kept; the signing destination is reached from it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t-request",
+          "stage": "signature-request",
+          "action": "a.request",
+          "prerequisites": [
+            "c.window"
+          ],
+          "purpose": "Issue the request to each required signer, bound to the exact document version, naming the authority they sign under and the validity boundary where one is defined.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "signing-page-for-version",
+            "boundTo": "document_version_id",
+            "mustNotClaim": [
+              "a deadline the request's terms do not set"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-remind",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t-request",
+          "gatedBy": "w.signatures",
+          "prerequisites": [
+            "c.reminder-useful"
+          ],
+          "purpose": "Remind only the signers still outstanding, once, naming the action left and the real validity boundary.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "signing-page-for-version",
+            "boundTo": "document_version_id",
+            "mustNotClaim": [
+              "a deadline the request's terms do not set"
+            ]
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        }
+      ],
+      "noAction": [
+        "s.version",
+        "s.outstanding-only",
+        "s.one-reminder",
+        "s.no-invented-deadline",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "document_version_id",
+          "document_id",
+          "required_signers",
+          "signing_authority",
+          "signing_order",
+          "validity_ends_at"
+        ],
+        "optional": [
+          "review_point_at",
+          "signer_destinations"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "h.effective",
+          "h.declined",
+          "x.superseded",
+          "x.expired"
+        ]
+      },
+      "businessOutcome": {
+        "event": "signer_signed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "signer_declined",
+        "document_version_superseded"
+      ],
+      "guardrails": [
+        "complaint",
+        "reminder_to_signed_signer",
+        "invented_deadline_named",
+        "wrong_version_signed"
+      ],
+      "operational": [
+        "process_volume",
+        "fully_signed_rate",
+        "declined_rate",
+        "superseded_rate",
+        "expired_rate",
+        "time_to_fully_signed"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "signature reminder",
+        "e-signature request",
+        "document signing reminder",
+        "contract signature follow-up",
+        "unsigned document reminder",
+        "multi-party signing"
+      ],
+      "useCases": [
+        "a contract needing several signatures in a defined order",
+        "a consent or agreement version with a validity window and one reminder"
+      ]
+    },
     entry: "t.requires",
     nodes: [
       {
@@ -745,6 +951,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Define the required signers, the signing authority each of them needs, the signing order where one applies, the scope of what is being signed, and the validity window where one is defined",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "c.window",
+        idempotencyKey: "document_version_id + definition",
       },
       {
         id: "c.window",
@@ -783,23 +990,41 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "signature_log", mode: "append" }],
         next: "w.signatures",
         execution: "communication",
+        idempotencyKey: "document_version_id + signer_id + touch id",
       },
       {
         id: "w.signatures",
         kind: "wait",
         until: [
-          "a required signer signs",
-          "a signer declines",
-          "the document version is superseded",
+          "signer_signed",
+          "signer_declined",
+          "document_version_superseded"
         ],
         onEvent: "c.event",
         timeout: {
-          after: "the last point at which a reminder could still change the outcome, taken from the request's own validity window rather than a fixed interval",
-          reason:
-            "the useful reminder point comes before expiry, not at it - a request that lapses without a second touch was never given the chance the window was for",
+          "after": {
+            "key": "signature.reminder_point",
+            "rule": "The reminder is placed at the last point at which it could still change the outcome, taken from the request's own validity where one is defined and from the process's review point where none is.",
+            "class": "reminder-before-attribute",
+            "default": {
+              "value": {
+                "min": "3 days",
+                "max": "5 days"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a validity window of weeks",
+              "avoidWhen": "no validity window - the review point is the bound"
+            },
+            "required": false
+          },
+          "reason": "the useful reminder point comes before expiry, not at it - a request that lapses without a second touch was never given the chance the window was for",
+          "relativeTo": "attribute",
+          "attribute": "validity_ends_at"
         },
         onTimeout: "c.reminder-useful",
         windowExtendsOnEngagement: false,
+        recheck: "the version and each signer re-read: who has signed the correct version, who declined, whether the version still stands",
       },
       {
         id: "c.reminder-useful",
@@ -824,23 +1049,36 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Remind only the signers still outstanding, naming the action left and the real validity boundary. One reminder, and any signature, decline or supersession cancels it immediately - a second chase turns a request into pressure",
         execution: "communication",
         next: "w.expiry",
+        idempotencyKey: "document_version_id + signer_id + touch id",
       },
       {
         id: "w.expiry",
         kind: "wait",
         until: [
-          "a required signer signs",
-          "a signer declines",
-          "the document version is superseded",
+          "signer_signed",
+          "signer_declined",
+          "document_version_superseded"
         ],
         onEvent: "c.event",
         timeout: {
-          after: "the validity window where one is defined, and the process's own review point where none is",
-          reason:
-            "a signature request open indefinitely leaves a process waiting on an agreement that will not arrive, with nobody having decided to abandon it",
+          "after": {
+            "key": "signature.validity_window",
+            "rule": "The process ends at the validity window where one is defined, and at the process's own review point where none is; nothing is invented.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "validity_ends_at where defined, otherwise the process's recorded review point",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "a signature request open indefinitely leaves a process waiting on an agreement that will not arrive, with nobody having decided to abandon it",
+          "relativeTo": "attribute",
+          "attribute": "validity_ends_at"
         },
         onTimeout: "a.expired",
         windowExtendsOnEngagement: false,
+        recheck: "the version and each signer re-read at the boundary",
       },
       {
         id: "c.event",
@@ -870,6 +1108,12 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the signature evidence - who signed, when, which version, and under what authority. The version is part of the evidence rather than context around it",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "c.complete",
+        idempotencyKey: "document_version_id + signer_id + signature",
+        attemptBudget: {
+          "key": "signature.required_signers",
+          "rule": "The signature loop runs once per required signer; the budget is the signer list fixed when the process opened.",
+          "required": true
+        },
       },
       {
         id: "c.complete",
@@ -894,6 +1138,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FULLY_SIGNED against this version. One signature is not a signed document when several are required, and a process that proceeds on the first one proceeds on an agreement that does not exist yet",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "h.effective",
+        idempotencyKey: "document_version_id + fully signed",
       },
       {
         id: "h.effective",
@@ -911,6 +1156,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DECLINED with the signer and the reason where one was given. A decline is a business outcome rather than a failure, and the process that required the document decides what follows from it",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "h.declined",
+        idempotencyKey: "document_version_id + signer_id + decline",
       },
       {
         id: "h.declined",
@@ -921,6 +1167,15 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "who declined, when and on what grounds where stated",
           "the explicit fact that the document remains validly issued - what is absent is agreement rather than the artifact",
         ],
+        contract: {
+          "requiredFields": [
+            "document_version_id",
+            "signer_id",
+            "declined_at",
+            "reason_if_given",
+            "signatures_collected"
+          ]
+        },
       },
       {
         id: "a.superseded",
@@ -931,6 +1186,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.superseded",
+        idempotencyKey: "document_version_id + superseded",
       },
       {
         id: "x.superseded",
@@ -939,6 +1195,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the successor version raises its own signature process. The signatures collected here remain evidence about the version they were made against",
+        class: "invalid-state",
       },
       {
         id: "a.expired",
@@ -946,6 +1203,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record SIGNATURE_EXPIRED. The request lapsed - nobody declined and nothing was decided, and reporting it as a refusal misstates what the signer did",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "x.expired",
+        idempotencyKey: "document_version_id + expired",
       },
       {
         id: "x.expired",
@@ -954,6 +1212,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a fresh request against the same version is a new process. Whether the partial signatures still count is governed by the document's own rules rather than assumed",
+        class: "timeout",
       },
     ],
     guardrails: [

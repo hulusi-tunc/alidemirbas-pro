@@ -16,7 +16,7 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
    here owns exactly one of them. ACT-11 decides how much work the arrow from
    entry to setup will take. ACT-12 walks it. ACT-13 handles the case where it
    is blocked by one named thing. ACT-14 handles the case where it is not
-   blocked by anything nameable and the person is simply struggling. ACT-15
+   blocked by anything nameable and the person is simply struggling. ACT-17 (its first-value entry)
    and ACT-16 are the two halves of crossing into activation - what the person
    experiences, and what the system has to stop doing. ACT-17 and ACT-18 own
    the arrow to adoption in its working and failing forms.
@@ -239,13 +239,215 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the onboarding instance",
       note: "Progress is held against the instance. A second onboarding for a different product does not inherit the first one's completed steps.",
+      instanceKey: [
+        "account_id",
+        "onboarding_instance_id"
+      ],
+      concurrency: "one-active-per-key"
     },
-    competition: {
-      scope: "person",
-      exclusionGroup: "lifecycle-stage",
-      precedence:
-        "below the authoritative activation event, which supersedes it wherever it sits",
-      onLoss: "superseded",
+    objective: "Get an onboarding account to activation by surfacing the single most useful next step, read from what is actually done, until activation happens, a named blocker takes over, or the window closes.",
+    eligibility: [
+      "an onboarding instance is open for the account and activation is not yet recorded",
+      "the product's own record of setup milestones is readable",
+      "no nurture instance is already open for this onboarding instance",
+      "hard gates (GLB-31) permit lifecycle communication"
+    ],
+    suppressions: [
+      {
+        "id": "s.activated",
+        "label": "CANONICAL_RULE",
+        "text": "The authoritative activation event supersedes this journey wherever it sits: the instance hands to completion and nothing further is sent."
+      },
+      {
+        "id": "s.blocker",
+        "label": "CANONICAL_RULE",
+        "text": "When one named mandatory prerequisite is established as the thing preventing activation, the blocker journey (ACT-13) owns the account; nurture steps stop."
+      },
+      {
+        "id": "s.done-step",
+        "label": "CANONICAL_RULE",
+        "text": "A completed step is never suggested again; every touch re-reads the milestone record first."
+      },
+      {
+        "id": "s.window",
+        "label": "CANONICAL_RULE",
+        "text": "When the onboarding window closes without activation the instance exits; onboarding prompts are not sent into a closed window."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "This journey sits below the activation event and below any open issue under human ownership on the same account (GLB-06)."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without permission for lifecycle communication; absent permission is a recorded no-action."
+      }
+    ],
+    contact: {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "onboarding.step_prompts",
+          "rule": "Step prompts run against one budget fixed when the instance opened; a prompt for the same step is never repeated because nothing could tell whether it was seen.",
+          "default": {
+            "value": 5,
+            "confidence": "low",
+            "basis": "example-only",
+            "applicableWhen": "an onboarding with a handful of critical steps"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "onboarding.cooldown",
+        "rule": "Onboarding is per instance; a re-opened onboarding after the window closed is a new instance and enters silently until the cooldown has passed.",
+        "class": "cooldown",
+        "default": {
+          "value": {
+            "min": "14 days",
+            "max": "30 days"
+          },
+          "confidence": "low",
+          "basis": "example-only"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "lifecycle-stage",
+        "scope": "person",
+        "precedence": "below the authoritative activation event, which supersedes it wherever it sits"
+      , "onLoss": "superseded" }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is inside the product - the next step is best pointed at where it is taken"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no active session, or the step needs an explanation that survives until the person returns"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "progressive-recovery",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "next-step",
+          "action": "a.surface",
+          "prerequisites": [
+            "c.next-step"
+          ],
+          "purpose": "Surface the single most useful next action, read from the product's own record of what is done. Never a completed step, never the whole checklist.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "next-setup-step",
+            "boundTo": "onboarding_instance_id"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.activated",
+        "s.blocker",
+        "s.done-step",
+        "s.window",
+        "s.contest",
+        "s.permission"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "onboarding_instance_id",
+          "milestones",
+          "critical_steps",
+          "window_ends_at"
+        ],
+        "optional": [
+          "has_active_session",
+          "blocker_candidate"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "h.activated",
+          "h.blocker",
+          "x.window-closed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "activation_recorded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "onboarding.holdout_share",
+          "rule": "A persistent holdout is required: accounts activate on their own often enough that a treated-only measurement cannot tell the prompts' effect from theirs.",
+          "default": {
+            "value": 10,
+            "confidence": "low",
+            "basis": "example-only"
+          },
+          "required": false
+        }
+      },
+      "secondary": [
+        "setup_milestone_completed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "completed_step_suggested"
+      ],
+      "operational": [
+        "entry_volume",
+        "prompts_per_instance",
+        "time_to_activation",
+        "blocker_handoff_rate",
+        "window_closed_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "onboarding nurture",
+        "setup reminders",
+        "onboarding inactivity",
+        "getting-started sequence",
+        "activation nurture"
+      ],
+      "useCases": [
+        "a new account that has started setup and not yet reached activation",
+        "an onboarding with critical steps outstanding and a bounded window"
+      ]
     },
     entry: "t.active",
     nodes: [
@@ -294,6 +496,17 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Surface the single most useful next action. A completed step is never suggested again, and an order is imposed only where one step genuinely depends on another - elsewhere the person picks",
         next: "w.progress",
         execution: "communication",
+        idempotencyKey: "onboarding_instance_id + step id",
+        attemptBudget: {
+          "key": "onboarding.step_prompts",
+          "rule": "The same budget as the local cap: every prompt spends it, and a spent budget waits out the window silently.",
+          "default": {
+            "value": 5,
+            "confidence": "low",
+            "basis": "example-only"
+          },
+          "required": false
+        },
       },
       {
         id: "c.ready",
@@ -315,15 +528,24 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.progress",
         kind: "wait",
-        until: ["a setup milestone completes", "the authoritative activation event"],
+        until: [
+          "setup_milestone_completed",
+          "activation_recorded"
+        ],
         onEvent: "c.what-happened",
         timeout: {
-          after: "the step-level interval appropriate to the remaining work",
-          reason:
-            "the wait is for the person to act; when nothing happens the state is re-read rather than the same message being repeated",
+          "after": {
+            "key": "onboarding.step_interval",
+            "rule": "The interval between step prompts is the one appropriate to the remaining work - a step that takes minutes and a step that needs an administrator cannot share it.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "the wait is for the person to act; when nothing happens the state is re-read rather than the same message being repeated",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "c.window",
         windowExtendsOnEngagement: false,
+        recheck: "the milestone record re-read from the product: which steps are complete, whether activation is recorded, whether the window is still open",
       },
       {
         id: "c.what-happened",
@@ -402,6 +624,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a later setup or activation event re-opens this normally; the completed milestones are kept, so a return does not start from the beginning",
+        class: "timeout",
       },
     ],
     preemptedBy: [
@@ -906,99 +1129,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Proactive assistance should require evidence of effort without progress, not activity alone.",
   },
 
-  /* ------------------------------------------------------------ ACT-15 */
-  {
-    id: "ACT-15",
-    slug: "first-value-milestone",
-    category: "activation",
-    goal: "progression-milestone",
-    channels: ["email", "in-app", "push"],
-    name: "First value milestone → recognition → next meaningful action",
-    shortName: "First Value Milestone",
-    purpose:
-      "Mark the moment the product first did something real for this person, and point at whatever naturally follows from it.",
-    entity: {
-      scope: "person or account plus the product or service context the value was produced in",
-      note: "First value is per context. A first report in one workspace is not first value in another the same account also holds.",
-    },
-    distinctFrom: [
-      {
-        journey: "ACT-16",
-        because:
-          "The same event can drive both, and they do opposite work. ACT-16 stops what onboarding still had queued; this one speaks to the person about what they just did.",
-      },
-    ],
-    entry: "t.first-value",
-    nodes: [
-      {
-        id: "t.first-value",
-        kind: "trigger",
-        event: "authoritative_first_value_event",
-        evidence: {
-          requires: [
-            "a recorded first: a completed workflow, a completed transaction, a published project, a generated report, a successful collaboration, or whatever this product's equivalent is",
-          ],
-          insufficientAlone: [
-            "a login",
-            "a page view",
-            "a completed onboarding checklist",
-            "an opened or clicked message",
-          ],
-          source: "authoritative",
-        },
-        next: "a.recognize",
-      },
-      {
-        id: "a.recognize",
-        kind: "action",
-        does: "Acknowledge what was actually produced, in the terms of the thing itself. Recognition that names nothing real is the failure mode here - it reads as manufactured, and it devalues the milestones that follow",
-        next: "c.next",
-        execution: "communication",
-      },
-      {
-        id: "c.next",
-        kind: "condition",
-        asks: "Does a natural next action follow from what they just did?",
-        branches: [
-          {
-            label: "Yes",
-            when: "something specific follows from the thing they produced - sharing it, repeating it, extending it",
-            to: "a.surface",
-          },
-          {
-            label: "No",
-            when: "nothing genuinely follows, and inventing a next step would turn recognition into a pitch",
-            to: "h.adoption",
-          },
-        ],
-      },
-      {
-        id: "a.surface",
-        kind: "action",
-        does: "Surface one relevant next action, drawn from what they produced rather than from the product's feature list",
-        next: "h.adoption",
-        execution: "communication",
-      },
-      {
-        id: "h.adoption",
-        kind: "handoff",
-        to: "ACT-17",
-        on: "first value produced",
-        carries: [
-          "what the first value actually was, which is the use-case adoption should now be measured against",
-          "whether a next action was surfaced, so it is not immediately repeated",
-        ],
-      },
-    ],
-    guardrails: [
-      "A login is not first value. A page view is not first value. The product has to have produced something.",
-      "Recognition names the real thing or is not sent. Celebration with nothing behind it costs more than silence.",
-      "The milestone has to matter to the person, not only to our funnel. A step that is significant only internally is not a milestone to congratulate anyone for.",
-    ],
-    reusableRule:
-      "The first-value milestone marks the transition from learning how to use something to receiving value from it.",
-  },
-
   /* ------------------------------------------------------------ ACT-16 */
   {
     id: "ACT-16",
@@ -1131,6 +1261,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the product or use-case value comes from",
       note: "Adoption is measured against the use-case that produced first value, not against the product's full surface.",
+      instanceKey: [
+        "account_id",
+        "use_case_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1139,27 +1274,294 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup.",
       },
     ],
+    objective: "Turn a first activation into repeated value in the same use-case: recognise what was actually produced, point at the one behaviour that would produce more, and stop the moment adoption is stable or stalls.",
+    eligibility: [
+      "an activation or first value-producing event is recorded for this account in a named use-case",
+      "no adoption instance is already open for this account and use-case",
+      "the account is not in a terminated or restricted state",
+      "hard gates (GLB-31) permit lifecycle communication to the people on the account"
+    ],
+    suppressions: [
+      {
+        "id": "s.stable",
+        "label": "CANONICAL_RULE",
+        "text": "The moment value is produced repeatedly at the rhythm the use-case implies, adoption is stable and nothing further is sent; the lifecycle owner takes the account."
+      },
+      {
+        "id": "s.stall",
+        "label": "CANONICAL_RULE",
+        "text": "When the observation window closes without repeated value the instance hands to adoption recovery; a nurture nudge is never sent into a stall."
+      },
+      {
+        "id": "s.nothing-real",
+        "label": "CANONICAL_RULE",
+        "text": "Recognition names the real thing produced or is not sent; a next action is surfaced only when one genuinely follows from what they did."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "An open complaint under human ownership, a live risk case or a declared cancellation intent on the same account outranks lifecycle nurture; the touch is deferred and re-evaluated against current state (GLB-06)."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without permission for lifecycle communication; absent permission is a recorded no-action, never a fallback to another channel."
+      }
+    ],
+    contact: {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "adoption.touches",
+          "rule": "Recognition and the nudges that follow run against one budget fixed when the instance opened; a nudge is never repeated because nothing could tell whether it was seen.",
+          "default": {
+            "value": 4,
+            "confidence": "low",
+            "basis": "example-only",
+            "applicableWhen": "one recognition and a small number of behaviour nudges across the early-adoption window"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "adoption.cooldown",
+        "rule": "A second activation in the same use-case is the same relationship; a new instance opens only after the previous one has closed and the cooldown has passed.",
+        "class": "cooldown",
+        "default": {
+          "value": {
+            "min": "30 days",
+            "max": "90 days"
+          },
+          "confidence": "low",
+          "basis": "example-only"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product - the next behaviour is one step away and is best pointed at from inside"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no active session, or the recognition and the suggested behaviour have to survive until the person returns"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t0",
+          "stage": "recognition",
+          "action": "a.recognize",
+          "prerequisites": [],
+          "purpose": "Acknowledge the specific thing that was produced, in its own terms. Recognition that names nothing real is worse than silence.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t1",
+          "stage": "next-action",
+          "action": "a.surface",
+          "after": "t0",
+          "prerequisites": [
+            "c.next"
+          ],
+          "purpose": "Surface the one action that genuinely follows from what they produced - sharing it, repeating it, extending it - and nothing from the feature list.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "next-action-in-context",
+            "boundTo": "use_case_id"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "behaviour-nudge",
+          "action": "a.next-behavior",
+          "after": "t0",
+          "prerequisites": [
+            "c.stable"
+          ],
+          "purpose": "Encourage only the next behaviour that would produce more value in this use-case; breadth is never pushed where the value is narrow.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "next-behaviour-in-context",
+            "boundTo": "use_case_id"
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        }
+      ],
+      "noAction": [
+        "s.stable",
+        "s.stall",
+        "s.nothing-real",
+        "s.contest",
+        "s.permission"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "use_case_id",
+          "activation_event_id",
+          "activated_at",
+          "produced_artifact"
+        ],
+        "optional": [
+          "has_active_session",
+          "expected_usage_rhythm",
+          "next_behaviour_candidate"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "h.normal",
+          "h.stall"
+        ]
+      },
+      "businessOutcome": {
+        "event": "value_produced",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success"
+      ],
+      "operational": [
+        "entry_volume",
+        "recognition_sent_rate",
+        "nudge_count_distribution",
+        "time_to_stable",
+        "stall_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "adoption nurture",
+        "feature adoption",
+        "first value",
+        "milestone recognition",
+        "aha moment follow-up",
+        "activation follow-up"
+      ],
+      "useCases": [
+        "an account that produced its first real result and should now repeat it",
+        "a workspace activated on one use-case whose next valuable behaviour is known"
+      ]
+    },
     entry: "t.activated",
     nodes: [
       {
-        id: "t.activated",
-        kind: "trigger",
-        event: "core_activation_completed",
-        evidence: {
-          requires: ["a recorded activation, with the use-case that produced it"],
-          insufficientAlone: [
-            "a first-value milestone recorded once, which is ACT-15's moment and not yet a pattern",
-            "onboarding steps completed without the activation event itself",
+        "id": "t.activated",
+        "kind": "trigger",
+        "event": "core_activation_completed",
+        "evidence": {
+          "requires": [
+            "a recorded activation, with the use-case that produced it - or, where the product defines activation as first value, the first value-producing event itself: a completed workflow, a completed transaction, a published project, a generated report",
+            "the artifact or result that was produced, so recognition can name it"
           ],
-          source: "authoritative",
+          "insufficientAlone": [
+            "a login, a page view or a completed onboarding checklist - nothing was produced",
+            "onboarding steps completed without the activation event itself",
+            "an opened or clicked message"
+          ],
+          "source": "authoritative"
         },
-        next: "a.measure",
+        "next": "a.recognize"
       },
       {
         id: "a.measure",
         kind: "action",
         does: "Read adoption from value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them. Activity that produces nothing does not count toward it, however much of it there is",
         next: "c.stable",
+      },
+      {
+        "id": "a.recognize",
+        "kind": "action",
+        "does": "Acknowledge what was actually produced, in the terms of the thing itself. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
+        "execution": "communication",
+        "idempotencyKey": "account_id + use_case_id + touch id",
+        "writes": [
+          {
+            "field": "adoption_log",
+            "mode": "append"
+          }
+        ],
+        "next": "c.next"
+      },
+      {
+        "id": "c.next",
+        "kind": "condition",
+        "asks": "Does a natural next action follow from what they just did?",
+        "branches": [
+          {
+            "label": "Yes",
+            "when": "something specific follows from the thing they produced - sharing it, repeating it, extending it",
+            "observes": "produced_artifact and the use-case's own next step",
+            "to": "a.surface"
+          },
+          {
+            "label": "No",
+            "when": "nothing genuinely follows, and inventing a next step would turn recognition into a pitch",
+            "observes": "produced_artifact",
+            "to": "a.measure"
+          }
+        ]
+      },
+      {
+        "id": "a.surface",
+        "kind": "action",
+        "does": "Surface one relevant next action, drawn from what they produced rather than from the product's feature list",
+        "execution": "communication",
+        "idempotencyKey": "account_id + use_case_id + touch id",
+        "writes": [
+          {
+            "field": "adoption_log",
+            "mode": "append"
+          }
+        ],
+        "next": "a.measure"
       },
       {
         id: "c.stable",
@@ -1187,6 +1589,14 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "the use-case that adoption settled around, which is what any later health or expansion judgement should read",
           "the rhythm it settled at, so a change in it later means something",
         ],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "use_case_id",
+            "settled_rhythm",
+            "stabilised_at"
+          ]
+        },
       },
       {
         id: "a.next-behavior",
@@ -1194,19 +1604,38 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify the next behaviour that would actually produce more value for this use-case, and encourage only that. Breadth is not pursued where the value is narrow - a person who gets everything they need from one workflow is adopted, not under-adopted",
         next: "w.observe",
         execution: "communication",
+        idempotencyKey: "account_id + use_case_id + touch id + observation cycle",
+        attemptBudget: {
+          "key": "adoption.nudge_budget",
+          "rule": "Behaviour nudges run against a budget fixed when the instance opened; when it is spent the instance waits out the observation window silently.",
+          "default": {
+            "value": 3,
+            "confidence": "low",
+            "basis": "example-only"
+          },
+          "required": false
+        },
       },
       {
         id: "w.observe",
         kind: "wait",
-        until: ["a further value-producing usage event"],
+        until: [
+          "value_produced"
+        ],
         onEvent: "a.measure",
         timeout: {
-          after: "the early-adoption window, set from this product's own intended usage rhythm",
-          reason:
-            "a weekly product and a twice-a-year product cannot share a window, and a shared one would report every seasonal account as failing",
+          "after": {
+            "key": "adoption.observation_window",
+            "rule": "The early-adoption window is the product's own intended usage rhythm for this use-case; a weekly product and a twice-a-year product cannot share one, and a shared window reports every seasonal account as failing.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a weekly product and a twice-a-year product cannot share a window, and a shared one would report every seasonal account as failing",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "h.stall",
         windowExtendsOnEngagement: false,
+        recheck: "value-producing usage re-read from the product's own record - not activity, not logins",
       },
       {
         id: "h.stall",
@@ -1242,6 +1671,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the product or use-case that stalled",
       note: "A stall in one use-case is not a stall in the account. Others it holds may be perfectly healthy.",
+      instanceKey: [
+        "account_id",
+        "use_case_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1250,12 +1684,204 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACT-14 is pre-activation and triggered by help-seeking. This is post-activation and triggered by silence, where the most common correct answer is that nothing is wrong.",
       },
     ],
-    competition: {
-      scope: "account",
-      exclusionGroup: "retention-outreach",
-      precedence:
-        "lowest in the group - an open issue under human ownership, a live risk case or a declared cancellation intent on the same account each outranks a recovery nudge. Silence that RET-24 is already reading as risk is RET-24's to act on",
-      onLoss: "suppressed",
+    objective: "Diagnose why value stopped in a use-case and address the specific blocker once - or record honestly that there is nothing to address.",
+    eligibility: [
+      "the expected adoption pattern for this use-case was not met, measured against the product's own rhythm",
+      "the account is active and not terminated, restricted or in a live risk case",
+      "no recovery instance is already open for this account and use-case",
+      "hard gates (GLB-31) permit lifecycle communication"
+    ],
+    suppressions: [
+      {
+        "id": "s.need-met",
+        "label": "CANONICAL_RULE",
+        "text": "When the evidence shows the need was met - the use-case is complete, not abandoned - nothing is sent and the instance closes as satisfied."
+      },
+      {
+        "id": "s.no-evidence",
+        "label": "CANONICAL_RULE",
+        "text": "When nothing in the evidence names a problem, nothing is sent; encouragement into silence is the failure this journey exists to avoid."
+      },
+      {
+        "id": "s.human",
+        "label": "CANONICAL_RULE",
+        "text": "A blocker that needs a person is handed to a person; no automated touch is sent alongside a human intervention."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case or a declared cancellation intent on the same account suppresses it (GLB-06)."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without permission for lifecycle communication; absent permission is a recorded no-action."
+      }
+    ],
+    contact: {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "adoption_recovery.touches",
+          "rule": "One recovery touch per diagnosed blocker; a second touch on the same diagnosis is pressure, not help.",
+          "default": {
+            "value": 1,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph sends exactly one recovery message per instance"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "adoption_recovery.cooldown",
+        "rule": "A new stall in the same use-case opens a new instance only after the cooldown; a stall re-detected inside it is monitored, not messaged.",
+        "class": "cooldown",
+        "default": {
+          "value": {
+            "min": "30 days",
+            "max": "90 days"
+          },
+          "confidence": "low",
+          "basis": "example-only"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "retention-outreach",
+        "scope": "account",
+        "precedence": "lowest in the group - an open issue under human ownership, a live risk case or a declared cancellation intent all outrank a recovery nudge"
+      , "onLoss": "suppressed" }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the blocker needs an explanation that survives until the person can act on it"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a valid token exists and the blocker is a single step the person can take from the notification"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "recovery",
+          "action": "a.recover",
+          "prerequisites": [
+            "c.type"
+          ],
+          "purpose": "Address the diagnosed blocker specifically - the unfinished setup, the missing integration, the misunderstanding. Not more encouragement and not a re-run of onboarding.",
+          "channelRoles": [
+            "persistent",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "blocker-resolution-step",
+            "boundTo": "use_case_id"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.need-met",
+        "s.no-evidence",
+        "s.human",
+        "s.contest",
+        "s.permission"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "use_case_id",
+          "expected_pattern",
+          "last_value_at",
+          "diagnosed_blocker"
+        ],
+        "optional": [
+          "has_push_token",
+          "setup_completion",
+          "integration_status"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "h.adoption",
+          "h.monitor",
+          "h.assistance",
+          "x.satisfied",
+          "x.no-intervention"
+        ]
+      },
+      "businessOutcome": {
+        "event": "value_produced",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "adoption_recovery.holdout_share",
+          "rule": "A persistent holdout is required: stalled accounts resume on their own often enough that a treated-only measurement cannot tell the touch's effect from theirs.",
+          "default": {
+            "value": 10,
+            "confidence": "low",
+            "basis": "example-only"
+          },
+          "required": false
+        }
+      },
+      "secondary": [],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success"
+      ],
+      "operational": [
+        "entry_volume",
+        "diagnosis_distribution",
+        "no_intervention_rate",
+        "recovery_rate",
+        "handoff_distribution"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "adoption recovery",
+        "onboarding inactivity",
+        "usage drop",
+        "stalled adoption",
+        "feature stall",
+        "re-engagement (adoption)"
+      ],
+      "useCases": [
+        "an account that produced value once and then stopped inside the expected rhythm",
+        "a use-case blocked by an unfinished setup or a missing integration"
+      ]
     },
     entry: "t.stall",
     nodes: [
@@ -1315,6 +1941,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new use-case, or the same need arising again, opens adoption normally - this account did not fail, it finished",
+        class: "invalid-state",
       },
       {
         id: "a.recover",
@@ -1322,18 +1949,28 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Address the diagnosed blocker specifically. Not more encouragement, not a re-run of onboarding - the thing the diagnosis actually named",
         next: "w.recover",
         execution: "communication",
+        idempotencyKey: "account_id + use_case_id + touch id",
       },
       {
         id: "w.recover",
         kind: "wait",
-        until: ["a meaningful recovery event: value produced again in this use-case"],
+        until: [
+          "value_produced"
+        ],
         onEvent: "h.adoption",
         timeout: {
-          after: "a bounded recovery window, again drawn from the product's intended rhythm",
-          reason: "a recovery attempt that has not worked does not work better repeated",
+          "after": {
+            "key": "adoption_recovery.window",
+            "rule": "The recovery window is drawn from the product's own intended usage rhythm for this use-case, bounded so that a stall is either recovered or handed to monitoring - never nudged indefinitely.",
+            "class": "recovery-window",
+            "required": true
+          },
+          "reason": "a recovery attempt that has not worked does not work better repeated",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "h.monitor",
         windowExtendsOnEngagement: false,
+        recheck: "value-producing usage in this use-case re-read from the product's own record",
       },
       {
         id: "h.adoption",
@@ -1352,6 +1989,14 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "the fact that this is reduced usage, not a churn decision - nobody has said anything",
         ],
         suppresses: ["adoption-frequency messaging for this use-case"],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "use_case_id",
+            "diagnosed_blocker",
+            "recovery_window_closed_at"
+          ]
+        },
       },
       {
         id: "h.assistance",
@@ -1359,6 +2004,14 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "external:human-in-the-loop-lifecycle",
         on: "a technical blocker that needs a person",
         carries: ["the diagnosis", "what the account was trying to do when it stopped"],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "use_case_id",
+            "diagnosed_blocker",
+            "evidence"
+          ]
+        },
       },
       {
         id: "x.no-intervention",
@@ -1367,6 +2020,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "real evidence of a stall later re-opens this - the absence of a finding is a finding, and manufacturing an intervention from it is the failure this branch exists to prevent",
+        class: "no-action",
       },
     ],
     guardrails: [

@@ -120,7 +120,7 @@ export type GoalId =
 /** A journey id that was consolidated into another during review and is no
     longer canonical. Kept only so existing references resolve; never counted
     as a journey and never a valid handoff target. */
-export type MergedJourneyId = "CON-37" | "CMS-209" | "CTL-239" | "CTL-240" | "RET-25";
+export type MergedJourneyId = "CON-37" | "CMS-209" | "CTL-239" | "CTL-240" | "RET-25" | "FBK-44" | "FBK-45" | "ACT-15";
 
 /** The scope two journeys have to share before they are competing at all.
     Sharing the key is not enough - they compete only on the same instance of

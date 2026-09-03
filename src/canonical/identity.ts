@@ -2037,6 +2037,11 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the account plus this security incident and the scope it affects",
       note: "The incident is the subject and it has its own record. A later signal on the same account is a separate incident and gets its own question.",
+      instanceKey: [
+        "account_id",
+        "incident_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2050,6 +2055,252 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too.",
       },
     ],
+    objective: "Tell the account owner, at every verified destination the signal does not implicate, what was seen and what was restricted - and let their answer resolve it: cleared, or into secure recovery.",
+    eligibility: [
+      "a compromise incident is opened for the account with its scope determined",
+      "at least one verified destination exists that the signal does not implicate",
+      "the incident has a review point set"
+    ],
+    suppressions: [
+      {
+        "id": "s.implicated-route",
+        "label": "CANONICAL_RULE",
+        "text": "No alert goes to a destination the signal implicates; where every route is implicated the alert is withheld and the incident proceeds on the security side alone."
+      },
+      {
+        "id": "s.no-claim",
+        "label": "CANONICAL_RULE",
+        "text": "Suspected is not confirmed: the alert says what was restricted only where something was, and says plainly that nothing was restricted where nothing was."
+      },
+      {
+        "id": "s.multi-destination",
+        "label": "CANONICAL_RULE",
+        "text": "The alert goes to every verified, unimplicated destination at once; a single destination that may itself be compromised is never the only one told."
+      },
+      {
+        "id": "s.owner-informed-past-review",
+        "label": "CANONICAL_RULE",
+        "text": "An incident open past its review point is stated to the owner as open, with what remains restricted; it is not silently left in place."
+      },
+      {
+        "id": "s.hard-gates-only",
+        "label": "CANONICAL_RULE",
+        "text": "Security alerts are exempt from pressure caps and marketing permission; only hard gates (GLB-31) apply, and a fraud hold does not stop an alert to the owner at an unimplicated destination."
+      }
+    ],
+    contact: {
+      "defaultPriority": "security",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "security_alert.discretionary_touches",
+          "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "every touch in the plan is marked mandatory"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "security_alert.cooldown",
+        "rule": "Alerts are per incident; a new incident is its own instance and no cooldown applies between incidents.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "a verified address the signal does not implicate exists; the alert must be kept and re-read"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "a verified number the signal does not implicate exists; the shortest route to the confirmation question"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "every verified destination the signal does not implicate is told at once, because a single destination may itself be the compromised one" },
+      "label": "CANONICAL_RULE"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t-contained",
+          "stage": "alert",
+          "action": "a.alert-contained",
+          "prerequisites": [
+            "c.route",
+            "c.contained"
+          ],
+          "purpose": "Say what was restricted, why, and that confirming whether the recent activity was theirs is what resolves it.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "activity-confirmation",
+            "boundTo": "incident_id",
+            "mustNotClaim": [
+              "that the account is confirmed compromised",
+              "a restriction that was not applied"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-watch",
+          "stage": "alert",
+          "action": "a.alert-watch",
+          "prerequisites": [
+            "c.route",
+            "c.contained"
+          ],
+          "purpose": "Ask whether the recent activity was theirs and say plainly that nothing has been restricted.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "activity-confirmation",
+            "boundTo": "incident_id",
+            "mustNotClaim": [
+              "that anything was restricted",
+              "that the account is confirmed compromised"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-cleared",
+          "stage": "resolution",
+          "action": "a.cleared",
+          "gatedBy": "w.verify",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say the signal is cleared and name anything that has been lifted, so a restriction met yesterday is not still assumed today.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-standing",
+          "stage": "resolution",
+          "action": "a.standing",
+          "gatedBy": "w.verify",
+          "prerequisites": [],
+          "purpose": "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is assumed from their silence.",
+          "destination": { "target": "incident-status", "boundTo": "incident_id", "mustNotClaim": ["that the incident is resolved"] },
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.implicated-route",
+        "s.no-claim",
+        "s.multi-destination",
+        "s.owner-informed-past-review",
+        "s.hard-gates-only"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "incident_id",
+          "scope",
+          "implicated_destinations",
+          "verified_destinations",
+          "containment_applied",
+          "review_point_at"
+        ],
+        "optional": [
+          "restrictions_applied",
+          "signal_summary"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.cleared",
+          "x.open",
+          "x.withheld",
+          "h.recovery"
+        ]
+      },
+      "businessOutcome": {
+        "event": "activity_confirmed_own",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "activity_reported_not_own",
+        "security_review_concluded"
+      ],
+      "guardrails": [
+        "alert_to_implicated_destination",
+        "restriction_claimed_not_applied",
+        "complaint",
+        "support_contact_within_24h"
+      ],
+      "operational": [
+        "incident_volume",
+        "withheld_rate",
+        "contained_vs_watch",
+        "owner_response_rate",
+        "time_to_resolution",
+        "recovery_handoff_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "account security alert",
+        "suspicious login alert",
+        "unusual activity alert",
+        "compromise notification",
+        "security notification",
+        "new device alert"
+      ],
+      "useCases": [
+        "a sign-in from an unrecognised context that restricted part of the account",
+        "suspicious activity seen but nothing restricted, and the owner asked whether it was theirs"
+      ]
+    },
     entry: "t.signal",
     nodes: [
       {
@@ -2094,6 +2345,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "no destination outside the suspicion; no alert sent",
         terminal: false,
         reEntry: "if a destination outside the affected scope is established, the verification question runs from there",
+        class: "no-action",
       },
       {
         id: "c.contained",
@@ -2118,6 +2370,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say what was restricted, why, and that confirming whether the recent activity was theirs is what resolves it. A restriction somebody walks into unwarned is indistinguishable from the compromise it was meant to contain",
         next: "w.verify",
         execution: "communication",
+        idempotencyKey: "incident_id + touch id",
       },
       {
         id: "a.alert-watch",
@@ -2125,22 +2378,30 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask whether the recent activity was theirs and say plainly that nothing has been restricted. Suspected is not confirmed, and most of these signals are not - a message that implies otherwise converts a false positive into a frightened person",
         next: "w.verify",
         execution: "communication",
+        idempotencyKey: "incident_id + touch id",
       },
       {
         id: "w.verify",
         kind: "wait",
         until: [
-          "the owner confirms the activity was theirs",
-          "the owner reports the activity was not theirs",
-          "the security review concludes without them",
+          "activity_confirmed_own",
+          "activity_reported_not_own",
+          "security_review_concluded"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the review point set for this incident",
-          reason: "an open suspicion with no stated conclusion is a restriction with no end date, and the owner is the one living inside it",
+          "after": {
+            "key": "security_alert.review_point",
+            "rule": "The wait is the review point set for this incident by the security process; an owner still silent at the review point is told the incident stands open, and silence is never read as confirmation.",
+            "class": "decision-sla",
+            "required": true
+          },
+          "reason": "an open suspicion with no stated conclusion is a restriction with no end date, and the owner is the one living inside it",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.standing",
         windowExtendsOnEngagement: false,
+        recheck: "the incident re-read: the owner's answer if any, the security review's state, and what remains restricted",
       },
       {
         id: "c.outcome",
@@ -2165,6 +2426,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the signal is cleared and name anything that has been lifted, so a restriction met yesterday is not still assumed today. The record of the signal stays; only the restriction goes",
         next: "x.cleared",
         execution: "communication",
+        idempotencyKey: "incident_id + touch id",
       },
       {
         id: "x.cleared",
@@ -2172,6 +2434,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "cleared; restrictions lifted and the owner told",
         terminal: false,
         reEntry: "a further signal on the same account is a new incident and a new instance",
+        class: "success",
       },
       {
         id: "h.recovery",
@@ -2189,6 +2452,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is required from them. A restriction with no stated owner and no stated date is where duplicate cases come from",
         next: "x.open",
         execution: "communication",
+        idempotencyKey: "incident_id + touch id",
       },
       {
         id: "x.open",
@@ -2196,6 +2460,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "incident open past its review point; the owner knows where it sits",
         terminal: false,
         reEntry: "the conclusion, whenever it lands, re-enters on the cleared or the recovery path",
+        class: "timeout",
       },
     ],
     guardrails: [

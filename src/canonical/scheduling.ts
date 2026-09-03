@@ -741,6 +741,91 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the confirmed reservation and the preparation running against it",
       note: "The preparation is subordinate to the booking. It can fail, and the booking stays confirmed while somebody decides what to do about it.",
+      instanceKey: [
+        "booking_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Establish, by the pre-service checkpoint, that every prerequisite of a confirmed reservation is met - escalating what is not to ownership - so that the start-time journey begins from a booking that is actually ready.",
+    eligibility: [
+      "a reservation is confirmed with its prerequisites defined",
+      "the pre-service checkpoint for its service class is defined",
+      "no readiness instance is already open for this booking"
+    ],
+    suppressions: [
+      {
+        "id": "s.changed",
+        "label": "CANONICAL_RULE",
+        "text": "A booking that materially changes - moved, reassigned, cancelled - supersedes the open readiness instance; readiness is re-established against the new booking, never carried over."
+      },
+      {
+        "id": "s.silent",
+        "label": "CANONICAL_RULE",
+        "text": "This journey sends nothing to the customer; prerequisites the customer must meet are prompted by the reminder journey (SCH-266), and what remains unmet at the checkpoint goes to ownership."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "scheduled_at",
+          "prerequisites",
+          "checkpoint_lead",
+          "provider_id"
+        ],
+        "optional": [
+          "prerequisite_status",
+          "owner_id"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.upcoming",
+          "x.superseded",
+          "h.escalate"
+        ]
+      },
+      "businessOutcome": {
+        "event": "prerequisites_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "booking_materially_changed"
+      ],
+      "guardrails": [
+        "start_on_unready_booking",
+        "readiness_carried_over_change"
+      ],
+      "operational": [
+        "confirmed_volume",
+        "ready_at_checkpoint_rate",
+        "escalation_rate",
+        "superseded_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "reservation readiness",
+        "booking preparation",
+        "pre-service checklist",
+        "prerequisite tracking",
+        "readiness checkpoint"
+      ],
+      "useCases": [
+        "an appointment whose intake forms and access details must be in place before the checkpoint",
+        "a reservation whose provider-side prerequisites are tracked to a checkpoint"
+      ]
     },
     entry: "t.confirmed",
     nodes: [
@@ -750,6 +835,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         event: "reservation_confirmed",
         evidence: {
           requires: ["a reservation confirmed with a scheduled time still in the future"],
+          insufficientAlone: [
+            "a booking requested but not confirmed",
+            "a confirmation with no prerequisites defined, which has nothing to make ready",
+            "a reminder having been sent, which says nothing about readiness"
+          ],
           source: "authoritative",
         },
         next: "a.determine",
@@ -795,17 +885,24 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.prepare",
         kind: "wait",
         until: [
-          "every prerequisite completes",
-          "the booking materially changes",
+          "prerequisites_completed",
+          "booking_materially_changed"
         ],
         onEvent: "c.event",
         timeout: {
-          after: "the pre-service checkpoint policy defines ahead of the scheduled time",
-          reason:
-            "the checkpoint is the last point at which an unresolved prerequisite can still be acted on. After it, the choice is to proceed unprepared or to disrupt someone's day at short notice",
+          "after": {
+            "key": "scheduling.readiness_checkpoint",
+            "rule": "The checkpoint is the lead the pre-service policy defines ahead of the scheduled time for this service class; what is unmet at the checkpoint is escalated, not waited on further.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "the checkpoint is the last point at which an unresolved prerequisite can still be acted on. After it, the choice is to proceed unprepared or to disrupt someone's day at short notice",
+          "relativeTo": "attribute",
+          "attribute": "scheduled_at"
         },
         onTimeout: "c.critical",
         windowExtendsOnEngagement: false,
+        recheck: "the booking and each prerequisite re-read at the checkpoint",
       },
       {
         id: "c.event",
@@ -831,6 +928,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the reschedule or cancellation owns what happens next. Preparation is re-derived against the new booking rather than carried across, because a different time can need different things",
+        class: "invalid-state",
       },
       {
         id: "c.critical",
@@ -880,6 +978,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the revalidation at service time reads the booking's current state rather than this readiness record, which was true when it was written",
+        class: "success",
       },
     ],
     guardrails: [
@@ -2989,6 +3088,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the single booking occurrence that did not take place",
       note: "One occurrence. This says nothing about the person's history or standing - it is a fact about one booking, and a second miss is its own instance.",
+      instanceKey: [
+        "booking_id",
+        "occurrence_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -3002,6 +3106,214 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "SCH-177 runs as the time approaches and is about getting somebody there. This starts only once the window has closed with nobody there.",
       },
     ],
+    objective: "After a genuinely missed booking, state the fact without penalty language and give the single route to a new booking where one exists - after re-reading the booking, and never where our side could not have delivered.",
+    eligibility: [
+      "a no-show is recorded against one booking occurrence by the attendance source",
+      "the booking, re-read after the recording lag, genuinely did not happen - not moved, cancelled or attended after all",
+      "the provider or resource could have delivered; a failure on our side goes to reschedule, not follow-up",
+      "hard gates (GLB-31) permit service communication"
+    ],
+    suppressions: [
+      {
+        "id": "s.reread",
+        "label": "CANONICAL_RULE",
+        "text": "Attendance and cancellation events lag; the booking's latest events are re-read before anything leaves, and a booking moved, cancelled or attended after all sends nothing."
+      },
+      {
+        "id": "s.provider-fault",
+        "label": "CANONICAL_RULE",
+        "text": "A missed booking the provider or resource could not have delivered is ours, not the customer's; it goes to reschedule and no follow-up is sent."
+      },
+      {
+        "id": "s.no-penalty-language",
+        "label": "CANONICAL_RULE",
+        "text": "The miss is stated as a fact; no penalty language, and no penalty applied here - the commitment's own terms own consequences."
+      },
+      {
+        "id": "s.nothing-to-rebook",
+        "label": "CANONICAL_RULE",
+        "text": "Where nothing can be rebooked, the notice acknowledges the miss and what it means, with no rebooking prompt attached."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply; pressure caps do not, because this concerns a commitment the person made."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "no_show.touches",
+          "rule": "One follow-up per missed occurrence - an offer or an acknowledgement, never both; an unanswered offer is not repeated.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph reaches at most one message per instance"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "no_show.cooldown",
+        "rule": "Follow-up is per occurrence; a later miss is its own instance, though repeated misses are evidence the commitment's own policy reads.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the offer carries the rebooking route and should be kept - the default"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "permission for service messages on the channel is recorded and the rebooking window is short"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t-offer",
+          "stage": "rebooking-offer",
+          "action": "a.offer",
+          "prerequisites": [
+            "c.superseded",
+            "c.provider",
+            "c.rebookable"
+          ],
+          "purpose": "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one within the stated window.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "rebooking",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "a penalty",
+              "that a slot is held"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-ack",
+          "stage": "acknowledgement",
+          "action": "a.acknowledge",
+          "prerequisites": [
+            "c.superseded",
+            "c.provider",
+            "c.rebookable"
+          ],
+          "purpose": "State plainly that the booking did not happen and what that means, with no rebooking prompt attached because there is nothing to rebook onto.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.reread",
+        "s.provider-fault",
+        "s.no-penalty-language",
+        "s.nothing-to-rebook",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "occurrence_id",
+          "person_id",
+          "scheduled_at",
+          "no_show_recorded_at",
+          "attendance_source",
+          "provider_status",
+          "rebooking_availability"
+        ],
+        "optional": [
+          "rebooking_window",
+          "urgent_channel_permission",
+          "commitment_terms_ref"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.rebooked",
+          "x.closed",
+          "x.suppressed",
+          "h.provider"
+        ]
+      },
+      "businessOutcome": {
+        "event": "rebooked",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [
+        "rebooking_declined"
+      ],
+      "guardrails": [
+        "complaint",
+        "message_on_superseded_booking",
+        "penalty_language_used",
+        "support_contact_within_24h"
+      ],
+      "operational": [
+        "no_show_volume",
+        "superseded_rate",
+        "provider_fault_rate",
+        "offer_rate",
+        "rebooking_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "no-show follow-up",
+        "missed appointment follow-up",
+        "missed booking",
+        "rebooking offer",
+        "did-not-attend follow-up",
+        "DNA follow-up"
+      ],
+      "useCases": [
+        "a missed appointment where the provider was ready and a new slot can be offered",
+        "a missed reservation with nothing to rebook onto, acknowledged plainly"
+      ]
+    },
     entry: "t.no-show",
     nodes: [
       {
@@ -3052,6 +3364,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "nothing sent; the booking was moved, cancelled or attended after all",
         terminal: false,
         reEntry: "a later booking that is genuinely missed is its own instance",
+        class: "suppression",
       },
       {
         id: "c.provider",
@@ -3103,6 +3416,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State plainly that the booking did not happen and what that means, with no rebooking prompt attached because there is nothing to book. An offer with nothing behind it costs more trust than saying nothing would",
         next: "x.closed",
         execution: "communication",
+        idempotencyKey: "occurrence_id + touch id",
       },
       {
         id: "a.offer",
@@ -3110,21 +3424,37 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one with the date that route closes. Attaching blame to the miss makes rebooking a confession, and people do not book to confess",
         next: "w.rebook",
         execution: "communication",
+        idempotencyKey: "occurrence_id + touch id",
       },
       {
         id: "w.rebook",
         kind: "wait",
         until: [
-          "a new booking is created for the same commitment",
-          "the customer declines a further booking",
+          "rebooked",
+          "rebooking_declined"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the rebooking window stated in the offer",
-          reason: "the stated window is the whole content of the offer, and letting it pass silently makes what was said untrue",
+          "after": {
+            "key": "no_show.rebooking_window",
+            "rule": "The offer stands for the window stated in it; when the window passes the instance closes and the offer is not repeated.",
+            "class": "response-window",
+            "default": {
+              "value": {
+                "min": "7 days",
+                "max": "14 days"
+              },
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "the stated window is the whole content of the offer, and letting it pass silently makes what was said untrue",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.closed",
         windowExtendsOnEngagement: false,
+        recheck: "bookings for the same commitment re-read: a new booking created, a decline recorded, or nothing",
       },
       {
         id: "c.outcome",
@@ -3149,6 +3479,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "rebooked",
         terminal: false,
         reEntry: "the new booking has its own lifecycle and a later miss enters here again",
+        class: "success",
       },
       {
         id: "x.closed",
@@ -3156,6 +3487,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "closed with no rebooking",
         terminal: false,
         reEntry: "a request from the customer later reopens booking through the ordinary route, not through this one",
+        class: "timeout",
       },
     ],
     guardrails: [

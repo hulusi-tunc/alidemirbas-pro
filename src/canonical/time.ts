@@ -499,6 +499,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the time-bound entity approaching expiry - a subscription, document, entitlement, credential, approval, reservation, benefit or agreement",
       note: "One window per entity. A person holding three expiring credentials has three windows, and renewing one closes only its own.",
+      instanceKey: [
+        "entity_ref",
+        "validity_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -507,6 +512,222 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "This runs while the outcome can still change. TIM-64 runs at the moment it stops being able to. Keeping them apart is what makes expiring and expired different states rather than the same one announced twice.",
       },
     ],
+    objective: "Before something expires, tell the person who can actually act what is expiring, the one action that would change the outcome and the point by which it must be taken - or, where nothing can be done, say plainly what will happen; and say nothing where nothing is worth saying.",
+    eligibility: [
+      "a pre-expiry window has been entered for a time-bound entity with an asserted expiry",
+      "the entity is still expiring - not already renewed, replaced or completed - when re-read",
+      "hard gates (GLB-31) permit service communication to the responsible actor"
+    ],
+    suppressions: [
+      {
+        "id": "s.already-resolved",
+        "label": "CANONICAL_RULE",
+        "text": "An entity already renewed, replaced or completed when the window is re-read sends nothing; the window opened on a schedule and the state may have moved."
+      },
+      {
+        "id": "s.no-actor",
+        "label": "CANONICAL_RULE",
+        "text": "A pre-expiry message addressed to someone who cannot act is noise; the responsible actor and the action are established before anything is sent."
+      },
+      {
+        "id": "s.nothing-to-say",
+        "label": "CANONICAL_RULE",
+        "text": "Where nothing can be done and telling anyone changes nothing, nothing is sent."
+      },
+      {
+        "id": "s.no-call-where-no-action",
+        "label": "CANONICAL_RULE",
+        "text": "An informational notice carries no prompt to act, because there is no action; a prompt to act with nothing to do is a false one."
+      },
+      {
+        "id": "s.stale-queue",
+        "label": "CANONICAL_RULE",
+        "text": "A renewal granted before expiry invalidates the expiry actions queued against the old validity; nothing sent later refers to the old one."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "expiry.touches",
+          "rule": "One pre-expiry message per validity - a prompt to act or an informational notice, never both; the expiry itself is handled by expiry validation.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph reaches at most one message per instance"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "expiry.cooldown",
+        "rule": "Reminders are per validity; a renewed entity's next validity is its own instance and no cooldown applies between validities.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message names an action and a boundary and must survive until the responsible actor can act - the default"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the responsible actor is in the product and the action is taken there"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms",
+            "push"
+          ],
+          "when": "the expiry is inside the urgent horizon, the action is a single step, and permission for service messages on the channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "deadline-countdown",
+      "touches": [
+        {
+          "id": "t-prompt",
+          "stage": "action-prompt",
+          "action": "a.prompt-action",
+          "prerequisites": [
+            "c.already",
+            "c.action"
+          ],
+          "purpose": "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point by which it must be taken.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "urgent"
+          ],
+          "destination": {
+            "target": "expiry-action",
+            "boundTo": "validity_id",
+            "mustNotClaim": [
+              "an expiry the system of record does not assert",
+              "that the action has been taken"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-inform",
+          "stage": "informational-notice",
+          "action": "a.inform",
+          "prerequisites": [
+            "c.already",
+            "c.action",
+            "c.informational"
+          ],
+          "purpose": "Say what will happen and when, with no prompt to act attached, because there is no action.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.already-resolved",
+        "s.no-actor",
+        "s.nothing-to-say",
+        "s.no-call-where-no-action",
+        "s.stale-queue"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "entity_ref",
+          "validity_id",
+          "expires_at",
+          "entity_type",
+          "responsible_actor",
+          "available_action"
+        ],
+        "optional": [
+          "has_active_session",
+          "urgent_channel_permission",
+          "action_destination"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "h.resolved",
+          "h.expiry",
+          "x.suppressed",
+          "x.silent"
+        ]
+      },
+      "businessOutcome": {
+        "event": "renewed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [
+        "completion_recorded",
+        "replaced"
+      ],
+      "guardrails": [
+        "complaint",
+        "prompt_with_no_action",
+        "message_after_resolution",
+        "support_contact_within_24h"
+      ],
+      "operational": [
+        "window_volume",
+        "already_resolved_rate",
+        "prompt_rate",
+        "inform_rate",
+        "silent_rate",
+        "resolved_before_expiry_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "expiry reminder",
+        "expiration notice",
+        "licence expiry reminder",
+        "credential expiry reminder",
+        "card expiry reminder",
+        "document expiry reminder",
+        "pre-expiry notice"
+      ],
+      "useCases": [
+        "a stored card, licence, certificate or credential approaching its expiry with a renewal action available",
+        "an entitlement that will lapse on a date and can only be announced, not extended"
+      ]
+    },
     entry: "t.window",
     nodes: [
       {
@@ -553,6 +774,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         state: "pre-expiry journey suppressed; nothing is expiring",
         terminal: false,
         reEntry: "the replacement entity has its own expiry and its own window",
+        class: "suppression",
       },
       {
         id: "c.action",
@@ -583,6 +805,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point after which that action stops being available. Establishing who must act and then waiting for them to act, without ever telling them, is a call to action nobody received",
         execution: "communication",
         next: "w.resolution",
+        idempotencyKey: "validity_id + touch id",
       },
       {
         id: "c.informational",
@@ -607,6 +830,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say what will happen and when, with no call to action attached - because there is no action. A prompt to act where acting is impossible is worse than silence",
         next: "w.resolution",
         execution: "communication",
+        idempotencyKey: "validity_id + touch id",
       },
       {
         id: "x.silent",
@@ -614,19 +838,36 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         state: "expiring, nothing to do and nothing worth saying",
         terminal: false,
         reEntry: "the expiry itself is handled at the moment it arrives",
+        class: "no-action",
       },
       {
         id: "w.resolution",
         kind: "wait",
-        until: ["renewed", "completed", "replaced"],
+        until: [
+          "renewed",
+          "completion_recorded",
+          "replaced"
+        ],
         onEvent: "a.invalidate",
         timeout: {
-          after: "the expiry moment",
-          reason:
-            "the window closes at the expiry by definition; what happens then belongs to the expiry journey rather than to this one",
+          "after": {
+            "key": "expiry.expiry_moment",
+            "rule": "The wait ends at the expiry the system of record asserts; the expiry itself is validated and handled by the next journey, never re-asserted here.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "expires_at as the system of record asserts it",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the window closes at the expiry by definition; what happens then belongs to the expiry journey rather than to this one",
+          "relativeTo": "attribute",
+          "attribute": "expires_at"
         },
         onTimeout: "h.expiry",
         windowExtendsOnEngagement: false,
+        recheck: "the entity re-read at the expiry moment: renewed, replaced, completed, or still expiring",
       },
       {
         id: "a.invalidate",
@@ -634,6 +875,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Invalidate the expiry actions queued against the old validity, so a renewal granted today is not undone by an expiry scheduled yesterday",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "h.resolved",
+        idempotencyKey: "validity_id + invalidation",
       },
       {
         id: "h.resolved",
@@ -645,6 +887,14 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "the old expiry, now invalidated, so nothing downstream still holds it",
         ],
         suppresses: ["every expiry action scheduled under the previous validity"],
+        contract: {
+          "requiredFields": [
+            "entity_ref",
+            "validity_id",
+            "resolution_type",
+            "resolved_at"
+          ]
+        },
       },
       {
         id: "h.expiry",

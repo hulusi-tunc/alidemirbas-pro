@@ -552,6 +552,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the continuing relationship and the renewal cycle currently open on it",
       note: "One renewal cycle per term boundary. A relationship renewed eight times has eight cycles in its history, each with what was decided and why.",
+      instanceKey: [
+        "relationship_id",
+        "renewal_cycle_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -560,12 +565,229 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This produces a decision. SUB-164 makes the new term exist, which depends on payment, confirmation and eligibility that this journey does not touch. A relationship can be decided-to-renew and still not renew.",
       },
     ],
-    competition: {
-      scope: "subscription",
-      exclusionGroup: "relationship-continuity",
-      precedence:
-        "below a cancellation in motion and below an active risk state on the same relationship",
-      onLoss: "suppressed",
+    objective: "Bring a renewal cycle to a recorded decision before the notice deadline: give the notice the terms require, put the decision to whoever holds it where one is needed, and apply what the terms say when none is made.",
+    eligibility: [
+      "a renewal decision window has opened on a continuing relationship with a current term",
+      "the renewal terms, model and required notice are defined - or the cycle goes to decision resolution first",
+      "no renewal instance is already open for this cycle"
+    ],
+    suppressions: [
+      {
+        "id": "s.undefined-terms",
+        "label": "CANONICAL_RULE",
+        "text": "A window with no defined notice period or renewing terms goes to decision resolution (DEC-181); nothing is asked or noticed on undefined terms."
+      },
+      {
+        "id": "s.blocked",
+        "label": "CANONICAL_RULE",
+        "text": "An outstanding blocker puts the cycle in review; the relationship stays active on its current term throughout and no decision is requested until the blocker is settled."
+      },
+      {
+        "id": "s.decided",
+        "label": "CANONICAL_RULE",
+        "text": "A recorded, authorised decision ends asking; nothing further is sent by this journey once the decision exists."
+      },
+      {
+        "id": "s.asking-not-deciding",
+        "label": "CANONICAL_RULE",
+        "text": "Putting the decision to its holder is not deciding; a non-response is resolved by what the governing terms define, never assumed."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply; pressure caps do not to the required notice, which is an obligation of the terms rather than outreach."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "renewal.discretionary_touches",
+          "rule": "Only the decision request counts against the cap; the notice the terms require is an obligation, not a touch to ration.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph puts the decision once"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "renewal.cooldown",
+        "rule": "Renewal is per cycle; the next cycle is its own instance and no cooldown applies between cycles.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "relationship-continuity",
+        "scope": "subscription",
+        "precedence": "below a cancellation in motion and below an active risk state on the same relationship",
+        "onLoss": "suppressed"
+      }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the decision holder is active in the product and the decision is taken there"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms",
+            "push"
+          ],
+          "when": "the notice deadline is inside the urgent horizon and permission for service messages on the channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "deadline-countdown",
+      "touches": [
+        {
+          "id": "t-notice",
+          "stage": "required-notice",
+          "action": "a.notice",
+          "prerequisites": [
+            "c.notice",
+            "c.notice-required"
+          ],
+          "purpose": "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if no decision is made.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "renewal-terms",
+            "boundTo": "renewal_cycle_id"
+          },
+          "mandatory": true,
+          "priority": "transactional",
+          "priorityReason": "a notice the governing terms require is an obligation of the relationship, not outreach; it is never rationed or deferred",
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-request",
+          "stage": "decision-request",
+          "action": "a.request",
+          "prerequisites": [
+            "c.blockers",
+            "c.model"
+          ],
+          "purpose": "Put the renewal decision to whoever holds it, with the terms that would apply and the point by which the notice period requires an answer.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "urgent"
+          ],
+          "destination": {
+            "target": "renewal-decision",
+            "boundTo": "renewal_cycle_id",
+            "mustNotClaim": [
+              "that a decision has been made"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.undefined-terms",
+        "s.blocked",
+        "s.decided",
+        "s.asking-not-deciding",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "renewal_cycle_id",
+          "term_end_at",
+          "renewal_model",
+          "notice_period",
+          "renewing_terms",
+          "decision_holder"
+        ],
+        "optional": [
+          "blockers",
+          "has_active_session",
+          "urgent_channel_permission"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.execute",
+          "h.scheduled-end",
+          "h.escalate",
+          "h.undefined"
+        ]
+      },
+      "businessOutcome": {
+        "event": "renewal_decision_recorded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "notice_missed",
+        "decision_assumed",
+        "support_contact_within_24h"
+      ],
+      "operational": [
+        "window_volume",
+        "undefined_terms_rate",
+        "notice_given_rate",
+        "decision_requested_rate",
+        "default_applied_rate",
+        "review_escalation_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "renewal reminder",
+        "renewal notice",
+        "auto-renewal notice",
+        "contract renewal",
+        "subscription renewal reminder",
+        "term-end reminder"
+      ],
+      "useCases": [
+        "an annual contract approaching its notice deadline",
+        "an auto-renewing subscription whose terms require advance notice",
+        "a renewal that needs an explicit decision from an account holder"
+      ]
     },
     entry: "t.window",
     nodes: [
@@ -641,6 +863,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if they do nothing. Having defined a notice period is not the same as having given notice, and an auto-renew that reaches execution silently is exactly the case the obligation exists for. This is notice, not a request - it is never treated as the decision",
         execution: "communication",
         next: "c.blockers",
+        idempotencyKey: "renewal_cycle_id + touch id",
       },
       {
         id: "c.blockers",
@@ -688,19 +911,34 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.decision",
         execution: "communication",
+        idempotencyKey: "renewal_cycle_id + touch id",
       },
       {
         id: "w.decision",
         kind: "wait",
-        until: ["an authorized renewal decision is recorded"],
+        until: [
+          "renewal_decision_recorded"
+        ],
         onEvent: "c.decision",
         timeout: {
-          after: "the last point at which the required notice period still allows a decision",
-          reason:
-            "the notice period is what makes the deadline real - past it, the terms themselves determine what happens, and pretending the decision is still open misrepresents the relationship",
+          "after": {
+            "key": "renewal.decision_deadline",
+            "rule": "The decision is waited for until the last point at which the required notice period still allows one; then the governing terms decide.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "term_end_at minus the notice period the terms require",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the notice period is what makes the deadline real - past it, the terms themselves determine what happens, and pretending the decision is still open misrepresents the relationship",
+          "relativeTo": "attribute",
+          "attribute": "term_end_at"
         },
         onTimeout: "a.default",
         windowExtendsOnEngagement: false,
+        recheck: "the cycle re-read: a decision recorded elsewhere, a cancellation in motion, the terms unchanged",
       },
       {
         id: "a.default",
@@ -708,6 +946,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply what the governing terms define as the outcome when no decision is made - which for some renewal models is renewal and for others is non-renewal. Record that no decision was made rather than recording a decision, because someone who did not answer did not agree",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.decision",
+        idempotencyKey: "renewal_cycle_id + default outcome",
       },
       {
         id: "c.decision",
@@ -732,19 +971,34 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RENEWAL_REVIEW with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.review",
+        idempotencyKey: "renewal_cycle_id + review",
       },
       {
         id: "w.review",
         kind: "wait",
-        until: ["the review concludes with an authorized decision"],
+        until: [
+          "renewal_decision_recorded"
+        ],
         onEvent: "c.decision",
         timeout: {
-          after: "the notice deadline",
-          reason:
-            "a review that outlives the notice period has removed the counterparty's ability to plan, whichever way it eventually goes",
+          "after": {
+            "key": "renewal.notice_deadline",
+            "rule": "A review that outlives the notice deadline is escalated to ownership; the relationship stays on its current term meanwhile.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "term_end_at minus the notice period the terms require",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "a review that outlives the notice period has removed the counterparty's ability to plan, whichever way it eventually goes",
+          "relativeTo": "attribute",
+          "attribute": "term_end_at"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the review re-read: concluded with an authorised decision, or still open",
       },
       {
         id: "h.escalate",
@@ -759,6 +1013,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the renewal as decided, with the new term's dates and the terms that would apply. Decided is not renewed - the new term does not exist until its own requirements have been met, and a relationship can sit here and still lapse",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "h.execute",
+        idempotencyKey: "renewal_cycle_id + decision",
       },
       {
         id: "h.execute",
@@ -776,6 +1031,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record NON_RENEWING with the effective end being the current term's end. The relationship is still active and still governed by its current term - non-renewing is a decision about the next term and says nothing about this one",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "h.scheduled-end",
+        idempotencyKey: "renewal_cycle_id + decision",
       },
       {
         id: "h.scheduled-end",
@@ -1040,6 +1296,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the continuing relationship and the renewal obligation whose payment failed",
       note: "Two lifecycles running at once. The financial one is chasing money; this one is deciding what the counterparty can do in the meantime.",
+      instanceKey: [
+        "subscription_id",
+        "renewal_cycle_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1048,6 +1309,95 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "FIN-134 classifies the payment failure and tries to collect. This decides what the relationship is while that happens - in grace, restricted, pending or lapsing - which is a question about the contract rather than about the money.",
       },
     ],
+    objective: "Hold a renewal whose payment failed in the state the grace policy defines - active, restricted or pending - until the payment is recovered, an authorised alternate resolution is agreed, or the grace deadline passes; the communication belongs to payment failure recovery.",
+    eligibility: [
+      "a renewal payment has failed on a subscription with a defined grace policy",
+      "the renewal was decided and executed up to the payment step",
+      "no recovery state instance is already open for this cycle"
+    ],
+    suppressions: [
+      {
+        "id": "s.undefined-grace",
+        "label": "CANONICAL_RULE",
+        "text": "A subscription class with no defined grace policy goes to decision resolution (DEC-181); no grace state is invented."
+      },
+      {
+        "id": "s.no-messages-here",
+        "label": "CANONICAL_RULE",
+        "text": "This journey holds the relationship state; every message about the failed payment is payment failure recovery's (FIN-134), never a second one from here."
+      },
+      {
+        "id": "s.recovered",
+        "label": "CANONICAL_RULE",
+        "text": "A recovered payment completes the renewal; an authorised alternate resolution does the same on its own terms."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "subscription_id",
+          "renewal_cycle_id",
+          "grace_policy_id",
+          "grace_deadline_at",
+          "failed_at",
+          "obligation_id"
+        ],
+        "optional": [
+          "restriction_scope",
+          "alternate_resolution_ref"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.complete",
+          "h.end",
+          "h.undefined"
+        ]
+      },
+      "businessOutcome": {
+        "event": "obligation_satisfied",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "alternate_resolution_agreed"
+      ],
+      "guardrails": [
+        "duplicate_payment_message",
+        "grace_state_invented",
+        "end_before_grace_deadline"
+      ],
+      "operational": [
+        "failure_volume",
+        "grace_state_distribution",
+        "recovery_rate_within_grace",
+        "alternate_resolution_rate",
+        "end_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "renewal payment recovery",
+        "renewal dunning (state)",
+        "failed renewal charge",
+        "grace period",
+        "involuntary churn (renewal)"
+      ],
+      "useCases": [
+        "a subscription renewal charge that failed, held in grace while payment recovery runs",
+        "a renewal whose grace deadline passes without payment and must end honestly"
+      ]
+    },
     entry: "t.failed",
     nodes: [
       {
@@ -1069,6 +1419,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the failure into the payment recovery lifecycle, which owns classification and collection. This journey does not chase the money; it holds the relationship's state while that runs, which is why it does not hand the relationship away",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.policy",
+        idempotencyKey: "renewal_cycle_id + grace state",
       },
       {
         id: "c.policy",
@@ -1127,22 +1478,35 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the restriction through the access lifecycle, with the scope policy defines. What is switched off and how is owned there; what the relationship's contractual state is remains owned here",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.recovery",
+        idempotencyKey: "renewal_cycle_id + restriction scope",
       },
       {
         id: "w.recovery",
         kind: "wait",
         until: [
-          "the payment is recovered",
-          "an authorized alternate resolution is agreed",
+          "obligation_satisfied",
+          "alternate_resolution_agreed"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the grace deadline policy defines",
-          reason:
-            "the grace period is policy's own answer to how long this may run. Extending it is a decision nobody made, and shortening it takes back something the counterparty was granted",
+          "after": {
+            "key": "renewal_payment.grace_deadline",
+            "rule": "The grace state lasts exactly as long as the grace policy for this subscription class defines; its end is the consequence, never an extension invented here.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "the grace deadline the policy defines for this subscription class",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the grace period is policy's own answer to how long this may run. Extending it is a decision nobody made, and shortening it takes back something the counterparty was granted",
+          "relativeTo": "attribute",
+          "attribute": "grace_deadline_at"
         },
         onTimeout: "a.lapse",
         windowExtendsOnEngagement: false,
+        recheck: "the obligation and the subscription re-read: paid, resolved otherwise, or still outstanding at the deadline",
       },
       {
         id: "c.outcome",

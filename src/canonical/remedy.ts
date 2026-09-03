@@ -181,9 +181,9 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     },
     distinctFrom: [
       {
-        journey: "FBK-44",
+        journey: "FBK-43",
         because:
-          "FBK-44 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it.",
+          "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it.",
       },
     ],
     entry: "t.reported",
@@ -1147,7 +1147,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: ["a confirmed issue with an unresolved obligation and no remedy yet selected"],
           insufficientAlone: [
-            "a complaint received but not yet established as an operational fault, which is FBK-44's question",
+            "a complaint received but not yet established as an operational fault, which is FBK-43's question",
             "a refund request, which presumes the remedy this journey has not yet decided",
           ],
           source: "authoritative",

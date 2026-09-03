@@ -1,0 +1,375 @@
+{
+ "id": "ACT-17",
+ "shortName": "Adoption Nurture",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "condition",
+  "handoff",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.activated",
+   "event": "core_activation_completed",
+   "meaning": "a recorded activation, with the use-case that produced it - or, where the product defines activation as first value, the first value-producing event itself: a completed workflow, a completed transaction, a published project, a generated report; the artifact or result that was produced, so recognition can name it",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an activation or first value-producing event is recorded for this account in a named use-case",
+    "no adoption instance is already open for this account and use-case",
+    "the account is not in a terminated or restricted state",
+    "hard gates (GLB-31) permit lifecycle communication to the people on the account"
+   ],
+   "instanceKey": [
+    "account_id",
+    "use_case_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.measure",
+   "does": "Read adoption from value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them. Activity that produces nothing does not count toward it, however much of it there is",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.recognize",
+   "touch": "t0",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "adoption.touches",
+     "default": 4,
+     "basis": "example-only",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.stable",
+    "s.stall",
+    "s.nothing-real",
+    "s.contest",
+    "s.permission"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.recognize",
+   "touch": "t0",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product - the next behaviour is one step away and is best pointed at from inside"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the recognition and the suggested behaviour have to survive until the person returns"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.recognize",
+   "touch": "t0",
+   "stage": "recognition",
+   "purpose": "Acknowledge the specific thing that was produced, in its own terms. Recognition that names nothing real is worse than silence.",
+   "brief": "Acknowledge what was actually produced, in the terms of the thing itself. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.recognize",
+   "key": "account_id + use_case_id + touch id"
+  },
+  {
+   "type": "condition",
+   "node": "c.next",
+   "asks": "Does a natural next action follow from what they just did?",
+   "branches": [
+    {
+     "label": "Yes",
+     "observes": "produced_artifact and the use-case's own next step",
+     "test": "something specific follows from the thing they produced - sharing it, repeating it, extending it",
+     "to": "a.surface"
+    },
+    {
+     "label": "No",
+     "observes": "produced_artifact",
+     "test": "nothing genuinely follows, and inventing a next step would turn recognition into a pitch",
+     "to": "a.measure"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.surface",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "adoption.touches",
+     "default": 4,
+     "basis": "example-only",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.stable",
+    "s.stall",
+    "s.nothing-real",
+    "s.contest",
+    "s.permission"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.surface",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product - the next behaviour is one step away and is best pointed at from inside"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the recognition and the suggested behaviour have to survive until the person returns"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.surface",
+   "touch": "t1",
+   "stage": "next-action",
+   "purpose": "Surface the one action that genuinely follows from what they produced - sharing it, repeating it, extending it - and nothing from the feature list.",
+   "brief": "Surface one relevant next action, drawn from what they produced rather than from the product's feature list",
+   "destination": {
+    "target": "next-action-in-context",
+    "boundTo": "use_case_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.next"
+   ],
+   "after": "t0"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.surface",
+   "key": "account_id + use_case_id + touch id"
+  },
+  {
+   "type": "condition",
+   "node": "c.stable",
+   "asks": "Has adoption become stable?",
+   "branches": [
+    {
+     "label": "Stable",
+     "observes": null,
+     "test": "value is being produced repeatedly at the rhythm this use-case implies, without prompting",
+     "to": "h.normal"
+    },
+    {
+     "label": "Not yet",
+     "observes": null,
+     "test": "value has been produced but not reliably repeated",
+     "to": "a.next-behavior"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.normal",
+   "to": "external:customer-lifecycle",
+   "on": "adoption stabilising",
+   "carries": [
+    "the use-case that adoption settled around, which is what any later health or expansion judgement should read",
+    "the rhythm it settled at, so a change in it later means something"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "account_id",
+     "use_case_id",
+     "settled_rhythm",
+     "stabilised_at"
+    ]
+   }
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.next-behavior",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "adoption.touches",
+     "default": 4,
+     "basis": "example-only",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.stable",
+    "s.stall",
+    "s.nothing-real",
+    "s.contest",
+    "s.permission"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.next-behavior",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product - the next behaviour is one step away and is best pointed at from inside"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the recognition and the suggested behaviour have to survive until the person returns"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.next-behavior",
+   "touch": "t2",
+   "stage": "behaviour-nudge",
+   "purpose": "Encourage only the next behaviour that would produce more value in this use-case; breadth is never pushed where the value is narrow.",
+   "brief": "Identify the next behaviour that would actually produce more value for this use-case, and encourage only that. Breadth is not pursued where the value is narrow - a person who gets everything they need from one workflow is adopted, not under-adopted",
+   "destination": {
+    "target": "next-behaviour-in-context",
+    "boundTo": "use_case_id"
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [
+    "c.stable"
+   ],
+   "after": "t0"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.next-behavior",
+   "key": "account_id + use_case_id + touch id + observation cycle"
+  },
+  {
+   "type": "wait",
+   "node": "w.observe",
+   "timing": {
+    "key": "adoption.observation_window",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "h.stall"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.observe",
+   "cancelOn": [
+    {
+     "event": "value_produced",
+     "meaning": "the product records the person producing value again in this use-case"
+    }
+   ],
+   "onEvent": "a.measure"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.observe",
+   "reads": "value-producing usage re-read from the product's own record - not activity, not logins",
+   "before": "h.stall"
+  },
+  {
+   "type": "handoff",
+   "node": "h.stall",
+   "to": "ACT-18",
+   "on": "the early-adoption window passing without repeated value",
+   "carries": [
+    "what was produced and when it stopped",
+    "the expected pattern it was measured against, so the stall is diagnosed rather than assumed"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

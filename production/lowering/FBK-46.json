@@ -1,0 +1,403 @@
+{
+ "id": "FBK-46",
+ "shortName": "Complaint Resolution",
+ "strategy": "human-escalation-ladder",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "handoff",
+  "human-task",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.created",
+   "event": "actionable_issue_created",
+   "meaning": "a formally created issue with a type, a severity and a related entity",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an actionable issue is created with type, severity, related entity, SLA and source",
+    "the issue is not a duplicate of an open issue on the same underlying problem",
+    "an owner is known or determinable; an orphan goes to ownership resolution first"
+   ],
+   "instanceKey": [
+    "issue_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.capture",
+   "does": "Capture the issue type, severity, related entity, SLA and source. Duplicates against the same underlying problem are reconciled here rather than worked twice",
+   "writes": [
+    {
+     "field": "issue_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.capture",
+   "key": "issue_id"
+  },
+  {
+   "type": "condition",
+   "node": "c.owner",
+   "asks": "Is the correct owner known?",
+   "branches": [
+    {
+     "label": "Known",
+     "observes": null,
+     "test": "the issue type and entity identify who owns it",
+     "to": "a.assign"
+    },
+    {
+     "label": "Unknown",
+     "observes": null,
+     "test": "no owner can be determined from the issue itself",
+     "to": "h.orphan"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.orphan",
+   "to": "OWN-51",
+   "on": "an issue with no determinable owner",
+   "carries": [
+    "the issue and everything known about it",
+    "the fact that its SLA is already running, so assignment is not the start of the clock"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "human-task",
+   "node": "a.assign",
+   "does": "Assign the owner and record the assignment, appended - who held an issue and when is part of its resolution history",
+   "touch": null
+  },
+  {
+   "type": "wait",
+   "node": "w.resolution",
+   "timing": {
+    "key": "complaint.sla_threshold",
+    "class": "decision-sla",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "a.escalate"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.resolution",
+   "cancelOn": [
+    {
+     "event": "operational_fix_completed",
+     "meaning": "the operational fix for the issue is recorded complete"
+    }
+   ],
+   "onEvent": "c.confirmation"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.resolution",
+   "reads": "the issue re-read: fix completed or still open, and the current escalation level",
+   "before": "a.escalate"
+  },
+  {
+   "type": "human-task",
+   "node": "a.escalate",
+   "does": "Escalate one level: notify, then involve the team or manager, then reassign into a priority queue. Nothing customer-facing is sent because of this - an internal delay is our problem, not new information for them",
+   "touch": null
+  },
+  {
+   "type": "condition",
+   "node": "c.levels",
+   "asks": "Are the escalation levels exhausted?",
+   "branches": [
+    {
+     "label": "Levels remain",
+     "observes": null,
+     "test": "a further level of escalation exists",
+     "to": "w.resolution"
+    },
+    {
+     "label": "Exhausted",
+     "observes": null,
+     "test": "the ladder has been walked and the issue is still open",
+     "to": "h.escalate"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "external:human-in-the-loop-lifecycle",
+   "on": "an issue outliving its escalation ladder",
+   "carries": [
+    "the full history: owners, escalations, elapsed time",
+    "what is still unresolved"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "issue_id",
+     "person_id",
+     "severity",
+     "escalation_history",
+     "fix_status"
+    ]
+   }
+  },
+  {
+   "type": "condition",
+   "node": "c.confirmation",
+   "asks": "Does closure require the person to confirm?",
+   "branches": [
+    {
+     "label": "Confirmation required",
+     "observes": null,
+     "test": "the fix is only verifiable from their side, or policy requires their agreement",
+     "to": "c.confirm-route"
+    },
+    {
+     "label": "Not required",
+     "observes": null,
+     "test": "the fix is verifiable operationally and policy allows closure on it",
+     "to": "a.close"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.confirm-route",
+   "asks": "Is there a permitted route to ask them?",
+   "branches": [
+    {
+     "label": "A route exists",
+     "observes": null,
+     "test": "a permitted, deliverable destination for this person is available for issue correspondence",
+     "to": "a.request-confirmation"
+    },
+    {
+     "label": "No route",
+     "observes": null,
+     "test": "no permitted destination is available, or the reporter cannot be reached on any of them",
+     "to": "a.close-unconfirmed"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request-confirmation",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "complaint.confirmation_asks",
+     "default": 2,
+     "basis": "example-only",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": {
+    "exclusionGroup": "retention-outreach",
+    "scope": "account",
+    "precedence": "an open issue under human ownership outranks automated retention and satisfaction outreach on the same account",
+    "onLoss": "paused"
+   },
+   "noActionReasons": [
+    "s.duplicate-case",
+    "s.no-route",
+    "s.human-owner",
+    "s.internal-escalation",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request-confirmation",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the confirmation question should reach the person where they can answer in their own time and keep the record of what was fixed"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the issue was raised in the product and the person is active there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request-confirmation",
+   "touch": "t1",
+   "stage": "confirmation-ask",
+   "purpose": "Ask whether the specific issue they raised is now resolved, against the fix that was actually performed.",
+   "brief": "Ask whether the specific issue they raised is now resolved, against the fix that was actually performed. Waiting for a confirmation nobody was asked for is not a confirmation state, it is a timeout dressed as one",
+   "destination": {
+    "target": "issue-confirmation",
+    "boundTo": "issue_id",
+    "mustNotClaim": [
+     "a fix that was not performed"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.confirmation",
+    "c.confirm-route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request-confirmation",
+   "key": "issue_id + fix reference + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.confirm",
+   "timing": {
+    "key": "complaint.closure_window",
+    "class": "response-window",
+    "default": {
+     "min": "5 days",
+     "max": "10 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.close-unconfirmed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.confirm",
+   "cancelOn": [
+    {
+     "event": "resolution_confirmed",
+     "meaning": "the person confirms the issue is resolved"
+    },
+    {
+     "event": "resolution_disputed",
+     "meaning": "the person says the issue is not resolved"
+    }
+   ],
+   "onEvent": "c.confirmed"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.confirm",
+   "reads": "the issue re-read: confirmed, disputed, or silent",
+   "before": "a.close-unconfirmed"
+  },
+  {
+   "type": "condition",
+   "node": "c.confirmed",
+   "asks": "What did they say?",
+   "branches": [
+    {
+     "label": "Resolved",
+     "observes": null,
+     "test": "they confirmed the fix worked",
+     "to": "a.close"
+    },
+    {
+     "label": "Still not right",
+     "observes": null,
+     "test": "they say the problem persists - the internal task completed and their issue did not",
+     "to": "w.resolution"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.close",
+   "does": "Close the issue, preserving the full resolution history: what was wrong, who owned it, what was done, when, and that the person confirmed it",
+   "writes": [
+    {
+     "field": "issue_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.close-unconfirmed",
+   "does": "Close under the bounded closure rule, recording explicitly that the fix completed and the person never confirmed. Confirmed and unconfirmed closures are different facts and are never written the same way - and, where closure was unconfirmed because no permitted route to the reporter existed, that reason is recorded as itself rather than as silence",
+   "writes": [
+    {
+     "field": "issue_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "exit",
+   "node": "x.closed",
+   "class": "success",
+   "state": "resolved and confirmed",
+   "reEntry": "the same problem recurring is a new issue, linked to this one rather than reopening it"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed-unconfirmed",
+   "class": "success",
+   "state": "fixed operationally, never confirmed",
+   "reEntry": "any later contact about the same problem enters knowing this was never verified, which is why the distinction is recorded"
+  }
+ ]
+}

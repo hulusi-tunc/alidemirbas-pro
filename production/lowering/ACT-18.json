@@ -1,0 +1,285 @@
+{
+ "id": "ACT-18",
+ "shortName": "Adoption Recovery",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "holdout",
+  "state-update",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "persistent holdout"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.stall",
+   "event": "expected_adoption_pattern_not_met",
+   "meaning": "an activated account failing to progress against the usage pattern this product actually intends",
+   "evidenceSource": "behavioral",
+   "entryFilters": [
+    "the expected adoption pattern for this use-case was not met, measured against the product's own rhythm",
+    "the account is active and not terminated, restricted or in a live risk case",
+    "no recovery instance is already open for this account and use-case",
+    "hard gates (GLB-31) permit lifecycle communication"
+   ],
+   "instanceKey": [
+    "account_id",
+    "use_case_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "holdout",
+   "node": "t.stall",
+   "unit": "instance",
+   "share": {
+    "key": "adoption_recovery.holdout_share",
+    "default": 10,
+    "basis": "example-only",
+    "required": false
+   },
+   "persistent": true
+  },
+  {
+   "type": "state-update",
+   "node": "a.diagnose",
+   "does": "Work out what the evidence actually shows: setup that was never finished, an integration that is missing, no clear next use-case, collaborators who never joined, value that simply never repeated, a technical blocker - or a use-case that is finished and needs nothing further",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.type",
+   "asks": "What does the evidence show?",
+   "branches": [
+    {
+     "label": "Recoverable blocker",
+     "observes": null,
+     "test": "something specific is in the way: unfinished setup, a missing integration, an unclear next use-case, collaborators who never arrived",
+     "to": "a.recover"
+    },
+    {
+     "label": "Needs a person",
+     "observes": null,
+     "test": "a technical problem that will not be solved by a message",
+     "to": "h.assistance"
+    },
+    {
+     "label": "Need genuinely met",
+     "observes": null,
+     "test": "the use-case was completed and there is nothing further to do - the account got what it came for",
+     "to": "x.satisfied"
+    },
+    {
+     "label": "No evidence of a problem",
+     "observes": null,
+     "test": "usage looks light against a generic expectation but nothing indicates anything is wrong",
+     "to": "x.no-intervention"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.satisfied",
+   "class": "invalid-state",
+   "state": "use-case complete; the need was met, not abandoned",
+   "reEntry": "a new use-case, or the same need arising again, opens adoption normally - this account did not fail, it finished"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.recover",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "adoption_recovery.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": {
+    "exclusionGroup": "retention-outreach",
+    "scope": "account",
+    "precedence": "lowest in the group - an open issue under human ownership, a live risk case or a declared cancellation intent all outrank a recovery nudge",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.need-met",
+    "s.no-evidence",
+    "s.human",
+    "s.contest",
+    "s.permission"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.recover",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the blocker needs an explanation that survives until the person can act on it"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token exists and the blocker is a single step the person can take from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.recover",
+   "touch": "t1",
+   "stage": "recovery",
+   "purpose": "Address the diagnosed blocker specifically - the unfinished setup, the missing integration, the misunderstanding. Not more encouragement and not a re-run of onboarding.",
+   "brief": "Address the diagnosed blocker specifically. Not more encouragement, not a re-run of onboarding - the thing the diagnosis actually named",
+   "destination": {
+    "target": "blocker-resolution-step",
+    "boundTo": "use_case_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.type"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.recover",
+   "key": "account_id + use_case_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.recover",
+   "timing": {
+    "key": "adoption_recovery.window",
+    "class": "recovery-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "h.monitor"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.recover",
+   "cancelOn": [
+    {
+     "event": "value_produced",
+     "meaning": "the product records the person producing value again in this use-case"
+    }
+   ],
+   "onEvent": "h.adoption"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.recover",
+   "reads": "value-producing usage in this use-case re-read from the product's own record",
+   "before": "h.monitor"
+  },
+  {
+   "type": "handoff",
+   "node": "h.adoption",
+   "to": "ACT-17",
+   "on": "value produced again after recovery",
+   "carries": [
+    "what the blocker was and what cleared it",
+    "the recovered usage pattern"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.monitor",
+   "to": "external:health-monitoring",
+   "on": "a recovery window closing without value returning",
+   "carries": [
+    "the diagnosis and what was tried",
+    "the fact that this is reduced usage, not a churn decision - nobody has said anything"
+   ],
+   "suppresses": [
+    "adoption-frequency messaging for this use-case"
+   ],
+   "contract": {
+    "requiredFields": [
+     "account_id",
+     "use_case_id",
+     "diagnosed_blocker",
+     "recovery_window_closed_at"
+    ]
+   }
+  },
+  {
+   "type": "handoff",
+   "node": "h.assistance",
+   "to": "external:human-in-the-loop-lifecycle",
+   "on": "a technical blocker that needs a person",
+   "carries": [
+    "the diagnosis",
+    "what the account was trying to do when it stopped"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "account_id",
+     "use_case_id",
+     "diagnosed_blocker",
+     "evidence"
+    ]
+   }
+  },
+  {
+   "type": "exit",
+   "node": "x.no-intervention",
+   "class": "no-action",
+   "state": "no problem found; nothing sent",
+   "reEntry": "real evidence of a stall later re-opens this - the absence of a finding is a finding, and manufacturing an intervention from it is the failure this branch exists to prevent"
+  }
+ ]
+}

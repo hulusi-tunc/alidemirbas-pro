@@ -15,6 +15,163 @@ Strategy: `progressive-recovery` · primitives used: `entry`, `holdout`, `condit
 | persistent holdout | Canvas control group / global control group - supported. | Control group - supported. | Random split to a persistent holdout data extension - supported. | Holdout groups / Customer.io experiments - supported. |
 | bounded re-arm / attempt budget | A counter custom attribute incremented per re-arm and tested at the split - supported with a small custom attribute. | Counter attribute - supported. | Counter in a data extension updated by an Update Contact activity - supported. | Counter profile field - supported. |
 
+## ACQ-12 · Abandoned Selection Recovery
+
+Strategy: `progressive-recovery` · primitives used: `entry`, `holdout`, `condition`, `state-update`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `frequency-gate`, `channel-role-resolution`, `message`, `exit`, `handoff` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| multi-event cancellation | Canvas action paths / exit criteria on several events - supported. | Wait-until-event with multiple exit events - supported. | EXPENSIVE: exit criteria per event plus re-entry; a wait activity cancels on one event at a time, so each cancelling event is an exit criterion and touch state is re-derived on re-entry. | Journey exit rules / Customer.io goal & exit conditions on multiple events - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| persistent holdout | Canvas control group / global control group - supported. | Control group - supported. | Random split to a persistent holdout data extension - supported. | Holdout groups / Customer.io experiments - supported. |
+| bounded re-arm / attempt budget | A counter custom attribute incremented per re-arm and tested at the split - supported with a small custom attribute. | Counter attribute - supported. | Counter in a data extension updated by an Update Contact activity - supported. | Counter profile field - supported. |
+
+## ACQ-13 · Unresolved Interest Recovery
+
+Strategy: `single-notice` · primitives used: `entry`, `holdout`, `condition`, `state-update`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `frequency-gate`, `channel-role-resolution`, `message`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| multi-event cancellation | Canvas action paths / exit criteria on several events - supported. | Wait-until-event with multiple exit events - supported. | EXPENSIVE: exit criteria per event plus re-entry; a wait activity cancels on one event at a time, so each cancelling event is an exit criterion and touch state is re-derived on re-entry. | Journey exit rules / Customer.io goal & exit conditions on multiple events - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| persistent holdout | Canvas control group / global control group - supported. | Control group - supported. | Random split to a persistent holdout data extension - supported. | Holdout groups / Customer.io experiments - supported. |
+
+## ACT-12 · Onboarding Nurture
+
+Strategy: `progressive-recovery` · primitives used: `entry`, `holdout`, `state-update`, `condition`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `handoff`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| persistent holdout | Canvas control group / global control group - supported. | Control group - supported. | Random split to a persistent holdout data extension - supported. | Holdout groups / Customer.io experiments - supported. |
+| bounded re-arm / attempt budget | A counter custom attribute incremented per re-arm and tested at the split - supported with a small custom attribute. | Counter attribute - supported. | Counter in a data extension updated by an Update Contact activity - supported. | Counter profile field - supported. |
+
+## ACT-17 · Adoption Nurture
+
+Strategy: `single-notice` · primitives used: `entry`, `state-update`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `condition`, `handoff`, `wait`, `event-cancellation`, `state-recheck` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| bounded re-arm / attempt budget | A counter custom attribute incremented per re-arm and tested at the split - supported with a small custom attribute. | Counter attribute - supported. | Counter in a data extension updated by an Update Contact activity - supported. | Counter profile field - supported. |
+
+## ACT-18 · Adoption Recovery
+
+Strategy: `single-notice` · primitives used: `entry`, `holdout`, `state-update`, `condition`, `exit`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `handoff` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| persistent holdout | Canvas control group / global control group - supported. | Control group - supported. | Random split to a persistent holdout data extension - supported. | Holdout groups / Customer.io experiments - supported. |
+
+## RET-26 · Service Recovery
+
+Strategy: `single-notice` · primitives used: `entry`, `state-update`, `condition`, `exit`, `handoff`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+
+## RET-28 · Cancellation Save
+
+Strategy: `offer-decide-remind` · primitives used: `entry`, `state-update`, `condition`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `handoff`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| multi-event cancellation | Canvas action paths / exit criteria on several events - supported. | Wait-until-event with multiple exit events - supported. | EXPENSIVE: exit criteria per event plus re-entry; a wait activity cancels on one event at a time, so each cancelling event is an exit criterion and touch state is re-derived on re-entry. | Journey exit rules / Customer.io goal & exit conditions on multiple events - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+
+## RET-31 · Predicted Need Replenishment
+
+Strategy: `deadline-countdown` · primitives used: `entry`, `holdout`, `condition`, `state-update`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `frequency-gate`, `channel-role-resolution`, `message`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| persistent holdout | Canvas control group / global control group - supported. | Control group - supported. | Random split to a persistent holdout data extension - supported. | Holdout groups / Customer.io experiments - supported. |
+
+## RET-32 · Lapsed Customer Win-Back
+
+Strategy: `offer-decide-remind` · primitives used: `entry`, `holdout`, `condition`, `state-update`, `idempotency-key`, `frequency-gate`, `channel-role-resolution`, `message`, `wait`, `event-cancellation`, `state-recheck`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| persistent holdout | Canvas control group / global control group - supported. | Control group - supported. | Random split to a persistent holdout data extension - supported. | Holdout groups / Customer.io experiments - supported. |
+
+## CON-264 · Contact Verification
+
+Strategy: `two-party-confirmation` · primitives used: `entry`, `condition`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `handoff`, `state-update`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| multi-event cancellation | Canvas action paths / exit criteria on several events - supported. | Wait-until-event with multiple exit events - supported. | EXPENSIVE: exit criteria per event plus re-entry; a wait activity cancels on one event at a time, so each cancelling event is an exit criterion and touch state is re-derived on re-entry. | Journey exit rules / Customer.io goal & exit conditions on multiple events - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| mandatory touch exempt from caps | Transactional messages bypass frequency capping - supported. | Transactional channel exemption - supported. | Transactional sends via Transactional Messaging API bypass caps - supported. | Transactional message type ignores frequency limits - supported. |
+
+## FBK-41 · Feedback Request
+
+Strategy: `single-notice` · primitives used: `entry`, `condition`, `wait`, `event-cancellation`, `state-recheck`, `exit`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+
+## FBK-43 · Feedback Follow-Up
+
+Strategy: `single-notice` · primitives used: `entry`, `state-update`, `idempotency-key`, `condition`, `frequency-gate`, `channel-role-resolution`, `message`, `handoff`, `exit`, `human-task`, `wait`, `event-cancellation`, `state-recheck` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+
+## FBK-46 · Complaint Resolution
+
+Strategy: `human-escalation-ladder` · primitives used: `entry`, `state-update`, `idempotency-key`, `condition`, `handoff`, `human-task`, `wait`, `event-cancellation`, `state-recheck`, `frequency-gate`, `channel-role-resolution`, `message`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+| bounded re-arm / attempt budget | A counter custom attribute incremented per re-arm and tested at the split - supported with a small custom attribute. | Counter attribute - supported. | Counter in a data extension updated by an Update Contact activity - supported. | Counter profile field - supported. |
+
+## TIM-63 · Expiry Reminder
+
+Strategy: `deadline-countdown` · primitives used: `entry`, `state-update`, `condition`, `exit`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `handoff` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| multi-event cancellation | Canvas action paths / exit criteria on several events - supported. | Wait-until-event with multiple exit events - supported. | EXPENSIVE: exit criteria per event plus re-entry; a wait activity cancels on one event at a time, so each cancelling event is an exit criterion and touch state is re-derived on re-entry. | Journey exit rules / Customer.io goal & exit conditions on multiple events - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+
+## IDN-271 · Account Security Alert
+
+Strategy: `notice-then-confirm` · primitives used: `entry`, `condition`, `exit`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck`, `handoff` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| multi-event cancellation | Canvas action paths / exit criteria on several events - supported. | Wait-until-event with multiple exit events - supported. | EXPENSIVE: exit criteria per event plus re-entry; a wait activity cancels on one event at a time, so each cancelling event is an exit criterion and touch state is re-derived on re-entry. | Journey exit rules / Customer.io goal & exit conditions on multiple events - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| mandatory touch exempt from caps | Transactional messages bypass frequency capping - supported. | Transactional channel exemption - supported. | Transactional sends via Transactional Messaging API bypass caps - supported. | Transactional message type ignores frequency limits - supported. |
+
 ## FIN-134 · Payment Failure Recovery
 
 Strategy: `notice-then-confirm` · primitives used: `entry`, `state-update`, `condition`, `idempotency-key`, `frequency-gate`, `channel-role-resolution`, `message`, `wait`, `event-cancellation`, `state-recheck`, `exit`, `handoff` · unsupported constructs: none
@@ -24,6 +181,17 @@ Strategy: `notice-then-confirm` · primitives used: `entry`, `state-update`, `co
 | attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
 | downstream outcome through handoff chain | Not an orchestration concept: measured in analytics by joining the entry with the downstream event; the fixture names the chain and the window event. | Same - analytics join, not journey logic. | Same - journey goal can only reference events inside the journey; downstream outcome is a data view join. | Same - conversion tracking is per journey; chain measurement is a warehouse join. |
 | ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| mandatory touch exempt from caps | Transactional messages bypass frequency capping - supported. | Transactional channel exemption - supported. | Transactional sends via Transactional Messaging API bypass caps - supported. | Transactional message type ignores frequency limits - supported. |
+
+## SUB-163 · Renewal Reminder
+
+Strategy: `deadline-countdown` · primitives used: `entry`, `state-update`, `condition`, `handoff`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
 | mandatory touch exempt from caps | Transactional messages bypass frequency capping - supported. | Transactional channel exemption - supported. | Transactional sends via Transactional Messaging API bypass caps - supported. | Transactional message type ignores frequency limits - supported. |
 
 ## SCH-266 · Appointment Reminder
@@ -37,4 +205,24 @@ Strategy: `deadline-countdown` · primitives used: `entry`, `condition`, `freque
 | ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
 | class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
 | mandatory touch exempt from caps | Transactional messages bypass frequency capping - supported. | Transactional channel exemption - supported. | Transactional sends via Transactional Messaging API bypass caps - supported. | Transactional message type ignores frequency limits - supported. |
+
+## SCH-280 · No-Show Follow-Up
+
+Strategy: `single-notice` · primitives used: `entry`, `state-update`, `condition`, `exit`, `handoff`, `frequency-gate`, `channel-role-resolution`, `message`, `idempotency-key`, `wait`, `event-cancellation`, `state-recheck` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| ordered channel-role resolution | One decision split per role condition, each leading to a channel message step - supported (2-3 splits). | Condition steps per role - supported. | Decision splits on session/token/permission attributes before each channel activity - supported. | Branch on profile fields per role - supported. |
+| class-level pressure cap | Frequency capping by campaign tag approximates a pressure class - supported with setup. | Global frequency caps by category - supported. | PARTIAL: contact-level send limits are coarse; class caps need Einstein Frequency or custom suppression data extensions. | PARTIAL: frequency management by message type; Customer.io caps are per-campaign - class caps need a custom counter attribute. |
+
+## DOC-215 · Signature Reminder
+
+Strategy: `offer-decide-remind` · primitives used: `entry`, `state-update`, `idempotency-key`, `condition`, `frequency-gate`, `channel-role-resolution`, `message`, `wait`, `event-cancellation`, `state-recheck`, `handoff`, `exit` · unsupported constructs: none
+
+| Construct | Braze | Insider | SFMC | Iterable / Customer.io |
+|---|---|---|---|---|
+| attribute-relative wait | Delay until a custom-attribute date (Canvas delay step: 'until' a date attribute) - supported. | Wait until date attribute - supported. | Wait By Attribute (date) - supported. | Delay until date field / Customer.io wait until attribute - supported. |
+| multi-event cancellation | Canvas action paths / exit criteria on several events - supported. | Wait-until-event with multiple exit events - supported. | EXPENSIVE: exit criteria per event plus re-entry; a wait activity cancels on one event at a time, so each cancelling event is an exit criterion and touch state is re-derived on re-entry. | Journey exit rules / Customer.io goal & exit conditions on multiple events - supported. |
+| mandatory touch exempt from caps | Transactional messages bypass frequency capping - supported. | Transactional channel exemption - supported. | Transactional sends via Transactional Messaging API bypass caps - supported. | Transactional message type ignores frequency limits - supported. |
+| bounded re-arm / attempt budget | A counter custom attribute incremented per re-arm and tested at the split - supported with a small custom attribute. | Counter attribute - supported. | Counter in a data extension updated by an Update Contact activity - supported. | Counter profile field - supported. |
 

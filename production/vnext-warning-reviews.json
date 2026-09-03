@@ -8,6 +8,51 @@
    "note": "t2 (at-risk notice) and t3 (reminder) are the two exclusive arms of c.critical - a critical prerequisite is either missing or it is not. They are never sent together; no simultaneous rule is needed.",
    "reviewedBy": "migration pass, Gate 2",
    "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "ACT-17",
+   "code": "router_journey",
+   "note": "Adoption nurture ends only in handoffs by design: stable adoption goes to the lifecycle owner, a stall goes to adoption recovery. There is no outcome it owns alone.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SUB-163",
+   "code": "router_journey",
+   "note": "Renewal reminder ends only in handoffs by design: a decided renewal executes (SUB-164), a non-renewal schedules its end (SUB-168), an undefined term or an overrun review goes to decision or ownership. The decision is the outcome and each decision has an owner.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SUB-165",
+   "code": "router_journey",
+   "note": "Renewal payment recovery is a relationship-state holder: it ends in completion, end or decision resolution, all owned elsewhere. Its communication is FIN-134's.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SCH-280",
+   "code": "touch_no_destination",
+   "match": "t-ack",
+   "note": "The acknowledgement deliberately carries no route: there is nothing to rebook onto, and a rebooking prompt with nothing behind it is the false call to action the journey forbids.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SCH-280",
+   "code": "simultaneous_review",
+   "match": "t-offer, t-ack",
+   "note": "t-offer and t-ack are the two exclusive arms of c.rebookable - rebooking is available or it is not. Never both.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "CON-264",
+   "code": "simultaneous_review",
+   "match": "t-old, t-new",
+   "note": "t-old and t-new are both sent, in sequence, to two different destinations: the replaced destination is warned, then the new destination is asked to confirm. This is the two-party confirmation itself, not a simultaneous send to one person's channels; the channel is the destination's own kind.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
   }
  ]
 }

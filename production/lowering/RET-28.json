@@ -1,0 +1,461 @@
+{
+ "id": "RET-28",
+ "shortName": "Cancellation Save",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.intent",
+   "event": "explicit_cancellation_intent",
+   "meaning": "an explicit act: a cancel flow entered, a cancellation requested while still reversible, or a cancellation asked for through a person",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "an explicit cancellation intent is declared by the person - in the product, by message or by phone",
+    "the relationship is active and cancellable by this person",
+    "no save instance is already open for this intent",
+    "hard gates (GLB-31) permit service communication"
+   ],
+   "instanceKey": [
+    "person_id",
+    "relationship_id",
+    "intent_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.context",
+   "does": "Read what they currently hold, what cancelling would end, and when it would take effect - so anything said next is about their actual relationship rather than a generic one",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.reason",
+   "asks": "Is a declared reason available?",
+   "branches": [
+    {
+     "label": "Declared",
+     "observes": null,
+     "test": "the person has stated a reason",
+     "to": "a.record-reason"
+    },
+    {
+     "label": "Not declared",
+     "observes": null,
+     "test": "no reason has been given",
+     "to": "c.ask"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.ask",
+   "asks": "Is asking for a reason useful and appropriate here?",
+   "branches": [
+    {
+     "label": "Worth asking",
+     "observes": null,
+     "test": "the answer would change what is offered, and asking does not delay the cancellation",
+     "to": "a.ask"
+    },
+    {
+     "label": "Not worth asking",
+     "observes": null,
+     "test": "the answer would change nothing, or asking would function as friction",
+     "to": "a.no-reason"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.ask",
+   "touch": "t-ask",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "cancellation_save.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "retention",
+   "competition": {
+    "exclusionGroup": "retention-outreach",
+    "scope": "account",
+    "precedence": "above risk-driven escalation and offer follow-up on the same account - a declared intent to leave outranks an inferred risk. Only the offer step ever yields; the cancellation path itself is never obstructed by any contest",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.path",
+    "s.once",
+    "s.no-genuine",
+    "s.decided",
+    "s.contest"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.ask",
+   "touch": "t-ask",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the intent was declared inside the product - the question and the offer are put beside the cancellation step the person is on"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the intent was declared outside the product, by message or by phone, and the question or offer has to reach the person where they are"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.ask",
+   "touch": "t-ask",
+   "stage": "reason-ask",
+   "purpose": "Ask once why, with the cancellation path fully open beside the question. The question is never a step that has to be passed.",
+   "brief": "Ask once, with the cancellation path fully open beside the question. The question is never a step that has to be passed to leave - a reason obtained that way is not information, it is a toll",
+   "destination": {
+    "target": "reason-question-beside-cancel-step",
+    "boundTo": "intent_id",
+    "mustNotClaim": [
+     "that answering is required to cancel"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.reason",
+    "c.ask"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.ask",
+   "key": "intent_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.answer",
+   "timing": {
+    "key": "cancellation_save.answer_window",
+    "class": "attribute-bound",
+    "default": "the end of the session or conversation in which the question was put",
+    "basis": "attribute-bound",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.no-reason"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.answer",
+   "cancelOn": [
+    {
+     "event": "cancellation_reason_given",
+     "meaning": "the person states a reason for cancelling"
+    },
+    {
+     "event": "cancellation_confirmed",
+     "meaning": "an authoritative cancellation recorded against the relationship; an effective end date"
+    },
+    {
+     "event": "cancellation_flow_abandoned",
+     "meaning": "the person leaves the cancellation flow without confirming"
+    }
+   ],
+   "onEvent": "c.answered"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.answer",
+   "reads": "the intent re-read: still open, not confirmed, not abandoned",
+   "before": "a.no-reason"
+  },
+  {
+   "type": "condition",
+   "node": "c.answered",
+   "asks": "What came back?",
+   "branches": [
+    {
+     "label": "A reason",
+     "observes": null,
+     "test": "the person stated a reason",
+     "to": "a.record-reason"
+    },
+    {
+     "label": "They decided meanwhile",
+     "observes": null,
+     "test": "the cancellation was confirmed or abandoned while the question was still open",
+     "to": "c.decision"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-reason",
+   "does": "Record the reason with its source among PRICE, LOW_USAGE, MISSING_VALUE, TECHNICAL_PROBLEM, SERVICE_ISSUE, TEMPORARY_NEED, SWITCHING or OTHER. A reason inferred later never overwrites one that was declared",
+   "writes": [
+    {
+     "field": "cancellation_reason_history",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.record-reason",
+   "key": "intent_id + reason"
+  },
+  {
+   "type": "state-update",
+   "node": "a.no-reason",
+   "does": "Proceed without a reason and record that none was given. An inferred reason may be stored, but never in the field that holds declared ones",
+   "writes": [
+    {
+     "field": "cancellation_reason_history",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.resolution",
+   "asks": "Does a legitimate resolution exist for this reason?",
+   "branches": [
+    {
+     "label": "A real alternative",
+     "observes": null,
+     "test": "something genuinely addresses the stated reason - technical help for a technical problem, a plan change or pause for cost or temporary need, education for unrealised value, service recovery for a service failure",
+     "to": "a.offer"
+    },
+    {
+     "label": "Nothing genuine",
+     "observes": null,
+     "test": "no alternative actually answers the reason, or no reason was given to answer",
+     "to": "w.decision"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer",
+   "touch": "t-offer",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "cancellation_save.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "retention",
+   "competition": {
+    "exclusionGroup": "retention-outreach",
+    "scope": "account",
+    "precedence": "above risk-driven escalation and offer follow-up on the same account - a declared intent to leave outranks an inferred risk. Only the offer step ever yields; the cancellation path itself is never obstructed by any contest",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.path",
+    "s.once",
+    "s.no-genuine",
+    "s.decided",
+    "s.contest"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer",
+   "touch": "t-offer",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the intent was declared inside the product - the question and the offer are put beside the cancellation step the person is on"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the intent was declared outside the product, by message or by phone, and the question or offer has to reach the person where they are"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer",
+   "touch": "t-offer",
+   "stage": "alternative-offer",
+   "purpose": "Offer the one alternative that matches the reason, once, alongside an unobstructed route to continue cancelling.",
+   "brief": "Offer the alternative that matches the reason, once, alongside an unobstructed path to continue cancelling. A discount appears only where the reason is price and policy supports it - offering one for a technical fault answers the wrong question and reveals that nobody read the reason",
+   "destination": {
+    "target": "alternative-with-cancel-route",
+    "boundTo": "intent_id",
+    "mustNotClaim": [
+     "that cancelling is harder than it is",
+     "an alternative that does not match the reason"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.resolution"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer",
+   "key": "intent_id + touch id"
+  },
+  {
+   "type": "handoff",
+   "node": "h.intervention",
+   "to": "RET-30",
+   "on": "a retention alternative offered at the decision point",
+   "carries": [
+    "the declared reason and the alternative chosen against it",
+    "the cancellation episode this belongs to, so a decline is remembered inside it"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "wait",
+   "node": "w.decision",
+   "timing": {
+    "key": "cancellation_save.intent_window",
+    "class": "observation-window",
+    "default": {
+     "min": "7 days",
+     "max": "14 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.decision",
+   "cancelOn": [
+    {
+     "event": "cancellation_confirmed",
+     "meaning": "an authoritative cancellation recorded against the relationship; an effective end date"
+    },
+    {
+     "event": "cancellation_flow_abandoned",
+     "meaning": "the person leaves the cancellation flow without confirming"
+    }
+   ],
+   "onEvent": "c.decision"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.decision",
+   "reads": "the relationship re-read: still active, no cancellation executed elsewhere",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "condition",
+   "node": "c.decision",
+   "asks": "What did they decide?",
+   "branches": [
+    {
+     "label": "Confirmed",
+     "observes": null,
+     "test": "the cancellation was carried through",
+     "to": "h.execute"
+    },
+    {
+     "label": "Abandoned",
+     "observes": null,
+     "test": "they left the flow with the relationship intact",
+     "to": "x.lapsed"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.execute",
+   "to": "SUB-167",
+   "on": "cancellation confirmed by the customer",
+   "carries": [
+    "the declared reason, which belongs to the record of why this relationship ended",
+    "what was offered, if anything, and what was declined"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "intent expressed, not carried through; relationship unchanged",
+   "reEntry": "a fresh expression of intent opens a new episode, and the earlier one is context - repeatedly approaching cancellation is itself evidence RET-24 should be reading"
+  }
+ ]
+}

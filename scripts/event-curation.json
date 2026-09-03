@@ -1,221 +1,1445 @@
 {
-  "_about": "Curation of the semantic-event registry. Trigger events are registered from the corpus as-is (their id is the trigger's event string, their meaning its required evidence). Wait `until` phrases on the CUSTOMER surface are mapped here to a registry id, a source class and an entity; phrases with the same id are declared equivalent by a person, never by string similarity. Operational-surface wait phrases stay as prose until Gate 5 and are listed by the registry report as unresolved. `commonMappings` are examples of vendor/company event names only - the canonical file references the meaning.",
-  "waitPhrases": {
-    "deterministic_identity_resolved": { "id": "deterministic_identity_resolved", "source": "authoritative", "entity": "the anonymous profile", "meaning": "a deterministic known identity is resolved for the anonymous profile" },
-    "the recorded re-entry condition or date is met": { "id": "reentry_condition_met", "source": "authoritative", "entity": "the recycled lead", "meaning": "the re-entry condition or date recorded when the lead was recycled is reached" },
-    "the recorded re-entry event or date": { "id": "reentry_condition_met" },
-    "the named requirement is satisfied": { "id": "named_requirement_satisfied", "source": "authoritative", "entity": "the blocking requirement", "meaning": "the specific named requirement that blocked progress is recorded as satisfied" },
-    "a new strong intent signal": { "id": "strong_intent_signal", "source": "behavioral", "entity": "the person", "meaning": "a new behavioural signal strong enough to re-open intent arrives" },
-    "a meaningful progression signal": { "id": "nurture_progression_signal", "source": "behavioral", "entity": "the lead", "meaning": "the lead does something that moves them along the declared subject - a reply, a request, a purchase step" },
-    "permission for this nurture is withdrawn": { "id": "permission_withdrawn", "source": "declared", "entity": "the person", "meaning": "the person withdraws the permission this communication runs on", "commonMappings": ["unsubscribed", "opt_out", "consent_revoked"] },
-    "the person withdraws permission or asks to stop": { "id": "permission_withdrawn" },
-    "the permitted route to this person stops being deliverable": { "id": "contactability_lost", "source": "authoritative", "entity": "the contact point", "meaning": "no permitted destination for this person is deliverable any more", "commonMappings": ["hard_bounce", "token_invalid", "email_undeliverable"] },
-    "the person does something that names a destination - a reply, a request to talk, a purchase": { "id": "destination_declared", "source": "declared", "entity": "the lead", "meaning": "the person does something that names where they are going: a reply, a request to talk, a purchase" },
-    "a setup milestone completes": { "id": "setup_milestone_completed", "source": "authoritative", "entity": "the onboarding instance", "meaning": "the product's own record marks a setup milestone complete", "commonMappings": ["onboarding_step_completed", "setup_step_done"] },
-    "the authoritative activation event": { "id": "activation_recorded", "source": "authoritative", "entity": "the onboarding instance", "meaning": "the authoritative activation event for this onboarding is recorded", "commonMappings": ["activated", "core_action_completed", "aha_moment"] },
-    "assistance is scheduled": { "id": "assisted_session_scheduled", "source": "authoritative", "entity": "the help offer", "meaning": "an assisted session is booked", "commonMappings": ["meeting_booked", "onboarding_call_scheduled"] },
-    "assistance is explicitly declined": { "id": "assistance_declined", "source": "declared", "entity": "the help offer", "meaning": "the person explicitly turns the help offer down" },
-    "the session outcome is recorded": { "id": "assisted_session_outcome_recorded", "source": "authoritative", "entity": "the assisted session", "meaning": "the outcome of the assisted session is recorded" },
-    "the booking is cancelled": { "id": "booking_cancelled", "source": "authoritative", "entity": "the booking", "meaning": "the booking is cancelled in the system of record", "commonMappings": ["appointment_cancelled", "reservation_cancelled"] },
-    "a further value-producing usage event": { "id": "value_produced", "source": "authoritative", "entity": "the person's use-case", "meaning": "the product records the person producing value again in this use-case" },
-    "a meaningful recovery event: value produced again in this use-case": { "id": "value_produced" },
-    "the question is answered": { "id": "question_answered", "source": "declared", "entity": "the question", "meaning": "the person answers the question that was put to them" },
-    "a meaningful return: activity in the product or movement in the funnel": { "id": "meaningful_return", "source": "behavioral", "entity": "the dormant person", "meaning": "real activity in the product or movement in the funnel - not a message open" },
-    "a cause becomes identifiable": { "id": "cause_identified", "source": "authoritative", "entity": "the health deterioration", "meaning": "a cause for the deterioration becomes identifiable from the evidence" },
-    "health recovers on its own": { "id": "health_recovered", "source": "authoritative", "entity": "the account's health", "meaning": "the health signal returns to its normal range without intervention" },
-    "the deterioration signal returns": { "id": "deterioration_signal_returns", "source": "behavioral", "entity": "the account's health", "meaning": "the deterioration signal reappears after a recovery" },
-    "a reason is given": { "id": "cancellation_reason_given", "source": "declared", "entity": "the cancellation intent", "meaning": "the person states a reason for cancelling" },
-    "cancellation is confirmed": { "id": "cancellation_confirmed", "source": "authoritative", "entity": "the relationship", "meaning": "the cancellation is confirmed as an authoritative fact", "commonMappings": ["subscription_cancelled", "cancel_confirmed"] },
-    "the cancellation flow is abandoned": { "id": "cancellation_flow_abandoned", "source": "behavioral", "entity": "the cancellation intent", "meaning": "the person leaves the cancellation flow without confirming" },
-    "the offer is accepted": { "id": "retention_offer_accepted", "source": "declared", "entity": "the retention offer", "meaning": "the person accepts the retention alternative offered", "commonMappings": ["offer_accepted", "plan_changed", "pause_accepted"] },
-    "the offer is explicitly declined": { "id": "retention_offer_declined", "source": "declared", "entity": "the retention offer", "meaning": "the person explicitly declines the retention alternative" },
-    "the relationship recovers without an explicit answer": { "id": "relationship_recovered", "source": "authoritative", "entity": "the relationship", "meaning": "the relationship's own state recovers without the person answering the offer" },
-    "the intervention fails to execute": { "id": "intervention_failed", "source": "authoritative", "entity": "the retention intervention", "meaning": "the intervention could not be executed" },
-    "the recorded release condition is met": { "id": "release_condition_met", "source": "authoritative", "entity": "the suppression", "meaning": "the condition recorded to release the suppression is met" },
-    "the release condition is satisfied": { "id": "release_condition_met" },
-    "the new destination confirms": { "id": "destination_confirmed", "source": "declared", "entity": "the contact point", "meaning": "the new destination confirms from inside itself", "commonMappings": ["email_verified", "phone_verified"] },
-    "the change is disputed from the destination it replaces": { "id": "destination_change_disputed", "source": "declared", "entity": "the contact point", "meaning": "the old destination disputes the change" },
-    "the contact point is withdrawn or changed again": { "id": "contact_point_changed_again", "source": "authoritative", "entity": "the contact point", "meaning": "the contact point is withdrawn or changed again before confirmation" },
-    "a replacement destination is supplied and verified": { "id": "replacement_destination_verified", "source": "authoritative", "entity": "the contact point", "meaning": "a replacement destination is supplied and verified" },
-    "the original destination becomes deliverable again": { "id": "destination_deliverable_again", "source": "authoritative", "entity": "the contact point", "meaning": "the original destination is deliverable again" },
-    "the person removes the destination": { "id": "destination_removed", "source": "declared", "entity": "the contact point", "meaning": "the person removes the destination" },
-    "a further frequency change is recorded": { "id": "frequency_preference_changed", "source": "declared", "entity": "the communication preference", "meaning": "the person records another frequency change" },
-    "a full withdrawal from optional communication is recorded": { "id": "optional_communication_withdrawn", "source": "declared", "entity": "the communication preference", "meaning": "the person withdraws from all optional communication" },
-    "the experience completes": { "id": "experience_completed", "source": "authoritative", "entity": "the experience", "meaning": "the experience the feedback would be about completes", "commonMappings": ["order_delivered", "service_completed", "ticket_resolved"] },
-    "feedback is submitted": { "id": "feedback_submitted", "source": "declared", "entity": "the feedback request", "meaning": "the person submits feedback", "commonMappings": ["survey_submitted", "nps_response", "review_submitted"] },
-    "the advocacy action is taken": { "id": "advocacy_action_taken", "source": "authoritative", "entity": "the advocacy request", "meaning": "the requested advocacy action is recorded as done", "commonMappings": ["referral_sent", "review_published"] },
-    "the request is declined": { "id": "request_declined", "source": "declared", "entity": "the request", "meaning": "the person declines the request" },
-    "the operational outcome is recorded against the work item": { "id": "work_item_outcome_recorded", "source": "authoritative", "entity": "the work item", "meaning": "the operational outcome is recorded against the work item" },
-    "the promised follow-up is delivered": { "id": "promised_followup_delivered", "source": "authoritative", "entity": "the promise", "meaning": "the follow-up that was promised is delivered" },
-    "the operational fix is completed": { "id": "operational_fix_completed", "source": "authoritative", "entity": "the issue", "meaning": "the operational fix for the issue is recorded complete" },
-    "the person confirms it is resolved": { "id": "resolution_confirmed", "source": "declared", "entity": "the issue", "meaning": "the person confirms the issue is resolved" },
-    "the person says it is not": { "id": "resolution_disputed", "source": "declared", "entity": "the issue", "meaning": "the person says the issue is not resolved" },
-    "the review reaches a conclusion": { "id": "review_concluded", "source": "authoritative", "entity": "the review", "meaning": "the review reaches a conclusion" },
-    "the requested information arrives": { "id": "requested_information_received", "source": "declared", "entity": "the information request", "meaning": "the requested information is received" },
-    "the information is received": { "id": "requested_information_received" },
-    "the data arrives": { "id": "requested_information_received" },
-    "the obligation is completed": { "id": "obligation_satisfied", "source": "authoritative", "entity": "the obligation", "meaning": "the obligation is satisfied in the system of record", "commonMappings": ["payment_succeeded", "invoice_paid", "task_completed"] },
-    "the obligation is satisfied": { "id": "obligation_satisfied" },
-    "the obligation is authoritatively satisfied": { "id": "obligation_satisfied" },
-    "an authoritative financial event satisfies or partly satisfies it": { "id": "obligation_satisfied" },
-    "a defined pre-deadline threshold is reached": { "id": "pre_deadline_threshold_reached", "source": "authoritative", "entity": "the deadline", "meaning": "a defined point before the deadline is reached" },
-    "renewed": { "id": "renewed", "source": "authoritative", "entity": "the expiring item", "meaning": "the expiring item is renewed", "commonMappings": ["subscription_renewed", "license_renewed"] },
-    "completed": { "id": "completion_recorded", "source": "authoritative", "entity": "the expiring item", "meaning": "the required action is completed before expiry" },
-    "replaced": { "id": "replaced", "source": "authoritative", "entity": "the expiring item", "meaning": "the expiring item is replaced" },
-    "the recovery condition is satisfied": { "id": "recovery_condition_satisfied", "source": "authoritative", "entity": "the recoverable state", "meaning": "the condition that ends the recoverable state is satisfied" },
-    "the obligation is satisfied, cancelled or adjusted": { "id": "obligation_no_longer_owed", "source": "authoritative", "entity": "the obligation", "meaning": "the obligation is satisfied, cancelled or adjusted to nothing" },
-    "it is cancelled or adjusted to nothing": { "id": "obligation_no_longer_owed" },
-    "the obligation is changed and still owed": { "id": "obligation_changed_still_owed", "source": "authoritative", "entity": "the obligation", "meaning": "the obligation changes but remains owed" },
-    "the deadline passes with it still owed": { "id": "deadline_passed_unmet", "source": "authoritative", "entity": "the obligation", "meaning": "the deadline passes with the obligation still owed" },
-    "the entity is terminated before the window closes": { "id": "entity_terminated", "source": "authoritative", "entity": "the entity", "meaning": "the entity is terminated" },
-    "the named route is completed and validity is restored": { "id": "validity_restored", "source": "authoritative", "entity": "the expired item", "meaning": "the named route back is completed and validity restored" },
-    "the holder abandons the attempt": { "id": "recovery_attempt_abandoned", "source": "behavioral", "entity": "the holder", "meaning": "the holder stops pursuing the route back" },
-    "the suspension reason is resolved": { "id": "suspension_reason_resolved", "source": "authoritative", "entity": "the suspension", "meaning": "the reason for the suspension is resolved" },
-    "a terminal decision is made": { "id": "terminal_decision_recorded", "source": "authoritative", "entity": "the suspension", "meaning": "a terminal decision is recorded" },
-    "a terminal decision is taken on the relationship": { "id": "terminal_decision_recorded" },
-    "the restriction is lifted by whoever placed it": { "id": "restriction_lifted", "source": "authoritative", "entity": "the restriction", "meaning": "the restriction is lifted by its owner" },
-    "the restriction becomes permanent": { "id": "restriction_made_permanent", "source": "authoritative", "entity": "the restriction", "meaning": "the restriction is made permanent" },
-    "the capability is used for the first time": { "id": "capability_first_used", "source": "authoritative", "entity": "the entitlement", "meaning": "the granted capability is used for the first time", "commonMappings": ["feature_first_used", "activation_completed"] },
-    "the entitlement is revoked or replaced": { "id": "entitlement_revoked_or_replaced", "source": "authoritative", "entity": "the entitlement", "meaning": "the entitlement is revoked or replaced" },
-    "the requested evidence is received": { "id": "verification_evidence_received", "source": "declared", "entity": "the verification claim", "meaning": "the requested evidence for the claim is received", "commonMappings": ["document_uploaded", "id_submitted"] },
-    "the verification succeeds": { "id": "verification_succeeded", "source": "authoritative", "entity": "the verification claim", "meaning": "the verification succeeds", "commonMappings": ["kyc_passed", "identity_verified"] },
-    "the verification fails": { "id": "verification_failed", "source": "authoritative", "entity": "the verification claim", "meaning": "the verification fails" },
-    "authentication succeeds": { "id": "authentication_succeeded", "source": "authoritative", "entity": "the authentication challenge", "meaning": "the authentication challenge succeeds", "commonMappings": ["login_success", "otp_verified"] },
-    "authentication fails": { "id": "authentication_failed", "source": "authoritative", "entity": "the authentication challenge", "meaning": "the authentication challenge fails" },
-    "proof of control or identity is provided": { "id": "proof_of_control_provided", "source": "declared", "entity": "the recovery case", "meaning": "sufficient proof of control or identity is provided" },
-    "sufficient proof of control is provided": { "id": "proof_of_control_provided" },
-    "the requester supplies the proof of control that was asked for": { "id": "proof_of_control_provided" },
-    "the attempt fails": { "id": "recovery_attempt_failed", "source": "authoritative", "entity": "the recovery case", "meaning": "the recovery attempt fails" },
-    "the owner is verified": { "id": "owner_verified", "source": "authoritative", "entity": "the account", "meaning": "the account owner is verified" },
-    "the security review concludes": { "id": "security_review_concluded", "source": "authoritative", "entity": "the security review", "meaning": "the security review concludes" },
-    "the security review concludes without them": { "id": "security_review_concluded" },
-    "the requester regains access by ordinary authentication": { "id": "access_regained", "source": "authoritative", "entity": "the account", "meaning": "the requester regains access by ordinary authentication" },
-    "the case is withdrawn": { "id": "request_withdrawn", "source": "declared", "entity": "the request", "meaning": "the requester withdraws the request" },
-    "the request is withdrawn": { "id": "request_withdrawn" },
-    "the request is withdrawn or the decision is no longer required": { "id": "request_withdrawn" },
-    "the owner confirms the activity was theirs": { "id": "activity_confirmed_own", "source": "declared", "entity": "the security alert", "meaning": "the owner confirms the activity was theirs" },
-    "the owner reports the activity was not theirs": { "id": "activity_reported_not_own", "source": "declared", "entity": "the security alert", "meaning": "the owner reports the activity was not theirs" },
-    "a valid relationship is restored or established": { "id": "relationship_established", "source": "authoritative", "entity": "the relationship", "meaning": "a valid relationship is restored or established" },
-    "the counterparty accepts": { "id": "invitation_accepted", "source": "declared", "entity": "the invitation", "meaning": "the counterparty accepts the invitation" },
-    "the counterparty declines": { "id": "invitation_declined", "source": "declared", "entity": "the invitation", "meaning": "the counterparty declines the invitation" },
-    "the inviting party withdraws the invitation": { "id": "invitation_withdrawn", "source": "declared", "entity": "the invitation", "meaning": "the inviting party withdraws the invitation" },
-    "the handover is cancelled": { "id": "handover_cancelled", "source": "authoritative", "entity": "the handover", "meaning": "the handover is cancelled" },
-    "the handover is superseded by another": { "id": "handover_superseded", "source": "authoritative", "entity": "the handover", "meaning": "the handover is superseded by another" },
-    "the surfaced blocker is resolved": { "id": "closure_blocker_resolved", "source": "authoritative", "entity": "the closure request", "meaning": "the blocker that prevented closure is resolved" },
-    "the required dependency outcomes are recorded": { "id": "dependency_outcomes_recorded", "source": "authoritative", "entity": "the closure", "meaning": "the required dependency outcomes are recorded" },
-    "all outstanding operational obligations complete": { "id": "operational_obligations_completed", "source": "authoritative", "entity": "the wind-down", "meaning": "all outstanding operational obligations complete" },
-    "the scope, the retained items and the deletion outcome are all authoritatively resolved": { "id": "deletion_resolved", "source": "authoritative", "entity": "the deletion request", "meaning": "scope, retained items and deletion outcome are all resolved" },
-    "the connection revalidates against a new authorization": { "id": "connection_revalidated", "source": "authoritative", "entity": "the integration", "meaning": "the connection revalidates against a new authorization", "commonMappings": ["integration_reconnected", "oauth_reauthorized"] },
-    "the holder removes the connection": { "id": "connection_removed", "source": "declared", "entity": "the integration", "meaning": "the holder removes the connection" },
-    "the configuration is removed": { "id": "connection_removed" },
-    "the cause is reclassified as not the holder's to fix": { "id": "cause_reclassified_not_holders", "source": "authoritative", "entity": "the integration", "meaning": "the failure is reclassified as not the holder's to fix" },
-    "a further connection attempt is recorded for this integration": { "id": "connection_attempt_recorded", "source": "authoritative", "entity": "the integration", "meaning": "a further connection attempt is recorded" },
-    "an adjustment or cancellation is recorded against it": { "id": "obligation_adjusted_or_cancelled", "source": "authoritative", "entity": "the obligation", "meaning": "an adjustment or cancellation is recorded against the obligation" },
-    "it becomes due or overdue": { "id": "obligation_due", "source": "authoritative", "entity": "the obligation", "meaning": "the obligation becomes due or overdue" },
-    "the customer selects or authorises an alternative method": { "id": "alternate_method_selected", "source": "declared", "entity": "the payment obligation", "meaning": "the customer selects or authorises an alternative payment method", "commonMappings": ["payment_method_updated", "card_updated"] },
-    "the customer abandons the attempt": { "id": "recovery_attempt_abandoned" },
-    "a decision is recorded": { "id": "decision_recorded", "source": "authoritative", "entity": "the request", "meaning": "an authorised decision is recorded on the request" },
-    "the named dependency resolves": { "id": "dependency_resolved", "source": "authoritative", "entity": "the fulfilment request", "meaning": "the named dependency resolves" },
-    "the required resources become available": { "id": "resources_available", "source": "authoritative", "entity": "the fulfilment", "meaning": "the required resources become available" },
-    "the fulfillment consumes the allocation": { "id": "allocation_consumed", "source": "authoritative", "entity": "the reservation", "meaning": "the fulfilment consumes the allocated resource" },
-    "the fulfillment is cancelled or its scope changes": { "id": "fulfillment_cancelled_or_changed", "source": "authoritative", "entity": "the fulfilment", "meaning": "the fulfilment is cancelled or its scope changes" },
-    "the reserved resource becomes unavailable": { "id": "reserved_resource_unavailable", "source": "authoritative", "entity": "the reservation", "meaning": "the reserved resource becomes unavailable" },
-    "execution reports an outcome": { "id": "execution_outcome_reported", "source": "authoritative", "entity": "the fulfilment", "meaning": "execution reports an outcome" },
-    "a material exception occurs": { "id": "fulfillment_exception", "source": "authoritative", "entity": "the fulfilment", "meaning": "a material exception occurs during fulfilment" },
-    "the substitute is approved": { "id": "substitute_approved", "source": "declared", "entity": "the substitution", "meaning": "the substitute is approved" },
-    "the substitute is declined": { "id": "substitute_declined", "source": "declared", "entity": "the substitution", "meaning": "the substitute is declined" },
-    "the alternative is accepted": { "id": "substitute_approved" },
-    "the alternative is declined": { "id": "substitute_declined" },
-    "a choice is made": { "id": "choice_made", "source": "declared", "entity": "the offered choice", "meaning": "the person makes the offered choice" },
-    "fulfillment resumes or completes": { "id": "fulfillment_resumed_or_completed", "source": "authoritative", "entity": "the fulfilment", "meaning": "fulfilment resumes or completes" },
-    "an authoritative delivery confirmation": { "id": "delivery_confirmed", "source": "authoritative", "entity": "the delivery", "meaning": "delivery is confirmed by the executor or the recipient", "commonMappings": ["delivered", "shipment_delivered"] },
-    "a confirmed delivery failure": { "id": "delivery_failed", "source": "authoritative", "entity": "the delivery", "meaning": "the delivery attempt is confirmed failed", "commonMappings": ["delivery_failed", "delivery_exception"] },
-    "a meaningful delay reported by the executor": { "id": "delivery_delay_reported", "source": "authoritative", "entity": "the delivery", "meaning": "the executor reports a meaningful delay" },
-    "a material change to the expected window reported by the executor": { "id": "delivery_delay_reported" },
-    "the correction is provided": { "id": "delivery_correction_provided", "source": "declared", "entity": "the delivery", "meaning": "the recipient provides the requested correction" },
-    "the recipient selects an alternative": { "id": "delivery_alternative_selected", "source": "declared", "entity": "the delivery", "meaning": "the recipient selects an alternative route" },
-    "the recipient declines all of them": { "id": "delivery_alternatives_declined", "source": "declared", "entity": "the delivery", "meaning": "the recipient declines every alternative" },
-    "the recipient accepts": { "id": "delivery_accepted", "source": "declared", "entity": "the delivery", "meaning": "the recipient accepts what was delivered" },
-    "the recipient raises an issue": { "id": "delivery_issue_raised", "source": "declared", "entity": "the delivery", "meaning": "the recipient raises an issue about the delivery" },
-    "an issue is raised": { "id": "delivery_issue_raised" },
-    "a corrected outcome is produced": { "id": "correction_produced", "source": "authoritative", "entity": "the remedy", "meaning": "a corrected outcome is produced" },
-    "the correction fails": { "id": "correction_failed", "source": "authoritative", "entity": "the remedy", "meaning": "the correction fails" },
-    "a remedy is selected": { "id": "remedy_selected", "source": "declared", "entity": "the remedy decision", "meaning": "the person selects a remedy" },
-    "the outstanding requirements are satisfied": { "id": "activation_requirements_satisfied", "source": "authoritative", "entity": "the relationship", "meaning": "the outstanding activation requirements are satisfied" },
-    "the missing prerequisite is satisfied": { "id": "activation_requirements_satisfied" },
-    "the agreement is withdrawn before starting": { "id": "agreement_withdrawn", "source": "declared", "entity": "the relationship", "meaning": "the agreement is withdrawn before it starts" },
-    "the relationship is cancelled before it starts": { "id": "cancellation_confirmed" },
-    "a material prerequisite changes": { "id": "prerequisite_changed", "source": "authoritative", "entity": "the scheduled activation", "meaning": "a material prerequisite changes before the effective time" },
-    "an authorized renewal decision is recorded": { "id": "renewal_decision_recorded", "source": "authoritative", "entity": "the renewal cycle", "meaning": "an authorised renewal decision is recorded", "commonMappings": ["renewal_accepted", "renewal_declined"] },
-    "the review concludes with an authorized decision": { "id": "renewal_decision_recorded" },
-    "the payment is recovered": { "id": "obligation_satisfied" },
-    "an authorized alternate resolution is agreed": { "id": "alternate_resolution_agreed", "source": "authoritative", "entity": "the obligation", "meaning": "an authorised alternate resolution of the obligation is agreed" },
-    "the relationship ends before the change lands": { "id": "relationship_ended", "source": "authoritative", "entity": "the relationship", "meaning": "the relationship ends" },
-    "the change is withdrawn": { "id": "change_withdrawn", "source": "declared", "entity": "the change request", "meaning": "the change request is withdrawn" },
-    "the relationship-specific wind-down completes": { "id": "wind_down_completed", "source": "authoritative", "entity": "the relationship", "meaning": "the wind-down completes" },
-    "the cancellation is withdrawn": { "id": "cancellation_withdrawn", "source": "declared", "entity": "the cancelled relationship", "meaning": "the person withdraws the cancellation before it takes effect", "commonMappings": ["reactivated", "cancellation_reversed"] },
-    "the effective end date is reached": { "id": "effective_end_reached", "source": "authoritative", "entity": "the cancelled relationship", "meaning": "the effective end date is reached" },
-    "the booking is confirmed against this hold": { "id": "booking_confirmed", "source": "authoritative", "entity": "the booking", "meaning": "the booking is confirmed", "commonMappings": ["appointment_confirmed", "reservation_confirmed"] },
-    "the hold is explicitly released": { "id": "hold_released", "source": "declared", "entity": "the hold", "meaning": "the hold is explicitly released" },
-    "the booking intent is abandoned": { "id": "booking_intent_abandoned", "source": "behavioral", "entity": "the hold", "meaning": "the booking intent behind the hold is abandoned" },
-    "the outstanding confirmation or dependency resolves": { "id": "dependency_resolved" },
-    "every prerequisite completes": { "id": "prerequisites_completed", "source": "authoritative", "entity": "the booking", "meaning": "every customer-owed prerequisite is recorded complete" },
-    "every customer-owed prerequisite is recorded complete": { "id": "prerequisites_completed" },
-    "the booking materially changes": { "id": "booking_materially_changed", "source": "authoritative", "entity": "the booking", "meaning": "the booking is cancelled, moved or materially changed", "commonMappings": ["appointment_rescheduled", "appointment_cancelled"] },
-    "the booking is cancelled, moved or materially changed": { "id": "booking_materially_changed" },
-    "the booking is cancelled or moved": { "id": "booking_materially_changed" },
-    "attendance or check-in is authoritatively established": { "id": "attendance_recorded", "source": "authoritative", "entity": "the booking", "meaning": "attendance or check-in is authoritatively established", "commonMappings": ["checked_in", "appointment_attended"] },
-    "the reservation is cancelled inside the window": { "id": "booking_cancelled" },
-    "the service completes": { "id": "service_completion_recorded", "source": "authoritative", "entity": "the service", "meaning": "the service completes", "commonMappings": ["service_completed", "appointment_completed"] },
-    "the service is interrupted": { "id": "service_interrupted", "source": "authoritative", "entity": "the service", "meaning": "the service is interrupted" },
-    "the request is committed against current capacity": { "id": "booking_confirmed" },
-    "the request is rejected for want of capacity or eligibility": { "id": "booking_request_rejected", "source": "authoritative", "entity": "the booking request", "meaning": "the request is rejected for want of capacity or eligibility" },
-    "one of the offered slots is requested": { "id": "offered_slot_requested", "source": "declared", "entity": "the booking request", "meaning": "the requester picks one of the offered slots" },
-    "every offered slot is declined": { "id": "offered_slots_declined", "source": "declared", "entity": "the booking request", "meaning": "the requester declines every offered slot" },
-    "a new booking is created for the same commitment": { "id": "rebooked", "source": "authoritative", "entity": "the missed booking", "meaning": "a new booking is created for the same commitment", "commonMappings": ["appointment_rebooked"] },
-    "the customer declines a further booking": { "id": "rebooking_declined", "source": "declared", "entity": "the missed booking", "meaning": "the customer declines a further booking" },
-    "a reservation or hold is created by this person for the requested window": { "id": "booking_confirmed" },
-    "a reservation is created for the offered window": { "id": "booking_confirmed" },
-    "the requested window is taken or withdrawn": { "id": "availability_lost", "source": "authoritative", "entity": "the availability enquiry", "meaning": "the requested window is taken or withdrawn" },
-    "the person takes the waitlist place": { "id": "waitlist_place_taken", "source": "declared", "entity": "the waitlist offer", "meaning": "the person takes the offered waitlist place" },
-    "the correction is authoritatively recorded as complete": { "id": "correction_recorded_complete", "source": "authoritative", "entity": "the adverse decision", "meaning": "the correction is recorded as complete" },
-    "the correction authoritatively fails": { "id": "correction_failed" },
-    "the decision is withdrawn or overturned": { "id": "decision_withdrawn", "source": "authoritative", "entity": "the adverse decision", "meaning": "the decision is withdrawn or overturned" },
-    "the authoritative reset occurs": { "id": "limit_reset", "source": "authoritative", "entity": "the usage limit", "meaning": "the usage limit resets" },
-    "additional capacity is authorised": { "id": "capacity_authorised", "source": "authoritative", "entity": "the usage limit", "meaning": "additional capacity is authorised" },
-    "the held action is abandoned": { "id": "held_action_abandoned", "source": "behavioral", "entity": "the usage limit", "meaning": "the held action is abandoned" },
-    "the distribution is confirmed to the level the requirement demands": { "id": "distribution_confirmed", "source": "authoritative", "entity": "the document distribution", "meaning": "distribution is confirmed to the required level" },
-    "the distribution authoritatively fails": { "id": "distribution_failed", "source": "authoritative", "entity": "the document distribution", "meaning": "distribution fails" },
-    "a required signer signs": { "id": "signer_signed", "source": "declared", "entity": "the signature request", "meaning": "a required signer signs", "commonMappings": ["document_signed", "envelope_completed"] },
-    "a signer declines": { "id": "signer_declined", "source": "declared", "entity": "the signature request", "meaning": "a signer declines" },
-    "the document version is superseded": { "id": "document_version_superseded", "source": "authoritative", "entity": "the document", "meaning": "the document version is superseded" },
-    "the entitlement is exercised for the first time": { "id": "capability_first_used" },
-    "the document is superseded or revoked": { "id": "document_version_superseded" },
-    "the effective period ends": { "id": "effective_period_ended", "source": "authoritative", "entity": "the document", "meaning": "the effective period ends" },
-    "the named prerequisite clears on the target": { "id": "named_requirement_satisfied" },
-    "the change is superseded or withdrawn": { "id": "change_withdrawn" }
+ "_about": "Curation of the semantic-event registry. Trigger events are registered from the corpus as-is (their id is the trigger's event string, their meaning its required evidence). Wait `until` phrases on the CUSTOMER surface are mapped here to a registry id, a source class and an entity; phrases with the same id are declared equivalent by a person, never by string similarity. Operational-surface wait phrases stay as prose until Gate 5 and are listed by the registry report as unresolved. `commonMappings` are examples of vendor/company event names only - the canonical file references the meaning.",
+ "waitPhrases": {
+  "deterministic_identity_resolved": {
+   "id": "deterministic_identity_resolved",
+   "source": "authoritative",
+   "entity": "the anonymous profile",
+   "meaning": "a deterministic known identity is resolved for the anonymous profile"
   },
-  "measurementEvents": [
-    { "id": "process_started", "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state", "source": "authoritative", "entity": "the logical process", "commonMappings": ["checkout_started", "begin_checkout", "application_started", "quote_created", "registration_started"] },
-    { "id": "process_resumed", "meaning": "an authenticated session resumes the same logical process", "source": "authoritative", "entity": "the logical process", "commonMappings": ["checkout_resumed", "session_started_on_checkout"] },
-    { "id": "process_completed", "meaning": "the logical process reached its completion in the system of record", "source": "authoritative", "entity": "the logical process", "commonMappings": ["order_created", "purchase", "checkout_success", "application_submitted", "quote_accepted", "registration_completed"] },
-    { "id": "process_cancelled", "meaning": "the person cancelled the logical process", "source": "declared", "entity": "the logical process", "commonMappings": ["checkout_cancelled"] },
-    { "id": "process_expired", "meaning": "the platform expired the logical process", "source": "authoritative", "entity": "the logical process", "commonMappings": ["checkout_expired", "cart_expired"] },
-    { "id": "items_removed_all", "meaning": "every item was removed from the process", "source": "declared", "entity": "the logical process", "commonMappings": ["cart_emptied"] },
-    { "id": "payment_failed", "meaning": "an authoritative provider response classifies a payment attempt as failed", "source": "authoritative", "entity": "the payment obligation", "commonMappings": ["payment_failed", "charge_failed", "invoice_payment_failed"] },
-    { "id": "selection_recorded", "meaning": "a selection is recorded against the person in the system of record without a process being started", "source": "authoritative", "entity": "the selection", "commonMappings": ["add_to_cart", "item_saved", "wishlist_add"] },
-    { "id": "selection_removed", "meaning": "the recorded selection is removed by the person", "source": "declared", "entity": "the selection", "commonMappings": ["remove_from_cart", "wishlist_remove"] },
-    { "id": "selection_unavailable", "meaning": "the selected item is no longer purchasable", "source": "authoritative", "entity": "the selection", "commonMappings": ["out_of_stock", "product_discontinued"] },
-    { "id": "interest_observed", "meaning": "behaviour that evidences commercial interest in a subject without a selection or a process: repeated views, an explicit search, sustained category interest", "source": "behavioral", "entity": "the interest subject", "commonMappings": ["product_viewed", "search", "category_viewed"] },
-    { "id": "interest_dismissed", "meaning": "the person signals the interest is over", "source": "declared", "entity": "the interest subject", "commonMappings": ["dismissed", "not_interested"] },
-    { "id": "purchase_completed", "meaning": "an authoritative purchase for the person, on any subject", "source": "authoritative", "entity": "the person", "commonMappings": ["order_created", "purchase"] },
-    { "id": "expected_depletion_approaching", "meaning": "the expected usable period of an acquired consumable is ending, inferred from acquisition history", "source": "inferred", "entity": "the consumable configuration", "commonMappings": ["replenishment_due", "predicted_reorder_date"] },
-    { "id": "replenishment_need_dismissed", "meaning": "the person signals no replenishment is needed", "source": "declared", "entity": "the consumable configuration" },
-    { "id": "lapsed_customer_detected", "meaning": "a previously paid relationship has been inactive and unpaid past its lapse threshold", "source": "authoritative", "entity": "the lapsed relationship", "commonMappings": ["churned", "subscription_lapsed", "last_purchase_older_than"] },
-    { "id": "relationship_repaid", "meaning": "the lapsed relationship pays again", "source": "authoritative", "entity": "the lapsed relationship", "commonMappings": ["subscription_reactivated", "purchase"] },
-    { "id": "grace_period_ended", "meaning": "the grace period recorded for a recoverable state ends", "source": "authoritative", "entity": "the grace period" },
-    { "id": "no_show_recorded", "meaning": "the booking's time passed with attendance not established and the miss attributed to the customer", "source": "authoritative", "entity": "the booking", "commonMappings": ["no_show"] },
-    { "id": "payment_method_updated", "meaning": "the customer updates the failing payment method", "source": "declared", "entity": "the payment obligation", "commonMappings": ["card_updated", "payment_method_added"] },
-    { "id": "authentication_completed", "meaning": "the customer completes an authentication the payment required", "source": "declared", "entity": "the payment obligation", "commonMappings": ["3ds_completed", "sca_completed"] }
-  ]
+  "the recorded re-entry condition or date is met": {
+   "id": "reentry_condition_met",
+   "source": "authoritative",
+   "entity": "the recycled lead",
+   "meaning": "the re-entry condition or date recorded when the lead was recycled is reached"
+  },
+  "the recorded re-entry event or date": {
+   "id": "reentry_condition_met"
+  },
+  "the named requirement is satisfied": {
+   "id": "named_requirement_satisfied",
+   "source": "authoritative",
+   "entity": "the blocking requirement",
+   "meaning": "the specific named requirement that blocked progress is recorded as satisfied"
+  },
+  "a new strong intent signal": {
+   "id": "strong_intent_signal",
+   "source": "behavioral",
+   "entity": "the person",
+   "meaning": "a new behavioural signal strong enough to re-open intent arrives"
+  },
+  "a meaningful progression signal": {
+   "id": "nurture_progression_signal",
+   "source": "behavioral",
+   "entity": "the lead",
+   "meaning": "the lead does something that moves them along the declared subject - a reply, a request, a purchase step"
+  },
+  "permission for this nurture is withdrawn": {
+   "id": "permission_withdrawn",
+   "source": "declared",
+   "entity": "the person",
+   "meaning": "the person withdraws the permission this communication runs on",
+   "commonMappings": [
+    "unsubscribed",
+    "opt_out",
+    "consent_revoked"
+   ]
+  },
+  "the person withdraws permission or asks to stop": {
+   "id": "permission_withdrawn"
+  },
+  "the permitted route to this person stops being deliverable": {
+   "id": "contactability_lost",
+   "source": "authoritative",
+   "entity": "the contact point",
+   "meaning": "no permitted destination for this person is deliverable any more",
+   "commonMappings": [
+    "hard_bounce",
+    "token_invalid",
+    "email_undeliverable"
+   ]
+  },
+  "the person does something that names a destination - a reply, a request to talk, a purchase": {
+   "id": "destination_declared",
+   "source": "declared",
+   "entity": "the lead",
+   "meaning": "the person does something that names where they are going: a reply, a request to talk, a purchase"
+  },
+  "a setup milestone completes": {
+   "id": "setup_milestone_completed",
+   "source": "authoritative",
+   "entity": "the onboarding instance",
+   "meaning": "the product's own record marks a setup milestone complete",
+   "commonMappings": [
+    "onboarding_step_completed",
+    "setup_step_done"
+   ]
+  },
+  "the authoritative activation event": {
+   "id": "activation_recorded",
+   "source": "authoritative",
+   "entity": "the onboarding instance",
+   "meaning": "the authoritative activation event for this onboarding is recorded",
+   "commonMappings": [
+    "activated",
+    "core_action_completed",
+    "aha_moment"
+   ]
+  },
+  "assistance is scheduled": {
+   "id": "assisted_session_scheduled",
+   "source": "authoritative",
+   "entity": "the help offer",
+   "meaning": "an assisted session is booked",
+   "commonMappings": [
+    "meeting_booked",
+    "onboarding_call_scheduled"
+   ]
+  },
+  "assistance is explicitly declined": {
+   "id": "assistance_declined",
+   "source": "declared",
+   "entity": "the help offer",
+   "meaning": "the person explicitly turns the help offer down"
+  },
+  "the session outcome is recorded": {
+   "id": "assisted_session_outcome_recorded",
+   "source": "authoritative",
+   "entity": "the assisted session",
+   "meaning": "the outcome of the assisted session is recorded"
+  },
+  "the booking is cancelled": {
+   "id": "booking_cancelled",
+   "source": "authoritative",
+   "entity": "the booking",
+   "meaning": "the booking is cancelled in the system of record",
+   "commonMappings": [
+    "appointment_cancelled",
+    "reservation_cancelled"
+   ]
+  },
+  "a further value-producing usage event": {
+   "id": "value_produced",
+   "source": "authoritative",
+   "entity": "the person's use-case",
+   "meaning": "the product records the person producing value again in this use-case"
+  },
+  "a meaningful recovery event: value produced again in this use-case": {
+   "id": "value_produced"
+  },
+  "the question is answered": {
+   "id": "question_answered",
+   "source": "declared",
+   "entity": "the question",
+   "meaning": "the person answers the question that was put to them"
+  },
+  "a meaningful return: activity in the product or movement in the funnel": {
+   "id": "meaningful_return",
+   "source": "behavioral",
+   "entity": "the dormant person",
+   "meaning": "real activity in the product or movement in the funnel - not a message open"
+  },
+  "a cause becomes identifiable": {
+   "id": "cause_identified",
+   "source": "authoritative",
+   "entity": "the health deterioration",
+   "meaning": "a cause for the deterioration becomes identifiable from the evidence"
+  },
+  "health recovers on its own": {
+   "id": "health_recovered",
+   "source": "authoritative",
+   "entity": "the account's health",
+   "meaning": "the health signal returns to its normal range without intervention"
+  },
+  "the deterioration signal returns": {
+   "id": "deterioration_signal_returns",
+   "source": "behavioral",
+   "entity": "the account's health",
+   "meaning": "the deterioration signal reappears after a recovery"
+  },
+  "a reason is given": {
+   "id": "cancellation_reason_given",
+   "source": "declared",
+   "entity": "the cancellation intent",
+   "meaning": "the person states a reason for cancelling"
+  },
+  "cancellation is confirmed": {
+   "id": "cancellation_confirmed",
+   "source": "authoritative",
+   "entity": "the relationship",
+   "meaning": "the cancellation is confirmed as an authoritative fact",
+   "commonMappings": [
+    "subscription_cancelled",
+    "cancel_confirmed"
+   ]
+  },
+  "the cancellation flow is abandoned": {
+   "id": "cancellation_flow_abandoned",
+   "source": "behavioral",
+   "entity": "the cancellation intent",
+   "meaning": "the person leaves the cancellation flow without confirming"
+  },
+  "the offer is accepted": {
+   "id": "retention_offer_accepted",
+   "source": "declared",
+   "entity": "the retention offer",
+   "meaning": "the person accepts the retention alternative offered",
+   "commonMappings": [
+    "offer_accepted",
+    "plan_changed",
+    "pause_accepted"
+   ]
+  },
+  "the offer is explicitly declined": {
+   "id": "retention_offer_declined",
+   "source": "declared",
+   "entity": "the retention offer",
+   "meaning": "the person explicitly declines the retention alternative"
+  },
+  "the relationship recovers without an explicit answer": {
+   "id": "relationship_recovered",
+   "source": "authoritative",
+   "entity": "the relationship",
+   "meaning": "the relationship's own state recovers without the person answering the offer"
+  },
+  "the intervention fails to execute": {
+   "id": "intervention_failed",
+   "source": "authoritative",
+   "entity": "the retention intervention",
+   "meaning": "the intervention could not be executed"
+  },
+  "the recorded release condition is met": {
+   "id": "release_condition_met",
+   "source": "authoritative",
+   "entity": "the suppression",
+   "meaning": "the condition recorded to release the suppression is met"
+  },
+  "the release condition is satisfied": {
+   "id": "release_condition_met"
+  },
+  "the new destination confirms": {
+   "id": "destination_confirmed",
+   "source": "declared",
+   "entity": "the contact point",
+   "meaning": "the new destination confirms from inside itself",
+   "commonMappings": [
+    "email_verified",
+    "phone_verified"
+   ]
+  },
+  "the change is disputed from the destination it replaces": {
+   "id": "destination_change_disputed",
+   "source": "declared",
+   "entity": "the contact point",
+   "meaning": "the old destination disputes the change"
+  },
+  "the contact point is withdrawn or changed again": {
+   "id": "contact_point_changed_again",
+   "source": "authoritative",
+   "entity": "the contact point",
+   "meaning": "the contact point is withdrawn or changed again before confirmation"
+  },
+  "a replacement destination is supplied and verified": {
+   "id": "replacement_destination_verified",
+   "source": "authoritative",
+   "entity": "the contact point",
+   "meaning": "a replacement destination is supplied and verified"
+  },
+  "the original destination becomes deliverable again": {
+   "id": "destination_deliverable_again",
+   "source": "authoritative",
+   "entity": "the contact point",
+   "meaning": "the original destination is deliverable again"
+  },
+  "the person removes the destination": {
+   "id": "destination_removed",
+   "source": "declared",
+   "entity": "the contact point",
+   "meaning": "the person removes the destination"
+  },
+  "a further frequency change is recorded": {
+   "id": "frequency_preference_changed",
+   "source": "declared",
+   "entity": "the communication preference",
+   "meaning": "the person records another frequency change"
+  },
+  "a full withdrawal from optional communication is recorded": {
+   "id": "optional_communication_withdrawn",
+   "source": "declared",
+   "entity": "the communication preference",
+   "meaning": "the person withdraws from all optional communication"
+  },
+  "the experience completes": {
+   "id": "experience_completed",
+   "source": "authoritative",
+   "entity": "the experience",
+   "meaning": "the experience the feedback would be about completes",
+   "commonMappings": [
+    "order_delivered",
+    "service_completed",
+    "ticket_resolved"
+   ]
+  },
+  "feedback is submitted": {
+   "id": "feedback_submitted",
+   "source": "declared",
+   "entity": "the feedback request",
+   "meaning": "the person submits feedback",
+   "commonMappings": [
+    "survey_submitted",
+    "nps_response",
+    "review_submitted"
+   ]
+  },
+  "the advocacy action is taken": {
+   "id": "advocacy_action_taken",
+   "source": "authoritative",
+   "entity": "the advocacy request",
+   "meaning": "the requested advocacy action is recorded as done",
+   "commonMappings": [
+    "referral_sent",
+    "review_published"
+   ]
+  },
+  "the request is declined": {
+   "id": "request_declined",
+   "source": "declared",
+   "entity": "the request",
+   "meaning": "the person declines the request"
+  },
+  "the operational outcome is recorded against the work item": {
+   "id": "work_item_outcome_recorded",
+   "source": "authoritative",
+   "entity": "the work item",
+   "meaning": "the operational outcome is recorded against the work item"
+  },
+  "the promised follow-up is delivered": {
+   "id": "promised_followup_delivered",
+   "source": "authoritative",
+   "entity": "the promise",
+   "meaning": "the follow-up that was promised is delivered"
+  },
+  "the operational fix is completed": {
+   "id": "operational_fix_completed",
+   "source": "authoritative",
+   "entity": "the issue",
+   "meaning": "the operational fix for the issue is recorded complete"
+  },
+  "the person confirms it is resolved": {
+   "id": "resolution_confirmed",
+   "source": "declared",
+   "entity": "the issue",
+   "meaning": "the person confirms the issue is resolved"
+  },
+  "the person says it is not": {
+   "id": "resolution_disputed",
+   "source": "declared",
+   "entity": "the issue",
+   "meaning": "the person says the issue is not resolved"
+  },
+  "the review reaches a conclusion": {
+   "id": "review_concluded",
+   "source": "authoritative",
+   "entity": "the review",
+   "meaning": "the review reaches a conclusion"
+  },
+  "the requested information arrives": {
+   "id": "requested_information_received",
+   "source": "declared",
+   "entity": "the information request",
+   "meaning": "the requested information is received"
+  },
+  "the information is received": {
+   "id": "requested_information_received"
+  },
+  "the data arrives": {
+   "id": "requested_information_received"
+  },
+  "the obligation is completed": {
+   "id": "obligation_satisfied",
+   "source": "authoritative",
+   "entity": "the obligation",
+   "meaning": "the obligation is satisfied in the system of record",
+   "commonMappings": [
+    "payment_succeeded",
+    "invoice_paid",
+    "task_completed"
+   ]
+  },
+  "the obligation is satisfied": {
+   "id": "obligation_satisfied"
+  },
+  "the obligation is authoritatively satisfied": {
+   "id": "obligation_satisfied"
+  },
+  "an authoritative financial event satisfies or partly satisfies it": {
+   "id": "obligation_satisfied"
+  },
+  "a defined pre-deadline threshold is reached": {
+   "id": "pre_deadline_threshold_reached",
+   "source": "authoritative",
+   "entity": "the deadline",
+   "meaning": "a defined point before the deadline is reached"
+  },
+  "renewed": {
+   "id": "renewed",
+   "source": "authoritative",
+   "entity": "the expiring item",
+   "meaning": "the expiring item is renewed",
+   "commonMappings": [
+    "subscription_renewed",
+    "license_renewed"
+   ]
+  },
+  "completed": {
+   "id": "completion_recorded",
+   "source": "authoritative",
+   "entity": "the expiring item",
+   "meaning": "the required action is completed before expiry"
+  },
+  "replaced": {
+   "id": "replaced",
+   "source": "authoritative",
+   "entity": "the expiring item",
+   "meaning": "the expiring item is replaced"
+  },
+  "the recovery condition is satisfied": {
+   "id": "recovery_condition_satisfied",
+   "source": "authoritative",
+   "entity": "the recoverable state",
+   "meaning": "the condition that ends the recoverable state is satisfied"
+  },
+  "the obligation is satisfied, cancelled or adjusted": {
+   "id": "obligation_no_longer_owed",
+   "source": "authoritative",
+   "entity": "the obligation",
+   "meaning": "the obligation is satisfied, cancelled or adjusted to nothing"
+  },
+  "it is cancelled or adjusted to nothing": {
+   "id": "obligation_no_longer_owed"
+  },
+  "the obligation is changed and still owed": {
+   "id": "obligation_changed_still_owed",
+   "source": "authoritative",
+   "entity": "the obligation",
+   "meaning": "the obligation changes but remains owed"
+  },
+  "the deadline passes with it still owed": {
+   "id": "deadline_passed_unmet",
+   "source": "authoritative",
+   "entity": "the obligation",
+   "meaning": "the deadline passes with the obligation still owed"
+  },
+  "the entity is terminated before the window closes": {
+   "id": "entity_terminated",
+   "source": "authoritative",
+   "entity": "the entity",
+   "meaning": "the entity is terminated"
+  },
+  "the named route is completed and validity is restored": {
+   "id": "validity_restored",
+   "source": "authoritative",
+   "entity": "the expired item",
+   "meaning": "the named route back is completed and validity restored"
+  },
+  "the holder abandons the attempt": {
+   "id": "recovery_attempt_abandoned",
+   "source": "behavioral",
+   "entity": "the holder",
+   "meaning": "the holder stops pursuing the route back"
+  },
+  "the suspension reason is resolved": {
+   "id": "suspension_reason_resolved",
+   "source": "authoritative",
+   "entity": "the suspension",
+   "meaning": "the reason for the suspension is resolved"
+  },
+  "a terminal decision is made": {
+   "id": "terminal_decision_recorded",
+   "source": "authoritative",
+   "entity": "the suspension",
+   "meaning": "a terminal decision is recorded"
+  },
+  "a terminal decision is taken on the relationship": {
+   "id": "terminal_decision_recorded"
+  },
+  "the restriction is lifted by whoever placed it": {
+   "id": "restriction_lifted",
+   "source": "authoritative",
+   "entity": "the restriction",
+   "meaning": "the restriction is lifted by its owner"
+  },
+  "the restriction becomes permanent": {
+   "id": "restriction_made_permanent",
+   "source": "authoritative",
+   "entity": "the restriction",
+   "meaning": "the restriction is made permanent"
+  },
+  "the capability is used for the first time": {
+   "id": "capability_first_used",
+   "source": "authoritative",
+   "entity": "the entitlement",
+   "meaning": "the granted capability is used for the first time",
+   "commonMappings": [
+    "feature_first_used",
+    "activation_completed"
+   ]
+  },
+  "the entitlement is revoked or replaced": {
+   "id": "entitlement_revoked_or_replaced",
+   "source": "authoritative",
+   "entity": "the entitlement",
+   "meaning": "the entitlement is revoked or replaced"
+  },
+  "the requested evidence is received": {
+   "id": "verification_evidence_received",
+   "source": "declared",
+   "entity": "the verification claim",
+   "meaning": "the requested evidence for the claim is received",
+   "commonMappings": [
+    "document_uploaded",
+    "id_submitted"
+   ]
+  },
+  "the verification succeeds": {
+   "id": "verification_succeeded",
+   "source": "authoritative",
+   "entity": "the verification claim",
+   "meaning": "the verification succeeds",
+   "commonMappings": [
+    "kyc_passed",
+    "identity_verified"
+   ]
+  },
+  "the verification fails": {
+   "id": "verification_failed",
+   "source": "authoritative",
+   "entity": "the verification claim",
+   "meaning": "the verification fails"
+  },
+  "authentication succeeds": {
+   "id": "authentication_succeeded",
+   "source": "authoritative",
+   "entity": "the authentication challenge",
+   "meaning": "the authentication challenge succeeds",
+   "commonMappings": [
+    "login_success",
+    "otp_verified"
+   ]
+  },
+  "authentication fails": {
+   "id": "authentication_failed",
+   "source": "authoritative",
+   "entity": "the authentication challenge",
+   "meaning": "the authentication challenge fails"
+  },
+  "proof of control or identity is provided": {
+   "id": "proof_of_control_provided",
+   "source": "declared",
+   "entity": "the recovery case",
+   "meaning": "sufficient proof of control or identity is provided"
+  },
+  "sufficient proof of control is provided": {
+   "id": "proof_of_control_provided"
+  },
+  "the requester supplies the proof of control that was asked for": {
+   "id": "proof_of_control_provided"
+  },
+  "the attempt fails": {
+   "id": "recovery_attempt_failed",
+   "source": "authoritative",
+   "entity": "the recovery case",
+   "meaning": "the recovery attempt fails"
+  },
+  "the owner is verified": {
+   "id": "owner_verified",
+   "source": "authoritative",
+   "entity": "the account",
+   "meaning": "the account owner is verified"
+  },
+  "the security review concludes": {
+   "id": "security_review_concluded",
+   "source": "authoritative",
+   "entity": "the security review",
+   "meaning": "the security review concludes"
+  },
+  "the security review concludes without them": {
+   "id": "security_review_concluded"
+  },
+  "the requester regains access by ordinary authentication": {
+   "id": "access_regained",
+   "source": "authoritative",
+   "entity": "the account",
+   "meaning": "the requester regains access by ordinary authentication"
+  },
+  "the case is withdrawn": {
+   "id": "request_withdrawn",
+   "source": "declared",
+   "entity": "the request",
+   "meaning": "the requester withdraws the request"
+  },
+  "the request is withdrawn": {
+   "id": "request_withdrawn"
+  },
+  "the request is withdrawn or the decision is no longer required": {
+   "id": "request_withdrawn"
+  },
+  "the owner confirms the activity was theirs": {
+   "id": "activity_confirmed_own",
+   "source": "declared",
+   "entity": "the security alert",
+   "meaning": "the owner confirms the activity was theirs"
+  },
+  "the owner reports the activity was not theirs": {
+   "id": "activity_reported_not_own",
+   "source": "declared",
+   "entity": "the security alert",
+   "meaning": "the owner reports the activity was not theirs"
+  },
+  "a valid relationship is restored or established": {
+   "id": "relationship_established",
+   "source": "authoritative",
+   "entity": "the relationship",
+   "meaning": "a valid relationship is restored or established"
+  },
+  "the counterparty accepts": {
+   "id": "invitation_accepted",
+   "source": "declared",
+   "entity": "the invitation",
+   "meaning": "the counterparty accepts the invitation"
+  },
+  "the counterparty declines": {
+   "id": "invitation_declined",
+   "source": "declared",
+   "entity": "the invitation",
+   "meaning": "the counterparty declines the invitation"
+  },
+  "the inviting party withdraws the invitation": {
+   "id": "invitation_withdrawn",
+   "source": "declared",
+   "entity": "the invitation",
+   "meaning": "the inviting party withdraws the invitation"
+  },
+  "the handover is cancelled": {
+   "id": "handover_cancelled",
+   "source": "authoritative",
+   "entity": "the handover",
+   "meaning": "the handover is cancelled"
+  },
+  "the handover is superseded by another": {
+   "id": "handover_superseded",
+   "source": "authoritative",
+   "entity": "the handover",
+   "meaning": "the handover is superseded by another"
+  },
+  "the surfaced blocker is resolved": {
+   "id": "closure_blocker_resolved",
+   "source": "authoritative",
+   "entity": "the closure request",
+   "meaning": "the blocker that prevented closure is resolved"
+  },
+  "the required dependency outcomes are recorded": {
+   "id": "dependency_outcomes_recorded",
+   "source": "authoritative",
+   "entity": "the closure",
+   "meaning": "the required dependency outcomes are recorded"
+  },
+  "all outstanding operational obligations complete": {
+   "id": "operational_obligations_completed",
+   "source": "authoritative",
+   "entity": "the wind-down",
+   "meaning": "all outstanding operational obligations complete"
+  },
+  "the scope, the retained items and the deletion outcome are all authoritatively resolved": {
+   "id": "deletion_resolved",
+   "source": "authoritative",
+   "entity": "the deletion request",
+   "meaning": "scope, retained items and deletion outcome are all resolved"
+  },
+  "the connection revalidates against a new authorization": {
+   "id": "connection_revalidated",
+   "source": "authoritative",
+   "entity": "the integration",
+   "meaning": "the connection revalidates against a new authorization",
+   "commonMappings": [
+    "integration_reconnected",
+    "oauth_reauthorized"
+   ]
+  },
+  "the holder removes the connection": {
+   "id": "connection_removed",
+   "source": "declared",
+   "entity": "the integration",
+   "meaning": "the holder removes the connection"
+  },
+  "the configuration is removed": {
+   "id": "connection_removed"
+  },
+  "the cause is reclassified as not the holder's to fix": {
+   "id": "cause_reclassified_not_holders",
+   "source": "authoritative",
+   "entity": "the integration",
+   "meaning": "the failure is reclassified as not the holder's to fix"
+  },
+  "a further connection attempt is recorded for this integration": {
+   "id": "connection_attempt_recorded",
+   "source": "authoritative",
+   "entity": "the integration",
+   "meaning": "a further connection attempt is recorded"
+  },
+  "an adjustment or cancellation is recorded against it": {
+   "id": "obligation_adjusted_or_cancelled",
+   "source": "authoritative",
+   "entity": "the obligation",
+   "meaning": "an adjustment or cancellation is recorded against the obligation"
+  },
+  "it becomes due or overdue": {
+   "id": "obligation_due",
+   "source": "authoritative",
+   "entity": "the obligation",
+   "meaning": "the obligation becomes due or overdue"
+  },
+  "the customer selects or authorises an alternative method": {
+   "id": "alternate_method_selected",
+   "source": "declared",
+   "entity": "the payment obligation",
+   "meaning": "the customer selects or authorises an alternative payment method",
+   "commonMappings": [
+    "payment_method_updated",
+    "card_updated"
+   ]
+  },
+  "the customer abandons the attempt": {
+   "id": "recovery_attempt_abandoned"
+  },
+  "a decision is recorded": {
+   "id": "decision_recorded",
+   "source": "authoritative",
+   "entity": "the request",
+   "meaning": "an authorised decision is recorded on the request"
+  },
+  "the named dependency resolves": {
+   "id": "dependency_resolved",
+   "source": "authoritative",
+   "entity": "the fulfilment request",
+   "meaning": "the named dependency resolves"
+  },
+  "the required resources become available": {
+   "id": "resources_available",
+   "source": "authoritative",
+   "entity": "the fulfilment",
+   "meaning": "the required resources become available"
+  },
+  "the fulfillment consumes the allocation": {
+   "id": "allocation_consumed",
+   "source": "authoritative",
+   "entity": "the reservation",
+   "meaning": "the fulfilment consumes the allocated resource"
+  },
+  "the fulfillment is cancelled or its scope changes": {
+   "id": "fulfillment_cancelled_or_changed",
+   "source": "authoritative",
+   "entity": "the fulfilment",
+   "meaning": "the fulfilment is cancelled or its scope changes"
+  },
+  "the reserved resource becomes unavailable": {
+   "id": "reserved_resource_unavailable",
+   "source": "authoritative",
+   "entity": "the reservation",
+   "meaning": "the reserved resource becomes unavailable"
+  },
+  "execution reports an outcome": {
+   "id": "execution_outcome_reported",
+   "source": "authoritative",
+   "entity": "the fulfilment",
+   "meaning": "execution reports an outcome"
+  },
+  "a material exception occurs": {
+   "id": "fulfillment_exception",
+   "source": "authoritative",
+   "entity": "the fulfilment",
+   "meaning": "a material exception occurs during fulfilment"
+  },
+  "the substitute is approved": {
+   "id": "substitute_approved",
+   "source": "declared",
+   "entity": "the substitution",
+   "meaning": "the substitute is approved"
+  },
+  "the substitute is declined": {
+   "id": "substitute_declined",
+   "source": "declared",
+   "entity": "the substitution",
+   "meaning": "the substitute is declined"
+  },
+  "the alternative is accepted": {
+   "id": "substitute_approved"
+  },
+  "the alternative is declined": {
+   "id": "substitute_declined"
+  },
+  "a choice is made": {
+   "id": "choice_made",
+   "source": "declared",
+   "entity": "the offered choice",
+   "meaning": "the person makes the offered choice"
+  },
+  "fulfillment resumes or completes": {
+   "id": "fulfillment_resumed_or_completed",
+   "source": "authoritative",
+   "entity": "the fulfilment",
+   "meaning": "fulfilment resumes or completes"
+  },
+  "an authoritative delivery confirmation": {
+   "id": "delivery_confirmed",
+   "source": "authoritative",
+   "entity": "the delivery",
+   "meaning": "delivery is confirmed by the executor or the recipient",
+   "commonMappings": [
+    "delivered",
+    "shipment_delivered"
+   ]
+  },
+  "a confirmed delivery failure": {
+   "id": "delivery_failed",
+   "source": "authoritative",
+   "entity": "the delivery",
+   "meaning": "the delivery attempt is confirmed failed",
+   "commonMappings": [
+    "delivery_failed",
+    "delivery_exception"
+   ]
+  },
+  "a meaningful delay reported by the executor": {
+   "id": "delivery_delay_reported",
+   "source": "authoritative",
+   "entity": "the delivery",
+   "meaning": "the executor reports a meaningful delay"
+  },
+  "a material change to the expected window reported by the executor": {
+   "id": "delivery_delay_reported"
+  },
+  "the correction is provided": {
+   "id": "delivery_correction_provided",
+   "source": "declared",
+   "entity": "the delivery",
+   "meaning": "the recipient provides the requested correction"
+  },
+  "the recipient selects an alternative": {
+   "id": "delivery_alternative_selected",
+   "source": "declared",
+   "entity": "the delivery",
+   "meaning": "the recipient selects an alternative route"
+  },
+  "the recipient declines all of them": {
+   "id": "delivery_alternatives_declined",
+   "source": "declared",
+   "entity": "the delivery",
+   "meaning": "the recipient declines every alternative"
+  },
+  "the recipient accepts": {
+   "id": "delivery_accepted",
+   "source": "declared",
+   "entity": "the delivery",
+   "meaning": "the recipient accepts what was delivered"
+  },
+  "the recipient raises an issue": {
+   "id": "delivery_issue_raised",
+   "source": "declared",
+   "entity": "the delivery",
+   "meaning": "the recipient raises an issue about the delivery"
+  },
+  "an issue is raised": {
+   "id": "delivery_issue_raised"
+  },
+  "a corrected outcome is produced": {
+   "id": "correction_produced",
+   "source": "authoritative",
+   "entity": "the remedy",
+   "meaning": "a corrected outcome is produced"
+  },
+  "the correction fails": {
+   "id": "correction_failed",
+   "source": "authoritative",
+   "entity": "the remedy",
+   "meaning": "the correction fails"
+  },
+  "a remedy is selected": {
+   "id": "remedy_selected",
+   "source": "declared",
+   "entity": "the remedy decision",
+   "meaning": "the person selects a remedy"
+  },
+  "the outstanding requirements are satisfied": {
+   "id": "activation_requirements_satisfied",
+   "source": "authoritative",
+   "entity": "the relationship",
+   "meaning": "the outstanding activation requirements are satisfied"
+  },
+  "the missing prerequisite is satisfied": {
+   "id": "activation_requirements_satisfied"
+  },
+  "the agreement is withdrawn before starting": {
+   "id": "agreement_withdrawn",
+   "source": "declared",
+   "entity": "the relationship",
+   "meaning": "the agreement is withdrawn before it starts"
+  },
+  "the relationship is cancelled before it starts": {
+   "id": "cancellation_confirmed"
+  },
+  "a material prerequisite changes": {
+   "id": "prerequisite_changed",
+   "source": "authoritative",
+   "entity": "the scheduled activation",
+   "meaning": "a material prerequisite changes before the effective time"
+  },
+  "an authorized renewal decision is recorded": {
+   "id": "renewal_decision_recorded",
+   "source": "authoritative",
+   "entity": "the renewal cycle",
+   "meaning": "an authorised renewal decision is recorded",
+   "commonMappings": [
+    "renewal_accepted",
+    "renewal_declined"
+   ]
+  },
+  "the review concludes with an authorized decision": {
+   "id": "renewal_decision_recorded"
+  },
+  "the payment is recovered": {
+   "id": "obligation_satisfied"
+  },
+  "an authorized alternate resolution is agreed": {
+   "id": "alternate_resolution_agreed",
+   "source": "authoritative",
+   "entity": "the obligation",
+   "meaning": "an authorised alternate resolution of the obligation is agreed"
+  },
+  "the relationship ends before the change lands": {
+   "id": "relationship_ended",
+   "source": "authoritative",
+   "entity": "the relationship",
+   "meaning": "the relationship ends"
+  },
+  "the change is withdrawn": {
+   "id": "change_withdrawn",
+   "source": "declared",
+   "entity": "the change request",
+   "meaning": "the change request is withdrawn"
+  },
+  "the relationship-specific wind-down completes": {
+   "id": "wind_down_completed",
+   "source": "authoritative",
+   "entity": "the relationship",
+   "meaning": "the wind-down completes"
+  },
+  "the cancellation is withdrawn": {
+   "id": "cancellation_withdrawn",
+   "source": "declared",
+   "entity": "the cancelled relationship",
+   "meaning": "the person withdraws the cancellation before it takes effect",
+   "commonMappings": [
+    "reactivated",
+    "cancellation_reversed"
+   ]
+  },
+  "the effective end date is reached": {
+   "id": "effective_end_reached",
+   "source": "authoritative",
+   "entity": "the cancelled relationship",
+   "meaning": "the effective end date is reached"
+  },
+  "the booking is confirmed against this hold": {
+   "id": "booking_confirmed",
+   "source": "authoritative",
+   "entity": "the booking",
+   "meaning": "the booking is confirmed",
+   "commonMappings": [
+    "appointment_confirmed",
+    "reservation_confirmed"
+   ]
+  },
+  "the hold is explicitly released": {
+   "id": "hold_released",
+   "source": "declared",
+   "entity": "the hold",
+   "meaning": "the hold is explicitly released"
+  },
+  "the booking intent is abandoned": {
+   "id": "booking_intent_abandoned",
+   "source": "behavioral",
+   "entity": "the hold",
+   "meaning": "the booking intent behind the hold is abandoned"
+  },
+  "the outstanding confirmation or dependency resolves": {
+   "id": "dependency_resolved"
+  },
+  "every prerequisite completes": {
+   "id": "prerequisites_completed",
+   "source": "authoritative",
+   "entity": "the booking",
+   "meaning": "every customer-owed prerequisite is recorded complete"
+  },
+  "every customer-owed prerequisite is recorded complete": {
+   "id": "prerequisites_completed"
+  },
+  "the booking materially changes": {
+   "id": "booking_materially_changed",
+   "source": "authoritative",
+   "entity": "the booking",
+   "meaning": "the booking is cancelled, moved or materially changed",
+   "commonMappings": [
+    "appointment_rescheduled",
+    "appointment_cancelled"
+   ]
+  },
+  "the booking is cancelled, moved or materially changed": {
+   "id": "booking_materially_changed"
+  },
+  "the booking is cancelled or moved": {
+   "id": "booking_materially_changed"
+  },
+  "attendance or check-in is authoritatively established": {
+   "id": "attendance_recorded",
+   "source": "authoritative",
+   "entity": "the booking",
+   "meaning": "attendance or check-in is authoritatively established",
+   "commonMappings": [
+    "checked_in",
+    "appointment_attended"
+   ]
+  },
+  "the reservation is cancelled inside the window": {
+   "id": "booking_cancelled"
+  },
+  "the service completes": {
+   "id": "service_completion_recorded",
+   "source": "authoritative",
+   "entity": "the service",
+   "meaning": "the service completes",
+   "commonMappings": [
+    "service_completed",
+    "appointment_completed"
+   ]
+  },
+  "the service is interrupted": {
+   "id": "service_interrupted",
+   "source": "authoritative",
+   "entity": "the service",
+   "meaning": "the service is interrupted"
+  },
+  "the request is committed against current capacity": {
+   "id": "booking_confirmed"
+  },
+  "the request is rejected for want of capacity or eligibility": {
+   "id": "booking_request_rejected",
+   "source": "authoritative",
+   "entity": "the booking request",
+   "meaning": "the request is rejected for want of capacity or eligibility"
+  },
+  "one of the offered slots is requested": {
+   "id": "offered_slot_requested",
+   "source": "declared",
+   "entity": "the booking request",
+   "meaning": "the requester picks one of the offered slots"
+  },
+  "every offered slot is declined": {
+   "id": "offered_slots_declined",
+   "source": "declared",
+   "entity": "the booking request",
+   "meaning": "the requester declines every offered slot"
+  },
+  "a new booking is created for the same commitment": {
+   "id": "rebooked",
+   "source": "authoritative",
+   "entity": "the missed booking",
+   "meaning": "a new booking is created for the same commitment",
+   "commonMappings": [
+    "appointment_rebooked"
+   ]
+  },
+  "the customer declines a further booking": {
+   "id": "rebooking_declined",
+   "source": "declared",
+   "entity": "the missed booking",
+   "meaning": "the customer declines a further booking"
+  },
+  "a reservation or hold is created by this person for the requested window": {
+   "id": "booking_confirmed"
+  },
+  "a reservation is created for the offered window": {
+   "id": "booking_confirmed"
+  },
+  "the requested window is taken or withdrawn": {
+   "id": "availability_lost",
+   "source": "authoritative",
+   "entity": "the availability enquiry",
+   "meaning": "the requested window is taken or withdrawn"
+  },
+  "the person takes the waitlist place": {
+   "id": "waitlist_place_taken",
+   "source": "declared",
+   "entity": "the waitlist offer",
+   "meaning": "the person takes the offered waitlist place"
+  },
+  "the correction is authoritatively recorded as complete": {
+   "id": "correction_recorded_complete",
+   "source": "authoritative",
+   "entity": "the adverse decision",
+   "meaning": "the correction is recorded as complete"
+  },
+  "the correction authoritatively fails": {
+   "id": "correction_failed"
+  },
+  "the decision is withdrawn or overturned": {
+   "id": "decision_withdrawn",
+   "source": "authoritative",
+   "entity": "the adverse decision",
+   "meaning": "the decision is withdrawn or overturned"
+  },
+  "the authoritative reset occurs": {
+   "id": "limit_reset",
+   "source": "authoritative",
+   "entity": "the usage limit",
+   "meaning": "the usage limit resets"
+  },
+  "additional capacity is authorised": {
+   "id": "capacity_authorised",
+   "source": "authoritative",
+   "entity": "the usage limit",
+   "meaning": "additional capacity is authorised"
+  },
+  "the held action is abandoned": {
+   "id": "held_action_abandoned",
+   "source": "behavioral",
+   "entity": "the usage limit",
+   "meaning": "the held action is abandoned"
+  },
+  "the distribution is confirmed to the level the requirement demands": {
+   "id": "distribution_confirmed",
+   "source": "authoritative",
+   "entity": "the document distribution",
+   "meaning": "distribution is confirmed to the required level"
+  },
+  "the distribution authoritatively fails": {
+   "id": "distribution_failed",
+   "source": "authoritative",
+   "entity": "the document distribution",
+   "meaning": "distribution fails"
+  },
+  "a required signer signs": {
+   "id": "signer_signed",
+   "source": "declared",
+   "entity": "the signature request",
+   "meaning": "a required signer signs",
+   "commonMappings": [
+    "document_signed",
+    "envelope_completed"
+   ]
+  },
+  "a signer declines": {
+   "id": "signer_declined",
+   "source": "declared",
+   "entity": "the signature request",
+   "meaning": "a signer declines"
+  },
+  "the document version is superseded": {
+   "id": "document_version_superseded",
+   "source": "authoritative",
+   "entity": "the document",
+   "meaning": "the document version is superseded"
+  },
+  "the entitlement is exercised for the first time": {
+   "id": "capability_first_used"
+  },
+  "the document is superseded or revoked": {
+   "id": "document_version_superseded"
+  },
+  "the effective period ends": {
+   "id": "effective_period_ended",
+   "source": "authoritative",
+   "entity": "the document",
+   "meaning": "the effective period ends"
+  },
+  "the named prerequisite clears on the target": {
+   "id": "named_requirement_satisfied"
+  },
+  "the change is superseded or withdrawn": {
+   "id": "change_withdrawn"
+  }
+ },
+ "measurementEvents": [
+  {
+   "id": "process_started",
+   "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state",
+   "source": "authoritative",
+   "entity": "the logical process",
+   "commonMappings": [
+    "checkout_started",
+    "begin_checkout",
+    "application_started",
+    "quote_created",
+    "registration_started"
+   ]
+  },
+  {
+   "id": "process_resumed",
+   "meaning": "an authenticated session resumes the same logical process",
+   "source": "authoritative",
+   "entity": "the logical process",
+   "commonMappings": [
+    "checkout_resumed",
+    "session_started_on_checkout"
+   ]
+  },
+  {
+   "id": "process_completed",
+   "meaning": "the logical process reached its completion in the system of record",
+   "source": "authoritative",
+   "entity": "the logical process",
+   "commonMappings": [
+    "order_created",
+    "purchase",
+    "checkout_success",
+    "application_submitted",
+    "quote_accepted",
+    "registration_completed"
+   ]
+  },
+  {
+   "id": "process_cancelled",
+   "meaning": "the person cancelled the logical process",
+   "source": "declared",
+   "entity": "the logical process",
+   "commonMappings": [
+    "checkout_cancelled"
+   ]
+  },
+  {
+   "id": "process_expired",
+   "meaning": "the platform expired the logical process",
+   "source": "authoritative",
+   "entity": "the logical process",
+   "commonMappings": [
+    "checkout_expired",
+    "cart_expired"
+   ]
+  },
+  {
+   "id": "items_removed_all",
+   "meaning": "every item was removed from the process",
+   "source": "declared",
+   "entity": "the logical process",
+   "commonMappings": [
+    "cart_emptied"
+   ]
+  },
+  {
+   "id": "payment_failed",
+   "meaning": "an authoritative provider response classifies a payment attempt as failed",
+   "source": "authoritative",
+   "entity": "the payment obligation",
+   "commonMappings": [
+    "payment_failed",
+    "charge_failed",
+    "invoice_payment_failed"
+   ]
+  },
+  {
+   "id": "selection_recorded",
+   "meaning": "a selection is recorded against the person in the system of record without a process being started",
+   "source": "authoritative",
+   "entity": "the selection",
+   "commonMappings": [
+    "add_to_cart",
+    "item_saved",
+    "wishlist_add"
+   ]
+  },
+  {
+   "id": "selection_removed",
+   "meaning": "the recorded selection is removed by the person",
+   "source": "declared",
+   "entity": "the selection",
+   "commonMappings": [
+    "remove_from_cart",
+    "wishlist_remove"
+   ]
+  },
+  {
+   "id": "selection_unavailable",
+   "meaning": "the selected item is no longer purchasable",
+   "source": "authoritative",
+   "entity": "the selection",
+   "commonMappings": [
+    "out_of_stock",
+    "product_discontinued"
+   ]
+  },
+  {
+   "id": "interest_observed",
+   "meaning": "behaviour that evidences commercial interest in a subject without a selection or a process: repeated views, an explicit search, sustained category interest",
+   "source": "behavioral",
+   "entity": "the interest subject",
+   "commonMappings": [
+    "product_viewed",
+    "search",
+    "category_viewed"
+   ]
+  },
+  {
+   "id": "interest_dismissed",
+   "meaning": "the person signals the interest is over",
+   "source": "declared",
+   "entity": "the interest subject",
+   "commonMappings": [
+    "dismissed",
+    "not_interested"
+   ]
+  },
+  {
+   "id": "purchase_completed",
+   "meaning": "an authoritative purchase for the person, on any subject",
+   "source": "authoritative",
+   "entity": "the person",
+   "commonMappings": [
+    "order_created",
+    "purchase"
+   ]
+  },
+  {
+   "id": "expected_depletion_approaching",
+   "meaning": "the expected usable period of an acquired consumable is ending, inferred from acquisition history",
+   "source": "inferred",
+   "entity": "the consumable configuration",
+   "commonMappings": [
+    "replenishment_due",
+    "predicted_reorder_date"
+   ]
+  },
+  {
+   "id": "replenishment_need_dismissed",
+   "meaning": "the person signals no replenishment is needed",
+   "source": "declared",
+   "entity": "the consumable configuration"
+  },
+  {
+   "id": "lapsed_customer_detected",
+   "meaning": "a previously paid relationship has been inactive and unpaid past its lapse threshold",
+   "source": "authoritative",
+   "entity": "the lapsed relationship",
+   "commonMappings": [
+    "churned",
+    "subscription_lapsed",
+    "last_purchase_older_than"
+   ]
+  },
+  {
+   "id": "relationship_repaid",
+   "meaning": "the lapsed relationship pays again",
+   "source": "authoritative",
+   "entity": "the lapsed relationship",
+   "commonMappings": [
+    "subscription_reactivated",
+    "purchase"
+   ]
+  },
+  {
+   "id": "grace_period_ended",
+   "meaning": "the grace period recorded for a recoverable state ends",
+   "source": "authoritative",
+   "entity": "the grace period"
+  },
+  {
+   "id": "no_show_recorded",
+   "meaning": "the booking's time passed with attendance not established and the miss attributed to the customer",
+   "source": "authoritative",
+   "entity": "the booking",
+   "commonMappings": [
+    "no_show"
+   ]
+  },
+  {
+   "id": "payment_method_updated",
+   "meaning": "the customer updates the failing payment method",
+   "source": "declared",
+   "entity": "the payment obligation",
+   "commonMappings": [
+    "card_updated",
+    "payment_method_added"
+   ]
+  },
+  {
+   "id": "authentication_completed",
+   "meaning": "the customer completes an authentication the payment required",
+   "source": "declared",
+   "entity": "the payment obligation",
+   "commonMappings": [
+    "3ds_completed",
+    "sca_completed"
+   ]
+  },
+  {
+   "id": "selection_converted",
+   "meaning": "an order or completion is recorded that includes at least one item from the selection",
+   "source": "authoritative",
+   "entity": "the recorded selection",
+   "commonMappings": [
+    "purchase",
+    "order_completed"
+   ]
+  },
+  {
+   "id": "selection_cleared",
+   "meaning": "every item was removed from the selection by the person, or the selection was deleted",
+   "source": "declared",
+   "entity": "the recorded selection",
+   "commonMappings": [
+    "remove_from_cart (last item)",
+    "cart_cleared"
+   ]
+  },
+  {
+   "id": "selection_changed",
+   "meaning": "an item was added to or removed from the selection while at least one item remains",
+   "source": "declared",
+   "entity": "the recorded selection",
+   "commonMappings": [
+    "add_to_cart",
+    "remove_from_cart"
+   ]
+  },
+  {
+   "id": "item_unavailable",
+   "meaning": "the platform asserts that an item in the selection is no longer available for purchase",
+   "source": "authoritative",
+   "entity": "an item in the selection",
+   "commonMappings": [
+    "out_of_stock",
+    "product_unavailable"
+   ]
+  },
+  {
+   "id": "price_changed",
+   "meaning": "the platform asserts a price change on an item in the selection",
+   "source": "authoritative",
+   "entity": "an item in the selection",
+   "commonMappings": [
+    "price_update"
+   ]
+  },
+  {
+   "id": "interest_signal_recorded",
+   "meaning": "attributed attention to an item, category or search that meets the company's qualification rule for interest - repeated, recent, and not followed by a selection or a process",
+   "source": "behavioral",
+   "entity": "the inferred interest",
+   "commonMappings": [
+    "view_item",
+    "view_item_list",
+    "search",
+    "ViewContent"
+   ]
+  }
+ ]
 }

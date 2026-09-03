@@ -1,0 +1,672 @@
+{
+ "id": "ACQ-12",
+ "shortName": "Abandoned Selection Recovery",
+ "strategy": "progressive-recovery",
+ "primitivesUsed": [
+  "entry",
+  "holdout",
+  "condition",
+  "state-update",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "persistent holdout",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.selected",
+   "event": "selection_recorded",
+   "meaning": "a selection is recorded against the person in the system of record without a process being started",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "the identity behind the selection resolves to a person we may contact",
+    "the selection holds at least one item the platform currently asserts as available",
+    "the selection has not been carried into a process, and no process is open for its items",
+    "no recovery instance is already open for this selection",
+    "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
+   ],
+   "instanceKey": [
+    "person_id",
+    "selection_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "holdout",
+   "node": "t.selected",
+   "unit": "instance",
+   "share": {
+    "key": "selection.holdout_share",
+    "default": 10,
+    "basis": "example-only",
+    "required": false
+   },
+   "persistent": true
+  },
+  {
+   "type": "condition",
+   "node": "c.eligible",
+   "asks": "Can this selection be recovered for this person at all?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": "selection state, identity resolution, permission record",
+     "test": "the identity resolves to a contactable person, at least one item is available, no process is open for the items, no instance is open for this selection, and commercial recovery permission is recorded",
+     "to": "a.open"
+    },
+    {
+     "label": "Not eligible",
+     "observes": "selection state, identity resolution, permission record",
+     "test": "any of those fails - the reason is recorded as the no-action reason",
+     "to": "x.no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.open",
+   "does": "Open the recovery instance against the selection and start the clock from the last activity on it. Activity before the first touch moves the clock; nothing after the first touch extends any window",
+   "writes": [
+    {
+     "field": "recovery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.open",
+   "key": "selection_id"
+  },
+  {
+   "type": "wait",
+   "node": "w.settle",
+   "timing": {
+    "key": "selection.first_check",
+    "class": "recovery-window",
+    "default": {
+     "min": "1 hour",
+     "max": "4 hours"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "last_selection_activity_at",
+   "onTimeout": "c.state"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.settle",
+   "cancelOn": [
+    {
+     "event": "selection_converted",
+     "meaning": "an order or completion is recorded that includes at least one item from the selection"
+    },
+    {
+     "event": "selection_cleared",
+     "meaning": "every item was removed from the selection by the person, or the selection was deleted"
+    },
+    {
+     "event": "process_started",
+     "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state"
+    },
+    {
+     "event": "selection_changed",
+     "meaning": "an item was added to or removed from the selection while at least one item remains"
+    }
+   ],
+   "onEvent": "c.state"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.settle",
+   "reads": "the selection re-read from the system of record: items present, each item's availability and price as the platform asserts them, no order placed, no process opened",
+   "before": "c.state"
+  },
+  {
+   "type": "condition",
+   "node": "c.state",
+   "asks": "What is the selection now?",
+   "branches": [
+    {
+     "label": "Converted",
+     "observes": "selection_converted",
+     "test": "an order including any item from the selection is recorded",
+     "to": "x.converted"
+    },
+    {
+     "label": "Cleared",
+     "observes": "selection_cleared",
+     "test": "the person removed every item or deleted the selection",
+     "to": "x.invalid"
+    },
+    {
+     "label": "Carried into a process",
+     "observes": "process_started",
+     "test": "a process was started from the selection",
+     "to": "h.process"
+    },
+    {
+     "label": "Changed, still held",
+     "observes": "selection_changed",
+     "test": "an item was added or removed and at least one remains - the person is still deciding",
+     "to": "a.rearm"
+    },
+    {
+     "label": "Still held",
+     "observes": "selection state",
+     "test": "the selection stands as it was",
+     "to": "c.availability"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.rearm",
+   "does": "Record the change and re-arm the first wait from the new last activity, a bounded number of times. A person still editing a selection is deciding, not forgetting",
+   "writes": [
+    {
+     "field": "recovery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": {
+    "key": "selection.change_rearms",
+    "default": 2,
+    "basis": "corpus-rule",
+    "required": false
+   }
+  },
+  {
+   "type": "condition",
+   "node": "c.availability",
+   "asks": "Can any of it still be acted on?",
+   "branches": [
+    {
+     "label": "At least one item available",
+     "observes": "item availability",
+     "test": "the platform asserts at least one selected item as available",
+     "to": "c.sendable"
+    },
+    {
+     "label": "Nothing available",
+     "observes": "item_unavailable",
+     "test": "the platform asserts every selected item as unavailable",
+     "to": "x.unavailable"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable",
+   "asks": "May the first touch go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8",
+     "test": "the send path passes: permission for commercial recovery, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+     "to": "a.touch1"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded as the reason",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-no-action",
+   "does": "Record which gate stopped the touch and against which selection, so no-action is a measured outcome rather than a silent absence",
+   "writes": [
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch1",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "selection.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "below process recovery - a process in motion outranks a held selection; above interest recovery and predicted-need replenishment for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.converted",
+    "s.process",
+    "s.cleared",
+    "s.unavailable-shown",
+    "s.permission",
+    "s.contest",
+    "s.cooldown"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch1",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "low-friction",
+     "channels": [
+      "push",
+      "in-app"
+     ],
+     "eligibleWhen": "an app session or a valid push token exists for this person - the selection is recent and a nudge back beats content"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no low-friction route exists, or the touch has to carry the items as they stand and survive until the person can act"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch1",
+   "touch": "t1",
+   "stage": "initial-recovery",
+   "purpose": "The selection as it currently stands - only the items still available - and the link that reopens it. Nothing the system does not assert.",
+   "brief": "Show the selection as it stands now - only the items the platform asserts as available - and give the link that reopens it. Claim nothing the system does not assert: no reserved stock, no held price, no discount, no expiry",
+   "destination": {
+    "target": "selection-resume",
+    "boundTo": "selection_id",
+    "mustNotClaim": [
+     "stock is reserved",
+     "the price is held",
+     "a discount applies",
+     "an expiry"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.state",
+    "c.availability",
+    "c.sendable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch1",
+   "key": "selection_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.second",
+   "timing": {
+    "key": "selection.second_check",
+    "class": "recovery-window",
+    "default": {
+     "min": "2 days",
+     "max": "4 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.state2"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.second",
+   "cancelOn": [
+    {
+     "event": "selection_converted",
+     "meaning": "an order or completion is recorded that includes at least one item from the selection"
+    },
+    {
+     "event": "selection_cleared",
+     "meaning": "every item was removed from the selection by the person, or the selection was deleted"
+    },
+    {
+     "event": "process_started",
+     "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state"
+    },
+    {
+     "event": "item_unavailable",
+     "meaning": "the platform asserts that an item in the selection is no longer available for purchase"
+    },
+    {
+     "event": "price_changed",
+     "meaning": "the platform asserts a price change on an item in the selection"
+    }
+   ],
+   "onEvent": "c.state2"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.second",
+   "reads": "the selection re-read from the system of record, plus whether any held item changed in availability or price since the first touch",
+   "before": "c.state2"
+  },
+  {
+   "type": "condition",
+   "node": "c.state2",
+   "asks": "What is the selection now, and did anything about it change?",
+   "branches": [
+    {
+     "label": "Converted",
+     "observes": "selection_converted",
+     "test": "an order including any item from the selection is recorded",
+     "to": "x.converted"
+    },
+    {
+     "label": "Cleared",
+     "observes": "selection_cleared",
+     "test": "the person removed every item or deleted the selection",
+     "to": "x.invalid"
+    },
+    {
+     "label": "Carried into a process",
+     "observes": "process_started",
+     "test": "a process was started from the selection",
+     "to": "h.process"
+    },
+    {
+     "label": "Nothing available",
+     "observes": "item_unavailable",
+     "test": "the platform now asserts every selected item as unavailable",
+     "to": "x.unavailable"
+    },
+    {
+     "label": "Still held",
+     "observes": "selection state, price_changed, item_unavailable",
+     "test": "at least one item is still held and available, changed or not",
+     "to": "c.sendable2"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable2",
+   "asks": "May the second touch go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8, touch budget",
+     "test": "the send path passes and the touch budget is not spent",
+     "to": "a.touch2"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch2",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "selection.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "below process recovery - a process in motion outranks a held selection; above interest recovery and predicted-need replenishment for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.converted",
+    "s.process",
+    "s.cleared",
+    "s.unavailable-shown",
+    "s.permission",
+    "s.contest",
+    "s.cooldown"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch2",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no low-friction route exists, or the touch has to carry the items as they stand and survive until the person can act"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push",
+      "in-app"
+     ],
+     "eligibleWhen": "an app session or a valid push token exists for this person - the selection is recent and a nudge back beats content"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch2",
+   "touch": "t2",
+   "stage": "follow-up",
+   "purpose": "The selection again, with any genuine change the platform asserts on an item still held - a restored availability, a changed price - and the same link. No urgency the system does not assert.",
+   "brief": "Show the selection again with any genuine change the platform asserts on a held item - availability restored, price changed - and the same link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
+   "destination": {
+    "target": "selection-resume",
+    "boundTo": "selection_id",
+    "mustNotClaim": [
+     "stock is reserved",
+     "the price is held",
+     "a discount applies",
+     "an expiry"
+    ]
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [
+    "c.state2",
+    "c.sendable2"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch2",
+   "key": "selection_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "selection.lifetime",
+    "class": "recovery-window",
+    "default": {
+     "min": "7 days",
+     "max": "14 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "c.state3"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "selection_converted",
+     "meaning": "an order or completion is recorded that includes at least one item from the selection"
+    },
+    {
+     "event": "selection_cleared",
+     "meaning": "every item was removed from the selection by the person, or the selection was deleted"
+    },
+    {
+     "event": "process_started",
+     "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state"
+    }
+   ],
+   "onEvent": "c.state3"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the selection re-read from the system of record at the end of the lifetime",
+   "before": "c.state3"
+  },
+  {
+   "type": "condition",
+   "node": "c.state3",
+   "asks": "At the end of the recovery lifetime, what is the selection?",
+   "branches": [
+    {
+     "label": "Converted",
+     "observes": "selection_converted",
+     "test": "an order including any item from the selection is recorded",
+     "to": "x.converted"
+    },
+    {
+     "label": "Cleared",
+     "observes": "selection_cleared",
+     "test": "the person removed every item or deleted the selection",
+     "to": "x.invalid"
+    },
+    {
+     "label": "Carried into a process",
+     "observes": "process_started",
+     "test": "a process was started from the selection",
+     "to": "h.process"
+    },
+    {
+     "label": "Still held",
+     "observes": "selection state",
+     "test": "the selection stands; nothing further is sent",
+     "to": "x.lapsed"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.converted",
+   "class": "success",
+   "state": "converted; an order including a selected item is recorded",
+   "reEntry": "a new selection is a new instance; this one is closed as converted"
+  },
+  {
+   "type": "exit",
+   "node": "x.invalid",
+   "class": "invalid-state",
+   "state": "cleared by the person; nothing further is sent",
+   "reEntry": "a new selection is a new instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.unavailable",
+   "class": "invalid-state",
+   "state": "every selected item unavailable; nothing is sent about items that cannot be acted on",
+   "reEntry": "availability restored is an authoritative event for a later availability journey, not a re-entry here"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-action",
+   "class": "no-action",
+   "state": "no touch sent; the gate that stopped it is recorded",
+   "reEntry": "a new selection is a new instance, subject to the cooldown when this one lapsed or was suppressed"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "recovery lifetime passed with the selection still held; nothing further is sent",
+   "reEntry": "a new selection is a new instance, and enters silently while the cooldown runs"
+  },
+  {
+   "type": "handoff",
+   "node": "h.process",
+   "to": "ACQ-11",
+   "on": "a process started from the selection - the process owns recovery from that moment",
+   "carries": [
+    "the selection and its items",
+    "the recovery touches already sent for the selection, so the process plan counts them against the person"
+   ],
+   "suppresses": [
+    "every queued recovery touch for this selection"
+   ],
+   "contract": {
+    "requiredFields": [
+     "selection_id",
+     "person_id",
+     "logical_process_id",
+     "touches_sent"
+    ]
+   }
+  }
+ ]
+}
