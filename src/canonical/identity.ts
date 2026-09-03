@@ -2058,7 +2058,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the recovery basis available and read the account's current security state. What is happening on the account changes what recovery is allowed to do",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "c.incident",
-        idempotencyKey: "issue_id + account_id + a.basis",
+        idempotencyKey: "recovery_case_id + a.basis",
       },
       {
         id: "c.incident",
@@ -2085,7 +2085,9 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the recovery request and what the requester has offered",
           "the fact that recovery is coordinated by the incident rather than run alongside it - a parallel recovery is exactly the path an attacker would take",
+          "the incident_id of the account's already-open IDN-90 instance, resolved via account_id - this handoff joins that existing incident rather than opening a new one",
         ],
+        contract: { requiredFields: ["incident_id"] },
       },
       {
         id: "a.evidence",
@@ -2093,7 +2095,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Collect only the evidence this recovery basis requires. Recovery is not an opportunity to gather more than normal authentication would, and it must not be an easier route to the same access than the one it replaces - it exists for the case where normal authentication has already failed, which makes it the door an attacker reaches for first",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "w.proof",
-        idempotencyKey: "issue_id + account_id + a.evidence",
+        idempotencyKey: "recovery_case_id + a.evidence",
       },
       {
         id: "w.proof",
@@ -2152,7 +2154,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "a.replace",
-        idempotencyKey: "issue_id + account_id + a.invalidate",
+        idempotencyKey: "recovery_case_id + a.invalidate",
       },
       {
         id: "a.replace",
@@ -2160,7 +2162,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Establish secure replacement access at the assurance this account requires",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "a.verify",
-        idempotencyKey: "issue_id + account_id + a.replace",
+        idempotencyKey: "recovery_case_id + a.replace",
       },
       {
         id: "a.verify",
@@ -2168,7 +2170,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Verify the recovered state: that the intended access works, and that the invalidated credentials genuinely no longer do. The second half is the one that gets skipped",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "x.recovered",
-        idempotencyKey: "issue_id + account_id + a.verify",
+        idempotencyKey: "recovery_case_id + a.verify",
       },
       {
         id: "x.recovered",
@@ -2296,6 +2298,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "requested_value",
           "verification_policy",
           "dependents",
+          "change_origin",
+          "change_version",
           "identity_change_log"
         ],
         "optional": []
@@ -2359,7 +2363,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the attribute's sensitivity and what verification the change requires. Changing a display name and changing a legal name are not the same operation, and neither is changing a recovery address",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "c.verification",
-        idempotencyKey: "account_id + person_id + a.sensitivity",
+        idempotencyKey: "account_id + attribute_id + a.sensitivity",
       },
       {
         id: "c.verification",
@@ -2455,15 +2459,15 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the authoritative identity record, preserving the previous value where policy permits, the new value, when it took effect, the source, and the verification evidence and status. Identity history is not silently overwritten where auditability is required - what someone was called, and when that changed, is often the whole question later",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "a.propagate",
-        idempotencyKey: "account_id + person_id + a.update",
+        idempotencyKey: "account_id + attribute_id + a.update",
       },
       {
         id: "a.propagate",
         kind: "action",
-        does: "Propagate to dependent systems carrying origin and version, so a stale update arriving late cannot restore the previous value",
+        does: "Propagate to dependent systems carrying change_origin and change_version, so a stale update arriving late cannot restore the previous value",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "c.dependents",
-        idempotencyKey: "account_id + person_id + a.propagate",
+        idempotencyKey: "account_id + attribute_id + a.propagate",
       },
       {
         id: "c.dependents",
@@ -2488,7 +2492,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Re-evaluate each dependent independently. A new email address inherits neither the old one's deliverability nor its consent - the new address starts with its own contactability state and its own permission, both empty unless policy explicitly says otherwise. Credentials tied to the old value are assessed on their own terms, and so are permissions that rested on it",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "x.reconciled",
-        idempotencyKey: "account_id + person_id + a.reconcile",
+        idempotencyKey: "account_id + attribute_id + a.reconcile",
       },
       {
         id: "x.reconciled",
@@ -2544,6 +2548,13 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "Suspension restricts for a stated business reason and expects to be resolved by that reason going away. This restricts on incomplete evidence about an adversary, which is why it opens an investigation rather than a review.",
       },
     ],
+    competition: {
+      scope: "account",
+      exclusionGroup: "account-restriction-authority",
+      precedence:
+        "highest in the group - a suspected compromise is the more urgent, safety-critical question, and a concurrent business-reason suspension (ACC-78) on the same account pauses rather than resolving independently while this investigation is open",
+      onLoss: "paused",
+    },
     objective: "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
     eligibility: [
       "a material signal: a credential-theft indication, an unauthorised sensitive change, a credible report from the owner, a high-confidence detection, or a suspicious session combined with a consequential action",
@@ -2741,7 +2752,9 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "what was revoked and what was corrected",
           "the explicit instruction that access is rebuilt from current valid state - a snapshot taken before the incident would restore exactly the credentials the incident was about",
+          "a restoration_case_id minted at this handoff, deterministically derived from incident_id and the confirmed-compromise outcome, so ACC-79 can construct its own instance without inventing one",
         ],
+        contract: { requiredFields: ["account_id", "restoration_case_id"] },
       },
       {
         id: "a.cleared",
@@ -2759,7 +2772,9 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "which capabilities were restricted and for how long",
           "the instruction to revalidate rather than replay - the previous capability set is history even when nothing was actually wrong",
+          "a restoration_case_id minted at this handoff, deterministically derived from incident_id and the cleared outcome, so ACC-79 can construct its own instance without inventing one",
         ],
+        contract: { requiredFields: ["account_id", "restoration_case_id"] },
       },
       {
         id: "c.inconclusive",

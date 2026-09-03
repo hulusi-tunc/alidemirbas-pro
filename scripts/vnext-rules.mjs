@@ -103,6 +103,21 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
         if (w.timeout.relativeTo === "attribute" && !w.timeout.attribute) err("timing_unclassified", j.id, `wait "${w.id}" is attribute-relative but names no attribute`);
       } else err("wait_no_timeout", j.id, `wait "${w.id}" has an unreadable timeout`);
       if (w.windowExtendsOnEngagement === true) sev("engagement_extends_window", `wait "${w.id}" lets engagement extend a bounded window`);
+      // ---- Validator E: revalidate-before-mutation (silent-lifecycle-state gap-closure round)
+      // Formalizes the house rule this round's audit found independently, correctly, and
+      // repeatedly across the corpus (SCH-177, SUB-162, SUB-168, SUB-169, SUB-166, TRM-105,
+      // TIM-62 and others): a scheduled action firing off a wait's timeout must revalidate
+      // authoritative current state before a consequential mutation, never trust the snapshot
+      // that was true when the wait was scheduled. `recheck` (an existing free-text WaitNode
+      // field, not new) is where the corpus already expresses this; this validator makes it a
+      // checked invariant instead of an unenforced convention, wherever a fired timeout leads
+      // to a state-mutating action (a write) or a handoff (an ownership transfer) rather than
+      // straight to a terminal-shaped exit with nothing left to get stale.
+      {
+        const target = byId[w.onTimeout];
+        const mutates = target && (target.kind === "handoff" || (target.kind === "action" && (target.writes ?? []).length));
+        if (mutates && !(typeof w.recheck === "string" && w.recheck.trim())) sev("wait_no_recheck_before_mutation", `wait "${w.id}" times out into "${w.onTimeout}", which mutates state or hands off ownership, with no recheck naming what gets re-read from authoritative state first`);
+      }
     }
 
     // ---- exits, instance, contracts
@@ -117,17 +132,22 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
     // Every field-shaped token in an idempotencyKey must be declared in implementation.attributes
     // or derived (written by some action in this journey's own graph) - not copy-pasted from a
     // different journey's template, which was the root cause behind FBK-47/FBK-49/IDN-81/IDN-84/
-    // ACC-261/ACC-263/IDN-270 and 29 others found by re-running this check corpus-wide. A bare
-    // action/node-id reference (`a.remind`) or a multi-word phrase (`touch id`, `fully signed`) is
-    // a self-scoping token, not a field claim, and is not checked. Severity follows `orchestrated`
-    // (the 68 message-sending + 3 human-routing journeys), not generic vnext status, so the
-    // remaining corpus-wide backlog in silent lifecycle states stays a warning until that round
-    // is explicitly scoped - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/.
+    // ACC-261/ACC-263/IDN-270 and 29 others in the communicating-journey round, and independently
+    // behind 37 of the 64 Silent Lifecycle States found and fixed in the follow-up round (see
+    // research/lifecycle-state-production-readiness/FIXES-APPLIED.md). A bare action/node-id
+    // reference (`a.remind`) or a multi-word phrase (`touch id`, `fully signed`) is a self-scoping
+    // token, not a field claim, and is not checked. Severity now follows `isCustomer && vnext`
+    // (every customer-surface journey - the 68 message-sending, the 3 human-routing, and the 64
+    // silent lifecycle states are all vNext-migrated), not `orchestrated`: the communicating round
+    // scoped this to `orchestrated` because the silent side had not been audited yet; the silent
+    // round closed that gap, so the distinction no longer needs to exist. Only mechanism/
+    // operational journeys remain warning-only backlog. See VALIDATOR-COVERAGE.md in both
+    // research/journey-production-readiness/ and research/lifecycle-state-production-readiness/.
     {
       const declared = new Set([...(j.implementation?.attributes?.required ?? []), ...(j.implementation?.attributes?.optional ?? [])]);
       const derived = new Set(j.nodes.flatMap((n) => (n.writes ?? []).map((w) => w.field)));
       const vocab = new Set([...declared, ...derived]);
-      const idemSev = (code, msg) => (orchestrated && vnext ? err : warn)(code, j.id, msg);
+      const idemSev = (code, msg) => (isCustomer && vnext ? err : warn)(code, j.id, msg);
       for (const n of j.nodes) {
         if (n.kind !== "action" || !n.idempotencyKey) continue;
         for (const part of n.idempotencyKey.split("+").map((s) => s.trim())) {
@@ -135,6 +155,59 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
           if (/^[a-z]\.[a-z0-9-]+$/.test(part)) continue;
           if (!/^[a-z][a-z0-9_]*$/.test(part)) continue;
           if (!vocab.has(part)) idemSev("idempotency_field_undeclared", `action "${n.id}" idempotencyKey references "${part}", which this journey neither declares in implementation.attributes nor derives via a writes step - "${n.idempotencyKey}"`);
+        }
+      }
+    }
+
+    // ---- Validator C: state-write idempotency (silent-lifecycle-state gap-closure round)
+    // A state-changing action - one that appends to a history/log field, the replay-unsafe write
+    // shape this whole corpus uses for durable state (see CLAUDE.md's canonical-journey section:
+    // `writes` with `mode: "append"`) - must declare an idempotencyKey, or a retried/redelivered
+    // trigger can duplicate the effect (a second identical log entry, a second suppression, a
+    // second state transition recorded as if it were a new one). A `mode: "set"` write is not
+    // flagged: setting a field to the same value twice is naturally idempotent, unlike appending
+    // the same entry twice. This is deliberately narrower than Validator A's own SIDE_EFFECT-prose
+    // heuristic (`tx_no_idempotency`, unchanged above) - it is a structural check against the
+    // node's own `writes` array, not a guess from the `does` text, so it has effectively no false-
+    // positive risk: an append with no key is never intentional in this corpus. Found and fixed
+    // three cases this round (SCH-174, SCH-177, TIM-65 - every writing action on all three had no
+    // idempotencyKey at all). Severity is scoped to this round's own corpus - the 64 silent
+    // lifecycle states (`isCustomer && !orchestrated`) - not the full customer surface: re-running
+    // this check corpus-wide also found the same defect shape in a handful of the 68 message-
+    // sending journeys (ACQ-11/12/13, RET-26/28/31/32, FBK-43/46, FIN-134, SUB-163, DOC-215), which
+    // is real, newly-discovered debt but out of this round's scope to fix (see this round's brief:
+    // "do NOT work on the 68 message-sending journeys again") - so it stays a warning there,
+    // reviewed in production/vnext-warning-reviews.json, for a future round in that domain.
+    {
+      const silentInScope = isCustomer && !orchestrated;
+      const stateSev = (code, msg) => (silentInScope && vnext ? err : warn)(code, j.id, msg);
+      for (const n of j.nodes) {
+        if (n.kind !== "action" || n.idempotencyKey) continue;
+        if ((n.writes ?? []).some((w) => w.mode === "append")) {
+          stateSev("state_write_without_idempotency", `action "${n.id}" appends to ${n.writes.filter((w) => w.mode === "append").map((w) => w.field).join(", ")} and declares no idempotencyKey - a retried trigger can duplicate the write`);
+        }
+      }
+    }
+
+    // ---- Validator D: composite instance-key component coverage (silent-lifecycle-state
+    // gap-closure round, review signal only - never an error)
+    // Where entity.instanceKey has more than one field, an action's idempotencyKey that omits one
+    // of those fields is not automatically wrong (a narrower scope can be intentional - see
+    // ACQ-06's a.evaluate, correctly keyed on its full composite instanceKey, versus a state that
+    // legitimately dedupes at a coarser grain than its own instance identity). But every real
+    // instance this round found (SCH-175 dropping reschedule_request_id, TRM-107 dropping
+    // closure_id) was a genuine defect, not an intentional narrowing, so this is worth a mechanical
+    // flag for a human to confirm rather than silence. Always a warning, corpus-wide, by design -
+    // promoting it to an error would require a schema addition letting a journey declare which
+    // composite-key components an action intentionally dedupes across, which does not exist today.
+    {
+      const key = j.entity?.instanceKey ?? [];
+      if (key.length > 1) {
+        for (const n of j.nodes) {
+          if (n.kind !== "action" || !n.idempotencyKey) continue;
+          const parts = new Set(n.idempotencyKey.split("+").map((s) => s.trim()));
+          const missing = key.filter((k) => !parts.has(k));
+          if (missing.length) warn("composite_instance_key_component_missing", j.id, `action "${n.id}" idempotencyKey "${n.idempotencyKey}" omits [${missing.join(", ")}] from entity.instanceKey [${key.join(", ")}] - confirm this narrower scope is intentional`);
         }
       }
     }

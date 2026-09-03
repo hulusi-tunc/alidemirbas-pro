@@ -262,7 +262,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the permission type, the purpose, the channel, the scope, the source, the time, and the evidence or consent-text version where one is required - the version matters, because what someone agreed to is the wording in front of them at the time",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "c.valid",
-        idempotencyKey: "consent_record_id + person_id + a.capture",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.capture",
       },
       {
         id: "c.valid",
@@ -292,7 +292,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record only the narrowest defensible reading, and flag the ambiguity so it can be resolved by asking rather than by assuming. Reading an unclear scope broadly is how one newsletter signup becomes a permission to send anything",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "c.existing",
-        idempotencyKey: "consent_record_id + person_id + a.narrow",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.narrow",
       },
       {
         id: "x.rejected",
@@ -326,7 +326,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reconcile against the prior record using the authoritative rules for this permission type, appending rather than replacing - the previous grant, its source and its version stay readable, because a permission history is the only defence of what was sent under it",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "x.active",
-        idempotencyKey: "consent_record_id + person_id + a.reconcile",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.reconcile",
       },
       {
         id: "a.activate",
@@ -334,7 +334,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Activate the permission for exactly the purpose, channel and scope captured, and nothing adjacent to them",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "x.active",
-        idempotencyKey: "consent_record_id + person_id + a.activate",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.activate",
       },
       {
         id: "x.active",
@@ -567,7 +567,9 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "declared_preferences",
           "suppressed_sends"
         ],
-        "optional": []
+        "optional": [
+          "adapted_sends"
+        ]
       }
     },
     measurement: {
@@ -664,7 +666,9 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.adapt",
         kind: "action",
         does: "Adapt the pending actions to the new preference before execution rather than after - adapting afterwards is called an apology",
+        writes: [{ field: "adapted_sends", mode: "append" }],
         next: "x.recalculated",
+        idempotencyKey: "person_id + a.adapt",
       },
       {
         id: "x.recalculated",

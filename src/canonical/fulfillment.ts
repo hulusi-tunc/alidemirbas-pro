@@ -219,7 +219,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "dependencies",
           "fulfillment_log"
         ],
-        "optional": []
+        "optional": [
+          "obligation_id"
+        ]
       }
     },
     measurement: {
@@ -276,7 +278,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the request id, the item or service, the quantity or scope, the recipient, the destination or context, the requested timing, the related transaction or contract, and the submission time",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "a.validate",
-        idempotencyKey: "order_id + obligation_id + a.capture",
+        idempotencyKey: "request_id + a.capture",
       },
       {
         id: "a.validate",
@@ -307,7 +309,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record REJECTED with the specific reason. No obligation is created - a hidden obligation behind a rejected request is one nobody is working and nobody knows exists, and it surfaces when the customer asks where their order is",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "x.rejected",
-        idempotencyKey: "order_id + obligation_id + a.reject",
+        idempotencyKey: "request_id + a.reject",
       },
       {
         id: "x.rejected",
@@ -340,7 +342,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record HOLD / PENDING_REQUIREMENT, naming the specific dependency. A held request is not an accepted one and creates no obligation while it waits",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.dependency",
-        idempotencyKey: "order_id + obligation_id + a.hold",
+        idempotencyKey: "request_id + a.hold",
       },
       {
         id: "w.dependency",
@@ -377,7 +379,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ACCEPTED and create the fulfillment obligation. This is where responsibility for delivery begins, and everything downstream is owed rather than merely requested",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.availability",
-        idempotencyKey: "order_id + obligation_id + a.accept",
+        idempotencyKey: "request_id + a.accept",
       },
       {
         id: "h.availability",
@@ -520,7 +522,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate authoritative availability against the relevant scope and time - the location that would serve this destination, the window that would meet this timing, the capability this service needs. Catalog availability is a statement about what we sell; allocatable availability is a statement about what can be committed to this obligation now",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.availability",
-        idempotencyKey: "obligation_id + person_id + a.evaluate",
+        idempotencyKey: "obligation_id + a.evaluate",
       },
       {
         id: "c.availability",
@@ -572,7 +574,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record BACKORDER / WAITING_CAPACITY, naming exactly what is missing and what would resolve it. The obligation stands - it is waiting on capacity rather than failing",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.capacity",
-        idempotencyKey: "obligation_id + person_id + a.backorder",
+        idempotencyKey: "obligation_id + a.backorder",
       },
       {
         id: "w.capacity",
@@ -618,7 +620,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FULFILLMENT_UNAVAILABLE with what could not be sourced and why",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.unavailable",
-        idempotencyKey: "obligation_id + person_id + a.unavailable",
+        idempotencyKey: "obligation_id + a.unavailable",
       },
       {
         id: "h.unavailable",
@@ -768,7 +770,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the allocation idempotently, storing the resource id, the quantity or capacity, the fulfillment it belongs to, the reservation time, its validity and its status. Idempotency is what stops a retried allocation consuming the resource twice - which is how a system oversells without anyone overselling anything",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "c.confirmed",
-        idempotencyKey: "order_id + obligation_id + a.reserve",
+        idempotencyKey: "allocation_id + a.reserve",
       },
       {
         id: "c.confirmed",
@@ -820,7 +822,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ALLOCATED with an explicit expiry or release condition. A reservation with no stated end holds scarce capacity against an obligation that may never consume it, and nobody discovers it until the capacity is needed",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "w.allocation",
-        idempotencyKey: "order_id + obligation_id + a.temporary",
+        idempotencyKey: "allocation_id + a.temporary",
       },
       {
         id: "a.allocated",
@@ -828,7 +830,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ALLOCATED, held until the obligation consumes it or explicitly releases it",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "w.allocation",
-        idempotencyKey: "order_id + obligation_id + a.allocated",
+        idempotencyKey: "allocation_id + a.allocated",
       },
       {
         id: "w.allocation",
@@ -890,7 +892,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the allocation, scoped strictly to this fulfillment's own reservation. A release that reaches a shared resource's other claims takes capacity from obligations that are still going ahead, and those failures appear somewhere else entirely",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "x.released",
-        idempotencyKey: "order_id + obligation_id + a.release",
+        idempotencyKey: "allocation_id + a.release",
       },
       {
         id: "x.released",
@@ -906,7 +908,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Expire the temporary reservation and return the capacity, recording that it lapsed rather than being consumed or released - three different endings that mean three different things about the obligation",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "x.expired",
-        idempotencyKey: "order_id + obligation_id + a.expire",
+        idempotencyKey: "allocation_id + a.expire",
       },
       {
         id: "x.expired",
@@ -924,7 +926,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the obligation, the lost resource and what it was going to serve",
           "the rest of the allocation, which is unaffected and still held",
+          "a fresh exception_id minted at this handoff, deterministically derived from allocation_id and the lost resource, so FUL-145 can construct its own instance",
         ],
+        contract: { requiredFields: ["exception_id"] },
       },
     ],
     guardrails: [
@@ -1057,7 +1061,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record IN_FULFILLMENT and begin tracking meaningful progress where the obligation's scope requires it",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.execution",
-        idempotencyKey: "order_id + obligation_id + a.in-fulfillment",
+        idempotencyKey: "obligation_id + a.in-fulfillment",
       },
       {
         id: "w.execution",
@@ -1124,7 +1128,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FULFILLED - meaning the obligation's scope is satisfied, not that an internal task returned success. Where the business outcome the task was meant to produce has not been confirmed, the task finishing is not fulfillment",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.dispatch",
-        idempotencyKey: "order_id + obligation_id + a.fulfilled",
+        idempotencyKey: "obligation_id + a.fulfilled",
       },
       {
         id: "c.dispatch",
@@ -1151,14 +1155,21 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the obligation, the recipient and the destination",
           "the explicit fact that dispatch transfers execution and not the obligation - it stays ours and stays unresolved",
+          "a fresh dispatch_id minted at this handoff, deterministically derived from obligation_id and the executor it was handed to, so FUL-147 can construct its own instance",
         ],
+        contract: { requiredFields: ["dispatch_id"] },
       },
       {
         id: "h.confirm",
         kind: "handoff",
         to: "FUL-149",
         on: "fulfillment whose completion is itself the delivery",
-        carries: ["the obligation and the scope satisfied", "the evidence that it reached the recipient"],
+        carries: [
+          "the obligation and the scope satisfied",
+          "the evidence that it reached the recipient",
+          "a fresh delivery_id minted at this handoff, deterministically derived from obligation_id and the confirmed-delivery evidence, so FUL-149 can construct its own instance",
+        ],
+        contract: { requiredFields: ["obligation_id", "delivery_id"] },
       },
       {
         id: "a.partial",
@@ -1166,7 +1177,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PARTIALLY_FULFILLED and identify exactly what remains owed. The completed scope is preserved - marking the whole obligation failed when a confirmed part succeeded destroys work that was actually done and delivered",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "x.partial",
-        idempotencyKey: "order_id + obligation_id + a.partial",
+        idempotencyKey: "obligation_id + a.partial",
       },
       {
         id: "x.partial",
@@ -1185,7 +1196,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the exception and the scope it affects",
           "the scope already completed, which the exception does not touch",
+          "a fresh exception_id minted at this handoff, deterministically derived from obligation_id and the exception's own scope, so FUL-145 can construct its own instance",
         ],
+        contract: { requiredFields: ["exception_id"] },
       },
       {
         id: "a.failed",
@@ -1193,7 +1206,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FAILED_FULFILLMENT for the scope that could not be satisfied, preserving whatever was confirmed complete. The failure is scoped to what actually failed",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.remedy",
-        idempotencyKey: "order_id + obligation_id + a.failed",
+        idempotencyKey: "obligation_id + a.failed",
       },
       {
         id: "h.remedy",
@@ -2073,7 +2086,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist the handoff id, the executor, the recipient and destination, the handoff time, the tracking reference where one exists, and the expected delivery window. Record IN_DELIVERY - dispatched is not delivered, and the obligation stays unresolved throughout",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "w.delivery",
-        idempotencyKey: "order_id + obligation_id + a.persist",
+        idempotencyKey: "dispatch_id + a.persist",
       },
       {
         id: "w.delivery",
@@ -2129,7 +2142,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "h.reconcile",
-        idempotencyKey: "order_id + obligation_id + a.unknown",
+        idempotencyKey: "dispatch_id + a.unknown",
       },
       {
         id: "h.reconcile",
@@ -2143,7 +2156,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         suppresses: ["any re-dispatch of this obligation until its true state is established"],
         contract: {
           "requiredFields": [
-            "order_id",
+            "dispatch_id",
             "obligation_id",
             "handed_at",
             "reason"
@@ -2158,7 +2171,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the proof of delivery and when it was recorded",
           "the obligation, which delivery may or may not finish depending on whether acceptance applies",
+          "a fresh delivery_id minted at this handoff, deterministically derived from dispatch_id and the delivery confirmation, so FUL-149 can construct its own instance",
         ],
+        contract: { requiredFields: ["obligation_id", "delivery_id"] },
       },
       {
         id: "h.failed",
@@ -2745,7 +2760,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERED with the proof of delivery, which stays attached to the delivery history rather than being superseded by whatever finalisation follows",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.acceptance",
-        idempotencyKey: "order_id + person_id + a.record",
+        idempotencyKey: "obligation_id + delivery_id + a.record",
       },
       {
         id: "c.acceptance",
@@ -2843,7 +2858,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the delivery record and its proof",
           "what the recipient says is wrong, in their words",
+          "a fresh issue_id minted at this handoff, deterministically derived from obligation_id + delivery_id and the raised issue, so REM-151 can construct its own instance",
         ],
+        contract: { requiredFields: ["obligation_id", "issue_id"] },
       },
       {
         id: "a.finalize",
@@ -2851,7 +2868,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FINALIZED. This closes the fulfillment relationship and does not erase rights that policy independently provides afterwards - a warranty, a statutory return period or a service guarantee all survive finalisation and are not what this state was measuring",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "x.finalized",
-        idempotencyKey: "order_id + person_id + a.finalize",
+        idempotencyKey: "obligation_id + delivery_id + a.finalize",
       },
       {
         id: "x.finalized",

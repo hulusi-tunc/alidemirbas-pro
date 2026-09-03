@@ -2,8 +2,8 @@
   {
     "id": "ACC-71",
     "shortName": "Entitlement Qualification",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Grant/pending/denied split is sound and reconciliation prevents double-expiry, but every action's idempotencyKey references undeclared person_id instead of the real key (account_id + entitlement_key).",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Grant/pending/denied split is sound and reconciliation prevents double-expiry; all three idempotencyKeys now correctly reference the declared instance key (account_id + entitlement_key).",
     "stateAuthority": [
       {
         "decision": "entitlement_basis_evaluated_or_changed",
@@ -204,11 +204,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.evaluate/a.reconcile/a.grant idempotencyKeys reference undeclared person_id; real key is account_id + entitlement_key."
-      },
-      {
         "priority": "P2",
         "area": "correction",
         "finding": "Entity note references two expiries/two revocations as a failure mode reconciliation prevents, implying a revocation concept, but no revocation/correction path is modelled in this state itself."
@@ -218,8 +213,8 @@
   {
     "id": "ACC-78",
     "shortName": "Access Suspension",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Reversibility discipline (suspension is not termination, review-bound wait) is real, but idempotencyKeys reference undeclared person_id and h.restore into ACC-79 cannot construct the receiver's instance.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Reversibility discipline (suspension is not termination, review-bound wait) is real; idempotencyKeys now correctly reference account_id + capability_scope; h.restore now mints restoration_case_id deterministically at the handoff so ACC-79 can construct its instance; account-restriction-authority competition group with IDN-90 is now a structured ConflictRef, not prose.",
     "stateAuthority": [
       {
         "decision": "authoritative_suspension_decision",
@@ -417,7 +412,8 @@
         "target": "ACC-79",
         "requiredContext": [
           "which capabilities were blocked and why",
-          "the explicit instruction that restoration revalidates rather than replays - the previous capability set is history, not a target"
+          "the explicit instruction that restoration revalidates rather than replays - the previous capability set is history, not a target",
+          "a restoration_case_id minted at this handoff, deterministically derived from account_id + capability_scope + this suspension's own review outcome, so ACC-79 can construct its own instance without inventing one"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -486,20 +482,10 @@
       {
         "kind": "handoff",
         "given": "the condition for h.restore is met",
-        "expect": "ownership transfers to ACC-79 carrying: which capabilities were blocked and why; the explicit instruction that restoration revalidates rather than replays - the previous capability set is history, not a target"
+        "expect": "ownership transfers to ACC-79 carrying: which capabilities were blocked and why; the explicit instruction that restoration revalidates rather than replays - the previous capability set is history, not a target; a restoration_case_id minted at this handoff, deterministically derived from account_id + capability_scope + this suspension's own review outcome, so ACC-79 can construct its own instance without inventing one"
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.scope/a.preserve/a.full/a.extend idempotencyKeys reference undeclared person_id; real key is account_id + capability_scope."
-      },
-      {
-        "priority": "P0",
-        "area": "handoff",
-        "finding": "h.restore -> ACC-79 does not carry or mint restoration_case_id, which ACC-79's own entity.instanceKey requires."
-      },
       {
         "priority": "P2",
         "area": "observability",
@@ -510,8 +496,8 @@
   {
     "id": "ACC-79",
     "shortName": "Capability Restoration",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Cleanest re-evaluate-from-current-state design in the batch, but its own idempotencyKeys use undeclared person_id and it is the target of two malformed upstream handoffs.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Cleanest re-evaluate-from-current-state design in the batch; idempotencyKeys now correctly reference account_id + restoration_case_id; the receiving end of both upstream handoffs (ACC-78, FIN-136, plus IDN-90's two handoffs) is resolved now that all four senders mint restoration_case_id under one documented convention recorded in this journey's own entity.note.",
     "stateAuthority": [
       {
         "decision": "restoration_condition_satisfied",
@@ -525,7 +511,7 @@
         "restoration_case_id"
       ],
       "dedupePolicy": "reject-duplicate",
-      "concurrencyNote": "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities."
+      "concurrencyNote": "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities. restoration_case_id is minted by whichever journey initiates eligibility for restoration - a suspension ending, a balance reconciling, a security incident clearing - deterministically from that journey's own instance identity, and carried explicitly in its handoff's contract.requiredFields rather than assumed."
     },
     "requiredData": [
       {
@@ -662,24 +648,13 @@
         "expect": "no instance opens"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.reevaluate/a.restore-full/a.restore-subset idempotencyKeys reference undeclared person_id; real key is account_id + restoration_case_id."
-      },
-      {
-        "priority": "P1",
-        "area": "instance",
-        "finding": "Receiving end of ACC-78's and FIN-136's h.restore handoffs, neither of which can mint restoration_case_id; not this state's own defect but its own key can't be satisfied by either caller."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "ACQ-01",
     "shortName": "Anonymous Identity Resolution",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Deterministic-only merging is sound, but a.reconcile keys on account_id/person_id which do not exist anywhere in this state's own data model pre-resolution, and h.qualification does not carry ACQ-05's lead_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Deterministic-only merging is sound; a.reconcile's idempotencyKey now correctly keys on anonymous_profile_id, the only identifier that actually exists pre-resolution; h.qualification now mints a fresh lead_id at the handoff, deterministically derived from the reconciled profile's own account/person identity.",
     "stateAuthority": [
       {
         "decision": "anonymous_intent_threshold_reached",
@@ -810,7 +785,8 @@
         "requiredContext": [
           "the reconciled intent history, including the pre-identity portion",
           "which signals crossed the threshold and when",
-          "the identity resolution method, so a later dispute can be traced"
+          "the identity resolution method, so a later dispute can be traced",
+          "a fresh lead_id, minted at this handoff from the reconciled profile's own account/person identity, since no lead concept exists prior to this point"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -864,27 +840,16 @@
       {
         "kind": "handoff",
         "given": "the condition for h.qualification is met",
-        "expect": "ownership transfers to ACQ-05 carrying: the reconciled intent history, including the pre-identity portion; which signals crossed the threshold and when; the identity resolution method, so a later dispute can be traced"
+        "expect": "ownership transfers to ACQ-05 carrying: the reconciled intent history, including the pre-identity portion; which signals crossed the threshold and when; the identity resolution method, so a later dispute can be traced; a fresh lead_id, minted at this handoff from the reconciled profile's own account/person identity, since no lead concept exists prior to this point"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.reconcile's idempotencyKey references account_id and person_id, neither of which exists in this state's data model at any point; correct key is almost certainly anonymous_profile_id + a.reconcile."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.qualification -> ACQ-05 does not carry or visibly mint lead_id, ACQ-05's own instance key."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "ACQ-02",
     "shortName": "Interest Qualification Routing",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Clean three-way router with permission carried, not inferred; a.record's idempotencyKey references undeclared account_id (one-line fix, but an unresolved P0 by this audit's methodology).",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Clean three-way router with permission carried, not inferred; a.record's idempotencyKey now correctly keys on lead_id.",
     "stateAuthority": [
       {
         "decision": "first_party_interest_captured",
@@ -1066,13 +1031,7 @@
         "expect": "ownership transfers to external:destination-lifecycle carrying: the capture source and the declared context; the specific destination requested, so the receiving lifecycle does not re-ask; the permission state exactly as captured, including its absence"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.record's idempotencyKey references undeclared account_id; real key is lead_id + a.record."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "ACQ-03",
@@ -1263,8 +1222,8 @@
   {
     "id": "ACQ-05",
     "shortName": "Qualification State Routing",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Strongest correction discipline in its batch (append-only qualification history, no invented recycle schedule); all three actions key on undeclared account_id instead of lead_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Strongest correction discipline in its batch (append-only qualification history, no invented recycle schedule); all three actions now correctly key on lead_id.",
     "stateAuthority": [
       {
         "decision": "qualification_state_changed",
@@ -1577,19 +1536,13 @@
         "expect": "ownership transfers to external:commercial-destination carrying: the qualification history, including anything that previously disqualified this account and was resolved; the entity the qualification applies to"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.read/a.mark-recycle/a.requalify idempotencyKeys reference undeclared account_id; real key is lead_id + <action>."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "ACQ-06",
     "shortName": "Eligibility Recalculation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Best-designed correction boundary in the batch (a.reconcile flags, never reverses, an outstanding commitment); same idempotencyKey defect as its siblings.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Best-designed correction boundary in the batch (a.reconcile flags, never reverses, an outstanding commitment); all three actions now correctly key on entity_ref + rule_id.",
     "stateAuthority": [
       {
         "decision": "eligibility_inputs_changed_or_reevaluated",
@@ -1771,13 +1724,7 @@
         "expect": "ownership transfers to external:commitment-reconciliation carrying: the failing rule and the input that changed; the commitment in question and when it was granted; the fact that no automatic cancellation has been applied"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.evaluate/a.reconcile/a.block idempotencyKeys reference undeclared account_id/person_id; real key is entity_ref + rule_id + <action>."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "ACQ-07",
@@ -2022,8 +1969,8 @@
   {
     "id": "ACQ-08",
     "shortName": "Acquisition Exit Handoff",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Correct highest-precedence half of the purchase-intent competition group; a.scope/a.suppress key on undeclared contact_point_id instead of the real composite key.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Correct highest-precedence half of the purchase-intent competition group; a.scope/a.suppress now correctly key on person_id + destination_entity_id; h.next's own contract corrected to match.",
     "stateAuthority": [
       {
         "decision": "authoritative_destination_event",
@@ -2184,19 +2131,13 @@
         "expect": "ownership transfers to external:next-lifecycle carrying: the destination entity; which acquisition journeys were closed and why, so the receiving lifecycle knows what was already said; the intent history that led here"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.scope/a.suppress idempotencyKeys reference undeclared contact_point_id; real key is person_id + destination_entity_id + <action>."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "ACQ-10",
     "shortName": "Commercial Decline Routing",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Most careful reason-preservation discipline in its batch (append-only decline history, honest cooldown with no invented re-entry date); a.capture keys on undeclared account_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Most careful reason-preservation discipline in its batch (append-only decline history, honest cooldown with no invented re-entry date); a.capture now correctly keys on lead_id + decline_id.",
     "stateAuthority": [
       {
         "decision": "explicit_decline_or_authoritative_lost_outcome",
@@ -2466,19 +2407,13 @@
         "expect": "ownership transfers to ACQ-07 carrying: the fact that no decision was made, so nothing downstream reads this as a refusal; the intent history, which is now the stale evidence decay is about"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.capture's idempotencyKey references undeclared account_id; real key is lead_id + decline_id + a.capture."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "ACT-16",
     "shortName": "Onboarding Completion Handoff",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "Activation never inferred from message engagement; invalidation reaches queued sends; all three idempotencyKeys correctly formed.",
+    "readinessWhy": "Activation never inferred from message engagement; invalidation reaches queued sends; all three idempotencyKeys correctly formed; h.adoption now mints use_case_id explicitly at the handoff instead of leaving it implicit.",
     "stateAuthority": [
       {
         "decision": "authoritative_core_activation_event",
@@ -2601,7 +2536,8 @@
         "requiredContext": [
           "which event activated the account",
           "what was left unfinished, since activation is not mastery and adoption may still need it",
-          "any operational requirement spun off separately"
+          "any operational requirement spun off separately",
+          "the use_case_id the activating event implies, minted at this handoff since no use-case concept exists prior to activation"
         ],
         "ownershipTransfer": true,
         "suppressSource": true
@@ -2645,22 +2581,16 @@
       {
         "kind": "handoff",
         "given": "the condition for h.adoption is met",
-        "expect": "ownership transfers to ACT-17 carrying: which event activated the account; what was left unfinished, since activation is not mastery and adoption may still need it; any operational requirement spun off separately"
+        "expect": "ownership transfers to ACT-17 carrying: which event activated the account; what was left unfinished, since activation is not mastery and adoption may still need it; any operational requirement spun off separately; the use_case_id the activating event implies, minted at this handoff since no use-case concept exists prior to activation"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.adoption -> ACT-17 does not visibly carry use_case_id, which ACT-17's own instance key includes; whether ACT-17 mints it is plausible but unconfirmed."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "CON-31",
     "shortName": "Permission Validation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Permission-vs-consent separation is sound, but all four actions key on undeclared consent_record_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Permission-vs-consent separation is sound; all four actions now correctly key on the declared consent instance key.",
     "stateAuthority": [
       {
         "decision": "explicit_permission_decision_received",
@@ -2830,13 +2760,7 @@
         "expect": "no instance opens"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "All four actions' idempotencyKeys reference undeclared consent_record_id; real key is the declared instance key."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "CON-32",
@@ -2981,8 +2905,8 @@
   {
     "id": "CON-33",
     "shortName": "Preference Recalculation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Preference-recalculation correction boundary is sound, but a.adapt has no idempotencyKey and no writes at all despite being a state-changing action.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Preference-recalculation correction boundary is sound; a.adapt now declares writes and an idempotencyKey like every other state-changing action in the graph, and adapted actions are now tracked as data via the new adapted_sends attribute.",
     "stateAuthority": [
       {
         "decision": "authoritative_preference_changed",
@@ -3011,6 +2935,11 @@
       {
         "field": "suppressed_sends",
         "required": true,
+        "usedBy": "actions"
+      },
+      {
+        "field": "adapted_sends",
+        "required": false,
         "usedBy": "actions"
       }
     ],
@@ -3094,7 +3023,8 @@
     "observability": {
       "enteredBy": "declared_preferences",
       "evidenceRefs": [
-        "suppressed_sends"
+        "suppressed_sends",
+        "adapted_sends"
       ]
     },
     "outcomes": {
@@ -3117,18 +3047,7 @@
         "expect": "no instance opens"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.adapt has no idempotencyKey and no writes, despite being a state-changing action in the graph."
-      },
-      {
-        "priority": "P2",
-        "area": "observability",
-        "finding": "Adapted actions are not tracked as data anywhere."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "CON-38",
@@ -3312,7 +3231,7 @@
     "id": "FBK-48",
     "shortName": "Declared Context Recalculation",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "No idempotency gap; a.volatile's revalidation condition has no bound attribute/ConfigRef despite the graph's own text requiring one.",
+    "readinessWhy": "No idempotency gap; a.volatile's revalidation condition has no bound attribute/ConfigRef despite the graph's own text requiring one -- unchanged from round 1: binding a Config to this condition is a company-specific value this round does not invent.",
     "stateAuthority": [
       {
         "decision": "relevant_context_explicitly_declared",
@@ -3478,7 +3397,7 @@
     "id": "FBK-50",
     "shortName": "Relationship State Reassessment",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "Mostly clean idempotency; minor observability and config gaps only.",
+    "readinessWhy": "Mostly clean idempotency; minor observability and config gaps only, unchanged from round 1.",
     "stateAuthority": [
       {
         "decision": "meaningful_relationship_signal",
@@ -3672,7 +3591,7 @@
     "id": "FIN-131",
     "shortName": "Financial Obligation Tracking",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "Cleanest obligation-vs-attempt separation in the corpus; all three idempotencyKeys correctly formed; only a documentation gap.",
+    "readinessWhy": "Cleanest obligation-vs-attempt separation in the corpus; all three idempotencyKeys correctly formed; only a documentation gap, unchanged from round 1.",
     "stateAuthority": [
       {
         "decision": "financial_obligation_created",
@@ -3899,8 +3818,8 @@
   {
     "id": "FIN-136",
     "shortName": "Balance Reconciliation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Exactly-once discipline is explicit and structural; blocker is h.restore into ACC-79 missing restoration_case_id, a second independent instance of the same gap ACC-78 has.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Exactly-once discipline is explicit and structural; h.restore into ACC-79 now mints both account_id (resolved from the obligation record's own payer/account scope) and restoration_case_id at the handoff, closing the second independent instance of the ACC-79 provenance gap.",
     "stateAuthority": [
       {
         "decision": "authoritative_financial_event_against_obligation",
@@ -4043,7 +3962,8 @@
         "target": "ACC-79",
         "requiredContext": [
           "the obligation and the restriction it caused",
-          "the instruction to revalidate rather than replay - paying this does not restore capabilities that were suspended for their own separate reasons"
+          "the instruction to revalidate rather than replay - paying this does not restore capabilities that were suspended for their own separate reasons",
+          "the obligation's own account_id (resolved from the obligation record's payer/account, per its own entity scope), and a restoration_case_id minted at this handoff from obligation_id and the restriction it caused, so ACC-79 can construct its own instance without inventing either"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -4095,19 +4015,13 @@
         "expect": "ownership transfers to external:overpayment-or-credit carrying: the obligation, the amount applied and the excess, with its currency; the fact that the obligation is satisfied and the excess is a separate financial position"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "handoff",
-        "finding": "h.restore -> ACC-79 does not carry or mint restoration_case_id, which ACC-79's own instance key requires (second independent instance after ACC-78)."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "FUL-141",
     "shortName": "Fulfillment Request Validation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Sound validation model; all four actions key on undeclared order_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Sound validation model; all four actions now correctly key on order_id, and obligation_id is now formally declared as an optional derived attribute.",
     "stateAuthority": [
       {
         "decision": "fulfillment_request_submitted",
@@ -4151,6 +4065,11 @@
       {
         "field": "fulfillment_log",
         "required": true,
+        "usedBy": "actions"
+      },
+      {
+        "field": "obligation_id",
+        "required": false,
         "usedBy": "actions"
       }
     ],
@@ -4331,24 +4250,13 @@
         "expect": "ownership transfers to FUL-142 carrying: the obligation, its scope and its requested timing; the explicit fact that nothing has been reserved - acceptance is a promise, not a claim on capacity"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "All four actions' idempotencyKeys reference undeclared order_id; real key is the declared instance key."
-      },
-      {
-        "priority": "P2",
-        "area": "instance",
-        "finding": "obligation_id is used but not formally declared as a derived attribute."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "FUL-142",
     "shortName": "Fulfillment Allocation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Router pattern with a working race-condition resolution against FUL-143; a.evaluate/a.backorder/a.unavailable key on undeclared person_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Router pattern with a working race-condition resolution against FUL-143; a.evaluate/a.backorder/a.unavailable now correctly key on order_id.",
     "stateAuthority": [
       {
         "decision": "accepted_fulfillment_requires_resources",
@@ -4589,19 +4497,13 @@
         "expect": "ownership transfers to FUL-150 carrying: the obligation and what could not be sourced; the explicit fact that nothing has been allocated, so there is nothing to release - and that any financial consequence is a separate lifecycle"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.evaluate/a.backorder/a.unavailable idempotencyKeys reference undeclared person_id; real key is the declared instance key."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "FUL-143",
     "shortName": "Resource Reservation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "All five actions key on undeclared order_id; h.exception -> FUL-145 missing exception_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "All five actions now correctly key on order_id; h.exception -> FUL-145 now mints exception_id at the handoff.",
     "stateAuthority": [
       {
         "decision": "resource_selected_for_fulfillment",
@@ -4807,7 +4709,8 @@
         "target": "FUL-145",
         "requiredContext": [
           "the obligation, the lost resource and what it was going to serve",
-          "the rest of the allocation, which is unaffected and still held"
+          "the rest of the allocation, which is unaffected and still held",
+          "a fresh exception_id minted at this handoff, deterministically derived from allocation_id and the lost resource, so FUL-145 can construct its own instance"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -4872,24 +4775,13 @@
         "expect": "ownership transfers to FUL-142 carrying: the obligation and what it still needs; the fact that this is the concurrency the availability check cannot prevent, which is why the claim rather than the reading is what commits"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "All five actions' idempotencyKeys reference undeclared order_id; real key is the declared instance key."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.exception -> FUL-145 does not carry exception_id, FUL-145's own instance key."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "FUL-144",
     "shortName": "Fulfillment Execution",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Highest concentration of handoff gaps found in its batch: three separate missing-identifier gaps on top of a corpus-wide idempotency defect.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Highest concentration of handoff gaps found in round 1, all now closed: idempotencyKeys correctly key on order_id, and h.dispatch/h.confirm/h.exception each now mint their target's identifier (dispatch_id, delivery_id, exception_id respectively) at the handoff.",
     "stateAuthority": [
       {
         "decision": "fulfillment_execution_started",
@@ -5105,7 +4997,8 @@
         "target": "FUL-147",
         "requiredContext": [
           "the obligation, the recipient and the destination",
-          "the explicit fact that dispatch transfers execution and not the obligation - it stays ours and stays unresolved"
+          "the explicit fact that dispatch transfers execution and not the obligation - it stays ours and stays unresolved",
+          "a fresh dispatch_id minted at this handoff, deterministically derived from obligation_id and the executor it was handed to, so FUL-147 can construct its own instance"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -5115,7 +5008,8 @@
         "target": "FUL-149",
         "requiredContext": [
           "the obligation and the scope satisfied",
-          "the evidence that it reached the recipient"
+          "the evidence that it reached the recipient",
+          "a fresh delivery_id minted at this handoff, deterministically derived from obligation_id and the confirmed-delivery evidence, so FUL-149 can construct its own instance"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -5125,7 +5019,8 @@
         "target": "FUL-145",
         "requiredContext": [
           "the exception and the scope it affects",
-          "the scope already completed, which the exception does not touch"
+          "the scope already completed, which the exception does not touch",
+          "a fresh exception_id minted at this handoff, deterministically derived from obligation_id and the exception's own scope, so FUL-145 can construct its own instance"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -5189,34 +5084,13 @@
         "expect": "ownership transfers to FUL-146 carrying: the obligation, its original commitment and the scope completed so far; the explicit fact that this is delayed rather than failed"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "All four actions' idempotencyKeys reference undeclared order_id; real key is the declared instance key."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.dispatch -> FUL-147 missing dispatch_id."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.confirm -> FUL-149 missing delivery_id."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.exception -> FUL-145 missing exception_id."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "FUL-145",
     "shortName": "Fulfillment Exception Recovery",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "Clean idempotency across all four actions; router pattern; only an observability gap.",
+    "readinessWhy": "Clean idempotency across all four actions; router pattern; only an observability gap, unchanged from round 1.",
     "stateAuthority": [
       {
         "decision": "material_fulfillment_exception",
@@ -5494,8 +5368,8 @@
   {
     "id": "FUL-147",
     "shortName": "Delivery Outcome Tracking",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Both actions key on undeclared order_id, directly undercutting the state's own stated guarantee; h.confirm missing delivery_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Both actions now correctly key on order_id, matching the state's own stated exactly-once guarantee; h.confirm now mints delivery_id at the handoff, and h.reconcile's own contract was corrected to match.",
     "stateAuthority": [
       {
         "decision": "fulfillment_handed_to_delivery_executor",
@@ -5663,7 +5537,8 @@
         "target": "FUL-149",
         "requiredContext": [
           "the proof of delivery and when it was recorded",
-          "the obligation, which delivery may or may not finish depending on whether acceptance applies"
+          "the obligation, which delivery may or may not finish depending on whether acceptance applies",
+          "a fresh delivery_id minted at this handoff, deterministically derived from dispatch_id and the delivery confirmation, so FUL-149 can construct its own instance"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -5730,29 +5605,13 @@
         "expect": "ownership transfers to external:external-status-reconciliation carrying: the handoff, the tracking reference and everything the executor last reported; the explicit fact that this is unknown rather than failed, and that nothing is being re-sent"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.persist/a.unknown idempotencyKeys reference undeclared order_id; real key is the declared instance key."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.confirm -> FUL-149 missing delivery_id."
-      },
-      {
-        "priority": "P2",
-        "area": "config",
-        "finding": "h.reconcile's own contract also references the same undeclared order_id."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "FUL-149",
     "shortName": "Delivery Acceptance Finalization",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "order_id/person_id undeclared in idempotencyKeys; h.issue -> REM-151 missing issue_id, a recurring gap into the same target.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "a.record/a.finalize now correctly key on order_id + delivery_id; h.issue -> REM-151 now mints issue_id at the handoff, closing the recurring instance of that gap into the same target.",
     "stateAuthority": [
       {
         "decision": "authoritative_delivery_completion",
@@ -5939,7 +5798,8 @@
         "target": "REM-151",
         "requiredContext": [
           "the delivery record and its proof",
-          "what the recipient says is wrong, in their words"
+          "what the recipient says is wrong, in their words",
+          "a fresh issue_id minted at this handoff, deterministically derived from obligation_id + delivery_id and the raised issue, so REM-151 can construct its own instance"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -5989,21 +5849,10 @@
       {
         "kind": "handoff",
         "given": "the condition for h.issue is met",
-        "expect": "ownership transfers to REM-151 carrying: the delivery record and its proof; what the recipient says is wrong, in their words"
+        "expect": "ownership transfers to REM-151 carrying: the delivery record and its proof; what the recipient says is wrong, in their words; a fresh issue_id minted at this handoff, deterministically derived from obligation_id + delivery_id and the raised issue, so REM-151 can construct its own instance"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.record/a.finalize idempotencyKeys reference undeclared order_id/person_id; real key is the declared instance key."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.issue -> REM-151 missing issue_id, a recurring instance of the same gap pattern into that target."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "FUL-150",
@@ -6239,7 +6088,7 @@
     "id": "IDN-87",
     "shortName": "Authentication Risk Assessment",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "Clean idempotency; h.security -> IDN-90 missing incident_id, a gap shared with IDN-88's own handoff into the same target.",
+    "readinessWhy": "Clean idempotency; h.security -> IDN-90 still does not resolve incident_id -- deliberately left as this round's one remaining instance of the pattern, since IDN-87 sits outside the strict P0 set (it already carried no P0 in round 1) and the same fix was applied to IDN-88's identical handoff into the same target, establishing the convention for a follow-up pass.",
     "stateAuthority": [
       {
         "decision": "authentication_failure_pattern",
@@ -6404,15 +6253,15 @@
       {
         "priority": "P1",
         "area": "handoff",
-        "finding": "h.security -> IDN-90 missing incident_id (shared gap with IDN-88's own h.security into the same target)."
+        "finding": "h.security -> IDN-90 missing incident_id resolution (IDN-88's identical handoff into the same target now resolves it via account_id; this journey's own instance was left for a follow-up pass since it carried no P0)."
       }
     ]
   },
   {
     "id": "IDN-88",
     "shortName": "Account Recovery Verification",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "All five actions key on undeclared issue_id; h.security -> IDN-90 missing incident_id (shared with IDN-87); observability gap on review step.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "All five actions now correctly key on issue_id; h.security -> IDN-90 now resolves incident_id via the account's already-open IDN-90 instance instead of leaving it unaddressed.",
     "stateAuthority": [
       {
         "decision": "account_recovery_initiated",
@@ -6603,7 +6452,8 @@
         "target": "IDN-90",
         "requiredContext": [
           "the recovery request and what the requester has offered",
-          "the fact that recovery is coordinated by the incident rather than run alongside it - a parallel recovery is exactly the path an attacker would take"
+          "the fact that recovery is coordinated by the incident rather than run alongside it - a parallel recovery is exactly the path an attacker would take",
+          "the incident_id of the account's already-open IDN-90 instance, resolved via account_id - this handoff joins that existing incident rather than opening a new one"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -6687,20 +6537,10 @@
       {
         "kind": "handoff",
         "given": "the condition for h.security is met",
-        "expect": "ownership transfers to IDN-90 carrying: the recovery request and what the requester has offered; the fact that recovery is coordinated by the incident rather than run alongside it - a parallel recovery is exactly the path an attacker would take"
+        "expect": "ownership transfers to IDN-90 carrying: the recovery request and what the requester has offered; the fact that recovery is coordinated by the incident rather than run alongside it - a parallel recovery is exactly the path an attacker would take; the incident_id of the account's already-open IDN-90 instance, resolved via account_id - this handoff joins that existing incident rather than opening a new one"
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "All five actions' idempotencyKeys reference undeclared issue_id; real key is the declared instance key."
-      },
-      {
-        "priority": "P1",
-        "area": "handoff",
-        "finding": "h.security -> IDN-90 missing incident_id (shared gap with IDN-87's own h.security into the same target)."
-      },
       {
         "priority": "P2",
         "area": "observability",
@@ -6711,8 +6551,8 @@
   {
     "id": "IDN-89",
     "shortName": "Identity Attribute Update",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Versioning/propagation discipline sound; four of five actions key on undeclared person_id, and the origin/version fields s.g3 depends on are not declared attributes.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Versioning/propagation discipline sound; all four actions now correctly key on account_id + attribute_id; change_origin and change_version, load-bearing for s.g3's late-arrival discard rule, are now declared required attributes.",
     "stateAuthority": [
       {
         "decision": "identity_attribute_change",
@@ -6756,6 +6596,16 @@
       },
       {
         "field": "dependents",
+        "required": true,
+        "usedBy": "actions"
+      },
+      {
+        "field": "change_origin",
+        "required": true,
+        "usedBy": "actions"
+      },
+      {
+        "field": "change_version",
         "required": true,
         "usedBy": "actions"
       },
@@ -6959,16 +6809,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "account_id + person_id + <action> used on a.sensitivity, a.update, a.propagate, a.reconcile; person_id is not a declared attribute."
-      },
-      {
-        "priority": "P1",
-        "area": "correction",
-        "finding": "origin and version, load-bearing for s.g3's late-arrival discard rule, are not declared as required attributes or dependents fields."
-      },
-      {
         "priority": "P2",
         "area": "idempotency",
         "finding": "a.verify carries neither an idempotencyKey nor a writes entry; it only triggers the wait."
@@ -6978,8 +6818,8 @@
   {
     "id": "IDN-90",
     "shortName": "Account Compromise Recovery",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Strongest correctly-validated behavioral-inference trigger in the corpus; clean idempotency, but two handoffs into ACC-79 share the restoration_case_id gap (third/fourth instance), an unresolved P0.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Strongest correctly-validated behavioral-inference trigger in the corpus; idempotencyKeys correctly key on incident_id + account_id; both h.recover and h.lift now mint restoration_case_id at the handoff (third and fourth independent closures of the ACC-79 provenance gap); the IDN-90/ACC-78 relationship is now a structured competition ConflictRef instead of prose.",
     "stateAuthority": [
       {
         "decision": "material_compromise_signal",
@@ -7182,7 +7022,8 @@
         "target": "ACC-79",
         "requiredContext": [
           "what was revoked and what was corrected",
-          "the explicit instruction that access is rebuilt from current valid state - a snapshot taken before the incident would restore exactly the credentials the incident was about"
+          "the explicit instruction that access is rebuilt from current valid state - a snapshot taken before the incident would restore exactly the credentials the incident was about",
+          "a restoration_case_id minted at this handoff, deterministically derived from incident_id and the confirmed-compromise outcome, so ACC-79 can construct its own instance without inventing one"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -7192,7 +7033,8 @@
         "target": "ACC-79",
         "requiredContext": [
           "which capabilities were restricted and for how long",
-          "the instruction to revalidate rather than replay - the previous capability set is history even when nothing was actually wrong"
+          "the instruction to revalidate rather than replay - the previous capability set is history even when nothing was actually wrong",
+          "a restoration_case_id minted at this handoff, deterministically derived from incident_id and the cleared outcome, so ACC-79 can construct its own instance without inventing one"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -7253,20 +7095,10 @@
       {
         "kind": "handoff",
         "given": "the condition for h.recover is met",
-        "expect": "ownership transfers to ACC-79 carrying: what was revoked and what was corrected; the explicit instruction that access is rebuilt from current valid state - a snapshot taken before the incident would restore exactly the credentials the incident was about"
+        "expect": "ownership transfers to ACC-79 carrying: what was revoked and what was corrected; the explicit instruction that access is rebuilt from current valid state - a snapshot taken before the incident would restore exactly the credentials the incident was about; a restoration_case_id minted at this handoff, deterministically derived from incident_id and the confirmed-compromise outcome, so ACC-79 can construct its own instance without inventing one"
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "handoff",
-        "finding": "h.recover and h.lift both hand off to ACC-79 without a contract block; ACC-79 needs restoration_case_id, which neither this journey nor ACC-78/FIN-136 declares (third/fourth instance of the same gap)."
-      },
-      {
-        "priority": "P2",
-        "area": "conflict",
-        "finding": "The IDN-90/ACC-78 relationship (can coexist? precedence?) is documented in prose only, not as a ConflictRef."
-      },
       {
         "priority": "P2",
         "area": "handoff",
@@ -7277,8 +7109,8 @@
   {
     "id": "REL-100",
     "shortName": "Orphan Relationship Recovery",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Well-reasoned explicit-orphan-state design undercut by an idempotencyKey built on relationship_id, a field this journey structurally cannot have at this point.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Well-reasoned explicit-orphan-state design; a.state/a.hold/a.reassign/a.revalidate now correctly key on entity_ref + relationship_type, the identifiers this journey's own premise guarantees exist, instead of the not-yet-existing relationship_id.",
     "stateAuthority": [
       {
         "decision": "required_relationship_missing",
@@ -7538,11 +7370,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.state, a.hold, a.reassign, a.revalidate all key on relationship_id, which is not declared and, by this journey's own premise, usually does not yet exist; entity_ref + relationship_type is the real key."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.manual and h.escalate omit contract blocks."
@@ -7558,7 +7385,7 @@
     "id": "REL-91",
     "shortName": "Relationship Validation",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "Clean idempotency, authority and terminality; x.pending has no SLA or wait node governing indefinite pending evidence.",
+    "readinessWhy": "Clean idempotency, authority and terminality; x.pending has no SLA or wait node governing indefinite pending evidence -- left unfixed because closing it would mean adding a wait node and rewiring c.valid's branch, a canonical topology change this round does not make to satisfy implementation tooling.",
     "stateAuthority": [
       {
         "decision": "relationship_creation_requested_or_detected",
@@ -8136,8 +7963,8 @@
   {
     "id": "REL-94",
     "shortName": "Role Authority Update",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Delta model and historical-action preservation are sound; both actions key on undeclared relationship_id and use neither member_id nor role_id, this journey's actual instance key.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Delta model and historical-action preservation are sound; a.delta and a.apply now correctly key on this journey's actual instance key, account_id + member_id + role_id, instead of the undeclared relationship_id.",
     "stateAuthority": [
       {
         "decision": "role_changed",
@@ -8338,11 +8165,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.delta and a.apply key on account_id + relationship_id + <action>; relationship_id is undeclared, and member_id/role_id (the actual instance key) are unused."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.authority and h.entitlement omit contract blocks."
@@ -8352,8 +8174,8 @@
   {
     "id": "REM-156",
     "shortName": "Corrective Reperformance",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Exemplary correction discipline (a.preserve is its own action, not a side effect); every action keys on order_id + obligation_id, neither declared; correction_id (the real key) is unused.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Exemplary correction discipline (a.preserve is its own action, not a side effect); a.define/a.preserve/a.execute/a.partial all now correctly key on correction_id, the journey's own declared instance key.",
     "stateAuthority": [
       {
         "decision": "correction_or_reperformance_authorized",
@@ -8581,11 +8403,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.define, a.preserve, a.execute, a.partial all key on order_id + obligation_id + <action>; neither field is declared, and correction_id (the actual instance key) is unused."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.verify, h.alternative, h.escalate all omit contract blocks."
@@ -8785,7 +8602,7 @@
     "id": "RET-22",
     "shortName": "Usage Gap Assessment",
     "readiness": "READY_WITH_MAPPING",
-    "readinessWhy": "Strong evidence discipline (absence is evidence only relative to an expectation that existed); no action writes to corroborating_evidence despite the re-entry model depending on it.",
+    "readinessWhy": "Strong evidence discipline (absence is evidence only relative to an expectation that existed); a.inspect now writes to corroborating_evidence and carries an idempotencyKey, so a second miss on the same use case has something to accumulate against.",
     "stateAuthority": [
       {
         "decision": "expected_usage_milestone_or_cadence_missed",
@@ -8927,7 +8744,7 @@
       }
     ],
     "observability": {
-      "enteredBy": "none"
+      "enteredBy": "corroborating_evidence"
     },
     "outcomes": {
       "resolution": [],
@@ -8957,19 +8774,13 @@
         "expect": "ownership transfers to RET-23 carrying: the expectation that was missed and what it was based on; the corroborating signals, which are the starting point of the diagnosis"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P1",
-        "area": "observability",
-        "finding": "No action writes to corroborating_evidence or any other field, yet the stated re-entry model requires something to persist between instances for a second miss to be distinguishable from a first."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "RET-23",
     "shortName": "Health Deterioration Diagnosis",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Corpus's most disciplined diagnostic router; both actions and three contract-bearing handoffs all reference subscription_id, a field never declared.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Corpus's most disciplined diagnostic router; a.decompose/a.diagnostic and the h.technical/h.payment/h.ownership contract blocks now all correctly key on this journey's own declared instance key, account_id + relationship_id, instead of the undeclared subscription_id.",
     "stateAuthority": [
       {
         "decision": "health_state_crossed_deterioration_threshold",
@@ -9333,16 +9144,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.decompose and a.diagnostic both key on subscription_id + account_id + <action>; subscription_id is undeclared anywhere in this journey's attributes."
-      },
-      {
-        "priority": "P0",
-        "area": "handoff",
-        "finding": "Contract blocks on h.technical, h.payment and h.ownership all require subscription_id, which this journey has no declared source for."
-      },
-      {
         "priority": "P2",
         "area": "conflict",
         "finding": "The stated RET-23/RET-24 coexistence is documented in prose only, not as a ConflictRef."
@@ -9549,8 +9350,8 @@
   {
     "id": "RET-29",
     "shortName": "Cancellation Wind-Down",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Ordering discipline (invalidation runs first) is sound; all three actions and the h.obligations contract reference undeclared subscription_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Ordering discipline (invalidation runs first) is sound; a.invalidate/a.termination-state/a.wind-down and h.obligations' own contract now correctly key on relationship_id alone, this journey's actual declared instance key, instead of the undeclared subscription_id.",
     "stateAuthority": [
       {
         "decision": "authoritative_cancellation_completed",
@@ -9744,24 +9545,13 @@
         "expect": "ownership transfers to external:obligation-resolution carrying: each outstanding obligation and which side owes it; the termination state, since some obligations only fall due at the end date"
       }
     ],
-    "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.invalidate, a.termination-state, a.wind-down all key on subscription_id + relationship_id + <action>; subscription_id is undeclared."
-      },
-      {
-        "priority": "P0",
-        "area": "handoff",
-        "finding": "h.obligations' own contract requires the same undeclared subscription_id."
-      }
-    ]
+    "gaps": []
   },
   {
     "id": "SCH-172",
     "shortName": "Temporary Slot Hold",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Explicit canonical rule that creation/release are both idempotent, directly undercut by every writing action keying on undeclared person_id in place of requester_id.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Explicit canonical rule that creation/release are both idempotent, now actually held: a.create/a.expire/a.release/a.consume all key on hold_id, the journey's own declared instance key, instead of the undeclared person_id.",
     "stateAuthority": [
       {
         "decision": "temporary_hold_granted",
@@ -9983,11 +9773,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.create, a.expire, a.release, a.consume all key on person_id + <action>; person_id is undeclared, undercutting the journey's own s.g3 canonical rule."
-      },
-      {
         "priority": "P2",
         "area": "conflict",
         "finding": "s.g4's real-capacity-vs-assumed-capacity rule is prose-only, not a ConflictRef."
@@ -9997,8 +9782,8 @@
   {
     "id": "SCH-173",
     "shortName": "Reservation Validation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Revalidate-before-confirm discipline sound; every writing action keys on booking_id, a field that does not exist for most of this journey's own life (premature-identifier pattern).",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Revalidate-before-confirm discipline sound; a.capture/a.reject/a.pending/a.lapse/a.confirm all now key on reservation_request_id, the identifier that actually exists for this journey's whole life, instead of the not-yet-minted booking_id.",
     "stateAuthority": [
       {
         "decision": "reservation_requested",
@@ -10232,7 +10017,8 @@
         "target": "SCH-174",
         "requiredContext": [
           "the commitment, its time and the parties",
-          "the explicit fact that the time is now fixed and preparation runs alongside it rather than deciding it"
+          "the explicit fact that the time is now fixed and preparation runs alongside it rather than deciding it",
+          "a fresh booking_id minted at a.confirm, deterministically derived from reservation_request_id, so SCH-174 can construct its own instance"
         ],
         "ownershipTransfer": true,
         "suppressSource": false
@@ -10292,11 +10078,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.capture, a.reject, a.pending, a.lapse, a.confirm all key on booking_id + <action>; booking_id is undeclared and does not yet exist for most of this journey's life; reservation_request_id is the real key."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.alternative and h.prepare both omit contract blocks; h.prepare should carry the booking_id minted at confirmation explicitly."
@@ -10306,8 +10087,8 @@
   {
     "id": "SCH-174",
     "shortName": "Reservation Readiness",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Carefully scoped preparation-subordinate-to-booking design; none of its five actions declares an idempotencyKey at all, despite four writing to preparation_log.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Carefully scoped preparation-subordinate-to-booking design; a.determine/a.initiate/a.at-risk/a.ready now all declare an idempotencyKey on booking_id, closing the total-absence gap on four of five actions writing to preparation_log.",
     "stateAuthority": [
       {
         "decision": "reservation_confirmed",
@@ -10553,11 +10334,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "None of a.determine, a.initiate, a.at-risk, a.ready declares an idempotencyKey despite four of the five actions writing to preparation_log."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.escalate omits a contract block."
@@ -10567,8 +10343,8 @@
   {
     "id": "SCH-175",
     "shortName": "Reschedule Validation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Release-after-secure ordering enforced by the action sequence itself; every action drops reschedule_request_id, half of this journey's own composite instance key.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Release-after-secure ordering enforced by the action sequence itself; a.preserve/a.no-replacement/a.transfer/a.release-old/a.reconcile all now key on booking_id + reschedule_request_id, the full composite instance key, instead of dropping half of it.",
     "stateAuthority": [
       {
         "decision": "reschedule_requested",
@@ -10798,11 +10574,6 @@
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.preserve, a.no-replacement, a.transfer, a.release-old, a.reconcile all key on booking_id + <action> alone; reschedule_request_id (the other half of the composite instance key) is dropped."
-      },
       {
         "priority": "P2",
         "area": "conflict",
@@ -11105,8 +10876,8 @@
   {
     "id": "SCH-177",
     "shortName": "Pre-Service Revalidation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Strongest revalidate-from-now design in scheduling; none of its three writing actions declares an idempotencyKey.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Strongest revalidate-from-now design in scheduling; a.suppress/a.blocked/a.ready now all declare an idempotencyKey on booking_id + occurrence_id, closing the total-absence gap on all three writing actions.",
     "stateAuthority": [
       {
         "decision": "pre_start_window_reached",
@@ -11434,11 +11205,6 @@
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.suppress, a.blocked, a.ready all write state but declare no idempotencyKey."
-      },
       {
         "priority": "P2",
         "area": "handoff",
@@ -12091,8 +11857,8 @@
   {
     "id": "SUB-161",
     "shortName": "Relationship Activation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Existence-vs-running distinction sound; all six actions key on undeclared subscription_id, the third independent instance of this exact pattern.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Existence-vs-running distinction sound; all six actions now key on relationship_id, this journey's own declared instance key, instead of the undeclared subscription_id (closes the first of three independent instances of this exact pattern).",
     "stateAuthority": [
       {
         "decision": "continuing_relationship_creation_authorized",
@@ -12345,11 +12111,6 @@
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.create, a.pending-date, a.requirements, a.pending-req, a.abandon, a.activate all key on subscription_id + relationship_id + <action>; subscription_id is undeclared (third instance after RET-23, RET-29)."
-      },
       {
         "priority": "P2",
         "area": "handoff",
@@ -12626,8 +12387,8 @@
   {
     "id": "SUB-165",
     "shortName": "Renewal Payment Recovery",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Sharpest state-vs-money ownership boundary in the batch; worst idempotency defects found in this round -- malformed pseudo-keys and total absence.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Sharpest state-vs-money ownership boundary in the batch; the round's worst idempotency defects (malformed pseudo-keys and total absence) are both closed: all five actions now key on subscription_id + renewal_cycle_id, the journey's own composite instance key.",
     "stateAuthority": [
       {
         "decision": "renewal_payment_failed",
@@ -12916,16 +12677,6 @@
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.recovery ('renewal_cycle_id + grace state') and a.restrict ('renewal_cycle_id + restriction scope') both use non-field prose fragments as idempotency keys and omit subscription_id, half of this journey's composite instance key."
-      },
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.state, a.alternate, a.lapse all write state but declare no idempotencyKey at all."
-      },
       {
         "priority": "P2",
         "area": "handoff",
@@ -14463,8 +14214,8 @@
   {
     "id": "TIM-65",
     "shortName": "Grace Period Management",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Fixed-at-entry grace end is one of the strongest anti-inference rules in the corpus; neither writing action declares an idempotencyKey at all.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Fixed-at-entry grace end is one of the strongest anti-inference rules in the corpus; a.record and a.restore now both declare an idempotencyKey on entity_id + grace_period_id, closing the total-absence gap.",
     "stateAuthority": [
       {
         "decision": "primary_validity_ended_with_grace_policy",
@@ -14705,11 +14456,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "Neither a.record nor a.restore declares an idempotencyKey, despite both writing to grace_log."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.revalidate and h.expire both omit contract blocks."
@@ -14719,8 +14465,8 @@
   {
     "id": "TRM-105",
     "shortName": "Responsibility Handover",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Effective-time-is-load-bearing discipline is exemplary; all six actions key on undeclared person_id, referencing neither actor nor either half of the composite instance key.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Effective-time-is-load-bearing discipline is exemplary; all six actions now key on role_id + handover_id, this journey's actual composite instance key, instead of the undeclared person_id.",
     "stateAuthority": [
       {
         "decision": "responsibility_handover_authorized",
@@ -14982,11 +14728,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.define, a.inventory, a.prepare, a.revalidate, a.activate, a.invalidate all key on person_id + <action>; person_id is undeclared and references neither actor nor either half of the composite instance key (role_id, handover_id)."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.hold and h.escalate both omit contract blocks."
@@ -14996,8 +14737,8 @@
   {
     "id": "TRM-107",
     "shortName": "Account Closure Reconciliation",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Most disciplined verify-don't-trust external-dependency design in the corpus; all six actions drop closure_id, half of the composite instance key.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Most disciplined verify-don't-trust external-dependency design in the corpus; all six actions now key on account_id + closure_id, the full composite instance key, instead of dropping closure_id.",
     "stateAuthority": [
       {
         "decision": "account_closure_executing_or_finalizing",
@@ -15243,11 +14984,6 @@
     ],
     "gaps": [
       {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.inventory, a.verify-termination, a.separate, a.record-final, a.record-unresolved, a.record-remaining all key on account_id + <action> alone; closure_id (the other half of the composite instance key) is dropped from every one."
-      },
-      {
         "priority": "P2",
         "area": "handoff",
         "finding": "h.escalate omits a contract block."
@@ -15257,8 +14993,8 @@
   {
     "id": "TRM-108",
     "shortName": "Account Closure Wind-Down",
-    "readiness": "NEEDS_CONTRACT_WORK",
-    "readinessWhy": "Strongest anti-reactivation statement in the corpus; all three actions key on undeclared obligation_id, whose per-obligation granularity is a structural mismatch for this account-level instance.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Strongest anti-reactivation statement in the corpus; a.suppress/a.guard/a.scope now key on account_id alone, this journey's actual account-level instance key, instead of the structurally mismatched per-obligation obligation_id.",
     "stateAuthority": [
       {
         "decision": "account_closure_succeeded",
@@ -15446,11 +15182,6 @@
       }
     ],
     "gaps": [
-      {
-        "priority": "P0",
-        "area": "idempotency",
-        "finding": "a.suppress, a.guard, a.scope all key on obligation_id + account_id + <action>; obligation_id is undeclared, and this journey's own granularity (one instance per account-level closure) makes it a structural mismatch, not just a missing field."
-      },
       {
         "priority": "P2",
         "area": "handoff",

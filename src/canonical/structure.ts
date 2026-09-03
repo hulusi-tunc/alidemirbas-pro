@@ -941,7 +941,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Compare the previous and new role and calculate the capability and authority delta. What gets applied is the difference - a capability present in both roles is not revoked and re-granted, which the holder would experience as an outage in the middle of an administrative change",
         writes: [{ field: "role_change_log", mode: "append" }],
         next: "c.pending",
-        idempotencyKey: "account_id + relationship_id + a.delta",
+        idempotencyKey: "account_id + member_id + role_id + a.delta",
       },
       {
         id: "c.pending",
@@ -1000,7 +1000,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the delta: grant what the new role adds, and revoke or restrict what it removes, according to each capability's own dependency rules. Actions validly performed under the previous role are not invalidated - a downgrade changes what someone may do next, never what they already did",
         writes: [{ field: "role_change_log", mode: "append" }],
         next: "x.applied",
-        idempotencyKey: "account_id + relationship_id + a.apply",
+        idempotencyKey: "account_id + member_id + role_id + a.apply",
       },
       {
         id: "x.applied",
@@ -1777,7 +1777,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the entity as ORPHANED, naming which relationship is missing. This is an explicit state rather than a null field - null is unqueryable and unescalatable, and an entity with no owner has to be findable as an entity with no owner. Inherited deadlines and obligations keep running throughout; being orphaned is our problem and does not pause what was already owed",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "c.replacement",
-        idempotencyKey: "relationship_id + a.state",
+        idempotencyKey: "entity_ref + relationship_type + a.state",
       },
       {
         id: "c.replacement",
@@ -1834,7 +1834,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Hold the entity in the explicit unresolved queue, with its inherited deadlines and obligations intact and visible. Held is a state someone can query and escalate; a null relationship is neither",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "w.restore",
-        idempotencyKey: "relationship_id + a.hold",
+        idempotencyKey: "entity_ref + relationship_type + a.hold",
       },
       {
         id: "w.restore",
@@ -1863,7 +1863,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Establish the replacement relationship, preserving the entity's inherited deadlines and obligations exactly as they stood. Reassignment changes who is connected, never what is owed or by when",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "a.revalidate",
-        idempotencyKey: "relationship_id + a.reassign",
+        idempotencyKey: "entity_ref + relationship_type + a.reassign",
       },
       {
         id: "a.revalidate",
@@ -1871,7 +1871,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Revalidate the entity's current state against the restored relationship before resuming. The relationship changed, so what the entity is entitled to or responsible for under the new one may differ from what it held under the old",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "x.resumed",
-        idempotencyKey: "relationship_id + a.revalidate",
+        idempotencyKey: "entity_ref + relationship_type + a.revalidate",
       },
       {
         id: "x.resumed",

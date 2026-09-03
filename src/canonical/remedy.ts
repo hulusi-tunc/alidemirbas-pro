@@ -1462,7 +1462,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Define the defect, the affected scope, what a corrected outcome would actually look like, who owns it and any deadline. Record CORRECTION_REQUIRED",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "a.preserve",
-        idempotencyKey: "order_id + obligation_id + a.define",
+        idempotencyKey: "correction_id + a.define",
       },
       {
         id: "a.preserve",
@@ -1470,7 +1470,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve the original incorrect outcome as history. The correction is a new corrective action rather than an edit - rewriting the original as though it had always been right removes the evidence anything needed fixing, and with it the ability to see the same fault recur across other work",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "a.execute",
-        idempotencyKey: "order_id + obligation_id + a.preserve",
+        idempotencyKey: "correction_id + a.preserve",
       },
       {
         id: "a.execute",
@@ -1478,7 +1478,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Execute the correction or reperformance against the defined corrected outcome",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "w.correction",
-        idempotencyKey: "order_id + obligation_id + a.execute",
+        idempotencyKey: "correction_id + a.execute",
       },
       {
         id: "w.correction",
@@ -1531,7 +1531,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record what was corrected and what remains, explicitly. Half a correction recorded as a whole one closes an obligation that is still live",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "h.verify",
-        idempotencyKey: "order_id + obligation_id + a.partial",
+        idempotencyKey: "correction_id + a.partial",
       },
       {
         id: "h.verify",

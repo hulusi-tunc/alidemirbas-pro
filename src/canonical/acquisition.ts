@@ -248,7 +248,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reconcile the anonymous behavioural history onto the known profile, keeping the pre-identity record readable alongside it rather than replacing it, and record which method resolved the identity",
         writes: [{ field: "identity_resolution_history", mode: "append" }],
         next: "c.eligible",
-        idempotencyKey: "account_id + person_id + a.reconcile",
+        idempotencyKey: "anonymous_profile_id + a.reconcile",
       },
       {
         id: "c.eligible",
@@ -276,6 +276,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "the reconciled intent history, including the pre-identity portion",
           "which signals crossed the threshold and when",
           "the identity resolution method, so a later dispute can be traced",
+          "a fresh lead_id, minted at this handoff from the reconciled profile's own account/person identity, since no lead concept exists prior to this point",
         ],
       },
       {
@@ -409,7 +410,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the capture source, the context the person declared, and the intent it evidences - each stored separately from any permission, which is recorded as its own fact and only where it was actually given",
         writes: [{ field: "capture_record", mode: "append" }],
         next: "c.ready",
-        idempotencyKey: "account_id + lead_id + a.record",
+        idempotencyKey: "lead_id + a.record",
       },
       {
         id: "c.ready",
@@ -1133,7 +1134,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Read the new state together with the reason it changed, and append both to the qualification history - the previous state and its reason stay readable, because the next routing decision depends on them",
         writes: [{ field: "qualification_history", mode: "append" }],
         next: "c.state",
-        idempotencyKey: "account_id + lead_id + a.read",
+        idempotencyKey: "lead_id + a.read",
       },
       {
         id: "c.state",
@@ -1223,7 +1224,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RECYCLE_ELIGIBLE with the timing reason and the condition or date that would make it worth revisiting, so the return is tied to something real rather than to a cadence",
         writes: [{ field: "qualification_history", mode: "append" }],
         next: "w.recycle",
-        idempotencyKey: "account_id + lead_id + a.mark-recycle",
+        idempotencyKey: "lead_id + a.mark-recycle",
       },
       {
         id: "w.recycle",
@@ -1253,7 +1254,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Move the state to QUALIFYING with the recycle reason attached, which is itself an authoritative state change and opens a new instance of this journey",
         writes: [{ field: "qualification_history", mode: "append" }],
         next: "x.recycled",
-        idempotencyKey: "account_id + lead_id + a.requalify",
+        idempotencyKey: "lead_id + a.requalify",
       },
       {
         id: "x.recycled",
@@ -1454,7 +1455,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the authoritative rules and record which rule produced the result and on what input, so the answer can be explained and contested later",
         writes: [{ field: "eligibility_decisions", mode: "append" }],
         next: "c.eligible",
-        idempotencyKey: "account_id + person_id + a.evaluate",
+        idempotencyKey: "entity_ref + rule_id + a.evaluate",
       },
       {
         id: "c.eligible",
@@ -1504,7 +1505,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Flag the existing commitment for its own reconciliation, naming the rule and the reason that changed - this journey does not cancel, reduce or reverse anything already granted",
         writes: [{ field: "commitment_review_queue", mode: "append" }],
         next: "h.reconcile",
-        idempotencyKey: "account_id + person_id + a.reconcile",
+        idempotencyKey: "entity_ref + rule_id + a.reconcile",
       },
       {
         id: "h.reconcile",
@@ -1531,7 +1532,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Prevent new actions the rule now forbids, naming the rule in the block so the reason travels with the refusal instead of surfacing as an unexplained failure",
         writes: [{ field: "eligibility_decisions", mode: "append" }],
         next: "x.ineligible",
-        idempotencyKey: "account_id + person_id + a.block",
+        idempotencyKey: "entity_ref + rule_id + a.block",
       },
       {
         id: "x.ineligible",
@@ -1952,7 +1953,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the entity the destination belongs to - the order, subscription, booking or application - so that everything after this is scoped to it",
         writes: [{ field: "destination_entity", mode: "set" }],
         next: "a.identify",
-        idempotencyKey: "contact_point_id + account_id + a.scope",
+        idempotencyKey: "person_id + destination_entity_id + a.scope",
       },
       {
         id: "a.identify",
@@ -1966,7 +1967,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress their queued reminders, scheduled retries, lower-intent calls to action and stale promotional steps before the next send window opens",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "h.next",
-        idempotencyKey: "contact_point_id + account_id + a.suppress",
+        idempotencyKey: "person_id + destination_entity_id + a.suppress",
       },
       {
         id: "h.next",
@@ -1984,8 +1985,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         contract: {
           "requiredFields": [
-            "contact_point_id",
-            "account_id",
+            "person_id",
+            "destination_entity_id",
             "handed_at",
             "reason"
           ]
@@ -2467,7 +2468,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the reason against the opportunity and append it to the decline history, leaving earlier reasons readable - a second loss for a different reason is two facts, not a correction of the first",
         writes: [{ field: "decline_history", mode: "append" }],
         next: "c.reason",
-        idempotencyKey: "account_id + lead_id + a.capture",
+        idempotencyKey: "lead_id + decline_id + a.capture",
       },
       {
         id: "c.reason",

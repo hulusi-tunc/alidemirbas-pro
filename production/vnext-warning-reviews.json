@@ -1115,6 +1115,542 @@
    "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
    "reviewedBy": "production-readiness gap-closure round",
    "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-03",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.suppress\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.downgrade\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.suppress\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.note-return\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.open\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch1\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch2\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch3\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.rearm\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.open\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch1\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch2\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-13",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.surface\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.identify\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.specific-action\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.route-dependency\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.stop-reminders\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-26",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.assess\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.no-reason\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.ask\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.record-reason\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.offer\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-31",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-32",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-38",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.record\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-38",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.reevaluate\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-43",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.classify\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-43",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.persist-positive\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-46",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.close\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-46",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.close-unconfirmed\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TIM-63",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.prompt-action\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TIM-63",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.inform\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.alert-contained\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.alert-watch\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.cleared\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.standing\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.state\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notify-unauthorized\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notify-cannot-close\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.confirm-closure\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.surface\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.execute\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.verify\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FIN-134",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.classify\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.offer\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.remind\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.confirm-accept\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.confirm-decline\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.lapse\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.evaluate\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notice\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.request\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.default\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.scope\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.protect\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.reallocate\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.release-old\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.inform\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.cancel\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.release-cancel\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notify-provider-cancel\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-280",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.acknowledge\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-280",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.offer\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "DOC-215",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.unbounded\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
   }
  ]
 }

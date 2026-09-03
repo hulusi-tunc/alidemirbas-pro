@@ -1732,7 +1732,9 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the obligation and the restriction it caused",
           "the instruction to revalidate rather than replay - paying this does not restore capabilities that were suspended for their own separate reasons",
+          "the obligation's own account_id (resolved from the obligation record's payer/account, per its own entity scope), and a restoration_case_id minted at this handoff from obligation_id and the restriction it caused, so ACC-79 can construct its own instance without inventing either",
         ],
+        contract: { requiredFields: ["account_id", "obligation_id", "restoration_case_id"] },
       },
       {
         id: "x.satisfied",

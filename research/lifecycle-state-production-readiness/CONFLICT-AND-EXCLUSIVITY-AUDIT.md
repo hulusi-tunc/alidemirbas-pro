@@ -5,19 +5,28 @@ this audit found describing a genuinely related fact, can they coexist, can both
 orchestration at once, who wins if not, what gets suppressed, and is today's metadata sufficient
 to answer those questions mechanically — or only in prose.
 
-**Working, structured examples in this batch: 2.** Every other real relationship this audit found
-between two silent states — 8 pairs/groups below — is documented only as a `distinctFrom` prose
-boundary. Prose is not automatically a gap: several of these pairs are boundaries, not conflicts
-(the two states describe non-overlapping facts and could never actually compete), and those are
-marked "metadata sufficient: yes" below. The genuine gaps are the smaller number of pairs that
-*can* plausibly coexist and compete for the same orchestration, with no declared precedence.
+**Round 2 update:** ACC-78/IDN-90 (row below, "Access & security") was one of this document's
+two flagged genuine gaps in round 1. The repair round closed it with a structured `competition`
+block on both states (`exclusionGroup: "account-restriction-authority"`, `scope: "account"`,
+IDN-90 higher precedence, both `onLoss: "paused"`) — the corpus's third working example. The
+table below and the domain table further down are both updated to reflect this; only RET-23/
+RET-24 remains an undeclared gap.
 
-## The two working `contact.competition` examples
+**Working, structured examples in this batch: 3** (round 1 found 2). Every other real
+relationship this audit found between two silent states — 7 pairs/groups below — is documented
+only as a `distinctFrom` prose boundary. Prose is not automatically a gap: several of these pairs
+are boundaries, not conflicts (the two states describe non-overlapping facts and could never
+actually compete), and those are marked "metadata sufficient: yes" below. The one remaining
+genuine gap is a pair that *can* plausibly coexist and compete for the same orchestration, with
+no declared precedence.
+
+## The three working `contact.competition` / `competition` examples
 
 | Group | Members | Precedence | Suppression | Metadata sufficient? |
 |---|---|---|---|---|
 | `purchase-intent` | ACQ-07 (Intent Decay, lowest) / ACQ-08 (Acquisition Exit Handoff, highest) | A completed destination (ACQ-08) always outranks a decay judgment (ACQ-07) | ACQ-08's `h.next` explicitly suppresses every acquisition journey scoped to the entity, queued and in-flight | **Yes** — both sides declared, in this round's own scope, correctly ordered |
 | `relationship-continuity` | SUB-167 (Cancellation Effective-Date Resolution, declared) / the renewal-decision journey it names (outside this round's scope) | A cancellation in motion outranks a renewal decision on the same relationship | `onLoss: "paused"` | **Partial** — SUB-167's own side is well-formed; the counterpart declaration was not independently verified this round (that journey is not one of the 64 silent states) |
+| `account-restriction-authority` | ACC-78 (Access Suspension, lower) / IDN-90 (Suspected Account Compromise, highest) | A suspected-compromise investigation (IDN-90) always outranks a business-reason suspension (ACC-78) — the more urgent, safety-critical question wins | Both sides declare `onLoss: "paused"` — the losing restriction pauses rather than resolving independently while the other is open | **Yes** — added in the round-2 repair; both sides declared, same `scope`, matching `exclusionGroup`, valid `onLoss`, checked by `scripts/vnext-rules.mjs`'s corpus-wide `competition_group_of_one`/`competition_scope_split`/`competition_incomplete`/`competition_onloss` rules |
 
 Recommendation: verify the renewal-decision journey's own `contact.competition` block declares
 `relationship-continuity` membership at lower precedence, in whatever round next covers it.
@@ -29,7 +38,7 @@ Recommendation: verify the renewal-decision journey's own `contact.competition` 
 | State A | State B | Can coexist? | Can both own orchestration? | Winner / precedence | Suppression | Metadata sufficient? |
 |---|---|---|---|---|---|---|
 | ACC-78 (Access Suspension) | TIM-65 (Grace Period) | No — mutually exclusive by definition: grace continues a right whose *validity has ended*; suspension restricts a right that is *still valid* | N/A — the two answer different states of the same underlying validity fact, never the same moment | N/A, not a real conflict | N/A | **Yes** — a genuine boundary, not a conflict; no `ConflictRef` needed |
-| ACC-78 (Access Suspension) | IDN-90 (Suspected Account Compromise) | **Yes, plausibly concurrent** — a business-reason suspension and a security-incident containment can both be open on the same account for unrelated reasons | Yes — different instance-key granularities (`account_id + capability_scope` vs `incident_id`), so both can genuinely hold ownership of their own restriction simultaneously | **Undeclared** | **Undeclared** | **No — genuine gap (P2 on both states' own write-ups)**: nothing states whether a reviewer should see the pairing, or whether one restricting action should be aware of the other's scope |
+| ACC-78 (Access Suspension) | IDN-90 (Suspected Account Compromise) | **Yes, plausibly concurrent** — a business-reason suspension and a security-incident containment can both be open on the same account for unrelated reasons | Yes — different instance-key granularities (`account_id + capability_scope` vs `incident_id`), so both can genuinely hold ownership of their own restriction simultaneously | **IDN-90, declared** — `exclusionGroup: "account-restriction-authority"`, IDN-90 highest precedence | **`onLoss: "paused"`** on both sides — the loser pauses rather than resolving independently | **Yes — closed in round 2**: both states now carry a structured `competition` block (see table above); this row was a genuine gap in round 1 |
 
 ### Retention & health (RET-23 / RET-24)
 
@@ -59,20 +68,28 @@ Recommendation: verify the renewal-decision journey's own `contact.competition` 
 
 ## Summary
 
-- **2 of 10** identified relationships have a structured, mechanically-checkable
-  `contact.competition` declaration (one fully verified both sides, one partially).
+Round 2 update: this list was 2/5/1/2 (10 relationships) at audit time. The repair round closed
+the ACC-78/IDN-90 gap with a structured `competition` block, moving it from the last bullet to
+the first. Current state:
+
+- **3 of 10** identified relationships have a structured, mechanically-checkable
+  `contact.competition` / `competition` declaration (two fully verified both sides —
+  `purchase-intent` and `account-restriction-authority` — one, `relationship-continuity`,
+  partially, since its counterpart journey sits outside this round's 64).
 - **5 of 10** are genuine boundaries (the two states can never actually compete, by construction
   of their own instance keys or lifecycle stages) where prose is sufficient and a `ConflictRef`
   would add no real safety.
 - **1 of 10** (FUL-142/FUL-143) is a working *operational* concurrency conflict, correctly
   resolved in-graph without needing the customer-communication-flavored `contact.competition`
   concept at all.
-- **2 of 10** (ACC-78/IDN-90, RET-23/RET-24) are genuine gaps: real, plausible concurrent
-  ownership with no declared precedence or suppression rule, currently P2-level findings on the
-  states involved rather than blocking — a company would today have to invent an answer to "who
-  wins if both are open" rather than read one from the canonical graph.
+- **1 of 10** (RET-23/RET-24) remains a genuine gap: real, plausible concurrent ownership with no
+  declared precedence or suppression rule, a P2-level finding on RET-23 rather than blocking — a
+  company would today have to invent an answer to "who wins if both are open" rather than read one
+  from the canonical graph. Left undeclared deliberately: RET-24 is outside this round's 64, so
+  declaring RET-23's own side of the group without the counterpart's own precedence value would be
+  inventing half a company-specific policy this round does not have grounds to set.
 
-None of these findings require a canonical graph change; where a fix is warranted, it is a
-`ConflictRef` addition at the implementation-contract layer (already modeled in
-`lifecycle-state-contract.schema.ts`'s `ConflictRef` type), not a change to
-`src/canonical/*.ts`.
+None of these findings required a canonical graph change; the ACC-78/IDN-90 fix added metadata
+(`competition` blocks) to two existing nodes, no new nodes or edges. Where a fix is still
+warranted (RET-23/RET-24), it is the same kind of implementation-contract-layer addition, not a
+change to `src/canonical/*.ts` topology.

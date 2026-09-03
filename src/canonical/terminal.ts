@@ -1006,7 +1006,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Define the outgoing actor, the incoming actor, the scope, the effective time and the reason. A handover scheduled for a future date is not an authority change now - until the effective time the outgoing actor still holds the role and everything in it",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "a.inventory",
-        idempotencyKey: "person_id + a.define",
+        idempotencyKey: "role_id + handover_id + a.define",
       },
       {
         id: "a.inventory",
@@ -1014,7 +1014,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inventory what travels with the role: open work, deadlines, approvals, scheduled actions, commitments and the context needed to continue any of them",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "c.eligible",
-        idempotencyKey: "person_id + a.inventory",
+        idempotencyKey: "role_id + handover_id + a.inventory",
       },
       {
         id: "c.eligible",
@@ -1049,7 +1049,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Prepare the transfer without activating it. Nothing about the outgoing actor's authority changes yet, and nothing about the incoming actor's does either",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "w.effective",
-        idempotencyKey: "person_id + a.prepare",
+        idempotencyKey: "role_id + handover_id + a.prepare",
       },
       {
         id: "w.effective",
@@ -1089,7 +1089,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "At the effective time, revalidate both actors and the target entity. Weeks can pass between authorising a handover and it taking effect, and either actor may have left, changed role or lost the authority the handover assumed",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "c.still-valid",
-        idempotencyKey: "person_id + a.revalidate",
+        idempotencyKey: "role_id + handover_id + a.revalidate",
       },
       {
         id: "c.still-valid",
@@ -1120,7 +1120,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Activate the new responsibility from the effective time, with the inherited deadlines and obligations exactly as they stood. The handover changes who is answerable, never what is owed or by when",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "a.invalidate",
-        idempotencyKey: "person_id + a.activate",
+        idempotencyKey: "role_id + handover_id + a.activate",
       },
       {
         id: "a.invalidate",
@@ -1128,7 +1128,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Invalidate the outgoing actor's future scheduled actions where their authority has now ended. Decisions they made while holding the role remain historical facts and are not touched - what changes is what they may do next",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "x.handed-over",
-        idempotencyKey: "person_id + a.invalidate",
+        idempotencyKey: "role_id + handover_id + a.invalidate",
       },
       {
         id: "x.handed-over",
@@ -1719,7 +1719,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inventory the external and dependent state: subscriptions, external billing agreements, third-party services, active entitlements, pending invoices, external reservations and linked contracts. Each is a relationship in its own right, and closing an application account has never cancelled a subscription billed by someone else",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "c.coupled",
-        idempotencyKey: "account_id + a.inventory",
+        idempotencyKey: "account_id + closure_id + a.inventory",
       },
       {
         id: "c.coupled",
@@ -1744,7 +1744,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Verify the termination actually happened rather than assuming it. A provider reporting success is a statement about their API, and a coupling written into a contract is not the same as a coupling implemented in a system",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "w.outcomes",
-        idempotencyKey: "account_id + a.verify-termination",
+        idempotencyKey: "account_id + closure_id + a.verify-termination",
       },
       {
         id: "a.separate",
@@ -1752,7 +1752,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that this dependency requires its own termination and raise it as such. It does not end because our account did, and the person is told which relationships they still hold",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "w.outcomes",
-        idempotencyKey: "account_id + a.separate",
+        idempotencyKey: "account_id + closure_id + a.separate",
       },
       {
         id: "w.outcomes",
@@ -1794,7 +1794,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record each dependency's final state independently of the account's. They are separate relationships and their endings are separate facts, recorded as such",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "x.finalized",
-        idempotencyKey: "account_id + a.record-final",
+        idempotencyKey: "account_id + closure_id + a.record-final",
       },
       {
         id: "a.record-unresolved",
@@ -1802,7 +1802,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record which dependencies did not terminate, visibly and by name. A failure to end one dependency is never hidden behind an account marked CLOSED - that is exactly how someone keeps being charged by a provider they believe they have left",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "h.escalate",
-        idempotencyKey: "account_id + a.record-unresolved",
+        idempotencyKey: "account_id + closure_id + a.record-unresolved",
       },
       {
         id: "c.policy",
@@ -1827,7 +1827,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the remaining dependency independently, with its own state and its own owner, so it stays visible and attributable after the account is gone",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "x.finalized",
-        idempotencyKey: "account_id + a.record-remaining",
+        idempotencyKey: "account_id + closure_id + a.record-remaining",
       },
       {
         id: "h.escalate",
@@ -1965,7 +1965,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress new acquisition, normal usage, engagement journeys that are now obsolete, and every account action incompatible with closure - including anything already queued. A closed account receiving an onboarding email is the clearest possible evidence that the closure did not reach everything",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.guard",
-        idempotencyKey: "obligation_id + account_id + a.suppress",
+        idempotencyKey: "account_id + a.suppress",
       },
       {
         id: "a.guard",
@@ -1973,7 +1973,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Guard against reactivation. A stale login, a queued onboarding step or a delayed synchronisation must not bring a closed account back - closure is a state that later events are checked against, never one they can silently overwrite",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "c.remaining",
-        idempotencyKey: "obligation_id + account_id + a.guard",
+        idempotencyKey: "account_id + a.guard",
       },
       {
         id: "c.remaining",
@@ -1998,7 +1998,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Allow only the scoped processes those obligations need, enumerated individually. A wind-down left as a general exception is an open account with a different label on it",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "w.winddown",
-        idempotencyKey: "obligation_id + account_id + a.scope",
+        idempotencyKey: "account_id + a.scope",
       },
       {
         id: "w.winddown",

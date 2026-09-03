@@ -294,7 +294,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the relationship record. Capture the relationship id, the parties, the product or service scope, the start and effective date, the term, the renewal model, the reference to its financial terms, the basis on which it grants entitlements, and its status. Record CREATED - the agreement exists and nothing is running",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.effective",
-        idempotencyKey: "subscription_id + relationship_id + a.create",
+        idempotencyKey: "relationship_id + a.create",
       },
       {
         id: "c.effective",
@@ -319,7 +319,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PENDING_EFFECTIVE_DATE. Nothing is granted and nothing is billed against a relationship that has not started",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.scheduled",
-        idempotencyKey: "subscription_id + relationship_id + a.pending-date",
+        idempotencyKey: "relationship_id + a.pending-date",
       },
       {
         id: "h.scheduled",
@@ -336,7 +336,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Determine the activation requirements that actually govern this relationship - payment, verification, contract execution, a provisioning prerequisite, a regulatory condition. Which of them apply is a property of this agreement rather than a universal list, and assuming payment is the only one activates contracts that were never signed",
         next: "c.satisfied",
-        idempotencyKey: "subscription_id + relationship_id + a.requirements",
+        idempotencyKey: "relationship_id + a.requirements",
       },
       {
         id: "c.satisfied",
@@ -361,7 +361,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PENDING_REQUIREMENT, naming which requirement is outstanding. A relationship stuck as pending with no stated reason is indistinguishable from one that is simply broken",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.requirement",
-        idempotencyKey: "subscription_id + relationship_id + a.pending-req",
+        idempotencyKey: "relationship_id + a.pending-req",
       },
       {
         id: "w.requirement",
@@ -408,7 +408,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the relationship as never activated, preserving the record and the reason. It existed and did not start, which is a different thing from never having been created and is worth being able to count",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "x.never-active",
-        idempotencyKey: "subscription_id + relationship_id + a.abandon",
+        idempotencyKey: "relationship_id + a.abandon",
       },
       {
         id: "x.never-active",
@@ -425,7 +425,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ACTIVE with the effective date and what satisfied each requirement. Active describes the agreement running - it does not describe what the agreement grants. Every entitlement comes from the relationship's stated entitlement basis, so that a relationship being active is never mistaken for entitlement to everything",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.entitlement",
-        idempotencyKey: "subscription_id + relationship_id + a.activate",
+        idempotencyKey: "relationship_id + a.activate",
       },
       {
         id: "h.entitlement",
@@ -1620,7 +1620,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the failure into the payment recovery lifecycle, which owns classification and collection. This journey does not chase the money; it holds the relationship's state while that runs, which is why it does not hand the relationship away",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.policy",
-        idempotencyKey: "renewal_cycle_id + grace state",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.recovery",
       },
       {
         id: "c.policy",
@@ -1655,6 +1655,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the relationship state policy defines during recovery - ACTIVE_IN_GRACE, RENEWAL_PENDING, RESTRICTED or LAPSE_PENDING. What the counterparty keeps access to follows from that state and from policy, never from a default of leaving everything running or switching everything off",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.restrict",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.state",
       },
       {
         id: "c.restrict",
@@ -1679,7 +1680,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the restriction through the access lifecycle, with the scope policy defines. What is switched off and how is owned there; what the relationship's contractual state is remains owned here",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.recovery",
-        idempotencyKey: "renewal_cycle_id + restriction scope",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.restrict",
       },
       {
         id: "w.recovery",
@@ -1732,6 +1733,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record how the obligation was resolved other than by the original payment. The renewal proceeds on that basis and the record says which basis, because a term that renewed on a waiver is not the same fact as one that renewed on a payment",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.remaining",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.alternate",
       },
       {
         id: "c.remaining",
@@ -1766,6 +1768,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the outcome this relationship's own semantics define - LAPSED, EXPIRED or NON_RENEWED. These are different words for genuinely different things, and which one applies changes what the counterparty is told and what they can do next",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.end",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.lapse",
       },
       {
         id: "h.end",

@@ -470,7 +470,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the scoped hold with its id, the resource and slot, the capacity held, the owner, the creation time, the expiry and the booking intent it belongs to. Record HELD. The hold consumes capacity for its duration and creates no commitment - nobody has an appointment, and nothing here should be described to the requester as if they do",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "w.hold",
-        idempotencyKey: "person_id + a.create",
+        idempotencyKey: "hold_id + a.create",
       },
       {
         id: "w.hold",
@@ -541,7 +541,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the capacity and record the hold EXPIRED. An expired hold consumes nothing, and the release happens because the clock said so rather than because anyone remembered",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "x.expired",
-        idempotencyKey: "person_id + a.expire",
+        idempotencyKey: "hold_id + a.expire",
       },
       {
         id: "a.release",
@@ -549,7 +549,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the capacity and record the hold RELEASED. The release is idempotent - releasing an already-released hold changes nothing rather than returning capacity a second time, and the difference between those two behaviours is how many people can be booked into one slot",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "x.released",
-        idempotencyKey: "person_id + a.release",
+        idempotencyKey: "hold_id + a.release",
       },
       {
         id: "a.consume",
@@ -557,7 +557,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Consume the hold into the confirmed reservation, moving the capacity from held to reserved in one step. Releasing first and re-taking opens a window - short, and entirely long enough - in which someone else takes the slot the requester has just paid for",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "x.consumed",
-        idempotencyKey: "person_id + a.consume",
+        idempotencyKey: "hold_id + a.consume",
       },
       {
         id: "x.consumed",
@@ -714,7 +714,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the requested slot, the resource or service, the requester, the details the booking requires and the intent behind it",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "c.duplicate",
-        idempotencyKey: "booking_id + a.capture",
+        idempotencyKey: "reservation_request_id + a.capture",
       },
       {
         id: "c.duplicate",
@@ -771,7 +771,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the request REJECTED with the reason. What is offered next is current availability rather than the set the requester was originally shown, which by definition contains at least one slot that no longer exists",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "h.alternative",
-        idempotencyKey: "booking_id + a.reject",
+        idempotencyKey: "reservation_request_id + a.reject",
       },
       {
         id: "h.alternative",
@@ -817,7 +817,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PENDING_CONFIRMATION with exactly what is outstanding, and keep the capacity protected for as long as the booking semantics allow. Pending is not confirmed and the requester is told which - an appointment someone believes they have and does not have is worse than being asked to wait",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "w.pending",
-        idempotencyKey: "booking_id + a.pending",
+        idempotencyKey: "reservation_request_id + a.pending",
       },
       {
         id: "w.pending",
@@ -864,7 +864,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the request as lapsed and release any capacity protected for it. The slot returns to availability rather than staying reserved against a booking that never completed",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "x.lapsed",
-        idempotencyKey: "booking_id + a.lapse",
+        idempotencyKey: "reservation_request_id + a.lapse",
       },
       {
         id: "x.lapsed",
@@ -881,7 +881,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the commitment explicitly. Record CONFIRMED_RESERVATION with the slot, the resource, the parties and the terms. This is the point at which two parties owe each other a specific time - the customer arranges their day around it and the provider stops selling the slot - and nothing before it was that",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "h.prepare",
-        idempotencyKey: "booking_id + a.confirm",
+        idempotencyKey: "reservation_request_id + a.confirm",
       },
       {
         id: "h.prepare",
@@ -891,7 +891,9 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the commitment, its time and the parties",
           "the explicit fact that the time is now fixed and preparation runs alongside it rather than deciding it",
+          "a fresh booking_id minted at a.confirm, deterministically derived from reservation_request_id, so SCH-174 can construct its own instance",
         ],
+        contract: { requiredFields: ["booking_id"] },
       },
     ],
     guardrails: [
@@ -1026,6 +1028,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the pre-event requirements this booking actually has - forms, documents, instructions, resource preparation, verification, prepayment, a check-in requirement, provider preparation. Which apply is a property of this service rather than a standard list, and running the standard list asks people for things their appointment does not need",
         writes: [{ field: "preparation_log", mode: "append" }],
         next: "c.existing",
+        idempotencyKey: "booking_id + a.determine",
       },
       {
         id: "c.existing",
@@ -1056,6 +1059,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Initiate each outstanding prerequisite on its own lifecycle. The reservation's time does not move while they run, and none of them owns the booking",
         writes: [{ field: "preparation_log", mode: "append" }],
         next: "w.prepare",
+        idempotencyKey: "booking_id + a.initiate",
       },
       {
         id: "w.prepare",
@@ -1129,6 +1133,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record AT_RISK or HOLD according to policy, naming the prerequisite. The confirmed time is not moved here - a preparation failing is a reason to escalate or to contact someone, and moving an appointment is a booking decision that belongs to the reschedule lifecycle",
         writes: [{ field: "preparation_log", mode: "append" }],
         next: "h.escalate",
+        idempotencyKey: "booking_id + a.at-risk",
       },
       {
         id: "h.escalate",
@@ -1146,6 +1151,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record READY or UPCOMING with which prerequisites are complete and which are outstanding but not critical. A reminder having been sent is recorded separately from preparation being complete, because the first is something we did and the second is something that happened",
         writes: [{ field: "preparation_log", mode: "append" }],
         next: "x.upcoming",
+        idempotencyKey: "booking_id + a.ready",
       },
       {
         id: "x.upcoming",
@@ -1282,7 +1288,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Keep the original reservation confirmed and intact while the replacement is evaluated. Releasing it first is the mistake this journey exists to prevent - the customer ends up with no appointment at all, and the slot they had is gone by the time anyone realises the replacement was not available",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.search",
-        idempotencyKey: "booking_id + a.preserve",
+        idempotencyKey: "booking_id + reschedule_request_id + a.preserve",
       },
       {
         id: "a.search",
@@ -1313,7 +1319,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the reschedule as not possible and leave the original reservation exactly as it was. The customer still has their appointment, which is the position they were in before they asked - and is a far better outcome than the alternative",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "x.original-stands",
-        idempotencyKey: "booking_id + a.no-replacement",
+        idempotencyKey: "booking_id + reschedule_request_id + a.no-replacement",
       },
       {
         id: "x.original-stands",
@@ -1353,7 +1359,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Transfer the commitment to the new slot, recording the original time, the new one and the fact that this reservation moved. The original time stays readable - a reservation that only ever shows its current time cannot answer how many times it was moved, which is the first thing anyone investigating a service problem wants to know",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.release-old",
-        idempotencyKey: "booking_id + a.transfer",
+        idempotencyKey: "booking_id + reschedule_request_id + a.transfer",
       },
       {
         id: "a.release-old",
@@ -1361,7 +1367,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the original slot, and only now. Capacity returns to availability at the point the replacement is real, which is the ordering the whole journey exists to enforce",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.reconcile",
-        idempotencyKey: "booking_id + a.release-old",
+        idempotencyKey: "booking_id + reschedule_request_id + a.release-old",
       },
       {
         id: "a.reconcile",
@@ -1372,7 +1378,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "c.prep",
-        idempotencyKey: "booking_id + a.reconcile",
+        idempotencyKey: "booking_id + reschedule_request_id + a.reconcile",
       },
       {
         id: "c.prep",
@@ -1861,6 +1867,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.suppressed",
+        idempotencyKey: "booking_id + occurrence_id + a.suppress",
       },
       {
         id: "x.suppressed",
@@ -1921,6 +1928,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the occurrence as blocked at service time with the missing prerequisite, and do not start. Starting a service whose prerequisite is missing produces a partial or invalid delivery, which then needs a remedy - and the customer has spent the appointment either way",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "h.escalate",
+        idempotencyKey: "booking_id + occurrence_id + a.blocked",
       },
       {
         id: "h.escalate",
@@ -1938,6 +1946,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record READY_TO_START. The scheduled time arriving is not the service starting - the two are kept apart because everything between them can still fail, and most of what fails in this category fails exactly here",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "w.arrival",
+        idempotencyKey: "booking_id + occurrence_id + a.ready",
       },
       {
         id: "w.arrival",

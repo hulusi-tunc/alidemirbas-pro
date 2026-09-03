@@ -86,10 +86,10 @@ further check before treating it as anything more than an opening.
 **No behavioral/inferred trigger in this corpus silently becomes a conclusive state.** This is the
 silent-state analogue of the communication round's "engagement is never conclusive by itself"
 guardrail, and — unlike some guardrails that hold "mostly" — this one holds with zero counter-
-examples across all 64 states. Where the corpus falls short on this group is not authority
-discipline but idempotency: ACQ-01, IDN-90 (via its downstream ACC-79 handoff) both carry
-unrelated P0 findings (see `LIFECYCLE-STATES-AUDIT.md`), but neither is an authority problem — the
-behavioral signal itself is never the thing that breaks.
+examples across all 64 states. Where the corpus fell short on this group was never authority
+discipline but idempotency: ACQ-01, IDN-90 (via its downstream ACC-79 handoff) both carried
+unrelated P0 findings — both fixed in the round-2 repair (see `FIXES-APPLIED.md`) — and neither
+was ever an authority problem: the behavioral signal itself was never the thing that broke.
 
 ## `authoritative-system` states (48)
 

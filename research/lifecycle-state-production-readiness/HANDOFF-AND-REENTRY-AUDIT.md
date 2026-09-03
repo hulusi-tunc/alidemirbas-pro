@@ -5,31 +5,39 @@ construction (can the target actually build its own instance from what it's hand
 transfer, late-event handling, the reopen-vs-new-episode taxonomy, terminal-state discipline, the
 correction path, and cycle risk.
 
-## Receiver-side construction: the headline finding is clustering, not scatter
+## Receiver-side construction: the headline finding was clustering, not scatter
 
-15 of the 124 handoffs (5 P0, 10 P1) carry a provenance gap — the target's own declared instance
-key or contract-required field is not present in what the sender's `carries`/`contract` supplies.
-The important structural fact is that **these 15 findings collapse into just 4 distinct receiving
-targets**, not 15 independent problems:
+**Round 2 update: 14 of these 15 findings are closed.** Round 1 found 15 of the 124 handoffs
+(5 P0, 10 P1) carrying a provenance gap — the target's own declared instance key or
+contract-required field not present in what the sender's `carries`/`contract` supplied — and the
+important structural fact was that they collapsed into just 4 distinct receiving targets, not 15
+independent problems. The repair round fixed the sink, not the senders, exactly as recommended
+below, for 3 of those 4 clusters outright and half of the fourth:
 
-| Receiving state | Missing field | Senders (this round's 64, plus cross-round where noted) | Count |
-|---|---|---|---|
-| **ACC-79** (Capability Restoration) | `restoration_case_id` | ACC-78 (`h.restore`), FIN-136 (`h.restore`), IDN-90 (`h.recover`), IDN-90 (`h.lift`) | 4 |
-| **IDN-90** (Suspected Account Compromise) | `incident_id` | IDN-87 (`h.security`), IDN-88 (`h.security`) | 2 |
-| **FUL-145** (Fulfillment Exception Recovery) | `exception_id` | FUL-143 (`h.exception`), FUL-144 (`h.exception`) | 2 |
-| **FUL-149** (Delivery Acceptance Finalization) | `delivery_id` | FUL-144 (`h.confirm`), FUL-147 (`h.confirm`) | 2 |
-| REM-151 (outside this round's 64 — a communication-round journey) | `issue_id` | FUL-149 (`h.issue`) — a fourth cumulative instance of the same pattern into this target, counting the three found in the communication round | 1 (this round) |
-| ACQ-05 | `lead_id` | ACQ-01 (`h.qualification`) | 1 |
-| ACT-17 (outside this round's 64) | `use_case_id` | ACT-16 (`h.adoption`) | 1 |
-| RET-23 / RET-29 (self-contained, not a receiver-clustering case) | `subscription_id` | Each journey's own contract references a field it never declares itself — a sender-side gap, not a receiver-provenance gap | 2 |
+| Receiving state | Missing field | Senders (this round's 64, plus cross-round where noted) | Count | Status after round 2 |
+|---|---|---|---|---|
+| **ACC-79** (Capability Restoration) | `restoration_case_id` | ACC-78 (`h.restore`), FIN-136 (`h.restore`), IDN-90 (`h.recover`), IDN-90 (`h.lift`) | 4 | **Fixed, all 4** — one minting convention documented once in ACC-79's own `entity.note`, applied identically by all four senders |
+| **IDN-90** (Suspected Account Compromise) | `incident_id` | IDN-87 (`h.security`), IDN-88 (`h.security`) | 2 | **Fixed, 1 of 2** — IDN-88 now resolves `incident_id` via the account's already-open IDN-90 instance; IDN-87 carried no P0 in round 1 and was deliberately left for a follow-up pass rather than expanding this round's fix scope to a second journey (remaining P1, see `LIFECYCLE-STATES-AUDIT.md`'s IDN-87 entry) |
+| **FUL-145** (Fulfillment Exception Recovery) | `exception_id` | FUL-143 (`h.exception`), FUL-144 (`h.exception`) | 2 | **Fixed, both** — each handoff now mints `exception_id` deterministically at the handoff |
+| **FUL-149** (Delivery Acceptance Finalization) | `delivery_id` | FUL-144 (`h.confirm`), FUL-147 (`h.confirm`) | 2 | **Fixed, both** — each handoff now mints `delivery_id` deterministically at the handoff |
+| REM-151 (outside this round's 64 — a communication-round journey) | `issue_id` | FUL-149 (`h.issue`) — a fourth cumulative instance of the same pattern into this target, counting the three found in the communication round | 1 (this round) | **Fixed** — `h.issue` now mints `issue_id` at the handoff |
+| ACQ-05 | `lead_id` | ACQ-01 (`h.qualification`) | 1 | **Fixed** — `h.qualification` now mints a fresh `lead_id`, deterministically derived from the reconciled profile's own account/person identity |
+| ACT-17 (outside this round's 64) | `use_case_id` | ACT-16 (`h.adoption`) | 1 | **Fixed** — `h.adoption` now mints `use_case_id` explicitly at the handoff |
+| RET-23 / RET-29 (self-contained, not a receiver-clustering case) | `subscription_id` | Each journey's own contract references a field it never declares itself — a sender-side gap, not a receiver-provenance gap | 2 | **Fixed, both** — idempotencyKeys and handoff contracts now key on each journey's own declared instance key (`account_id + relationship_id` for RET-23, `relationship_id` for RET-29) instead of the undeclared `subscription_id` |
 
-**Recommendation: fix the four clustering receivers, not the ten senders.** Adding
-`restoration_case_id` to ACC-79's own receiving contract (either by having it mint one from
-`account_id` on entry, or by requiring every sender to carry one) resolves 4 of 15 findings at
-once; the same logic applies to IDN-90, FUL-145, and FUL-149. Fixing each sender independently —
-the naive per-handoff approach — would require four separate, uncoordinated changes to reach the
-same end state, with real risk of the four senders inventing four different shapes for the same
-missing field.
+**The one remaining gap (IDN-87's `h.security` → IDN-90) is the deliberate exception, not an
+oversight.** IDN-87 carried no P0 in round 1 (it was already `READY_WITH_MAPPING`), and this
+round's own scope discipline — fix P0s, extend to a P1 only when it is the identical defect
+inside the *same* journey as a P0 just fixed — argued against widening the fix into a second
+journey on a P1-only basis. The convention IDN-88 now uses (resolve `incident_id` via the
+account's already-open IDN-90 instance) is proven and ready to apply to IDN-87 in a follow-up
+pass.
+
+Original recommendation, now executed for 3.5 of 4 clusters: **fix the clustering receiver, not
+each sender.** Adding `restoration_case_id` resolution to ACC-79's own receiving contract (one
+minting convention, documented once) resolved 4 findings at once; the same approach resolved
+IDN-90 (partially), FUL-145, and FUL-149 without requiring four separate, uncoordinated sender
+changes that risked inventing four different shapes for the same missing field.
 
 ## Ownership transfer
 
@@ -54,15 +62,17 @@ is modeled in a minority of states but every instance found is handled correctly
   the record rather than being dropped — "a late system update is a reason to correct the record,
   not evidence that the record was right."
 - **IDN-89** (`s.g3`): propagation carries origin and version specifically so a stale update
-  arriving late cannot restore a previous value — though this round found the `origin`/`version`
-  fields the rule depends on are not actually declared attributes (a P1 finding on IDN-89 itself).
+  arriving late cannot restore a previous value — round 1 found the `origin`/`version` fields the
+  rule depends on were not declared attributes (a P1 finding on IDN-89 itself); round 2 declared
+  them (`change_origin`, `change_version`).
 - **SUB-165**: a payment arriving after the grace deadline reconciles against current relationship
   state, never applied retroactively (backed by a named guardrail, `end_before_grace_deadline`).
 - **REL-93** / **SUB-170**: neither state's ending erases or contradicts what a later-discovered
   obligation legitimately created during the active period is owed.
 
-No state was found mishandling a late event once one was checked for; where a gap exists (IDN-89),
-it is that the late-event rule has no data to run against, not that the rule is wrong.
+No state was found mishandling a late event once one was checked for; the one gap found (IDN-89 —
+the late-event rule had no data to run against, not that the rule was wrong) is closed as of
+round 2.
 
 ## Reopen taxonomy: re-entry is the overwhelming default
 
@@ -129,8 +139,10 @@ rather than a fresh append, it is narrow and explicit, never a blanket "undo":
   dispute lifecycles rather than reversing them from inside a security incident.
 
 No state was found silently rewriting history where a correction was called for; the one
-correction-adjacent P1 gap in the corpus (IDN-89's undeclared `origin`/`version` fields) is a data
-gap, not a design gap — the rule itself is right.
+correction-adjacent P1 gap in the corpus (IDN-89's undeclared `origin`/`version` fields, load-
+bearing for `s.g3`'s late-arrival discard rule) was a data gap, not a design gap — the rule itself
+was always right — and is closed as of round 2: `change_origin` and `change_version` are now
+declared required attributes.
 
 ## Cycle risk
 

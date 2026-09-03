@@ -4,8 +4,29 @@ Scope: could a real company implement each of these states safely in its own lif
 orchestration engine — instance identity, state authority, transitions, ownership, conflict,
 re-entry, terminality, correction, timing, handoffs, idempotency, observability — without
 inventing missing state semantics? This is the third round on the customer-facing canonical
-corpus, after the communicating-journey audit and its gap-closure round. Nothing in `src/`,
-`production/`, `search/`, or `seo/` is touched this round — audit only, per the brief.
+corpus, after the communicating-journey audit and its gap-closure round.
+
+## Round 2 repair — P0 = 0 (read this first)
+
+**This document is the round-1 audit, left in place as diagnostic narrative.** A second,
+repair round has since run and closed every P0 this document found: all 41 P0 findings across
+37 states are fixed directly in `src/canonical/*.ts`, re-verified against current source, and
+folded back into `lifecycle-state-contracts.json` and `READINESS-MATRIX.md` (both mechanically
+regenerated from the fixed source — treat those two files as the current authoritative state).
+Each state's `READINESS:` line and `GAPS:` block below have been mechanically updated to match;
+the surrounding `WHY` / `TEST CASES` prose is preserved as round-1's own diagnostic write-up and
+may still describe a defect in the past tense that the `GAPS:` block below it no longer lists —
+where the two disagree, `GAPS:` is current, the paragraph above it is history. Full detail —
+what was fixed, how, and why each fix is correct against source — lives in `FIXES-APPLIED.md`;
+the corpus-wide validators added to enforce these fixes going forward are in
+`VALIDATOR-COVERAGE.md`. Final distribution: READY 0, READY_WITH_MAPPING 64,
+NEEDS_CONTRACT_WORK 0, NEEDS_CANONICAL_CHANGE 0 — P0 0, P1 3, P2 42. Zero canonical-graph
+topology changes; the two `competition` blocks added (ACC-78, IDN-90) are metadata on existing
+nodes, not new nodes or edges.
+
+Nothing in `production/`, `search/`, or `seo/` was touched in either round; the repair round's
+only `src/` changes are inside `src/canonical/*.ts` (implementation metadata) and
+`scripts/vnext-rules.mjs` (three new validators, one severity change).
 
 ## Corpus confirmation — the count is 64, not 67
 
@@ -52,11 +73,22 @@ human-routing journeys found among the 64.
 
 ### Readiness distribution
 
+Round 1 (as audited, before repair):
+
 | Verdict | Count | % |
 |---|---|---|
 | READY | 0 | 0% |
 | READY_WITH_MAPPING | 27 | 42% |
 | NEEDS_CONTRACT_WORK | 37 | 58% |
+| NEEDS_CANONICAL_CHANGE | 0 | 0% |
+
+Round 2 (current, after repair — see "Round 2 repair" above and `READINESS-MATRIX.md`):
+
+| Verdict | Count | % |
+|---|---|---|
+| READY | 0 | 0% |
+| READY_WITH_MAPPING | 64 | 100% |
+| NEEDS_CONTRACT_WORK | 0 | 0% |
 | NEEDS_CANONICAL_CHANGE | 0 | 0% |
 
 **Zero states required a change to the canonical graph itself.** Every gap found this round —
@@ -71,16 +103,22 @@ production-ready contract already exists," and none of the 64 has the latter yet
 
 ### Priority counts
 
+Round 1 (as audited): P0 41, P1 15, P2 46, total 102.
+
+Round 2 (current, after repair):
+
 | Priority | Count |
 |---|---|
-| P0 | 41 |
-| P1 | 15 |
-| P2 | 46 |
-| **Total findings** | **102** |
+| P0 | 0 |
+| P1 | 3 |
+| P2 | 42 |
+| **Total findings** | **45** |
 
 (Counts are generated directly from `lifecycle-state-contracts.json`'s `gaps` arrays — see
 `READINESS-MATRIX.md`'s own totals line, which is produced by the same script and will not drift
-from this document.)
+from this document. The round-2 P1/P2 total is lower than round 1's 61 because several P1s were
+fixed alongside their P0s — see `FIXES-APPLIED.md`'s "Additional P1 repairs" — not because any
+finding was dropped without a fix.)
 
 **Readiness-verdict methodology.** A state is `NEEDS_CONTRACT_WORK` if it carries **any**
 unresolved P0 finding, regardless of how mechanically simple the eventual fix is, and regardless
@@ -100,6 +138,16 @@ the theory that the defect belongs to the sender side, not this state). All five
 explicitly in their `WHY` sections.
 
 ### Top 15 findings
+
+**Round-1 findings, describing defects as they stood before repair.** Findings 1-5 and 9 describe
+P0/P1 defects that round 2 has since fixed corpus-wide (idempotency-key shapes, the ACC-79
+handoff cluster, the ACC-78/IDN-90 conflict pair now a structured `competition` block) — kept
+here as the diagnostic record of what was wrong and why; see `FIXES-APPLIED.md` for the fix
+itself and the "Round 2 repair" note above for current totals. Findings 6-8, 10-13 and 15 are
+architectural observations about the corpus's design that repair did not change (no canonical
+graph was touched) and still hold as written. Finding 14's raw P2 count is now 42, not 46 (see
+"Priority counts" above); its substance — most P2s are missing handoff contract blocks on targets
+outside this round's 64 — is unchanged.
 
 1. **The idempotency-key defect the communication round fixed on 36 message-sending journeys is
    at least as prevalent on the silent side.** 41 P0 findings across 37 of 64 states (58%) — the
@@ -237,19 +285,20 @@ nothing (`channelPolicy`, `contact.competition`'s pressure-class fields — kept
 that both sends and orchestrates state (the 3 human-routing journeys excluded from this round's
 scope) can in principle be described by fields from both schemas without duplication.
 
-### What this round did not do
+### What this round (round 1) did not do
 
-Per the brief: no P0 was fixed, no canonical file was touched, no production file was touched. The
-41 P0 and 15 P1 findings above are recommendations for the separate repair round the user has
-already indicated will follow this audit, in the same shape as the communication round's own
-audit → repair sequence.
+Per the original brief: no P0 was fixed, no canonical file was touched, no production file was
+touched — this section describes round 1 as audit-only, which it was. The 41 P0 and 15 P1
+findings above were closed in the round-2 repair that followed, in the same shape as the
+communication round's own audit → repair sequence; see "Round 2 repair" at the top of this
+document and `FIXES-APPLIED.md` for what that round actually did.
 
 
 ## All 64 states, individually
 
 ## ACC-71 — Entitlement Qualification
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The grant/pending/denied split is exactly right — "qualified but capacity-blocked" is correctly
@@ -322,20 +371,13 @@ TEST CASES:
   instances by construction
 
 GAPS:
-- P0 [idempotency] a.evaluate/a.reconcile/a.grant idempotencyKeys all reference `person_id`, a
-  field absent from this state's required attributes (account_id + entitlement_key is the actual
-  key) — the same corpus-wide idempotencyKey template-copy defect closed on the communicating-
-  journey side, unfixed here. A same-basis retry of a.grant cannot be verified to grant once.
-- P2 [correction] the entity note references "two expiries and two revocations" as the failure
-  mode reconciliation prevents, implying a revocation concept exists, but no revocation/correction
-  path is modelled in this state itself (plausibly out of scope — a wrongly-granted entitlement's
-  reversal may belong to ACC-72 or a dedicated correction journey not in this round's 64).
+- P2 [correction] Entity note references two expiries/two revocations as a failure mode reconciliation prevents, implying a revocation concept, but no revocation/correction path is modelled in this state itself.
 
 ---
 
 ## ACC-78 — Access Suspension
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The reversibility discipline is real: `s.g1` states suspension is not termination, `s.g4` states a
@@ -405,19 +447,13 @@ TEST CASES:
 - re-entry: a.extend → x.extended → new instance with its own review point
 
 GAPS:
-- P0 [idempotency] a.scope/a.preserve/a.full/a.extend idempotencyKeys reference undeclared
-  `person_id`; real key is account_id + capability_scope.
-- P0 [handoff] h.restore → ACC-79 does not carry or mint `restoration_case_id`, which ACC-79's own
-  entity.instanceKey requires — the receiving instance cannot be constructed as written.
-- P2 [observability] c.review's human decision (extend/lift/escalate) names no reviewer/owner
-  field — a company implementing this cannot answer "who is deciding this, and have they seen it"
-  without an attribute this state doesn't declare.
+- P2 [observability] c.review's human decision (extend/lift/escalate) names no reviewer/owner field.
 
 ---
 
 ## ACC-79 — Capability Restoration
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The core discipline — "previous access is not a current access right," restoration re-evaluates
@@ -476,20 +512,13 @@ TEST CASES:
 - handoff: **cannot be constructed as the receiver of ACC-78/FIN-136's malformed handoffs — see
   their own gaps, not repeated here**
 
-GAPS:
-- P0 [idempotency] a.reevaluate/a.restore-full/a.restore-subset idempotencyKeys reference
-  undeclared `person_id`; real key is account_id + restoration_case_id.
-- P1 [instance] this state is the receiving end of two upstream handoffs (ACC-78's h.restore,
-  FIN-136's h.restore) that cannot mint `restoration_case_id` — not this state's own defect, but
-  its own instance-construction contract is only as good as its callers, and both currently fail
-  it. Recorded on the callers; cross-referenced here because it's this state's own key that can't
-  be satisfied.
+GAPS: none found.
 
 ---
 
 ## ACQ-01 — Anonymous Identity Resolution
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The identity-then-eligibility separation is sound (`s.g3`: "becoming known is not the same as
@@ -572,21 +601,13 @@ TEST CASES:
 - handoff: h.qualification fires → **ACQ-05's lead_id provenance unverifiable from this state
   alone — see gaps**
 
-GAPS:
-- P0 [idempotency] a.reconcile's idempotencyKey references `account_id` and `person_id`, neither
-  of which this state's own data model contains at any point — more severe than the ordinary
-  template-copy case, since the identity these fields would name is the exact thing this action is
-  in the middle of resolving. The correct key is almost certainly `anonymous_profile_id +
-  a.reconcile`.
-- P1 [handoff] h.qualification → ACQ-05 does not carry or visibly mint `lead_id`; whether ACQ-05
-  mints its own on entry is plausible (the same pattern seen corpus-wide) but unconfirmed from
-  this state's own contract.
+GAPS: none found.
 
 ---
 
 ## ACQ-02 — Interest Qualification Routing
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 Clean three-way routing (named destination / disqualified / needs education) with the permission-
@@ -653,9 +674,7 @@ TEST CASES:
 - handoff: h.destination fires with contract.requiredFields satisfied → destination lifecycle can
   construct its own record
 
-GAPS:
-- P0 [idempotency] a.record's idempotencyKey references undeclared `account_id`; real key is
-  `lead_id + a.record`.
+GAPS: none found.
 
 ---
 
@@ -727,15 +746,13 @@ TEST CASES:
   before the receiving lifecycle starts
 
 GAPS:
-- P2 [observability] the specific evidence that made c.strength judge a signal "real" (vs. noise)
-  is not retained as data anywhere in this state — only the pass/fail result. A company debugging
-  "why did this person escalate" after the fact has the outcome but not the reasoning trail.
+- P2 [observability] The specific evidence that made c.strength judge a signal real (vs. noise) is not retained as data anywhere, only the pass/fail result.
 
 ---
 
 ## ACQ-05 — Qualification State Routing
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The strongest correction-discipline in this batch: `s.g1` explicitly separates DISQUALIFIED's four
@@ -812,15 +829,13 @@ TEST CASES:
 - duplicate-event: a.read/a.mark-recycle/a.requalify retried → **cannot be verified idempotent as
   written — see gaps**
 
-GAPS:
-- P0 [idempotency] a.read/a.mark-recycle/a.requalify idempotencyKeys reference undeclared
-  `account_id`; real key is `lead_id + <action>`.
+GAPS: none found.
 
 ---
 
 ## ACQ-06 — Eligibility Recalculation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The best-designed correction boundary in the batch: `s.g3` states a future eligibility loss does
@@ -893,9 +908,7 @@ TEST CASES:
 - duplicate-event: a.evaluate/a.reconcile/a.block retried → **cannot be verified idempotent as
   written — see gaps**
 
-GAPS:
-- P0 [idempotency] a.evaluate/a.reconcile/a.block idempotencyKeys reference undeclared
-  `account_id`/`person_id`; real key is `entity_ref + rule_id + <action>`.
+GAPS: none found.
 
 ---
 
@@ -974,17 +987,13 @@ TEST CASES:
 - duplicate-event: a.downgrade/a.suppress retried → **cannot be verified idempotent as written —
   see gaps**
 
-GAPS:
-- P0 [idempotency] a.downgrade's idempotencyKey (`person_id + a.downgrade`) is actually correct —
-  `person_id` IS declared here. No violation on this action. a.suppress likewise correctly uses
-  `person_id`. **No idempotency gap found in this state** — the mechanical scan confirms both keys
-  resolve against declared attributes.
+GAPS: none found.
 
 ---
 
 ## ACQ-08 — Acquisition Exit Handoff
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The other half of the `purchase-intent` competition group, correctly at highest precedence — a
@@ -1048,15 +1057,13 @@ TEST CASES:
 - duplicate-event: a.scope/a.suppress retried → **cannot be verified idempotent as written — see
   gaps**
 
-GAPS:
-- P0 [idempotency] a.scope/a.suppress idempotencyKeys reference undeclared `contact_point_id`;
-  real key is `person_id + destination_entity_id + <action>`.
+GAPS: none found.
 
 ---
 
 ## ACQ-10 — Commercial Decline Routing
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The most careful reason-preservation discipline in this batch: `s.g1` makes overwriting the
@@ -1127,9 +1134,7 @@ TEST CASES:
 - re-entry: the recorded condition is met → h.requalify → ACQ-05, with full decline history
 - duplicate-event: a.capture retried → **cannot be verified idempotent as written — see gaps**
 
-GAPS:
-- P0 [idempotency] a.capture's idempotencyKey references undeclared `account_id`; real key is
-  `lead_id + decline_id + a.capture`.
+GAPS: none found.
 
 ---
 
@@ -1198,16 +1203,13 @@ TEST CASES:
 - duplicate-event: a.complete/a.invalidate/a.spin-off retried → correctly idempotent as written —
   no gap
 
-GAPS:
-- P1 [handoff] h.adoption → ACT-17 does not visibly carry `use_case_id`, which ACT-17's own
-  instance key includes; whether ACT-17 mints it on entry (the ordinary self-minting case seen
-  corpus-wide) is plausible but not confirmed from this state's own contract.
+GAPS: none found.
 
 ---
 
 ## CON-31 — Permission Validation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The scope-discipline is exhaustive and correctly narrow-read by default (`s.g3`), account creation
@@ -1267,9 +1269,7 @@ TEST CASES:
 - duplicate-event: a.capture/a.narrow/a.reconcile/a.activate retried → **cannot be verified
   idempotent as written — see gaps**
 
-GAPS:
-- P0 [idempotency] all four actions' idempotencyKeys reference undeclared `consent_record_id`;
-  real key is `person_id + purpose_channel_scope_key + <action>`.
+GAPS: none found.
 
 ---
 
@@ -1337,7 +1337,7 @@ GAPS: none found.
 
 ## CON-33 — Preference Recalculation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The queue-reaches-preference discipline is the sharpest in this batch: `s.g2` states a stale queued
@@ -1398,13 +1398,7 @@ TEST CASES:
 - duplicate-event: a.suppress retried → correctly idempotent. **a.adapt retried → cannot be
   verified at all, since it carries no idempotencyKey — see gaps**
 
-GAPS:
-- P0 [idempotency] a.adapt has no idempotencyKey and no `writes`, despite being a state-changing
-  action (it reshapes a pending action's execution) — its sibling a.suppress correctly has both.
-  A retried a.adapt cannot be verified to reshape a pending action exactly once, and no record
-  exists of what was adapted at all.
-- P2 [observability] adapted (vs. suppressed vs. unaffected) pending actions are not distinguished
-  in any retained field — x.recalculated is one exit for three different outcomes.
+GAPS: none found.
 
 ---
 
@@ -1544,12 +1538,7 @@ TEST CASES:
   gap
 
 GAPS:
-- P1 [config] `a.volatile`'s own text requires a validity period or revalidation condition be
-  attached to every volatile declared attribute, but no attribute or ConfigRef in this state's own
-  `implementation.attributes` names where that period lives — unlike ACQ-05's `recycle_horizon_at`
-  or ACC-78's `review_point_at`, there is no field an implementer can point to. A company cannot
-  mechanically enforce "a need stated for one quarter" not still steering decisions two years
-  later, which is exactly the failure mode `a.volatile`'s own prose warns against.
+- P1 [config] a.volatile's revalidation condition has no bound attribute or ConfigRef despite the graph's own text requiring one.
 
 ---
 
@@ -1634,13 +1623,8 @@ TEST CASES:
   effect of its own (c.governed and a.assign are what actually write state)**
 
 GAPS:
-- P2 [observability] x.owned states the action is "owned elsewhere" but names no field capturing
-  *which* journey/state that is — a company debugging "why did nothing dispatch from this state"
-  cannot trace the actual owner from this state's own data alone.
-- P2 [config] evidence decay is explicitly stated as varying by what's being assessed ("satisfaction
-  ages quickly, tenure does not") but no Config or attribute names the decay rate per assessment
-  type — lower severity than FBK-48's gap since the corpus states this is deliberately variable,
-  not a single missing horizon.
+- P2 [observability] x.owned names no owner field.
+- P2 [config] Decay rate is not bound to a declared Config.
 
 ---
 
@@ -1722,17 +1706,13 @@ TEST CASES:
   no gap
 
 GAPS:
-- P2 [instance] `implementation.attributes.required` names only `obligation_id` and
-  `obligation_log`, while `a.record`'s own text requires amount, currency, payer, payee, due date,
-  source and related entity be captured — none of these are separately declared as required
-  attributes, unlike every other state in this batch. Not a blocker (the fields are named in
-  prose and clearly intended), but a documentation gap relative to this corpus's own convention.
+- P2 [instance] implementation.attributes.required names only obligation_id and obligation_log, while a.record's own text requires amount/currency/payer/payee/due date/source/related entity be captured; none separately declared.
 
 ---
 
 ## FIN-136 — Balance Reconciliation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The exactly-once discipline is explicit and structural, not just stated: `s.g1` ("a payment
@@ -1801,18 +1781,13 @@ TEST CASES:
 - handoff: h.restore fires → **cannot construct ACC-79's instance as written — see gaps**
 - correction: an amount exceeding what was owed → h.overpayment, not silently absorbed
 
-GAPS:
-- P0 [handoff] h.restore → ACC-79 does not carry or mint `restoration_case_id`, which ACC-79's
-  own entity.instanceKey requires — the same defect as ACC-78's own h.restore into the same
-  target; two independent upstream states now share this one unresolved receiver-construction
-  question. Worth resolving once, at ACC-79's own boundary (a documented `restoration_case_id`
-  derivation rule), rather than twice at each caller.
+GAPS: none found.
 
 ---
 
 ## FUL-141 — Fulfillment Request Validation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 A precise responsibility-begins-here boundary: `s.g1` and `s.g2` both refuse to let a request
@@ -1883,21 +1858,13 @@ TEST CASES:
 - duplicate-event: a.capture/a.reject/a.hold/a.accept retried → **cannot be verified idempotent
   as written — see gaps**
 
-GAPS:
-- P0 [idempotency] all four actions' idempotencyKeys reference `order_id`, undeclared anywhere in
-  this state, and `obligation_id`, which this state's own text creates at `a.accept` but never
-  formally declares as a required attribute — the real key for pre-acceptance actions
-  (a.capture/a.reject/a.hold) is `request_id + <action>`; a.accept's own key is defensibly
-  `request_id + <action>` too, since `obligation_id` is what it is *minting*, not consuming.
-- P2 [instance] `obligation_id` should be declared as a field this state derives (via a.accept's
-  own `writes`), matching the pattern used elsewhere in the corpus for a state that mints an
-  identifier its own successor requires.
+GAPS: none found.
 
 ---
 
 ## FUL-142 — Fulfillment Allocation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The catalog-vs-allocatable distinction is enforced structurally, not just stated: `s.g1`/`s.g2`
@@ -1966,15 +1933,13 @@ TEST CASES:
 - duplicate-event: a.evaluate/a.backorder/a.unavailable retried → **cannot be verified idempotent
   as written — see gaps**
 
-GAPS:
-- P0 [idempotency] a.evaluate/a.backorder/a.unavailable idempotencyKeys reference undeclared
-  `person_id`; real key is `obligation_id + <action>`.
+GAPS: none found.
 
 ---
 
 ## FUL-143 — Resource Reservation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The most careful scoping discipline in the fulfillment chain: `s.g3` states a release "affects
@@ -2048,19 +2013,13 @@ TEST CASES:
   order_id — see gaps**
 - handoff: h.exception fires → **cannot construct FUL-145's instance as written — see gaps**
 
-GAPS:
-- P0 [idempotency] all five actions' idempotencyKeys reference undeclared `order_id`; real key is
-  `allocation_id + <action>` (obligation_id, already present, may also belong depending on
-  whether dedup should scope per-allocation or per-obligation-attempt — a company mapping this
-  will need to decide which).
-- P1 [handoff] h.exception → FUL-145 does not carry or mint `exception_id`, which FUL-145's own
-  entity.instanceKey requires.
+GAPS: none found.
 
 ---
 
 ## FUL-144 — Fulfillment Execution
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The strongest business-outcome-vs-internal-step separation in this batch: `s.g1` states an
@@ -2139,13 +2098,7 @@ TEST CASES:
 - handoff: h.dispatch/h.confirm/h.exception fire → **three of five receivers' instances cannot be
   constructed from this state's own contract as written — see gaps**
 
-GAPS:
-- P0 [idempotency] all four actions' idempotencyKeys reference undeclared `order_id`; real key is
-  `obligation_id + <action>`.
-- P1 [handoff] h.dispatch → FUL-147 does not carry/mint `dispatch_id`; h.confirm → FUL-149 does
-  not carry/mint `delivery_id`; h.exception → FUL-145 does not carry/mint `exception_id` — three
-  independent receiver-construction gaps out of five handoffs from a single state, the highest
-  concentration found in this batch so far.
+GAPS: none found.
 
 ---
 
@@ -2223,15 +2176,13 @@ TEST CASES:
   written — no gap
 
 GAPS:
-- P2 [observability] w.approval names no field capturing who the approval decision is being
-  waited on (the recipient vs. an internal business approver) — a company debugging a stalled
-  exception cannot tell from this state's own data who the ball is with.
+- P2 [observability] w.approval names no approver field.
 
 ---
 
 ## FUL-147 — Delivery Outcome Tracking
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The provider-timeout-is-not-a-failure discipline is exactly right and explicit (`s.g3`), and
@@ -2300,20 +2251,13 @@ TEST CASES:
 - duplicate-event: a.persist/a.unknown retried, or the same delivery event arriving twice →
   **cannot be verified idempotent as written despite s.g4's own guarantee — see gaps**
 
-GAPS:
-- P0 [idempotency] a.persist/a.unknown idempotencyKeys reference undeclared `order_id`; real key
-  is `dispatch_id + <action>` — the gap directly undercuts this state's own stated guarantee
-  (s.g4: "duplicate delivery events are idempotent").
-- P1 [handoff] h.confirm → FUL-149 does not carry/mint `delivery_id`, which FUL-149's own
-  instance key requires alongside `obligation_id` (already present).
-- P2 [config] h.reconcile's own `contract.requiredFields` names `order_id`, the same undeclared
-  field driving the idempotencyKey gap above — worth fixing once at the source.
+GAPS: none found.
 
 ---
 
 ## FUL-149 — Delivery Acceptance Finalization
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The delivered-vs-accepted separation is exactly right, with `s.g2` explicitly refusing to invent
@@ -2380,13 +2324,7 @@ TEST CASES:
 - duplicate-event: a.record/a.finalize retried → **cannot be verified idempotent as written — see
   gaps**
 
-GAPS:
-- P0 [idempotency] a.record/a.finalize idempotencyKeys reference undeclared `order_id`/
-  `person_id`; real key is `obligation_id + delivery_id + <action>`.
-- P1 [handoff] h.issue → REM-151 does not carry or mint `issue_id`, which REM-151's own instance
-  key requires — the same recurring identifier-provenance pattern the communication-layer round
-  found and fixed on three of REM-151's other upstream handoffs (SCH-180, FUL-148, REM-152); this
-  is a fourth, previously unaudited instance of the identical gap into the same target.
+GAPS: none found.
 
 ---
 
@@ -2540,16 +2478,13 @@ TEST CASES:
 - duplicate-event: a.evaluate/a.restrict retried → correctly idempotent as written — no gap
 
 GAPS:
-- P1 [handoff] h.security → IDN-90 does not carry or mint `incident_id`, which IDN-90's own
-  instance key requires — the same gap found independently on IDN-88's own h.security into the
-  same target (see below); two independent upstream states share this one unresolved receiver-
-  construction question at IDN-90's boundary.
+- P1 [handoff] h.security -> IDN-90 missing incident_id resolution (IDN-88's identical handoff into the same target now resolves it via account_id; this journey's own instance was left for a follow-up pass since it carried no P0).
 
 ---
 
 ## IDN-88 — Account Recovery Verification
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
 The strongest security discipline in this batch: `s.g1` states recovery "is a different route to
@@ -2632,19 +2567,13 @@ TEST CASES:
   verified idempotent as written — see gaps**
 
 GAPS:
-- P0 [idempotency] all five actions' idempotencyKeys reference undeclared `issue_id`; real key is
-  `recovery_case_id + account_id + <action>`.
-- P1 [handoff] h.security → IDN-90 does not carry or mint `incident_id`, which IDN-90's own
-  instance key requires — the same gap found independently on IDN-87's own h.security into the
-  same target; worth resolving once at IDN-90's own boundary rather than twice at each caller.
-- P2 [observability] h.review's human decision point names no reviewer/owner field, the same
-  pattern found on ACC-78's c.review.
+- P2 [observability] h.review names no reviewer field (same pattern as ACC-78).
 
 ---
 
 ## IDN-89 — Identity Attribute Update
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: Instance model, transitions, exits and versioning discipline are sound, but 4 of 5
 actions key on `person_id`, a field this journey never declares — the same systemic
@@ -2712,20 +2641,13 @@ TEST CASES:
   independent instances (tests the composite instance key).
 
 GAPS:
-- P0 (idempotency): `account_id + person_id + <action>` used on a.sensitivity, a.update,
-  a.propagate, a.reconcile; `person_id` is not a declared attribute of this journey.
-- P1 (correction): `origin` and `version`, load-bearing for s.g3's late-arrival discard rule,
-  are not declared as required attributes or dependents fields — the rule has no data to run
-  against.
-- P2 (idempotency): `a.verify` carries neither an idempotencyKey nor a writes entry; it only
-  triggers the wait. Likely intentional (no direct write), but worth confirming it can't
-  double-fire a verification challenge on retry.
+- P2 [idempotency] a.verify carries neither an idempotencyKey nor a writes entry; it only triggers the wait.
 
 ---
 
 ## IDN-90 — Suspected Account Compromise
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The strongest example in this batch of a `behavioral-inference` trigger handled
 correctly end to end — validated before any conclusive action, contained reversibly, and
@@ -2807,20 +2729,13 @@ TEST CASES:
   (verify no orchestration ambiguity; today nothing declares the relationship either way).
 
 GAPS:
-- P0 (handoff): h.recover and h.lift both hand off to ACC-79 without a contract block; ACC-79
-  needs `restoration_case_id`, which neither this journey nor ACC-78/FIN-136 (the two other
-  senders into the same target) declares. Fixing ACC-79's receiving contract once would close
-  all four instances at once.
-- P2 (conflict): the IDN-90/ACC-78 relationship (can coexist? does either take precedence?) is
-  documented in prose (`distinctFrom`) but not modeled as a `ConflictRef`.
-- P2 (handoff): h.review→DEC-181 has no contract block (consistent corpus-wide pattern for
-  DEC-181-targeted handoffs).
+- P2 [handoff] h.review -> DEC-181 has no contract block.
 
 ---
 
 ## REL-100 — Orphan Relationship Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: A well-reasoned state machine — explicit orphan state instead of a null field, inherited
 obligations kept live, a policy end-state that stays re-openable — undercut by an idempotency
@@ -2891,13 +2806,8 @@ TEST CASES:
   own reEntry note).
 
 GAPS:
-- P0 (idempotency): a.state, a.hold, a.reassign, a.revalidate all key on `relationship_id`,
-  which is not a declared attribute and — by this journey's own premise — usually does not yet
-  exist. `entity_ref + relationship_type + <action>` (the actual instance key) is the field
-  that should be there; this looks like a copy from the sibling REL-91/92/93 states, which do
-  legitimately own `relationship_id`.
-- P2 (handoff): h.manual and h.escalate omit contract blocks (consistent corpus pattern).
-- P2 (observability): no structured "orphaned since" field independent of the append log.
+- P2 [handoff] h.manual and h.escalate omit contract blocks.
+- P2 [observability] No structured 'orphaned since' field independent of the append log.
 
 ---
 
@@ -2963,10 +2873,8 @@ TEST CASES:
 - re-entry: x.rejected reassessed under a different basis, as its own attempt.
 
 GAPS:
-- P1 (config/time): x.pending has no wait node, timeout, or SLA — unlike REL-100's structurally
-  analogous "unresolved" state, a relationship can sit PENDING_EVIDENCE indefinitely with
-  nothing to escalate it.
-- P2 (handoff): h.verify→IDN-82 omits a contract block.
+- P1 [config] x.pending has no wait node, timeout, or SLA -- a relationship can sit PENDING_EVIDENCE indefinitely with nothing to escalate it.
+- P2 [handoff] h.verify -> IDN-82 omits a contract block.
 
 ---
 
@@ -3033,8 +2941,7 @@ TEST CASES:
   currently unspecified).
 
 GAPS:
-- P2 (handoff): h.ownership and h.entitlement both omit contract blocks (consistent corpus
-  pattern; OWN-54/ACC-73 receiving-side needs are not audited in this round).
+- P2 [handoff] h.ownership and h.entitlement both omit contract blocks.
 
 ---
 
@@ -3106,7 +3013,7 @@ GAPS: none found.
 
 ## REL-94 — Role Authority Update
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The delta model (grant/revoke only the difference, never touch shared capabilities) and
 the historical-action-preservation discipline are both sound. Both actions key on
@@ -3164,17 +3071,13 @@ TEST CASES:
   exactly why not.
 
 GAPS:
-- P0 (idempotency): a.delta and a.apply both key on `account_id + relationship_id + <action>`;
-  `relationship_id` is undeclared, and the two fields that actually identify this instance
-  (`member_id`, `role_id`) are unused in the key entirely.
-- P2 (handoff): h.authority and h.entitlement omit contract blocks (consistent corpus
-  pattern).
+- P2 [handoff] h.authority and h.entitlement omit contract blocks.
 
 ---
 
 ## REM-156 — Corrective Reperformance
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: Correction discipline is exemplary — the original defective outcome is explicitly
 preserved rather than overwritten (a.preserve is its own action, not a side effect of
@@ -3238,10 +3141,7 @@ TEST CASES:
   remaining scope stated explicitly rather than implied closed.
 
 GAPS:
-- P0 (idempotency): a.define, a.preserve, a.execute, a.partial all key on
-  `order_id + obligation_id + <action>`; neither field is declared, and the journey's actual
-  instance key (`correction_id`) is unused in every one.
-- P2 (handoff): h.verify, h.alternative, h.escalate all omit contract blocks.
+- P2 [handoff] h.verify, h.alternative, h.escalate all omit contract blocks.
 
 ---
 
@@ -3303,7 +3203,7 @@ TEST CASES:
   the "worth acting on" threshold explicitly, not just direction).
 
 GAPS:
-- P2 (handoff): h.health→RET-23 omits a contract block.
+- P2 [handoff] h.health -> RET-23 omits a contract block.
 
 ---
 
@@ -3367,16 +3267,13 @@ TEST CASES:
 - re-entry (currently unverifiable as specified): a second miss on the same use_case_id — needs
   `corroborating_evidence` or an equivalent history field to actually accumulate.
 
-GAPS:
-- P1 (observability/data): no action in this journey writes to `corroborating_evidence` or any
-  other field, yet the stated re-entry model ("absence accumulates into evidence") requires
-  something to persist between instances for a second miss to be distinguishable from a first.
+GAPS: none found.
 
 ---
 
 ## RET-23 — Health Deterioration Diagnosis
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The routing model is the corpus's most disciplined diagnostic router — a composite score
 must decompose into a named cause before anything routes, an incentive is explicitly barred as
@@ -3448,14 +3345,8 @@ TEST CASES:
   it can actually be populated given the journey never declares it.
 
 GAPS:
-- P0 (idempotency): a.decompose and a.diagnostic both key on `subscription_id + account_id +
-  <action>`; `subscription_id` is undeclared anywhere in this journey's attributes.
-- P0 (handoff): the contract blocks on h.technical, h.payment and h.ownership all require
-  `subscription_id` as a handed-off field, which this journey has no declared source for —
-  the same underlying gap surfacing on the sending side of three handoffs at once.
-- P2 (conflict): the stated RET-23/RET-24 coexistence is documented in prose only, not as a
-  `ConflictRef`.
-- P2 (handoff): h.adoption, h.setup, h.service, h.recovery all omit contract blocks.
+- P2 [conflict] The stated RET-23/RET-24 coexistence is documented in prose only, not as a ConflictRef.
+- P2 [handoff] h.adoption, h.setup, h.service, h.recovery all omit contract blocks.
 
 ---
 
@@ -3527,13 +3418,13 @@ TEST CASES:
   own conclusion.
 
 GAPS:
-- P2 (handoff): h.rediagnose→RET-23 omits a contract block.
+- P2 [handoff] h.rediagnose -> RET-23 omits a contract block.
 
 ---
 
 ## RET-29 — Cancellation Wind-Down
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The ordering discipline (invalidation runs before anything else is worked out) and the
 three-way separation of subscription/account/data lifecycles are both sound. All three actions,
@@ -3595,16 +3486,13 @@ TEST CASES:
 - correction: a save offer already queued before cancellation is invalidated by a.invalidate
   before c.access even runs (tests s.g4's ordering).
 
-GAPS:
-- P0 (idempotency): a.invalidate, a.termination-state, a.wind-down all key on
-  `subscription_id + relationship_id + <action>`; `subscription_id` is undeclared.
-- P0 (handoff): h.obligations' own contract requires the same undeclared `subscription_id`.
+GAPS: none found.
 
 ---
 
 ## SCH-172 — Temporary Slot Hold
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: This is the corpus's most explicit statement yet that "creation and release are both
 idempotent" (s.g3) is a canonical rule — and the one place so far where the idempotencyKey
@@ -3667,18 +3555,13 @@ TEST CASES:
   same call).
 
 GAPS:
-- P0 (idempotency): a.create, a.expire, a.release, a.consume all key on
-  `person_id + <action>`; `person_id` is undeclared, and the correct field
-  (`requester_id`, or `hold_id` alone) is unused. This directly undercuts s.g3, the journey's
-  own stated canonical rule.
-- P2 (conflict): s.g4's real-capacity-vs-assumed-capacity rule is prose-only, not a
-  `ConflictRef`.
+- P2 [conflict] s.g4's real-capacity-vs-assumed-capacity rule is prose-only, not a ConflictRef.
 
 ---
 
 ## SCH-173 — Reservation Validation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The revalidate-before-confirm discipline and the explicit request-is-not-a-confirmation
 boundary are both well modeled. Every writing action keys on `booking_id` — a field this
@@ -3746,17 +3629,13 @@ TEST CASES:
 - timeout: w.pending unanswered → a.lapse → x.lapsed, capacity released.
 
 GAPS:
-- P0 (idempotency): a.capture, a.reject, a.pending, a.lapse, a.confirm all key on
-  `booking_id + <action>`; `booking_id` is undeclared and, for most of the journey's own life,
-  does not yet exist — `reservation_request_id` is the field these keys should use.
-- P2 (handoff): h.alternative and h.prepare both omit contract blocks; h.prepare in particular
-  should carry the `booking_id` minted at confirmation explicitly.
+- P2 [handoff] h.alternative and h.prepare both omit contract blocks; h.prepare should carry the booking_id minted at confirmation explicitly.
 
 ---
 
 ## SCH-174 — Reservation Readiness
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: A carefully scoped state — preparation is explicitly subordinate to the booking, never
 moves the confirmed time, and is the journey's own stated example of "silence is not
@@ -3827,17 +3706,13 @@ TEST CASES:
   x.upcoming anyway.
 
 GAPS:
-- P0 (idempotency): none of a.determine, a.initiate, a.at-risk, a.ready declares an
-  idempotencyKey, despite four of the five actions writing to preparation_log — a retry at any
-  step could duplicate log entries or re-initiate an already-running prerequisite journey,
-  which c.existing's own duplicate-prevention logic depends on not happening.
-- P2 (handoff): h.escalate omits a contract block.
+- P2 [handoff] h.escalate omits a contract block.
 
 ---
 
 ## SCH-175 — Reschedule Validation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The release-after-secure ordering (never release the original until the replacement is
 committed) is enforced by the action sequence itself, not just stated in prose — one of the
@@ -3907,13 +3782,8 @@ TEST CASES:
   reschedule_request_id in the idempotency key.
 
 GAPS:
-- P0 (idempotency): a.preserve, a.no-replacement, a.transfer, a.release-old, a.reconcile all
-  key on `booking_id + <action>` alone; `reschedule_request_id` — the other half of this
-  journey's own declared instance key — is dropped, so two genuinely different reschedule
-  attempts against the same booking could collide under retry/dedup logic.
-- P2 (conflict): the two-concurrent-reschedule-requests case the instance key structurally
-  allows is not arbitrated by any declared rule.
-- P2 (handoff): h.prepare→SCH-174 omits a contract block.
+- P2 [conflict] The two-concurrent-reschedule-requests case the instance key structurally allows is not arbitrated by any declared rule.
+- P2 [handoff] h.prepare -> SCH-174 omits a contract block.
 
 ---
 
@@ -3985,14 +3855,13 @@ TEST CASES:
   correctly modeled split-state case).
 
 GAPS:
-- P2 (handoff): h.provider, h.refund, h.fee all omit contract blocks (h.reconcile is the one
-  clean example in this state).
+- P2 [handoff] h.provider, h.refund, h.fee all omit contract blocks (h.reconcile is clean).
 
 ---
 
 ## SCH-177 — Pre-Service Revalidation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The revalidate-from-now discipline is the strongest single design idea in the scheduling
 domain, applied consistently here at start-time. But none of the three writing actions —
@@ -4065,10 +3934,7 @@ TEST CASES:
   as a miss (tests s.cancelled-inside-window).
 
 GAPS:
-- P0 (idempotency): a.suppress, a.blocked, a.ready all write state but declare no
-  idempotencyKey; a retry at any of these steps risks duplicate log entries or, for a.suppress,
-  a duplicate suppressed_sends entry.
-- P2 (handoff): all five outbound handoffs omit contract blocks.
+- P2 [handoff] All five outbound handoffs omit contract blocks.
 
 ---
 
@@ -4211,13 +4077,13 @@ TEST CASES:
   existing record rather than being dropped (tests s.g4).
 
 GAPS:
-- P2 (handoff): all five outbound handoffs omit contract blocks.
+- P2 [handoff] All five outbound handoffs omit contract blocks.
 
 ---
 
 ## SUB-161 — Relationship Activation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The existence-vs-running distinction (a record created is not a relationship active,
 s.g1) and the activation-does-not-imply-entitlement boundary (s.g4) are both well modeled. All
@@ -4281,11 +4147,7 @@ TEST CASES:
   reopen; a new agreement starts fresh, correctly.
 
 GAPS:
-- P0 (idempotency): a.create, a.pending-date, a.requirements, a.pending-req, a.abandon,
-  a.activate all key on `subscription_id + relationship_id + <action>`; `subscription_id` is
-  undeclared — the third instance of this exact pattern (after RET-23, RET-29), which points to
-  a systemic gap rather than three unrelated ones.
-- P2 (handoff): h.scheduled and h.entitlement both omit contract blocks.
+- P2 [handoff] h.scheduled and h.entitlement both omit contract blocks.
 
 ---
 
@@ -4361,13 +4223,13 @@ TEST CASES:
 - timeout (hold): w.hold unanswered → a.failed → x.failed, no retroactive activation later.
 
 GAPS:
-- P2 (handoff): h.entitlement→ACC-71 omits a contract block.
+- P2 [handoff] h.entitlement -> ACC-71 omits a contract block.
 
 ---
 
 ## SUB-165 — Renewal Payment Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The state-vs-money separation (this journey holds the relationship's state; payment
 recovery and its messaging belong entirely to FIN-134, per s.no-messages-here) is an exemplary,
@@ -4444,13 +4306,7 @@ TEST CASES:
 - timeout: w.recovery unanswered at grace_deadline_at → a.lapse → h.end.
 
 GAPS:
-- P0 (idempotency): a.recovery (`renewal_cycle_id + grace state`) and a.restrict
-  (`renewal_cycle_id + restriction scope`) both use non-field prose fragments as idempotency
-  keys rather than declared attribute references, and both omit `subscription_id`, half of this
-  journey's own composite instance key.
-- P0 (idempotency): a.state, a.alternate, a.lapse all write state (relationship_log or
-  renewal_log) but declare no idempotencyKey at all.
-- P2 (handoff): h.undefined, h.complete, h.end all omit contract blocks.
+- P2 [handoff] h.undefined, h.complete, h.end all omit contract blocks.
 
 ---
 
@@ -4530,7 +4386,7 @@ TEST CASES:
   apply time → a.not-applied → x.not-applied, terms left unchanged (never half-applied).
 
 GAPS:
-- P2 (handoff): all four outbound handoffs omit contract blocks.
+- P2 [handoff] All four outbound handoffs omit contract blocks.
 
 ---
 
@@ -4603,9 +4459,8 @@ TEST CASES:
   was not audited here).
 
 GAPS:
-- P2 (handoff): all four outbound handoffs omit contract blocks.
-- P2 (conflict): the `relationship-continuity` exclusionGroup's counterpart declaration (on
-  whichever renewal-decision journey shares it) is outside this round's scope to verify.
+- P2 [handoff] All four outbound handoffs omit contract blocks.
+- P2 [conflict] The relationship-continuity exclusionGroup's counterpart declaration is outside this round's scope to verify.
 
 ---
 
@@ -4667,7 +4522,7 @@ TEST CASES:
   design, since a superseded cancellation simply never executes.
 
 GAPS:
-- P2 (handoff): h.end→SUB-170 omits a contract block.
+- P2 [handoff] h.end -> SUB-170 omits a contract block.
 
 ---
 
@@ -4743,7 +4598,7 @@ TEST CASES:
   review → h.end.
 
 GAPS:
-- P2 (handoff): h.review and h.end both omit contract blocks.
+- P2 [handoff] h.review and h.end both omit contract blocks.
 
 ---
 
@@ -4816,7 +4671,7 @@ TEST CASES:
   of the relationship having ended (tests s.g5 directly).
 
 GAPS:
-- P2 (handoff): h.escalate→OWN-55 omits a contract block.
+- P2 [handoff] h.escalate -> OWN-55 omits a contract block.
 
 ---
 
@@ -4887,14 +4742,13 @@ TEST CASES:
   forward unreset.
 
 GAPS:
-- P2 (handoff): h.orphan and h.escalate omit contract blocks (h.consequence is the clean
-  example in this state).
+- P2 [handoff] h.orphan and h.escalate omit contract blocks (h.consequence is clean).
 
 ---
 
 ## TIM-65 — Grace Period Management
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The fixed-at-entry grace end (never extended by activity, engagement or partial recovery)
 is one of the strongest anti-inference rules in the corpus. Both writing actions, a.record and
@@ -4964,15 +4818,13 @@ TEST CASES:
 - re-entry: a further lapse on the same entity opens a new grace episode, its own instance.
 
 GAPS:
-- P0 (idempotency): neither a.record nor a.restore declares an idempotencyKey, despite both
-  writing to grace_log — a retry at either step risks a duplicate log entry.
-- P2 (handoff): h.revalidate and h.expire both omit contract blocks.
+- P2 [handoff] h.revalidate and h.expire both omit contract blocks.
 
 ---
 
 ## TRM-105 — Responsibility Handover
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The effective-time-is-load-bearing discipline (a future handover is not an immediate
 authority change, and both actors are revalidated at the effective time rather than at
@@ -5045,16 +4897,13 @@ TEST CASES:
   questioned — asserted as a historical fact, untouched by the handover (tests s.g2).
 
 GAPS:
-- P0 (idempotency): a.define, a.inventory, a.prepare, a.revalidate, a.activate, a.invalidate all
-  key on `person_id + <action>`; `person_id` is undeclared and references neither actor nor
-  either half of this journey's own composite instance key (`role_id`, `handover_id`).
-- P2 (handoff): h.hold and h.escalate both omit contract blocks.
+- P2 [handoff] h.hold and h.escalate both omit contract blocks.
 
 ---
 
 ## TRM-107 — Account Closure Reconciliation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The most disciplined "our record ending does not end anyone else's" state in the corpus —
 verified, not assumed, termination of every external dependency, with failures surfaced rather
@@ -5127,17 +4976,13 @@ TEST CASES:
   against the first closure's log entries given the missing closure_id in the key.
 
 GAPS:
-- P0 (idempotency): a.inventory, a.verify-termination, a.separate, a.record-final,
-  a.record-unresolved, a.record-remaining all key on `account_id + <action>` alone;
-  `closure_id` — the other half of this journey's own declared composite instance key — is
-  dropped from every one.
-- P2 (handoff): h.escalate omits a contract block.
+- P2 [handoff] h.escalate omits a contract block.
 
 ---
 
 ## TRM-108 — Account Closure Wind-Down
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY: The strongest anti-reactivation statement in the entire corpus — a closed account is
 explicitly never reopened by a stale login, a queued onboarding event, or any other behavioral
@@ -5206,11 +5051,7 @@ TEST CASES:
   reactivation of this account (tests s.g3).
 
 GAPS:
-- P0 (idempotency): a.suppress, a.guard, a.scope all key on
-  `obligation_id + account_id + <action>`; `obligation_id` is undeclared, and this journey's
-  own granularity (one instance per account-level closure, not per obligation) makes an
-  obligation-scoped key a structural mismatch rather than just a missing field.
-- P2 (handoff): h.escalate omits a contract block.
+- P2 [handoff] h.escalate omits a contract block.
 
 ---
 

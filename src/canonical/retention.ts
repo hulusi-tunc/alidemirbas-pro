@@ -468,8 +468,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.inspect",
         kind: "action",
-        does: "Look for evidence around the absence: repeated failures, an unresolved blocker, falling value realisation, negative feedback, narrowing depth or breadth, any exploration of cancellation",
+        does: "Look for evidence around the absence: repeated failures, an unresolved blocker, falling value realisation, negative feedback, narrowing depth or breadth, any exploration of cancellation. Record the miss itself, corroborated or not, so a later miss on the same use case has something to accumulate against - absence is evidence only in aggregate, and an aggregate needs a record to add to",
+        writes: [{ field: "corroborating_evidence", mode: "append" }],
         next: "c.corroborated",
+        idempotencyKey: "account_id + use_case_id + a.inspect",
       },
       {
         id: "c.corroborated",
@@ -642,7 +644,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Break the deterioration into the evidence that produced it. A score that cannot say which input moved cannot be routed on, and routing on it anyway is how every cause ends up receiving the same message",
         writes: [{ field: "health_evidence", mode: "append" }],
         next: "c.cause",
-        idempotencyKey: "subscription_id + account_id + a.decompose",
+        idempotencyKey: "account_id + relationship_id + a.decompose",
       },
       {
         id: "c.cause",
@@ -714,7 +716,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         suppresses: ["promotional retention messaging while the fault is open"],
         contract: {
           "requiredFields": [
-            "subscription_id",
+            "relationship_id",
             "account_id",
             "handed_at",
             "reason"
@@ -736,7 +738,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         carries: ["the failed payment or dispute", "the entitlement currently at stake"],
         contract: {
           "requiredFields": [
-            "subscription_id",
+            "relationship_id",
             "account_id",
             "handed_at",
             "reason"
@@ -754,7 +756,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         contract: {
           "requiredFields": [
-            "subscription_id",
+            "relationship_id",
             "account_id",
             "handed_at",
             "reason"
@@ -775,7 +777,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Open a bounded diagnostic: observe, and where appropriate ask. No incentive is attached, because an incentive offered before the cause is known teaches us nothing about the cause",
         next: "w.diagnostic",
-        idempotencyKey: "subscription_id + account_id + a.diagnostic",
+        idempotencyKey: "account_id + relationship_id + a.diagnostic",
       },
       {
         id: "w.diagnostic",
@@ -1150,7 +1152,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         contract: {
           "requiredFields": [
-            "subscription_id",
+            "relationship_id",
             "account_id",
             "handed_at",
             "reason"
@@ -2351,7 +2353,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Invalidate save offers, renewal prompts, cancellation reminders, retention tasks and promotional actions that are now incompatible - including everything already queued. This runs first, before anything else is worked out, because the cost of it running late is a save offer arriving after someone has already gone",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.termination-state",
-        idempotencyKey: "subscription_id + relationship_id + a.invalidate",
+        idempotencyKey: "relationship_id + a.invalidate",
       },
       {
         id: "a.termination-state",
@@ -2359,7 +2361,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Establish when this actually ends: immediately, at the end of the current period, or on a scheduled future date. Everything downstream depends on which, and assuming immediate is how paid entitlement gets revoked early",
         writes: [{ field: "termination_state", mode: "set" }],
         next: "c.access",
-        idempotencyKey: "subscription_id + relationship_id + a.termination-state",
+        idempotencyKey: "relationship_id + a.termination-state",
       },
       {
         id: "c.access",
@@ -2384,7 +2386,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Hold the relationship in a defined wind-down state with its end date. Paid entitlement is not revoked before that date unless policy explicitly says otherwise - someone who cancelled has still paid for the rest of the term, and taking it early converts a neutral ending into a grievance",
         writes: [{ field: "termination_state", mode: "set" }],
         next: "c.obligations",
-        idempotencyKey: "subscription_id + relationship_id + a.wind-down",
+        idempotencyKey: "relationship_id + a.wind-down",
       },
       {
         id: "c.obligations",
@@ -2414,7 +2416,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         contract: {
           "requiredFields": [
-            "subscription_id",
             "relationship_id",
             "handed_at",
             "reason"
@@ -2767,7 +2768,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         suppresses: ["any recording of this as a retained relationship until the change actually applies"],
         contract: {
           "requiredFields": [
-            "subscription_id",
+            "relationship_id",
             "account_id",
             "handed_at",
             "reason"

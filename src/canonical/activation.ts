@@ -1938,10 +1938,12 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "which event activated the account",
           "what was left unfinished, since activation is not mastery and adoption may still need it",
           "any operational requirement spun off separately",
+          "the use_case_id the activating event implies, minted at this handoff since no use-case concept exists prior to activation",
         ],
         suppresses: [
           "every remaining onboarding action for this instance, queued or scheduled",
         ],
+        contract: { requiredFields: ["account_id", "person_id", "use_case_id"] },
       },
     ],
     guardrails: [

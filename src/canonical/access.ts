@@ -269,7 +269,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the authoritative basis - the record that establishes the right, not the process that led toward it. What matters is whether the business state confirms the grant, not how close it came",
         writes: [{ field: "entitlement_log", mode: "append" }],
         next: "c.existing",
-        idempotencyKey: "account_id + person_id + a.evaluate",
+        idempotencyKey: "account_id + entitlement_key + a.evaluate",
       },
       {
         id: "c.existing",
@@ -294,7 +294,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reconcile scope and validity against the existing grant rather than issuing a second one. Two grants for one right produce two expiries, two revocations and a state nobody can read",
         writes: [{ field: "entitlement_log", mode: "append" }],
         next: "x.reconciled",
-        idempotencyKey: "account_id + person_id + a.reconcile",
+        idempotencyKey: "account_id + entitlement_key + a.reconcile",
       },
       {
         id: "x.reconciled",
@@ -349,7 +349,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record GRANTED with the basis that established it, the scope it covers and its validity. Granting is idempotent - the same basis arriving twice grants once",
         writes: [{ field: "entitlement_log", mode: "append" }],
         next: "h.provision",
-        idempotencyKey: "account_id + person_id + a.grant",
+        idempotencyKey: "account_id + entitlement_key + a.grant",
       },
       {
         id: "h.provision",
@@ -1245,6 +1245,13 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "Grace continues a right whose validity has ended. Suspension restricts a right that is still valid. One is continuity after an ending; the other is a hold before one.",
       },
     ],
+    competition: {
+      scope: "account",
+      exclusionGroup: "account-restriction-authority",
+      precedence:
+        "lower than a suspected-compromise investigation (IDN-90) on the same account - an active security incident is the more urgent, safety-critical question, and a business-reason suspension defers to it rather than resolving independently while it is open",
+      onLoss: "paused",
+    },
     objective: "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
     eligibility: [
       "a decision to suspend for a stated reason: a payment state, a security review, a policy review, a temporary operational restriction, or an administrative hold",
@@ -1342,7 +1349,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the reason, the scope, when it takes effect, which capabilities are blocked, which continue, and what would end it. The scope is the smallest that addresses the reason - a payment problem does not justify blocking a security setting, and over-broad restriction makes the restriction itself the incident",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "c.partial",
-        idempotencyKey: "account_id + person_id + a.scope",
+        idempotencyKey: "account_id + capability_scope + a.scope",
       },
       {
         id: "c.partial",
@@ -1367,7 +1374,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Leave the unaffected capabilities working, so the state is legible as a suspension rather than as an outage - and so the holder can still do the thing that would resolve it",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "w.suspension",
-        idempotencyKey: "account_id + person_id + a.preserve",
+        idempotencyKey: "account_id + capability_scope + a.preserve",
       },
       {
         id: "a.full",
@@ -1375,7 +1382,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record a full suspension within the affected scope, with the same review condition. Full is still not terminal, and the record says so",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "w.suspension",
-        idempotencyKey: "account_id + person_id + a.full",
+        idempotencyKey: "account_id + capability_scope + a.full",
       },
       {
         id: "w.suspension",
@@ -1445,7 +1452,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the extension as its own suspension instance with a new review point, so the number of times someone has been suspended without a decision stays countable rather than hidden inside one long record",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "x.extended",
-        idempotencyKey: "account_id + person_id + a.extend",
+        idempotencyKey: "account_id + capability_scope + a.extend",
       },
       {
         id: "x.extended",
@@ -1463,7 +1470,9 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "which capabilities were blocked and why",
           "the explicit instruction that restoration revalidates rather than replays - the previous capability set is history, not a target",
+          "a restoration_case_id minted at this handoff, deterministically derived from account_id + capability_scope + this suspension's own review outcome, so ACC-79 can construct its own instance without inventing one",
         ],
+        contract: { requiredFields: ["account_id", "restoration_case_id"] },
       },
       {
         id: "h.terminate",
@@ -1506,7 +1515,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
       "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
     entity: {
       scope: "the person or account plus each capability being considered for restoration",
-      note: "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities.",
+      note: "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities. restoration_case_id is minted by whichever journey initiates eligibility for restoration - a suspension ending, a balance reconciling, a security incident clearing - deterministically from that journey's own instance identity, and carried explicitly in its handoff's contract.requiredFields rather than assumed.",
       instanceKey: [
         "account_id",
         "restoration_case_id"
@@ -1615,7 +1624,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Re-evaluate every current requirement independently: the entitlement, the authorization, the security state, the policy state, the credential's own validity, and whether the resource still exists. Each is read now rather than taken from the snapshot captured when access was removed",
         writes: [{ field: "restoration_log", mode: "append" }],
         next: "c.requirements",
-        idempotencyKey: "account_id + person_id + a.reevaluate",
+        idempotencyKey: "account_id + restoration_case_id + a.reevaluate",
       },
       {
         id: "c.requirements",
@@ -1645,7 +1654,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Restore the affected capabilities and invalidate the restriction actions that are now obsolete",
         writes: [{ field: "restoration_log", mode: "append" }],
         next: "x.restored",
-        idempotencyKey: "account_id + person_id + a.restore-full",
+        idempotencyKey: "account_id + restoration_case_id + a.restore-full",
       },
       {
         id: "a.restore-subset",
@@ -1653,7 +1662,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Restore only the subset that is currently valid, and invalidate the obsolete restriction actions for it. Expired credentials, withdrawn permissions, lapsed entitlements, deleted resources and roles that no longer exist are not resurrected - each ended for its own reason, and restoring access never addressed any of them. What is not restored is named, so the holder can ask about it rather than discover it",
         writes: [{ field: "restoration_log", mode: "append" }],
         next: "x.partial",
-        idempotencyKey: "account_id + person_id + a.restore-subset",
+        idempotencyKey: "account_id + restoration_case_id + a.restore-subset",
       },
       {
         id: "x.restored",

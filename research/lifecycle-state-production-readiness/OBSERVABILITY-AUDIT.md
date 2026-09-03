@@ -31,27 +31,35 @@ gaps below are worth calling out specifically, against a corpus that mostly gets
 
 ## States unable to answer "why is this active?" / "because of what?"
 
-- **RET-22** (Usage Gap Assessment) — the one state in the entire corpus where **no action writes
-  anything at all**. `a.compare` and `a.inspect` are both pure reads. This is a P1 finding
-  (see below) because it is not just a logging gap: RET-22's own re-entry model explicitly says
-  "absence accumulates into evidence, it does not start as evidence," which requires something
-  to persist between instances — and nothing does.
-- **CON-33** (Preference Recalculation) — `a.adapt` is a state-changing action with neither a
-  writes entry nor an idempotencyKey; a company cannot tell an adaptation happened at all from
-  this state's own data model, only infer it from downstream effects.
+**Round 2 update: RET-22 and CON-33 are both fixed.** RET-22's `a.inspect` now writes to
+`corroborating_evidence` and carries an idempotencyKey; CON-33's `a.adapt` now declares both a
+`writes` entry (`adapted_sends`, append) and an idempotencyKey. Both are struck from this list;
+the entries below are kept as the record of what was wrong and why the fix was necessary.
+
+- ~~**RET-22** (Usage Gap Assessment) — the one state in the entire corpus where no action wrote
+  anything at all. `a.compare` and `a.inspect` were both pure reads. This was a P1 finding because
+  it was not just a logging gap: RET-22's own re-entry model explicitly says "absence accumulates
+  into evidence, it does not start as evidence," which requires something to persist between
+  instances — and nothing did. Fixed in round 2.~~
+- ~~**CON-33** (Preference Recalculation) — `a.adapt` was a state-changing action with neither a
+  writes entry nor an idempotencyKey; a company could not tell an adaptation happened at all from
+  this state's own data model, only infer it from downstream effects. Fixed in round 2.~~
 - **ACQ-03** (Intent Escalation Handoff) — the pass/fail *result* of `c.strength`'s
   noise-vs-real judgment is recorded, but the specific evidence that produced the judgment is not
   retained anywhere — a company debugging "why did this person escalate" has the outcome, not the
-  reasoning trail.
+  reasoning trail. Unchanged: a P2, and retaining the full evidence trail behind every condition
+  judgment corpus-wide is a design expansion this round's scope does not cover.
 
 ## States unable to answer "since when?"
 
 - **REL-100** (Orphan Relationship Recovery) — no structured field distinct from the append log
-  answers "how long has this been orphaned"; the log has to be parsed rather than read.
-- **IDN-89** (Identity Attribute Update) — `s.g3` depends on propagation carrying `origin` and
-  `version` so a stale, late-arriving update can be discarded correctly, but neither field is a
-  declared attribute — the rule the corpus states exists has no data to answer "which version is
-  this, and is it older than what we already have."
+  answers "how long has this been orphaned"; the log has to be parsed rather than read. Unchanged
+  (P2).
+- ~~**IDN-89** (Identity Attribute Update) — `s.g3` depends on propagation carrying `origin` and
+  `version` so a stale, late-arriving update can be discarded correctly, but neither field was a
+  declared attribute — the rule the corpus stated existed had no data to answer "which version is
+  this, and is it older than what we already have." Fixed in round 2: `change_origin` and
+  `change_version` are now declared required attributes.~~
 
 ## States unable to answer "owned by whom?"
 
@@ -125,7 +133,8 @@ implementation contract should require, at minimum:
 missing a reviewer field, which have no persistence at all) come from the narrative review in
 `LIFECYCLE-STATES-AUDIT.md` and are the authoritative source. The JSON's `observability.currentOwner`
 field is not populated for any of the 64 states in this generation, since deciding *which* field
-name would represent a genuine reviewer/owner attribute is exactly the contract-layer work this
-round's `NEEDS_CONTRACT_WORK` verdicts on ACC-78, IDN-88, and FUL-145 are flagging as outstanding
-— populating it today would mean inventing a value the canonical graph does not supply, which this
-round's methodology (see the schema's own top-of-file comment) explicitly avoids.
+name would represent a genuine reviewer/owner attribute is exactly the contract-layer work the P2
+findings on ACC-78, IDN-88, and FUL-145 (all `READY_WITH_MAPPING` as of round 2 — the reviewer/
+approver gap is non-blocking, not a P0/P1) are flagging as outstanding — populating it today would
+mean inventing a value the canonical graph does not supply, which this round's methodology (see
+the schema's own top-of-file comment) explicitly avoids.

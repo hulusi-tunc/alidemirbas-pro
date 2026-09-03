@@ -1442,6 +1442,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the grace start, its end, the reason, the recovery condition, and explicitly which capabilities continue and which are restricted. A grace state that does not say what still works is indistinguishable from active, which removes the only reason to have named it",
         writes: [{ field: "grace_log", mode: "append" }],
         next: "w.grace",
+        idempotencyKey: "entity_id + grace_period_id + a.record",
       },
       {
         id: "w.grace",
@@ -1493,6 +1494,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Restore the active state and lift the grace restrictions, recording that recovery happened within the window",
         writes: [{ field: "grace_log", mode: "append" }],
         next: "x.recovered",
+        idempotencyKey: "entity_id + grace_period_id + a.restore",
       },
       {
         id: "x.recovered",
