@@ -152,6 +152,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the person or account plus the specific entitlement, at its own scope and validity",
       note: "One entitlement per right per scope. A second grant for the same right produces two expiries and two revocations, which is why an existing one is reconciled rather than duplicated.",
+      instanceKey: [
+        "account_id",
+        "entitlement_key"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -160,6 +165,85 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "Eligibility asks whether the rules would permit this. Entitlement asks whether it has been granted. ACQ-06's own guardrail names the difference; this journey is the state on the other side of it.",
       },
     ],
+    objective: "Establish whether a right actually exists, as a state distinct from being eligible for one or having paid toward one.",
+    eligibility: [
+      "an authoritative basis for a right: a completed purchase, an activated plan, an assigned role, an earned benefit, an effective contract, or a satisfied policy condition",
+      "no instance of this journey is already open for the the person or account plus the specific entitlement",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Eligibility is not entitlement. Being permitted to have something is not having it."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A payment attempt is not an entitlement. Authorised is not settled, and settled is what establishes the right."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A marketing promise is not a granted right unless an authoritative business state confirms it."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "An existing entitlement is reconciled, never duplicated."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Qualified but capacity-blocked is pending rather than denied. Somebody who met every requirement and arrived when the allocation was full has not been refused, and recording it as a denial closes a case that policy may reopen with a waitlist or a later grant."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "entitlement_key",
+          "basis",
+          "scope",
+          "validity",
+          "entitlement_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.reconciled",
+          "x.pending",
+          "x.denied",
+          "h.provision"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "entitlement qualification",
+        "entitlement check",
+        "access right established",
+        "grant or deny a right"
+      ],
+      "useCases": [
+        "a completed purchase or activated plan turned into a right with a scope and validity",
+        "a right already held, reconciled instead of granted twice"
+      ]
+    },
     entry: "t.basis",
     nodes: [
       {
@@ -185,6 +269,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the authoritative basis - the record that establishes the right, not the process that led toward it. What matters is whether the business state confirms the grant, not how close it came",
         writes: [{ field: "entitlement_log", mode: "append" }],
         next: "c.existing",
+        idempotencyKey: "account_id + person_id + a.evaluate",
       },
       {
         id: "c.existing",
@@ -209,6 +294,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reconcile scope and validity against the existing grant rather than issuing a second one. Two grants for one right produce two expiries, two revocations and a state nobody can read",
         writes: [{ field: "entitlement_log", mode: "append" }],
         next: "x.reconciled",
+        idempotencyKey: "account_id + person_id + a.reconcile",
       },
       {
         id: "x.reconciled",
@@ -216,6 +302,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "existing entitlement reconciled; no duplicate grant issued",
         terminal: false,
         reEntry: "a further change to the basis re-opens this against the reconciled grant",
+        class: "success",
       },
       {
         id: "c.satisfied",
@@ -246,6 +333,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "satisfying the named requirement re-opens this. Pending and denied are kept apart because the route back differs - one needs a step completed, the other needs the rules to change",
+        class: "no-action",
       },
       {
         id: "x.denied",
@@ -253,6 +341,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "DENIED; the right is not available on this basis",
         terminal: false,
         reEntry: "a different basis - a purchase, a role, a contract - is evaluated on its own terms",
+        class: "failure",
       },
       {
         id: "a.grant",
@@ -260,6 +349,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record GRANTED with the basis that established it, the scope it covers and its validity. Granting is idempotent - the same basis arriving twice grants once",
         writes: [{ field: "entitlement_log", mode: "append" }],
         next: "h.provision",
+        idempotencyKey: "account_id + person_id + a.grant",
       },
       {
         id: "h.provision",
@@ -1142,6 +1232,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the account or person plus the specific capability scope being restricted",
       note: "The scope is recorded rather than implied. Anything reading the account has to be able to tell which capabilities are blocked and which still work.",
+      instanceKey: [
+        "account_id",
+        "capability_scope"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1150,6 +1245,80 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "Grace continues a right whose validity has ended. Suspension restricts a right that is still valid. One is continuity after an ending; the other is a hold before one.",
       },
     ],
+    objective: "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
+    eligibility: [
+      "a decision to suspend for a stated reason: a payment state, a security review, a policy review, a temporary operational restriction, or an administrative hold",
+      "no instance of this journey is already open for the the account or person plus the specific capability scope being restricted",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Suspended is not terminated. Suspension is designed to be reversible and its record says so."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The suspension uses the smallest scope that addresses its reason."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Restoration does not blindly return every previous capability - it hands to a journey whose job is revalidating first."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A suspension without a review point is a termination nobody authorised."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "capability_scope",
+          "reason",
+          "review_point_at",
+          "preserved_capabilities",
+          "suspension_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.extended",
+          "h.restore",
+          "h.terminate",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "access suspension",
+        "suspend account",
+        "restricted access state",
+        "partial suspension"
+      ],
+      "useCases": [
+        "a suspension for a stated reason in the smallest scope that addresses it",
+        "a review point reached with nothing resolved: extend, lift or escalate"
+      ]
+    },
     entry: "t.suspension",
     nodes: [
       {
@@ -1173,6 +1342,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the reason, the scope, when it takes effect, which capabilities are blocked, which continue, and what would end it. The scope is the smallest that addresses the reason - a payment problem does not justify blocking a security setting, and over-broad restriction makes the restriction itself the incident",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "c.partial",
+        idempotencyKey: "account_id + person_id + a.scope",
       },
       {
         id: "c.partial",
@@ -1197,6 +1367,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Leave the unaffected capabilities working, so the state is legible as a suspension rather than as an outage - and so the holder can still do the thing that would resolve it",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "w.suspension",
+        idempotencyKey: "account_id + person_id + a.preserve",
       },
       {
         id: "a.full",
@@ -1204,19 +1375,30 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record a full suspension within the affected scope, with the same review condition. Full is still not terminal, and the record says so",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "w.suspension",
+        idempotencyKey: "account_id + person_id + a.full",
       },
       {
         id: "w.suspension",
         kind: "wait",
-        until: ["the suspension reason is resolved", "a terminal decision is made"],
+        until: [
+          "suspension_reason_resolved",
+          "terminal_decision_recorded"
+        ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the review point or the recorded expiry",
-          reason:
-            "a suspension with no review is a termination that nobody had to authorise, and the review is what keeps the two apart",
+          "after": {
+            "key": "access_suspension.suspension",
+            "rule": "The review point or the recorded expiry.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a suspension with no review is a termination that nobody had to authorise, and the review is what keeps the two apart",
+          "relativeTo": "attribute",
+          "attribute": "review_point_at"
         },
         onTimeout: "c.review",
         windowExtendsOnEngagement: false,
+        recheck: "the the account or person plus the specific capability scope being restricted re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1263,6 +1445,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the extension as its own suspension instance with a new review point, so the number of times someone has been suspended without a decision stays countable rather than hidden inside one long record",
         writes: [{ field: "suspension_log", mode: "append" }],
         next: "x.extended",
+        idempotencyKey: "account_id + person_id + a.extend",
       },
       {
         id: "x.extended",
@@ -1270,6 +1453,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "suspension extended; a new instance carries the new review point",
         terminal: false,
         reEntry: "the extension runs as its own instance with its own end",
+        class: "success",
       },
       {
         id: "h.restore",
@@ -1323,6 +1507,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the person or account plus each capability being considered for restoration",
       note: "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities.",
+      instanceKey: [
+        "account_id",
+        "restoration_case_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1331,6 +1520,78 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "TIM-68 reverses a transition within a window and asks what side effects can be undone. This rebuilds a capability set from scratch against current conditions, with no assumption that the previous set is the target.",
       },
     ],
+    objective: "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
+    eligibility: [
+      "the condition that removed or restricted access appearing to be resolved",
+      "no instance of this journey is already open for the the person or account plus each capability being considered for restoration",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Previous access is not a current access right."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Restoration never resurrects expired credentials, withdrawn permissions, expired entitlements, deleted resources or obsolete roles."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Obsolete restriction actions are invalidated as part of restoring, not left to fire afterwards."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A partial restoration names what did not come back."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "restoration_case_id",
+          "previous_capabilities",
+          "currently_valid_capabilities",
+          "restoration_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.restored",
+          "x.partial",
+          "x.remains"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "capability restoration",
+        "restore access",
+        "reinstatement",
+        "lift suspension"
+      ],
+      "useCases": [
+        "access rebuilt from what is currently valid rather than replayed from before",
+        "a partial restoration that names what did not return"
+      ]
+    },
     entry: "t.condition",
     nodes: [
       {
@@ -1354,6 +1615,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Re-evaluate every current requirement independently: the entitlement, the authorization, the security state, the policy state, the credential's own validity, and whether the resource still exists. Each is read now rather than taken from the snapshot captured when access was removed",
         writes: [{ field: "restoration_log", mode: "append" }],
         next: "c.requirements",
+        idempotencyKey: "account_id + person_id + a.reevaluate",
       },
       {
         id: "c.requirements",
@@ -1383,6 +1645,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Restore the affected capabilities and invalidate the restriction actions that are now obsolete",
         writes: [{ field: "restoration_log", mode: "append" }],
         next: "x.restored",
+        idempotencyKey: "account_id + person_id + a.restore-full",
       },
       {
         id: "a.restore-subset",
@@ -1390,6 +1653,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Restore only the subset that is currently valid, and invalidate the obsolete restriction actions for it. Expired credentials, withdrawn permissions, lapsed entitlements, deleted resources and roles that no longer exist are not resurrected - each ended for its own reason, and restoring access never addressed any of them. What is not restored is named, so the holder can ask about it rather than discover it",
         writes: [{ field: "restoration_log", mode: "append" }],
         next: "x.partial",
+        idempotencyKey: "account_id + person_id + a.restore-subset",
       },
       {
         id: "x.restored",
@@ -1397,6 +1661,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "capabilities restored against current valid state",
         terminal: false,
         reEntry: "a further restriction and restoration is its own cycle",
+        class: "success",
       },
       {
         id: "x.partial",
@@ -1405,6 +1670,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "each capability not restored re-enters when its own requirement is met - the subset that is missing is a list rather than a vague sense that something is wrong",
+        class: "success",
       },
       {
         id: "x.remains",
@@ -1413,6 +1679,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "previous access is not a current access right, and regaining it means meeting the requirements now rather than having met them before",
+        class: "no-action",
       },
     ],
     guardrails: [
@@ -1648,6 +1915,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the specific restriction or end date placed on it",
       note: "The restriction is the subject. A second, unrelated restriction on the same account is its own instance and gets its own notice.",
+      instanceKey: [
+        "account_id",
+        "restriction_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1661,6 +1933,213 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "ACC-74 ends future use of a lost entitlement. Here the point is the window before that takes effect, which is the only period in which the person can still act.",
       },
     ],
+    objective: "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
+    eligibility: [
+      "an authoritative restriction, suspension or end date recorded against the account",
+      "a stated condition or deadline that would resolve it",
+      "no instance of this journey is already open for the person or account plus the specific restriction or end date placed on it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A restriction is never announced before it is authoritatively recorded. Warning about a decision nobody has taken is how a support queue fills up."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The notice names what still works, not only what stopped."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Where the holder cannot resolve the condition, no call to action is attached."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Restoration is confirmed explicitly. Silence after a resolved restriction reads as the restriction continuing."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "access_restriction.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; one notice and one confirmation"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "access_restriction.cooldown",
+        "rule": "This journey is per person or account plus the specific restriction or end date placed on it; a later instance concerns a different person or account plus the specific restriction or end date placed on it and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "inform-only",
+          "action": "a.inform-only",
+          "prerequisites": [
+            "c.actionable"
+          ],
+          "purpose": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "notify",
+          "action": "a.notify",
+          "prerequisites": [
+            "c.actionable",
+            "c.reachable"
+          ],
+          "purpose": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "resolution-condition",
+            "boundTo": "restriction_id",
+            "mustNotClaim": [
+              "a restriction that is not yet authoritative"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "confirm",
+          "action": "a.confirm",
+          "after": "t2",
+          "gatedBy": "w.resolve",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "restriction_id",
+          "restricted_capabilities",
+          "still_working",
+          "resolution_condition",
+          "resolution_deadline_at"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.informed",
+          "x.security-owned",
+          "x.restored",
+          "x.stands",
+          "h.unreachable"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ],
+      "businessOutcome": {
+        "event": "restriction_lifted",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      }
+    },
+    discovery: {
+      "aliases": [
+        "access recovery",
+        "restriction notice",
+        "account restricted notice",
+        "access ending notice",
+        "suspension notice"
+      ],
+      "useCases": [
+        "a restriction announced with what still works and the one condition that lifts it",
+        "a restriction the holder cannot resolve, stated without a call to action"
+      ]
+    },
     entry: "t.restricted",
     nodes: [
       {
@@ -1708,6 +2187,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
         next: "x.informed",
         execution: "communication",
+        idempotencyKey: "account_id + person_id + a.inform-only",
       },
       {
         id: "x.informed",
@@ -1715,6 +2195,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "informed, resolution not theirs",
         terminal: false,
         reEntry: "if the condition later becomes something they can satisfy, this qualifies again with the actionable path",
+        class: "success",
       },
       {
         id: "x.security-owned",
@@ -1722,6 +2203,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "restriction announced by the security response; no separate notice sent",
         terminal: false,
         reEntry: "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
+        class: "suppression",
       },
       {
         id: "c.reachable",
@@ -1756,22 +2238,31 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
         next: "w.resolve",
         execution: "communication",
+        idempotencyKey: "account_id + person_id + a.notify",
       },
       {
         id: "w.resolve",
         kind: "wait",
         until: [
-          "the release condition is satisfied",
-          "the restriction is lifted by whoever placed it",
-          "the restriction becomes permanent",
+          "release_condition_met",
+          "restriction_lifted",
+          "restriction_made_permanent"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the stated deadline or review point",
-          reason: "the deadline is the whole content of the notice - passing it silently would make the notice false",
+          "after": {
+            "key": "access_restriction.resolve",
+            "rule": "The stated deadline or review point.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the deadline is the whole content of the notice - passing it silently would make the notice false",
+          "relativeTo": "attribute",
+          "attribute": "resolution_deadline_at"
         },
         onTimeout: "c.outcome",
         windowExtendsOnEngagement: false,
+        recheck: "the person or account plus the specific restriction or end date placed on it re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1796,6 +2287,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
         next: "x.restored",
         execution: "communication",
+        idempotencyKey: "account_id + person_id + a.confirm",
       },
       {
         id: "x.restored",
@@ -1803,6 +2295,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "restored and confirmed",
         terminal: false,
         reEntry: "a later restriction on the same account is a new instance",
+        class: "success",
       },
       {
         id: "x.stands",
@@ -1810,6 +2303,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "restriction stands past its deadline",
         terminal: false,
         reEntry: "if the condition is satisfied afterwards, the restoration path runs from the lifting event",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -1834,6 +2328,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the issued entitlement or credential and its activation window",
       note: "One issuance, one window. A reissued credential is a new instance and does not inherit the old window.",
+      instanceKey: [
+        "entitlement_id",
+        "holder_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1847,6 +2346,214 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "ACC-76 tracks the credential's own issue/expire/revoke lifecycle. Here the only question is first use inside the window.",
       },
     ],
+    objective: "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
+    eligibility: [
+      "an entitlement or credential authoritatively granted to a named holder",
+      "confirmation that it is provisioned and reachable by that holder",
+      "an activation window or expiry",
+      "no instance of this journey is already open for the the issued entitlement or credential and its activation window",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder, never two. The window is the pressure; repetition is not."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A holder who has used this capability before is not re-onboarded onto it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Lapsed-unclaimed and revoked-before-use are recorded as different outcomes - one is about the holder, the other is not."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The message names one action, not the full capability surface."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "entitlement_activation.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; one notice and one reminder"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "entitlement_activation.cooldown",
+        "rule": "This journey is per the issued entitlement or credential and its activation window; a later instance concerns a different the issued entitlement or credential and its activation window and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "ready",
+          "action": "a.ready",
+          "prerequisites": [
+            "c.first-time"
+          ],
+          "purpose": "Say what is now available, what it lets them do, and the single first action that uses it.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "first-use-action",
+            "boundTo": "entitlement_id"
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "brief",
+          "action": "a.brief",
+          "prerequisites": [
+            "c.first-time"
+          ],
+          "purpose": "Confirm the new grant briefly and name only what changed from what they already had.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "remind",
+          "action": "a.remind",
+          "gatedBy": "w.first-use",
+          "prerequisites": [
+            "c.remind"
+          ],
+          "purpose": "Send one reminder naming the deadline and the same single first action.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "first-use-action",
+            "boundTo": "entitlement_id",
+            "mustNotClaim": [
+              "a moved deadline"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "entitlement_id",
+          "holder_id",
+          "provisioned_at",
+          "activation_window_ends_at",
+          "first_action",
+          "prior_familiarity"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.activated",
+          "x.moot",
+          "x.lapsed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "capability_first_used",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "activation reminder",
+        "unused entitlement reminder",
+        "claim your access",
+        "credential activation reminder",
+        "licence activation"
+      ],
+      "useCases": [
+        "a granted licence or credential nobody has used, reminded once before its window closes",
+        "a repeat holder told only what changed"
+      ]
+    },
     entry: "t.issued",
     nodes: [
       {
@@ -1890,6 +2597,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say what is now available, what it lets them do, and the single first action that uses it. Naming one action rather than listing the capability is the difference between an announcement and an activation",
         next: "w.first-use",
         execution: "communication",
+        idempotencyKey: "issue_id + identity_id + a.ready",
       },
       {
         id: "a.brief",
@@ -1897,21 +2605,30 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the new grant briefly and name only what changed from what they already had. Re-explaining a capability somebody already uses reads as a system that does not know them",
         next: "w.first-use",
         execution: "communication",
+        idempotencyKey: "issue_id + identity_id + a.brief",
       },
       {
         id: "w.first-use",
         kind: "wait",
         until: [
-          "the capability is used for the first time",
-          "the entitlement is revoked or replaced",
+          "capability_first_used",
+          "entitlement_revoked_or_replaced"
         ],
         onEvent: "c.used",
         timeout: {
-          after: "the activation window",
-          reason: "an unclaimed entitlement past its window is a different fact from an unused one inside it, and the two must not be counted together",
+          "after": {
+            "key": "entitlement_activation.first_use",
+            "rule": "The single reminder is placed before the activation window closes, late enough that the first notice has had its chance and early enough that claiming is still possible.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "an unclaimed entitlement past its window is a different fact from an unused one inside it, and the two must not be counted together",
+          "relativeTo": "attribute",
+          "attribute": "activation_window_ends_at"
         },
         onTimeout: "c.remind",
         windowExtendsOnEngagement: false,
+        recheck: "the the issued entitlement or credential and its activation window re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.used",
@@ -1936,6 +2653,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "activated",
         terminal: false,
         reEntry: "a further entitlement to the same holder is a new instance",
+        class: "success",
       },
       {
         id: "x.moot",
@@ -1943,6 +2661,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "entitlement withdrawn before use",
         terminal: false,
         reEntry: "a reissued entitlement starts a fresh window",
+        class: "invalid-state",
       },
       {
         id: "c.remind",
@@ -1967,20 +2686,29 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder naming the deadline and the same single first action. There is no second reminder - a capability nobody wanted is not made wanted by asking twice",
         next: "w.last-chance",
         execution: "communication",
+        idempotencyKey: "issue_id + identity_id + a.remind",
       },
       {
         id: "w.last-chance",
         kind: "wait",
         until: [
-          "the capability is used for the first time",
+          "capability_first_used"
         ],
         onEvent: "x.activated",
         timeout: {
-          after: "the remainder of the activation window",
-          reason: "the window is what makes this an entitlement rather than a standing offer",
+          "after": {
+            "key": "entitlement_activation.last_chance",
+            "rule": "After the reminder the instance waits until the activation window itself closes; there is no second reminder.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the window is what makes this an entitlement rather than a standing offer",
+          "relativeTo": "attribute",
+          "attribute": "activation_window_ends_at"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the the issued entitlement or credential and its activation window re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.lapsed",
@@ -1988,6 +2716,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         state: "lapsed unclaimed",
         terminal: false,
         reEntry: "a new grant of the same capability starts a new window",
+        class: "timeout",
       },
     ],
     guardrails: [

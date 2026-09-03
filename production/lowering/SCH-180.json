@@ -1,0 +1,430 @@
+{
+ "id": "SCH-180",
+ "shortName": "Booking Reschedule",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.cannot",
+   "event": "provider_or_resource_cannot_fulfil",
+   "meaning": "a confirmed reservation that can no longer be fulfilled by its assigned provider or resource - unavailability, resource failure, location closure, withdrawn capacity or an operational incident",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a confirmed reservation that can no longer be fulfilled by its assigned provider or resource - unavailability, resource failure, location closure, withdrawn capacity or an operational incident",
+    "no instance of this journey is already open for the the affected reservations and the provider or resource failure behind them",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "booking_id",
+    "provider_failure_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.scope",
+   "does": "Identify every reservation the failure affects, and its scope. A closed location is not one cancellation - treating it as one produces a correct outcome for the booking that raised the alarm and silence for the forty behind it, each of whom finds out at the door",
+   "writes": [
+    {
+     "field": "occurrence_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.scope",
+   "key": "booking_id + a.scope"
+  },
+  {
+   "type": "state-update",
+   "node": "a.protect",
+   "does": "Record that the failure is provider-side. Whatever follows, the customer is not marked as having cancelled and is never classified as a no-show - they were available and the service was not, and the record has to say so before anything else touches this booking",
+   "writes": [
+    {
+     "field": "occurrence_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.protect",
+   "key": "booking_id + a.protect"
+  },
+  {
+   "type": "condition",
+   "node": "c.replacement",
+   "asks": "Is an equivalent replacement available for the same time?",
+   "branches": [
+    {
+     "label": "Available and permitted",
+     "observes": null,
+     "test": "another provider or resource can deliver the booked service at the booked time, and the rules allow substituting",
+     "to": "a.reallocate"
+    },
+    {
+     "label": "Not at this time",
+     "observes": null,
+     "test": "nothing equivalent is free, or substitution is not permitted for this service",
+     "to": "c.reschedule"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.reallocate",
+   "does": "Reallocate to the replacement, preserving the commitment and the time. The replacement has to actually satisfy the service's requirements - a different provider who cannot perform the booked service is not a replacement, and substituting one moves the failure from before the appointment to during it",
+   "writes": [
+    {
+     "field": "reservation_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reallocate",
+   "key": "booking_id + a.reallocate"
+  },
+  {
+   "type": "state-update",
+   "node": "a.release-old",
+   "does": "Release the obsolete allocation, idempotently. The original resource returns to availability once, whatever number of times the release is attempted",
+   "writes": [
+    {
+     "field": "reservation_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.release-old",
+   "key": "booking_id + a.release-old"
+  },
+  {
+   "type": "condition",
+   "node": "c.notify",
+   "asks": "Does the reallocation change anything the customer needs to know?",
+   "branches": [
+    {
+     "label": "It does",
+     "observes": null,
+     "test": "the provider, the location or the preparation is different",
+     "to": "a.inform"
+    },
+    {
+     "label": "It does not",
+     "observes": null,
+     "test": "nothing visible to the customer changed",
+     "to": "x.reallocated"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.inform",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "provider_cancellation.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.inform",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.inform",
+   "touch": "t1",
+   "stage": "inform",
+   "purpose": "Tell them what changed, distinguished from a reschedule because the time did not move.",
+   "brief": "Tell them what changed, distinguished from a reschedule because the time did not move. Someone who reads 'your appointment has changed' and assumes the time moved will miss an appointment we successfully saved",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.replacement",
+    "c.notify"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.inform",
+   "key": "booking_id + a.inform"
+  },
+  {
+   "type": "exit",
+   "node": "x.reallocated",
+   "class": "success",
+   "state": "reallocated; the time and the commitment both stand",
+   "reEntry": "the booking continues to its scheduled occurrence and revalidates there like any other"
+  },
+  {
+   "type": "condition",
+   "node": "c.reschedule",
+   "asks": "Do the applicable decision rules permit rescheduling this booking?",
+   "branches": [
+    {
+     "label": "Permitted",
+     "observes": null,
+     "test": "the service can be delivered at another time and the rules allow moving it",
+     "to": "h.reschedule"
+    },
+    {
+     "label": "Not permitted",
+     "observes": null,
+     "test": "the service was time-specific, or the rules do not allow it to move",
+     "to": "a.cancel"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.reschedule",
+   "to": "SCH-175",
+   "on": "a provider-side failure that can be recovered at another time",
+   "carries": [
+    "the original commitment and the requirements a replacement slot has to satisfy",
+    "the explicit fact that this move originates on our side, which changes what the customer may be offered and what they may be charged"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.cancel",
+   "does": "Cancel the affected reservation, recorded as provider-side. Provider cancellation and customer cancellation are different terminal states with different consequences, and collapsing them charges a cancellation fee to someone whose appointment we could not keep",
+   "writes": [
+    {
+     "field": "reservation_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.cancel",
+   "key": "booking_id + a.cancel"
+  },
+  {
+   "type": "state-update",
+   "node": "a.release-cancel",
+   "does": "Release the allocation and stop the obsolete preparation, reminders and check-in actions. A reminder for an appointment we cancelled brings the customer in for a service that has no provider waiting",
+   "writes": [
+    {
+     "field": "reservation_log",
+     "mode": "append"
+    },
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.release-cancel",
+   "key": "booking_id + a.release-cancel"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.notify-provider-cancel",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "provider_cancellation.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.notify-provider-cancel",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.notify-provider-cancel",
+   "touch": "t2",
+   "stage": "notify-provider-cancel",
+   "purpose": "Tell the customer the confirmed commitment can no longer be kept, that the failure is ours and not theirs, and that they are not recorded as having cancelled or missed it.",
+   "brief": "Tell the customer the confirmed commitment can no longer be kept, that the failure is ours and not theirs, and that they are not recorded as having cancelled or missed it. Sent before any remedy or refund is worked out - waiting for the consequence means the person finds out their booking is gone from a message about money",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.replacement",
+    "c.reschedule"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.notify-provider-cancel",
+   "key": "booking_id + a.notify-provider-cancel"
+  },
+  {
+   "type": "condition",
+   "node": "c.remedy",
+   "asks": "What does the failure leave to answer for?",
+   "branches": [
+    {
+     "label": "An unresolved service obligation",
+     "observes": null,
+     "test": "the customer still needs the service and it has not been delivered",
+     "to": "h.remedy"
+    },
+    {
+     "label": "Money to return",
+     "observes": null,
+     "test": "the booking was paid for or a fee was taken",
+     "to": "h.financial"
+    },
+    {
+     "label": "Neither",
+     "observes": null,
+     "test": "nothing was owed and nothing was paid",
+     "to": "x.cancelled-provider"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.remedy",
+   "to": "REM-157",
+   "on": "a service obligation left unresolved by a provider-side failure",
+   "carries": [
+    "the obligation as it stands and the fact that the customer did nothing wrong",
+    "the explicit fact that the impact of the failure is a separate question from the obligation, and compensation is decided on its own terms"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.financial",
+   "to": "FIN-137",
+   "on": "a provider-cancelled booking that was paid for",
+   "carries": [
+    "what was paid and the fact that the cancellation was ours",
+    "the explicit fact that no cancellation fee applies to a booking the provider could not keep"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.cancelled-provider",
+   "class": "failure",
+   "state": "cancelled on the provider side; recorded as ours, with nothing attributed to the customer",
+   "reEntry": "a new booking is a new commitment. This cancellation stays in the record as a provider failure, which is what any later question about the customer's booking history depends on"
+  }
+ ]
+}

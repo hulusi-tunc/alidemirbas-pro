@@ -1,0 +1,430 @@
+{
+ "id": "RLT-279",
+ "shortName": "Upgrade Blocker Reminder",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "exit",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.blocked",
+   "event": "target_held_on_named_prerequisite",
+   "meaning": "a target authoritatively held for a planned change; the specific prerequisite that is blocking it, named rather than described; a preparation window with time still in it",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a target authoritatively held for a planned change",
+    "the specific prerequisite that is blocking it, named rather than described",
+    "a preparation window with time still in it",
+    "no instance of this journey is already open for the the target",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "target_id",
+    "change_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.resolvable",
+   "asks": "Can the holder clear this blocker themselves?",
+   "branches": [
+    {
+     "label": "Theirs to clear",
+     "observes": null,
+     "test": "the prerequisite is something the holder controls - capacity to free, a version to move off, a dependency to accept, a confirmation to give",
+     "to": "a.name-blocker"
+    },
+    {
+     "label": "Not theirs",
+     "observes": null,
+     "test": "the prerequisite depends on a supplier, an internal approval, or a fixed period elapsing",
+     "to": "a.inform-hold"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.inform-hold",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "upgrade_blocker.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.inform-hold",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.inform-hold",
+   "touch": "t1",
+   "stage": "inform-hold",
+   "purpose": "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do.",
+   "brief": "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do. A prompt to act where acting is impossible reads as blame and produces a support contact instead of a cleared blocker",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.resolvable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.inform-hold",
+   "key": "person_id + a.inform-hold"
+  },
+  {
+   "type": "exit",
+   "node": "x.held",
+   "class": "success",
+   "state": "held on a blocker the holder cannot clear",
+   "reEntry": "if the blocker later becomes theirs to clear, the target qualifies again on the resolvable path"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.name-blocker",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "upgrade_blocker.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.name-blocker",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.name-blocker",
+   "touch": "t2",
+   "stage": "name-blocker",
+   "purpose": "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window.",
+   "brief": "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window. A generic notice that something is available leaves the holder to discover the blocker themselves, which is the whole reason the target is stuck",
+   "destination": {
+    "target": "clear-the-prerequisite",
+    "boundTo": "target_id",
+    "mustNotClaim": [
+     "a moved window"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.resolvable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.name-blocker",
+   "key": "person_id + a.name-blocker"
+  },
+  {
+   "type": "wait",
+   "node": "w.clear",
+   "timing": {
+    "key": "upgrade_blocker.clear",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "preparation_window_ends_at",
+   "onTimeout": "c.last-call"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.clear",
+   "cancelOn": [
+    {
+     "event": "named_requirement_satisfied",
+     "meaning": "the specific named requirement that blocked progress is recorded as satisfied"
+    },
+    {
+     "event": "change_withdrawn",
+     "meaning": "the change request is withdrawn"
+    }
+   ],
+   "onEvent": "c.cleared"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.clear",
+   "reads": "the the target re-read from the system of record before acting on the timeout",
+   "before": "c.last-call"
+  },
+  {
+   "type": "condition",
+   "node": "c.cleared",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Blocker cleared",
+     "observes": null,
+     "test": "the prerequisite is authoritatively satisfied on the target",
+     "to": "h.resume"
+    },
+    {
+     "label": "Change withdrawn",
+     "observes": null,
+     "test": "the change was superseded or withdrawn before the prerequisite cleared",
+     "to": "x.moot"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.resume",
+   "to": "RLT-242",
+   "on": "a named prerequisite cleared by the holder inside the preparation window",
+   "carries": [
+    "which blocker cleared and when",
+    "what the holder was told, so readiness is not announced to them twice"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.moot",
+   "class": "invalid-state",
+   "state": "change withdrawn before the blocker was cleared",
+   "reEntry": "the next change with the same prerequisite scopes this target again"
+  },
+  {
+   "type": "condition",
+   "node": "c.last-call",
+   "asks": "Is a second prompt still worth sending?",
+   "branches": [
+    {
+     "label": "Time remains",
+     "observes": null,
+     "test": "the preparation window has a period left in which clearing the blocker would still make the target ready",
+     "to": "a.last-call"
+    },
+    {
+     "label": "Window closed",
+     "observes": null,
+     "test": "no remaining action could make the target ready in this window",
+     "to": "x.unprepared"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.last-call",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "upgrade_blocker.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.last-call",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.last-call",
+   "touch": "t3",
+   "stage": "last-call",
+   "purpose": "Send one further prompt naming the same prerequisite and the date it stops mattering.",
+   "brief": "Send one further prompt naming the same prerequisite and the date it stops mattering. There is no third - a blocker nobody has cleared twice is a decision, not an oversight",
+   "destination": {
+    "target": "clear-the-prerequisite",
+    "boundTo": "target_id",
+    "mustNotClaim": [
+     "a moved window"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.last-call"
+   ],
+   "after": "t2"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.last-call",
+   "key": "person_id + a.last-call"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "upgrade_blocker.final",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "preparation_window_ends_at",
+   "onTimeout": "x.unprepared"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "named_requirement_satisfied",
+     "meaning": "the specific named requirement that blocked progress is recorded as satisfied"
+    }
+   ],
+   "onEvent": "h.resume"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the the target re-read from the system of record before acting on the timeout",
+   "before": "x.unprepared"
+  },
+  {
+   "type": "exit",
+   "node": "x.unprepared",
+   "class": "timeout",
+   "state": "preparation window closed with the blocker outstanding",
+   "reEntry": "the target stays an unprepared member of the population and is prompted again by the next change that needs the same prerequisite"
+  }
+ ]
+}

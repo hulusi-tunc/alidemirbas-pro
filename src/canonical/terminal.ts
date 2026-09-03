@@ -888,6 +888,11 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the role or responsibility, its outgoing holder and its incoming one",
       note: "A handover has an effective time, and that time is load-bearing. Authorising it today does not move authority today.",
+      instanceKey: [
+        "role_id",
+        "handover_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -901,6 +906,81 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           "REL-94 changes one person's role. This moves a role from one person to another, which means two actors to validate and a set of open work that has to travel intact.",
       },
     ],
+    objective: "Move a role between two people at a defined moment, without changing anything before it or rewriting anything behind it.",
+    eligibility: [
+      "an authorized handover naming the outgoing actor, the incoming actor, the scope and the effective time",
+      "no instance of this journey is already open for the the role or responsibility",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A future handover is not an immediate authority change."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Historical decisions by the outgoing actor remain historical facts."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Inherited deadlines do not reset at the handover."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Both actors are revalidated at the effective time, not at the time of authorisation."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "role_id",
+          "handover_id",
+          "outgoing_actor",
+          "incoming_actor",
+          "effective_at",
+          "inherited_deadlines",
+          "handover_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.cancelled",
+          "x.handed-over",
+          "h.hold",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "responsibility handover",
+        "role handover",
+        "owner transfer",
+        "account manager change"
+      ],
+      "useCases": [
+        "a role moved between two people at a defined moment",
+        "a handover whose assumptions are re-checked at the effective time"
+      ]
+    },
     entry: "t.handover",
     nodes: [
       {
@@ -910,6 +990,11 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "an authorized handover naming the outgoing actor, the incoming actor, the scope and the effective time",
+          ],
+          insufficientAlone: [
+            "a role change with no named incoming actor",
+            "a handover discussed but not authorised",
+            "an actor leaving with no handover recorded, which orphan handling owns"
           ],
           source: "authoritative",
         },
@@ -921,6 +1006,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Define the outgoing actor, the incoming actor, the scope, the effective time and the reason. A handover scheduled for a future date is not an authority change now - until the effective time the outgoing actor still holds the role and everything in it",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "a.inventory",
+        idempotencyKey: "person_id + a.define",
       },
       {
         id: "a.inventory",
@@ -928,6 +1014,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inventory what travels with the role: open work, deadlines, approvals, scheduled actions, commitments and the context needed to continue any of them",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "c.eligible",
+        idempotencyKey: "person_id + a.inventory",
       },
       {
         id: "c.eligible",
@@ -962,19 +1049,30 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Prepare the transfer without activating it. Nothing about the outgoing actor's authority changes yet, and nothing about the incoming actor's does either",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "w.effective",
+        idempotencyKey: "person_id + a.prepare",
       },
       {
         id: "w.effective",
         kind: "wait",
-        until: ["the handover is cancelled", "the handover is superseded by another"],
+        until: [
+          "handover_cancelled",
+          "handover_superseded"
+        ],
         onEvent: "x.cancelled",
         timeout: {
-          after: "the effective time",
-          reason:
-            "reaching the effective moment is the ordinary path; the wait watches for the handover being withdrawn before it gets there",
+          "after": {
+            "key": "responsibility_handover.effective",
+            "rule": "The handover waits until its own effective time; nothing changes before it, and both actors and the target are revalidated at it.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "reaching the effective moment is the ordinary path; the wait watches for the handover being withdrawn before it gets there",
+          "relativeTo": "attribute",
+          "attribute": "effective_at"
         },
         onTimeout: "a.revalidate",
         windowExtendsOnEngagement: false,
+        recheck: "the the role or responsibility re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.cancelled",
@@ -983,6 +1081,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the outgoing actor retained the role throughout, so nothing has to be undone - which is the point of not moving authority at the moment of authorisation",
+        class: "invalid-state",
       },
       {
         id: "a.revalidate",
@@ -990,6 +1089,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "At the effective time, revalidate both actors and the target entity. Weeks can pass between authorising a handover and it taking effect, and either actor may have left, changed role or lost the authority the handover assumed",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "c.still-valid",
+        idempotencyKey: "person_id + a.revalidate",
       },
       {
         id: "c.still-valid",
@@ -1020,6 +1120,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Activate the new responsibility from the effective time, with the inherited deadlines and obligations exactly as they stood. The handover changes who is answerable, never what is owed or by when",
         writes: [{ field: "handover_log", mode: "append" }],
         next: "a.invalidate",
+        idempotencyKey: "person_id + a.activate",
       },
       {
         id: "a.invalidate",
@@ -1027,6 +1128,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Invalidate the outgoing actor's future scheduled actions where their authority has now ended. Decisions they made while holding the role remain historical facts and are not touched - what changes is what they may do next",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "x.handed-over",
+        idempotencyKey: "person_id + a.invalidate",
       },
       {
         id: "x.handed-over",
@@ -1034,6 +1136,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "responsibility handed over at its effective time",
         terminal: false,
         reEntry: "a further handover is scheduled and validated on its own terms",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1060,6 +1163,11 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the account and this closure request",
       note: "Closing the account ends the account relationship. It cancels no subscription and deletes no data, and neither of those happens as a side effect of it.",
+      instanceKey: [
+        "account_id",
+        "closure_request_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1068,6 +1176,216 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           "RET-29 completes a subscription cancellation - a commercial relationship ending. An account can be closed with subscriptions running, and a subscription can be cancelled with the account intact.",
       },
     ],
+    objective: "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
+    eligibility: [
+      "a closure request against an identified account",
+      "no instance of this journey is already open for the the account and this closure request",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Account closure is not data deletion."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Account closure is not subscription cancellation unless a contract explicitly couples them."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Closure does not silently erase audit or history."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A blocker is named specifically. An unexplained refusal is not a blocker, it is a support case."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "account_closure.touches",
+          "rule": "Every touch in this plan is the closure process itself and is mandatory; nothing discretionary exists to cap.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "account_closure.cooldown",
+        "rule": "This journey is per the account and this closure request; a later instance concerns a different the account and this closure request and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "notify-unauthorized",
+          "action": "a.notify-unauthorized",
+          "prerequisites": [
+            "c.authority"
+          ],
+          "purpose": "Tell the requester that no closure took place and why this request cannot perform it, without disclosing account state they are not entitled to.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "notify-cannot-close",
+          "action": "a.notify-cannot-close",
+          "prerequisites": [
+            "c.authority",
+            "c.blockers"
+          ],
+          "purpose": "Name the state that prevents closure, without inventing a route around it.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "confirm-closure",
+          "action": "a.confirm-closure",
+          "prerequisites": [
+            "c.authority",
+            "c.blockers",
+            "c.verified"
+          ],
+          "purpose": "Confirm the account relationship is closed and state plainly what closure is not - it is not subscription cancellation and it is not data deletion, both of which have their own lifecycles and their own evidence.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
+          "stage": "surface",
+          "action": "a.surface",
+          "prerequisites": [
+            "c.authority",
+            "c.blockers"
+          ],
+          "purpose": "Surface the exact blocker.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "closure-blocker",
+            "boundTo": "closure_request_id",
+            "mustNotClaim": [
+              "a route around the blocker that does not exist"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "closure_request_id",
+          "requester",
+          "requester_authority",
+          "blockers",
+          "closure_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.unauthorized",
+          "x.still-blocked",
+          "x.lapsed",
+          "x.cannot-close",
+          "h.dependencies",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "account closure",
+        "close account",
+        "close my account request",
+        "account termination request"
+      ],
+      "useCases": [
+        "a closure request checked for authority and blockers before anything ends",
+        "a blocker named specifically so the requester knows what to resolve"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -1091,6 +1409,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record CLOSURE_REQUESTED, and determine who requested it, whether they hold the authority to, the account's current state, its open blockers and its dependent relationships",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "c.authority",
+        idempotencyKey: "account_id + a.state",
       },
       {
         id: "c.authority",
@@ -1115,6 +1434,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the requester that no closure took place and why this request cannot perform it, without disclosing account state they are not entitled to. A closure request that disappears leaves the requester believing an account is closed when it is not",
         execution: "communication",
         next: "x.unauthorized",
+        idempotencyKey: "account_id + a.notify-unauthorized",
       },
       {
         id: "a.notify-cannot-close",
@@ -1122,6 +1442,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the state that prevents closure, without inventing a route around it. Where nothing the requester can do would change it, saying so is the answer - an unresolvable block reported as silence reads as a request still being processed",
         execution: "communication",
         next: "x.cannot-close",
+        idempotencyKey: "account_id + a.notify-cannot-close",
       },
       {
         id: "a.confirm-closure",
@@ -1129,6 +1450,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the account relationship is closed and state plainly what closure is not - it is not subscription cancellation and it is not data deletion, both of which have their own lifecycles and their own evidence. Sent only after closure is verified, never on the request",
         execution: "communication",
         next: "h.dependencies",
+        idempotencyKey: "account_id + a.confirm-closure",
       },
       {
         id: "x.unauthorized",
@@ -1136,6 +1458,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "closure not requested by an authorised party; account unchanged",
         terminal: false,
         reEntry: "a request from an authorised party is assessed on its own terms",
+        class: "invalid-state",
       },
       {
         id: "c.blockers",
@@ -1166,19 +1489,28 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "closure_log", mode: "append" }],
         next: "w.blockers",
         execution: "communication",
+        idempotencyKey: "account_id + a.surface",
       },
       {
         id: "w.blockers",
         kind: "wait",
-        until: ["the surfaced blocker is resolved"],
+        until: [
+          "closure_blocker_resolved"
+        ],
         onEvent: "c.recheck",
         timeout: {
-          after: "the closure request's validity window",
-          reason:
-            "a closure request held open indefinitely against an unresolved blocker is neither a closure nor a refusal, and the account holder cannot tell which they have",
+          "after": {
+            "key": "account_closure.blockers",
+            "rule": "The closure request's validity window.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a closure request held open indefinitely against an unresolved blocker is neither a closure nor a refusal, and the account holder cannot tell which they have",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the the account and this closure request re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.recheck",
@@ -1200,6 +1532,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "each remaining blocker is named and resolved on its own, and closure is requested again - stacking them into one message tells the account holder nothing they can act on",
+        class: "failure",
       },
       {
         id: "x.lapsed",
@@ -1207,6 +1540,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "closure request lapsed with blockers outstanding",
         terminal: false,
         reEntry: "a fresh request re-enters against whatever blockers still stand",
+        class: "timeout",
       },
       {
         id: "x.cannot-close",
@@ -1215,6 +1549,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the preventing condition changing re-opens this. The account stays open and the reason is on record rather than left as an unexplained refusal",
+        class: "failure",
       },
       {
         id: "a.execute",
@@ -1222,6 +1557,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Execute the account closure. This ends the account relationship and does nothing else - it cancels no subscription unless a contract explicitly couples them, and it deletes no data. The audit and history are untouched",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "a.verify",
+        idempotencyKey: "account_id + a.execute",
       },
       {
         id: "a.verify",
@@ -1229,6 +1565,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Verify the account is no longer active for the operations closure prohibits",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "c.verified",
+        idempotencyKey: "account_id + a.verify",
       },
       {
         id: "c.verified",
@@ -1281,6 +1618,84 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the closing account plus each external or commercial dependency, individually",
       note: "Each dependency is its own relationship with its own end state. None of them ends because our account record changed.",
+      instanceKey: [
+        "account_id",
+        "closure_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Make sure nothing that lives outside the account is assumed to have ended because the account did.",
+    eligibility: [
+      "an account closure that has taken effect on the account itself",
+      "no instance of this journey is already open for the the closing account plus each external or commercial dependency",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Closing an application account is never assumed to cancel an externally billed subscription."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An external provider's reported success is verified rather than trusted."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A failure to terminate one dependency is not hidden behind an account marked CLOSED."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Each dependency's final state is recorded independently of the account's."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "closure_id",
+          "external_dependencies",
+          "coupling_evidence",
+          "dependency_outcomes",
+          "closure_policy",
+          "closure_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.finalized",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "account closure reconciliation",
+        "external dependency termination",
+        "closure finalisation",
+        "linked service termination"
+      ],
+      "useCases": [
+        "external subscriptions and providers reconciled one by one when an account closes",
+        "a dependency that did not terminate, surfaced rather than hidden"
+      ]
     },
     entry: "t.closing",
     nodes: [
@@ -1290,6 +1705,10 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         event: "account_closure_executing_or_finalizing",
         evidence: {
           requires: ["an account closure that has taken effect on the account itself"],
+          insufficientAlone: [
+            "a closure requested but not yet applied to the account",
+            "a subscription cancellation, which ends a commercial relationship rather than the account"
+          ],
           source: "authoritative",
         },
         next: "a.inventory",
@@ -1300,6 +1719,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inventory the external and dependent state: subscriptions, external billing agreements, third-party services, active entitlements, pending invoices, external reservations and linked contracts. Each is a relationship in its own right, and closing an application account has never cancelled a subscription billed by someone else",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "c.coupled",
+        idempotencyKey: "account_id + a.inventory",
       },
       {
         id: "c.coupled",
@@ -1324,6 +1744,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Verify the termination actually happened rather than assuming it. A provider reporting success is a statement about their API, and a coupling written into a contract is not the same as a coupling implemented in a system",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "w.outcomes",
+        idempotencyKey: "account_id + a.verify-termination",
       },
       {
         id: "a.separate",
@@ -1331,19 +1752,28 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that this dependency requires its own termination and raise it as such. It does not end because our account did, and the person is told which relationships they still hold",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "w.outcomes",
+        idempotencyKey: "account_id + a.separate",
       },
       {
         id: "w.outcomes",
         kind: "wait",
-        until: ["the required dependency outcomes are recorded"],
+        until: [
+          "dependency_outcomes_recorded"
+        ],
         onEvent: "c.all",
         timeout: {
-          after: "the closure policy's window for dependency resolution",
-          reason:
-            "a dependency left unresolved is someone continuing to be charged or committed after they believed they had finished, and it does not become resolved by the account looking closed",
+          "after": {
+            "key": "closure_external.outcomes",
+            "rule": "The closure policy's window for dependency resolution.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a dependency left unresolved is someone continuing to be charged or committed after they believed they had finished, and it does not become resolved by the account looking closed",
+          "relativeTo": "trigger"
         },
         onTimeout: "c.policy",
         windowExtendsOnEngagement: false,
+        recheck: "the the closing account plus each external or commercial dependency re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.all",
@@ -1364,6 +1794,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record each dependency's final state independently of the account's. They are separate relationships and their endings are separate facts, recorded as such",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "x.finalized",
+        idempotencyKey: "account_id + a.record-final",
       },
       {
         id: "a.record-unresolved",
@@ -1371,6 +1802,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record which dependencies did not terminate, visibly and by name. A failure to end one dependency is never hidden behind an account marked CLOSED - that is exactly how someone keeps being charged by a provider they believe they have left",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "h.escalate",
+        idempotencyKey: "account_id + a.record-unresolved",
       },
       {
         id: "c.policy",
@@ -1395,6 +1827,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the remaining dependency independently, with its own state and its own owner, so it stays visible and attributable after the account is gone",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "x.finalized",
+        idempotencyKey: "account_id + a.record-remaining",
       },
       {
         id: "h.escalate",
@@ -1412,6 +1845,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "dependencies reconciled and recorded independently of the account",
         terminal: false,
         reEntry: "a dependency discovered later is reconciled on its own, against the closed account's record",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1438,6 +1872,76 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the closed account and the obligations still outstanding against it",
       note: "The wind-down capability is enumerated rather than left as a general exception, so a closed account cannot quietly keep behaving like an open one.",
+      instanceKey: [
+        "account_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Stop normal account activity while letting the obligations that outlive closure actually finish.",
+    eligibility: [
+      "a closure that has been executed and verified",
+      "no instance of this journey is already open for the the closed account and the obligations still outstanding against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A closed account does not reactivate through a stale login or a queued onboarding event."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The wind-down capability is explicitly scoped and enumerated."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A terminal relationship state does not mean the historical record is deleted."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "outstanding_obligations",
+          "wind_down_capabilities",
+          "wind_down_horizon",
+          "closure_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.former",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "account closure wind-down",
+        "post-closure obligations",
+        "closed account state",
+        "former customer state"
+      ],
+      "useCases": [
+        "normal activity stopped while obligations that outlive closure finish",
+        "a wind-down outliving its horizon, escalated to ownership"
+      ]
     },
     entry: "t.closed",
     nodes: [
@@ -1447,6 +1951,10 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         event: "account_closure_succeeded",
         evidence: {
           requires: ["a closure that has been executed and verified"],
+          insufficientAlone: [
+            "a closure requested, executing or not yet verified",
+            "a suspension, which is designed to be reversed"
+          ],
           source: "authoritative",
         },
         next: "a.suppress",
@@ -1457,6 +1965,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress new acquisition, normal usage, engagement journeys that are now obsolete, and every account action incompatible with closure - including anything already queued. A closed account receiving an onboarding email is the clearest possible evidence that the closure did not reach everything",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.guard",
+        idempotencyKey: "obligation_id + account_id + a.suppress",
       },
       {
         id: "a.guard",
@@ -1464,6 +1973,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Guard against reactivation. A stale login, a queued onboarding step or a delayed synchronisation must not bring a closed account back - closure is a state that later events are checked against, never one they can silently overwrite",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "c.remaining",
+        idempotencyKey: "obligation_id + account_id + a.guard",
       },
       {
         id: "c.remaining",
@@ -1488,19 +1998,28 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Allow only the scoped processes those obligations need, enumerated individually. A wind-down left as a general exception is an open account with a different label on it",
         writes: [{ field: "closure_log", mode: "append" }],
         next: "w.winddown",
+        idempotencyKey: "obligation_id + account_id + a.scope",
       },
       {
         id: "w.winddown",
         kind: "wait",
-        until: ["all outstanding operational obligations complete"],
+        until: [
+          "operational_obligations_completed"
+        ],
         onEvent: "x.former",
         timeout: {
-          after: "the wind-down horizon",
-          reason:
-            "an account held open in wind-down indefinitely is neither closed nor operating, and nobody is left watching which obligation is holding it there",
+          "after": {
+            "key": "closure_wind.winddown",
+            "rule": "The wind-down horizon.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an account held open in wind-down indefinitely is neither closed nor operating, and nobody is left watching which obligation is holding it there",
+          "relativeTo": "trigger"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the the closed account and the obligations still outstanding against it re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.escalate",
@@ -1519,6 +2038,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a returning customer opens a new relationship rather than reviving this one. A terminal relationship state does not mean the records never existed - deleting them is a separate lifecycle with its own request, its own scope and its own authority",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1913,6 +2433,10 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the data subject and the single deletion request they raised, bounded by the scope that request names",
       note: "One request, one record. A later request from the same person is a separate instance and inherits neither this one's verification nor its window.",
+      instanceKey: [
+        "deletion_request_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1921,6 +2445,234 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           "TRM-109 decides what the request covers, what an authoritative obligation requires keeping, and executes the removal. This journey is only what the requester is told, and it states nothing TRM-109 has not resolved.",
       },
     ],
+    objective: "Give the person who asked for their data to be removed a durable record of what went, what stayed, under which obligation, and the date the request closed - because a deletion nobody can point to is indistinguishable from one that never happened.",
+    eligibility: [
+      "a deletion request recorded against a named data subject",
+      "the scope the request itself names",
+      "the response window the governing obligation sets",
+      "no instance of this journey is already open for the the data subject and the single deletion request they raised",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is deleted on an unverified request, and nothing is asked for beyond the proof of control the obligation actually requires."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Ending the relationship is not a deletion request and is never answered as one."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "No retention is described that an authoritative obligation does not require. Where the policy is silent, nothing is claimed."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The response window belongs to the obligation, not to the work. It is answered inside it or escalated at it."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "The closing message is a record: scope, outcome, obligation, date - readable a year later by somebody who was not there."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "deletion_request.touches",
+          "rule": "Every touch in this plan is the request's own record and is mandatory; nothing discretionary exists to cap.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "deletion_request.cooldown",
+        "rule": "This journey is per the data subject and the single deletion request they raised; a later instance concerns a different the data subject and the single deletion request they raised and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "acknowledge",
+          "action": "a.acknowledge",
+          "prerequisites": [],
+          "purpose": "Acknowledge the request, state the date by which the obligation requires an answer, and say that establishing who is asking comes first.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "verify",
+          "action": "a.verify",
+          "after": "t1",
+          "prerequisites": [
+            "c.verified"
+          ],
+          "purpose": "Ask for exactly the proof of control the obligation requires and nothing beyond it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "proof-of-control",
+            "boundTo": "deletion_request_id",
+            "mustNotClaim": [
+              "a need for identifying data beyond what the obligation requires"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "unverified",
+          "action": "a.unverified",
+          "after": "t2",
+          "gatedBy": "w.verify",
+          "prerequisites": [],
+          "purpose": "Close the request as unverified, saying plainly that nothing was deleted, why, and that a fresh request can be raised at any time.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
+          "stage": "closed-full",
+          "action": "a.closed-full",
+          "gatedBy": "w.decision",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Confirm what was deleted, the scope it covered and the date the request closed.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t5",
+          "stage": "closed-partial",
+          "action": "a.closed-partial",
+          "gatedBy": "w.decision",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "State what was deleted, what is retained, which obligation requires it and when that obligation ends.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "deletion_request_id",
+          "data_subject_id",
+          "requested_scope",
+          "response_deadline_at",
+          "governing_obligation",
+          "control_established"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.unverified",
+          "x.closed",
+          "h.overdue"
+        ]
+      },
+      "businessOutcome": {
+        "event": "deletion_resolved",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "data deletion confirmation",
+        "right to erasure",
+        "data deletion request",
+        "delete my data",
+        "data subject request"
+      ],
+      "useCases": [
+        "a deletion request acknowledged, verified and closed on the record inside the mandated window",
+        "a partial deletion that names what is retained and under which obligation"
+      ]
+    },
     entry: "t.request",
     nodes: [
       {
@@ -1948,6 +2700,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Acknowledge the request, state the date by which the obligation requires an answer, and say that establishing who is asking comes first. An unacknowledged request leaves the person unable to tell a mandated wait from being ignored",
         next: "c.verified",
         execution: "communication",
+        idempotencyKey: "person_id + a.acknowledge",
       },
       {
         id: "c.verified",
@@ -1972,20 +2725,28 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask for exactly the proof of control the obligation requires and nothing beyond it. Collecting extra identifying data in order to honour a deletion request is the contradiction the request exists to end",
         next: "w.verify",
         execution: "communication",
+        idempotencyKey: "person_id + a.verify",
       },
       {
         id: "w.verify",
         kind: "wait",
         until: [
-          "the requester supplies the proof of control that was asked for",
+          "proof_of_control_provided"
         ],
         onEvent: "w.decision",
         timeout: {
-          after: "the verification period held inside the mandated response window",
-          reason: "the response window runs whether or not the requester replies, so an unverifiable request has to be closed inside it rather than left open",
+          "after": {
+            "key": "deletion_request.verify",
+            "rule": "The verification period held inside the mandated response window.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "the response window runs whether or not the requester replies, so an unverifiable request has to be closed inside it rather than left open",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.unverified",
         windowExtendsOnEngagement: false,
+        recheck: "the the data subject and the single deletion request they raised re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.unverified",
@@ -1993,6 +2754,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the request as unverified, saying plainly that nothing was deleted, why, and that a fresh request can be raised at any time. A silent close reads as a deletion that happened",
         next: "x.unverified",
         execution: "communication",
+        idempotencyKey: "person_id + a.unverified",
       },
       {
         id: "x.unverified",
@@ -2000,20 +2762,29 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "closed unverified, nothing deleted",
         terminal: false,
         reEntry: "a fresh request from the same person is a new instance with its own window and its own verification",
+        class: "invalid-state",
       },
       {
         id: "w.decision",
         kind: "wait",
         until: [
-          "the scope, the retained items and the deletion outcome are all authoritatively resolved",
+          "deletion_resolved"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the mandated response window",
-          reason: "the window belongs to the obligation rather than to how long the work takes, and passing it in silence is itself the failure",
+          "after": {
+            "key": "deletion_request.decision",
+            "rule": "The resolution is waited for until the response deadline the governing obligation sets; reaching it unanswered escalates to data-protection ownership.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the window belongs to the obligation rather than to how long the work takes, and passing it in silence is itself the failure",
+          "relativeTo": "attribute",
+          "attribute": "response_deadline_at"
         },
         onTimeout: "h.overdue",
         windowExtendsOnEngagement: false,
+        recheck: "the the data subject and the single deletion request they raised re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.overdue",
@@ -2024,6 +2795,13 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           "the request, its scope, its window and what the requester has already been told",
           "which part of the scope remains unresolved and who holds it",
         ],
+        contract: {
+          "requiredFields": [
+            "person_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "c.outcome",
@@ -2048,6 +2826,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm what was deleted, the scope it covered and the date the request closed. This message is the record the requester keeps, so it states the outcome rather than thanking them for their patience",
         next: "x.closed",
         execution: "communication",
+        idempotencyKey: "person_id + a.closed-full",
       },
       {
         id: "a.closed-partial",
@@ -2055,6 +2834,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State what was deleted, what is retained, which obligation requires it and when that obligation ends. Naming the obligation is what makes retention a rule rather than a preference",
         next: "x.closed",
         execution: "communication",
+        idempotencyKey: "person_id + a.closed-partial",
       },
       {
         id: "x.closed",
@@ -2062,6 +2842,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "answered and closed on the record",
         terminal: true,
         reEntry: "a later deletion request from the same person is a new instance, verified again from the start",
+        class: "success",
       },
     ],
     guardrails: [

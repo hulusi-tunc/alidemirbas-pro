@@ -1,0 +1,308 @@
+{
+ "id": "DOC-220",
+ "shortName": "Document Conflict Review",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "handoff",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.inconsistency",
+   "event": "document_version_inconsistency_detected",
+   "meaning": "a material inconsistency - different content under one identifier, an incorrect version distributed, a signature attached to the wrong version, a local copy differing from the authoritative record, several versions claiming current status, or a missing amendment link",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a material inconsistency - different content under one identifier, an incorrect version distributed, a signature attached to the wrong version, a local copy differing from the authoritative record, several versions claiming current status, or a missing amendment link",
+    "no instance of this journey is already open for the the document lineage and every conflicting record claiming to be part of it",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "document_lineage_id",
+    "conflict_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.collect",
+   "does": "Collect the document ids, the version ids, the content with its hashes or references, the issuance times, the signature evidence, the effective dates, the lineage, and the authority or source behind each record",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.collect",
+   "key": "document_version_id + issue_id + a.collect"
+  },
+  {
+   "type": "condition",
+   "node": "c.identifiable",
+   "asks": "Is the authoritative version deterministically identifiable?",
+   "branches": [
+    {
+     "label": "It is",
+     "observes": null,
+     "test": "lineage, issuance authority and effective semantics together single out one version",
+     "to": "a.authoritative"
+    },
+    {
+     "label": "It is not",
+     "observes": null,
+     "test": "two or more versions have equal claim, or the lineage is broken",
+     "to": "a.cannot"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.cannot",
+   "does": "Record DOCUMENT_RECONCILIATION_REQUIRED and change nothing. The newest file is not automatically the authoritative version - recency is a property of a filesystem and authority is a property of an issuance, and picking the newer one is how a superseded draft becomes the contract",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.cannot",
+   "key": "document_version_id + issue_id + a.cannot"
+  },
+  {
+   "type": "handoff",
+   "node": "h.review",
+   "to": "DEC-181",
+   "on": "a conflict where the authoritative version cannot be safely determined",
+   "carries": [
+    "every conflicting record with its hash, issuance, signatures, effective dates and lineage",
+    "the explicit fact that nothing was deleted, corrected or promoted - the conflict is preserved intact for the decision"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.authoritative",
+   "does": "Record which version is authoritative and why, preserving every conflicting record alongside it. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.authoritative",
+   "key": "document_version_id + issue_id + a.authoritative"
+  },
+  {
+   "type": "condition",
+   "node": "c.signature",
+   "asks": "Is any signature bound to a version other than the authoritative one?",
+   "branches": [
+    {
+     "label": "One or more are",
+     "observes": null,
+     "test": "a signature was made against a version that is not authoritative",
+     "to": "a.sig-invalid"
+    },
+    {
+     "label": "All bind correctly",
+     "observes": null,
+     "test": "every signature is against the authoritative version",
+     "to": "c.acted"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.sig-invalid",
+   "does": "Record that the signature does not bind to the authoritative version, without discarding the signature. It is valid evidence for the version it was made against and for no other, however similar the content of the two looks",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.sig-invalid",
+   "key": "document_version_id + issue_id + a.sig-invalid"
+  },
+  {
+   "type": "handoff",
+   "node": "h.resign",
+   "to": "DOC-215",
+   "on": "signatures that bind to a version other than the authoritative one",
+   "carries": [
+    "the authoritative version and which signatures are missing against it",
+    "the explicit fact that the existing signatures stand as evidence about their own versions and are not transferred"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.acted",
+   "asks": "Was a non-authoritative version distributed or acted upon?",
+   "branches": [
+    {
+     "label": "Distributed, not acted upon",
+     "observes": null,
+     "test": "a recipient holds the wrong version and has done nothing on it",
+     "to": "a.correct-distribution"
+    },
+    {
+     "label": "Already used for a business action",
+     "observes": null,
+     "test": "something was decided, paid, granted or performed on the wrong version",
+     "to": "a.preserve-history"
+    },
+    {
+     "label": "Neither",
+     "observes": null,
+     "test": "the conflict was internal and nothing left the system",
+     "to": "x.reconciled"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.correct-distribution",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "document_conflict.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.correct-distribution",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.correct-distribution",
+   "touch": "t1",
+   "stage": "correct-distribution",
+   "purpose": "Redistribute the authoritative version, saying explicitly what changed and which version it replaces.",
+   "brief": "Redistribute the authoritative version, saying explicitly what changed and which version it replaces. A silent correction leaves the recipient holding two documents and no idea which one counts, which is worse than the original error",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.identifiable",
+    "c.signature",
+    "c.acted"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.correct-distribution",
+   "key": "document_version_id + issue_id + a.correct-distribution"
+  },
+  {
+   "type": "state-update",
+   "node": "a.preserve-history",
+   "does": "Preserve what was done and under which version it was done. The action happened - what to do about it is a separate question with its own authority, and rewriting the record to show the right version leaves an effect with no cause",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.preserve-history",
+   "key": "document_version_id + issue_id + a.preserve-history"
+  },
+  {
+   "type": "handoff",
+   "node": "h.remedy",
+   "to": "REM-157",
+   "on": "a business action taken on a non-authoritative document version",
+   "carries": [
+    "what was done, under which version, and what the authoritative version says instead",
+    "the explicit fact that the history is preserved intact - the remedy addresses the consequence rather than the record"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.reconciled",
+   "class": "success",
+   "state": "authoritative version established; conflicting records preserved and explained",
+   "reEntry": "a further inconsistency in this lineage is assessed with this reconciliation as part of its evidence, which is why none of it was deleted"
+  }
+ ]
+}

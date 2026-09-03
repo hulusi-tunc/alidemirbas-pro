@@ -92,6 +92,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "anonymous_profile, reconciled onto person or account",
       note: "The subject changes identity mid-journey, which is the whole problem: the pre-identity history has to survive the transition rather than being replaced by the known profile.",
+      instanceKey: [
+        "anonymous_profile_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -100,6 +104,75 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACQ-02 starts from something the person declared. Here nothing has been declared, so identity and permission both have to be established rather than read.",
       },
     ],
+    objective: "Carry a meaningful but anonymous intent signal through identity resolution without inventing an identity, and decide lifecycle entry as a question separate from having resolved one.",
+    eligibility: [
+      "repeated visits to high-intent pages",
+      "interaction with pricing",
+      "product or configuration exploration",
+      "a meaningful return after a first session",
+      "no instance of this journey is already open for the anonymous_profile",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Anonymous behaviour is not consent. Resolving an identity does not create permission to contact it."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Identities are merged on deterministic signals only. A probabilistic match is a guess, and a wrong merge writes one person's history onto another."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Becoming known is not the same as becoming eligible, and neither is a reason to start messaging."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "anonymous_profile_id",
+          "intent_signals",
+          "signal_freshness_window",
+          "identity_resolution_history"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.stale",
+          "x.known-only",
+          "h.qualification"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "anonymous identity resolution",
+        "anonymous visitor intent",
+        "identity stitching",
+        "known-visitor resolution"
+      ],
+      "useCases": [
+        "an anonymous visitor whose repeated high-intent behaviour deserves resolution without inventing an identity",
+        "deciding lifecycle entry separately from becoming known"
+      ]
+    },
     entry: "t.threshold",
     nodes: [
       {
@@ -142,15 +215,23 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.identity",
         kind: "wait",
-        until: ["deterministic_identity_resolved"],
+        until: [
+          "deterministic_identity_resolved"
+        ],
         onEvent: "a.reconcile",
         timeout: {
-          after: "the freshness window of the signals that opened the profile",
-          reason:
-            "anonymous intent goes stale like any other evidence, and an unresolved profile is not held open indefinitely waiting for a name",
+          "after": {
+            "key": "anonymous_intent.identity",
+            "rule": "The freshness window of the signals that opened the profile.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "anonymous intent goes stale like any other evidence, and an unresolved profile is not held open indefinitely waiting for a name",
+          "relativeTo": "trigger"
         },
         onTimeout: "x.stale",
         windowExtendsOnEngagement: false,
+        recheck: "the anonymous_profile re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.stale",
@@ -159,6 +240,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a fresh crossing of the intent threshold opens a new instance; nothing was merged and no permission was implied by waiting",
+        class: "timeout",
       },
       {
         id: "a.reconcile",
@@ -166,6 +248,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reconcile the anonymous behavioural history onto the known profile, keeping the pre-identity record readable alongside it rather than replacing it, and record which method resolved the identity",
         writes: [{ field: "identity_resolution_history", mode: "append" }],
         next: "c.eligible",
+        idempotencyKey: "account_id + person_id + a.reconcile",
       },
       {
         id: "c.eligible",
@@ -202,6 +285,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "ACQ-06 re-evaluates eligibility when the underlying data changes; becoming known does not start nurture by itself",
+        class: "success",
       },
     ],
     guardrails: [
@@ -226,6 +310,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "lead, resolved onto person or account",
       note: "Scoped to the specific capture and what it asked for; a second, different request from the same person is a second instance with its own destination.",
+      instanceKey: [
+        "lead_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -234,6 +322,72 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "This journey decides where interest goes. ACQ-09 is one of the places it can go, and owns the bounded window that follows - keeping both here would put the same window in two state machines.",
       },
     ],
+    objective: "Route first-party interest to the destination its own content justifies, instead of treating every capture as either a sales lead or a subscriber.",
+    eligibility: [
+      "a first-party submission: a form, a content request, a contact request, or an equivalent deliberate act",
+      "no instance of this journey is already open for the lead",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A captured lead is not a sales-qualified lead. Capture records interest; qualification is a separate decision with its own state."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A submitted form is not marketing consent unless permission was explicitly given in it. The submission and the permission are two facts, and only one of them may have happened."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Not every lead needs a sales handoff. A destination is chosen from what the person asked for, not from what the pipeline wants."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "lead_id",
+          "capture_record",
+          "declared_destination",
+          "disqualifiers"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.destination",
+          "h.reason",
+          "h.education"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "interest qualification routing",
+        "lead routing",
+        "form submission routing",
+        "inbound interest triage"
+      ],
+      "useCases": [
+        "a form or content request that names its own destination",
+        "interest with no destination it is ready for, routed to education"
+      ]
+    },
     entry: "t.captured",
     nodes: [
       {
@@ -255,6 +409,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the capture source, the context the person declared, and the intent it evidences - each stored separately from any permission, which is recorded as its own fact and only where it was actually given",
         writes: [{ field: "capture_record", mode: "append" }],
         next: "c.ready",
+        idempotencyKey: "account_id + lead_id + a.record",
       },
       {
         id: "c.ready",
@@ -283,6 +438,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "the specific destination requested, so the receiving lifecycle does not re-ask",
           "the permission state exactly as captured, including its absence",
         ],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "lead_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "c.disqualifier",
@@ -346,6 +509,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person plus the entity the new intent is about",
       note: "Escalation is about a subject. Configuring one product does not escalate the journeys about a different one.",
+      instanceKey: [
+        "person_id",
+        "intent_entity_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -354,6 +522,73 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACQ-08 fires when a destination has been reached and acquisition is finished. This fires while everything is still in progress and only the ranking has changed.",
       },
     ],
+    objective: "Move ownership when someone in a low-intent lifecycle does something that no longer fits it, and make sure the journey being left behind actually goes quiet.",
+    eligibility: [
+      "an act materially stronger than the one that placed the person in their current journey: pricing after content, configuration after browsing, starting a quote after general interest",
+      "no instance of this journey is already open for the person plus the entity the new intent is about",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "One weak engagement signal is not high intent, and escalating on it moves ownership to a lifecycle the person has not earned."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Suppression happens before the handoff, not after. A handoff that leaves queued sends alive delivers the state the person just left."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Escalation carries context forward. Starting the higher-intent journey from zero makes the person repeat themselves."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "intent_entity_id",
+          "current_lifecycle",
+          "signal_strength_evidence",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.unchanged",
+          "x.retained",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "intent escalation",
+        "intent upgrade",
+        "lifecycle escalation",
+        "higher-intent handoff"
+      ],
+      "useCases": [
+        "a nurture lead who requests pricing and must leave nurture immediately",
+        "making the lower-intent journey go quiet before the higher one starts"
+      ]
+    },
     entry: "t.crossed",
     nodes: [
       {
@@ -392,6 +627,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "no ownership change",
         terminal: false,
         reEntry: "a later, stronger or repeated signal opens a new instance",
+        class: "no-action",
       },
       {
         id: "a.resolve",
@@ -422,6 +658,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Stop the outgoing journey's queued and in-flight sends before the handoff completes, so nothing written for the superseded state can still arrive after it",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "h.escalate",
+        idempotencyKey: "person_id + a.suppress",
       },
       {
         id: "h.escalate",
@@ -438,6 +675,13 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "its scheduled retries",
           "lower-intent calls to action already prepared",
         ],
+        contract: {
+          "requiredFields": [
+            "person_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "x.retained",
@@ -445,6 +689,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "current journey retains ownership",
         terminal: false,
         reEntry: "a further escalation re-opens the question; nothing about the current journey changed",
+        class: "success",
       },
     ],
     guardrails: [
@@ -470,6 +715,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "lead, opportunity or account",
       note: "The dedup step is the entity work: a second request against an open opportunity updates that opportunity rather than opening a rival one.",
+      instanceKey: [
+        "lead_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -478,12 +727,155 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACQ-05 reacts to a qualification state that has already changed. This one runs at the moment of the act, before any state has been decided, and its output is a routing decision rather than a state.",
       },
     ],
-    competition: {
-      scope: "product",
-      exclusionGroup: "purchase-intent",
-      precedence:
-        "above browse and decay, below a reached commercial destination",
-      onLoss: "superseded",
+    objective: "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
+    eligibility: [
+      "a pricing request, an enterprise contact request, a completed quote, a sales-qualified submission, or a high-value application",
+      "no instance of this journey is already open for the lead",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "High intent is not an automatic sales call. The human route is a decision with a real alternative, not the default dressed as one."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An open opportunity is updated, never duplicated. Two records for one pursuit produce two people contacting the same account."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An already-converted account does not receive acquisition communication, whatever the intent signal says."
+      },
+      {
+        "id": "s.p1",
+        "label": "CANONICAL_RULE",
+        "text": "Destination reached for this entity while the journey is in flight: ACQ-08 takes ownership and this journey's remaining steps are suppressed"
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "high_intent.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "high_intent.cooldown",
+        "rule": "Routing is per high-intent action; an open opportunity is updated, never duplicated, and no cooldown applies between actions.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "purchase-intent",
+        "scope": "product",
+        "precedence": "above browse and decay, below a reached commercial destination",
+        "onLoss": "superseded"
+      }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "human",
+          "channels": [
+            "sales",
+            "task"
+          ],
+          "when": "the next step needs a person's judgement - an owner is assigned and a task raised with the evidence"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "assign",
+          "action": "a.assign",
+          "prerequisites": [
+            "c.converted",
+            "c.human"
+          ],
+          "purpose": "Create or update the internal commercial entity, assign an owner, and raise a task carrying the evidence that justified it - ownership changes are appended so the trail of who held it survives",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.p1"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "lead_id",
+          "account_id",
+          "commercial_entity_link",
+          "opportunity",
+          "ownership_history",
+          "destination_reached"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.reached",
+          "h.human",
+          "h.automated"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "high-intent lead routing",
+        "sales handoff",
+        "MQL to SQL routing",
+        "demo request routing",
+        "lead assignment"
+      ],
+      "useCases": [
+        "a pricing or enterprise contact request that needs an owner",
+        "a self-serve request that continues automatically without a person"
+      ]
     },
     entry: "t.high-intent",
     nodes: [
@@ -509,6 +901,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the existing account and any open opportunity before creating anything, so a repeated or duplicated request updates what exists instead of opening a second record against the same person",
         writes: [{ field: "commercial_entity_link", mode: "set" }],
         next: "c.converted",
+        idempotencyKey: "account_id + lead_id + a.resolve",
       },
       {
         id: "c.converted",
@@ -564,6 +957,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         next: "h.human",
         execution: "human",
+        idempotencyKey: "account_id + lead_id + a.assign",
       },
       {
         id: "h.human",
@@ -578,6 +972,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         suppresses: [
           "automated commercial follow-up on this entity while a person holds it",
         ],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "lead_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "h.automated",
@@ -585,6 +987,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "external:automated-continuation",
         on: "a self-serve request that needs no human judgement",
         carries: ["the request and its context", "the resolved account link"],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "lead_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
     ],
     preemptedBy: [
@@ -616,6 +1026,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "lead, account or opportunity",
       note: "Qualification is held per commercial relationship. The same person can be qualified for one offering and not another.",
+      instanceKey: [
+        "lead_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -624,6 +1038,80 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACQ-10 handles a decision the other side made. This handles a decision our own qualification made, which can be reversed by new information without anyone changing their mind.",
       },
     ],
+    objective: "Treat qualification as a reversible state whose routing depends on why it changed, rather than a label applied once and trusted afterwards.",
+    eligibility: [
+      "an authoritative transition between UNQUALIFIED, QUALIFYING, QUALIFIED, DISQUALIFIED and RECYCLE_ELIGIBLE, carrying the reason it changed",
+      "no instance of this journey is already open for the lead",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Disqualified is not permanently dead unless the reason is terminal. Four reasons arrive at the same label and only one of them ends anything."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A qualification state is never written without its reason, and never overwrites the reason that came before it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A recycle is tied to a condition or a date that was actually recorded. Where none exists, no follow-up schedule is invented to stand in for one."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "lead_id",
+          "qualification_state",
+          "state_reason",
+          "recycle_horizon_at",
+          "requirement_validity_ends_at",
+          "qualification_history"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.in-progress",
+          "x.not-yet",
+          "x.terminal",
+          "x.recycled",
+          "x.recycle-expired",
+          "x.requirement-lapsed",
+          "h.destination",
+          "h.merge"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "qualification state routing",
+        "lead qualification",
+        "MQL and SQL state",
+        "disqualification routing",
+        "lead recycling"
+      ],
+      "useCases": [
+        "a lead disqualified for timing that should re-enter on a recorded date",
+        "a qualification reached and routed to its commercial destination"
+      ]
+    },
     entry: "t.changed",
     nodes: [
       {
@@ -645,6 +1133,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Read the new state together with the reason it changed, and append both to the qualification history - the previous state and its reason stay readable, because the next routing decision depends on them",
         writes: [{ field: "qualification_history", mode: "append" }],
         next: "c.state",
+        idempotencyKey: "account_id + lead_id + a.read",
       },
       {
         id: "c.state",
@@ -667,6 +1156,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "the qualification history, including anything that previously disqualified this account and was resolved",
           "the entity the qualification applies to",
         ],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "lead_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "x.in-progress",
@@ -674,6 +1171,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "qualifying, no commercial escalation yet",
         terminal: false,
         reEntry: "the next authoritative state change opens a new instance",
+        class: "no-action",
       },
       {
         id: "x.not-yet",
@@ -681,6 +1179,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "unqualified, nothing ruling it out",
         terminal: false,
         reEntry: "new evidence can move this to QUALIFYING without anything having to be undone first",
+        class: "no-action",
       },
       {
         id: "c.why",
@@ -716,6 +1215,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: true,
         reEntry:
           "none from this reason - only a change in what we serve, which is a change to the rule rather than to the account",
+        class: "invalid-state",
       },
       {
         id: "a.mark-recycle",
@@ -723,19 +1223,29 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RECYCLE_ELIGIBLE with the timing reason and the condition or date that would make it worth revisiting, so the return is tied to something real rather than to a cadence",
         writes: [{ field: "qualification_history", mode: "append" }],
         next: "w.recycle",
+        idempotencyKey: "account_id + lead_id + a.mark-recycle",
       },
       {
         id: "w.recycle",
         kind: "wait",
-        until: ["the recorded re-entry condition or date is met"],
+        until: [
+          "reentry_condition_met"
+        ],
         onEvent: "a.requalify",
         timeout: {
-          after: "the recycle horizon recorded alongside the reason",
-          reason:
-            "a recycle condition that never arrives is a dead record held open; the horizon closes it honestly rather than leaving it pending",
+          "after": {
+            "key": "qualification_state.recycle",
+            "rule": "A recycle is tied to the condition or date recorded alongside the reason; the wait ends at that recorded horizon and nothing invents one.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a recycle condition that never arrives is a dead record held open; the horizon closes it honestly rather than leaving it pending",
+          "relativeTo": "attribute",
+          "attribute": "recycle_horizon_at"
         },
         onTimeout: "x.recycle-expired",
         windowExtendsOnEngagement: false,
+        recheck: "the lead re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.requalify",
@@ -743,6 +1253,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Move the state to QUALIFYING with the recycle reason attached, which is itself an authoritative state change and opens a new instance of this journey",
         writes: [{ field: "qualification_history", mode: "append" }],
         next: "x.recycled",
+        idempotencyKey: "account_id + lead_id + a.requalify",
       },
       {
         id: "x.recycled",
@@ -750,6 +1261,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "re-entered qualification",
         terminal: false,
         reEntry: "already re-entered; the new instance owns what follows",
+        class: "success",
       },
       {
         id: "x.recycle-expired",
@@ -757,18 +1269,29 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "recycle horizon passed without the condition being met",
         terminal: false,
         reEntry: "a new inbound signal can start qualification again from the beginning, with the old history intact",
+        class: "timeout",
       },
       {
         id: "w.requirement",
         kind: "wait",
-        until: ["the named requirement is satisfied"],
+        until: [
+          "named_requirement_satisfied"
+        ],
         onEvent: "a.requalify",
         timeout: {
-          after: "the validity horizon of the requirement",
-          reason: "an unmet requirement with no deadline keeps an account in a state that is neither pursued nor closed",
+          "after": {
+            "key": "qualification_state.requirement",
+            "rule": "The validity horizon of the requirement.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "an unmet requirement with no deadline keeps an account in a state that is neither pursued nor closed",
+          "relativeTo": "attribute",
+          "attribute": "requirement_validity_ends_at"
         },
         onTimeout: "x.requirement-lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the lead re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.requirement-lapsed",
@@ -776,6 +1299,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "disqualified, requirement never met",
         terminal: false,
         reEntry: "satisfying the requirement later is a new authoritative state change and re-enters normally",
+        class: "timeout",
       },
       {
         id: "h.merge",
@@ -787,6 +1311,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "the qualification history of each, so merging does not destroy the older reason trail",
         ],
         suppresses: ["acquisition messaging on the duplicate record"],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "lead_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
     ],
     guardrails: [
@@ -812,6 +1344,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person, account or the business entity the rule is about",
       note: "Eligibility is evaluated per rule and per entity; losing it for one programme says nothing about another.",
+      instanceKey: [
+        "entity_ref",
+        "rule_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -820,6 +1357,78 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "Qualification asks whether we want this relationship. Eligibility asks whether the rules permit a specific action, which can flip repeatedly while qualification never moves.",
       },
     ],
+    objective: "Re-decide eligibility as the underlying data changes, and separate what it forbids next from what it does not undo.",
+    eligibility: [
+      "a change in data an eligibility rule reads, or a scheduled re-evaluation of that rule",
+      "no instance of this journey is already open for the person",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Eligibility is not availability. Being permitted to have something says nothing about whether it can currently be supplied."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Eligibility is not an entitlement already granted. Losing the first does not retract the second."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A future eligibility loss does not automatically invalidate an existing obligation; the obligation is reconciled on its own terms."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Every eligibility result names the rule and the input that produced it. A bare no cannot be explained, appealed or debugged."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "entity_ref",
+          "rule_id",
+          "rule_inputs",
+          "eligibility_decisions",
+          "outstanding_commitments"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.eligible",
+          "x.ineligible",
+          "h.reconcile"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "eligibility recalculation",
+        "dynamic eligibility",
+        "eligibility rule re-evaluation",
+        "entitlement eligibility check"
+      ],
+      "useCases": [
+        "an offer eligibility that changes when the data behind it changes",
+        "eligibility lost while a granted entitlement or commitment still stands"
+      ]
+    },
     entry: "t.evaluated",
     nodes: [
       {
@@ -829,6 +1438,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a change in data an eligibility rule reads, or a scheduled re-evaluation of that rule",
+          ],
+          insufficientAlone: [
+            "a change in data that no eligibility rule reads",
+            "a re-evaluation with no rule input changed and no schedule behind it",
+            "a score or segment moving without the rule that decides eligibility being re-run"
           ],
           source: "authoritative",
         },
@@ -840,6 +1454,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the authoritative rules and record which rule produced the result and on what input, so the answer can be explained and contested later",
         writes: [{ field: "eligibility_decisions", mode: "append" }],
         next: "c.eligible",
+        idempotencyKey: "account_id + person_id + a.evaluate",
       },
       {
         id: "c.eligible",
@@ -864,6 +1479,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "eligible, recorded with the rule that decided it",
         terminal: false,
         reEntry: "any change to the inputs re-opens the evaluation",
+        class: "success",
       },
       {
         id: "c.commitment",
@@ -888,6 +1504,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Flag the existing commitment for its own reconciliation, naming the rule and the reason that changed - this journey does not cancel, reduce or reverse anything already granted",
         writes: [{ field: "commitment_review_queue", mode: "append" }],
         next: "h.reconcile",
+        idempotencyKey: "account_id + person_id + a.reconcile",
       },
       {
         id: "h.reconcile",
@@ -899,6 +1516,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "the commitment in question and when it was granted",
           "the fact that no automatic cancellation has been applied",
         ],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "person_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "a.block",
@@ -906,6 +1531,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Prevent new actions the rule now forbids, naming the rule in the block so the reason travels with the refusal instead of surfacing as an unexplained failure",
         writes: [{ field: "eligibility_decisions", mode: "append" }],
         next: "x.ineligible",
+        idempotencyKey: "account_id + person_id + a.block",
       },
       {
         id: "x.ineligible",
@@ -913,6 +1539,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "ineligible for new actions, nothing outstanding reversed",
         terminal: false,
         reEntry: "restored eligibility is an ordinary re-evaluation and needs no special case",
+        class: "success",
       },
     ],
     guardrails: [
@@ -939,6 +1566,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person plus the intent context that was recorded",
       note: "Decay is per intent context. A stale interest in one product does not lower the intent recorded against another.",
+      instanceKey: [
+        "person_id",
+        "intent_context_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -947,6 +1579,80 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "Nobody said no here. Decay is the absence of continuing evidence, and it must not be recorded as a decision the person never made.",
       },
     ],
+    objective: "Let a recorded high-intent state expire when the evidence behind it goes stale, instead of pursuing someone on the strength of something they did once.",
+    eligibility: [
+      "a recorded qualified or high-intent state whose supporting evidence is now older than the freshness window for that signal type",
+      "no instance of this journey is already open for the person plus the intent context that was recorded",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An old pricing visit does not create a permanent high-intent flag. Evidence expires whether or not anything replaces it."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Intent decay does not change marketing permission. Consent was given deliberately and is only withdrawn deliberately."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Decay is not a decline. Nothing here writes a negative outcome against a person who simply went quiet."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A new strong signal can establish a new intent state; the decayed one does not have to be argued away first."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "intent_context_id",
+          "intent_state",
+          "supporting_evidence",
+          "freshness_threshold",
+          "intent_history"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.unchanged",
+          "x.cooled",
+          "h.customer",
+          "h.re-escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "intent decay",
+        "lead decay",
+        "intent expiry",
+        "stale intent de-prioritisation"
+      ],
+      "useCases": [
+        "a pricing visit months ago that still marks someone as high intent",
+        "letting intent expire without writing a negative outcome"
+      ]
+    },
     competition: {
       scope: "product",
       exclusionGroup: "purchase-intent",
@@ -963,6 +1669,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a recorded qualified or high-intent state whose supporting evidence is now older than the freshness window for that signal type",
+          ],
+          insufficientAlone: [
+            "a fixed number of days since a signal, applied without reading the signal's own freshness",
+            "quiet in one channel while intent is being renewed elsewhere",
+            "a decline, which is a decision and belongs to decline routing"
           ],
           source: "behavioral",
         },
@@ -997,6 +1708,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "intent state maintained",
         terminal: false,
         reEntry: "the next freshness threshold re-opens the question",
+        class: "no-action",
       },
       {
         id: "a.downgrade",
@@ -1004,6 +1716,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Lower the intent classification to what the evidence now supports, and record why. Marketing permission is untouched: intent that decayed is not consent that was withdrawn, and the two are stored separately for exactly this moment",
         writes: [{ field: "intent_history", mode: "append" }],
         next: "a.suppress",
+        idempotencyKey: "person_id + a.downgrade",
       },
       {
         id: "a.suppress",
@@ -1011,6 +1724,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Stop follow-up written for the higher intent, including anything already queued at that priority",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "c.relationship",
+        idempotencyKey: "person_id + a.suppress",
       },
       {
         id: "c.relationship",
@@ -1032,18 +1746,34 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         on: "decayed acquisition intent over a live customer relationship",
         carries: ["the decayed intent and its history", "the fact that no negative decision was recorded"],
         suppresses: ["acquisition-priority follow-up for this person"],
+        contract: {
+          "requiredFields": [
+            "person_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "w.cooldown",
         kind: "wait",
-        until: ["a new strong intent signal"],
+        until: [
+          "strong_intent_signal"
+        ],
         onEvent: "h.re-escalate",
         timeout: {
-          after: "the cooldown horizon for this intent context",
-          reason: "a cooldown with no end is a permanent hold under a friendlier name",
+          "after": {
+            "key": "intent_decay.cooldown",
+            "rule": "The cooldown horizon for this intent context; a new strong signal inside it re-escalates, and its end closes the decayed intent with no decision recorded.",
+            "class": "cooldown",
+            "required": true
+          },
+          "reason": "a cooldown with no end is a permanent hold under a friendlier name",
+          "relativeTo": "trigger"
         },
         onTimeout: "x.cooled",
         windowExtendsOnEngagement: false,
+        recheck: "the person plus the intent context that was recorded re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.re-escalate",
@@ -1058,6 +1788,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "intent expired, permission unchanged, no decision recorded",
         terminal: false,
         reEntry: "a new strong signal establishes a new intent state from scratch",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -1083,6 +1814,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the destination entity",
       note: "The whole journey turns on this scope. The order, subscription, booking or application that completed is what gets closed out - not everything the person was ever in.",
+      instanceKey: [
+        "person_id",
+        "destination_entity_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1091,6 +1827,72 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "Escalation re-ranks journeys that are all still live. This one ends a class of them, because the objective they shared has been met.",
       },
     ],
+    objective: "Make acquisition give up ownership the moment the outcome it existed to cause is recorded, and stop what it has already queued.",
+    eligibility: [
+      "a recorded business fact: trial started, subscription started, purchase completed, booking confirmed, application submitted, or an opportunity created where that is the destination",
+      "no instance of this journey is already open for the person or account plus the destination entity",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An email click is not a conversion. A landing page visit is not a conversion. Only the system of record decides that the destination was reached."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Suppression is scoped to the entity: one order completing does not close the journeys about a different order."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Suppression reaches sends that are already queued, not only future scheduling."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "destination_entity_id",
+          "destination_event",
+          "queued_acquisition_sends",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.not-conversion",
+          "h.next"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "acquisition exit",
+        "conversion handoff",
+        "acquisition suppression on conversion",
+        "stop marketing on purchase"
+      ],
+      "useCases": [
+        "a purchase or trial start that must stop every queued acquisition send",
+        "scoping the suppression to the entity that converted"
+      ]
+    },
     competition: {
       scope: "product",
       exclusionGroup: "purchase-intent",
@@ -1142,6 +1944,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the real event, if it happens, arrives from the system of record and opens a proper instance",
+        class: "invalid-state",
       },
       {
         id: "a.scope",
@@ -1149,6 +1952,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the entity the destination belongs to - the order, subscription, booking or application - so that everything after this is scoped to it",
         writes: [{ field: "destination_entity", mode: "set" }],
         next: "a.identify",
+        idempotencyKey: "contact_point_id + account_id + a.scope",
       },
       {
         id: "a.identify",
@@ -1162,6 +1966,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress their queued reminders, scheduled retries, lower-intent calls to action and stale promotional steps before the next send window opens",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "h.next",
+        idempotencyKey: "contact_point_id + account_id + a.suppress",
       },
       {
         id: "h.next",
@@ -1177,6 +1982,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "every acquisition journey scoped to this destination entity",
           "their queued and in-flight sends",
         ],
+        contract: {
+          "requiredFields": [
+            "contact_point_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
     ],
     guardrails: [
@@ -1202,6 +2015,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "lead or person, held against the reason they entered",
       note: "The entry reason is the subject: education answers the question they arrived with, and when the window closes it closes for that reason rather than for the person forever.",
+      instanceKey: [
+        "lead_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1210,6 +2027,161 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "Decay retires an intent state that has gone stale. This spends a deliberately fixed window trying to advance one, and only then closes it.",
       },
     ],
+    objective: "Give a legitimate but not-yet-ready lead a window of useful education that ends whether or not it worked.",
+    eligibility: [
+      "a captured lead with a recorded entry reason and no destination it is ready for",
+      "no instance of this journey is already open for the lead or person",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Nurture does not run forever. The window is bounded at entry and it closes on time."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Engagement inside the window does not extend it. Opening the emails is not progress toward the destination."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Education answers the reason the person entered. A generic sequence sent to everyone is the thing this journey exists instead of."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "No permission, no nurture. The capture is not the consent."
+      }
+    ],
+    contact: {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "bounded_education.touches",
+          "rule": "The number of educational touches inside the bounded window is fixed when the lead enters and is never extended by engagement inside it.",
+          "required": true
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "bounded_education.cooldown",
+        "rule": "The cooldown between instances of this journey for the same lead or person, so that a re-qualifying lead or person is tracked but not messaged again inside it.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "educate",
+          "action": "a.educate",
+          "prerequisites": [
+            "c.basis"
+          ],
+          "purpose": "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "lead_id",
+          "person_id",
+          "entry_reason",
+          "permission_position",
+          "window_ends_at",
+          "nurture_history"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.no-basis",
+          "x.permission-ended",
+          "x.unreachable",
+          "x.sunset",
+          "h.progressed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "nurture_progression_signal",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "lead nurture",
+        "nurture sequence",
+        "drip education",
+        "researching lead nurture",
+        "top-of-funnel nurture"
+      ],
+      "useCases": [
+        "a lead with a recorded reason for entering and no destination it is ready for",
+        "education that answers that reason and ends on a fixed window"
+      ]
+    },
     entry: "t.not-ready",
     nodes: [
       {
@@ -1252,6 +2224,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "permission given later re-opens this normally; the capture itself never counted as consent and nothing was sent in the meantime",
+        class: "no-action",
       },
       {
         id: "a.educate",
@@ -1259,23 +2232,30 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
         next: "w.window",
         execution: "communication",
+        idempotencyKey: "lead_id + person_id + a.educate",
       },
       {
         id: "w.window",
         kind: "wait",
         until: [
-          "a meaningful progression signal",
-          "permission for this nurture is withdrawn",
-          "the permitted route to this person stops being deliverable",
+          "nurture_progression_signal",
+          "permission_withdrawn",
+          "contactability_lost"
         ],
         onEvent: "c.window-event",
         timeout: {
-          after: "the bounded nurture window fixed when the lead entered",
-          reason:
-            "the window is what makes this nurture rather than a permanent messaging state, and it is set once at entry",
+          "after": {
+            "key": "bounded_education.window",
+            "rule": "The bounded nurture window is fixed when the lead enters and ends whether or not the education worked; engagement inside it does not extend it.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "the window is what makes this nurture rather than a permanent messaging state, and it is set once at entry",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.sunset",
         windowExtendsOnEngagement: false,
+        recheck: "the lead or person re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.window-event",
@@ -1317,6 +2297,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "nurture stopped; permission no longer covers it",
         terminal: false,
         reEntry: "a new valid permission plus a new qualifying reason starts a new window",
+        class: "suppression",
       },
       {
         id: "x.unreachable",
@@ -1324,6 +2305,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "nurture stopped; no permitted route is deliverable",
         terminal: false,
         reEntry: "a repaired or newly permitted route, while the entry reason is still live, resumes nurture",
+        class: "suppression",
       },
       {
         id: "h.progressed",
@@ -1341,6 +2323,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the window and record that it ended without progression, which is a fact about this attempt rather than a judgement about the person",
         writes: [{ field: "nurture_history", mode: "append" }],
         next: "x.sunset",
+        idempotencyKey: "lead_id + person_id + a.sunset",
       },
       {
         id: "x.sunset",
@@ -1349,6 +2332,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new inbound signal or a newly declared request can open a new window; immediate re-entry into the same education is suppressed",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -1375,6 +2359,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "lead, opportunity or account",
       note: "The decline belongs to the opportunity it was given about. A different opportunity with the same account is not declined by it.",
+      instanceKey: [
+        "lead_id",
+        "decline_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1383,6 +2372,80 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "Someone decided something here. Where the recorded reason turns out to be silence rather than a decision, this journey hands it to decay instead of treating it as one.",
       },
     ],
+    objective: "Route a negative commercial outcome by its cause rather than filing every one of them under lost.",
+    eligibility: [
+      "a decline stated by the person or account, or a lost outcome recorded in the system of record",
+      "no instance of this journey is already open for the lead",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The lost reason history is preserved. Routing depends on it, so overwriting it destroys the ability to route at all."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Not now is not never. Only a terminal reason ends acquisition permanently."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A declined opportunity is not swept into generic marketing as a consolation."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Where no re-entry condition was recorded, none is invented. The absence of a date is not an invitation to pick one."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "lead_id",
+          "decline_id",
+          "reason_family",
+          "reentry_at",
+          "decline_history"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.terminal",
+          "x.cooldown",
+          "h.decay",
+          "h.classify",
+          "h.requalify"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "commercial decline routing",
+        "closed-lost routing",
+        "lost reason handling",
+        "closed-lost recycling"
+      ],
+      "useCases": [
+        "a declined opportunity whose reason says when to try again",
+        "a loss for silence routed to intent decay rather than filed as lost"
+      ]
+    },
     entry: "t.decline",
     nodes: [
       {
@@ -1404,6 +2467,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the reason against the opportunity and append it to the decline history, leaving earlier reasons readable - a second loss for a different reason is two facts, not a correction of the first",
         writes: [{ field: "decline_history", mode: "append" }],
         next: "c.reason",
+        idempotencyKey: "account_id + lead_id + a.capture",
       },
       {
         id: "c.reason",
@@ -1431,6 +2495,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: true,
         reEntry:
           "none from this reason - what would have to change is what we sell, not what this account decided",
+        class: "invalid-state",
       },
       {
         id: "h.decay",
@@ -1470,14 +2535,24 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.reentry",
         kind: "wait",
-        until: ["the recorded re-entry event or date"],
+        until: [
+          "reentry_condition_met"
+        ],
         onEvent: "h.requalify",
         timeout: {
-          after: "the horizon recorded alongside the reason",
-          reason: "a re-entry condition that never arrives closes rather than waiting indefinitely",
+          "after": {
+            "key": "commercial_decline.reentry",
+            "rule": "The re-entry wait ends at the event, date or condition recorded alongside the reason; nothing is scheduled where none is known.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a re-entry condition that never arrives closes rather than waiting indefinitely",
+          "relativeTo": "attribute",
+          "attribute": "reentry_at"
         },
         onTimeout: "x.cooldown",
         windowExtendsOnEngagement: false,
+        recheck: "the lead re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.requalify",
@@ -1496,6 +2571,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new inbound signal, or a re-entry condition recorded later; no cadence is invented to fill the silence",
+        class: "no-action",
       },
     ],
     guardrails: [
@@ -1520,6 +2596,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the individual capture and what it asked for, resolved onto a person",
       note: "One capture, one destination. A second, different request from the same person is its own instance and is not considered answered by what the first one produced.",
+      instanceKey: [
+        "capture_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1528,6 +2608,205 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACQ-02 decides which destination a capture justifies and records that decision with its own state. This journey is what the person receives once that decision exists, and it invents no destination of its own.",
       },
     ],
+    objective: "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
+    eligibility: [
+      "a first-party capture recorded with the context the person declared",
+      "a contact point the person gave in that capture",
+      "the permission position recorded as its own fact, separate from the submission",
+      "no instance of this journey is already open for the the individual capture and what it asked for",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A capture records interest, not a decision. Nothing downstream treats it as one."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The submission and the permission are two facts, and only one of them may have happened."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Not every capture earns a person. The destination comes from what was declared, not from what the pipeline is short of."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A bounded sequence states its end when it opens and stops there, whether or not anything came of it."
+      }
+    ],
+    contact: {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "captured_interest.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "captured_interest.cooldown",
+        "rule": "Fulfilment is per capture; a further capture is its own instance and no cooldown applies between captures.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "first-touch",
+          "action": "a.first-touch",
+          "prerequisites": [
+            "c.email-route",
+            "c.declared"
+          ],
+          "purpose": "Send what they asked for and say that a person will follow up, naming when.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "deliver",
+          "action": "a.deliver",
+          "prerequisites": [
+            "c.email-route",
+            "c.declared"
+          ],
+          "purpose": "Send exactly what the capture asked for, once, and nothing the person did not ask for alongside it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "nurture",
+          "action": "a.nurture",
+          "after": "t2",
+          "prerequisites": [
+            "c.email-route",
+            "c.declared",
+            "c.permission"
+          ],
+          "purpose": "Open a bounded sequence on the subject they declared, and state where it ends when it opens.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "declared-subject-content",
+            "boundTo": "capture_id",
+            "mustNotClaim": [
+              "a sequence with no stated end"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "capture_id",
+          "person_id",
+          "declared_request",
+          "contact_point",
+          "permission_position",
+          "sequence_length"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.no-delivery-route",
+          "x.stopped",
+          "x.sunset",
+          "x.delivered",
+          "h.person"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ],
+      "businessOutcome": {
+        "event": "destination_declared",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      }
+    },
+    discovery: {
+      "aliases": [
+        "new lead welcome",
+        "welcome email",
+        "lead capture fulfilment",
+        "content download delivery",
+        "welcome sequence"
+      ],
+      "useCases": [
+        "a content request answered with exactly what was asked for",
+        "a request to talk to a person, answered once and handed to sales"
+      ]
+    },
     entry: "t.captured",
     nodes: [
       {
@@ -1589,6 +2868,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "captured with nothing deliverable; the request was not fulfilled",
         terminal: false,
         reEntry: "a valid permitted destination, supplied later, makes the same request fulfillable",
+        class: "failure",
       },
       {
         id: "c.declared",
@@ -1613,6 +2893,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send what they asked for and say that a person will follow up, naming when. A promised follow-up with no time on it reads as a queue rather than an answer, and the person starts again elsewhere",
         next: "h.person",
         execution: "communication",
+        idempotencyKey: "person_id + a.first-touch",
       },
       {
         id: "h.person",
@@ -1624,6 +2905,13 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "what was already sent to them and when",
           "the permission facts recorded, and what they do and do not cover",
         ],
+        contract: {
+          "requiredFields": [
+            "person_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "a.deliver",
@@ -1631,6 +2919,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send exactly what the capture asked for, once, and nothing the person did not ask for alongside it. Fulfilment travels on the request; everything past it travels on permission, and the two must not be posted together",
         next: "c.permission",
         execution: "communication",
+        idempotencyKey: "person_id + a.deliver",
       },
       {
         id: "c.permission",
@@ -1655,21 +2944,29 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Open a bounded sequence on the subject they declared, and state where it ends when it opens. A sequence with no stated end is a subscription nobody agreed to, and it is remembered as one",
         next: "w.nurture",
         execution: "communication",
+        idempotencyKey: "person_id + a.nurture",
       },
       {
         id: "w.nurture",
         kind: "wait",
         until: [
-          "the person does something that names a destination - a reply, a request to talk, a purchase",
-          "the person withdraws permission or asks to stop",
+          "destination_declared",
+          "permission_withdrawn"
         ],
         onEvent: "c.progressed",
         timeout: {
-          after: "the stated length of the bounded sequence",
-          reason: "the end was stated when the sequence opened, and moving it silently is what turns interest into complaint",
+          "after": {
+            "key": "captured_interest.nurture",
+            "rule": "The stated length of the bounded sequence.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "the end was stated when the sequence opened, and moving it silently is what turns interest into complaint",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.sunset",
         windowExtendsOnEngagement: false,
+        recheck: "the the individual capture and what it asked for re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.progressed",
@@ -1694,6 +2991,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "stopped at the person's request",
         terminal: true,
         reEntry: "a later capture carrying its own permission is a new instance; this one is never resumed",
+        class: "suppression",
       },
       {
         id: "x.sunset",
@@ -1701,6 +2999,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "sequence ended, no destination declared",
         terminal: false,
         reEntry: "a later capture from the same person is its own instance with its own destination",
+        class: "timeout",
       },
       {
         id: "x.delivered",
@@ -1708,6 +3007,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "fulfilled, no continuing contact permitted",
         terminal: false,
         reEntry: "a later capture that carries a permission opens the bounded path",
+        class: "success",
       },
     ],
     guardrails: [

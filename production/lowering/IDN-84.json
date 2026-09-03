@@ -1,0 +1,337 @@
+{
+ "id": "IDN-84",
+ "shortName": "Verification Recovery",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.failed",
+   "event": "verification_attempt_failed",
+   "meaning": "a verification attempt that did not establish its claim",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a verification attempt that did not establish its claim",
+    "no instance of this journey is already open for the the verification instance that failed",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "verification_instance_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.classify",
+   "does": "Classify the failure as INSUFFICIENT_EVIDENCE, MISMATCH, UNREADABLE, EXPIRED_EVIDENCE, TECHNICAL_FAILURE, POLICY_FAILURE, REVIEW_REQUIRED or UNKNOWN. The class decides the route, and it decides something else: recording our own outage as an identity rejection marks someone as having failed a check they never got to attempt",
+   "writes": [
+    {
+     "field": "verification_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.classify",
+   "key": "identity_id + a.classify"
+  },
+  {
+   "type": "condition",
+   "node": "c.class",
+   "asks": "What kind of failure was it?",
+   "branches": [
+    {
+     "label": "The person can correct it",
+     "observes": null,
+     "test": "insufficient evidence, unreadable evidence, or evidence that has expired",
+     "to": "c.retry-budget"
+    },
+    {
+     "label": "Ours, and transient",
+     "observes": null,
+     "test": "a technical failure on our side or a provider's",
+     "to": "c.technical-budget"
+    },
+    {
+     "label": "Needs a person",
+     "observes": null,
+     "test": "a mismatch, an explicit review requirement, or a failure nobody could classify",
+     "to": "h.review"
+    },
+    {
+     "label": "Terminal by policy",
+     "observes": null,
+     "test": "policy forbids verifying this claim on this basis at all",
+     "to": "a.explain-terminal"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.retry-budget",
+   "asks": "Does the retry budget for this claim have room?",
+   "branches": [
+    {
+     "label": "Room to retry",
+     "observes": null,
+     "test": "attempts against this claim are within the policy limit for its security sensitivity",
+     "to": "a.explain"
+    },
+    {
+     "label": "Budget spent",
+     "observes": null,
+     "test": "the limit is reached - and repeated failure is also what a genuine person struggling looks like",
+     "to": "h.review"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.explain",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "verification_failure.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.explain",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.explain",
+   "touch": "t1",
+   "stage": "explain",
+   "purpose": "Explain exactly what needs correcting and offer the bounded retry.",
+   "brief": "Explain exactly what needs correcting and offer the bounded retry. A retry offered without an explanation produces the same attempt again, which spends the budget without improving anything",
+   "destination": {
+    "target": "retry-verification",
+    "boundTo": "verification_instance_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.class",
+    "c.retry-budget"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.explain",
+   "key": "identity_id + a.explain"
+  },
+  {
+   "type": "condition",
+   "node": "c.technical-budget",
+   "asks": "Is a safe retry available within the backoff budget?",
+   "branches": [
+    {
+     "label": "Retry",
+     "observes": null,
+     "test": "the failure is transient and the budget has room",
+     "to": "a.backoff"
+    },
+    {
+     "label": "Persistent",
+     "observes": null,
+     "test": "the technical failure is not clearing",
+     "to": "h.escalate"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.backoff",
+   "does": "Retry with backoff, recording nothing against the person's verification history. Our failure is not their rejection, and the distinction has to survive into whatever reads that history later",
+   "writes": [
+    {
+     "field": "verification_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.backoff",
+   "key": "identity_id + a.backoff"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.explain-terminal",
+   "touch": "t2",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "verification_failure.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.explain-terminal",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.explain-terminal",
+   "touch": "t2",
+   "stage": "explain-terminal",
+   "purpose": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is.",
+   "brief": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
+   "destination": {
+    "target": "alternative-verification-basis",
+    "boundTo": "verification_instance_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.class"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.explain-terminal",
+   "key": "identity_id + a.explain-terminal"
+  },
+  {
+   "type": "exit",
+   "node": "x.retry",
+   "class": "success",
+   "state": "bounded retry available; the verification instance stays open",
+   "reEntry": "the retry runs as part of the same verification instance, against the same budget - a new instance would reset the count, which is how a bounded retry becomes an unbounded one"
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "OWN-55",
+   "on": "a technical failure that is not clearing",
+   "carries": [
+    "the failure class and how often it has recurred",
+    "the people currently unable to verify because of it, which is what makes this operational rather than administrative"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.review",
+   "to": "DEC-181",
+   "on": "a failure requiring human judgement, or a budget reached",
+   "carries": [
+    "the failure class and every attempt made",
+    "the claim being verified, so the reviewer assesses the claim rather than the attempts"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.terminal",
+   "class": "failure",
+   "state": "verification not possible on this basis",
+   "reEntry": "a different basis or a different claim is assessed on its own terms; what would have to change here is the policy rather than the evidence"
+  }
+ ]
+}

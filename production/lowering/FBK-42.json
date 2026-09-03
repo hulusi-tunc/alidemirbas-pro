@@ -1,0 +1,402 @@
+{
+ "id": "FBK-42",
+ "shortName": "Advocacy Request",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "state-update",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.opportunity",
+   "event": "potential_advocacy_opportunity",
+   "meaning": "a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it",
+   "evidenceSource": "behavioral",
+   "entryFilters": [
+    "a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it",
+    "no instance of this journey is already open for the person or account plus the relationship context the advocacy would be about",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "account_id",
+    "relationship_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.negative",
+   "asks": "Is there an open negative issue anywhere in this relationship?",
+   "branches": [
+    {
+     "label": "Something open",
+     "observes": null,
+     "test": "an unresolved complaint, issue or dispute exists",
+     "to": "x.suppressed"
+    },
+    {
+     "label": "Nothing open",
+     "observes": null,
+     "test": "no outstanding negative state",
+     "to": "a.evaluate"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.suppressed",
+   "class": "suppression",
+   "state": "suppressed while something is unresolved",
+   "reEntry": "resolution makes this eligible again - and a recovery that then held is itself strong evidence, so the wait is not lost"
+  },
+  {
+   "type": "state-update",
+   "node": "a.evaluate",
+   "does": "Weigh the accumulated positive evidence: outcomes actually achieved, value realised repeatedly, positive feedback, meaningful tenure, a recovery that afterwards held, contributions offered without being asked. The set is what matters, not the most recent item in it",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.sufficient",
+   "asks": "Is the evidence sufficient to justify asking?",
+   "branches": [
+    {
+     "label": "Sufficient",
+     "observes": null,
+     "test": "the relationship carries enough independent positive evidence to bear a request",
+     "to": "c.type"
+    },
+    {
+     "label": "Not yet",
+     "observes": null,
+     "test": "the evidence is real but thin - a good experience is not yet a relationship",
+     "to": "x.delay"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.delay",
+   "class": "no-action",
+   "state": "not yet eligible; evidence may accumulate",
+   "reEntry": "further positive evidence re-opens this without anything having to be undone"
+  },
+  {
+   "type": "condition",
+   "node": "c.type",
+   "asks": "What size of request does this evidence support?",
+   "branches": [
+    {
+     "label": "Low commitment",
+     "observes": null,
+     "test": "a rating or a review - a few minutes, their words, their choice of where",
+     "to": "a.ask-light"
+    },
+    {
+     "label": "High commitment",
+     "observes": null,
+     "test": "a testimonial, a case study, a reference call - their name and reputation attached to ours, and usually reusable",
+     "to": "a.ask-heavy"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.ask-light",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "advocacy_eligibility.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": {
+    "exclusionGroup": "outbound-ask",
+    "scope": "communication-purpose",
+    "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5",
+    "s.g6"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.ask-light",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.ask-light",
+   "touch": "t1",
+   "stage": "ask-light",
+   "purpose": "Make the small ask, once, with no follow-up sequence behind it.",
+   "brief": "Make the small ask, once, with no follow-up sequence behind it. A rating or a one-tap response can go wherever the person already is, including an interruptive route where permission for one exists",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.negative",
+    "c.sufficient",
+    "c.type"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.ask-light",
+   "key": "account_id + relationship_id + a.ask-light"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.ask-heavy",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "advocacy_eligibility.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": {
+    "exclusionGroup": "outbound-ask",
+    "scope": "communication-purpose",
+    "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5",
+    "s.g6"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.ask-heavy",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.ask-heavy",
+   "touch": "t2",
+   "stage": "ask-heavy",
+   "purpose": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.",
+   "brief": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint. A request that attaches somebody's name and reputation to the organisation is not an interruption to be tapped past; it needs somewhere they can read it twice",
+   "destination": {
+    "target": "advocacy-contribution-form",
+    "boundTo": "relationship_id",
+    "mustNotClaim": [
+     "that contributing is permission to publish"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.negative",
+    "c.sufficient",
+    "c.type"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.ask-heavy",
+   "key": "account_id + relationship_id + a.ask-heavy"
+  },
+  {
+   "type": "wait",
+   "node": "w.response",
+   "timing": {
+    "key": "advocacy_eligibility.response",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.no-response"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.response",
+   "cancelOn": [
+    {
+     "event": "advocacy_action_taken",
+     "meaning": "the requested advocacy action is recorded as done"
+    },
+    {
+     "event": "request_declined",
+     "meaning": "the person declines the request"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.response",
+   "reads": "the person or account plus the relationship context the advocacy would be about re-read from the system of record before acting on the timeout",
+   "before": "x.no-response"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What came back?",
+   "branches": [
+    {
+     "label": "Contributed, for public reuse",
+     "observes": null,
+     "test": "they provided something we intend to publish, quote or reference",
+     "to": "h.permission"
+    },
+    {
+     "label": "Contributed, no public reuse",
+     "observes": null,
+     "test": "they provided something that stays internal",
+     "to": "x.contributed"
+    },
+    {
+     "label": "Declined",
+     "observes": null,
+     "test": "they said no",
+     "to": "x.declined"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.permission",
+   "to": "CON-31",
+   "on": "an intention to publicly reuse something someone contributed",
+   "carries": [
+    "what would be used, where, and for how long - which is the scope the permission has to cover",
+    "the contribution itself, held unpublished until that permission exists"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.contributed",
+   "class": "success",
+   "state": "contributed for internal use",
+   "reEntry": "any later intention to publish it is a new permission question, not an extension of this one"
+  },
+  {
+   "type": "exit",
+   "node": "x.declined",
+   "class": "no-action",
+   "state": "declined; cooldown in force",
+   "reEntry": "materially stronger evidence after the cooldown may justify a different request; the same one is not repeated"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-response",
+   "class": "timeout",
+   "state": "no response; nothing inferred",
+   "reEntry": "silence on a favour is not a decline and not a signal about the relationship - it is simply not an answer"
+  }
+ ]
+}

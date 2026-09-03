@@ -1,0 +1,317 @@
+{
+ "id": "INC-254",
+ "shortName": "Incident Update",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.relevant",
+   "event": "incident_reaches_communication_relevant_state",
+   "meaning": "an incident state change that could change what an affected party should do or expect",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an incident state change that could change what an affected party should do or expect",
+    "no instance of this journey is already open for the the incident",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "incident_id",
+    "recipient_cohort_id",
+    "state_change_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.determine",
+   "does": "Determine who is materially affected, what is known, what is not known, what action the user needs to take, any safe workaround, and the condition under which the next meaningful update would happen. Saying what is not yet known is information; leaving it out and stating the rest as certainty is not",
+   "writes": [
+    {
+     "field": "incident_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.determine",
+   "key": "obligation_id + incident_id + a.determine"
+  },
+  {
+   "type": "condition",
+   "node": "c.cohort",
+   "asks": "Can the affected cohort be identified with reasonable precision?",
+   "branches": [
+    {
+     "label": "It can",
+     "observes": null,
+     "test": "the affected population is identifiable by account, region, capability or cohort",
+     "to": "a.scoped"
+    },
+    {
+     "label": "It cannot yet",
+     "observes": null,
+     "test": "the boundary of the impact is genuinely unclear",
+     "to": "a.broad"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.scoped",
+   "does": "Scope the communication to the affected population. Telling everybody about an incident affecting one region trains the whole base to ignore incident notices, and the next one will be one that matters to them",
+   "writes": [
+    {
+     "field": "incident_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.scoped",
+   "key": "obligation_id + incident_id + a.scoped"
+  },
+  {
+   "type": "state-update",
+   "node": "a.broad",
+   "does": "Broaden only as far as necessary, and say explicitly that the scope is still being established. Uncertainty stated is information; uncertainty implied as precision is a claim that will have to be corrected",
+   "writes": [
+    {
+     "field": "incident_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.broad",
+   "key": "obligation_id + incident_id + a.broad"
+  },
+  {
+   "type": "condition",
+   "node": "c.verified",
+   "asks": "Is what would be said actually confirmed?",
+   "branches": [
+    {
+     "label": "Confirmed",
+     "observes": null,
+     "test": "every claim in it is established rather than believed",
+     "to": "c.material"
+    },
+    {
+     "label": "Not confirmed",
+     "observes": null,
+     "test": "the cause, the fix or the timing is still a hypothesis",
+     "to": "a.hold-claim"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.hold-claim",
+   "does": "Say what is known and what is not, and claim nothing about cause or resolution that has not been established. A root cause announced and then retracted costs more credibility than a slow update, and technical detail stated as fact while still uncertain is the most common source of that retraction",
+   "writes": [
+    {
+     "field": "incident_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.hold-claim",
+   "key": "obligation_id + incident_id + a.hold-claim"
+  },
+  {
+   "type": "condition",
+   "node": "c.material",
+   "asks": "Does this materially change the guidance the recipient already has?",
+   "branches": [
+    {
+     "label": "It does",
+     "observes": null,
+     "test": "what they should do, expect or avoid has changed",
+     "to": "a.communicate"
+    },
+    {
+     "label": "It does not, and no commitment requires an update",
+     "observes": null,
+     "test": "nothing has changed for them since the last message",
+     "to": "a.no-send"
+    },
+    {
+     "label": "It does not, but a commitment requires an update",
+     "observes": null,
+     "test": "a status-page cadence, a contract or a regulatory obligation requires one regardless",
+     "to": "a.communicate"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.no-send",
+   "does": "Send nothing, and record why. Sending because time has passed produces noise, and noise is what makes the eventual resolution notice go unread by the people who were waiting for it",
+   "writes": [
+    {
+     "field": "incident_log",
+     "mode": "append"
+    },
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.no-send",
+   "key": "obligation_id + incident_id + a.no-send"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-send",
+   "class": "no-action",
+   "state": "no update sent; nothing material had changed",
+   "reEntry": "the next material change, or the next point a commitment requires an update, brings this back"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.communicate",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "incident_communication.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.communicate",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.communicate",
+   "touch": "t1",
+   "stage": "communicate",
+   "purpose": "Raise the communication through the canonical communication mechanism, which owns the obligation, the recipient resolution, the channels, the permissions and the delivery evidence.",
+   "brief": "Raise the communication through the canonical communication mechanism, which owns the obligation, the recipient resolution, the channels, the permissions and the delivery evidence. Incident communication does not build its own delivery path, and the message carries no promotional content",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.cohort",
+    "c.verified",
+    "c.material"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.communicate",
+   "key": "obligation_id + incident_id + a.communicate"
+  },
+  {
+   "type": "condition",
+   "node": "c.final",
+   "asks": "Is this the resolution notice for this recipient scope?",
+   "branches": [
+    {
+     "label": "It is",
+     "observes": null,
+     "test": "the incident is resolved for the population this message goes to",
+     "to": "x.closed-comms"
+    },
+    {
+     "label": "It is not",
+     "observes": null,
+     "test": "the incident continues for them",
+     "to": "x.updated"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.updated",
+   "class": "success",
+   "state": "update issued; the next update is bound to a stated condition rather than to a clock",
+   "reEntry": "the stated condition occurring, or a material change, produces the next update"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed-comms",
+   "class": "success",
+   "state": "resolution communicated to this recipient scope",
+   "reEntry": "a relapse is communicated as a relapse rather than as a new incident, because the recipients were told it was over"
+  }
+ ]
+}

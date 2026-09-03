@@ -1,0 +1,275 @@
+{
+ "id": "DOC-214",
+ "shortName": "Document Delivery",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "condition",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.requires",
+   "event": "issued_document_requires_distribution",
+   "meaning": "an issued document version with a party who is to receive it",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an issued document version with a party who is to receive it",
+    "no instance of this journey is already open for the the issued version",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "document_version_id",
+    "recipient_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.recipient",
+   "does": "Resolve the intended recipient and the route permitted for a document of this type. A document reaching the wrong party is worse than one not sent - the second can be retried and the first cannot be recalled",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.recipient",
+   "key": "document_version_id + issue_id + a.recipient"
+  },
+  {
+   "type": "state-update",
+   "node": "a.version",
+   "does": "Bind the distribution to the exact issued version. Sending an outdated version is the failure this step exists to prevent: the recipient then holds, relies on, and may sign terms that nobody currently offers",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.version",
+   "key": "document_version_id + issue_id + a.version"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.distribute",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "document_distribution.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.distribute",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.distribute",
+   "touch": "t1",
+   "stage": "distribute",
+   "purpose": "Raise the actual delivery through the canonical communication mechanism, which owns channels, permissions, retries and delivery evidence.",
+   "brief": "Raise the actual delivery through the canonical communication mechanism, which owns channels, permissions, retries and delivery evidence. Document distribution does not build its own delivery path - a parallel one will disagree with the canonical delivery record about whether the contract was ever sent",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.distribute",
+   "key": "document_version_id + issue_id + a.distribute"
+  },
+  {
+   "type": "wait",
+   "node": "w.distribution",
+   "timing": {
+    "key": "document_distribution.distribution",
+    "class": "external-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.unknown"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.distribution",
+   "cancelOn": [
+    {
+     "event": "distribution_confirmed",
+     "meaning": "distribution is confirmed to the required level"
+    },
+    {
+     "event": "distribution_failed",
+     "meaning": "distribution fails"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.distribution",
+   "reads": "the the issued version re-read from the system of record before acting on the timeout",
+   "before": "a.unknown"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "How did the distribution resolve?",
+   "branches": [
+    {
+     "label": "Confirmed",
+     "observes": null,
+     "test": "delivery or availability is established to the level the requirement demands",
+     "to": "a.confirmed"
+    },
+    {
+     "label": "Failed",
+     "observes": null,
+     "test": "the channel authoritatively reports it did not arrive",
+     "to": "h.recover"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.confirmed",
+   "does": "Record DELIVERED or AVAILABLE against the exact version distributed. Delivery state describes the distribution and never the document - an undelivered contract is a valid contract nobody has, and treating delivery as validity turns a mail failure into a legal one",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirmed",
+   "key": "document_version_id + issue_id + a.confirmed"
+  },
+  {
+   "type": "exit",
+   "node": "x.distributed",
+   "class": "success",
+   "state": "the identified version reached the intended recipient; the document's validity is unchanged by this",
+   "reEntry": "a superseding version requires its own distribution. Nothing about this one is retracted by that - the recipient was correctly given what was current then"
+  },
+  {
+   "type": "state-update",
+   "node": "a.unknown",
+   "does": "Record the distribution outcome as unknown and do not treat it as delivered. The document's validity is untouched either way - what is unknown is whether anybody has it",
+   "writes": [
+    {
+     "field": "document_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.unknown",
+   "key": "document_version_id + issue_id + a.unknown"
+  },
+  {
+   "type": "handoff",
+   "node": "h.reconcile",
+   "to": "external:external-status-reconciliation",
+   "on": "a distribution whose outcome could not be established",
+   "carries": [
+    "the version, the recipient and everything last known about the delivery",
+    "the explicit fact that the document remains valid and issued regardless of how this resolves"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "document_version_id",
+     "issue_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "handoff",
+   "node": "h.recover",
+   "to": "CMS-208",
+   "on": "a failed document distribution",
+   "carries": [
+    "the failure as the channel reported it, and the exact version that was being sent",
+    "the explicit requirement that any fallback route carries the same version - a recovery that sends a different one is worse than the original failure"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

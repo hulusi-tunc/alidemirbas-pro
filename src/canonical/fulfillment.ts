@@ -174,6 +174,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the fulfillment request and, once accepted, the obligation it creates",
       note: "Acceptance is where responsibility begins. Before it there is a request; after it there is something we owe, and the two must never be the same record.",
+      instanceKey: [
+        "request_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -182,6 +186,74 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "FIN-131 creates an obligation to pay. This creates an obligation to deliver. They arise from the same event and fail independently - a paid order can be unfulfillable, and a delivered one can go unpaid.",
       },
     ],
+    objective: "Decide whether we are taking responsibility for delivering something, as a state distinct from having been asked.",
+    eligibility: [
+      "a request to deliver an identified item, service or scope to an identified recipient",
+      "no instance of this journey is already open for the the fulfillment request and",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A request received is not a request accepted."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Payment success alone does not mean fulfillment was accepted."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An invalid request never creates a hidden fulfillment obligation."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "request_id",
+          "requested_scope",
+          "recipient_id",
+          "validity_checks",
+          "dependencies",
+          "fulfillment_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.rejected",
+          "x.lapsed",
+          "h.availability"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "fulfillment request validation",
+        "order acceptance",
+        "order validation",
+        "accept or reject a fulfilment request"
+      ],
+      "useCases": [
+        "deciding whether responsibility for delivering something is taken",
+        "a request held on an unresolved dependency until it lapses or clears"
+      ]
+    },
     entry: "t.submitted",
     nodes: [
       {
@@ -204,6 +276,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the request id, the item or service, the quantity or scope, the recipient, the destination or context, the requested timing, the related transaction or contract, and the submission time",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "a.validate",
+        idempotencyKey: "order_id + obligation_id + a.capture",
       },
       {
         id: "a.validate",
@@ -234,6 +307,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record REJECTED with the specific reason. No obligation is created - a hidden obligation behind a rejected request is one nobody is working and nobody knows exists, and it surfaces when the customer asks where their order is",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "x.rejected",
+        idempotencyKey: "order_id + obligation_id + a.reject",
       },
       {
         id: "x.rejected",
@@ -241,6 +315,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "REJECTED; no fulfillment obligation created",
         terminal: false,
         reEntry: "a corrected request is validated on its own terms",
+        class: "invalid-state",
       },
       {
         id: "c.dependency",
@@ -265,19 +340,28 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record HOLD / PENDING_REQUIREMENT, naming the specific dependency. A held request is not an accepted one and creates no obligation while it waits",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.dependency",
+        idempotencyKey: "order_id + obligation_id + a.hold",
       },
       {
         id: "w.dependency",
         kind: "wait",
-        until: ["the named dependency resolves"],
+        until: [
+          "dependency_resolved"
+        ],
         onEvent: "a.accept",
         timeout: {
-          after: "the request's validity window",
-          reason:
-            "a request held indefinitely against an unresolved dependency is neither accepted nor refused, and the requester cannot tell which they have",
+          "after": {
+            "key": "fulfillment_request.dependency",
+            "rule": "The request's validity window.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a request held indefinitely against an unresolved dependency is neither accepted nor refused, and the requester cannot tell which they have",
+          "relativeTo": "trigger"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the the fulfillment request and re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.lapsed",
@@ -285,6 +369,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "request lapsed with its dependency unresolved; no obligation created",
         terminal: false,
         reEntry: "a fresh request is validated against whatever the dependency now looks like",
+        class: "timeout",
       },
       {
         id: "a.accept",
@@ -292,6 +377,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ACCEPTED and create the fulfillment obligation. This is where responsibility for delivery begins, and everything downstream is owed rather than merely requested",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.availability",
+        idempotencyKey: "order_id + obligation_id + a.accept",
       },
       {
         id: "h.availability",
@@ -327,6 +413,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the obligation and the resources it requires, at the location and time that would serve this recipient",
       note: "Availability is scoped. Stock in another region, capacity in another week and a specialist in another discipline are all unavailable for this obligation.",
+      instanceKey: [
+        "obligation_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -335,6 +425,78 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "This asks whether something exists. FUL-143 claims it. Between the two, someone else can take it - which is why the reading and the claim are separate steps and the claim is the one that counts.",
       },
     ],
+    objective: "Establish whether the resources to satisfy an accepted obligation actually exist, in the scope and window that would serve it.",
+    eligibility: [
+      "an accepted obligation whose satisfaction requires committing a resource or capacity",
+      "no instance of this journey is already open for the the obligation and the resources it requires",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Catalog availability is not allocatable availability."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An accepted order is not allocated inventory."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Concurrent allocation does not oversell - the claim, not the reading, is what commits."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Availability is checked against the scope and time that would actually serve this obligation."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "required_resources",
+          "location",
+          "service_window",
+          "partial_policy",
+          "fulfillment_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.unavailable",
+          "h.allocate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "fulfillment allocation",
+        "availability check",
+        "inventory availability",
+        "capacity check"
+      ],
+      "useCases": [
+        "whether allocatable resources exist for an accepted obligation, in its scope and window",
+        "partial availability decided against policy rather than assumed"
+      ]
+    },
     entry: "t.needs-resource",
     nodes: [
       {
@@ -343,6 +505,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "accepted_fulfillment_requires_resources",
         evidence: {
           requires: ["an accepted obligation whose satisfaction requires committing a resource or capacity"],
+          insufficientAlone: [
+            "a catalog availability figure",
+            "an order accepted with no resource requirement",
+            "a payment succeeding"
+          ],
           source: "authoritative",
         },
         next: "a.evaluate",
@@ -353,6 +520,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate authoritative availability against the relevant scope and time - the location that would serve this destination, the window that would meet this timing, the capability this service needs. Catalog availability is a statement about what we sell; allocatable availability is a statement about what can be committed to this obligation now",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.availability",
+        idempotencyKey: "obligation_id + person_id + a.evaluate",
       },
       {
         id: "c.availability",
@@ -404,19 +572,28 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record BACKORDER / WAITING_CAPACITY, naming exactly what is missing and what would resolve it. The obligation stands - it is waiting on capacity rather than failing",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.capacity",
+        idempotencyKey: "obligation_id + person_id + a.backorder",
       },
       {
         id: "w.capacity",
         kind: "wait",
-        until: ["the required resources become available"],
+        until: [
+          "resources_available"
+        ],
         onEvent: "c.recheck",
         timeout: {
-          after: "the obligation's tolerance window",
-          reason:
-            "an obligation waiting on capacity beyond what it can tolerate has stopped being late and started being unfulfillable, and saying so is better than waiting silently",
+          "after": {
+            "key": "fulfillment_availability.capacity",
+            "rule": "The obligation's tolerance window.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an obligation waiting on capacity beyond what it can tolerate has stopped being late and started being unfulfillable, and saying so is better than waiting silently",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.unavailable",
         windowExtendsOnEngagement: false,
+        recheck: "the the obligation and the resources it requires re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.recheck",
@@ -441,6 +618,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FULFILLMENT_UNAVAILABLE with what could not be sourced and why",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.unavailable",
+        idempotencyKey: "obligation_id + person_id + a.unavailable",
       },
       {
         id: "h.unavailable",
@@ -487,6 +665,85 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the allocation itself - a link between a specific resource quantity and one fulfillment obligation",
       note: "The allocation belongs to one obligation. Releasing it touches only that link, never a shared resource's other claims.",
+      instanceKey: [
+        "allocation_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Bind specific capacity to one obligation until it is consumed or deliberately let go.",
+    eligibility: [
+      "a specific resource identified as the one that will serve a specific obligation",
+      "no instance of this journey is already open for the the allocation itself",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Allocation is idempotent."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A cancelled fulfillment does not retain scarce resource."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A release affects only this obligation's allocation, never another's or a shared claim."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A temporary reservation carries an explicit expiry or release condition."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "allocation_id",
+          "obligation_id",
+          "resource_ref",
+          "quantity",
+          "reservation_expires_at",
+          "allocation_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.consumed",
+          "x.released",
+          "x.expired",
+          "h.recheck",
+          "h.exception"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "resource reservation",
+        "inventory reservation",
+        "hold stock for an order",
+        "capacity hold"
+      ],
+      "useCases": [
+        "specific capacity bound to one obligation until consumed or released",
+        "a temporary reservation expiring unconsumed"
+      ]
     },
     entry: "t.selected",
     nodes: [
@@ -496,6 +753,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "resource_selected_for_fulfillment",
         evidence: {
           requires: ["a specific resource identified as the one that will serve a specific obligation"],
+          insufficientAlone: [
+            "a catalog quantity being positive",
+            "an order accepted before a specific resource is identified",
+            "a reservation request that lost its race for the resource"
+          ],
           source: "authoritative",
         },
         next: "a.reserve",
@@ -506,6 +768,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the allocation idempotently, storing the resource id, the quantity or capacity, the fulfillment it belongs to, the reservation time, its validity and its status. Idempotency is what stops a retried allocation consuming the resource twice - which is how a system oversells without anyone overselling anything",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "c.confirmed",
+        idempotencyKey: "order_id + obligation_id + a.reserve",
       },
       {
         id: "c.confirmed",
@@ -557,6 +820,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ALLOCATED with an explicit expiry or release condition. A reservation with no stated end holds scarce capacity against an obligation that may never consume it, and nobody discovers it until the capacity is needed",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "w.allocation",
+        idempotencyKey: "order_id + obligation_id + a.temporary",
       },
       {
         id: "a.allocated",
@@ -564,23 +828,31 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ALLOCATED, held until the obligation consumes it or explicitly releases it",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "w.allocation",
+        idempotencyKey: "order_id + obligation_id + a.allocated",
       },
       {
         id: "w.allocation",
         kind: "wait",
         until: [
-          "the fulfillment consumes the allocation",
-          "the fulfillment is cancelled or its scope changes",
-          "the reserved resource becomes unavailable",
+          "allocation_consumed",
+          "fulfillment_cancelled_or_changed",
+          "reserved_resource_unavailable"
         ],
         onEvent: "c.event",
         timeout: {
-          after: "the reservation's validity, where it has one",
-          reason:
-            "a temporary claim that expires returns the capacity to whoever needs it next, which is the whole reason for making it temporary",
+          "after": {
+            "key": "resource_allocation.allocation",
+            "rule": "The reservation's validity, where it has one.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a temporary claim that expires returns the capacity to whoever needs it next, which is the whole reason for making it temporary",
+          "relativeTo": "attribute",
+          "attribute": "reservation_expires_at"
         },
         onTimeout: "a.expire",
         windowExtendsOnEngagement: false,
+        recheck: "the the allocation itself re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.event",
@@ -610,6 +882,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "allocation consumed by the fulfillment it was made for",
         terminal: false,
         reEntry: "a further resource need on the same obligation is its own allocation",
+        class: "success",
       },
       {
         id: "a.release",
@@ -617,6 +890,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the allocation, scoped strictly to this fulfillment's own reservation. A release that reaches a shared resource's other claims takes capacity from obligations that are still going ahead, and those failures appear somewhere else entirely",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "x.released",
+        idempotencyKey: "order_id + obligation_id + a.release",
       },
       {
         id: "x.released",
@@ -624,6 +898,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "released; capacity returned, other claims untouched",
         terminal: false,
         reEntry: "the resource is available to whatever claims it next",
+        class: "success",
       },
       {
         id: "a.expire",
@@ -631,6 +906,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Expire the temporary reservation and return the capacity, recording that it lapsed rather than being consumed or released - three different endings that mean three different things about the obligation",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "x.expired",
+        idempotencyKey: "order_id + obligation_id + a.expire",
       },
       {
         id: "x.expired",
@@ -638,6 +914,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "reservation expired unconsumed; obligation still needs resourcing",
         terminal: false,
         reEntry: "the obligation returns to the availability question with nothing held for it",
+        class: "timeout",
       },
       {
         id: "h.exception",
@@ -674,6 +951,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the fulfillment obligation and the scope of it that has been satisfied",
       note: "Completion is measured in satisfied scope. An internal task finishing is a fact about the task, and the obligation may be entirely, partly or not at all discharged by it.",
+      instanceKey: [
+        "obligation_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -682,6 +963,77 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "OPS-130 asks whether a technical job produced the state it claimed. This runs the operational execution of a real delivery obligation, where the outcome is measured in scope satisfied rather than in a state existing.",
       },
     ],
+    objective: "Track what the obligation's scope actually reaches, rather than what an internal step reported.",
+    eligibility: [
+      "an obligation with its resources allocated, entering execution",
+      "no instance of this journey is already open for the the fulfillment obligation and the scope of it that has been satisfied",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An internal task succeeding is not fulfillment completed where the required business outcome has not been confirmed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Partial fulfillment preserves exactly what remains owed."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The whole obligation is not marked failed when a confirmed scope was successfully completed."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "allocated_resources",
+          "expected_window",
+          "satisfied_scope",
+          "remaining_scope",
+          "fulfillment_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.partial",
+          "h.delay",
+          "h.dispatch",
+          "h.confirm",
+          "h.exception",
+          "h.remedy"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "fulfillment execution",
+        "order in progress",
+        "service delivery progress",
+        "execution tracking"
+      ],
+      "useCases": [
+        "what the obligation's scope actually reached, rather than what a step reported",
+        "partial fulfilment preserving exactly what remains owed"
+      ]
+    },
     entry: "t.started",
     nodes: [
       {
@@ -690,6 +1042,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "fulfillment_execution_started",
         evidence: {
           requires: ["an obligation with its resources allocated, entering execution"],
+          insufficientAlone: [
+            "a task started inside an internal system with no allocation behind it",
+            "a dispatch label created",
+            "a payment"
+          ],
           source: "authoritative",
         },
         next: "a.in-fulfillment",
@@ -700,19 +1057,29 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record IN_FULFILLMENT and begin tracking meaningful progress where the obligation's scope requires it",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.execution",
+        idempotencyKey: "order_id + obligation_id + a.in-fulfillment",
       },
       {
         id: "w.execution",
         kind: "wait",
-        until: ["execution reports an outcome", "a material exception occurs"],
+        until: [
+          "execution_outcome_reported",
+          "fulfillment_exception"
+        ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the expected fulfillment window",
-          reason:
-            "exceeding the window is a timing problem rather than a failure - the obligation is late and still owed",
+          "after": {
+            "key": "fulfillment_execution.execution",
+            "rule": "The expected fulfillment window.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "exceeding the window is a timing problem rather than a failure - the obligation is late and still owed",
+          "relativeTo": "trigger"
         },
         onTimeout: "h.delay",
         windowExtendsOnEngagement: false,
+        recheck: "the the fulfillment obligation and the scope of it that has been satisfied re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.delay",
@@ -757,6 +1124,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FULFILLED - meaning the obligation's scope is satisfied, not that an internal task returned success. Where the business outcome the task was meant to produce has not been confirmed, the task finishing is not fulfillment",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.dispatch",
+        idempotencyKey: "order_id + obligation_id + a.fulfilled",
       },
       {
         id: "c.dispatch",
@@ -798,6 +1166,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PARTIALLY_FULFILLED and identify exactly what remains owed. The completed scope is preserved - marking the whole obligation failed when a confirmed part succeeded destroys work that was actually done and delivered",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "x.partial",
+        idempotencyKey: "order_id + obligation_id + a.partial",
       },
       {
         id: "x.partial",
@@ -806,6 +1175,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the remaining scope continues its own execution. What was delivered is delivered, and what is owed is stated rather than implied",
+        class: "success",
       },
       {
         id: "h.exception",
@@ -823,6 +1193,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FAILED_FULFILLMENT for the scope that could not be satisfied, preserving whatever was confirmed complete. The failure is scoped to what actually failed",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.remedy",
+        idempotencyKey: "order_id + obligation_id + a.failed",
       },
       {
         id: "h.remedy",
@@ -858,6 +1229,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the exception and the scope of the obligation it affects",
       note: "Exceptions are scoped. A damaged unit in a multi-item obligation affects that unit, and the rest continues on its way.",
+      instanceKey: [
+        "exception_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -866,6 +1241,74 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "An exception is something going wrong with the ability to fulfill. A delay is the same obligation arriving later. Where an exception only changes timing, it hands to FUL-146 rather than resolving as one.",
       },
     ],
+    objective: "Change only the part of an obligation the operational problem actually touches.",
+    eligibility: [
+      "an operational problem affecting fulfillment: a resource unavailable, a damaged item, a provider unavailable, an incorrect configuration, capacity lost, a destination problem, a dependency failure or a quality failure",
+      "no instance of this journey is already open for the the exception and the scope of the obligation it affects",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An exception is not a cancellation."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A substitute is never assumed acceptable where the recipient would care about the difference."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Existing successfully fulfilled scope is preserved through the exception."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "exception_id",
+          "obligation_id",
+          "affected_scope",
+          "substitute_candidate",
+          "approval_policy",
+          "fulfillment_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.resume",
+          "h.delay",
+          "h.terminal"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "fulfillment exception recovery",
+        "supply exception",
+        "damaged item handling",
+        "out-of-stock after order"
+      ],
+      "useCases": [
+        "an operational problem changing only the part of the obligation it touches",
+        "a substitute offered only with approval where the recipient must choose"
+      ]
+    },
     entry: "t.exception",
     nodes: [
       {
@@ -889,6 +1332,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the exception and the scope it actually affects. A damaged unit in a multi-item obligation affects that unit - the rest of the obligation is untouched and stays on its way, and an exception is not a cancellation of everything around it",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.route",
+        idempotencyKey: "obligation_id + a.classify",
       },
       {
         id: "c.route",
@@ -923,6 +1367,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Recover and resume. The promised outcome and timing both stand, and nothing about the obligation changes",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.resume",
+        idempotencyKey: "obligation_id + a.recover",
       },
       {
         id: "c.approval",
@@ -944,15 +1389,24 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.approval",
         kind: "wait",
-        until: ["the substitute is approved", "the substitute is declined"],
+        until: [
+          "substitute_approved",
+          "substitute_declined"
+        ],
         onEvent: "c.approved",
         timeout: {
-          after: "the approval window",
-          reason:
-            "no answer is not consent to substitute - the obligation becomes late rather than becoming something different",
+          "after": {
+            "key": "fulfillment_exception.approval",
+            "rule": "The approval window.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "no answer is not consent to substitute - the obligation becomes late rather than becoming something different",
+          "relativeTo": "trigger"
         },
         onTimeout: "h.delay",
         windowExtendsOnEngagement: false,
+        recheck: "the the exception and the scope of the obligation it affects re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.approved",
@@ -973,6 +1427,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the substitution, recording what was promised and what is being delivered instead. The obligation is replaced rather than reduced, and its remaining scope is stated in the substitute's terms",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.resume",
+        idempotencyKey: "obligation_id + a.substitute",
       },
       {
         id: "h.resume",
@@ -997,6 +1452,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the obligation as unsatisfiable for the affected scope, preserving everything already completed",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "h.terminal",
+        idempotencyKey: "obligation_id + a.terminal",
       },
       {
         id: "h.terminal",
@@ -1032,6 +1488,220 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the obligation and its timing commitment, with the history of what was promised",
       note: "Each revised estimate is appended. Overwriting the original hides a repeated slip, which is the pattern that matters more than any single date.",
+      instanceKey: [
+        "obligation_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
+    eligibility: [
+      "a material slip against the timing this obligation was committed to",
+      "no instance of this journey is already open for the the obligation and its timing commitment",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Delayed is not failed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Dates that will not hold are not promised repeatedly. Where no reliable estimate exists, that is what is said."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A changed ETA preserves the original commitment history."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Communicating a delay does not resolve the operational delay."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "fulfillment_delay.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; one delay update and one offer or no-choice update"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "fulfillment_delay.cooldown",
+        "rule": "This journey is per the obligation and its timing commitment; a later instance concerns a different the obligation and its timing commitment and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "delay-update",
+          "action": "a.delay-update",
+          "prerequisites": [
+            "c.estimate",
+            "c.recipient-impact"
+          ],
+          "purpose": "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "no-choice-update",
+          "action": "a.no-choice-update",
+          "prerequisites": [
+            "c.estimate",
+            "c.recipient-impact",
+            "c.threshold",
+            "c.choice"
+          ],
+          "purpose": "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "offer",
+          "action": "a.offer",
+          "prerequisites": [
+            "c.estimate",
+            "c.recipient-impact",
+            "c.threshold",
+            "c.choice"
+          ],
+          "purpose": "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "delay-choices",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "a date that will not hold",
+              "a choice that cannot be honoured"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "original_commitment",
+          "current_estimate",
+          "tolerance",
+          "available_choices",
+          "fulfillment_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.resume",
+          "h.exception",
+          "h.cancel",
+          "h.escalate"
+        ]
+      },
+      "businessOutcome": {
+        "event": "fulfillment_resumed_or_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "delivery delay alert",
+        "shipping delay notice",
+        "late order notification",
+        "ETA change",
+        "delay with options"
+      ],
+      "useCases": [
+        "a material slip stated with the original commitment intact behind the new estimate",
+        "a delay beyond tolerance with real choices - wait, reschedule, an alternative, cancel"
+      ]
     },
     entry: "t.slip",
     nodes: [
@@ -1054,6 +1724,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the original commitment, the current estimate, the cause, the affected scope and the impact, and record DELAYED. Delayed is a change to timing and not a failure - the obligation is still owed and nothing downstream may treat it as gone",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.estimate",
+        idempotencyKey: "obligation_id + a.assess",
       },
       {
         id: "c.estimate",
@@ -1078,6 +1749,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the expected timing, appending to the commitment history. The original commitment is preserved - what was promised and what it became are two facts, and keeping both is the only way a repeated slip becomes visible",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.recipient-impact",
+        idempotencyKey: "obligation_id + a.update",
       },
       {
         id: "a.no-estimate",
@@ -1085,6 +1757,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that no reliable estimate exists rather than issuing one. Repeatedly promising dates that do not hold costs more trust than admitting the date is unknown, and each broken date makes the next one worth less",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.recipient-impact",
+        idempotencyKey: "obligation_id + a.no-estimate",
       },
       {
         id: "c.recipient-impact",
@@ -1109,6 +1782,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
         execution: "communication",
         next: "c.threshold",
+        idempotencyKey: "obligation_id + a.delay-update",
       },
       {
         id: "a.no-choice-update",
@@ -1116,6 +1790,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left. Escalating in silence tells the recipient nothing is happening at the exact moment most is",
         execution: "communication",
         next: "h.escalate",
+        idempotencyKey: "obligation_id + a.no-choice-update",
       },
       {
         id: "c.threshold",
@@ -1158,19 +1833,28 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.decision",
         execution: "communication",
+        idempotencyKey: "obligation_id + a.offer",
       },
       {
         id: "w.decision",
         kind: "wait",
-        until: ["a choice is made"],
+        until: [
+          "choice_made"
+        ],
         onEvent: "c.decision",
         timeout: {
-          after: "the decision window",
-          reason:
-            "no answer means continue waiting - silence is not consent to cancel something someone is still expecting",
+          "after": {
+            "key": "fulfillment_delay.decision",
+            "rule": "The decision window.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "no answer means continue waiting - silence is not consent to cancel something someone is still expecting",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "w.resume",
         windowExtendsOnEngagement: false,
+        recheck: "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.decision",
@@ -1193,19 +1877,28 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the rescheduled commitment, appended to the history rather than replacing what came before it",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.resume",
+        idempotencyKey: "obligation_id + a.reschedule",
       },
       {
         id: "w.resume",
         kind: "wait",
-        until: ["fulfillment resumes or completes"],
+        until: [
+          "fulfillment_resumed_or_completed"
+        ],
         onEvent: "h.resume",
         timeout: {
-          after: "the revised horizon",
-          reason:
-            "a delay that outlives even its revised horizon has stopped being a timing problem, and communicating about it does not resolve it",
+          "after": {
+            "key": "fulfillment_delay.resume",
+            "rule": "The revised horizon.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a delay that outlives even its revised horizon has stopped being a timing problem, and communicating about it does not resolve it",
+          "relativeTo": "trigger"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.resume",
@@ -1269,6 +1962,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the handoff to a delivery executor, and the obligation behind it",
       note: "Handing something to a carrier transfers who is doing the work. It transfers nothing about who owes the outcome.",
+      instanceKey: [
+        "dispatch_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1277,6 +1974,79 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "INT-114 is the generic shape of an external operation. This carries delivery semantics that shape has no room for: a recipient who may refuse, an attempt that is not an outcome, and intermediate tracking updates that look like results and are not.",
       },
     ],
+    objective: "Transfer execution to whoever performs the delivery while the obligation stays ours and stays open.",
+    eligibility: [
+      "a prepared item or service passing to a carrier, technician or other delivery executor",
+      "no instance of this journey is already open for the the handoff to a delivery executor",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Dispatched is not delivered."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A tracking update is not necessarily a final delivery."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A provider timeout is not a delivery failure."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Duplicate delivery events are idempotent."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "dispatch_id",
+          "obligation_id",
+          "executor",
+          "expected_delivery_window",
+          "delivery_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.reconcile",
+          "h.confirm",
+          "h.failed",
+          "h.delay"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "delivery outcome tracking",
+        "carrier tracking",
+        "dispatch tracking",
+        "delivery status"
+      ],
+      "useCases": [
+        "execution transferred to a carrier or technician while the obligation stays ours",
+        "an outcome that could not be established, reconciled with the executor"
+      ]
+    },
     entry: "t.handoff",
     nodes: [
       {
@@ -1298,23 +2068,30 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist the handoff id, the executor, the recipient and destination, the handoff time, the tracking reference where one exists, and the expected delivery window. Record IN_DELIVERY - dispatched is not delivered, and the obligation stays unresolved throughout",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "w.delivery",
+        idempotencyKey: "order_id + obligation_id + a.persist",
       },
       {
         id: "w.delivery",
         kind: "wait",
         until: [
-          "an authoritative delivery confirmation",
-          "a confirmed delivery failure",
-          "a meaningful delay reported by the executor",
+          "delivery_confirmed",
+          "delivery_failed",
+          "delivery_delay_reported"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the expected delivery window plus its tolerance",
-          reason:
-            "the window closing means we stopped hearing, which is a fact about our visibility rather than about the parcel - and a provider timeout is not a delivery failure",
+          "after": {
+            "key": "dispatch_and.delivery",
+            "rule": "The expected delivery window plus its tolerance.",
+            "class": "external-window",
+            "required": true
+          },
+          "reason": "the window closing means we stopped hearing, which is a fact about our visibility rather than about the parcel - and a provider timeout is not a delivery failure",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.unknown",
         windowExtendsOnEngagement: false,
+        recheck: "the the handoff to a delivery executor re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1347,6 +2124,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "h.reconcile",
+        idempotencyKey: "order_id + obligation_id + a.unknown",
       },
       {
         id: "h.reconcile",
@@ -1358,6 +2136,14 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "the explicit fact that this is unknown rather than failed, and that nothing is being re-sent",
         ],
         suppresses: ["any re-dispatch of this obligation until its true state is established"],
+        contract: {
+          "requiredFields": [
+            "order_id",
+            "obligation_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "h.confirm",
@@ -1411,6 +2197,202 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the individual delivery attempt and the obligation it was serving",
       note: "The obligation survives every failed attempt. What changes is how many attempts remain and what would make the next one work.",
+      instanceKey: [
+        "delivery_attempt_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
+    eligibility: [
+      "a delivery executor confirming an attempt was made and delivery did not occur",
+      "no instance of this journey is already open for the the individual delivery attempt and the obligation it was serving",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Attempted is not delivered."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Delivery is not retried indefinitely - the budget is bounded and does not reset."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Refused and unavailable are different outcomes with different consequences."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The failure reason is never invented. What the executor reported is what is acted on."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "delivery_attempt.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "delivery_attempt.cooldown",
+        "rule": "This journey is per the individual delivery attempt and the obligation it was serving; a later instance concerns a different the individual delivery attempt and the obligation it was serving and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "correct",
+          "action": "a.correct",
+          "prerequisites": [
+            "c.class"
+          ],
+          "purpose": "Request the exact correction - the address, the access instruction, the contact.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "delivery-correction",
+            "boundTo": "delivery_attempt_id"
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "offer-route",
+          "action": "a.offer-route",
+          "prerequisites": [
+            "c.class",
+            "c.budget",
+            "c.alternate"
+          ],
+          "purpose": "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "delivery-alternatives",
+            "boundTo": "delivery_attempt_id",
+            "mustNotClaim": [
+              "an alternative that is not actually available"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "delivery_attempt_id",
+          "obligation_id",
+          "failure_reason",
+          "attempt_budget",
+          "alternative_routes",
+          "delivery_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.retry",
+          "h.return",
+          "h.exception"
+        ]
+      },
+      "businessOutcome": {
+        "event": "delivery_correction_provided",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "failed delivery recovery",
+        "delivery attempt failed",
+        "redelivery",
+        "missed delivery options",
+        "address correction request"
+      ],
+      "useCases": [
+        "a failed attempt recovered by why it failed, within a bounded number of attempts",
+        "concrete alternatives put to the recipient instead of a blind reattempt"
+      ]
     },
     entry: "t.failed",
     nodes: [
@@ -1433,6 +2415,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the failure into the class the executor actually reported. Refused and unavailable are different outcomes - one is a decision by the recipient and the other is an absence, and treating the first as the second keeps redelivering to someone who has already said no",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.class",
+        idempotencyKey: "order_id + obligation_id + a.classify",
       },
       {
         id: "c.class",
@@ -1473,19 +2456,28 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "w.correction",
         execution: "communication",
+        idempotencyKey: "order_id + obligation_id + a.correct",
       },
       {
         id: "w.correction",
         kind: "wait",
-        until: ["the correction is provided"],
+        until: [
+          "delivery_correction_provided"
+        ],
         onEvent: "c.budget",
         timeout: {
-          after: "the correction window",
-          reason:
-            "an item held indefinitely awaiting information nobody is providing is one that has to go somewhere, and returning it is the honest ending",
+          "after": {
+            "key": "delivery_attempt.correction",
+            "rule": "The correction is waited for as long as a reattempt inside the bounded policy is still possible; past it the delivery goes to return.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an item held indefinitely awaiting information nobody is providing is one that has to go somewhere, and returning it is the honest ending",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "h.return",
         windowExtendsOnEngagement: false,
+        recheck: "the the individual delivery attempt and the obligation it was serving re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.budget",
@@ -1532,6 +2524,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Use the authorised alternative route, recorded as a change of route rather than a new obligation. Reached either because policy permits the change or because the recipient chose it - the authority exists before the route moves",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.retry",
+        idempotencyKey: "order_id + obligation_id + a.alternate",
       },
       {
         id: "a.offer-route",
@@ -1539,19 +2532,29 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way. Moving where somebody has to be, without asking, is a decision taken on their behalf",
         execution: "communication",
         next: "w.route-choice",
+        idempotencyKey: "order_id + obligation_id + a.offer-route",
       },
       {
         id: "w.route-choice",
         kind: "wait",
-        until: ["the recipient selects an alternative", "the recipient declines all of them"],
+        until: [
+          "delivery_alternative_selected",
+          "delivery_alternatives_declined"
+        ],
         onEvent: "c.route-answer",
         timeout: {
-          after: "the window in which the alternatives offered are still actually available",
-          reason:
-            "an offer of a slot or a collection point stops being true once it is gone, and holding the obligation open against a stale offer is worse than reattempting the route we already have",
+          "after": {
+            "key": "delivery_attempt.route_choice",
+            "rule": "The choice of alternative is waited for as long as a reattempt inside the bounded policy is still possible; an unanswered choice reattempts the same route.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an offer of a slot or a collection point stops being true once it is gone, and holding the obligation open against a stale offer is worse than reattempting the route we already have",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.reattempt",
         windowExtendsOnEngagement: false,
+        recheck: "the the individual delivery attempt and the obligation it was serving re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.route-answer",
@@ -1576,6 +2579,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Schedule the bounded reattempt, against the remaining attempt budget rather than a fresh one",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.retry",
+        idempotencyKey: "order_id + obligation_id + a.reattempt",
       },
       {
         id: "h.retry",
@@ -1632,6 +2636,84 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the delivered fulfillment and the recipient whose acceptance may still be required",
       note: "Proof of delivery stays attached to the delivery record. Finalisation is a later state and does not supersede the evidence that produced it.",
+      instanceKey: [
+        "obligation_id",
+        "delivery_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Separate arriving from being agreed to have arrived correctly, wherever that difference has business meaning.",
+    eligibility: [
+      "an authoritative confirmation that the recipient has what was owed",
+      "no instance of this journey is already open for the the delivered fulfillment and the recipient whose acceptance may still be required",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Delivered is not accepted where acceptance is contractually meaningful."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "No acceptance window is invented beyond what policy defines."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Proof of delivery remains attached to the delivery history."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Finalisation does not erase later rights that policy independently provides."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "delivery_id",
+          "acceptance_required",
+          "acceptance_window_ends_at",
+          "issue_window_ends_at",
+          "proof_of_delivery",
+          "delivery_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.finalized",
+          "h.issue"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "delivery acceptance finalization",
+        "proof of delivery",
+        "acceptance window",
+        "post-delivery issue window"
+      ],
+      "useCases": [
+        "arriving separated from being agreed to have arrived correctly",
+        "an issue raised inside a valid post-delivery window, routed to recovery"
+      ]
     },
     entry: "t.delivered",
     nodes: [
@@ -1641,6 +2723,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "authoritative_delivery_completion",
         evidence: {
           requires: ["an authoritative confirmation that the recipient has what was owed"],
+          insufficientAlone: [
+            "a carrier scan that is not a completion",
+            "a dispatch",
+            "an internal task closing"
+          ],
           source: "authoritative",
         },
         next: "a.record",
@@ -1651,6 +2738,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERED with the proof of delivery, which stays attached to the delivery history rather than being superseded by whatever finalisation follows",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.acceptance",
+        idempotencyKey: "order_id + person_id + a.record",
       },
       {
         id: "c.acceptance",
@@ -1672,15 +2760,25 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.acceptance",
         kind: "wait",
-        until: ["the recipient accepts", "the recipient raises an issue"],
+        until: [
+          "delivery_accepted",
+          "delivery_issue_raised"
+        ],
         onEvent: "c.response",
         timeout: {
-          after: "the acceptance deadline defined by the contract or policy",
-          reason:
-            "deemed acceptance after a stated period is a policy position; inventing one where none exists closes an obligation the counterparty never agreed was finished",
+          "after": {
+            "key": "delivery_acceptance.acceptance",
+            "rule": "The acceptance deadline defined by the contract or policy.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "deemed acceptance after a stated period is a policy position; inventing one where none exists closes an obligation the counterparty never agreed was finished",
+          "relativeTo": "attribute",
+          "attribute": "acceptance_window_ends_at"
         },
         onTimeout: "a.finalize",
         windowExtendsOnEngagement: false,
+        recheck: "the the delivered fulfillment and the recipient whose acceptance may still be required re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.response",
@@ -1711,15 +2809,24 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.window",
         kind: "wait",
-        until: ["an issue is raised"],
+        until: [
+          "delivery_issue_raised"
+        ],
         onEvent: "h.issue",
         timeout: {
-          after: "the issue window closing",
-          reason:
-            "the window ending without an issue is the ordinary path to completion, and no acceptance window is invented beyond what policy defines",
+          "after": {
+            "key": "delivery_acceptance.window",
+            "rule": "The issue window closing.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the window ending without an issue is the ordinary path to completion, and no acceptance window is invented beyond what policy defines",
+          "relativeTo": "attribute",
+          "attribute": "issue_window_ends_at"
         },
         onTimeout: "a.finalize",
         windowExtendsOnEngagement: false,
+        recheck: "the the delivered fulfillment and the recipient whose acceptance may still be required re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.issue",
@@ -1737,6 +2844,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FINALIZED. This closes the fulfillment relationship and does not erase rights that policy independently provides afterwards - a warranty, a statutory return period or a service guarantee all survive finalisation and are not what this state was measuring",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "x.finalized",
+        idempotencyKey: "order_id + person_id + a.finalize",
       },
       {
         id: "x.finalized",
@@ -1745,6 +2853,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "later rights that policy provides independently are exercised on their own terms and do not reopen this state",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1771,6 +2880,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the obligation, split into what is completed, what is in progress and what has not started",
       note: "The three scopes are treated separately throughout. Collapsing them either discards delivered work or cancels nothing at all.",
+      instanceKey: [
+        "obligation_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1779,6 +2892,87 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "Stopping a delivery and returning money are different decisions with different authority. Coupling them either refunds what was delivered or delivers what was refunded, and this journey hands the financial question to the lifecycle that owns it.",
       },
     ],
+    objective: "Stop what remains of an obligation while keeping everything that already happened.",
+    eligibility: [
+      "an authoritative cancellation that has taken effect on the obligation",
+      "no instance of this journey is already open for the the obligation",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation requested is not a cancellation."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation for fraud, compliance or manual review suppresses recovery outreach entirely. The reason it was cancelled is the reason not to chase it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Recovery is scoped to the specific obligation that was cancelled. A later unrelated purchase does not close it, and counting one as a recovery overstates what the intervention did."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Cancellation does not erase completed fulfillment history."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Resource release affects only unused allocation belonging to this obligation."
+      },
+      {
+        "id": "s.g6",
+        "label": "CANONICAL_RULE",
+        "text": "A financial refund is a separate lifecycle with its own decision."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "fulfillment_log",
+          "suppressed_sends",
+          "allocation_log",
+          "delivery_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.cancelled",
+          "h.financial"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "fulfillment cancellation reconciliation",
+        "order cancellation",
+        "cancel an order in progress",
+        "stop remaining fulfilment"
+      ],
+      "useCases": [
+        "what remains of an obligation stopped while everything that happened is kept",
+        "a cancellation with a financial consequence handed to refund"
+      ]
+    },
     entry: "t.effective",
     nodes: [
       {
@@ -1800,6 +2994,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the cancellation source, the reason, the effective time, and the three scopes separately - what is completed, what is in progress and what has not started. They are treated differently throughout, and collapsing them either discards delivered work or cancels nothing at all",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "a.stop",
+        idempotencyKey: "obligation_id + a.record",
       },
       {
         id: "a.stop",
@@ -1807,6 +3002,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Stop the future work that can still be stopped, scoped to the unstarted portion and whatever in-progress work can be halted safely",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.release",
+        idempotencyKey: "obligation_id + a.stop",
       },
       {
         id: "a.release",
@@ -1814,6 +3010,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the allocations and reservations this obligation no longer needs, scoped strictly to its own. A release that reaches a shared allocation or another obligation's claim takes capacity from work that is still going ahead",
         writes: [{ field: "allocation_log", mode: "append" }],
         next: "c.completed",
+        idempotencyKey: "obligation_id + a.release",
       },
       {
         id: "c.completed",
@@ -1838,6 +3035,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve the completed scope. Cancellation stops what remains; it does not pretend what was delivered never happened, and a record that erases it cannot be reconciled against what the recipient actually has",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.dispatched",
+        idempotencyKey: "obligation_id + a.preserve",
       },
       {
         id: "c.dispatched",
@@ -1862,6 +3060,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine and initiate the intercept or return path where one is supported. Where it is not, the item completes its delivery and the return happens afterwards - a cancellation does not reach into a van, and pretending it does leaves an unexpected delivery nobody has recorded",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.external",
+        idempotencyKey: "obligation_id + a.intercept",
       },
       {
         id: "c.external",
@@ -1886,6 +3085,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Verify the cancellation actually took effect at the external party rather than assuming it did. A cancellation accepted by our system and not by theirs still produces the thing we cancelled",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "c.financial",
+        idempotencyKey: "obligation_id + a.verify",
       },
       {
         id: "c.financial",
@@ -1921,6 +3121,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the remaining obligation is explicitly zero for the cancelled scope and unchanged for whatever was delivered. A new request for the same thing is a new obligation",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1947,6 +3148,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the dispatched obligation, its recipient, and the acceptance window running against it",
       note: "One dispatch, one instance. A re-dispatch after a failure is a new instance and does not inherit the first one's acceptance window.",
+      instanceKey: [
+        "obligation_id",
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1960,6 +3166,232 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it.",
       },
     ],
+    objective: "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
+    eligibility: [
+      "an authoritative dispatch record naming the executor and the destination",
+      "a recipient with a permitted route for a service notice",
+      "no instance of this journey is already open for the the dispatched obligation",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Dispatched is not delivered, and delivered is not accepted. Each is told at the point it becomes true and never before."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An intermediate tracking movement is never reported as an outcome."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "No acceptance window is invented beyond what policy defines; where none exists, nothing is asked for."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "An executor gone quiet is reported as unknown, not as failure."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Acceptance by agreement and acceptance by expiry stay separable forever."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "dispatch_to.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; a dispatch notice, an arrival or non-arrival notice, and an acceptance request"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "dispatch_to.cooldown",
+        "rule": "This journey is per the dispatched obligation; a later instance concerns a different the dispatched obligation and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "dispatch",
+          "action": "a.dispatch",
+          "prerequisites": [],
+          "purpose": "Say it is on its way, with the expected window and whatever reference genuinely follows it.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "no-arrival",
+          "action": "a.no-arrival",
+          "after": "t1",
+          "gatedBy": "w.delivery",
+          "prerequisites": [],
+          "purpose": "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "arrived",
+          "action": "a.arrived",
+          "gatedBy": "w.delivery",
+          "prerequisites": [
+            "c.delivery"
+          ],
+          "purpose": "Confirm it arrived and what the evidence for that is.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "after": "t1"
+        },
+        {
+          "id": "t4",
+          "stage": "accept-request",
+          "action": "a.accept-request",
+          "after": "t3",
+          "prerequisites": [
+            "c.acceptance"
+          ],
+          "purpose": "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "accept-or-raise-issue",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "an acceptance window policy does not define"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "person_id",
+          "executor",
+          "expected_window",
+          "tracking_reference",
+          "acceptance_window_ends_at"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.unresolved",
+          "x.delivered",
+          "x.accepted",
+          "x.finalized",
+          "h.issue"
+        ]
+      },
+      "businessOutcome": {
+        "event": "delivery_accepted",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "delivery tracking",
+        "shipping notification",
+        "order shipped",
+        "out for delivery",
+        "delivery confirmation and acceptance"
+      ],
+      "useCases": [
+        "the recipient carried from dispatch to agreed acceptance",
+        "a non-arrival stated as what it is: a confirmed failure or an executor lost sight of"
+      ]
+    },
     entry: "t.dispatched",
     nodes: [
       {
@@ -1985,22 +3417,30 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say it is on its way, with the expected window and whatever reference genuinely follows it. Where no reference exists, say so rather than inventing one - a link that resolves to nothing costs more than an honest absence",
         next: "w.delivery",
         execution: "communication",
+        idempotencyKey: "obligation_id + person_id + a.dispatch",
       },
       {
         id: "w.delivery",
         kind: "wait",
         until: [
-          "an authoritative delivery confirmation",
-          "a confirmed delivery failure",
-          "a material change to the expected window reported by the executor",
+          "delivery_confirmed",
+          "delivery_failed",
+          "delivery_delay_reported"
         ],
         onEvent: "c.delivery",
         timeout: {
-          after: "the expected window plus the executor's own reporting lag",
-          reason: "an executor that has gone quiet is not an outcome, and the recipient is the person who notices first",
+          "after": {
+            "key": "dispatch_to.delivery",
+            "rule": "The executor's own expected window, from the dispatch record; its passing without an authoritative report is a non-arrival to be reconciled, never assumed delivered.",
+            "class": "external-window",
+            "required": true
+          },
+          "reason": "an executor that has gone quiet is not an outcome, and the recipient is the person who notices first",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.no-arrival",
         windowExtendsOnEngagement: false,
+        recheck: "the the dispatched obligation re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.delivery",
@@ -2025,6 +3465,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of. Calling an unknown a failure produces a replacement that then arrives alongside the original",
         next: "x.unresolved",
         execution: "communication",
+        idempotencyKey: "obligation_id + person_id + a.no-arrival",
       },
       {
         id: "x.unresolved",
@@ -2032,6 +3473,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "not delivered; failed or unaccounted for, and being reconciled with the executor",
         terminal: false,
         reEntry: "a re-dispatch of the same obligation starts a new instance",
+        class: "failure",
       },
       {
         id: "a.arrived",
@@ -2039,6 +3481,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm it arrived and what the evidence for that is. Proof of delivery is a fact about the executor, and stating it is what lets the recipient contradict it while the memory is fresh",
         next: "c.acceptance",
         execution: "communication",
+        idempotencyKey: "obligation_id + person_id + a.arrived",
       },
       {
         id: "c.acceptance",
@@ -2063,6 +3506,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "delivered; no acceptance was required",
         terminal: true,
         reEntry: "a later obligation to the same recipient is a new instance",
+        class: "success",
       },
       {
         id: "a.accept-request",
@@ -2070,21 +3514,30 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted. Stating that date is what makes silence mean something they chose rather than something done to them",
         next: "w.acceptance",
         execution: "communication",
+        idempotencyKey: "obligation_id + person_id + a.accept-request",
       },
       {
         id: "w.acceptance",
         kind: "wait",
         until: [
-          "the recipient accepts",
-          "the recipient raises an issue",
+          "delivery_accepted",
+          "delivery_issue_raised"
         ],
         onEvent: "c.response",
         timeout: {
-          after: "the acceptance window policy defines",
-          reason: "an acceptance window with no end leaves the obligation open forever and the recipient unaware it was ever theirs to close",
+          "after": {
+            "key": "dispatch_to.acceptance",
+            "rule": "The acceptance window policy defines.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "an acceptance window with no end leaves the obligation open forever and the recipient unaware it was ever theirs to close",
+          "relativeTo": "attribute",
+          "attribute": "acceptance_window_ends_at"
         },
         onTimeout: "a.finalize",
         windowExtendsOnEngagement: false,
+        recheck: "the the dispatched obligation re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.response",
@@ -2119,12 +3572,14 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "accepted by the recipient",
         terminal: true,
         reEntry: "rights policy independently provides afterwards do not run through here",
+        class: "success",
       },
       {
         id: "a.finalize",
         kind: "action",
         does: "Record acceptance by expiry, kept distinguishable from acceptance by agreement. One is the recipient saying it was right; the other is nobody saying anything, and a report that cannot tell them apart is reporting satisfaction it does not have",
         next: "x.finalized",
+        idempotencyKey: "obligation_id + person_id + a.finalize",
       },
       {
         id: "x.finalized",
@@ -2132,6 +3587,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "finalised on expiry of the acceptance window, with no explicit acceptance",
         terminal: false,
         reEntry: "an issue raised later runs on whatever right policy independently provides, not on this window",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -2157,6 +3613,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the affected scope of the obligation and the single alternative offered against it",
       note: "The offer covers the affected scope only. Everything already fulfilled stays fulfilled, and a second exception on the same obligation is its own instance.",
+      instanceKey: [
+        "obligation_id",
+        "substitution_offer_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2165,6 +3626,253 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "FUL-145 diagnoses the exception, scopes it and decides that a defined alternative exists. This journey is the offer put to the recipient, and it starts only once that decision has been taken.",
       },
     ],
+    objective: "Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so that nothing different is ever supplied on the assumption they would not have minded.",
+    eligibility: [
+      "an authoritative exception recorded against a named scope of the obligation",
+      "a specific alternative identified and actually available",
+      "the difference between what was promised and what would be supplied instead",
+      "no instance of this journey is already open for the the affected scope of the obligation and the single alternative offered against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing different is supplied on the strength of silence. Only an explicit acceptance moves the obligation."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The decline path sits in the same message as the accept path and costs the same effort to take."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A decline is not a cancellation. The affected scope remains open and owed."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Scope already fulfilled is untouched. The offer covers only what the exception actually affects."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder before the window closes, never two."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "substitution_offer.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; an offer, one reminder and one closing message"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "substitution_offer.cooldown",
+        "rule": "This journey is per the affected scope of the obligation and the single alternative offered against it; a later instance concerns a different the affected scope of the obligation and the single alternative offered against it and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "offer",
+          "action": "a.offer",
+          "prerequisites": [
+            "c.reachable"
+          ],
+          "purpose": "State what cannot be supplied, name the one alternative and the difference in plain terms, and give explicit accept and decline paths with the date the offer ends.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "accept-or-decline-substitute",
+            "boundTo": "substitution_offer_id",
+            "mustNotClaim": [
+              "that silence means acceptance"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "remind",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.decision",
+          "prerequisites": [],
+          "purpose": "Send one reminder naming the same alternative, the same two paths and the exact date the offer closes.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "accept-or-decline-substitute",
+            "boundTo": "substitution_offer_id",
+            "mustNotClaim": [
+              "a moved closing date"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "confirm-accept",
+          "action": "a.confirm-accept",
+          "gatedBy": "w.decision",
+          "prerequisites": [
+            "c.answer"
+          ],
+          "purpose": "Confirm what will now be supplied, on what terms, and what is unchanged about the rest of the obligation.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
+          "stage": "confirm-decline",
+          "action": "a.confirm-decline",
+          "gatedBy": "w.decision",
+          "prerequisites": [
+            "c.answer"
+          ],
+          "purpose": "Confirm the decline, say that the obligation stays open and unfulfilled for the affected scope, and name what happens to it next.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t5",
+          "stage": "lapse",
+          "action": "a.lapse",
+          "gatedBy": "w.final",
+          "prerequisites": [],
+          "purpose": "Close the offer, release the alternative and say plainly that nothing was substituted and the affected scope is still open.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "substitution_offer_id",
+          "affected_scope",
+          "alternative",
+          "difference_statement",
+          "offer_closes_at"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.accepted",
+          "x.declined",
+          "x.lapsed",
+          "h.unreachable"
+        ]
+      },
+      "businessOutcome": {
+        "event": "substitute_approved",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "substitution approval",
+        "substitute item offer",
+        "replacement item consent",
+        "out-of-stock substitution"
+      ],
+      "useCases": [
+        "a defined alternative put to the person with a real decline path and a stated deadline",
+        "nothing different ever supplied on the strength of silence"
+      ]
+    },
     entry: "t.substitute",
     nodes: [
       {
@@ -2218,21 +3926,30 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State what cannot be supplied, name the one alternative and the difference in plain terms, and give explicit accept and decline paths with the date the offer ends. A decline route harder to find than the accept route is not a choice",
         next: "w.decision",
         execution: "communication",
+        idempotencyKey: "obligation_id + a.offer",
       },
       {
         id: "w.decision",
         kind: "wait",
         until: [
-          "the alternative is accepted",
-          "the alternative is declined",
+          "substitute_approved",
+          "substitute_declined"
         ],
         onEvent: "c.answer",
         timeout: {
-          after: "the point in the window at which one reminder can still be acted on",
-          reason: "the alternative is held against this offer and cannot be held for a decision nobody is making",
+          "after": {
+            "key": "substitution_offer.decision",
+            "rule": "The point in the window at which one reminder can still be acted on.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "the alternative is held against this offer and cannot be held for a decision nobody is making",
+          "relativeTo": "attribute",
+          "attribute": "offer_closes_at"
         },
         onTimeout: "a.remind",
         windowExtendsOnEngagement: false,
+        recheck: "the the affected scope of the obligation and the single alternative offered against it re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.answer",
@@ -2257,21 +3974,30 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder naming the same alternative, the same two paths and the exact date the offer closes. There is no second reminder - a choice nobody wanted to make is not made easier by being asked again",
         next: "w.final",
         execution: "communication",
+        idempotencyKey: "obligation_id + a.remind",
       },
       {
         id: "w.final",
         kind: "wait",
         until: [
-          "the alternative is accepted",
-          "the alternative is declined",
+          "substitute_approved",
+          "substitute_declined"
         ],
         onEvent: "c.answer",
         timeout: {
-          after: "the remainder of the decision window",
-          reason: "the held alternative is released when the window closes, which is the only reason the window exists",
+          "after": {
+            "key": "substitution_offer.final",
+            "rule": "After the reminder the offer stays open until its stated closing date and no longer; silence at that date lapses it and nothing is substituted.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the held alternative is released when the window closes, which is the only reason the window exists",
+          "relativeTo": "attribute",
+          "attribute": "offer_closes_at"
         },
         onTimeout: "a.lapse",
         windowExtendsOnEngagement: false,
+        recheck: "the the affected scope of the obligation and the single alternative offered against it re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.confirm-accept",
@@ -2279,6 +4005,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm what will now be supplied, on what terms, and what is unchanged about the rest of the obligation. Accepting a substitute creates a new promise, and it is stated as one rather than treated as the old one continuing",
         next: "x.accepted",
         execution: "communication",
+        idempotencyKey: "obligation_id + a.confirm-accept",
       },
       {
         id: "x.accepted",
@@ -2286,6 +4013,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "alternative accepted and confirmed",
         terminal: false,
         reEntry: "a further exception on the same obligation is a new instance with its own offer",
+        class: "success",
       },
       {
         id: "a.confirm-decline",
@@ -2293,6 +4021,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the decline, say that the obligation stays open and unfulfilled for the affected scope, and name what happens to it next. A decline is not a cancellation and must never be recorded as one",
         next: "x.declined",
         execution: "communication",
+        idempotencyKey: "obligation_id + a.confirm-decline",
       },
       {
         id: "x.declined",
@@ -2300,6 +4029,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "alternative declined, affected scope still owed",
         terminal: false,
         reEntry: "a different alternative found later is a new offer",
+        class: "failure",
       },
       {
         id: "a.lapse",
@@ -2307,6 +4037,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the offer, release the alternative and say plainly that nothing was substituted and the affected scope is still open. Silence at the end of a window gets read as agreement, which is exactly what a substitution must never rest on",
         next: "x.lapsed",
         execution: "communication",
+        idempotencyKey: "obligation_id + a.lapse",
       },
       {
         id: "x.lapsed",
@@ -2314,6 +4045,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "offer lapsed undecided, affected scope still open",
         terminal: false,
         reEntry: "a new alternative identified later starts a new offer",
+        class: "timeout",
       },
     ],
     guardrails: [

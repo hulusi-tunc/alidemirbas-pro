@@ -153,6 +153,10 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the relationship, plus the two entities it connects, in the direction it was created",
       note: "Direction is part of the relationship where the semantics are directional. A dependent of a primary member is not the same relationship read the other way, and storing it as symmetric loses which is which. This category owns structural and entity relationships. It does not own a term-bearing continuing agreement whose lifecycle includes effective dates, renewal, cancellation or lapse - that is SUB-161, and a link created here may be the thing such an agreement is later attached to.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -166,6 +170,76 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           "SUB-161 creates a relationship that carries a term - an effective date, a renewal model and terms that can lapse. This creates a structural link between two entities, which can exist indefinitely without any of those. An employee belongs to an organisation here; the organisation's contract is created there, and the two end for different reasons on different days.",
       },
     ],
+    objective: "Create a link between two entities only where the relationship itself has an authoritative basis, and keep it a link rather than a consolidation.",
+    eligibility: [
+      "a request to create a relationship, or an authoritative detection of one, naming both entities and the relationship type",
+      "no instance of this journey is already open for the the relationship",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A shared attribute is not proof of a relationship. Two people can share an address, a surname and a device and be unrelated."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Creating a relationship is not an identity merge."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A long-lived link is not an agreement. Where the relationship carries a term, an effective period, a renewal model or lapse semantics, it belongs to the continuing-relationship lifecycle and not here."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Direction is preserved where the relationship's semantics are directional."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "relationship_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.pending",
+          "x.rejected",
+          "x.active",
+          "h.verify"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "relationship validation",
+        "link two records",
+        "account linking",
+        "entity relationship creation"
+      ],
+      "useCases": [
+        "a link between two entities created only on an authoritative basis",
+        "a shared attribute that proves nothing, rejected as a relationship"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -192,6 +266,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the relationship type, its source, when it takes effect, its scope, and what authority or evidence establishing it requires. Where the semantics are directional the direction is part of the type, not a property to be inferred later",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.authority",
+        idempotencyKey: "relationship_id + a.define",
       },
       {
         id: "c.authority",
@@ -249,6 +324,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "sufficient basis arriving later activates it. Nothing flows from a pending relationship, which is the difference between pending and active",
+        class: "no-action",
       },
       {
         id: "x.rejected",
@@ -256,6 +332,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "REJECTED; no relationship created",
         terminal: false,
         reEntry: "a different basis is assessed on its own terms",
+        class: "invalid-state",
       },
       {
         id: "a.activate",
@@ -263,6 +340,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ACTIVE_RELATIONSHIP with its type, direction, scope and effective time. Creating a relationship links two entities and consolidates nothing - both keep their own identity, their own lifecycle and their own history",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "x.active",
+        idempotencyKey: "relationship_id + a.activate",
       },
       {
         id: "x.active",
@@ -270,6 +348,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "ACTIVE_RELATIONSHIP",
         terminal: false,
         reEntry: "changes to it are REL-92's, and its ending is REL-93's",
+        class: "success",
       },
     ],
     guardrails: [
@@ -296,6 +375,10 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the relationship that changed and the entities connected by it",
       note: "Historical relationship periods are preserved. Who was related to whom, and when, is usually what a later question is actually about. What changes here is what the structural relationship between the entities means. It does not own a change to the commercial or contractual terms a continuing relationship runs under - that is SUB-166, and the same two entities can be party to both.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -304,6 +387,82 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           "This changes what the entities' structural relationship means - the type of membership, the direction of a parent-child link, the basis on which a representative acts. SUB-166 changes the authorized terms a continuing relationship runs under - the plan, the tier, the scope, the price. Someone can become a contractor instead of an employee with their subscription untouched, and move from Basic to Pro without their relationship to the organisation changing at all.",
       },
     ],
+    objective: "Recalculate exactly what depended on a relationship when it changes, and nothing else.",
+    eligibility: [
+      "an authoritative change to an existing structural relationship's state or type between two entities",
+      "no instance of this journey is already open for the the relationship that changed and the entities connected by it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship change is not an identity change."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship change is not an ownership transfer unless responsibility actually moves."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A structural relationship change is not a change to the commercial or contractual terms of a continuing relationship."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Historical relationship periods are preserved."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Actions queued under the superseded relationship do not execute."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "relationship_log",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.recorded",
+          "x.recalculated",
+          "h.ownership",
+          "h.entitlement"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "relationship impact recalculation",
+        "relationship change",
+        "linked account change",
+        "dependency recalculation"
+      ],
+      "useCases": [
+        "a relationship change that moves responsibility, routed to ownership",
+        "a change that alters an entitlement basis, routed to entitlement"
+      ]
+    },
     entry: "t.changed",
     nodes: [
       {
@@ -328,6 +487,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the previous relationship, the new one, when the change takes effect and why, appended rather than overwritten. The period the old relationship covered stays readable",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.identify",
+        idempotencyKey: "relationship_id + a.record",
       },
       {
         id: "a.identify",
@@ -341,6 +501,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Invalidate the queued actions that depended on the superseded relationship. An action scheduled under a relationship that has changed executes on behalf of a structure that no longer exists",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "c.affected",
+        idempotencyKey: "relationship_id + a.invalidate",
       },
       {
         id: "c.affected",
@@ -365,6 +526,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "relationship updated; nothing else recalculated",
         terminal: false,
         reEntry: "the next change is assessed against the new relationship",
+        class: "success",
       },
       {
         id: "c.responsibility",
@@ -399,6 +561,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Recalculate only the affected rights and obligations, as a scoped delta rather than a rebuild",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.entitlement",
+        idempotencyKey: "relationship_id + a.recalculate",
       },
       {
         id: "c.entitlement",
@@ -430,6 +593,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "dependent rights and obligations recalculated; nothing else touched",
         terminal: false,
         reEntry: "a further change recalculates from the new state",
+        class: "success",
       },
     ],
     guardrails: [
@@ -457,6 +621,10 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the relationship that ended and the entities it connected",
       note: "Only this relationship ends. Other relationships between the same two entities are untouched, and so is the record that this one existed. What ends here is a structural link. It does not own a term-bearing continuing agreement whose lifecycle includes effective dates, renewal, cancellation or lapse - an agreement that existed through this link reaches its own end on its own terms, in SUB-170.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -465,6 +633,75 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           "SUB-170 ends a term: a subscription, contract, policy or membership reaches cancellation, non-renewal, expiry, termination or lapse, and what stops is what the term was granting. This ends a structural link between two entities, and what stops is what depended on the link. An employee leaving an organisation ends the link and not the organisation's contract; a contract expiring ends the term and leaves the employee where they were.",
       },
     ],
+    objective: "Stop what a relationship was carrying forward without cancelling what it validly produced.",
+    eligibility: [
+      "an authoritative end to an active structural relationship between two entities, with an effective time",
+      "no instance of this journey is already open for the the relationship that ended and the entities it connected",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Ending a relationship does not delete the historical relationship."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Ending a relationship does not automatically cancel commitments created while it existed."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Unrelated relationships between the same entities remain unaffected."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Ending a structural link does not terminate an agreement that ran through it. A contract, subscription, policy or membership reaches its own end on its own terms, and inferring one from the other cancels things nobody cancelled."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "relationship_log",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.ended",
+          "h.reconcile"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "relationship end reconciliation",
+        "unlink accounts",
+        "relationship ended",
+        "link removal"
+      ],
+      "useCases": [
+        "a relationship ending with obligations created under it still open",
+        "history retained after a link is removed"
+      ]
+    },
     entry: "t.ended",
     nodes: [
       {
@@ -489,6 +726,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record when it ended and why, appended to the relationship's history. The relationship having existed is not undone by its ending, and the period it covered stays readable - commitments made under it depended on it being real at the time",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.future",
+        idempotencyKey: "relationship_id + a.record-end",
       },
       {
         id: "a.future",
@@ -496,6 +734,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify the future rights and capabilities that depended on this relationship and remove or recalculate them from the effective end. Unrelated relationships between the same entities are untouched, and so is anything resting on a different basis",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "c.obligations",
+        idempotencyKey: "relationship_id + a.future",
       },
       {
         id: "c.obligations",
@@ -523,6 +762,13 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           "each obligation and when it was created relative to the end",
           "the explicit fact that nothing has been cancelled - the relationship ending does not decide that",
         ],
+        contract: {
+          "requiredFields": [
+            "relationship_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "c.retention",
@@ -547,6 +793,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Retain according to the applicable policy, marked as retained under an ended relationship rather than left looking like a live one",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "x.ended",
+        idempotencyKey: "relationship_id + a.retain",
       },
       {
         id: "x.ended",
@@ -555,6 +802,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new relationship between the same entities is created on its own basis, and is a different relationship rather than a revival of this one",
+        class: "success",
       },
     ],
     guardrails: [
@@ -581,6 +829,12 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the person or member, the role, and the account or organisation the role is held in",
       note: "A role belongs to a link between a person and an organisation. The same person holds different roles in different places, and changing one changes nothing about the others.",
+      instanceKey: [
+        "account_id",
+        "member_id",
+        "role_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -589,6 +843,81 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           "A role change alters what someone may do. An identity attribute change alters who they are on record. Treating a role change as an identity change rebuilds the person and loses their history.",
       },
     ],
+    objective: "Move what someone may do next, by the difference between two roles, without disturbing what they did under the old one.",
+    eligibility: [
+      "an authoritative role change with an effective time",
+      "no instance of this journey is already open for the the person or member",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A role change is not an identity change."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A role downgrade does not invalidate actions historically performed under the previous role."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Pending decisions are revalidated against current authority before the delta is applied."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The delta is scoped - capabilities common to both roles are left alone."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "member_id",
+          "role_id",
+          "previous_role",
+          "new_role",
+          "effective_at",
+          "pending_decisions",
+          "role_change_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.applied",
+          "h.authority",
+          "h.entitlement"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "role authority update",
+        "role change",
+        "permission delta",
+        "admin role change"
+      ],
+      "useCases": [
+        "a role change applied as the difference between two roles",
+        "pending approvals revalidated against the new authority"
+      ]
+    },
     entry: "t.role",
     nodes: [
       {
@@ -597,6 +926,11 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         event: "role_changed",
         evidence: {
           requires: ["an authoritative role change with an effective time"],
+          insufficientAlone: [
+            "a permission edit that changes no role",
+            "an organisational change with no effective time recorded",
+            "a role change requested but not yet authorised"
+          ],
           source: "authoritative",
         },
         next: "a.delta",
@@ -607,6 +941,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Compare the previous and new role and calculate the capability and authority delta. What gets applied is the difference - a capability present in both roles is not revoked and re-granted, which the holder would experience as an outage in the middle of an administrative change",
         writes: [{ field: "role_change_log", mode: "append" }],
         next: "c.pending",
+        idempotencyKey: "account_id + relationship_id + a.delta",
       },
       {
         id: "c.pending",
@@ -665,6 +1000,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the delta: grant what the new role adds, and revoke or restrict what it removes, according to each capability's own dependency rules. Actions validly performed under the previous role are not invalidated - a downgrade changes what someone may do next, never what they already did",
         writes: [{ field: "role_change_log", mode: "append" }],
         next: "x.applied",
+        idempotencyKey: "account_id + relationship_id + a.apply",
       },
       {
         id: "x.applied",
@@ -672,6 +1008,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "authority and capability delta applied; prior actions intact",
         terminal: false,
         reEntry: "a further role change is compared against the current role",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1333,6 +1670,11 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the entity missing its required relationship, and the relationship type that is absent",
       note: "One orphan state per missing relationship. An entity missing two required links is in two unresolved states, each resolvable independently.",
+      instanceKey: [
+        "entity_ref",
+        "relationship_type"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1341,6 +1683,75 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           "OWN-51 routes work that has never had an owner. This handles an entity that had a required relationship and lost it, which means inherited deadlines and obligations are already running against it.",
       },
     ],
+    objective: "Make a missing required relationship an explicit, findable state rather than a null field that active work quietly runs against.",
+    eligibility: [
+      "a relationship the entity requires to function being absent, invalid or removed - a work item without a required owner, a resource without a valid parent, a case without an account link, a dependent without a primary",
+      "no instance of this journey is already open for the the entity missing its required relationship",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A missing relationship never silently becomes a null field while active work continues."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A parent or owner is not guessed from weak evidence. Several candidates route to a person."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Inherited deadlines and obligations stay intact while the entity is orphaned."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "entity_ref",
+          "relationship_type",
+          "replacement_candidates",
+          "holding_scope",
+          "resolution_sla",
+          "orphan_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.resumed",
+          "x.terminal",
+          "h.manual",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "orphan relationship recovery",
+        "orphaned record",
+        "missing parent",
+        "unowned entity"
+      ],
+      "useCases": [
+        "an entity whose required parent or owner is missing, made an explicit state",
+        "a deterministic replacement applied, or a holding scope while a person decides"
+      ]
+    },
     entry: "t.missing",
     nodes: [
       {
@@ -1350,6 +1761,11 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a relationship the entity requires to function being absent, invalid or removed - a work item without a required owner, a resource without a valid parent, a case without an account link, a dependent without a primary",
+          ],
+          insufficientAlone: [
+            "an empty relationship field on an entity that does not require that relationship",
+            "a transient read failure of the relationship store",
+            "a relationship that is pending evidence, which validation (REL-91) owns"
           ],
           source: "authoritative",
         },
@@ -1361,6 +1777,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the entity as ORPHANED, naming which relationship is missing. This is an explicit state rather than a null field - null is unqueryable and unescalatable, and an entity with no owner has to be findable as an entity with no owner. Inherited deadlines and obligations keep running throughout; being orphaned is our problem and does not pause what was already owed",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "c.replacement",
+        idempotencyKey: "relationship_id + a.state",
       },
       {
         id: "c.replacement",
@@ -1417,19 +1834,28 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Hold the entity in the explicit unresolved queue, with its inherited deadlines and obligations intact and visible. Held is a state someone can query and escalate; a null relationship is neither",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "w.restore",
+        idempotencyKey: "relationship_id + a.hold",
       },
       {
         id: "w.restore",
         kind: "wait",
-        until: ["a valid relationship is restored or established"],
+        until: [
+          "relationship_established"
+        ],
         onEvent: "a.revalidate",
         timeout: {
-          after: "the resolution SLA for this entity type",
-          reason:
-            "an orphan is carrying live obligations with nobody attached to them, so an unresolved one escalates rather than waiting quietly",
+          "after": {
+            "key": "orphaned_entity.restore",
+            "rule": "The resolution SLA for this entity type.",
+            "class": "decision-sla",
+            "required": true
+          },
+          "reason": "an orphan is carrying live obligations with nobody attached to them, so an unresolved one escalates rather than waiting quietly",
+          "relativeTo": "trigger"
         },
         onTimeout: "c.terminal",
         windowExtendsOnEngagement: false,
+        recheck: "the the entity missing its required relationship re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.reassign",
@@ -1437,6 +1863,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Establish the replacement relationship, preserving the entity's inherited deadlines and obligations exactly as they stood. Reassignment changes who is connected, never what is owed or by when",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "a.revalidate",
+        idempotencyKey: "relationship_id + a.reassign",
       },
       {
         id: "a.revalidate",
@@ -1444,6 +1871,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Revalidate the entity's current state against the restored relationship before resuming. The relationship changed, so what the entity is entitled to or responsible for under the new one may differ from what it held under the old",
         writes: [{ field: "orphan_log", mode: "append" }],
         next: "x.resumed",
+        idempotencyKey: "relationship_id + a.revalidate",
       },
       {
         id: "x.resumed",
@@ -1451,6 +1879,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "relationship restored; entity revalidated and resumed",
         terminal: false,
         reEntry: "a further missing relationship opens its own orphan state",
+        class: "success",
       },
       {
         id: "c.terminal",
@@ -1486,6 +1915,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a valid relationship becoming available later re-opens this; the entity was never silently discarded",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -1509,6 +1939,10 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the invitation, plus the two parties and the scope of the link it proposes, in the direction it was issued",
       note: "The invitation is the subject, not the parties. A second invitation between the same two parties, for a different scope or the other direction, is its own instance.",
+      instanceKey: [
+        "invitation_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1522,6 +1956,247 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this.",
       },
     ],
+    objective: "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
+    eligibility: [
+      "an invitation recorded by a party holding the authority to extend it",
+      "a named counterparty, the scope of the proposed link and its direction",
+      "an expiry on the invitation",
+      "no instance of this journey is already open for the the invitation",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An invitation is not a relationship. Nothing is linked, and nothing is shown to either side as linked, until the counterparty accepts."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Acceptance links two records and merges none. Both parties keep their own identity, history and lifecycle."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Scope and direction are stated in the invitation itself, not discovered after acceptance."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder, never two. The expiry is the pressure; repetition is not."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Every invitation expires. A pending claim on somebody who never agreed to it does not sit open indefinitely."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "relationship_invitation.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; an invitation, one reminder and a confirmation"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "relationship_invitation.cooldown",
+        "rule": "This journey is per the invitation; a later instance concerns a different the invitation and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "invite-known",
+          "action": "a.invite-known",
+          "prerequisites": [
+            "c.known"
+          ],
+          "purpose": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "invitation-acceptance",
+            "boundTo": "invitation_id",
+            "mustNotClaim": [
+              "that accepting transfers anything they hold"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "invite-new",
+          "action": "a.invite-new",
+          "prerequisites": [
+            "c.known"
+          ],
+          "purpose": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "invitation-acceptance",
+            "boundTo": "invitation_id",
+            "mustNotClaim": [
+              "that accepting transfers anything they hold"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "confirm",
+          "action": "a.confirm",
+          "gatedBy": "w.response",
+          "prerequisites": [
+            "c.response"
+          ],
+          "purpose": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
+          "stage": "remind",
+          "action": "a.remind",
+          "gatedBy": "w.response",
+          "prerequisites": [
+            "c.remind"
+          ],
+          "purpose": "Send one reminder naming who is waiting and the date the invitation expires.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "invitation-acceptance",
+            "boundTo": "invitation_id",
+            "mustNotClaim": [
+              "a moved expiry"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "invitation_id",
+          "inviting_party",
+          "counterparty",
+          "scope",
+          "direction",
+          "expires_at",
+          "counterparty_known"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.active",
+          "x.closed",
+          "x.expired"
+        ]
+      },
+      "businessOutcome": {
+        "event": "invitation_accepted",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "invitation reminder",
+        "invite to link accounts",
+        "counterparty invitation",
+        "team invite reminder",
+        "pending invitation"
+      ],
+      "useCases": [
+        "a proposed link put to the party who has to accept it, on visible terms",
+        "one reminder before the invitation expires, then a closed question"
+      ]
+    },
     entry: "t.invited",
     nodes: [
       {
@@ -1565,6 +2240,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record. An existing holder's first question is what accepting costs them, not what it gives the inviter",
         next: "w.response",
         execution: "communication",
+        idempotencyKey: "issue_id + a.invite-known",
       },
       {
         id: "a.invite-new",
@@ -1572,22 +2248,31 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold. Somebody with no prior relationship reads an unexplained invitation as a claim already made on them",
         next: "w.response",
         execution: "communication",
+        idempotencyKey: "issue_id + a.invite-new",
       },
       {
         id: "w.response",
         kind: "wait",
         until: [
-          "the counterparty accepts",
-          "the counterparty declines",
-          "the inviting party withdraws the invitation",
+          "invitation_accepted",
+          "invitation_declined",
+          "invitation_withdrawn"
         ],
         onEvent: "c.response",
         timeout: {
-          after: "the point at which one reminder would still leave time to act before expiry",
-          reason: "a reminder that arrives after the invitation is dead is worse than no reminder, because it asks for something that can no longer be given",
+          "after": {
+            "key": "relationship_invitation.response",
+            "rule": "The point at which one reminder would still leave time to act before expiry.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "a reminder that arrives after the invitation is dead is worse than no reminder, because it asks for something that can no longer be given",
+          "relativeTo": "attribute",
+          "attribute": "expires_at"
         },
         onTimeout: "c.remind",
         windowExtendsOnEngagement: false,
+        recheck: "the the invitation re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.response",
@@ -1612,6 +2297,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do. An unstated scope is assumed to be total by whoever has less to gain from it",
         next: "x.active",
         execution: "communication",
+        idempotencyKey: "issue_id + a.confirm",
       },
       {
         id: "x.active",
@@ -1619,6 +2305,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "link active, both identities intact",
         terminal: false,
         reEntry: "a further invitation between the same parties, for a different scope, is a new instance",
+        class: "success",
       },
       {
         id: "x.closed",
@@ -1626,6 +2313,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "invitation declined or withdrawn",
         terminal: true,
         reEntry: "the inviting party may issue a fresh invitation, which is a new instance; a declined one is never revived",
+        class: "failure",
       },
       {
         id: "c.remind",
@@ -1650,22 +2338,31 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder naming who is waiting and the date the invitation expires. There is no second one - a counterparty who has not answered twice has answered",
         next: "w.final",
         execution: "communication",
+        idempotencyKey: "issue_id + a.remind",
       },
       {
         id: "w.final",
         kind: "wait",
         until: [
-          "the counterparty accepts",
-          "the counterparty declines",
-          "the inviting party withdraws the invitation",
+          "invitation_accepted",
+          "invitation_declined",
+          "invitation_withdrawn"
         ],
         onEvent: "c.response",
         timeout: {
-          after: "the remaining life of the invitation",
-          reason: "an invitation with no expiry is a standing claim on somebody who never agreed to anything",
+          "after": {
+            "key": "relationship_invitation.final",
+            "rule": "After the one reminder the instance waits until the invitation's own expiry; there is no second reminder.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "an invitation with no expiry is a standing claim on somebody who never agreed to anything",
+          "relativeTo": "attribute",
+          "attribute": "expires_at"
         },
         onTimeout: "x.expired",
         windowExtendsOnEngagement: false,
+        recheck: "the the invitation re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.expired",
@@ -1673,6 +2370,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         state: "expired unanswered",
         terminal: false,
         reEntry: "a fresh invitation from the same party starts a new window",
+        class: "timeout",
       },
     ],
     guardrails: [

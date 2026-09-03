@@ -1,0 +1,400 @@
+{
+ "id": "DEC-184",
+ "shortName": "More Information Request",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "human-task",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "class-level pressure cap",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.identified",
+   "event": "information_requirement_identified",
+   "meaning": "a reviewer identifying a specific fact the decision turns on and which is not available",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a reviewer identifying a specific fact the decision turns on and which is not available",
+    "no instance of this journey is already open for the the decision case and the specific information requirement blocking it",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "decision_case_id",
+    "requirement_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.specify",
+   "does": "Specify the exact requirement - which fact, which document, from whom, and why the decision needs it. A vague request produces a vague answer and a second round; and asking for unrelated things in case they help turns one gap into a questionnaire, which is how a two-day case becomes a three-week one",
+   "writes": [
+    {
+     "field": "decision_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.specify",
+   "key": "issue_id + a.specify"
+  },
+  {
+   "type": "state-update",
+   "node": "a.state",
+   "does": "Record AWAITING_INFORMATION and preserve everything the review has already established. The case is paused rather than reset - more information required is not a rejection, and a reviewer returning to it should not be starting again from the beginning",
+   "writes": [
+    {
+     "field": "decision_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.state",
+   "key": "issue_id + a.state"
+  },
+  {
+   "type": "condition",
+   "node": "c.source-type",
+   "asks": "Who actually holds the outstanding information?",
+   "branches": [
+    {
+     "label": "The requester or another external party",
+     "observes": null,
+     "test": "only someone outside the organisation can supply it",
+     "to": "a.request"
+    },
+    {
+     "label": "Someone inside the organisation",
+     "observes": null,
+     "test": "an internal owner, team or system holds it, or is the one authorised to produce it",
+     "to": "a.request-internal"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "information_requirement.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request",
+   "touch": "t1",
+   "stage": "request",
+   "purpose": "Request what is still outstanding from the external source, naming it precisely.",
+   "brief": "Request what is still outstanding from the external source, naming it precisely. Re-requesting the whole requirement asks for things already given, which reads as the first submission having been ignored - and asking a customer for something an internal system already holds is the most common version of this failure",
+   "destination": {
+    "target": "provide-outstanding-information",
+    "boundTo": "requirement_id",
+    "mustNotClaim": [
+     "a moved deadline",
+     "that the case is rejected"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.source-type"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request",
+   "key": "issue_id + a.request"
+  },
+  {
+   "type": "human-task",
+   "node": "a.request-internal",
+   "does": "Raise the outstanding requirement as owned work against the internal holder, carrying the blocked decision and its unchanged deadline. An internal evidence gap routed down a customer channel asks the wrong party on a route they never agreed to",
+   "touch": "t2"
+  },
+  {
+   "type": "wait",
+   "node": "w.info",
+   "timing": {
+    "key": "information_requirement.info",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "information_deadline_at",
+   "onTimeout": "a.deadline"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.info",
+   "cancelOn": [
+    {
+     "event": "requested_information_received",
+     "meaning": "the requested information is received"
+    },
+    {
+     "event": "request_withdrawn",
+     "meaning": "the requester withdraws the request"
+    }
+   ],
+   "onEvent": "c.received"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.info",
+   "reads": "the the decision case and the specific information requirement blocking it re-read from the system of record before acting on the timeout",
+   "before": "a.deadline"
+  },
+  {
+   "type": "condition",
+   "node": "c.received",
+   "asks": "How did the wait resolve?",
+   "branches": [
+    {
+     "label": "Information arrived",
+     "observes": null,
+     "test": "something was supplied against the requirement",
+     "to": "a.validate"
+    },
+    {
+     "label": "The decision is no longer required",
+     "observes": null,
+     "test": "the request was withdrawn or the thing it was about no longer exists",
+     "to": "a.moot"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.moot",
+   "does": "Record the case as no longer requiring a decision, with the reason. This is not a rejection and not an approval, and reporting it as either tells the requester something untrue about what happened",
+   "writes": [
+    {
+     "field": "decision_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.moot",
+   "key": "issue_id + a.moot"
+  },
+  {
+   "type": "exit",
+   "node": "x.moot",
+   "class": "invalid-state",
+   "state": "no longer requiring a decision; the review history stands unclosed rather than concluded",
+   "reEntry": "a renewed need for the same judgment is a new request, which can reference this case and its evidence"
+  },
+  {
+   "type": "state-update",
+   "node": "a.validate",
+   "does": "Validate what arrived for relevance and completeness against the stated requirement. Something arriving is not the requirement being met - a document of the right type saying the wrong thing satisfies a checklist and not a decision",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.complete",
+   "asks": "Does what arrived satisfy the requirement?",
+   "branches": [
+    {
+     "label": "It does",
+     "observes": null,
+     "test": "the requirement is met, relevantly and completely",
+     "to": "h.resume"
+    },
+    {
+     "label": "Partly",
+     "observes": null,
+     "test": "some of the requirement is met and some is not",
+     "to": "c.further"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.further",
+   "asks": "Does policy allow requesting the remainder?",
+   "branches": [
+    {
+     "label": "It does, within the request budget",
+     "observes": null,
+     "test": "further rounds are permitted and the case has not used them all",
+     "to": "c.source-type"
+    },
+    {
+     "label": "It does not, or the budget is exhausted",
+     "observes": null,
+     "test": "no further round is permitted, or the case has already been round-tripped as often as the model allows",
+     "to": "h.resume"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.deadline",
+   "does": "Apply the timeout semantics policy defines - escalation, closure, or a decision on the evidence available. Which one applies comes from policy: a case that quietly closes because nobody answered is a rejection nobody made, and a case that quietly proceeds is a decision made on evidence somebody knew was incomplete",
+   "writes": [
+    {
+     "field": "decision_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.deadline",
+   "key": "issue_id + a.deadline"
+  },
+  {
+   "type": "condition",
+   "node": "c.timeout",
+   "asks": "What does policy define for an expired information deadline?",
+   "branches": [
+    {
+     "label": "Decide on what is available",
+     "observes": null,
+     "test": "policy permits deciding on the evidence in hand, with the gap recorded as a gap",
+     "to": "h.resume"
+    },
+    {
+     "label": "Close the case",
+     "observes": null,
+     "test": "policy explicitly closes an unanswered case, with defined semantics for doing so",
+     "to": "a.close"
+    },
+    {
+     "label": "Escalate, or policy does not define it",
+     "observes": null,
+     "test": "policy escalates - or says nothing, in which case no closure semantics are invented here",
+     "to": "h.escalate"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.close",
+   "does": "Close the case under the semantics policy actually states, recording that it closed for want of information rather than on its merits",
+   "writes": [
+    {
+     "field": "decision_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.close",
+   "key": "issue_id + a.close"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed-noinfo",
+   "class": "timeout",
+   "state": "closed for want of information; no decision was made on the merits",
+   "reEntry": "a new request with the information present is assessed fresh, and this closure does not count against it"
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "DEC-189",
+   "on": "an information deadline expiring with escalation or with no defined closure semantics",
+   "carries": [
+    "the requirement, what was and was not supplied, and the review already done",
+    "the explicit fact that no closure or rejection was invented to end the case"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.resume",
+   "to": "DEC-183",
+   "on": "an information requirement resolved, or exhausted under policy",
+   "carries": [
+    "what was supplied and what remains missing, stated as a gap rather than smoothed over",
+    "the full prior review history, so the reviewer continues rather than restarts"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

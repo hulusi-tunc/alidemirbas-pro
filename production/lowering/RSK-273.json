@@ -1,0 +1,546 @@
+{
+ "id": "RSK-273",
+ "shortName": "Usage Limit Alert",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.blocked",
+   "event": "limit_reached_and_action_blocked",
+   "meaning": "an authoritative usage figure against a defined limit and measurement window; an action actually blocked or held by that limit",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative usage figure against a defined limit and measurement window",
+    "an action actually blocked or held by that limit",
+    "no instance of this journey is already open for the the entity and the one limit constraining it",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "entity_ref",
+    "limit_id",
+    "window_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.at-the-wall",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "usage_limit.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.at-the-wall",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.at-the-wall",
+   "touch": "t1",
+   "stage": "at-the-wall",
+   "purpose": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets.",
+   "brief": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.at-the-wall",
+   "key": "person_id + a.at-the-wall"
+  },
+  {
+   "type": "condition",
+   "node": "c.path",
+   "asks": "What path exists from here?",
+   "branches": [
+    {
+     "label": "Capacity is purchasable",
+     "observes": null,
+     "test": "additional capacity for this limit can be authorised and is a genuine option on this relationship",
+     "to": "c.decider"
+    },
+    {
+     "label": "Resets on its own",
+     "observes": null,
+     "test": "no more capacity is available in this window, but the reset point is authoritatively defined",
+     "to": "w.capacity"
+    },
+    {
+     "label": "Neither",
+     "observes": null,
+     "test": "the limit is fixed, with no purchasable capacity and no defined reset",
+     "to": "x.blocked"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.decider",
+   "asks": "Does the person who hit the limit hold the capacity decision?",
+   "branches": [
+    {
+     "label": "Theirs to decide",
+     "observes": null,
+     "test": "the same party can authorise more capacity",
+     "to": "a.offer-self"
+    },
+    {
+     "label": "Held elsewhere",
+     "observes": null,
+     "test": "the commercial decision sits with another party on the relationship",
+     "to": "a.offer-holder"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer-self",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "usage_limit.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer-self",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer-self",
+   "touch": "t2",
+   "stage": "offer-self",
+   "purpose": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing.",
+   "brief": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
+   "destination": {
+    "target": "purchase-capacity",
+    "boundTo": "limit_id",
+    "mustNotClaim": [
+     "a reset point the source does not assert",
+     "that the limit is abuse"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.path",
+    "c.decider"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer-self",
+   "key": "person_id + a.offer-self"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer-holder",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "usage_limit.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer-holder",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer-holder",
+   "touch": "t3",
+   "stage": "offer-holder",
+   "purpose": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is.",
+   "brief": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
+   "destination": {
+    "target": "purchase-capacity",
+    "boundTo": "limit_id",
+    "mustNotClaim": [
+     "a reset point the source does not assert"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.path",
+    "c.decider"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer-holder",
+   "key": "person_id + a.offer-holder"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.notify-blocked-party",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "usage_limit.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.notify-blocked-party",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.notify-blocked-party",
+   "touch": "t4",
+   "stage": "notify-blocked-party",
+   "purpose": "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway.",
+   "brief": "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway. Told only that they hit a limit, they wait on a person who does not know they are being waited on",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.path",
+    "c.decider"
+   ],
+   "after": "t3"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.notify-blocked-party",
+   "key": "person_id + a.notify-blocked-party"
+  },
+  {
+   "type": "wait",
+   "node": "w.capacity",
+   "timing": {
+    "key": "usage_limit.capacity",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "window_resets_at",
+   "onTimeout": "c.outcome"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.capacity",
+   "cancelOn": [
+    {
+     "event": "capacity_authorised",
+     "meaning": "additional capacity is authorised"
+    },
+    {
+     "event": "limit_reset",
+     "meaning": "the usage limit resets"
+    },
+    {
+     "event": "held_action_abandoned",
+     "meaning": "the held action is abandoned"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.capacity",
+   "reads": "the the entity and the one limit constraining it re-read from the system of record before acting on the timeout",
+   "before": "c.outcome"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What changed?",
+   "branches": [
+    {
+     "label": "Capacity authorised",
+     "observes": null,
+     "test": "more capacity was approved and requires a change of plan or terms to take effect",
+     "to": "h.capacity"
+    },
+    {
+     "label": "Window reset",
+     "observes": null,
+     "test": "the authoritative reset occurred and capacity is available again under the same limit",
+     "to": "a.reset"
+    },
+    {
+     "label": "Still blocked",
+     "observes": null,
+     "test": "neither happened and the action is still held",
+     "to": "x.blocked"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.capacity",
+   "to": "SUB-166",
+   "on": "an authorised capacity increase that has to be executed as a change of plan or terms",
+   "carries": [
+    "the limit, the window and the usage that triggered this",
+    "which action is held and who is waiting on it"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.reset",
+   "touch": "t5",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "usage_limit.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.reset",
+   "touch": "t5",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.reset",
+   "touch": "t5",
+   "stage": "reset",
+   "purpose": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock.",
+   "brief": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reset",
+   "key": "person_id + a.reset"
+  },
+  {
+   "type": "exit",
+   "node": "x.reset",
+   "class": "success",
+   "state": "window reset; capacity available again under the same limit",
+   "reEntry": "reaching the limit again in a later window re-enters here"
+  },
+  {
+   "type": "exit",
+   "node": "x.blocked",
+   "class": "no-action",
+   "state": "at the limit with no route to more capacity in this window",
+   "reEntry": "a reset, or a change to the limit authorised elsewhere, qualifies this again as a new instance"
+  }
+ ]
+}

@@ -643,6 +643,166 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the incident, the affected recipient cohort and the communication obligation it creates",
       note: "This decides what should be said and to whom. Channels, permissions, delivery and retries belong to the communication lifecycle.",
+      instanceKey: [
+        "incident_id",
+        "recipient_cohort_id",
+        "state_change_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Tell the people actually affected something true and useful, through the mechanism that already owns delivery.",
+    eligibility: [
+      "an incident state change that could change what an affected party should do or expect",
+      "no instance of this journey is already open for the the incident",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "No root cause or resolution is claimed before it is confirmed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "No promotional content appears in incident communication."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Uncertain technical detail is never communicated as fact."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The affected cohort is identified as precisely as the evidence allows."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "incident_communication.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "incident_communication.cooldown",
+        "rule": "This journey is per the incident; a later instance concerns a different the incident and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "communicate",
+          "action": "a.communicate",
+          "prerequisites": [
+            "c.cohort",
+            "c.verified",
+            "c.material"
+          ],
+          "purpose": "Raise the communication through the canonical communication mechanism, which owns the obligation, the recipient resolution, the channels, the permissions and the delivery evidence.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "incident_id",
+          "recipient_cohort_id",
+          "state_change_id",
+          "confirmed_facts",
+          "prior_guidance",
+          "incident_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.no-send",
+          "x.updated",
+          "x.closed-comms"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "incident update",
+        "status page update",
+        "outage communication",
+        "service disruption notice",
+        "incident notification"
+      ],
+      "useCases": [
+        "the people actually affected told something true and useful when the incident state changes",
+        "no update sent when nothing material changed"
+      ]
     },
     entry: "t.relevant",
     nodes: [
@@ -665,6 +825,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine who is materially affected, what is known, what is not known, what action the user needs to take, any safe workaround, and the condition under which the next meaningful update would happen. Saying what is not yet known is information; leaving it out and stating the rest as certainty is not",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.cohort",
+        idempotencyKey: "obligation_id + incident_id + a.determine",
       },
       {
         id: "c.cohort",
@@ -689,6 +850,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Scope the communication to the affected population. Telling everybody about an incident affecting one region trains the whole base to ignore incident notices, and the next one will be one that matters to them",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.verified",
+        idempotencyKey: "obligation_id + incident_id + a.scoped",
       },
       {
         id: "a.broad",
@@ -696,6 +858,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Broaden only as far as necessary, and say explicitly that the scope is still being established. Uncertainty stated is information; uncertainty implied as precision is a claim that will have to be corrected",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.verified",
+        idempotencyKey: "obligation_id + incident_id + a.broad",
       },
       {
         id: "c.verified",
@@ -720,6 +883,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say what is known and what is not, and claim nothing about cause or resolution that has not been established. A root cause announced and then retracted costs more credibility than a slow update, and technical detail stated as fact while still uncertain is the most common source of that retraction",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.material",
+        idempotencyKey: "obligation_id + incident_id + a.hold-claim",
       },
       {
         id: "c.material",
@@ -752,6 +916,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.no-send",
+        idempotencyKey: "obligation_id + incident_id + a.no-send",
       },
       {
         id: "x.no-send",
@@ -760,6 +925,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the next material change, or the next point a commitment requires an update, brings this back",
+        class: "no-action",
       },
       {
         id: "a.communicate",
@@ -768,6 +934,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.final",
         execution: "communication",
+        idempotencyKey: "obligation_id + incident_id + a.communicate",
       },
       {
         id: "c.final",
@@ -793,6 +960,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the stated condition occurring, or a material change, produces the next update",
+        class: "success",
       },
       {
         id: "x.closed-comms",
@@ -801,6 +969,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a relapse is communicated as a relapse rather than as a new incident, because the recipients were told it was over",
+        class: "success",
       },
     ],
     guardrails: [

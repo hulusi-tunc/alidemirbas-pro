@@ -1,0 +1,515 @@
+{
+ "id": "INT-269",
+ "shortName": "Integration Recovery",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "exit",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "state-update",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.disconnected",
+   "event": "integration_connection_failed_or_deauthorized",
+   "meaning": "an authoritative failed or disconnected state recorded against a named connection; a diagnosed failure cause; the list of capabilities that depended on it",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative failed or disconnected state recorded against a named connection",
+    "a diagnosed failure cause",
+    "the list of capabilities that depended on it",
+    "no instance of this journey is already open for the one connection to one external provider",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "connection_id",
+    "failure_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.fixable",
+   "asks": "Is the fix the holder's to perform?",
+   "branches": [
+    {
+     "label": "Holder can re-authorise",
+     "observes": null,
+     "test": "the cause is a withdrawn, expired or insufficient authorization on the holder's side of the connection",
+     "to": "c.scope"
+    },
+    {
+     "label": "Not theirs",
+     "observes": null,
+     "test": "the cause is a provider outage, a defect on our side, or an entitlement the holder does not control",
+     "to": "a.inform-only"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.inform-only",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_reconnect.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.inform-only",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.inform-only",
+   "touch": "t1",
+   "stage": "inform-only",
+   "purpose": "Say which capabilities have stopped and that nothing is required from them, with no reconnection step attached - because there is no step that would work.",
+   "brief": "Say which capabilities have stopped and that nothing is required from them, with no reconnection step attached - because there is no step that would work. Prompting a re-auth against a provider outage produces a person who tries three times and then opens a ticket",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.fixable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.inform-only",
+   "key": "person_id + a.inform-only"
+  },
+  {
+   "type": "exit",
+   "node": "x.informed",
+   "class": "success",
+   "state": "informed, recovery not the holder's to perform",
+   "reEntry": "if the cause is later reclassified as holder-fixable, this qualifies again on the re-authorisation path"
+  },
+  {
+   "type": "condition",
+   "node": "c.scope",
+   "asks": "How much of the connection is affected?",
+   "branches": [
+    {
+     "label": "Some capabilities",
+     "observes": null,
+     "test": "the authorization still covers part of what was granted and the rest of the connection keeps running",
+     "to": "a.partial"
+    },
+    {
+     "label": "Nothing works",
+     "observes": null,
+     "test": "no capability on this connection can run until it is re-authorised",
+     "to": "a.total"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.partial",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_reconnect.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.partial",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.partial",
+   "touch": "t2",
+   "stage": "partial",
+   "purpose": "Name exactly which capabilities stopped, which are still running, and the single re-authorisation step.",
+   "brief": "Name exactly which capabilities stopped, which are still running, and the single re-authorisation step. Telling somebody their whole connection is broken when most of it works buys an afternoon of unnecessary work and a lasting distrust of the next notice",
+   "destination": {
+    "target": "re-authorisation-step",
+    "boundTo": "connection_id",
+    "mustNotClaim": [
+     "a reduced authorisation as a full one"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.fixable",
+    "c.scope"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.partial",
+   "key": "person_id + a.partial"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.total",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_reconnect.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.total",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.total",
+   "touch": "t3",
+   "stage": "total",
+   "purpose": "Say the connection is carrying nothing at present, name what has stopped depending on it, and give the single re-authorisation step.",
+   "brief": "Say the connection is carrying nothing at present, name what has stopped depending on it, and give the single re-authorisation step. What stopped is the part the holder needs in order to judge how urgent this is",
+   "destination": {
+    "target": "re-authorisation-step",
+    "boundTo": "connection_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.fixable",
+    "c.scope"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.total",
+   "key": "person_id + a.total"
+  },
+  {
+   "type": "wait",
+   "node": "w.revalidate",
+   "timing": {
+    "key": "integration_reconnect.revalidate",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.unreconnected"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.revalidate",
+   "cancelOn": [
+    {
+     "event": "connection_revalidated",
+     "meaning": "the connection revalidates against a new authorization"
+    },
+    {
+     "event": "connection_removed",
+     "meaning": "the holder removes the connection"
+    },
+    {
+     "event": "cause_reclassified_not_holders",
+     "meaning": "the failure is reclassified as not the holder's to fix"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.revalidate",
+   "reads": "the one connection to one external provider re-read from the system of record before acting on the timeout",
+   "before": "a.unreconnected"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Reconnected",
+     "observes": null,
+     "test": "revalidation confirms the capabilities are working against the new authorization",
+     "to": "a.restored"
+    },
+    {
+     "label": "Removed",
+     "observes": null,
+     "test": "the holder deliberately disconnected rather than re-authorising",
+     "to": "x.removed"
+    },
+    {
+     "label": "Not theirs after all",
+     "observes": null,
+     "test": "the cause was reclassified and no holder action would have helped",
+     "to": "a.inform-only"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.restored",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_reconnect.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.restored",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.restored",
+   "touch": "t4",
+   "stage": "restored",
+   "purpose": "Confirm which capabilities are working again and name any that came back reduced.",
+   "brief": "Confirm which capabilities are working again and name any that came back reduced. A reconnection that silently restores less than before is discovered later, at whatever moment the missing capability was needed",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.restored",
+   "key": "person_id + a.restored"
+  },
+  {
+   "type": "exit",
+   "node": "x.restored",
+   "class": "success",
+   "state": "reconnected and confirmed",
+   "reEntry": "a later break on the same connection is a new instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.removed",
+   "class": "invalid-state",
+   "state": "connection deliberately removed by the holder",
+   "reEntry": "connecting the same provider again is a new connection and enters through activation, not through this journey"
+  },
+  {
+   "type": "state-update",
+   "node": "a.unreconnected",
+   "does": "Record that the recovery window closed with the connection still broken, as a dated fact about this integration rather than a conclusion about the relationship. A connection somebody chose not to restore is one signal, and it may be the deliberate end of a use case rather than a customer leaving",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.unreconnected",
+   "key": "person_id + a.unreconnected"
+  },
+  {
+   "type": "condition",
+   "node": "c.relationship-signal",
+   "asks": "Is there independent evidence that the relationship itself is at risk?",
+   "branches": [
+    {
+     "label": "Corroborated",
+     "observes": null,
+     "test": "risk evidence from another source already exists against this relationship, so the unreconnected integration adds to a picture rather than being the whole of it",
+     "to": "h.abandoned"
+    },
+    {
+     "label": "This break is the only signal",
+     "observes": null,
+     "test": "nothing else indicates the relationship is at risk",
+     "to": "x.unreconnected"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.unreconnected",
+   "class": "timeout",
+   "state": "recovery window closed, connection still broken, relationship not labelled at risk",
+   "reEntry": "a further disconnection event, or a re-authorisation attempt, opens recovery again"
+  },
+  {
+   "type": "handoff",
+   "node": "h.abandoned",
+   "to": "RET-24",
+   "on": "a connection the holder could re-authorise and has not, past the point where the break is still being treated as an interruption",
+   "carries": [
+    "which capabilities have been unavailable and for how long",
+    "what was already said about the break and on which routes",
+    "that this is one contributing signal alongside evidence that already existed, not a churn conclusion drawn from a broken connection"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

@@ -53,6 +53,466 @@
    "note": "t-old and t-new are both sent, in sequence, to two different destinations: the replaced destination is warned, then the new destination is asked to confirm. This is the two-party confirmation itself, not a simultaneous send to one person's channels; the channel is the destination's own kind.",
    "reviewedBy": "migration pass, Gate 3",
    "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "ACT-11",
+   "code": "router_journey",
+   "note": "Route assignment chooses a path and hands over: blocked start to ACT-13, clear start to ACT-12. It owns no outcome of its own.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACT-13",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "t1 (specific action to the account) and t2 (raise with the dependency owner) are the exclusive arms of c.self-resolvable. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACT-20",
+   "code": "engagement_as_progression",
+   "match": "meaningful_return",
+   "note": "The corpus's own rule: success is a meaningful return - a real action in the product - never an open or a click. The event is inspected (a.inspect) before anything advances.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACQ-02",
+   "code": "router_journey",
+   "note": "Interest routing ends in a handoff on every path by design: a named destination, a disqualifier, or education.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACQ-04",
+   "code": "router_journey",
+   "note": "High-intent routing decides who owns the next step and hands to them: an assigned person, automated continuation, or the already-reached destination.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "RET-27",
+   "code": "router_journey",
+   "note": "The stability check owns only the observation: sustained recovery hands to the lifecycle owner, relapse hands back to diagnosis.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACQ-285",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "t1 (a person will follow up) and t2 (deliver the material) are the exclusive arms of c.declared - what the person asked for. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "CON-272",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "t1 (in product) and t2 (surviving off-product route) are the exclusive arms of c.route - what can carry the repair request. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "CON-272",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The confirmation states that the replacement is in use; it asks for nothing and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FBK-42",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The light and heavy asks are the exclusive arms of c.type - the size of request the evidence supports.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FBK-47",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "The information request and the outcome statement are the exclusive arms of c.outcome (MORE_INFORMATION_REQUIRED vs a conclusion).",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FBK-49",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The customer request and the internal request are the exclusive arms of c.provider - who can supply the item.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-268",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The discharge confirmation asks for nothing; it closes the loop and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-274",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The restricted notice and the quiet notice are the exclusive arms of c.restricted - whether grace reduces anything the holder will notice.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-274",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The recovery confirmation asks for nothing; it names what returned and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-281",
+   "code": "simultaneous_review",
+   "match": "t1, t2, t3, t4",
+   "note": "The four route statements are the exclusive arms of c.route - which mechanism restores validity. Exactly one is ever sent.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-281",
+   "code": "touch_no_destination",
+   "match": "t5",
+   "note": "The confirmation of restored validity asks for nothing and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-261",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The restoration confirmation asks for nothing; it names what returned and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-263",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The first-time notice and the brief confirmation are the exclusive arms of c.first-time. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-263",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The brief confirmation to a familiar holder names only what changed and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "IDN-270",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The restoration confirmation asks for nothing; it names what was invalidated and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REL-284",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The known-holder and new-counterparty invitations are the exclusive arms of c.known. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REL-284",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The activation confirmation to both sides names scope and direction and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-106",
+   "code": "simultaneous_review",
+   "match": "t2, t4",
+   "note": "The non-recoverable notice (t2) and the recoverable blocker (t4) are the exclusive arms of c.blockers.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-106",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The closure confirmation states what closed and what closure is not; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-275",
+   "code": "simultaneous_review",
+   "match": "t4, t5",
+   "note": "Full and partial closure records are the exclusive arms of c.outcome.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-275",
+   "code": "touch_no_destination",
+   "match": "t4",
+   "note": "The closure record is the durable answer to the request; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-269",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "Partial and total notices are the exclusive arms of c.scope - how much of the connection is affected.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-269",
+   "code": "touch_no_destination",
+   "match": "t4",
+   "note": "The restoration confirmation names what came back and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-278",
+   "code": "simultaneous_review",
+   "match": "t1, t5",
+   "note": "The active confirmation and the generic failure are the exclusive arms of c.outcome.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-278",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4",
+   "note": "The credential, permission and capability fixes are the exclusive arms of c.stage - exactly one stage failed.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-278",
+   "code": "touch_no_destination",
+   "match": "t1",
+   "note": "The active confirmation names the validated capabilities and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-142",
+   "code": "router_journey",
+   "match": null,
+   "note": "Allocation decides whether resources exist and hands to reservation or to cancellation reconciliation.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-145",
+   "code": "router_journey",
+   "match": null,
+   "note": "Every resolution of an exception belongs to execution, delay handling or cancellation reconciliation.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-146",
+   "code": "router_journey",
+   "match": null,
+   "note": "A delay ends in resumption, an exception, a cancellation or ownership escalation - all owned elsewhere.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-147",
+   "code": "router_journey",
+   "match": null,
+   "note": "The executor's report decides the next journey: confirmation, failed-attempt recovery or delay.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-148",
+   "code": "router_journey",
+   "match": null,
+   "note": "A failed attempt ends in a retry dispatch, a return or an exception - all owned elsewhere.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REM-156",
+   "code": "router_journey",
+   "match": null,
+   "note": "A correction ends in verification, an alternative remedy or ownership escalation.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FIN-137",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4, t5",
+   "note": "Rejection notice, review acknowledgement, human review and approval share c.eligible's prerequisites: rejection, review and approval are its exclusive arms, and the acknowledgement follows the review step.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FIN-137",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The under-review acknowledgement states a state without implying an outcome; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-146",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "The no-choice update and the offer are the exclusive arms of c.choice.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-265",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The arrival confirmation states the evidence of delivery and asks for nothing; the acceptance request that may follow carries the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "simultaneous_review",
+   "match": "t3, t4",
+   "note": "The accept and decline confirmations are the exclusive arms of c.answer.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "A confirmation or lapse notice closes the offer and asks for nothing by design; the offer and reminder carried the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "touch_no_destination",
+   "match": "t4",
+   "note": "A confirmation or lapse notice closes the offer and asks for nothing by design; the offer and reminder carried the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "touch_no_destination",
+   "match": "t5",
+   "note": "A confirmation or lapse notice closes the offer and asks for nothing by design; the offer and reminder carried the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REM-152",
+   "code": "simultaneous_review",
+   "match": "t1, t2, t3",
+   "note": "Rejection notice, authorisation notice and human review are the exclusive arms of c.eligible.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-268",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "The discharge confirmation and the overdue notice are the exclusive arms of c.settled at the deadline.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SUB-262",
+   "code": "touch_no_destination",
+   "match": "t1",
+   "note": "The cancellation confirmation states the end date and what remains; it asks for nothing by design and never re-litigates.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SCH-180",
+   "code": "touch_no_destination",
+   "match": "t1",
+   "note": "The reallocation notice tells the customer what changed while the time stands; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SCH-277",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4",
+   "note": "Confirmation, re-offer and decline are the exclusive arms of c.outcome - what revalidation decided.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SCH-282",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The nearest-window offer and the waitlist offer are the exclusive arms of c.options.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DEC-184",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The external request and the internal request are the exclusive arms of c.source-type - who holds the information.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DEC-267",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The cleared confirmation names what the decision no longer affects; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DEC-267",
+   "code": "simultaneous_review",
+   "match": "t1, t4, t5",
+   "note": "Correctable, reapplicable and final are the exclusive arms of c.path - exactly one is true.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "RSK-273",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4",
+   "note": "Self-offer and holder-offer are the exclusive arms of c.decider; the blocked-party notice follows the holder-offer in sequence.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DOC-286",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The actionable and standing notices are the exclusive arms of c.usable - whether the entitlement is exercised or held.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "RLT-279",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The hold notice and the blocker prompt are the exclusive arms of c.resolvable.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
   }
  ]
 }

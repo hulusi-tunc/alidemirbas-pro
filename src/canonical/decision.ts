@@ -894,6 +894,11 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the decision case and the specific information requirement blocking it",
       note: "The requirement is the evidence this decision turns on. It is not a general data-completeness exercise, and nothing unrelated is collected alongside it.",
+      instanceKey: [
+        "decision_case_id",
+        "requirement_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -902,6 +907,186 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
           "FBK-49 resolves missing data blocking a process generally. This is evidence a named reviewer needs to answer a specific open question - it is scoped by the decision rather than by the record, and it ends by resuming a review rather than by unblocking a pipeline.",
       },
     ],
+    objective: "Pause a decision for the fact it is actually missing, without losing the review already done.",
+    eligibility: [
+      "a reviewer identifying a specific fact the decision turns on and which is not available",
+      "no instance of this journey is already open for the the decision case and the specific information requirement blocking it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "More information required is not rejected."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The review history is never reset when information arrives."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Unrelated information is not requested alongside the requirement."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Deadline behaviour comes from policy rather than from a default closure."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "information_requirement.touches",
+          "rule": "A request is repeated only for what is still outstanding and only within the request budget policy allows; the budget is the company's and never re-requests the whole requirement.",
+          "required": true
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "information_requirement.cooldown",
+        "rule": "This journey is per the decision case and the specific information requirement blocking it; a later instance concerns a different the decision case and the specific information requirement blocking it and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "human",
+          "channels": [
+            "task"
+          ],
+          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "request",
+          "action": "a.request",
+          "prerequisites": [
+            "c.source-type"
+          ],
+          "purpose": "Request what is still outstanding from the external source, naming it precisely.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "provide-outstanding-information",
+            "boundTo": "requirement_id",
+            "mustNotClaim": [
+              "a moved deadline",
+              "that the case is rejected"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "request-internal",
+          "action": "a.request-internal",
+          "prerequisites": [
+            "c.source-type"
+          ],
+          "purpose": "Raise the outstanding requirement as owned work against the internal holder, carrying the blocked decision and its unchanged deadline.",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "decision_case_id",
+          "requirement_id",
+          "holder",
+          "information_deadline_at",
+          "request_budget",
+          "decision_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.moot",
+          "x.closed-noinfo",
+          "h.escalate",
+          "h.resume"
+        ]
+      },
+      "businessOutcome": {
+        "event": "requested_information_received",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "more information request",
+        "request for information",
+        "missing information on a case",
+        "pending information",
+        "information requirement"
+      ],
+      "useCases": [
+        "a decision paused for the one fact it turns on, without losing the review done",
+        "an information deadline expiring and handled as policy defines"
+      ]
+    },
     entry: "t.identified",
     nodes: [
       {
@@ -926,6 +1111,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Specify the exact requirement - which fact, which document, from whom, and why the decision needs it. A vague request produces a vague answer and a second round; and asking for unrelated things in case they help turns one gap into a questionnaire, which is how a two-day case becomes a three-week one",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "a.state",
+        idempotencyKey: "issue_id + a.specify",
       },
       {
         id: "a.state",
@@ -933,6 +1119,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record AWAITING_INFORMATION and preserve everything the review has already established. The case is paused rather than reset - more information required is not a rejection, and a reviewer returning to it should not be starting again from the beginning",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.source-type",
+        idempotencyKey: "issue_id + a.state",
       },
       {
         id: "c.source-type",
@@ -958,6 +1145,12 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.info",
         execution: "communication",
+        idempotencyKey: "issue_id + a.request",
+        attemptBudget: {
+          "key": "information_requirement.request_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "a.request-internal",
@@ -966,22 +1159,35 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.info",
         execution: "human",
+        idempotencyKey: "issue_id + a.request-internal",
+        attemptBudget: {
+          "key": "information_requirement.request_internal_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "w.info",
         kind: "wait",
         until: [
-          "the information is received",
-          "the request is withdrawn or the decision is no longer required",
+          "requested_information_received",
+          "request_withdrawn"
         ],
         onEvent: "c.received",
         timeout: {
-          after: "the deadline policy defines for this requirement",
-          reason:
-            "a case awaiting information indefinitely is a decision nobody will ever make, and the requester is left believing it is progressing",
+          "after": {
+            "key": "information_requirement.info",
+            "rule": "The deadline policy defines for this requirement.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a case awaiting information indefinitely is a decision nobody will ever make, and the requester is left believing it is progressing",
+          "relativeTo": "attribute",
+          "attribute": "information_deadline_at"
         },
         onTimeout: "a.deadline",
         windowExtendsOnEngagement: false,
+        recheck: "the the decision case and the specific information requirement blocking it re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.received",
@@ -1006,6 +1212,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the case as no longer requiring a decision, with the reason. This is not a rejection and not an approval, and reporting it as either tells the requester something untrue about what happened",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "x.moot",
+        idempotencyKey: "issue_id + a.moot",
       },
       {
         id: "x.moot",
@@ -1014,6 +1221,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a renewed need for the same judgment is a new request, which can reference this case and its evidence",
+        class: "invalid-state",
       },
       {
         id: "a.validate",
@@ -1061,6 +1269,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the timeout semantics policy defines - escalation, closure, or a decision on the evidence available. Which one applies comes from policy: a case that quietly closes because nobody answered is a rejection nobody made, and a case that quietly proceeds is a decision made on evidence somebody knew was incomplete",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.timeout",
+        idempotencyKey: "issue_id + a.deadline",
       },
       {
         id: "c.timeout",
@@ -1090,6 +1299,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the case under the semantics policy actually states, recording that it closed for want of information rather than on its merits",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "x.closed-noinfo",
+        idempotencyKey: "issue_id + a.close",
       },
       {
         id: "x.closed-noinfo",
@@ -1098,6 +1308,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new request with the information present is assessed fresh, and this closure does not count against it",
+        class: "timeout",
       },
       {
         id: "h.escalate",
@@ -2325,6 +2536,10 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the adverse decision and the subject it was issued against",
       note: "The decision is the subject. A second adverse decision on the same person is its own instance with its own path, however similar the reason looks.",
+      instanceKey: [
+        "decision_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2338,6 +2553,256 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
           "RSK-194 establishes that a rule was broken against the version that governed it. This starts only once that is confirmed and never re-argues whether it happened.",
       },
     ],
+    objective: "Tell somebody a decision went against them and which of exactly three things is true - correctable now, reapplicable later, or final - so the outcome arrives as a position they can act on instead of a verdict they have to interpret.",
+    eligibility: [
+      "an authorised rejection, or a violation confirmed against the applicable rule version",
+      "the recorded reason and the scope it affects",
+      "the remediation, reapplication or finality semantics policy defines for that reason",
+      "no instance of this journey is already open for the the adverse decision and the subject it was issued against",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is said before the decision is authoritatively recorded. A warning about an outcome nobody has reached is how a support queue fills with cases that do not exist."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Correction, reapplication and appeal rights are stated only where policy defines them. None is ever invented to make the message land more softly."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The decision itself is never re-argued here. Whether it was correct belongs upstream."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Where the path is final, no call to action is attached."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "A resolved decision is confirmed explicitly - silence is read as it still standing."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "adverse_decision.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; one outcome statement and one follow-up"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "adverse_decision.cooldown",
+        "rule": "This journey is per the adverse decision and the subject it was issued against; a later instance concerns a different the adverse decision and the subject it was issued against and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "correctable",
+          "action": "a.correctable",
+          "prerequisites": [
+            "c.path"
+          ],
+          "purpose": "State what was decided, why, exactly what would have to change, and by when - taken from the policy that defines the path rather than from what sounds achievable.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "correction-path",
+            "boundTo": "decision_id",
+            "mustNotClaim": [
+              "a route policy does not define",
+              "that the decision is under appeal"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "cleared",
+          "action": "a.cleared",
+          "after": "t1",
+          "gatedBy": "w.remediate",
+          "prerequisites": [
+            "c.corrected"
+          ],
+          "purpose": "Confirm the decision is resolved and name what it no longer affects.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "expired",
+          "action": "a.expired",
+          "gatedBy": "w.remediate",
+          "prerequisites": [],
+          "purpose": "Say once that the window has closed and what now stands.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "after": "t1"
+        },
+        {
+          "id": "t4",
+          "stage": "reapply",
+          "action": "a.reapply",
+          "prerequisites": [
+            "c.path"
+          ],
+          "purpose": "Name the conditions policy actually defines for a fresh request - after what period, on what basis, with what evidence - and nothing beyond them.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "reapplication-conditions",
+            "boundTo": "decision_id",
+            "mustNotClaim": [
+              "conditions beyond what policy defines"
+            ]
+          }
+        },
+        {
+          "id": "t5",
+          "stage": "final",
+          "action": "a.final",
+          "prerequisites": [
+            "c.path"
+          ],
+          "purpose": "Say the decision is final and that no route back exists, with no the channel to action attached to soften it.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "decision_id",
+          "subject_id",
+          "reason",
+          "affected_scope",
+          "path_semantics",
+          "correction_deadline_at"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.corrected",
+          "x.withdrawn",
+          "x.reapply",
+          "x.final"
+        ]
+      },
+      "businessOutcome": {
+        "event": "correction_recorded_complete",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "adverse decision recovery",
+        "application rejected notice",
+        "declined with a path",
+        "rejection with next steps",
+        "decision against the customer"
+      ],
+      "useCases": [
+        "a decision against someone, stated with exactly which of three things is true",
+        "a correctable decision confirmed as resolved when the correction lands"
+      ]
+    },
     entry: "t.adverse",
     nodes: [
       {
@@ -2387,22 +2852,31 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State what was decided, why, exactly what would have to change, and by when - taken from the policy that defines the path rather than from what sounds achievable. A decision delivered without its route back is a reprimand, and it produces a complaint instead of a correction",
         next: "w.remediate",
         execution: "communication",
+        idempotencyKey: "issue_id + a.correctable",
       },
       {
         id: "w.remediate",
         kind: "wait",
         until: [
-          "the correction is authoritatively recorded as complete",
-          "the correction authoritatively fails",
-          "the decision is withdrawn or overturned",
+          "correction_recorded_complete",
+          "correction_failed",
+          "decision_withdrawn"
         ],
         onEvent: "c.corrected",
         timeout: {
-          after: "the remediation deadline policy defines",
-          reason: "the deadline is the substance of what was offered, and a window that quietly stays open makes every stated deadline unreliable",
+          "after": {
+            "key": "adverse_decision.remediate",
+            "rule": "The remediation deadline policy defines.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the deadline is the substance of what was offered, and a window that quietly stays open makes every stated deadline unreliable",
+          "relativeTo": "attribute",
+          "attribute": "correction_deadline_at"
         },
         onTimeout: "a.expired",
         windowExtendsOnEngagement: false,
+        recheck: "the the adverse decision and the subject it was issued against re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.corrected",
@@ -2432,6 +2906,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the decision is resolved and name what it no longer affects. Silence after a correction reads as the decision still standing, and the person goes on behaving as though it does",
         next: "x.corrected",
         execution: "communication",
+        idempotencyKey: "issue_id + a.cleared",
       },
       {
         id: "x.corrected",
@@ -2439,6 +2914,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "adverse decision remediated within its window",
         terminal: false,
         reEntry: "a further decision against the same subject is a new instance",
+        class: "success",
       },
       {
         id: "x.withdrawn",
@@ -2446,6 +2922,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "decision withdrawn before remediation",
         terminal: false,
         reEntry: "if the decision is reinstated, it enters again as a new adverse decision",
+        class: "invalid-state",
       },
       {
         id: "a.expired",
@@ -2453,6 +2930,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say once that the window has closed and what now stands. The end of a stated deadline is the single moment where saying nothing changes somebody's position without telling them",
         next: "c.residual",
         execution: "communication",
+        idempotencyKey: "issue_id + a.expired",
       },
       {
         id: "c.residual",
@@ -2477,6 +2955,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the conditions policy actually defines for a fresh request - after what period, on what basis, with what evidence - and nothing beyond them. A right that was invented to soften the message becomes one somebody plans around and is refused again for",
         next: "x.reapply",
         execution: "communication",
+        idempotencyKey: "issue_id + a.reapply",
       },
       {
         id: "x.reapply",
@@ -2484,6 +2963,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "decided against, with a stated route to a fresh request",
         terminal: false,
         reEntry: "a request made under those conditions is a new decision, not a continuation of this one",
+        class: "failure",
       },
       {
         id: "a.final",
@@ -2491,6 +2971,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the decision is final and that no route back exists, with no call to action attached to soften it. A false path offered out of kindness costs more than the refusal did, because it is discovered later and by somebody who has already acted on it",
         next: "x.final",
         execution: "communication",
+        idempotencyKey: "issue_id + a.final",
       },
       {
         id: "x.final",
@@ -2498,6 +2979,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "final; no path onward is defined",
         terminal: true,
         reEntry: "a change in the governing policy or in the underlying facts is a new decision case, not a reopening of this one",
+        class: "failure",
       },
     ],
     guardrails: [

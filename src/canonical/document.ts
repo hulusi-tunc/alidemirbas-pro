@@ -577,6 +577,158 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the issued version, the intended recipient, and the distribution of one to the other",
       note: "The distribution is bound to a version. Delivery state describes the distribution and never the document.",
+      instanceKey: [
+        "document_version_id",
+        "recipient_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Get a specific issued version to the party who should have it, without either fact touching the other.",
+    eligibility: [
+      "an issued document version with a party who is to receive it",
+      "no instance of this journey is already open for the the issued version",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A document being issued is not the recipient having received it."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Sending a wrong or outdated version is prevented by binding distribution to a version."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Distribution reuses the canonical communication mechanics rather than duplicating them."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "document_distribution.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "document_distribution.cooldown",
+        "rule": "This journey is per the issued version; a later instance concerns a different the issued version and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "distribute",
+          "action": "a.distribute",
+          "prerequisites": [],
+          "purpose": "Raise the actual delivery through the canonical communication mechanism, which owns channels, permissions, retries and delivery evidence.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "document_version_id",
+          "recipient_id",
+          "issued_at",
+          "distribution_ref",
+          "document_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.distributed",
+          "h.reconcile",
+          "h.recover"
+        ]
+      },
+      "businessOutcome": {
+        "event": "distribution_confirmed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "document delivery",
+        "send a document",
+        "policy document distribution",
+        "contract copy delivery",
+        "document distribution"
+      ],
+      "useCases": [
+        "a specific issued version delivered to the party who should have it",
+        "a failed distribution handed to delivery recovery"
+      ]
     },
     entry: "t.requires",
     nodes: [
@@ -600,6 +752,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the intended recipient and the route permitted for a document of this type. A document reaching the wrong party is worse than one not sent - the second can be retried and the first cannot be recalled",
         writes: [{ field: "document_log", mode: "append" }],
         next: "a.version",
+        idempotencyKey: "document_version_id + issue_id + a.recipient",
       },
       {
         id: "a.version",
@@ -607,6 +760,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Bind the distribution to the exact issued version. Sending an outdated version is the failure this step exists to prevent: the recipient then holds, relies on, and may sign terms that nobody currently offers",
         writes: [{ field: "document_log", mode: "append" }],
         next: "a.distribute",
+        idempotencyKey: "document_version_id + issue_id + a.version",
       },
       {
         id: "a.distribute",
@@ -615,22 +769,29 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "document_log", mode: "append" }],
         next: "w.distribution",
         execution: "communication",
+        idempotencyKey: "document_version_id + issue_id + a.distribute",
       },
       {
         id: "w.distribution",
         kind: "wait",
         until: [
-          "the distribution is confirmed to the level the requirement demands",
-          "the distribution authoritatively fails",
+          "distribution_confirmed",
+          "distribution_failed"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the distribution window the requirement allows",
-          reason:
-            "a distribution neither confirmed nor failed leaves nobody able to say whether the recipient has the document, which is the one thing distribution exists to establish",
+          "after": {
+            "key": "document_distribution.distribution",
+            "rule": "The distribution outcome is waited for as long as the communication mechanism's own delivery window runs; past it the outcome is reconciled, never assumed.",
+            "class": "external-window",
+            "required": true
+          },
+          "reason": "a distribution neither confirmed nor failed leaves nobody able to say whether the recipient has the document, which is the one thing distribution exists to establish",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.unknown",
         windowExtendsOnEngagement: false,
+        recheck: "the the issued version re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -655,6 +816,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERED or AVAILABLE against the exact version distributed. Delivery state describes the distribution and never the document - an undelivered contract is a valid contract nobody has, and treating delivery as validity turns a mail failure into a legal one",
         writes: [{ field: "document_log", mode: "append" }],
         next: "x.distributed",
+        idempotencyKey: "document_version_id + issue_id + a.confirmed",
       },
       {
         id: "x.distributed",
@@ -663,6 +825,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a superseding version requires its own distribution. Nothing about this one is retracted by that - the recipient was correctly given what was current then",
+        class: "success",
       },
       {
         id: "a.unknown",
@@ -670,6 +833,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the distribution outcome as unknown and do not treat it as delivered. The document's validity is untouched either way - what is unknown is whether anybody has it",
         writes: [{ field: "document_log", mode: "append" }],
         next: "h.reconcile",
+        idempotencyKey: "document_version_id + issue_id + a.unknown",
       },
       {
         id: "h.reconcile",
@@ -680,6 +844,14 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "the version, the recipient and everything last known about the delivery",
           "the explicit fact that the document remains valid and issued regardless of how this resolves",
         ],
+        contract: {
+          "requiredFields": [
+            "document_version_id",
+            "issue_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "h.recover",
@@ -2048,6 +2220,11 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the document lineage and every conflicting record claiming to be part of it",
       note: "Every conflicting record is evidence. Deleting one to tidy the state removes the proof of what anybody relied on.",
+      instanceKey: [
+        "document_lineage_id",
+        "conflict_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2056,6 +2233,152 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "A generic sync conflict asks which record is newer. This asks which version is authoritative, which turns on issuance authority, lineage and effective semantics - and it must additionally establish which version each signature actually binds to, a question recency cannot answer.",
       },
     ],
+    objective: "Work out which version actually governs, and explain the conflict rather than deleting it.",
+    eligibility: [
+      "a material inconsistency - different content under one identifier, an incorrect version distributed, a signature attached to the wrong version, a local copy differing from the authoritative record, several versions claiming current status, or a missing amendment link",
+      "no instance of this journey is already open for the the document lineage and every conflicting record claiming to be part of it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The newest file is not automatically the authoritative version."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Conflicting evidence is never deleted to fix the state."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Signature validity is checked against the exact version."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Reconciliation preserves lineage and prior use."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "document_conflict.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "document_conflict.cooldown",
+        "rule": "This journey is per the document lineage and every conflicting record claiming to be part of it; a later instance concerns a different the document lineage and every conflicting record claiming to be part of it and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "correct-distribution",
+          "action": "a.correct-distribution",
+          "prerequisites": [
+            "c.identifiable",
+            "c.signature",
+            "c.acted"
+          ],
+          "purpose": "Redistribute the authoritative version, saying explicitly what changed and which version it replaces.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "document_lineage_id",
+          "conflict_id",
+          "conflicting_records",
+          "signature_bindings",
+          "distribution_history",
+          "document_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.reconciled",
+          "h.review",
+          "h.resign",
+          "h.remedy"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "document conflict review",
+        "version conflict",
+        "which version governs",
+        "duplicate document reconciliation"
+      ],
+      "useCases": [
+        "which version actually governs, with the conflict explained rather than deleted",
+        "a non-authoritative version that was distributed, corrected explicitly"
+      ]
+    },
     entry: "t.inconsistency",
     nodes: [
       {
@@ -2080,6 +2403,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Collect the document ids, the version ids, the content with its hashes or references, the issuance times, the signature evidence, the effective dates, the lineage, and the authority or source behind each record",
         writes: [{ field: "document_log", mode: "append" }],
         next: "c.identifiable",
+        idempotencyKey: "document_version_id + issue_id + a.collect",
       },
       {
         id: "c.identifiable",
@@ -2104,6 +2428,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DOCUMENT_RECONCILIATION_REQUIRED and change nothing. The newest file is not automatically the authoritative version - recency is a property of a filesystem and authority is a property of an issuance, and picking the newer one is how a superseded draft becomes the contract",
         writes: [{ field: "document_log", mode: "append" }],
         next: "h.review",
+        idempotencyKey: "document_version_id + issue_id + a.cannot",
       },
       {
         id: "h.review",
@@ -2121,6 +2446,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record which version is authoritative and why, preserving every conflicting record alongside it. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
         writes: [{ field: "document_log", mode: "append" }],
         next: "c.signature",
+        idempotencyKey: "document_version_id + issue_id + a.authoritative",
       },
       {
         id: "c.signature",
@@ -2145,6 +2471,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that the signature does not bind to the authoritative version, without discarding the signature. It is valid evidence for the version it was made against and for no other, however similar the content of the two looks",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "h.resign",
+        idempotencyKey: "document_version_id + issue_id + a.sig-invalid",
       },
       {
         id: "h.resign",
@@ -2185,6 +2512,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "document_log", mode: "append" }],
         next: "x.reconciled",
         execution: "communication",
+        idempotencyKey: "document_version_id + issue_id + a.correct-distribution",
       },
       {
         id: "a.preserve-history",
@@ -2192,6 +2520,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve what was done and under which version it was done. The action happened - what to do about it is a separate question with its own authority, and rewriting the record to show the right version leaves an effect with no cause",
         writes: [{ field: "document_log", mode: "append" }],
         next: "h.remedy",
+        idempotencyKey: "document_version_id + issue_id + a.preserve-history",
       },
       {
         id: "h.remedy",
@@ -2210,6 +2539,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a further inconsistency in this lineage is assessed with this reconciliation as part of its evidence, which is why none of it was deleted",
+        class: "success",
       },
     ],
     guardrails: [
@@ -2234,6 +2564,11 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the effective document version and the entitlement it confers on its holder",
       note: "One effective version, one instance. A renewal or a superseding version taking effect is its own instance and inherits nothing from this one.",
+      instanceKey: [
+        "document_version_id",
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2247,6 +2582,222 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "ACC-263 runs a claim window on a granted capability that lapses if unused. Here nothing lapses for want of use - the document is in force either way, and dormancy is an observation rather than a loss.",
       },
     ],
+    objective: "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
+    eligibility: [
+      "an authoritative record that this version is in force, revalidated at its effective moment",
+      "the entitlement it confers, expressed as something the holder can act on",
+      "a named holder with a permitted route to them",
+      "no instance of this journey is already open for the the effective document version and the entitlement it confers on its holder",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Signed is not effective, and only the effective record starts this."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The entitlement is named as what the holder can do, never as what the document says."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An entitlement with nothing to exercise is never chased for use."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder, never two. The entitlement stands whether or not anybody takes it up."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Dormant and no-longer-in-force are recorded as different outcomes - one is about the holder, the other is about the document."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "document_effective.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "document_effective.cooldown",
+        "rule": "This journey is per the effective document version and the entitlement it confers on its holder; a later instance concerns a different the effective document version and the entitlement it confers on its holder and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "in-force-actionable",
+          "action": "a.in-force-actionable",
+          "prerequisites": [
+            "c.usable"
+          ],
+          "purpose": "Say the document is in force, from when, and name the single first thing the entitlement now lets them do.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "first-action-under-document",
+            "boundTo": "document_version_id",
+            "mustNotClaim": [
+              "that signing made it effective"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "in-force-standing",
+          "action": "a.in-force-standing",
+          "prerequisites": [
+            "c.usable"
+          ],
+          "purpose": "Say the document is in force and what it covers, and name the moment at which it would matter rather than an action to take now.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "reminder",
+          "action": "a.reminder",
+          "gatedBy": "w.first-use",
+          "prerequisites": [
+            "c.still-in-force"
+          ],
+          "purpose": "Send one reminder naming what is in force and the same single first action, not a second explanation of the document.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT",
+          "after": "t1",
+          "destination": {
+            "target": "first-action-under-document",
+            "boundTo": "document_version_id"
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "document_version_id",
+          "person_id",
+          "effective_at",
+          "effective_period_ends_at",
+          "entitlement",
+          "first_action"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.standing",
+          "x.used",
+          "x.moot",
+          "x.dormant"
+        ]
+      },
+      "businessOutcome": {
+        "event": "capability_first_used",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "document activation",
+        "agreement now in force",
+        "policy effective notice",
+        "contract start notice",
+        "entitlement active"
+      ],
+      "useCases": [
+        "the holder told what they signed has started and what it lets them do, when it becomes true",
+        "one reminder of the first action, then dormancy recorded"
+      ]
+    },
     entry: "t.effective",
     nodes: [
       {
@@ -2291,6 +2842,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the document is in force, from when, and name the single first thing the entitlement now lets them do. The gap between signing and taking effect is where holders quietly conclude that nothing happened",
         next: "w.first-use",
         execution: "communication",
+        idempotencyKey: "document_version_id + person_id + a.in-force-actionable",
       },
       {
         id: "a.in-force-standing",
@@ -2298,6 +2850,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the document is in force and what it covers, and name the moment at which it would matter rather than an action to take now. An entitlement that only applies when something goes wrong is otherwise read as inactive until it is needed",
         next: "x.standing",
         execution: "communication",
+        idempotencyKey: "document_version_id + person_id + a.in-force-standing",
       },
       {
         id: "x.standing",
@@ -2305,22 +2858,30 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "in force, nothing for the holder to exercise",
         terminal: false,
         reEntry: "a superseding version, or a change that gives the entitlement something to exercise, is a new instance",
+        class: "success",
       },
       {
         id: "w.first-use",
         kind: "wait",
         until: [
-          "the entitlement is exercised for the first time",
-          "the document is superseded or revoked",
-          "the effective period ends",
+          "capability_first_used",
+          "document_version_superseded",
+          "effective_period_ended"
         ],
         onEvent: "c.what-happened",
         timeout: {
-          after: "the period within which a holder of this entitlement would ordinarily have used it",
-          reason: "in force and never used is a different fact from in force and working, and reporting the two together hides the one that needs attention",
+          "after": {
+            "key": "document_effective.first_use",
+            "rule": "The period within which a holder of this entitlement would ordinarily have used it.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "in force and never used is a different fact from in force and working, and reporting the two together hides the one that needs attention",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "c.still-in-force",
         windowExtendsOnEngagement: false,
+        recheck: "the the effective document version and the entitlement it confers on its holder re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.what-happened",
@@ -2345,6 +2906,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "entitlement exercised",
         terminal: false,
         reEntry: "a further document taking effect for the same holder is its own instance",
+        class: "success",
       },
       {
         id: "x.moot",
@@ -2352,6 +2914,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "in force and ended without ever being used",
         terminal: false,
         reEntry: "a superseding version taking effect starts its own instance",
+        class: "invalid-state",
       },
       {
         id: "c.still-in-force",
@@ -2376,20 +2939,29 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder naming what is in force and the same single first action, not a second explanation of the document. There is no further reminder - the entitlement stands whether or not it is used, and chasing it turns a benefit into a demand",
         next: "w.dormancy",
         execution: "communication",
+        idempotencyKey: "document_version_id + person_id + a.reminder",
       },
       {
         id: "w.dormancy",
         kind: "wait",
         until: [
-          "the entitlement is exercised for the first time",
+          "capability_first_used"
         ],
         onEvent: "x.used",
         timeout: {
-          after: "the remainder of the effective period",
-          reason: "dormancy has to be recorded while the entitlement is still live, or it cannot be told apart from expiry",
+          "after": {
+            "key": "document_effective.dormancy",
+            "rule": "After the one reminder the instance observes until the effective period ends; an entitlement never exercised is recorded as dormant, not chased.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "dormancy has to be recorded while the entitlement is still live, or it cannot be told apart from expiry",
+          "relativeTo": "attribute",
+          "attribute": "effective_period_ends_at"
         },
         onTimeout: "x.dormant",
         windowExtendsOnEngagement: false,
+        recheck: "the the effective document version and the entitlement it confers on its holder re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.dormant",
@@ -2397,6 +2969,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "in force and dormant",
         terminal: false,
         reEntry: "a renewal or a superseding version taking effect starts a new instance",
+        class: "timeout",
       },
     ],
     guardrails: [

@@ -132,6 +132,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account, per product or service relationship",
       note: "Engagement is per relationship. Someone quiet in one product and heavy in another has two states, not an average.",
+      instanceKey: [
+        "account_id",
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -140,6 +145,72 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This reacts to a state that has already been recalculated. RET-22 reacts to one specific expected thing not happening, which may or may not move the state at all.",
       },
     ],
+    objective: "Hold engagement as a state that moves in both directions, and decide separately whether a movement is worth acting on.",
+    eligibility: [
+      "a recalculated engagement state - HIGH, NORMAL, DECLINING, LOW or DORMANT - that differs from the one on record",
+      "computed from meaningful usage, frequency, recency, depth, value-producing actions, the expected cadence and the maturity of the relationship",
+      "no instance of this journey is already open for the person or account",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A raw session count is not engagement. Someone opening the product daily and producing nothing is not more engaged than someone producing something monthly."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Email opens are not relationship health. They measure the message."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Expected engagement varies by product and use-case, so the state is always computed against this relationship's own cadence."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "relationship_id",
+          "engagement_state_history",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.updated",
+          "h.health"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "engagement reclassification",
+        "engagement scoring",
+        "engagement state",
+        "engagement decline detection"
+      ],
+      "useCases": [
+        "an engagement state recomputed from real usage, moving in both directions",
+        "deciding separately whether a movement is worth acting on"
+      ]
+    },
     entry: "t.changed",
     nodes: [
       {
@@ -166,6 +237,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the new state against what this relationship's own cadence predicts, rather than against a shared benchmark - the same monthly rhythm is healthy in one product and alarming in another",
         writes: [{ field: "engagement_state_history", mode: "append" }],
         next: "c.direction",
+        idempotencyKey: "account_id + relationship_id + a.evaluate",
       },
       {
         id: "c.direction",
@@ -190,6 +262,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the improvement and suppress the interventions that existed only because of the weaker state, including any already queued - a re-engagement nudge sent to someone who has already re-engaged is the clearest evidence that nothing was watching",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "x.updated",
+        idempotencyKey: "account_id + relationship_id + a.improved",
       },
       {
         id: "c.expected",
@@ -242,6 +315,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the next material change re-opens this; most passes through this journey correctly end here, having changed a state and sent nothing",
+        class: "success",
       },
     ],
     guardrails: [
@@ -267,6 +341,79 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the product or use-case the expectation belongs to",
       note: "Expectations differ by role inside the same account. An administrator who logs in monthly and an analyst who logs in daily are not measured against one pattern.",
+      instanceKey: [
+        "account_id",
+        "use_case_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Read a missed usage expectation as evidence only where an expectation genuinely existed, and only where something else corroborates it.",
+    eligibility: [
+      "a usage expectation that was actually established for this relationship and role, and was not met",
+      "no instance of this journey is already open for the person or account plus the product or use",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "No login for seven days is not a universal churn rule. It is a rule about one product's cadence and it does not travel."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Different roles in the same account carry different usage expectations, and are measured separately."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Absence is evidence only relative to an expectation that actually existed. Where none did, nothing was missed."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "use_case_id",
+          "expected_pattern",
+          "last_usage_at",
+          "corroborating_evidence"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.normal-quiet",
+          "x.observe",
+          "h.health"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "usage gap assessment",
+        "usage drop",
+        "missed usage milestone",
+        "inactivity check",
+        "expected cadence miss"
+      ],
+      "useCases": [
+        "a missed usage rhythm read against the pattern this relationship actually had",
+        "a quiet period that is normal for the use-case and sends nothing"
+      ]
     },
     entry: "t.missed",
     nodes: [
@@ -316,6 +463,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a miss that departs from the episodic pattern itself - a season skipped, an event cycle missed - re-opens this properly",
+        class: "no-action",
       },
       {
         id: "a.inspect",
@@ -347,6 +495,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a second miss, or any corroborating signal, re-opens this - absence accumulates into evidence, it does not start as evidence",
+        class: "no-action",
       },
       {
         id: "h.health",
@@ -382,6 +531,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person, account, subscription or customer relationship - whichever the health state is held against",
       note: "One failing subscription does not make the account unhealthy. The diagnosis and every route out of it stay at the level the deterioration was observed.",
+      instanceKey: [
+        "account_id",
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -390,6 +544,80 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This asks what is wrong. RET-24 asks how much is wrong and how hard to push back, and it can run on a relationship whose cause is already known and being fixed.",
       },
     ],
+    objective: "Send a deteriorating relationship to the mechanism that is actually breaking it, and never to a generic retention campaign in its place.",
+    eligibility: [
+      "a health state or score crossing a meaningful threshold, together with the underlying evidence that moved it",
+      "no instance of this journey is already open for the person",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A health score on its own is not a reason to contact anyone. The evidence behind it is."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A composite score has to say which input moved it. One that cannot be decomposed cannot be routed on, and routing on it anyway sends every cause the same message."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A marketing incentive is not the default recovery. It is the response to exactly one cause, and only where policy supports it."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "relationship_id",
+          "health_state",
+          "score_inputs",
+          "health_evidence"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.need-changed",
+          "x.cause-found",
+          "x.unexplained",
+          "h.adoption",
+          "h.setup",
+          "h.technical",
+          "h.service",
+          "h.payment",
+          "h.ownership",
+          "h.recovery"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "health deterioration diagnosis",
+        "churn risk diagnosis",
+        "account health drop",
+        "health score decline routing"
+      ],
+      "useCases": [
+        "a health score crossing a threshold, routed to the mechanism that moved it",
+        "a deterioration that turns out to be a changed need rather than a failure"
+      ]
+    },
     entry: "t.deteriorated",
     nodes: [
       {
@@ -414,6 +642,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Break the deterioration into the evidence that produced it. A score that cannot say which input moved cannot be routed on, and routing on it anyway is how every cause ends up receiving the same message",
         writes: [{ field: "health_evidence", mode: "append" }],
         next: "c.cause",
+        idempotencyKey: "subscription_id + account_id + a.decompose",
       },
       {
         id: "c.cause",
@@ -483,6 +712,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         on: "an unresolved technical issue or repeated support friction",
         carries: ["the issue and its history", "the health impact it has already had"],
         suppresses: ["promotional retention messaging while the fault is open"],
+        contract: {
+          "requiredFields": [
+            "subscription_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "h.service",
@@ -497,6 +734,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "external:payment-recovery",
         on: "deterioration traced to billing or payment",
         carries: ["the failed payment or dispute", "the entitlement currently at stake"],
+        contract: {
+          "requiredFields": [
+            "subscription_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "h.ownership",
@@ -507,6 +752,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "who left and what they held",
           "the fact that the account may be healthy and simply unrepresented, which reads identically in the data",
         ],
+        contract: {
+          "requiredFields": [
+            "subscription_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "x.need-changed",
@@ -515,25 +768,36 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new need, or a return of the old one, re-opens this - a relationship winding down because it is finished is not a failure to recover from",
+        class: "success",
       },
       {
         id: "a.diagnostic",
         kind: "action",
         does: "Open a bounded diagnostic: observe, and where appropriate ask. No incentive is attached, because an incentive offered before the cause is known teaches us nothing about the cause",
         next: "w.diagnostic",
+        idempotencyKey: "subscription_id + account_id + a.diagnostic",
       },
       {
         id: "w.diagnostic",
         kind: "wait",
-        until: ["a cause becomes identifiable", "health recovers on its own"],
+        until: [
+          "cause_identified",
+          "health_recovered"
+        ],
         onEvent: "c.diagnostic-result",
         timeout: {
-          after: "a bounded diagnostic window",
-          reason:
-            "a diagnosis that has not arrived will not arrive by waiting longer, and the relationship should not sit in an open investigation indefinitely",
+          "after": {
+            "key": "health_deterioration.diagnostic",
+            "rule": "A bounded diagnostic window.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a diagnosis that has not arrived will not arrive by waiting longer, and the relationship should not sit in an open investigation indefinitely",
+          "relativeTo": "trigger"
         },
         onTimeout: "x.unexplained",
         windowExtendsOnEngagement: false,
+        recheck: "the person re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.diagnostic-result",
@@ -559,6 +823,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the identified cause opens a new instance and routes on the first pass, which keeps the routing decision in one place rather than duplicating it inside the diagnostic",
+        class: "success",
       },
       {
         id: "h.recovery",
@@ -577,6 +842,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "further deterioration or a corroborating signal re-opens this; an unexplained decline is watched rather than treated",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -602,13 +868,163 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "customer, account or subscription relationship",
       note: "Risk is held where the evidence was observed. A risky subscription inside a healthy account is a risky subscription.",
+      instanceKey: [
+        "account_id",
+        "risk_episode_id"
+      ],
+      concurrency: "one-active-per-key"
     },
-    competition: {
-      scope: "account",
-      exclusionGroup: "retention-outreach",
-      precedence:
-        "below an open issue under human ownership and below a declared cancellation intent on the same account, above generic retention intervention",
-      onLoss: "suppressed",
+    objective: "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
+    eligibility: [
+      "several independent churn-relevant signals crossing a defined threshold together: sustained meaningful usage decline, a failed renewal or payment, a negative support experience, repeated unresolved blockers, explicit dissatisfaction, exploration of cancellation, a key stakeholder leaving, falling account-wide adoption",
+      "no instance of this journey is already open for the customer",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A single weak signal never constitutes churn risk. Corroboration between independent signals is what the threshold is measuring."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A risk score is not the outcome. It orders attention; it does not decide anything."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one."
+      }
+    ],
+    contact: {
+      "defaultPriority": "retention",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "churn_risk.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "churn_risk.cooldown",
+        "rule": "Escalation is per risk episode; the same episode re-crossing the threshold is the same instance and a later episode is its own.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "retention-outreach",
+        "scope": "account",
+        "precedence": "below an open issue under human ownership and below a declared cancellation intent on the same account, above generic retention intervention",
+        "onLoss": "suppressed"
+      }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "human",
+          "channels": [
+            "task"
+          ],
+          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "owner-task",
+          "action": "a.owner-task",
+          "prerequisites": [
+            "c.intent",
+            "c.operational",
+            "c.human"
+          ],
+          "purpose": "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "risk_episode_id",
+          "risk_evidence",
+          "cancellation_intent_ref",
+          "operational_cause_ref",
+          "retention_ownership"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.monitor",
+          "h.cancellation",
+          "h.resolve-first",
+          "h.human",
+          "h.intervention"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "churn risk escalation",
+        "churn risk",
+        "at-risk account escalation",
+        "customer success alert",
+        "churn prevention (risk)"
+      ],
+      "useCases": [
+        "several independent risk signals crossing a threshold on one account",
+        "deciding between a person, an automated intervention, or watching"
+      ]
     },
     entry: "t.threshold",
     nodes: [
@@ -664,6 +1080,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Assemble the signals with their sources and strengths. What matters is whether they corroborate each other, not how many there are - three readings of the same underlying event are one piece of evidence",
         writes: [{ field: "risk_evidence", mode: "append" }],
         next: "c.operational",
+        idempotencyKey: "subscription_id + account_id + a.evidence",
       },
       {
         id: "c.operational",
@@ -720,6 +1137,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         next: "h.human",
         execution: "human",
+        idempotencyKey: "subscription_id + account_id + a.owner-task",
       },
       {
         id: "h.human",
@@ -730,6 +1148,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "the assembled evidence, so the first conversation is informed",
           "what has already been sent, so it is not repeated in person",
         ],
+        contract: {
+          "requiredFields": [
+            "subscription_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "c.automated",
@@ -762,6 +1188,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not",
+        class: "no-action",
       },
     ],
     guardrails: [
@@ -1142,6 +1569,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the health or risk context that deteriorated",
       note: "Recovery is judged in the context that fell. Improvement somewhere else is not recovery here.",
+      instanceKey: [
+        "account_id",
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1150,6 +1582,76 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "An improving engagement state is one input to this. RET-21 updates a state; this decides whether an improvement should be believed yet, which is a different question with a waiting period in it.",
       },
     ],
+    objective: "Keep the distance between a good sign and an actual recovery, so a relapse is still being watched for when it happens.",
+    eligibility: [
+      "a positive behaviour in a context that had deteriorated or received a recovery intervention",
+      "no instance of this journey is already open for the person or account plus the health or risk context that deteriorated",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "One login is not recovery. It is the event that starts watching for one."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "One payment attempt may not be payment recovery. An attempt and a restored payment relationship are different facts."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The observation window is set from the use-case. A window that fits a daily product declares a quarterly one recovered before anything has been proven."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Recovery observation delays declaring the relationship stably recovered. It does not by itself require communication to be suppressed: an authoritative event - a purchase, a completed renewal, an explicit request to stay - can immediately end an inactivity or reactivation restriction and return the person to normal current-state orchestration while this journey is still observing. Operational eligibility restored and health confidently stable are different conclusions with different evidence."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "person_id",
+          "recovery_state_history",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.rediagnose",
+          "h.normal"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "recovery stability check",
+        "recovery observation",
+        "relapse watch",
+        "post-recovery monitoring"
+      ],
+      "useCases": [
+        "a good sign after deterioration that is watched before it counts as recovery",
+        "a relapse inside the stability window sent back to diagnosis"
+      ]
+    },
     entry: "t.positive",
     nodes: [
       {
@@ -1175,19 +1677,28 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RECOVERY_OBSERVED, explicitly not RECOVERED. The whole journey is the distance between those two states, and writing the second one here would remove the reason it exists",
         writes: [{ field: "recovery_state_history", mode: "append" }],
         next: "w.stability",
+        idempotencyKey: "account_id + person_id + a.mark",
       },
       {
         id: "w.stability",
         kind: "wait",
-        until: ["the deterioration signal returns"],
+        until: [
+          "deterioration_signal_returns"
+        ],
         onEvent: "a.relapse",
         timeout: {
-          after: "the stability window appropriate to this use-case and this kind of deterioration",
-          reason:
-            "surviving the window without relapse is the evidence, so the timeout is the success path rather than the failure one - a payment relationship and a usage pattern need different windows to prove the same thing",
+          "after": {
+            "key": "recovery_observation.stability",
+            "rule": "The stability window appropriate to this use-case and this kind of deterioration.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "surviving the window without relapse is the evidence, so the timeout is the success path rather than the failure one - a payment relationship and a usage pattern need different windows to prove the same thing",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.stable",
         windowExtendsOnEngagement: false,
+        recheck: "the person or account plus the health or risk context that deteriorated re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.relapse",
@@ -1195,6 +1706,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the relapse, keeping the observed improvement in the history rather than erasing it - that something briefly worked is part of the diagnosis, not noise",
         writes: [{ field: "recovery_state_history", mode: "append" }],
         next: "h.rediagnose",
+        idempotencyKey: "account_id + person_id + a.relapse",
       },
       {
         id: "h.rediagnose",
@@ -1215,6 +1727,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "h.normal",
+        idempotencyKey: "account_id + person_id + a.stable",
       },
       {
         id: "h.normal",
@@ -1225,6 +1738,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "what had deteriorated and what restored it",
           "the fact that this relationship has recovered once, which is context for the next time it does not",
         ],
+        contract: {
+          "requiredFields": [
+            "account_id",
+            "person_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
     ],
     guardrails: [
@@ -1730,6 +2251,82 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the subscription, membership or service relationship that ended",
       note: "Only this relationship ends. Other subscriptions, the account itself and the person's data are three separate things with three separate lifecycles.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "End retention ownership the moment cancellation is real, and manage what is still outstanding without pretending the relationship is either fully over or still winnable.",
+    eligibility: [
+      "the system of record showing the cancellation as executed",
+      "no instance of this journey is already open for the the subscription",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Cancellation is not data deletion. Nothing here removes anything."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Cancellation is not account closure. The account survives the subscription that ended."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An end-of-period cancellation does not revoke paid entitlement early unless policy says so. They have paid for the remainder."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Invalidation runs before anything else, because everything else can wait and a save offer cannot be un-sent."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "cancellation_executed_at",
+          "effective_end_at",
+          "outstanding_obligations",
+          "termination_state"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.former",
+          "x.wind-down",
+          "h.obligations"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "cancellation wind-down",
+        "post-cancellation",
+        "stop retention after cancellation",
+        "cancelled relationship close-out"
+      ],
+      "useCases": [
+        "retention ownership ended the moment a cancellation is executed",
+        "obligations outstanding after cancellation handed to their owner"
+      ]
     },
     entry: "t.completed",
     nodes: [
@@ -1754,6 +2351,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Invalidate save offers, renewal prompts, cancellation reminders, retention tasks and promotional actions that are now incompatible - including everything already queued. This runs first, before anything else is worked out, because the cost of it running late is a save offer arriving after someone has already gone",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.termination-state",
+        idempotencyKey: "subscription_id + relationship_id + a.invalidate",
       },
       {
         id: "a.termination-state",
@@ -1761,6 +2359,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Establish when this actually ends: immediately, at the end of the current period, or on a scheduled future date. Everything downstream depends on which, and assuming immediate is how paid entitlement gets revoked early",
         writes: [{ field: "termination_state", mode: "set" }],
         next: "c.access",
+        idempotencyKey: "subscription_id + relationship_id + a.termination-state",
       },
       {
         id: "c.access",
@@ -1785,6 +2384,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Hold the relationship in a defined wind-down state with its end date. Paid entitlement is not revoked before that date unless policy explicitly says otherwise - someone who cancelled has still paid for the rest of the term, and taking it early converts a neutral ending into a grievance",
         writes: [{ field: "termination_state", mode: "set" }],
         next: "c.obligations",
+        idempotencyKey: "subscription_id + relationship_id + a.wind-down",
       },
       {
         id: "c.obligations",
@@ -1812,6 +2412,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "each outstanding obligation and which side owes it",
           "the termination state, since some obligations only fall due at the end date",
         ],
+        contract: {
+          "requiredFields": [
+            "subscription_id",
+            "relationship_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "c.ended",
@@ -1837,6 +2445,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "returning is a new relationship handled by win-back, not by reviving this one. Closing the account and deleting the data are two further states with their own triggers, and neither of them happened here",
+        class: "success",
       },
       {
         id: "x.wind-down",
@@ -1845,6 +2454,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "reversal before the end date is possible and is its own event; the wind-down state exists precisely so that window is representable rather than collapsed into an ending",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1871,6 +2481,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the customer, account or subscription plus the retention episode the intervention belongs to",
       note: "The episode is the unit. A declined offer is declined for this episode, which is what makes remembering it possible.",
+      instanceKey: [
+        "account_id",
+        "retention_episode_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1879,12 +2494,170 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This asks whether the intervention worked. RET-27 asks whether the improvement lasts, and takes over once this one has a positive answer.",
       },
     ],
-    competition: {
-      scope: "account",
-      exclusionGroup: "retention-outreach",
-      precedence:
-        "lowest in the group - any live risk case or open issue on the same account outranks it",
-      onLoss: "suppressed",
+    objective: "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
+    eligibility: [
+      "a defined intervention actually delivered: a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer",
+      "no instance of this journey is already open for the the customer",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An accepted offer is not an applied one. Retention is recorded from the relationship state, never from the customer's answer."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A declined offer is remembered for the whole cancellation episode, not just for the message that carried it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The attempt is bounded: the intervention, and at most one follow-up."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "An operational failure to apply an accepted offer is never recorded as a retention success."
+      }
+    ],
+    contact: {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "retention_intervention.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "retention_intervention.cooldown",
+        "rule": "The cooldown between instances of this journey for the same the customer, so that a re-qualifying the customer is tracked but not messaged again inside it.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "retention-outreach",
+        "scope": "account",
+        "precedence": "lowest in the group - any live risk case or open issue on the same account outranks it",
+        "onLoss": "suppressed"
+      }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "followup",
+          "action": "a.followup",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.followup"
+          ],
+          "purpose": "Send one follow-up and stop.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "retention_episode_id",
+          "intervention_delivered",
+          "offer_status",
+          "retention_episode_history"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.declined",
+          "x.cooldown",
+          "h.observe",
+          "h.fix",
+          "h.proceed"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ],
+      "businessOutcome": {
+        "event": "relationship_recovered",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      }
+    },
+    discovery: {
+      "aliases": [
+        "retention offer follow-up",
+        "save offer outcome",
+        "retention intervention outcome",
+        "offer acceptance tracking"
+      ],
+      "useCases": [
+        "a plan alternative or pause offered and its outcome closed on what actually happened",
+        "one follow-up after an unanswered offer, then stop"
+      ]
     },
     entry: "t.delivered",
     nodes: [
@@ -1905,19 +2678,25 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.outcome",
         kind: "wait",
         until: [
-          "the offer is accepted",
-          "the offer is explicitly declined",
-          "the relationship recovers without an explicit answer",
-          "the intervention fails to execute",
+          "retention_offer_accepted",
+          "retention_offer_declined",
+          "relationship_recovered",
+          "intervention_failed"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "a bounded decision window",
-          reason:
-            "an unanswered offer is a result, and the alternative to accepting that is asking again until someone leaves",
+          "after": {
+            "key": "retention_intervention.outcome",
+            "rule": "A bounded decision window.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an unanswered offer is a result, and the alternative to accepting that is asking again until someone leaves",
+          "relativeTo": "trigger"
         },
         onTimeout: "c.followup",
         windowExtendsOnEngagement: false,
+        recheck: "the the customer re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1947,6 +2726,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Verify against the system of record that the relationship actually changed - the plan changed, the pause is active, the issue is closed, the subscription is retained. Acceptance is a customer saying yes; application is the state having moved, and the gap between them is where retention numbers go wrong",
         next: "c.applied",
+        idempotencyKey: "subscription_id + account_id + a.verify",
       },
       {
         id: "c.applied",
@@ -1985,6 +2765,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "the explicit fact that retention has not succeeded, however the customer answered",
         ],
         suppresses: ["any recording of this as a retained relationship until the change actually applies"],
+        contract: {
+          "requiredFields": [
+            "subscription_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "a.record-decline",
@@ -1992,6 +2780,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the decline against this cancellation episode, so the same offer is not made again inside it. Repeating a declined offer is the behaviour that makes a save attempt read as an obstacle",
         writes: [{ field: "retention_episode_history", mode: "append" }],
         next: "c.proceed",
+        idempotencyKey: "subscription_id + account_id + a.record-decline",
       },
       {
         id: "c.proceed",
@@ -2024,6 +2813,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new episode with new evidence may justify a different intervention; the declined one is not re-sent inside this episode",
+        class: "no-action",
       },
       {
         id: "c.followup",
@@ -2048,6 +2838,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one follow-up and stop. There is no second, whatever the value of the relationship",
         next: "x.cooldown",
         execution: "communication",
+        idempotencyKey: "subscription_id + account_id + a.followup",
       },
       {
         id: "x.cooldown",
@@ -2056,6 +2847,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new episode may open on new evidence, and this intervention is not repeated within the cooldown",
+        class: "timeout",
       },
     ],
     guardrails: [

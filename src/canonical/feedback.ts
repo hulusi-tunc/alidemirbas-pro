@@ -576,6 +576,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the relationship context the advocacy would be about",
       note: "Advocacy is about a relationship, not a transaction. What is being asked for is their reputation attached to ours.",
+      instanceKey: [
+        "account_id",
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -584,12 +589,219 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it.",
       },
     ],
-    competition: {
-      scope: "communication-purpose",
-      exclusionGroup: "outbound-ask",
-      precedence:
-        "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
-      onLoss: "suppressed",
+    objective: "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
+    eligibility: [
+      "a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it",
+      "no instance of this journey is already open for the person or account plus the relationship context the advocacy would be about",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A single login is not advocacy eligibility, and neither is a completed purchase."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A high score does not create a permanent advocate state. It is one piece of evidence with a date on it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An advocacy reward is granted only after the referral clears whatever integrity check governs it. A reward paid before that check funds exactly the behaviour the check exists to catch."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The ask is placed at a moment the person is succeeding, never inside a failure or error state. Asking somebody to recommend us while something is visibly broken for them produces the wrong answer and remembers it."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Contributing is not permission to publish. The second is captured as its own permission record with its own scope."
+      },
+      {
+        "id": "s.g6",
+        "label": "CANONICAL_RULE",
+        "text": "An open negative issue suppresses this entirely, whatever the positive evidence says."
+      }
+    ],
+    contact: {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "advocacy_eligibility.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "advocacy_eligibility.cooldown",
+        "rule": "The cooldown between instances of this journey for the same person or account plus the relationship context the advocacy would be about, so that a re-qualifying person or account plus the relationship context the advocacy would be about is tracked but not messaged again inside it.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "outbound-ask",
+        "scope": "communication-purpose",
+        "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+        "onLoss": "suppressed"
+      }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a valid token or app session exists and the message is a single step from the notification"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "ask-light",
+          "action": "a.ask-light",
+          "prerequisites": [
+            "c.negative",
+            "c.sufficient",
+            "c.type"
+          ],
+          "purpose": "Make the small ask, once, with no follow-up sequence behind it.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "ask-heavy",
+          "action": "a.ask-heavy",
+          "prerequisites": [
+            "c.negative",
+            "c.sufficient",
+            "c.type"
+          ],
+          "purpose": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "advocacy-contribution-form",
+            "boundTo": "relationship_id",
+            "mustNotClaim": [
+              "that contributing is permission to publish"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5",
+        "s.g6"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "relationship_id",
+          "advocacy_evidence",
+          "open_negative_issues",
+          "decline_cooldown_until"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.suppressed",
+          "x.delay",
+          "x.contributed",
+          "x.declined",
+          "x.no-response",
+          "h.permission"
+        ]
+      },
+      "businessOutcome": {
+        "event": "advocacy_action_taken",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "none"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "advocacy request",
+        "referral request",
+        "testimonial ask",
+        "case study request",
+        "review request (advocacy)",
+        "promoter follow-up"
+      ],
+      "useCases": [
+        "asking a relationship that has earned it for a review or referral, once",
+        "keeping public reuse of a contribution as a separate permission"
+      ]
     },
     entry: "t.opportunity",
     nodes: [
@@ -635,6 +847,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "resolution makes this eligible again - and a recovery that then held is itself strong evidence, so the wait is not lost",
+        class: "suppression",
       },
       {
         id: "a.evaluate",
@@ -665,6 +878,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "not yet eligible; evidence may accumulate",
         terminal: false,
         reEntry: "further positive evidence re-opens this without anything having to be undone",
+        class: "no-action",
       },
       {
         id: "c.type",
@@ -689,6 +903,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Make the small ask, once, with no follow-up sequence behind it. A rating or a one-tap response can go wherever the person already is, including an interruptive route where permission for one exists",
         next: "w.response",
         execution: "communication",
+        idempotencyKey: "account_id + relationship_id + a.ask-light",
       },
       {
         id: "a.ask-heavy",
@@ -696,18 +911,29 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint. A request that attaches somebody's name and reputation to the organisation is not an interruption to be tapped past; it needs somewhere they can read it twice",
         next: "w.response",
         execution: "communication",
+        idempotencyKey: "account_id + relationship_id + a.ask-heavy",
       },
       {
         id: "w.response",
         kind: "wait",
-        until: ["the advocacy action is taken", "the request is declined"],
+        until: [
+          "advocacy_action_taken",
+          "request_declined"
+        ],
         onEvent: "c.outcome",
         timeout: {
-          after: "a bounded response window",
-          reason: "an unanswered favour is not asked again; the relationship is worth more than the review",
+          "after": {
+            "key": "advocacy_eligibility.response",
+            "rule": "A bounded response window.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an unanswered favour is not asked again; the relationship is worth more than the review",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.no-response",
         windowExtendsOnEngagement: false,
+        recheck: "the person or account plus the relationship context the advocacy would be about re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -748,6 +974,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "any later intention to publish it is a new permission question, not an extension of this one",
+        class: "success",
       },
       {
         id: "x.declined",
@@ -756,6 +983,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "materially stronger evidence after the cooldown may justify a different request; the same one is not repeated",
+        class: "no-action",
       },
       {
         id: "x.no-response",
@@ -764,6 +992,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "silence on a favour is not a decline and not a signal about the relationship - it is simply not an answer",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -1999,6 +2228,10 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the appeal, linked to the original decision it disputes",
       note: "Two entities throughout: the decision and the appeal against it. Both survive whatever the review concludes.",
+      instanceKey: [
+        "appeal_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2007,6 +2240,201 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "An issue is something that went wrong. An appeal contests something we did on purpose, which means the subject under review is our own decision and it has to remain intact to be reviewable.",
       },
     ],
+    objective: "Review a decision that has already been made, without erasing it while the review is running.",
+    eligibility: [
+      "a submission contesting an identifiable prior decision",
+      "no instance of this journey is already open for the the appeal",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The original decision is never deleted or edited in place. It is the subject of the review."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An open appeal does not reverse anything by itself. Only an explicit policy hold suspends the decision, and a hold is not a reversal."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Who may review, and their independence from the original decision, is defined by policy rather than by this journey."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "appeal_and.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "appeal_and.cooldown",
+        "rule": "Review is per appeal; a further appeal against a different decision is its own instance and no cooldown applies.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "reject",
+          "action": "a.reject",
+          "prerequisites": [
+            "c.eligible"
+          ],
+          "purpose": "Decline the appeal with the actual reason and whatever process does apply.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "applicable-process",
+            "boundTo": "appeal_id"
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "request-more-info",
+          "action": "a.request-more-info",
+          "gatedBy": "w.review",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Ask the appellant for the specific evidence the review is missing, naming only what is missing and leaving the appeal deadline where it was.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "evidence-submission",
+            "boundTo": "appeal_id",
+            "mustNotClaim": [
+              "a moved deadline"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "communicate-outcome",
+          "action": "a.communicate-outcome",
+          "gatedBy": "w.review",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "State the review's conclusion, which effective state now applies as a result, and what remains available procedurally.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "appeal-outcome",
+            "boundTo": "appeal_id"
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "appeal_id",
+          "original_decision_id",
+          "appellant_id",
+          "appeal_deadline_at",
+          "hold_policy",
+          "reviewer_independence",
+          "appeal_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.rejected",
+          "x.concluded",
+          "h.deadline"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ],
+      "businessOutcome": {
+        "event": "review_concluded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      }
+    },
+    discovery: {
+      "aliases": [
+        "appeal review",
+        "dispute review",
+        "decision appeal",
+        "review of a decision",
+        "appeal handling"
+      ],
+      "useCases": [
+        "a contested decision reviewed without being erased while the review runs",
+        "an appeal that needs specific evidence, asked for once against the same deadline"
+      ]
+    },
     entry: "t.appeal",
     nodes: [
       {
@@ -2029,6 +2457,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Link the appeal to the original decision and capture the reason, the evidence submitted, when it arrived and any deadline. The original decision is not modified by an appeal existing against it",
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "c.eligible",
+        idempotencyKey: "issue_id + a.link",
       },
       {
         id: "c.eligible",
@@ -2054,6 +2483,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "x.rejected",
         execution: "communication",
+        idempotencyKey: "issue_id + a.reject",
       },
       {
         id: "x.rejected",
@@ -2061,6 +2491,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "appeal not eligible; original decision unchanged",
         terminal: false,
         reEntry: "a differently grounded appeal, or new evidence, is assessed on its own terms",
+        class: "invalid-state",
       },
       {
         id: "c.hold",
@@ -2085,19 +2516,29 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suspend the effect of the decision, recorded as a hold rather than as a reversal. Suspended and overturned are different states, and writing one as the other pre-decides the review",
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "w.review",
+        idempotencyKey: "issue_id + a.hold",
       },
       {
         id: "w.review",
         kind: "wait",
-        until: ["the review reaches a conclusion"],
+        until: [
+          "review_concluded"
+        ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the review deadline",
-          reason:
-            "a deadline passing is not a decision, and letting an appeal expire unheard is the outcome most likely to be challenged elsewhere",
+          "after": {
+            "key": "appeal_and.review",
+            "rule": "The review deadline.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a deadline passing is not a decision, and letting an appeal expire unheard is the outcome most likely to be challenged elsewhere",
+          "relativeTo": "attribute",
+          "attribute": "appeal_deadline_at"
         },
         onTimeout: "h.deadline",
         windowExtendsOnEngagement: false,
+        recheck: "the the appeal re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.deadline",
@@ -2127,14 +2568,24 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.more-info",
         kind: "wait",
-        until: ["the requested information arrives"],
+        until: [
+          "requested_information_received"
+        ],
         onEvent: "w.review",
         timeout: {
-          after: "the remaining time before the appeal deadline",
-          reason: "requesting more information does not extend the deadline it sits inside",
+          "after": {
+            "key": "appeal_and.more_info",
+            "rule": "Requested information is waited for only until the appeal's own deadline; the deadline is never moved by the request.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "requesting more information does not extend the deadline it sits inside",
+          "relativeTo": "attribute",
+          "attribute": "appeal_deadline_at"
         },
         onTimeout: "h.deadline",
         windowExtendsOnEngagement: false,
+        recheck: "the the appeal re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.apply",
@@ -2142,6 +2593,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the effective business state to match the conclusion - upheld leaves the decision standing, reversed replaces its effect, modified supersedes it in part. In every case the original decision, the appeal and the review outcome all remain readable; nothing is edited in place, because the record of what was decided and then changed is the point of having an appeal process at all",
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "a.communicate-outcome",
+        idempotencyKey: "issue_id + a.apply",
       },
       {
         id: "a.request-more-info",
@@ -2149,6 +2601,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask the appellant for the specific evidence the review is missing, naming only what is missing and leaving the appeal deadline where it was. Suspending a review for information nobody requested makes the appellant responsible for a gap they were never told about",
         execution: "communication",
         next: "w.more-info",
+        idempotencyKey: "issue_id + a.request-more-info",
+        attemptBudget: {
+          "key": "appeal_and.request_more_info_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "a.communicate-outcome",
@@ -2156,6 +2614,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State the review's conclusion, which effective state now applies as a result, and what remains available procedurally. An appeal that concludes in silence leaves the appellant holding the original decision and no way to know it was reconsidered",
         execution: "communication",
         next: "x.concluded",
+        idempotencyKey: "issue_id + a.communicate-outcome",
       },
       {
         id: "x.concluded",
@@ -2164,6 +2623,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a further appeal, where the process allows one, contests this outcome rather than the original decision",
+        class: "success",
       },
     ],
     guardrails: [
@@ -2189,6 +2649,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the declared attribute, at the scope it was declared for",
       note: "A declared attribute belongs to the context it was given in. A goal stated for one product is not a goal for another.",
+      instanceKey: [
+        "account_id",
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2197,6 +2662,70 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "CON-32 records how someone wants to be communicated with. This records what they are trying to achieve, which shapes product and journey decisions rather than message delivery.",
       },
     ],
+    objective: "Let something a person has told us about their situation reach the decisions that actually depend on it, and nothing else.",
+    eligibility: [
+      "the person stating a need, goal, situation or context relevant to what we do",
+      "no instance of this journey is already open for the person or account plus the declared attribute",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Declared data is never overwritten by behavioural inference."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The attribute is used only where a decision genuinely depends on it. Personalisation that references something for the sake of referencing it reveals the mechanism."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A need or preference signal is not permission to communicate."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "person_id",
+          "declared_context"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.applied",
+          "x.stored"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "declared context recalculation",
+        "zero-party data",
+        "declared need",
+        "self-declared preference signal"
+      ],
+      "useCases": [
+        "something the person said about their situation reaching only the decisions that depend on it",
+        "a volatile declaration handled differently from a stable one"
+      ]
+    },
     entry: "t.declared",
     nodes: [
       {
@@ -2219,6 +2748,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist the value with its source, the time and the scope it applies to, in the store that holds declared answers. Inference is never written here and never overwrites what is - the same separation ACT-19 and CON-32 both depend on",
         writes: [{ field: "declared_context", mode: "append" }],
         next: "c.volatility",
+        idempotencyKey: "account_id + person_id + a.persist",
       },
       {
         id: "c.volatility",
@@ -2242,6 +2772,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record it with a long validity and no scheduled revalidation",
         next: "a.consumers",
+        idempotencyKey: "account_id + person_id + a.stable",
       },
       {
         id: "a.volatile",
@@ -2249,6 +2780,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Attach a validity period or a revalidation condition. A need stated for one quarter and still steering decisions two years later is worse than never having asked, because it is wrong with the authority of something the person actually said",
         writes: [{ field: "declared_context", mode: "append" }],
         next: "a.consumers",
+        idempotencyKey: "account_id + person_id + a.volatile",
       },
       {
         id: "a.consumers",
@@ -2285,6 +2817,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "declared context stored and applied where it changes a decision",
         terminal: false,
         reEntry: "a change or a revalidation of the same attribute opens a new instance",
+        class: "success",
       },
       {
         id: "x.stored",
@@ -2293,6 +2826,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a future decision that depends on it reads it then - an attribute that changes nothing today is still worth holding",
+        class: "success",
       },
     ],
     guardrails: [
@@ -2318,6 +2852,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the business entity that is blocked plus the specific missing requirement",
       note: "One instance per missing requirement per blocked process. Two gaps are two dependencies, resolvable by different people at different times.",
+      instanceKey: [
+        "blocked_entity_id",
+        "requirement_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2326,6 +2865,194 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "ACT-13 is scoped to activation specifically and owns resuming onboarding. This applies to any named process, most of which have nothing to do with onboarding.",
       },
     ],
+    objective: "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
+    eligibility: [
+      "a named business process that cannot safely proceed, and the specific field, document or value it is waiting on",
+      "no instance of this journey is already open for the the business entity that is blocked plus the specific missing requirement",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Nice-to-have profile data is not a critical requirement, and asking for it as though it were teaches people that our requests are negotiable."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is requested that an authoritative system already holds."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Every request names the process it unblocks. A request that cannot is progressive profiling and belongs elsewhere."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "missing_critical.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "missing_critical.cooldown",
+        "rule": "Requests are per requirement; a further requirement is its own instance and no cooldown applies.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "human",
+          "channels": [
+            "task"
+          ],
+          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "request",
+          "action": "a.request",
+          "prerequisites": [
+            "c.authoritative",
+            "c.provider"
+          ],
+          "purpose": "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "provide-missing-item",
+            "boundTo": "requirement_id",
+            "mustNotClaim": [
+              "that nice-to-have data is required"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "request-internal",
+          "action": "a.request-internal",
+          "prerequisites": [
+            "c.authoritative",
+            "c.provider"
+          ],
+          "purpose": "Raise the request as owned work against the internal party who holds the item, carrying the blocked process and the running deadline.",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "blocked_entity_id",
+          "requirement_id",
+          "blocked_process",
+          "provider",
+          "deadline_at",
+          "blocking_requirement_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.resumed",
+          "x.alternate",
+          "x.abandoned",
+          "h.escalate"
+        ]
+      },
+      "businessOutcome": {
+        "event": "requested_information_received",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "missing information reminder",
+        "missing document request",
+        "incomplete application follow-up",
+        "required data request",
+        "document reminder"
+      ],
+      "useCases": [
+        "a process blocked on one document the person has to provide",
+        "a missing item held inside the organisation, raised as owned work"
+      ]
+    },
     entry: "t.blocked",
     nodes: [
       {
@@ -2350,6 +3077,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify the exact missing item and the named process it blocks. A request that cannot name what it unblocks is progressive profiling wearing a blocker's clothes, and the two must not be confusable",
         writes: [{ field: "blocking_requirement_log", mode: "append" }],
         next: "c.authoritative",
+        idempotencyKey: "person_id + a.identify",
       },
       {
         id: "c.authoritative",
@@ -2397,6 +3125,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
         next: "w.received",
         execution: "communication",
+        idempotencyKey: "person_id + a.request",
       },
       {
         id: "a.request-internal",
@@ -2404,19 +3133,28 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the request as owned work against the internal party who holds the item, carrying the blocked process and the running deadline. Routing an internal dependency down a customer channel asks the wrong person on a route they never agreed to",
         next: "w.received",
         execution: "human",
+        idempotencyKey: "person_id + a.request-internal",
       },
       {
         id: "w.received",
         kind: "wait",
-        until: ["the data arrives"],
+        until: [
+          "requested_information_received"
+        ],
         onEvent: "c.valid",
         timeout: {
-          after: "the SLA of the process being blocked",
-          reason:
-            "how long to wait is a property of what is blocked, not of the request - a blocked payment and a blocked report do not deserve the same patience",
+          "after": {
+            "key": "missing_critical.received",
+            "rule": "The request is waited on for as long as the blocked process can afford; then criticality decides between a person, an alternate route and abandonment.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "how long to wait is a property of what is blocked, not of the request - a blocked payment and a blocked report do not deserve the same patience",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "c.criticality",
         windowExtendsOnEngagement: false,
+        recheck: "the the business entity that is blocked plus the specific missing requirement re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.valid",
@@ -2441,6 +3179,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist it and re-evaluate the blocked process, which resumes because its dependency is satisfied rather than because it was told to",
         writes: [{ field: "blocking_requirement_log", mode: "append" }],
         next: "x.resumed",
+        idempotencyKey: "person_id + a.persist",
       },
       {
         id: "x.resumed",
@@ -2448,6 +3187,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "requirement satisfied; the blocked process is free to continue",
         terminal: false,
         reEntry: "a further missing requirement is its own dependency with its own instance",
+        class: "success",
       },
       {
         id: "c.criticality",
@@ -2480,6 +3220,13 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "the missing item, who was asked, and what is blocked",
           "what has already been tried, so the person does not repeat the request that failed",
         ],
+        contract: {
+          "requiredFields": [
+            "person_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "x.alternate",
@@ -2487,6 +3234,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "blocked process proceeding by a route that does not need this",
         terminal: false,
         reEntry: "if the alternate route later requires it after all, that is a new dependency",
+        class: "invalid-state",
       },
       {
         id: "x.abandoned",
@@ -2495,6 +3243,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the item arriving later re-opens this normally; it is not re-requested repeatedly in the meantime",
+        class: "failure",
       },
     ],
     guardrails: [
@@ -2520,6 +3269,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person or account plus the relationship context the signal was observed in",
       note: "Signals are scoped and dated. Without scope one bad experience colours everything; without a date, evidence from years ago outvotes evidence from this week.",
+      instanceKey: [
+        "account_id",
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2528,6 +3282,78 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "RET-21 recalculates engagement from behaviour on a defined cadence. This accumulates heterogeneous signals - feedback, outcomes, friction, contributions - and only reassesses a state where the evidence justifies it.",
       },
     ],
+    objective: "Accumulate signals as dated evidence, and let a relationship label exist only where a policy defined what it means.",
+    eligibility: [
+      "a signal that says something about the relationship: positive or negative feedback, a successful outcome, a repeated contribution, support friction, a declared preference, an engagement change, an advocacy action",
+      "no instance of this journey is already open for the person or account plus the relationship context the signal was observed in",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "One signal does not silently create a permanent label. LOYAL, ADVOCATE, AT_RISK, VIP and DETRACTOR exist only where a policy defines what they mean and what removes them."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Evidence decays, and how fast depends on what is being assessed rather than on a single global rule."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Signals stay scoped to the entity they were observed on."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Communication engagement is not relationship evidence and does not enter this store."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "relationship_id",
+          "relationship_evidence",
+          "relationship_state_history"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.owned",
+          "x.evidence",
+          "x.reassessed",
+          "x.no-label"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "relationship state reassessment",
+        "loyalty state",
+        "relationship evidence",
+        "customer state labelling"
+      ],
+      "useCases": [
+        "signals accumulated as dated evidence rather than a permanent label",
+        "a relationship state assigned only where a policy defined it"
+      ]
+    },
     entry: "t.signal",
     nodes: [
       {
@@ -2551,6 +3377,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Store the signal with its type, source, time, related entity and how reliable it is. It is stored as evidence, never as a conclusion - the difference is whether anything downstream can disagree with it later",
         writes: [{ field: "relationship_evidence", mode: "append" }],
         next: "c.immediate",
+        idempotencyKey: "account_id + relationship_id + a.store",
       },
       {
         id: "c.immediate",
@@ -2576,6 +3403,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the journey that owns the action is triggered by the same signal independently - this one records, it does not dispatch, and duplicating the dispatch here is how two systems respond to one event",
+        class: "success",
       },
       {
         id: "c.reassess",
@@ -2600,6 +3428,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "evidence recorded; state unchanged",
         terminal: false,
         reEntry: "the next signal is weighed against a slightly larger set",
+        class: "success",
       },
       {
         id: "a.reassess",
@@ -2630,6 +3459,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Assign the state, recording which policy defines it and which evidence satisfied it, so it can be explained, disputed and removed by the same route it was created by",
         writes: [{ field: "relationship_state_history", mode: "append" }],
         next: "x.reassessed",
+        idempotencyKey: "account_id + relationship_id + a.assign",
       },
       {
         id: "x.reassessed",
@@ -2637,6 +3467,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "relationship state reassessed against the current evidence set",
         terminal: false,
         reEntry: "further signals may move it again, in either direction",
+        class: "success",
       },
       {
         id: "x.no-label",
@@ -2645,6 +3476,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a policy defining the label makes it assignable later, against this same evidence - a label nobody defined is one nobody can dispute, remove, or explain to the person carrying it",
+        class: "success",
       },
     ],
     guardrails: [

@@ -1,0 +1,456 @@
+{
+ "id": "FBK-47",
+ "shortName": "Appeal Review",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "class-level pressure cap",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.appeal",
+   "event": "appeal_or_dispute_submitted",
+   "meaning": "a submission contesting an identifiable prior decision",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "a submission contesting an identifiable prior decision",
+    "no instance of this journey is already open for the the appeal",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "appeal_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.link",
+   "does": "Link the appeal to the original decision and capture the reason, the evidence submitted, when it arrived and any deadline. The original decision is not modified by an appeal existing against it",
+   "writes": [
+    {
+     "field": "appeal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.link",
+   "key": "issue_id + a.link"
+  },
+  {
+   "type": "condition",
+   "node": "c.eligible",
+   "asks": "Is the appeal eligible for review?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": null,
+     "test": "it contests a reviewable decision, within any applicable window, from someone entitled to contest it",
+     "to": "c.hold"
+    },
+    {
+     "label": "Not eligible",
+     "observes": null,
+     "test": "out of time, not a reviewable decision, or brought by someone with no standing",
+     "to": "a.reject"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.reject",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "appeal_and.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.reject",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.reject",
+   "touch": "t1",
+   "stage": "reject",
+   "purpose": "Decline the appeal with the actual reason and whatever process does apply.",
+   "brief": "Decline the appeal with the actual reason and whatever process does apply. A rejection that does not say why is the thing that produces the next complaint",
+   "destination": {
+    "target": "applicable-process",
+    "boundTo": "appeal_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.eligible"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reject",
+   "key": "issue_id + a.reject"
+  },
+  {
+   "type": "exit",
+   "node": "x.rejected",
+   "class": "invalid-state",
+   "state": "appeal not eligible; original decision unchanged",
+   "reEntry": "a differently grounded appeal, or new evidence, is assessed on its own terms"
+  },
+  {
+   "type": "condition",
+   "node": "c.hold",
+   "asks": "Does policy require the original decision to be held while the review runs?",
+   "branches": [
+    {
+     "label": "Hold required",
+     "observes": null,
+     "test": "policy suspends the effect of the decision pending review",
+     "to": "a.hold"
+    },
+    {
+     "label": "No hold",
+     "observes": null,
+     "test": "the decision remains in effect during review, which is the default",
+     "to": "w.review"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.hold",
+   "does": "Suspend the effect of the decision, recorded as a hold rather than as a reversal. Suspended and overturned are different states, and writing one as the other pre-decides the review",
+   "writes": [
+    {
+     "field": "appeal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.hold",
+   "key": "issue_id + a.hold"
+  },
+  {
+   "type": "wait",
+   "node": "w.review",
+   "timing": {
+    "key": "appeal_and.review",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "appeal_deadline_at",
+   "onTimeout": "h.deadline"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.review",
+   "cancelOn": [
+    {
+     "event": "review_concluded",
+     "meaning": "the review reaches a conclusion"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.review",
+   "reads": "the the appeal re-read from the system of record before acting on the timeout",
+   "before": "h.deadline"
+  },
+  {
+   "type": "handoff",
+   "node": "h.deadline",
+   "to": "DEC-181",
+   "on": "a review deadline passing without a conclusion",
+   "carries": [
+    "the appeal, the original decision and everything gathered",
+    "the fact that no outcome has been reached, so nothing downstream records one"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What did the review conclude?",
+   "branches": [
+    {
+     "label": "UPHELD",
+     "observes": null,
+     "test": "the original decision stands",
+     "to": "a.apply"
+    },
+    {
+     "label": "REVERSED",
+     "observes": null,
+     "test": "the original decision was wrong",
+     "to": "a.apply"
+    },
+    {
+     "label": "MODIFIED",
+     "observes": null,
+     "test": "the decision stands in part",
+     "to": "a.apply"
+    },
+    {
+     "label": "MORE_INFORMATION_REQUIRED",
+     "observes": null,
+     "test": "the review cannot conclude on what it has",
+     "to": "a.request-more-info"
+    }
+   ]
+  },
+  {
+   "type": "wait",
+   "node": "w.more-info",
+   "timing": {
+    "key": "appeal_and.more_info",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "appeal_deadline_at",
+   "onTimeout": "h.deadline"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.more-info",
+   "cancelOn": [
+    {
+     "event": "requested_information_received",
+     "meaning": "the requested information is received"
+    }
+   ],
+   "onEvent": "w.review"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.more-info",
+   "reads": "the the appeal re-read from the system of record before acting on the timeout",
+   "before": "h.deadline"
+  },
+  {
+   "type": "state-update",
+   "node": "a.apply",
+   "does": "Update the effective business state to match the conclusion - upheld leaves the decision standing, reversed replaces its effect, modified supersedes it in part. In every case the original decision, the appeal and the review outcome all remain readable; nothing is edited in place, because the record of what was decided and then changed is the point of having an appeal process at all",
+   "writes": [
+    {
+     "field": "appeal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.apply",
+   "key": "issue_id + a.apply"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request-more-info",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "appeal_and.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request-more-info",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request-more-info",
+   "touch": "t2",
+   "stage": "request-more-info",
+   "purpose": "Ask the appellant for the specific evidence the review is missing, naming only what is missing and leaving the appeal deadline where it was.",
+   "brief": "Ask the appellant for the specific evidence the review is missing, naming only what is missing and leaving the appeal deadline where it was. Suspending a review for information nobody requested makes the appellant responsible for a gap they were never told about",
+   "destination": {
+    "target": "evidence-submission",
+    "boundTo": "appeal_id",
+    "mustNotClaim": [
+     "a moved deadline"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request-more-info",
+   "key": "issue_id + a.request-more-info"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.communicate-outcome",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "appeal_and.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.communicate-outcome",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.communicate-outcome",
+   "touch": "t3",
+   "stage": "communicate-outcome",
+   "purpose": "State the review's conclusion, which effective state now applies as a result, and what remains available procedurally.",
+   "brief": "State the review's conclusion, which effective state now applies as a result, and what remains available procedurally. An appeal that concludes in silence leaves the appellant holding the original decision and no way to know it was reconsidered",
+   "destination": {
+    "target": "appeal-outcome",
+    "boundTo": "appeal_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.communicate-outcome",
+   "key": "issue_id + a.communicate-outcome"
+  },
+  {
+   "type": "exit",
+   "node": "x.concluded",
+   "class": "success",
+   "state": "review concluded; original decision and outcome both preserved",
+   "reEntry": "a further appeal, where the process allows one, contests this outcome rather than the original decision"
+  }
+ ]
+}

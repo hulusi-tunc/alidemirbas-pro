@@ -1,0 +1,345 @@
+{
+ "id": "TIM-61",
+ "shortName": "Deadline Tracking",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.deadline",
+   "event": "authoritative_deadline_assigned",
+   "meaning": "a deadline assigned to a specific obligation by a system or rule entitled to set one",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a deadline assigned to a specific obligation by a system or rule entitled to set one",
+    "no instance of this journey is already open for the the obligation the deadline is attached to",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "obligation_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.store",
+   "does": "Store the deadline with its timezone where that changes the answer, its source, the obligation it governs, its owner, and what would count as completion. The completion condition is the load-bearing part - a deadline that cannot say what would satisfy it can only ever measure elapsed time",
+   "writes": [
+    {
+     "field": "deadline_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.store",
+   "key": "obligation_id + issue_id + a.store"
+  },
+  {
+   "type": "wait",
+   "node": "w.tracking",
+   "timing": {
+    "key": "deadline_tracking.tracking",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "due_at",
+   "onTimeout": "c.consequence"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.tracking",
+   "cancelOn": [
+    {
+     "event": "obligation_satisfied",
+     "meaning": "the obligation is satisfied in the system of record"
+    },
+    {
+     "event": "pre_deadline_threshold_reached",
+     "meaning": "a defined point before the deadline is reached"
+    }
+   ],
+   "onEvent": "c.what"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.tracking",
+   "reads": "the the obligation the deadline is attached to re-read from the system of record before acting on the timeout",
+   "before": "c.consequence"
+  },
+  {
+   "type": "condition",
+   "node": "c.what",
+   "asks": "Which happened?",
+   "branches": [
+    {
+     "label": "Completed",
+     "observes": null,
+     "test": "the completion condition recorded with the deadline is satisfied",
+     "to": "a.satisfied"
+    },
+    {
+     "label": "Pre-deadline threshold",
+     "observes": null,
+     "test": "a defined point before the deadline was reached with the obligation still open",
+     "to": "c.useful"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.satisfied",
+   "does": "Mark the obligation satisfied and invalidate every reminder and escalation still queued against it. A completed obligation is never reopened by a stale deadline job, which is the specific way a finished thing comes back to life",
+   "writes": [
+    {
+     "field": "deadline_log",
+     "mode": "append"
+    },
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.satisfied",
+   "key": "obligation_id + issue_id + a.satisfied"
+  },
+  {
+   "type": "exit",
+   "node": "x.satisfied",
+   "class": "success",
+   "state": "obligation satisfied before its deadline",
+   "reEntry": "a new obligation carries its own deadline; this one is closed"
+  },
+  {
+   "type": "condition",
+   "node": "c.useful",
+   "asks": "Is a pre-deadline reminder useful here, and does policy define one?",
+   "branches": [
+    {
+     "label": "Send it",
+     "observes": null,
+     "test": "policy defines a reminder at this threshold and the recipient can still act on it",
+     "to": "a.remind"
+    },
+    {
+     "label": "Nothing to send",
+     "observes": null,
+     "test": "no reminder is defined, or nobody can do anything differently on hearing it",
+     "to": "w.tracking"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "deadline_tracking.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms",
+      "whatsapp"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t1",
+   "stage": "remind",
+   "purpose": "Send the reminder defined for this threshold.",
+   "brief": "Send the reminder defined for this threshold. The reminder schedule is not the deadline and does not move it - a deadline nobody was reminded about is still the deadline",
+   "destination": {
+    "target": "discharge-the-obligation",
+    "boundTo": "obligation_id",
+    "mustNotClaim": [
+     "a moved deadline"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.what",
+    "c.useful"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "obligation_id + issue_id + a.remind"
+  },
+  {
+   "type": "condition",
+   "node": "c.consequence",
+   "asks": "The deadline passed with the obligation open - what does the governing rule say happens?",
+   "branches": [
+    {
+     "label": "OVERDUE",
+     "observes": null,
+     "test": "the obligation survives its deadline and changes operational state",
+     "to": "h.overdue"
+    },
+    {
+     "label": "ESCALATED",
+     "observes": null,
+     "test": "the rule raises it rather than changing the obligation itself",
+     "to": "h.escalate"
+    },
+    {
+     "label": "EXPIRED",
+     "observes": null,
+     "test": "the obligation itself ceases to be valid at the deadline",
+     "to": "h.expired"
+    },
+    {
+     "label": "FAILED",
+     "observes": null,
+     "test": "the rule explicitly defines missing this deadline as failure",
+     "to": "x.failed"
+    },
+    {
+     "label": "STILL_VALID",
+     "observes": null,
+     "test": "the deadline was a target and passing it changes nothing about the obligation",
+     "to": "x.still-valid"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.overdue",
+   "to": "TIM-62",
+   "on": "an obligation surviving its deadline",
+   "carries": [
+    "the obligation and its original deadline history",
+    "the owner it was assigned to"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "OWN-55",
+   "on": "a deadline whose governing rule escalates rather than changing the obligation",
+   "carries": [
+    "the obligation, its deadline and how long it has been open"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.expired",
+   "to": "TIM-64",
+   "on": "a deadline at which the obligation itself ceases to be valid",
+   "carries": [
+    "the obligation and the validity period now ending"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.failed",
+   "class": "failure",
+   "state": "obligation failed at its deadline, as the rule defines",
+   "reEntry": "a new attempt is a new obligation with its own deadline; this one records that it was not met"
+  },
+  {
+   "type": "exit",
+   "node": "x.still-valid",
+   "class": "no-action",
+   "state": "deadline passed, obligation unchanged",
+   "reEntry": "the obligation continues under whatever governs it - time passing did not decide anything here, which is the ordinary case and not an omission"
+  }
+ ]
+}

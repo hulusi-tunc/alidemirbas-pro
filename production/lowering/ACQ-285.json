@@ -1,0 +1,425 @@
+{
+ "id": "ACQ-285",
+ "shortName": "New Lead Welcome",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "handoff",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.captured",
+   "event": "first_party_interest_captured",
+   "meaning": "a first-party submission: a form, a content request, a contact request, or an equivalent deliberate act",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "a first-party capture recorded with the context the person declared",
+    "a contact point the person gave in that capture",
+    "the permission position recorded as its own fact, separate from the submission",
+    "no instance of this journey is already open for the the individual capture and what it asked for",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "capture_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.email-route",
+   "asks": "Is the destination they supplied actually usable for this?",
+   "branches": [
+    {
+     "label": "Usable",
+     "observes": null,
+     "test": "the supplied destination is valid, deliverable and permitted for fulfilling what was asked for",
+     "to": "c.declared"
+    },
+    {
+     "label": "Not usable",
+     "observes": null,
+     "test": "no valid deliverable destination was supplied, or it is not permitted for this fulfilment",
+     "to": "c.declared-no-route"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.declared-no-route",
+   "asks": "What did they ask for, given we cannot deliver to them?",
+   "branches": [
+    {
+     "label": "Asked for a person",
+     "observes": null,
+     "test": "the request was for contact rather than for material",
+     "to": "h.person"
+    },
+    {
+     "label": "Asked for the material",
+     "observes": null,
+     "test": "the request was for something we would have sent, and there is nowhere to send it",
+     "to": "x.no-delivery-route"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.no-delivery-route",
+   "class": "failure",
+   "state": "captured with nothing deliverable; the request was not fulfilled",
+   "reEntry": "a valid permitted destination, supplied later, makes the same request fulfillable"
+  },
+  {
+   "type": "condition",
+   "node": "c.declared",
+   "asks": "What did the person actually declare?",
+   "branches": [
+    {
+     "label": "Asked for a person",
+     "observes": null,
+     "test": "the capture states a request only a person can answer - a conversation, a price for their own situation, an assessment",
+     "to": "a.first-touch"
+    },
+    {
+     "label": "Asked for the material",
+     "observes": null,
+     "test": "the capture asks for a document, an access or a notification and names no person-led request",
+     "to": "a.deliver"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.first-touch",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "captured_interest.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.first-touch",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.first-touch",
+   "touch": "t1",
+   "stage": "first-touch",
+   "purpose": "Send what they asked for and say that a person will follow up, naming when.",
+   "brief": "Send what they asked for and say that a person will follow up, naming when. A promised follow-up with no time on it reads as a queue rather than an answer, and the person starts again elsewhere",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.email-route",
+    "c.declared"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.first-touch",
+   "key": "person_id + a.first-touch"
+  },
+  {
+   "type": "handoff",
+   "node": "h.person",
+   "to": "external:sales-assignment",
+   "on": "a captured interest whose declared request can only be answered by a person",
+   "carries": [
+    "what the person declared and asked for, in their own terms",
+    "what was already sent to them and when",
+    "the permission facts recorded, and what they do and do not cover"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "person_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.deliver",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "captured_interest.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.deliver",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.deliver",
+   "touch": "t2",
+   "stage": "deliver",
+   "purpose": "Send exactly what the capture asked for, once, and nothing the person did not ask for alongside it.",
+   "brief": "Send exactly what the capture asked for, once, and nothing the person did not ask for alongside it. Fulfilment travels on the request; everything past it travels on permission, and the two must not be posted together",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.email-route",
+    "c.declared"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.deliver",
+   "key": "person_id + a.deliver"
+  },
+  {
+   "type": "condition",
+   "node": "c.permission",
+   "asks": "Is there permission to continue past fulfilment?",
+   "branches": [
+    {
+     "label": "Permitted",
+     "observes": null,
+     "test": "a permission covering ongoing contact was given in the capture and recorded as its own fact",
+     "to": "a.nurture"
+    },
+    {
+     "label": "Fulfilment only",
+     "observes": null,
+     "test": "nothing beyond the single requested delivery was permitted",
+     "to": "x.delivered"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.nurture",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "captured_interest.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.nurture",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.nurture",
+   "touch": "t3",
+   "stage": "nurture",
+   "purpose": "Open a bounded sequence on the subject they declared, and state where it ends when it opens.",
+   "brief": "Open a bounded sequence on the subject they declared, and state where it ends when it opens. A sequence with no stated end is a subscription nobody agreed to, and it is remembered as one",
+   "destination": {
+    "target": "declared-subject-content",
+    "boundTo": "capture_id",
+    "mustNotClaim": [
+     "a sequence with no stated end"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.email-route",
+    "c.declared",
+    "c.permission"
+   ],
+   "after": "t2"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.nurture",
+   "key": "person_id + a.nurture"
+  },
+  {
+   "type": "wait",
+   "node": "w.nurture",
+   "timing": {
+    "key": "captured_interest.nurture",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.sunset"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.nurture",
+   "cancelOn": [
+    {
+     "event": "destination_declared",
+     "meaning": "the person does something that names where they are going: a reply, a request to talk, a purchase"
+    },
+    {
+     "event": "permission_withdrawn",
+     "meaning": "the person withdraws the permission this communication runs on"
+    }
+   ],
+   "onEvent": "c.progressed"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.nurture",
+   "reads": "the the individual capture and what it asked for re-read from the system of record before acting on the timeout",
+   "before": "x.sunset"
+  },
+  {
+   "type": "condition",
+   "node": "c.progressed",
+   "asks": "What ended the sequence?",
+   "branches": [
+    {
+     "label": "Readiness declared",
+     "observes": null,
+     "test": "the person did something that names a destination they are now ready for",
+     "to": "h.person"
+    },
+    {
+     "label": "Stopped",
+     "observes": null,
+     "test": "the person withdrew permission or asked to stop",
+     "to": "x.stopped"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.stopped",
+   "class": "suppression",
+   "state": "stopped at the person's request",
+   "reEntry": "a later capture carrying its own permission is a new instance; this one is never resumed"
+  },
+  {
+   "type": "exit",
+   "node": "x.sunset",
+   "class": "timeout",
+   "state": "sequence ended, no destination declared",
+   "reEntry": "a later capture from the same person is its own instance with its own destination"
+  },
+  {
+   "type": "exit",
+   "node": "x.delivered",
+   "class": "success",
+   "state": "fulfilled, no continuing contact permitted",
+   "reEntry": "a later capture that carries a permission opens the bounded path"
+  }
+ ]
+}

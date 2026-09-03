@@ -1,0 +1,316 @@
+{
+ "id": "ACT-20",
+ "shortName": "Dormant Lead Reactivation",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "state-update",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.dormant",
+   "event": "engaged_non_customer_became_dormant",
+   "meaning": "a previously engaged relationship that has passed the inactivity threshold defined for this context",
+   "evidenceSource": "behavioral",
+   "entryFilters": [
+    "a previously engaged relationship that has passed the inactivity threshold defined for this context",
+    "no instance of this journey is already open for the person",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "lead_id",
+    "context_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.never-monetized",
+   "asks": "Has this relationship ever been monetised in this context?",
+   "branches": [
+    {
+     "label": "Never paid",
+     "observes": null,
+     "test": "no customer or paid relationship exists or has existed for this context",
+     "to": "a.reason"
+    },
+    {
+     "label": "Was a paying customer",
+     "observes": null,
+     "test": "a monetised relationship exists or once existed",
+     "to": "x.winback"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.winback",
+   "class": "invalid-state",
+   "state": "out of scope; belongs to win-back",
+   "reEntry": "none here - restoring a relationship that was once paid for is a different problem with different economics and a different message, and treating it as reactivation gets both wrong"
+  },
+  {
+   "type": "state-update",
+   "node": "a.reason",
+   "does": "Establish whether there is a credible reason to come back: setup they never finished, an interest they expressed, something now relevant that was not before, a destination left incomplete, or a real change in the product",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.worth-it",
+   "asks": "Is there a credible reason, and is this person still eligible and contactable?",
+   "branches": [
+    {
+     "label": "Worth one attempt",
+     "observes": null,
+     "test": "a specific reason exists and permission and eligibility both hold",
+     "to": "a.attempt"
+    },
+    {
+     "label": "Not worth it",
+     "observes": null,
+     "test": "no specific reason exists, or permission or eligibility has lapsed",
+     "to": "x.no-reason"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.no-reason",
+   "class": "no-action",
+   "state": "dormant, no credible reason to re-engage",
+   "reEntry": "a genuine change - in the product, in their circumstances, in what they asked for - can create a reason later; dormancy alone never becomes one by lasting longer"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.attempt",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "dormant_non.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "lifecycle-stage",
+    "scope": "person",
+    "precedence": "lowest in the group - any current lifecycle on the same person outranks reactivation",
+    "onLoss": "exit"
+   },
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.attempt",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.attempt",
+   "touch": "t1",
+   "stage": "attempt",
+   "purpose": "Make one bounded attempt built on the recorded reason.",
+   "brief": "Make one bounded attempt built on the recorded reason. Not a general note that they have been missed, which says nothing and asks for nothing",
+   "destination": {
+    "target": "return-route-for-reason",
+    "boundTo": "context_id",
+    "mustNotClaim": [
+     "that they have been missed",
+     "an offer policy does not enable"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.never-monetized",
+    "c.worth-it"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.attempt",
+   "key": "account_id + lead_id + a.attempt"
+  },
+  {
+   "type": "wait",
+   "node": "w.return",
+   "timing": {
+    "key": "dormant_non.return",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.sunset"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.return",
+   "cancelOn": [
+    {
+     "event": "meaningful_return",
+     "meaning": "real activity in the product or movement in the funnel - not a message open"
+    }
+   ],
+   "onEvent": "a.inspect"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.return",
+   "reads": "the person re-read from the system of record before acting on the timeout",
+   "before": "x.sunset"
+  },
+  {
+   "type": "state-update",
+   "node": "a.inspect",
+   "does": "Inspect what actually happened before declaring anything. Opening the message is not returning; the question is whether any real state moved",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.state",
+   "asks": "What state did they actually return into?",
+   "branches": [
+    {
+     "label": "Unfinished onboarding",
+     "observes": null,
+     "test": "an onboarding instance is open and setup resumed",
+     "to": "h.onboarding"
+    },
+    {
+     "label": "Renewed commercial intent",
+     "observes": null,
+     "test": "behaviour shows intent stronger than what is currently recorded",
+     "to": "h.intent"
+    },
+    {
+     "label": "No current qualification",
+     "observes": null,
+     "test": "they are back but nothing on record says whether they are qualified for anything now",
+     "to": "h.qualify"
+    },
+    {
+     "label": "Signal did not survive inspection",
+     "observes": null,
+     "test": "what looked like a return turns out to be engagement with the message and nothing more",
+     "to": "x.engagement-only"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.onboarding",
+   "to": "ACT-12",
+   "on": "a return into unfinished setup",
+   "carries": [
+    "the milestones already completed, so they resume rather than restart",
+    "the reason they were re-engaged"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.intent",
+   "to": "ACQ-03",
+   "on": "a return carrying stronger intent than the record holds",
+   "carries": [
+    "the new signal",
+    "the dormancy, so this is not read as a first-time interest"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.qualify",
+   "to": "ACQ-05",
+   "on": "a return with no current qualification on record",
+   "carries": [
+    "the earlier history and why it lapsed",
+    "what brought them back"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.engagement-only",
+   "class": "invalid-state",
+   "state": "engagement only; nothing reactivated",
+   "reEntry": "the window continues to its end if it has not expired; a click is not recorded as a return, because doing so would make this journey report its own message as a result"
+  },
+  {
+   "type": "exit",
+   "node": "x.sunset",
+   "class": "timeout",
+   "state": "reactivation window closed, cooldown in force",
+   "reEntry": "only a new reason, not a longer silence; repeated dormancy does not entitle anyone to repeated campaigns"
+  }
+ ]
+}

@@ -342,6 +342,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the hold, the capacity it protects and the requester who owns it",
       note: "One hold per requester per slot. A second hold by the same requester consumes the capacity twice and releases at two different times.",
+      instanceKey: [
+        "hold_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -350,6 +354,78 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "FUL-143 allocates a resource to an obligation that already exists. This protects capacity for a commitment that does not exist yet and may never - most holds end in expiry rather than in a booking.",
       },
     ],
+    objective: "Protect specific capacity for a bounded moment while a booking is being completed, without pretending it is a booking.",
+    eligibility: [
+      "a hold granted against real, currently free capacity on an identified slot",
+      "no instance of this journey is already open for the the hold",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A hold is not a confirmed reservation."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An expired hold consumes no capacity."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Hold creation and release are both idempotent."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Concurrent holds respect real capacity rather than the capacity each of them assumed."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "hold_id",
+          "slot_ref",
+          "requester_id",
+          "expires_at",
+          "hold_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.consumed",
+          "x.expired",
+          "x.released"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "temporary slot hold",
+        "slot reservation hold",
+        "booking capacity hold",
+        "checkout timer for bookings"
+      ],
+      "useCases": [
+        "capacity protected for a bounded moment while a booking is completed",
+        "an expired hold consuming nothing"
+      ]
+    },
     entry: "t.granted",
     nodes: [
       {
@@ -394,23 +470,31 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the scoped hold with its id, the resource and slot, the capacity held, the owner, the creation time, the expiry and the booking intent it belongs to. Record HELD. The hold consumes capacity for its duration and creates no commitment - nobody has an appointment, and nothing here should be described to the requester as if they do",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "w.hold",
+        idempotencyKey: "person_id + a.create",
       },
       {
         id: "w.hold",
         kind: "wait",
         until: [
-          "the booking is confirmed against this hold",
-          "the hold is explicitly released",
-          "the booking intent is abandoned",
+          "booking_confirmed",
+          "hold_released",
+          "booking_intent_abandoned"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the hold's expiry",
-          reason:
-            "the expiry is the entire point of a hold. Capacity still counted against a lapsed one is capacity nobody can book and nobody owns, and the resource reads as full while standing empty",
+          "after": {
+            "key": "slot_hold.hold",
+            "rule": "The hold's expiry.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the expiry is the entire point of a hold. Capacity still counted against a lapsed one is capacity nobody can book and nobody owns, and the resource reads as full while standing empty",
+          "relativeTo": "attribute",
+          "attribute": "expires_at"
         },
         onTimeout: "a.expire",
         windowExtendsOnEngagement: false,
+        recheck: "the the hold re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -457,6 +541,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the capacity and record the hold EXPIRED. An expired hold consumes nothing, and the release happens because the clock said so rather than because anyone remembered",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "x.expired",
+        idempotencyKey: "person_id + a.expire",
       },
       {
         id: "a.release",
@@ -464,6 +549,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the capacity and record the hold RELEASED. The release is idempotent - releasing an already-released hold changes nothing rather than returning capacity a second time, and the difference between those two behaviours is how many people can be booked into one slot",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "x.released",
+        idempotencyKey: "person_id + a.release",
       },
       {
         id: "a.consume",
@@ -471,6 +557,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Consume the hold into the confirmed reservation, moving the capacity from held to reserved in one step. Releasing first and re-taking opens a window - short, and entirely long enough - in which someone else takes the slot the requester has just paid for",
         writes: [{ field: "hold_log", mode: "append" }],
         next: "x.consumed",
+        idempotencyKey: "person_id + a.consume",
       },
       {
         id: "x.consumed",
@@ -479,6 +566,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the reservation now owns the capacity. A cancellation releases it through the cancellation lifecycle rather than through this hold",
+        class: "success",
       },
       {
         id: "x.expired",
@@ -487,6 +575,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the same requester can take a new hold on the same slot if it is still free, which is a new hold rather than an extension of this one",
+        class: "timeout",
       },
       {
         id: "x.released",
@@ -495,6 +584,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a repeated release against this hold is a no-op rather than a second return of capacity",
+        class: "success",
       },
     ],
     guardrails: [
@@ -521,6 +611,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the reservation request, the requester and the resource or service it names",
       note: "One reservation per requester, resource and slot. A retried submission produces the same reservation rather than a second one against the same capacity.",
+      instanceKey: [
+        "reservation_request_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -529,6 +623,75 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "FUL-141 creates a generic fulfillment obligation. This creates a commitment to a specific time on both sides - which is why it revalidates capacity at the moment of confirming and why its failure mode is contention rather than eligibility.",
       },
     ],
+    objective: "Turn a request for a specific time into a commitment both sides can rely on, or say clearly that it did not.",
+    eligibility: [
+      "a request to reserve an identified slot on an identified resource or service",
+      "no instance of this journey is already open for the the reservation request",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A request submitted is not a reservation confirmed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Previously displayed availability may have changed and is revalidated rather than trusted."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A payment attempt alone does not confirm a reservation unless the authoritative booking semantics say so."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "reservation_request_id",
+          "requester_id",
+          "resource_ref",
+          "slot_ref",
+          "booking_requirements",
+          "reservation_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.already",
+          "x.lapsed",
+          "h.alternative",
+          "h.prepare"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "reservation validation",
+        "booking request validation",
+        "confirm a booking",
+        "booking capacity check"
+      ],
+      "useCases": [
+        "a request for a specific time turned into a commitment or clearly not",
+        "a pending requirement resolved or lapsed before anything is committed"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -551,6 +714,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the requested slot, the resource or service, the requester, the details the booking requires and the intent behind it",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "c.duplicate",
+        idempotencyKey: "booking_id + a.capture",
       },
       {
         id: "c.duplicate",
@@ -576,6 +740,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a genuinely different booking is a different request. A resubmitted one resolves here rather than consuming a second slot",
+        class: "success",
       },
       {
         id: "a.revalidate",
@@ -606,6 +771,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the request REJECTED with the reason. What is offered next is current availability rather than the set the requester was originally shown, which by definition contains at least one slot that no longer exists",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "h.alternative",
+        idempotencyKey: "booking_id + a.reject",
       },
       {
         id: "h.alternative",
@@ -651,22 +817,29 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PENDING_CONFIRMATION with exactly what is outstanding, and keep the capacity protected for as long as the booking semantics allow. Pending is not confirmed and the requester is told which - an appointment someone believes they have and does not have is worse than being asked to wait",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "w.pending",
+        idempotencyKey: "booking_id + a.pending",
       },
       {
         id: "w.pending",
         kind: "wait",
         until: [
-          "the outstanding confirmation or dependency resolves",
-          "the request is withdrawn",
+          "dependency_resolved",
+          "request_withdrawn"
         ],
         onEvent: "c.pending-outcome",
         timeout: {
-          after: "the pending window the booking semantics allow",
-          reason:
-            "capacity protected indefinitely for a booking that never completes is capacity taken from everyone who would have completed one",
+          "after": {
+            "key": "reservation_request.pending",
+            "rule": "The pending window the booking semantics allow.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "capacity protected indefinitely for a booking that never completes is capacity taken from everyone who would have completed one",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.lapse",
         windowExtendsOnEngagement: false,
+        recheck: "the the reservation request re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.pending-outcome",
@@ -691,6 +864,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the request as lapsed and release any capacity protected for it. The slot returns to availability rather than staying reserved against a booking that never completed",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "x.lapsed",
+        idempotencyKey: "booking_id + a.lapse",
       },
       {
         id: "x.lapsed",
@@ -699,6 +873,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new request is evaluated against current availability, which may no longer include the slot that was being held",
+        class: "timeout",
       },
       {
         id: "a.confirm",
@@ -706,6 +881,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the commitment explicitly. Record CONFIRMED_RESERVATION with the slot, the resource, the parties and the terms. This is the point at which two parties owe each other a specific time - the customer arranges their day around it and the provider stops selling the slot - and nothing before it was that",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "h.prepare",
+        idempotencyKey: "booking_id + a.confirm",
       },
       {
         id: "h.prepare",
@@ -1004,6 +1180,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the existing reservation and the reschedule request raised against it",
       note: "One reservation throughout, carrying every time it has held. A reschedule is a move recorded on it rather than a cancellation followed by a new booking.",
+      instanceKey: [
+        "booking_id",
+        "reschedule_request_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1012,6 +1193,74 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "SUB-166 changes the terms of a continuing relationship. This moves one specific occurrence to a different time or resource, and its whole difficulty is contention for the replacement - which terms changes never have.",
       },
     ],
+    objective: "Move a commitment to a new time without ever leaving the customer holding neither.",
+    eligibility: [
+      "an authorized request to move an existing confirmed reservation",
+      "no instance of this journey is already open for the the existing reservation and the reschedule request raised against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A reschedule requested is not a reschedule completed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The original slot is never released before the replacement is secured unless policy explicitly requires it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The historical original time remains auditable."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "reschedule_request_id",
+          "requested_time",
+          "replacement_candidate",
+          "preparation_requirements",
+          "reservation_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.original-stands",
+          "x.rescheduled",
+          "h.prepare"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "reschedule validation",
+        "move a booking",
+        "change appointment time",
+        "rebooking"
+      ],
+      "useCases": [
+        "a commitment moved without the customer ever holding neither",
+        "a replacement lost to contention, leaving the original intact"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -1033,6 +1282,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Keep the original reservation confirmed and intact while the replacement is evaluated. Releasing it first is the mistake this journey exists to prevent - the customer ends up with no appointment at all, and the slot they had is gone by the time anyone realises the replacement was not available",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.search",
+        idempotencyKey: "booking_id + a.preserve",
       },
       {
         id: "a.search",
@@ -1063,6 +1313,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the reschedule as not possible and leave the original reservation exactly as it was. The customer still has their appointment, which is the position they were in before they asked - and is a far better outcome than the alternative",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "x.original-stands",
+        idempotencyKey: "booking_id + a.no-replacement",
       },
       {
         id: "x.original-stands",
@@ -1071,6 +1322,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the reschedule can be attempted again against different availability. Cancelling the original is a separate decision the customer makes explicitly",
+        class: "failure",
       },
       {
         id: "a.secure",
@@ -1101,6 +1353,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Transfer the commitment to the new slot, recording the original time, the new one and the fact that this reservation moved. The original time stays readable - a reservation that only ever shows its current time cannot answer how many times it was moved, which is the first thing anyone investigating a service problem wants to know",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.release-old",
+        idempotencyKey: "booking_id + a.transfer",
       },
       {
         id: "a.release-old",
@@ -1108,6 +1361,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the original slot, and only now. Capacity returns to availability at the point the replacement is real, which is the ordering the whole journey exists to enforce",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.reconcile",
+        idempotencyKey: "booking_id + a.release-old",
       },
       {
         id: "a.reconcile",
@@ -1118,6 +1372,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "c.prep",
+        idempotencyKey: "booking_id + a.reconcile",
       },
       {
         id: "c.prep",
@@ -1153,6 +1408,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a further move is a new reschedule against this reservation, and it joins the same history rather than replacing it",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1178,6 +1434,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the reservation and the cancellation acting on it",
       note: "The reservation survives its own cancellation as a record. A released slot says something about capacity and nothing about whether the appointment existed.",
+      instanceKey: [
+        "booking_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1186,6 +1446,79 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "FUL-150 cancels what remains of a generic fulfillment obligation. This ends a specific future time commitment, which releases capacity someone else can use and turns on timing relative to the appointment rather than on remaining scope.",
       },
     ],
+    objective: "End a future time commitment cleanly, returning the capacity and leaving the money to be decided elsewhere.",
+    eligibility: [
+      "an authorized cancellation of a confirmed reservation, taking effect",
+      "no instance of this journey is already open for the the reservation and the cancellation acting on it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation requested is not a cancellation effective."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation is not a no-show."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Cancellation never deletes reservation history."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The refund or fee decision belongs to the financial lifecycle rather than to this one."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "cancellation_log",
+          "reservation_log",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.cancelled",
+          "h.provider",
+          "h.reconcile",
+          "h.refund",
+          "h.fee"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "reservation cancellation reconciliation",
+        "cancel a booking",
+        "appointment cancellation",
+        "booking cancelled"
+      ],
+      "useCases": [
+        "a future commitment ended cleanly with capacity returned",
+        "the refund or fee decided elsewhere"
+      ]
+    },
     entry: "t.effective",
     nodes: [
       {
@@ -1208,6 +1541,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the actor and source, the reason, the effective time, the reservation's state at cancellation, and the timing relative to the scheduled service. The timing is what most cancellation policies turn on, and it has to be recorded at the moment rather than reconstructed afterwards from timestamps that mean something else",
         writes: [{ field: "cancellation_log", mode: "append" }],
         next: "c.actor",
+        idempotencyKey: "booking_id + a.record",
       },
       {
         id: "c.actor",
@@ -1242,6 +1576,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Mark the reservation CANCELLED, preserving everything about it - the original booking, the times it held, the preparation that ran. The history is not deleted, because a released slot is capacity returning to the pool and says nothing about whether the appointment ever existed",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.release",
+        idempotencyKey: "booking_id + a.cancel",
       },
       {
         id: "a.release",
@@ -1249,6 +1584,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the reserved capacity where the booking semantics permit it. The release is idempotent - an already-released reservation returns capacity once rather than once per attempt, and the difference shows up as two people booked into one room",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.stop",
+        idempotencyKey: "booking_id + a.release",
       },
       {
         id: "a.stop",
@@ -1256,6 +1592,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Stop the obsolete preparation, reminders and check-in actions. A reminder for a cancelled appointment brings someone to a place where nobody is expecting them, which is the most avoidable failure in this whole category",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "c.external",
+        idempotencyKey: "booking_id + a.stop",
       },
       {
         id: "c.external",
@@ -1306,6 +1643,13 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "the reservation, its external reference and what the external side last reported",
           "the explicit fact that capacity was released locally and may still be held externally",
         ],
+        contract: {
+          "requiredFields": [
+            "booking_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "c.financial",
@@ -1356,6 +1700,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new booking is a new reservation rather than this one resuming, and this cancellation stays part of the record either way",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1692,6 +2037,77 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the reservation occurrence and the service delivered inside it",
       note: "Attendance is about the occurrence. Completion is about the obligation. One appointment can end with the first true and the second false.",
+      instanceKey: [
+        "booking_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Separate the fact that someone turned up from the question of whether they got what they came for.",
+    eligibility: [
+      "attendance or service commencement established authoritatively",
+      "no instance of this journey is already open for the the reservation occurrence and the service delivered inside it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Check-in is not service completed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Attendance is not a successful outcome."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Partial service is never represented as full completion."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "occurrence_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.completed",
+          "h.reconcile",
+          "h.remainder",
+          "h.reschedule",
+          "h.provider",
+          "h.rebook"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "service completion",
+        "appointment completed",
+        "service delivered",
+        "attendance versus outcome"
+      ],
+      "useCases": [
+        "turning up separated from getting what they came for",
+        "a partial or interrupted service routed to its remedy or reschedule"
+      ]
     },
     entry: "t.started",
     nodes: [
@@ -1715,6 +2131,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record IN_SERVICE or ATTENDED. The interaction is happening and nothing about its outcome is known yet",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "a.track",
+        idempotencyKey: "booking_id + a.state",
       },
       {
         id: "a.track",
@@ -1722,19 +2139,29 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Track the scope actually delivered, where the service has a scope worth tracking. What is recorded is what was delivered rather than the fact that the appointment took place",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "w.service",
+        idempotencyKey: "booking_id + a.track",
       },
       {
         id: "w.service",
         kind: "wait",
-        until: ["the service completes", "the service is interrupted"],
+        until: [
+          "service_completion_recorded",
+          "service_interrupted"
+        ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the scheduled duration plus its tolerance",
-          reason:
-            "an occurrence that started and was never concluded is unknown rather than complete, and closing it as complete makes an unfulfilled service invisible to everyone downstream",
+          "after": {
+            "key": "service_attendance.service",
+            "rule": "The scheduled duration plus its tolerance.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an occurrence that started and was never concluded is unknown rather than complete, and closing it as complete makes an unfulfilled service invisible to everyone downstream",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.unknown",
         windowExtendsOnEngagement: false,
+        recheck: "the the reservation occurrence and the service delivered inside it re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.unknown",
@@ -1742,6 +2169,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the occurrence's outcome as unknown - someone attended and what happened afterwards was never recorded. This is not completion, and treating it as completion closes an obligation nobody confirmed was met",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "h.reconcile",
+        idempotencyKey: "booking_id + a.unknown",
       },
       {
         id: "h.reconcile",
@@ -1752,6 +2180,13 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "the booking, the attendance record and the point at which the trail stops",
           "the explicit fact that no completion was recorded and none should be inferred",
         ],
+        contract: {
+          "requiredFields": [
+            "booking_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "c.outcome",
@@ -1786,6 +2221,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record COMPLETED. The scheduled obligation was met, which is a different claim from the appointment having happened",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "x.completed",
+        idempotencyKey: "booking_id + a.complete",
       },
       {
         id: "x.completed",
@@ -1794,6 +2230,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a problem raised afterwards about what was delivered is a post-completion issue and is assessed on its own terms",
+        class: "success",
       },
       {
         id: "a.partial",
@@ -1801,6 +2238,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PARTIALLY_COMPLETED with exactly what was delivered and what remains. Attendance is not a successful outcome, and a half-delivered service recorded as complete closes something the customer is still owed - they will find out, and they will find out later than we could have told them",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "h.remainder",
+        idempotencyKey: "booking_id + a.partial",
       },
       {
         id: "h.remainder",
@@ -1818,6 +2256,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the interruption with its cause and the point at which delivery stopped",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "c.interruption",
+        idempotencyKey: "booking_id + a.interrupt",
+        attemptBudget: {
+          "key": "service_attendance.interrupt_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "c.interruption",
@@ -1847,6 +2291,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resume the same occurrence and continue tracking delivered scope. The wait's timeout is the scheduled duration and does not extend, so an occurrence that keeps stopping reaches its limit rather than running indefinitely",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "w.service",
+        idempotencyKey: "booking_id + a.resume",
       },
       {
         id: "h.reschedule",
@@ -1864,6 +2309,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that attendance happened and the service did not. This is a different fact from a no-show and from a cancellation - the customer did everything asked of them and left with nothing, which is the outcome most likely to be recorded wrongly and least likely to be forgotten by them",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "c.cause",
+        idempotencyKey: "booking_id + a.could-not",
       },
       {
         id: "c.cause",
@@ -1926,6 +2372,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the single reservation occurrence that did not take place",
       note: "One occurrence. Nothing here says anything about the customer's engagement, their history or their relationship - it is a fact about one appointment.",
+      instanceKey: [
+        "booking_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1934,6 +2384,80 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "RET-22 reads a pattern of expected usage not happening across a relationship. This is the non-occurrence of one specific confirmed booking at one specific time, and it is established by exclusion rather than by observing a trend.",
       },
     ],
+    objective: "Establish that one confirmed booking did not happen because the customer did not attend, having ruled out every other explanation.",
+    eligibility: [
+      "a confirmed occurrence whose service and arrival windows have both closed with no commencement established",
+      "no instance of this journey is already open for the the single reservation occurrence that did not take place",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A no-show is never inferred before the relevant service and arrival windows close."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A no-show is not a cancellation."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Fees and penalties are never invented."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A late-arriving attendance event reconciles against the recorded no-show state."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "occurrence_log",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.suppressed",
+          "x.closed",
+          "h.provider",
+          "h.undefined",
+          "h.attended",
+          "h.rebook",
+          "h.fee"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "no-show validation",
+        "missed appointment detection",
+        "did not attend",
+        "no-show record"
+      ],
+      "useCases": [
+        "a no-show established only after every other explanation is ruled out",
+        "a late arrival inside the grace the semantics allow"
+      ]
+    },
     entry: "t.passed",
     nodes: [
       {
@@ -1983,6 +2507,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.suppressed",
+        idempotencyKey: "booking_id + a.suppress",
       },
       {
         id: "x.suppressed",
@@ -1991,6 +2516,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the rescheduled occurrence has its own window and is assessed on its own terms when it arrives",
+        class: "suppression",
       },
       {
         id: "c.provider",
@@ -2079,6 +2605,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record NO_SHOW with the semantics it was judged under and the window that closed. This is the non-occurrence of one confirmed booking and nothing more - it is not a statement about the customer's engagement, their loyalty or their relationship, and journeys reading it should not treat it as one",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "c.next",
+        idempotencyKey: "booking_id + a.no-show",
       },
       {
         id: "c.next",
@@ -2129,6 +2656,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "an attendance event arriving after this reconciles against the recorded no-show rather than being ignored - a late system update is a reason to correct the record, not evidence that the record was right",
+        class: "success",
       },
     ],
     guardrails: [
@@ -2155,6 +2683,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the affected reservations and the provider or resource failure behind them",
       note: "The scope is every booking the failure touches. A closed location is not one cancellation, and treating it as one leaves the rest to be discovered by the people who turn up.",
+      instanceKey: [
+        "booking_id",
+        "provider_failure_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2163,6 +2696,177 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "FUL-145 handles a generic fulfillment exception. This carries the scheduling-specific recovery: the same time with a different provider, a different time with the same commitment, and the rule that the customer is never recorded as the cause.",
       },
     ],
+    objective: "Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.",
+    eligibility: [
+      "a confirmed reservation that can no longer be fulfilled by its assigned provider or resource - unavailability, resource failure, location closure, withdrawn capacity or an operational incident",
+      "no instance of this journey is already open for the the affected reservations and the provider or resource failure behind them",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A provider cancellation is not a customer cancellation."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An affected customer is never classified as a no-show."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A replacement must satisfy the service's actual requirements rather than merely being available."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Financial and remedy consequences remain separate lifecycle decisions."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "provider_cancellation.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "provider_cancellation.cooldown",
+        "rule": "This journey is per the affected reservations and the provider or resource failure behind them; a later instance concerns a different the affected reservations and the provider or resource failure behind them and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "inform",
+          "action": "a.inform",
+          "prerequisites": [
+            "c.replacement",
+            "c.notify"
+          ],
+          "purpose": "Tell them what changed, distinguished from a reschedule because the time did not move.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "notify-provider-cancel",
+          "action": "a.notify-provider-cancel",
+          "prerequisites": [
+            "c.replacement",
+            "c.reschedule"
+          ],
+          "purpose": "Tell the customer the confirmed commitment can no longer be kept, that the failure is ours and not theirs, and that they are not recorded as having cancelled or missed it.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "provider_failure_id",
+          "affected_reservations",
+          "replacement_candidates",
+          "reschedule_rules",
+          "reservation_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.reallocated",
+          "x.cancelled-provider",
+          "h.reschedule",
+          "h.remedy",
+          "h.financial"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "provider cancellation",
+        "appointment cancelled by provider",
+        "reallocation",
+        "we cannot keep your booking",
+        "provider-side reschedule"
+      ],
+      "useCases": [
+        "a commitment we cannot keep recovered without the cost landing on the person who was ready",
+        "an equivalent replacement at the same time, told only where it changes something for them"
+      ]
+    },
     entry: "t.cannot",
     nodes: [
       {
@@ -2187,6 +2891,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify every reservation the failure affects, and its scope. A closed location is not one cancellation - treating it as one produces a correct outcome for the booking that raised the alarm and silence for the forty behind it, each of whom finds out at the door",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "a.protect",
+        idempotencyKey: "booking_id + a.scope",
       },
       {
         id: "a.protect",
@@ -2194,6 +2899,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that the failure is provider-side. Whatever follows, the customer is not marked as having cancelled and is never classified as a no-show - they were available and the service was not, and the record has to say so before anything else touches this booking",
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "c.replacement",
+        idempotencyKey: "booking_id + a.protect",
       },
       {
         id: "c.replacement",
@@ -2218,6 +2924,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reallocate to the replacement, preserving the commitment and the time. The replacement has to actually satisfy the service's requirements - a different provider who cannot perform the booked service is not a replacement, and substituting one moves the failure from before the appointment to during it",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.release-old",
+        idempotencyKey: "booking_id + a.reallocate",
       },
       {
         id: "a.release-old",
@@ -2225,6 +2932,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the obsolete allocation, idempotently. The original resource returns to availability once, whatever number of times the release is attempted",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "c.notify",
+        idempotencyKey: "booking_id + a.release-old",
       },
       {
         id: "c.notify",
@@ -2250,6 +2958,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "occurrence_log", mode: "append" }],
         next: "x.reallocated",
         execution: "communication",
+        idempotencyKey: "booking_id + a.inform",
       },
       {
         id: "x.reallocated",
@@ -2258,6 +2967,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the booking continues to its scheduled occurrence and revalidates there like any other",
+        class: "success",
       },
       {
         id: "c.reschedule",
@@ -2292,6 +3002,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Cancel the affected reservation, recorded as provider-side. Provider cancellation and customer cancellation are different terminal states with different consequences, and collapsing them charges a cancellation fee to someone whose appointment we could not keep",
         writes: [{ field: "reservation_log", mode: "append" }],
         next: "a.release-cancel",
+        idempotencyKey: "booking_id + a.cancel",
       },
       {
         id: "a.release-cancel",
@@ -2302,6 +3013,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "a.notify-provider-cancel",
+        idempotencyKey: "booking_id + a.release-cancel",
       },
       {
         id: "a.notify-provider-cancel",
@@ -2309,6 +3021,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the customer the confirmed commitment can no longer be kept, that the failure is ours and not theirs, and that they are not recorded as having cancelled or missed it. Sent before any remedy or refund is worked out - waiting for the consequence means the person finds out their booking is gone from a message about money",
         execution: "communication",
         next: "c.remedy",
+        idempotencyKey: "booking_id + a.notify-provider-cancel",
       },
       {
         id: "c.remedy",
@@ -2359,6 +3072,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new booking is a new commitment. This cancellation stays in the record as a provider failure, which is what any later question about the customer's booking history depends on",
+        class: "failure",
       },
     ],
     guardrails: [
@@ -2902,6 +3616,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the reservation request, the requester, and the resource and slot it names",
       note: "One instance per request. A retried submission is the same request rather than a second claim on the same capacity.",
+      instanceKey: [
+        "booking_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2910,6 +3628,248 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold.",
       },
     ],
+    objective: "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
+    eligibility: [
+      "a reservation request recorded against a named requester, resource and slot",
+      "a permitted contact point for a booking notice",
+      "no instance of this journey is already open for the the reservation request",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A request acknowledged is never worded as a request confirmed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "What is offered after a failure is current availability, never the set the requester was originally shown."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is described as held unless the booking semantics actually hold it."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A lapse is stated. Silence after a request is read as a commitment."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "The confirmation restates the concrete slot every time. A reference is not a time and a place."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "reservation_outcome.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; an acknowledgement and one outcome message"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "reservation_outcome.cooldown",
+        "rule": "This journey is per the reservation request; a later instance concerns a different the reservation request and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "received",
+          "action": "a.received",
+          "prerequisites": [],
+          "purpose": "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "confirm",
+          "action": "a.confirm",
+          "after": "t1",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "reoffer",
+          "action": "a.reoffer",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say the requested time is gone, name the slots available now, and give a deadline for choosing.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "available-slots",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "that a slot is held",
+              "that the requested time is available"
+            ]
+          }
+        },
+        {
+          "id": "t4",
+          "stage": "decline",
+          "action": "a.decline",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t5",
+          "stage": "lapse",
+          "action": "a.lapse",
+          "gatedBy": "w.outcome",
+          "prerequisites": [],
+          "purpose": "Close the request as lapsed and say that nothing is held and nothing was booked.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "after": "t1"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "requester_id",
+          "resource_ref",
+          "slot_ref",
+          "contact_point",
+          "choice_deadline_at"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.confirmed",
+          "x.declined",
+          "x.lapsed",
+          "h.rebook"
+        ]
+      },
+      "businessOutcome": {
+        "event": "booking_confirmed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "booking confirmation",
+        "reservation confirmation",
+        "appointment confirmed",
+        "booking request outcome",
+        "slot no longer available"
+      ],
+      "useCases": [
+        "whether the requested time is now a commitment, stated one way or the other",
+        "the nearest real slots offered when the requested one is gone"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -2935,21 +3895,29 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come. The gap between asking for a time and holding it is where every double-booking dispute begins",
         next: "w.outcome",
         execution: "communication",
+        idempotencyKey: "booking_id + a.received",
       },
       {
         id: "w.outcome",
         kind: "wait",
         until: [
-          "the request is committed against current capacity",
-          "the request is rejected for want of capacity or eligibility",
+          "booking_confirmed",
+          "booking_request_rejected"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the period the booking semantics allow a request to stay unresolved",
-          reason: "an unresolved request sits against capacity other requesters can see, and it cannot sit there indefinitely",
+          "after": {
+            "key": "reservation_outcome.outcome",
+            "rule": "The period the booking semantics allow a request to stay unresolved.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an unresolved request sits against capacity other requesters can see, and it cannot sit there indefinitely",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.lapse",
         windowExtendsOnEngagement: false,
+        recheck: "the the reservation request re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -2979,6 +3947,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival. A confirmation that does not restate the specifics is not something the requester can act on a month later",
         next: "x.confirmed",
         execution: "communication",
+        idempotencyKey: "booking_id + a.confirm",
       },
       {
         id: "x.confirmed",
@@ -2986,6 +3955,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "committed and stated to the requester",
         terminal: false,
         reEntry: "a change or cancellation to this commitment is its own instance; a further request is a new one",
+        class: "success",
       },
       {
         id: "a.reoffer",
@@ -2993,21 +3963,30 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the requested time is gone, name the slots available now, and give a deadline for choosing. What is offered is current availability and never the set they were originally shown, which by definition contains one slot that no longer exists",
         next: "w.choice",
         execution: "communication",
+        idempotencyKey: "booking_id + a.reoffer",
       },
       {
         id: "w.choice",
         kind: "wait",
         until: [
-          "one of the offered slots is requested",
-          "every offered slot is declined",
+          "offered_slot_requested",
+          "offered_slots_declined"
         ],
         onEvent: "c.choice",
         timeout: {
-          after: "the stated deadline for choosing",
-          reason: "the offered slots stay visible to everyone else and are not held while one requester decides",
+          "after": {
+            "key": "reservation_outcome.choice",
+            "rule": "The stated deadline for choosing.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the offered slots stay visible to everyone else and are not held while one requester decides",
+          "relativeTo": "attribute",
+          "attribute": "choice_deadline_at"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the the reservation request re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.choice",
@@ -3042,6 +4021,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "no commitment made, requester informed",
         terminal: false,
         reEntry: "a fresh request for a different time enters as a new instance",
+        class: "success",
       },
       {
         id: "a.decline",
@@ -3049,6 +4029,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected. A rejection with no next horizon sends the requester somewhere else rather than back to the calendar",
         next: "x.declined",
         execution: "communication",
+        idempotencyKey: "booking_id + a.decline",
       },
       {
         id: "a.lapse",
@@ -3056,6 +4037,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the request as lapsed and say that nothing is held and nothing was booked. Requesters read silence as confirmation, which is the most expensive assumption in scheduling",
         next: "x.lapsed",
         execution: "communication",
+        idempotencyKey: "booking_id + a.lapse",
       },
       {
         id: "x.lapsed",
@@ -3063,6 +4045,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "request lapsed unresolved, nothing held",
         terminal: false,
         reEntry: "a fresh request starts the sequence again",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -3512,6 +4495,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the availability question, the resource and window it asked about, and the absence of any reservation from it",
       note: "The question is not a claim on anything. A second question about a different window is its own instance and never inherits the first one's offer.",
+      instanceKey: [
+        "person_id",
+        "availability_query_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -3525,6 +4513,216 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so.",
       },
     ],
+    objective: "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
+    eligibility: [
+      "an availability query recorded for a named person against a specific resource and window",
+      "no reservation or hold created by that person for that window since",
+      "no instance of this journey is already open for the the availability question",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Availability is re-evaluated before the offer is sent. What the query returned was never held and is not evidence of anything now."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A different window is labelled as a different window."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A waitlist place is stated as reserving nothing."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "One offer per query. A second offer for the same request is pressure rather than help."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "The delay before the offer is bounded and never extended by the person browsing again."
+      }
+    ],
+    contact: {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "availability_searched.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "availability_searched.cooldown",
+        "rule": "This journey is per the availability question; a later instance concerns a different the availability question and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "commerce-recovery",
+        "scope": "person",
+        "precedence": "below process recovery and selection recovery; alongside interest recovery - an availability enquiry that asked for a specific window outranks inferred interest for the same person",
+        "onLoss": "suppressed"
+      }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a valid token or app session exists and the message is a single step from the notification"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "offer",
+          "action": "a.offer",
+          "gatedBy": "w.settle",
+          "prerequisites": [
+            "c.options"
+          ],
+          "purpose": "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held.",
+          "channelRoles": [
+            "persistent",
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "nearest-bookable-window",
+            "boundTo": "availability_query_id",
+            "mustNotClaim": [
+              "that the window is held",
+              "that it is the window asked for"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "waitlist",
+          "action": "a.waitlist",
+          "gatedBy": "w.settle",
+          "prerequisites": [
+            "c.options"
+          ],
+          "purpose": "Offer a waitlist place and state that it reserves nothing.",
+          "channelRoles": [
+            "persistent",
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "waitlist-place",
+            "boundTo": "availability_query_id",
+            "mustNotClaim": [
+              "that a place is reserved"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "availability_query_id",
+          "resource_ref",
+          "requested_window",
+          "last_query_at",
+          "permission_position"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.no-route",
+          "x.booked",
+          "x.waitlisted",
+          "x.nothing",
+          "x.lapsed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "booking_confirmed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "availability search abandonment",
+        "searched but did not book",
+        "no availability follow-up",
+        "waitlist offer",
+        "nearest slot offer"
+      ],
+      "useCases": [
+        "an availability question that produced no booking, answered with something bookable now",
+        "a waitlist place stated as reserving nothing"
+      ]
+    },
     entry: "t.queried",
     nodes: [
       {
@@ -3567,21 +4765,29 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "no offer made; the query cannot be attributed to a reachable person",
         terminal: false,
         reEntry: "a later query from an identified person qualifies normally",
+        class: "no-action",
       },
       {
         id: "w.settle",
         kind: "wait",
         until: [
-          "a reservation or hold is created by this person for the requested window",
-          "the requested window is taken or withdrawn",
+          "booking_confirmed",
+          "availability_lost"
         ],
         onEvent: "c.settled",
         timeout: {
-          after: "a short bounded delay, long enough that the person is no longer in the product deciding",
-          reason: "an offer that arrives while somebody is still choosing competes with the thing they are choosing, and usually wins nothing",
+          "after": {
+            "key": "availability_searched.settle",
+            "rule": "The offer waits long enough after the query that an unprompted booking has had its chance, and no longer than the question stays live.",
+            "class": "recovery-window",
+            "required": true
+          },
+          "reason": "an offer that arrives while somebody is still choosing competes with the thing they are choosing, and usually wins nothing",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.recheck",
         windowExtendsOnEngagement: false,
+        recheck: "the the availability question re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.settled",
@@ -3606,6 +4812,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "booked; no offer was needed",
         terminal: false,
         reEntry: "a later query with no booking behind it starts a new instance",
+        class: "success",
       },
       {
         id: "a.recheck",
@@ -3641,6 +4848,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held. Somebody who wanted one day and is shown another should see that at a glance, not discover it at the point of booking",
         next: "w.respond",
         execution: "communication",
+        idempotencyKey: "booking_id + a.offer",
       },
       {
         id: "a.waitlist",
@@ -3648,19 +4856,28 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
         next: "w.waitlist",
         execution: "communication",
+        idempotencyKey: "booking_id + a.waitlist",
       },
       {
         id: "w.waitlist",
         kind: "wait",
-        until: ["the person takes the waitlist place"],
+        until: [
+          "waitlist_place_taken"
+        ],
         onEvent: "x.waitlisted",
         timeout: {
-          after: "the validity of the waitlist offer",
-          reason:
-            "an offered place nobody took is not a place held - leaving the offer open would put someone on a list they never agreed to be on",
+          "after": {
+            "key": "availability_searched.waitlist",
+            "rule": "The validity of the waitlist offer.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an offered place nobody took is not a place held - leaving the offer open would put someone on a list they never agreed to be on",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the the availability question re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.waitlisted",
@@ -3668,6 +4885,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "waitlisted; nothing is reserved",
         terminal: false,
         reEntry: "capacity reaching the waitlist is that mechanism's business, not a new instance of this one",
+        class: "success",
       },
       {
         id: "x.nothing",
@@ -3675,20 +4893,28 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "nothing to offer; no message sent",
         terminal: false,
         reEntry: "a later query for a window that does have capacity qualifies again",
+        class: "no-action",
       },
       {
         id: "w.respond",
         kind: "wait",
         until: [
-          "a reservation is created for the offered window",
+          "booking_confirmed"
         ],
         onEvent: "x.booked",
         timeout: {
-          after: "the validity of the offered window",
-          reason: "the offer was true at one instant only, and the window closing is what makes a second offer a different journey rather than a repeat",
+          "after": {
+            "key": "availability_searched.respond",
+            "rule": "The validity of the offered window.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "the offer was true at one instant only, and the window closing is what makes a second offer a different journey rather than a repeat",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the the availability question re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.lapsed",
@@ -3696,6 +4922,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "offer made and not taken",
         terminal: false,
         reEntry: "a new availability query is a new instance; this one is never re-offered",
+        class: "timeout",
       },
     ],
     guardrails: [

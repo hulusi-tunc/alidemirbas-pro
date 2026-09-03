@@ -1,0 +1,307 @@
+{
+ "id": "SUB-262",
+ "shortName": "Cancellation Confirmation",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.cancelled",
+   "event": "cancellation_confirmed",
+   "meaning": "an authoritative cancellation recorded against the relationship; an effective end date",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative cancellation recorded against the relationship",
+    "an effective end date",
+    "no instance of this journey is already open for the the cancelled relationship plus its effective end date",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "relationship_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "cancellation_wind.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t1",
+   "stage": "confirm",
+   "purpose": "Confirm the cancellation, the exact date access ends, and what remains available until then.",
+   "brief": "Confirm the cancellation, the exact date access ends, and what remains available until then. Paid-for access is not cut short because somebody cancelled early, and saying so is what stops the immediate 'have I lost it already' contact",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "relationship_id + a.confirm"
+  },
+  {
+   "type": "condition",
+   "node": "c.window",
+   "asks": "Is there a meaningful window before access ends?",
+   "branches": [
+    {
+     "label": "Window remains",
+     "observes": null,
+     "test": "the effective end date is far enough out that a reminder before it would still be useful",
+     "to": "w.window"
+    },
+    {
+     "label": "Ends immediately",
+     "observes": null,
+     "test": "access ends at once or too soon for a further message to arrive in time",
+     "to": "c.obligations"
+    }
+   ]
+  },
+  {
+   "type": "wait",
+   "node": "w.window",
+   "timing": {
+    "key": "cancellation_wind.window",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "effective_end_at",
+   "onTimeout": "a.ending"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.window",
+   "cancelOn": [
+    {
+     "event": "cancellation_withdrawn",
+     "meaning": "the person withdraws the cancellation before it takes effect"
+    },
+    {
+     "event": "effective_end_reached",
+     "meaning": "the effective end date is reached"
+    }
+   ],
+   "onEvent": "c.withdrawn"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.window",
+   "reads": "the the cancelled relationship plus its effective end date re-read from the system of record before acting on the timeout",
+   "before": "a.ending"
+  },
+  {
+   "type": "condition",
+   "node": "c.withdrawn",
+   "asks": "Did they withdraw the cancellation?",
+   "branches": [
+    {
+     "label": "Withdrawn",
+     "observes": null,
+     "test": "an authoritative reactivation or withdrawal is recorded before the end date",
+     "to": "x.returned"
+    },
+    {
+     "label": "Still ending",
+     "observes": null,
+     "test": "the relationship is still due to end",
+     "to": "a.ending"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.returned",
+   "class": "invalid-state",
+   "state": "cancellation withdrawn, relationship continues",
+   "reEntry": "a later cancellation starts a new wind-down"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.ending",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "cancellation_wind.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.ending",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.ending",
+   "touch": "t2",
+   "stage": "ending",
+   "purpose": "Say that access ends shortly and what will and will not survive it - exports, history, outstanding obligations.",
+   "brief": "Say that access ends shortly and what will and will not survive it - exports, history, outstanding obligations. This is information the person needs whether or not they intend to come back",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.ending",
+   "key": "relationship_id + a.ending"
+  },
+  {
+   "type": "condition",
+   "node": "c.obligations",
+   "asks": "Does anything outlive the relationship?",
+   "branches": [
+    {
+     "label": "Obligations remain",
+     "observes": null,
+     "test": "an outstanding balance, a return, a retention period or an external subscription survives the end date",
+     "to": "h.obligations"
+    },
+    {
+     "label": "Nothing outstanding",
+     "observes": null,
+     "test": "the relationship ends cleanly",
+     "to": "x.ended"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.obligations",
+   "to": "SUB-170",
+   "on": "a cancelled relationship with obligations that continue past its end",
+   "carries": [
+    "the end date and what was already communicated about it",
+    "which obligations survive and who owns each"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.ended",
+   "class": "success",
+   "state": "ended with nothing outstanding",
+   "reEntry": "a former customer returning enters through acquisition or reactivation, not here"
+  }
+ ]
+}

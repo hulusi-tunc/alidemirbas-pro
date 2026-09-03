@@ -1,0 +1,429 @@
+{
+ "id": "DOC-286",
+ "shortName": "Document Activation",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "exit",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.effective",
+   "event": "document_recorded_effective",
+   "meaning": "an authoritative record that this version is in force, revalidated at its effective moment; the entitlement it confers, expressed as something the holder can act on; a named holder with a permitted route to them",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative record that this version is in force, revalidated at its effective moment",
+    "the entitlement it confers, expressed as something the holder can act on",
+    "a named holder with a permitted route to them",
+    "no instance of this journey is already open for the the effective document version and the entitlement it confers on its holder",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "document_version_id",
+    "person_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.usable",
+   "asks": "Is this entitlement exercised, or held?",
+   "branches": [
+    {
+     "label": "Exercised",
+     "observes": null,
+     "test": "the entitlement is taken up by an action the holder performs - a claim, a booking, an access, a draw-down",
+     "to": "a.in-force-actionable"
+    },
+    {
+     "label": "Held",
+     "observes": null,
+     "test": "the entitlement is a standing protection or permission with nothing to do unless something happens",
+     "to": "a.in-force-standing"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.in-force-actionable",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "document_effective.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.in-force-actionable",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.in-force-actionable",
+   "touch": "t1",
+   "stage": "in-force-actionable",
+   "purpose": "Say the document is in force, from when, and name the single first thing the entitlement now lets them do.",
+   "brief": "Say the document is in force, from when, and name the single first thing the entitlement now lets them do. The gap between signing and taking effect is where holders quietly conclude that nothing happened",
+   "destination": {
+    "target": "first-action-under-document",
+    "boundTo": "document_version_id",
+    "mustNotClaim": [
+     "that signing made it effective"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.usable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.in-force-actionable",
+   "key": "document_version_id + person_id + a.in-force-actionable"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.in-force-standing",
+   "touch": "t2",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "document_effective.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.in-force-standing",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.in-force-standing",
+   "touch": "t2",
+   "stage": "in-force-standing",
+   "purpose": "Say the document is in force and what it covers, and name the moment at which it would matter rather than an action to take now.",
+   "brief": "Say the document is in force and what it covers, and name the moment at which it would matter rather than an action to take now. An entitlement that only applies when something goes wrong is otherwise read as inactive until it is needed",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.usable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.in-force-standing",
+   "key": "document_version_id + person_id + a.in-force-standing"
+  },
+  {
+   "type": "exit",
+   "node": "x.standing",
+   "class": "success",
+   "state": "in force, nothing for the holder to exercise",
+   "reEntry": "a superseding version, or a change that gives the entitlement something to exercise, is a new instance"
+  },
+  {
+   "type": "wait",
+   "node": "w.first-use",
+   "timing": {
+    "key": "document_effective.first_use",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.still-in-force"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.first-use",
+   "cancelOn": [
+    {
+     "event": "capability_first_used",
+     "meaning": "the granted capability is used for the first time"
+    },
+    {
+     "event": "document_version_superseded",
+     "meaning": "the document version is superseded"
+    },
+    {
+     "event": "effective_period_ended",
+     "meaning": "the effective period ends"
+    }
+   ],
+   "onEvent": "c.what-happened"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.first-use",
+   "reads": "the the effective document version and the entitlement it confers on its holder re-read from the system of record before acting on the timeout",
+   "before": "c.still-in-force"
+  },
+  {
+   "type": "condition",
+   "node": "c.what-happened",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Exercised",
+     "observes": null,
+     "test": "an authoritative first exercise of the entitlement was recorded",
+     "to": "x.used"
+    },
+    {
+     "label": "Ended first",
+     "observes": null,
+     "test": "the document was superseded, revoked or ran out before any use",
+     "to": "x.moot"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.used",
+   "class": "success",
+   "state": "entitlement exercised",
+   "reEntry": "a further document taking effect for the same holder is its own instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.moot",
+   "class": "invalid-state",
+   "state": "in force and ended without ever being used",
+   "reEntry": "a superseding version taking effect starts its own instance"
+  },
+  {
+   "type": "condition",
+   "node": "c.still-in-force",
+   "asks": "Does the document still stand?",
+   "branches": [
+    {
+     "label": "Still in force",
+     "observes": null,
+     "test": "this remains the authoritative version and its effective period has not ended",
+     "to": "a.reminder"
+    },
+    {
+     "label": "No longer in force",
+     "observes": null,
+     "test": "the document has been superseded, revoked or has run out",
+     "to": "x.moot"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.reminder",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "none",
+   "localCap": {
+    "value": {
+     "key": "document_effective.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.reminder",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.reminder",
+   "touch": "t3",
+   "stage": "reminder",
+   "purpose": "Send one reminder naming what is in force and the same single first action, not a second explanation of the document.",
+   "brief": "Send one reminder naming what is in force and the same single first action, not a second explanation of the document. There is no further reminder - the entitlement stands whether or not it is used, and chasing it turns a benefit into a demand",
+   "destination": {
+    "target": "first-action-under-document",
+    "boundTo": "document_version_id"
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [
+    "c.still-in-force"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reminder",
+   "key": "document_version_id + person_id + a.reminder"
+  },
+  {
+   "type": "wait",
+   "node": "w.dormancy",
+   "timing": {
+    "key": "document_effective.dormancy",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "effective_period_ends_at",
+   "onTimeout": "x.dormant"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.dormancy",
+   "cancelOn": [
+    {
+     "event": "capability_first_used",
+     "meaning": "the granted capability is used for the first time"
+    }
+   ],
+   "onEvent": "x.used"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.dormancy",
+   "reads": "the the effective document version and the entitlement it confers on its holder re-read from the system of record before acting on the timeout",
+   "before": "x.dormant"
+  },
+  {
+   "type": "exit",
+   "node": "x.dormant",
+   "class": "timeout",
+   "state": "in force and dormant",
+   "reEntry": "a renewal or a superseding version taking effect starts a new instance"
+  }
+ ]
+}

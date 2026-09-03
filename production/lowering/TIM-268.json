@@ -1,0 +1,474 @@
+{
+ "id": "TIM-268",
+ "shortName": "Action Required Reminder",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "state-update",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.owed",
+   "event": "customer_owed_obligation_outstanding",
+   "meaning": "an authoritative record that a defined action is owed by a named person; a due date recorded against it",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative record that a defined action is owed by a named person",
+    "a due date recorded against it",
+    "no instance of this journey is already open for the the outstanding obligation",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "obligation_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.remindable",
+   "asks": "Is there a gap before the deadline worth waiting through?",
+   "branches": [
+    {
+     "label": "Time remains",
+     "observes": null,
+     "test": "the due date is far enough out that the reminder point has not been reached",
+     "to": "w.due"
+    },
+    {
+     "label": "Due now or already past",
+     "observes": null,
+     "test": "the reminder point is reached or gone by the time this qualifies",
+     "to": "a.recheck"
+    }
+   ]
+  },
+  {
+   "type": "wait",
+   "node": "w.due",
+   "timing": {
+    "key": "outstanding_obligation.due",
+    "class": "reminder-before-attribute",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "due_at",
+   "onTimeout": "a.recheck"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.due",
+   "cancelOn": [
+    {
+     "event": "obligation_no_longer_owed",
+     "meaning": "the obligation is satisfied, cancelled or adjusted to nothing"
+    },
+    {
+     "event": "obligation_changed_still_owed",
+     "meaning": "the obligation changes but remains owed"
+    }
+   ],
+   "onEvent": "a.recheck"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.due",
+   "reads": "the the outstanding obligation re-read from the system of record before acting on the timeout",
+   "before": "a.recheck"
+  },
+  {
+   "type": "state-update",
+   "node": "a.recheck",
+   "does": "Re-read the obligation from authoritative current state immediately before sending - what is owed now, what has been received against it, and what the deadline is now. A message built from the state an hour ago is how somebody who has already settled is asked to settle again",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.outstanding",
+   "asks": "Is anything still owed at the moment of sending?",
+   "branches": [
+    {
+     "label": "Still outstanding",
+     "observes": null,
+     "test": "the record shows the obligation unsatisfied in whole or in part",
+     "to": "a.remind"
+    },
+    {
+     "label": "Nothing outstanding",
+     "observes": null,
+     "test": "it has been satisfied, cancelled or adjusted to nothing",
+     "to": "x.moot"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.moot",
+   "class": "no-action",
+   "state": "no longer owed; nothing was sent",
+   "reEntry": "a later obligation owed by the same person is a new instance"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "outstanding_obligation.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t1",
+   "stage": "remind",
+   "purpose": "Name the obligation, what remains outstanding, the deadline and the single way to discharge it.",
+   "brief": "Name the obligation, what remains outstanding, the deadline and the single way to discharge it. Partly met is not met, and the figure named is what is still owed rather than what it started as - the difference is what makes the message answerable",
+   "destination": {
+    "target": "discharge-route",
+    "boundTo": "obligation_id",
+    "mustNotClaim": [
+     "that partly met is met"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.remindable",
+    "c.outstanding"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "obligation_id + a.remind"
+  },
+  {
+   "type": "wait",
+   "node": "w.deadline",
+   "timing": {
+    "key": "outstanding_obligation.deadline",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "due_at",
+   "onTimeout": "a.overdue"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.deadline",
+   "cancelOn": [
+    {
+     "event": "obligation_satisfied",
+     "meaning": "the obligation is satisfied in the system of record"
+    },
+    {
+     "event": "obligation_no_longer_owed",
+     "meaning": "the obligation is satisfied, cancelled or adjusted to nothing"
+    },
+    {
+     "event": "deadline_passed_unmet",
+     "meaning": "the deadline passes with the obligation still owed"
+    }
+   ],
+   "onEvent": "c.settled"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.deadline",
+   "reads": "the the outstanding obligation re-read from the system of record before acting on the timeout",
+   "before": "a.overdue"
+  },
+  {
+   "type": "condition",
+   "node": "c.settled",
+   "asks": "How did it resolve?",
+   "branches": [
+    {
+     "label": "Satisfied",
+     "observes": null,
+     "test": "an authoritative event discharges the obligation in full",
+     "to": "a.confirm"
+    },
+    {
+     "label": "Cancelled or adjusted away",
+     "observes": null,
+     "test": "the obligation no longer exists to be met",
+     "to": "x.moot"
+    },
+    {
+     "label": "Still owed at the deadline",
+     "observes": null,
+     "test": "the deadline passed with something still outstanding",
+     "to": "a.overdue"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "outstanding_obligation.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t2",
+   "stage": "confirm",
+   "purpose": "Confirm it is discharged and that nothing further is expected.",
+   "brief": "Confirm it is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact is made of",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.settled"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "obligation_id + a.confirm"
+  },
+  {
+   "type": "exit",
+   "node": "x.satisfied",
+   "class": "success",
+   "state": "satisfied and confirmed",
+   "reEntry": "a new obligation owed by the same person is a new instance"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.overdue",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "outstanding_obligation.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.overdue",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.overdue",
+   "touch": "t3",
+   "stage": "overdue",
+   "purpose": "Say once that the deadline has passed, what stands now, and what consequence policy actually attaches to it.",
+   "brief": "Say once that the deadline has passed, what stands now, and what consequence policy actually attaches to it. One notice - repeating it is a recovery sequence, and that belongs to whoever owns the consequence rather than to whoever owns the reminder",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.settled"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.overdue",
+   "key": "obligation_id + a.overdue"
+  },
+  {
+   "type": "condition",
+   "node": "c.escalate",
+   "asks": "Does a defined consequence own this now?",
+   "branches": [
+    {
+     "label": "A consequence applies",
+     "observes": null,
+     "test": "policy defines a further step for an obligation unmet past its deadline",
+     "to": "h.consequence"
+    },
+    {
+     "label": "Nothing further is defined",
+     "observes": null,
+     "test": "no consequence is defined and the obligation simply stands unmet",
+     "to": "x.lapsed"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.consequence",
+   "to": "external:consequence-owner",
+   "on": "an obligation still outstanding past its deadline with a defined consequence attached",
+   "carries": [
+    "what remains outstanding, its due date and its history",
+    "which reminders were sent, when, and what they stated"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "obligation_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "lapsed unmet; no further consequence is defined",
+   "reEntry": "if the obligation is later satisfied, the confirmation runs from that event"
+  }
+ ]
+}

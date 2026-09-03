@@ -1,0 +1,605 @@
+{
+ "id": "ACT-14",
+ "shortName": "Onboarding Help",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.struggling",
+   "event": "help_seeking_without_activation_progress",
+   "meaning": "help-seeking behaviour: repeated help-centre visits, repeated returns to the same setup page, repeated failed integration or setup attempts, or repeated errors; and no activation progress behind it",
+   "evidenceSource": "behavioral",
+   "entryFilters": [
+    "help-seeking behaviour: repeated help-centre visits, repeated returns to the same setup page, repeated failed integration or setup attempts, or repeated errors",
+    "and no activation progress behind it",
+    "no instance of this journey is already open for the person or account plus the open onboarding or trial instance",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "account_id",
+    "person_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.hard-entry",
+   "asks": "Are the hard entry conditions met?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": null,
+     "test": "the onboarding or trial is still open and core activation has not been recorded",
+     "to": "c.duplicate"
+    },
+    {
+     "label": "Not eligible",
+     "observes": null,
+     "test": "the instance has closed, or activation already happened - in which case the help-seeking is about something else",
+     "to": "x.not-eligible"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.not-eligible",
+   "class": "no-action",
+   "state": "not in scope for rescue",
+   "reEntry": "a later struggle inside an open, unactivated instance qualifies normally"
+  },
+  {
+   "type": "condition",
+   "node": "c.duplicate",
+   "asks": "Is a person already working this same blocker?",
+   "branches": [
+    {
+     "label": "Already handled",
+     "observes": null,
+     "test": "an open support case or an assigned human owner covers the same issue, or ACT-13 already owns a named requirement on this instance - the struggle is almost always that requirement, and a help offer beside a blocker reminder is two voices on one problem",
+     "to": "x.defer"
+    },
+    {
+     "label": "Nobody on it",
+     "observes": null,
+     "test": "no open case or owner covers it",
+     "to": "a.offer"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.defer",
+   "class": "suppression",
+   "state": "deferred to the person already handling it",
+   "reEntry": "if that case closes with the struggle unresolved, this qualifies again - two channels chasing one problem is worse than one slow channel"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "struggling_user.touches",
+     "default": 4,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer",
+   "touch": "t1",
+   "stage": "offer",
+   "purpose": "Offer help named against the step they keep returning to.",
+   "brief": "Offer help named against the step they keep returning to. The primary route books assisted setup; the secondary opens the specific guide for that step, for people who would rather not talk to anyone",
+   "destination": {
+    "target": "book-assisted-setup",
+    "boundTo": "account_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.hard-entry",
+    "c.duplicate"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer",
+   "key": "account_id + person_id + a.offer"
+  },
+  {
+   "type": "wait",
+   "node": "w.response",
+   "timing": {
+    "key": "struggling_user.response",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.final-option"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.response",
+   "cancelOn": [
+    {
+     "event": "assisted_session_scheduled",
+     "meaning": "an assisted session is booked"
+    },
+    {
+     "event": "activation_recorded",
+     "meaning": "the authoritative activation event for this onboarding is recorded"
+    },
+    {
+     "event": "assistance_declined",
+     "meaning": "the person explicitly turns the help offer down"
+    }
+   ],
+   "onEvent": "c.what-happened"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.response",
+   "reads": "the person or account plus the open onboarding or trial instance re-read from the system of record before acting on the timeout",
+   "before": "c.final-option"
+  },
+  {
+   "type": "condition",
+   "node": "c.what-happened",
+   "asks": "What did they do?",
+   "branches": [
+    {
+     "label": "Booked",
+     "observes": null,
+     "test": "an assisted session was scheduled",
+     "to": "a.confirm"
+    },
+    {
+     "label": "Solved it themselves",
+     "observes": null,
+     "test": "the activation event was recorded without any session",
+     "to": "h.activated"
+    },
+    {
+     "label": "Declined",
+     "observes": null,
+     "test": "the offer was explicitly turned down",
+     "to": "x.declined"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.declined",
+   "class": "no-action",
+   "state": "assistance declined, cooldown in force",
+   "reEntry": "a new struggle after the cooldown may qualify again; the same offer is not re-sent to someone who has already said no to it"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "struggling_user.touches",
+     "default": 4,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t2",
+   "stage": "confirm",
+   "purpose": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
+   "brief": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
+   "destination": {
+    "target": "assisted-session-details",
+    "boundTo": "session_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.what-happened"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "account_id + person_id + a.confirm"
+  },
+  {
+   "type": "wait",
+   "node": "w.session",
+   "timing": {
+    "key": "struggling_user.session",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.no-outcome"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.session",
+   "cancelOn": [
+    {
+     "event": "assisted_session_outcome_recorded",
+     "meaning": "the outcome of the assisted session is recorded"
+    },
+    {
+     "event": "booking_cancelled",
+     "meaning": "the booking is cancelled in the system of record"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.session",
+   "reads": "the person or account plus the open onboarding or trial instance re-read from the system of record before acting on the timeout",
+   "before": "x.no-outcome"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-outcome",
+   "class": "timeout",
+   "state": "no session outcome recorded",
+   "reEntry": "the assistance offer is not repeated on this instance; a fresh struggle after the cooldown is a new question"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "Did activation follow the assistance?",
+   "branches": [
+    {
+     "label": "Activated",
+     "observes": null,
+     "test": "the authoritative activation event was recorded after the session",
+     "to": "h.activated"
+    },
+    {
+     "label": "Still not activated",
+     "observes": null,
+     "test": "the session happened and value still has not been produced",
+     "to": "c.followup"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.followup",
+   "asks": "Is there one genuinely useful follow-up left?",
+   "branches": [
+    {
+     "label": "Yes",
+     "observes": null,
+     "test": "the session surfaced a specific remaining action worth naming",
+     "to": "a.followup"
+    },
+    {
+     "label": "No",
+     "observes": null,
+     "test": "nothing specific came out of it, and a follow-up would only restate the offer",
+     "to": "x.normal"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.followup",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "struggling_user.touches",
+     "default": 4,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.followup",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.followup",
+   "touch": "t3",
+   "stage": "followup",
+   "purpose": "Send one follow-up tied to what the session actually covered.",
+   "brief": "Send one follow-up tied to what the session actually covered. There is no second one, and no further request for a call",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome",
+    "c.followup"
+   ],
+   "after": "t2"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.followup",
+   "key": "account_id + person_id + a.followup"
+  },
+  {
+   "type": "condition",
+   "node": "c.final-option",
+   "asks": "With no response, is one final self-service option worth sending?",
+   "branches": [
+    {
+     "label": "Worth one",
+     "observes": null,
+     "test": "a specific guide exists for the step they were stuck on",
+     "to": "a.final"
+    },
+    {
+     "label": "Not worth it",
+     "observes": null,
+     "test": "nothing specific exists to point at, and a general nudge would just repeat the offer",
+     "to": "x.normal"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.final",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "struggling_user.touches",
+     "default": 4,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.final",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.final",
+   "touch": "t4",
+   "stage": "final",
+   "purpose": "Send one final self-service option and stop.",
+   "brief": "Send one final self-service option and stop. The call is not asked for a third time",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.final-option"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.final",
+   "key": "account_id + person_id + a.final"
+  },
+  {
+   "type": "handoff",
+   "node": "h.activated",
+   "to": "ACT-16",
+   "on": "activation reached, with or without the session",
+   "carries": [
+    "whether assistance was involved, which is worth knowing about this account later",
+    "the struggle that preceded it"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.normal",
+   "class": "success",
+   "state": "rescue attempt closed, ordinary lifecycle resumes",
+   "reEntry": "a new struggle in an open, unactivated instance after the cooldown"
+  }
+ ]
+}

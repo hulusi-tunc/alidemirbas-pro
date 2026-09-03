@@ -90,7 +90,7 @@ for (const specPath of process.argv.slice(2)) {
   for (const [nid, to] of Object.entries(spec.nextTo ?? {})) nodeEdit(nid, (t) => t.replace(/(\n\s+(?:next|onEvent|onTimeout): )"[^"]+"/, `$1"${to}"`));
   for (const [nid, w] of Object.entries(spec.waits ?? {})) nodeEdit(nid, (t) => {
     if (w.until) t = setField(t, "until", tsLiteral(w.until, IND + "  "));
-    if (w.timeout) { const cur = t.match(/\n\s+timeout: \{([\s\S]*?)\n\s+\},/); const reason = w.timeout.reason ?? (cur ? cur[1].match(/reason:\s*("(?:[^"\\]|\\.)*")/s)?.[1] : null); const obj = { after: w.timeout.after, reason: reason ? JSON.parse(reason) : "", relativeTo: w.timeout.relativeTo, ...(w.timeout.attribute ? { attribute: w.timeout.attribute } : {}) }; t = setField(t, "timeout", tsLiteral(obj, IND + "  ")); }
+    if (w.timeout) { const cur = t.match(/\n\s+timeout: \{([\s\S]*?)\n\s+\},/); const curReason = cur ? cur[1].match(/reason:\s*("(?:[^"\\]|\\.)*")/s)?.[1] : null; const reason = w.timeout.reason ?? (curReason ? JSON.parse(curReason) : ""); const obj = { after: w.timeout.after, reason, relativeTo: w.timeout.relativeTo, ...(w.timeout.attribute ? { attribute: w.timeout.attribute } : {}) }; t = setField(t, "timeout", tsLiteral(obj, IND + "  ")); }
     if (w.recheck) t = setField(t, "recheck", JSON.stringify(w.recheck));
     if (w.onEvent) t = setField(t, "onEvent", JSON.stringify(w.onEvent));
     if (w.onTimeout) t = setField(t, "onTimeout", JSON.stringify(w.onTimeout));
@@ -99,11 +99,28 @@ for (const specPath of process.argv.slice(2)) {
   for (const [nid, cls] of Object.entries(spec.exits ?? {})) nodeEdit(nid, (t) => setField(t, "class", JSON.stringify(cls)));
   for (const [nid, f] of Object.entries(spec.actions ?? {})) nodeEdit(nid, (t) => { for (const [k, v] of Object.entries(f)) t = setField(t, k, tsLiteral(v, IND + "  ")); return t; });
   for (const [nid, f] of Object.entries(spec.handoffs ?? {})) nodeEdit(nid, (t) => { for (const [k, v] of Object.entries(f)) t = setField(t, k, tsLiteral(v, IND + "  ")); return t; });
-  if (spec.trigger?.insufficientAlone) { const tid = block.match(/entry: "([^"]+)"/)[1]; nodeEdit(tid, (t) => t.includes("insufficientAlone") ? t : t.replace(/(\n\s+)source: /, `$1insufficientAlone: ${tsLiteral(spec.trigger.insufficientAlone, IND + "    ")},$1source: `)); }
+  if (spec.trigger?.insufficientAlone) { const tid = block.match(/entry: "([^"]+)"/)[1]; nodeEdit(tid, (t) => t.includes("insufficientAlone") ? t.replace(/\n(\s+)insufficientAlone: [\s\S]*?(?=\n\s+source: )/, `\n$1insufficientAlone: ${tsLiteral(spec.trigger.insufficientAlone, IND + "    ")},`) : t.replace(/(\n\s+)source: /, `$1insufficientAlone: ${tsLiteral(spec.trigger.insufficientAlone, IND + "    ")},$1source: `)); }
 
-  if (spec.entity) block = block.replace(/(\n    entity: \{[\s\S]*?)(\n    \},)/, (m0, head, tail) => `${head},\n      ${Object.entries(spec.entity).map(([k, v]) => `${k}: ${tsLiteral(v, "      ")}`).join(",\n      ")}${tail}`.replace(/,,/g, ","));
+  if (spec.entity) block = block.replace(/(\n    entity: \{[\s\S]*?)(\n    \},)/, (m0, head, tail) => {
+    // replace a key that already exists inside the entity literal (a re-splice), append the rest
+    let h = head;
+    const rest = [];
+    for (const [k, v] of Object.entries(spec.entity)) {
+      const re = new RegExp(`\\n      ${k}: [\\s\\S]*?(?=,?\\n      [A-Za-z_]+: |$)`);
+      if (re.test(h)) h = h.replace(re, `\n      ${k}: ${tsLiteral(v, "      ")}`); else rest.push(`${k}: ${tsLiteral(v, "      ")}`);
+    }
+    return `${h.replace(/,\s*$/, "")}${rest.length ? `,\n      ${rest.join(",\n      ")}` : ""}${tail}`.replace(/,,/g, ",");
+  });
   if (spec.removeCompetition) block = block.replace(/\n    competition: \{[\s\S]*?\n    \},/, "");
-  if (spec.journey) { const fields = Object.entries(spec.journey).map(([k, v]) => `    ${k}: ${tsLiteral(v, "    ")},`).join("\n"); block = block.replace(/\n    entry: /, `\n${fields}\n    entry: `); }
+  if (spec.journey) {
+    // replace a journey-level field that already exists (a reviewed re-splice), insert the rest before entry
+    for (const [k, v] of Object.entries(spec.journey)) {
+      const lit = `    ${k}: ${tsLiteral(v, "    ")},`;
+      const re = new RegExp(`\\n    ${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}: [\\s\\S]*?(?=\\n    [A-Za-z_"][A-Za-z0-9_"]*: |\\n  \\},)`);
+      if (re.test(block)) block = block.replace(re, `\n${lit}`);
+      else block = block.replace(/\n    entry: /, `\n${lit}\n    entry: `);
+    }
+  }
 
   src = src.slice(0, a) + block + src.slice(b);
   await writeFile(spec.file, src);

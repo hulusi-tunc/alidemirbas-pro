@@ -1,0 +1,519 @@
+{
+ "id": "FUL-265",
+ "shortName": "Delivery Tracking",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "condition",
+  "exit",
+  "handoff",
+  "state-update"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.dispatched",
+   "event": "obligation_handed_to_delivery_executor",
+   "meaning": "an authoritative dispatch record naming the executor and the destination; a recipient with a permitted route for a service notice",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative dispatch record naming the executor and the destination",
+    "a recipient with a permitted route for a service notice",
+    "no instance of this journey is already open for the the dispatched obligation",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "obligation_id",
+    "person_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.dispatch",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "dispatch_to.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.dispatch",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.dispatch",
+   "touch": "t1",
+   "stage": "dispatch",
+   "purpose": "Say it is on its way, with the expected window and whatever reference genuinely follows it.",
+   "brief": "Say it is on its way, with the expected window and whatever reference genuinely follows it. Where no reference exists, say so rather than inventing one - a link that resolves to nothing costs more than an honest absence",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.dispatch",
+   "key": "obligation_id + person_id + a.dispatch"
+  },
+  {
+   "type": "wait",
+   "node": "w.delivery",
+   "timing": {
+    "key": "dispatch_to.delivery",
+    "class": "external-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.no-arrival"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.delivery",
+   "cancelOn": [
+    {
+     "event": "delivery_confirmed",
+     "meaning": "delivery is confirmed by the executor or the recipient"
+    },
+    {
+     "event": "delivery_failed",
+     "meaning": "the delivery attempt is confirmed failed"
+    },
+    {
+     "event": "delivery_delay_reported",
+     "meaning": "the executor reports a meaningful delay"
+    }
+   ],
+   "onEvent": "c.delivery"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.delivery",
+   "reads": "the the dispatched obligation re-read from the system of record before acting on the timeout",
+   "before": "a.no-arrival"
+  },
+  {
+   "type": "condition",
+   "node": "c.delivery",
+   "asks": "What did the executor authoritatively report?",
+   "branches": [
+    {
+     "label": "Delivered",
+     "observes": null,
+     "test": "a final delivery confirmation exists, not an intermediate tracking movement",
+     "to": "a.arrived"
+    },
+    {
+     "label": "Not delivered",
+     "observes": null,
+     "test": "a confirmed failure, or a window that has passed with no final outcome",
+     "to": "a.no-arrival"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.no-arrival",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "dispatch_to.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.no-arrival",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.no-arrival",
+   "touch": "t2",
+   "stage": "no-arrival",
+   "purpose": "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of.",
+   "brief": "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of. Calling an unknown a failure produces a replacement that then arrives alongside the original",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.no-arrival",
+   "key": "obligation_id + person_id + a.no-arrival"
+  },
+  {
+   "type": "exit",
+   "node": "x.unresolved",
+   "class": "failure",
+   "state": "not delivered; failed or unaccounted for, and being reconciled with the executor",
+   "reEntry": "a re-dispatch of the same obligation starts a new instance"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.arrived",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "dispatch_to.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.arrived",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.arrived",
+   "touch": "t3",
+   "stage": "arrived",
+   "purpose": "Confirm it arrived and what the evidence for that is.",
+   "brief": "Confirm it arrived and what the evidence for that is. Proof of delivery is a fact about the executor, and stating it is what lets the recipient contradict it while the memory is fresh",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.delivery"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.arrived",
+   "key": "obligation_id + person_id + a.arrived"
+  },
+  {
+   "type": "condition",
+   "node": "c.acceptance",
+   "asks": "Does acceptance carry any consequence here?",
+   "branches": [
+    {
+     "label": "Acceptance is meaningful",
+     "observes": null,
+     "test": "policy defines an acceptance or issue window with something turning on it",
+     "to": "a.accept-request"
+    },
+    {
+     "label": "Delivery is the end of it",
+     "observes": null,
+     "test": "no acceptance window is defined, so there is nothing to ask for",
+     "to": "x.delivered"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.delivered",
+   "class": "success",
+   "state": "delivered; no acceptance was required",
+   "reEntry": "a later obligation to the same recipient is a new instance"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.accept-request",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "dispatch_to.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.accept-request",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.accept-request",
+   "touch": "t4",
+   "stage": "accept-request",
+   "purpose": "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted.",
+   "brief": "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted. Stating that date is what makes silence mean something they chose rather than something done to them",
+   "destination": {
+    "target": "accept-or-raise-issue",
+    "boundTo": "obligation_id",
+    "mustNotClaim": [
+     "an acceptance window policy does not define"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.acceptance"
+   ],
+   "after": "t3"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.accept-request",
+   "key": "obligation_id + person_id + a.accept-request"
+  },
+  {
+   "type": "wait",
+   "node": "w.acceptance",
+   "timing": {
+    "key": "dispatch_to.acceptance",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "acceptance_window_ends_at",
+   "onTimeout": "a.finalize"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.acceptance",
+   "cancelOn": [
+    {
+     "event": "delivery_accepted",
+     "meaning": "the recipient accepts what was delivered"
+    },
+    {
+     "event": "delivery_issue_raised",
+     "meaning": "the recipient raises an issue about the delivery"
+    }
+   ],
+   "onEvent": "c.response"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.acceptance",
+   "reads": "the the dispatched obligation re-read from the system of record before acting on the timeout",
+   "before": "a.finalize"
+  },
+  {
+   "type": "condition",
+   "node": "c.response",
+   "asks": "What did the recipient say?",
+   "branches": [
+    {
+     "label": "Accepted",
+     "observes": null,
+     "test": "the recipient explicitly confirmed it arrived correctly",
+     "to": "x.accepted"
+    },
+    {
+     "label": "Issue raised",
+     "observes": null,
+     "test": "the recipient says what arrived is wrong, incomplete or damaged",
+     "to": "h.issue"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.issue",
+   "to": "FUL-149",
+   "on": "a delivered obligation the recipient has raised an issue against inside its acceptance window",
+   "carries": [
+    "the delivery evidence and when acceptance was requested",
+    "what the recipient says is wrong and when they said it"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.accepted",
+   "class": "success",
+   "state": "accepted by the recipient",
+   "reEntry": "rights policy independently provides afterwards do not run through here"
+  },
+  {
+   "type": "state-update",
+   "node": "a.finalize",
+   "does": "Record acceptance by expiry, kept distinguishable from acceptance by agreement. One is the recipient saying it was right; the other is nobody saying anything, and a report that cannot tell them apart is reporting satisfaction it does not have",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.finalize",
+   "key": "obligation_id + person_id + a.finalize"
+  },
+  {
+   "type": "exit",
+   "node": "x.finalized",
+   "class": "timeout",
+   "state": "finalised on expiry of the acceptance window, with no explicit acceptance",
+   "reEntry": "an issue raised later runs on whatever right policy independently provides, not on this window"
+  }
+ ]
+}

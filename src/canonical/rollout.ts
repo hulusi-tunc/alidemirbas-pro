@@ -1807,6 +1807,11 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the target, the change waiting on it, and the named prerequisite that is blocking it",
       note: "One target, one blocker, one change. A second blocker on the same target is named in the same prompt or not at all - two prompts about one target read as two problems.",
+      instanceKey: [
+        "target_id",
+        "change_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1820,6 +1825,218 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
           "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite.",
       },
     ],
+    objective: "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
+    eligibility: [
+      "a target authoritatively held for a planned change",
+      "the specific prerequisite that is blocking it, named rather than described",
+      "a preparation window with time still in it",
+      "no instance of this journey is already open for the the target",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The prompt names the specific blocker. A notice that an update is available, sent to somebody who cannot take it, is the failure this journey exists to stop."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is asked of a holder who cannot clear the prerequisite."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Two prompts at most, and both name the same blocker and the same date."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Not ready is not failed. A target that was never touched is recorded as unprepared, not as a failed change."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "upgrade_blocker.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the corpus rule: two prompts at most, both naming the same blocker"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "upgrade_blocker.cooldown",
+        "rule": "This journey is per the target; a later instance concerns a different the target and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "inform-hold",
+          "action": "a.inform-hold",
+          "prerequisites": [
+            "c.resolvable"
+          ],
+          "purpose": "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "name-blocker",
+          "action": "a.name-blocker",
+          "prerequisites": [
+            "c.resolvable"
+          ],
+          "purpose": "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "clear-the-prerequisite",
+            "boundTo": "target_id",
+            "mustNotClaim": [
+              "a moved window"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "last-call",
+          "action": "a.last-call",
+          "after": "t2",
+          "gatedBy": "w.clear",
+          "prerequisites": [
+            "c.last-call"
+          ],
+          "purpose": "Send one further prompt naming the same prerequisite and the date it stops mattering.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "clear-the-prerequisite",
+            "boundTo": "target_id",
+            "mustNotClaim": [
+              "a moved window"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "target_id",
+          "change_id",
+          "holder_id",
+          "blocking_prerequisite",
+          "preparation_window_ends_at"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.held",
+          "x.moot",
+          "x.unprepared",
+          "h.resume"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ],
+      "businessOutcome": {
+        "event": "named_requirement_satisfied",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      }
+    },
+    discovery: {
+      "aliases": [
+        "upgrade blocker reminder",
+        "update blocked by prerequisite",
+        "prepare for the upgrade",
+        "migration prerequisite reminder",
+        "rollout readiness prompt"
+      ],
+      "useCases": [
+        "the one prerequisite standing between a target and a planned change, named while there is time",
+        "a hold the holder cannot clear, stated with nothing asked"
+      ]
+    },
     entry: "t.blocked",
     nodes: [
       {
@@ -1863,6 +2080,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do. A prompt to act where acting is impossible reads as blame and produces a support contact instead of a cleared blocker",
         next: "x.held",
         execution: "communication",
+        idempotencyKey: "person_id + a.inform-hold",
       },
       {
         id: "x.held",
@@ -1870,6 +2088,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "held on a blocker the holder cannot clear",
         terminal: false,
         reEntry: "if the blocker later becomes theirs to clear, the target qualifies again on the resolvable path",
+        class: "success",
       },
       {
         id: "a.name-blocker",
@@ -1877,21 +2096,30 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window. A generic notice that something is available leaves the holder to discover the blocker themselves, which is the whole reason the target is stuck",
         next: "w.clear",
         execution: "communication",
+        idempotencyKey: "person_id + a.name-blocker",
       },
       {
         id: "w.clear",
         kind: "wait",
         until: [
-          "the named prerequisite clears on the target",
-          "the change is superseded or withdrawn",
+          "named_requirement_satisfied",
+          "change_withdrawn"
         ],
         onEvent: "c.cleared",
         timeout: {
-          after: "the point in the preparation window past which a target still blocked cannot be made ready in time",
-          reason: "a prompt that arrives with no time left to act on it is worse than no prompt - it names a deadline that has already gone",
+          "after": {
+            "key": "upgrade_blocker.clear",
+            "rule": "The point in the preparation window past which a target still blocked cannot be made ready in time.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a prompt that arrives with no time left to act on it is worse than no prompt - it names a deadline that has already gone",
+          "relativeTo": "attribute",
+          "attribute": "preparation_window_ends_at"
         },
         onTimeout: "c.last-call",
         windowExtendsOnEngagement: false,
+        recheck: "the the target re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.cleared",
@@ -1926,6 +2154,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "change withdrawn before the blocker was cleared",
         terminal: false,
         reEntry: "the next change with the same prerequisite scopes this target again",
+        class: "invalid-state",
       },
       {
         id: "c.last-call",
@@ -1950,20 +2179,29 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one further prompt naming the same prerequisite and the date it stops mattering. There is no third - a blocker nobody has cleared twice is a decision, not an oversight",
         next: "w.final",
         execution: "communication",
+        idempotencyKey: "person_id + a.last-call",
       },
       {
         id: "w.final",
         kind: "wait",
         until: [
-          "the named prerequisite clears on the target",
+          "named_requirement_satisfied"
         ],
         onEvent: "h.resume",
         timeout: {
-          after: "the remainder of the preparation window",
-          reason: "the window is what separates a target that is not ready from one that has failed, and the two must not be recorded together",
+          "after": {
+            "key": "upgrade_blocker.final",
+            "rule": "After the last call the instance waits until the preparation window itself closes; there is no third prompt.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the window is what separates a target that is not ready from one that has failed, and the two must not be recorded together",
+          "relativeTo": "attribute",
+          "attribute": "preparation_window_ends_at"
         },
         onTimeout: "x.unprepared",
         windowExtendsOnEngagement: false,
+        recheck: "the the target re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.unprepared",
@@ -1971,6 +2209,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "preparation window closed with the blocker outstanding",
         terminal: false,
         reEntry: "the target stays an unprepared member of the population and is prompted again by the next change that needs the same prerequisite",
+        class: "timeout",
       },
     ],
     guardrails: [

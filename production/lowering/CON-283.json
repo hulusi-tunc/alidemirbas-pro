@@ -1,0 +1,252 @@
+{
+ "id": "CON-283",
+ "shortName": "Frequency Preference Update",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "state-update",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.reduced",
+   "event": "frequency_preference_reduced",
+   "meaning": "an authoritative frequency preference recorded against the person; the new cadence expressed as something that can actually be applied; the classes it governs",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "an authoritative frequency preference recorded against the person",
+    "the new cadence expressed as something that can actually be applied",
+    "the classes it governs",
+    "no instance of this journey is already open for the the person and the optional communication classes the reduced frequency actually governs",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "person_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.less-or-none",
+   "asks": "Did they ask for less, or for none?",
+   "branches": [
+    {
+     "label": "Fewer",
+     "observes": null,
+     "test": "the preference sets a reduced cadence for optional communication rather than ending it",
+     "to": "a.recalculate"
+    },
+    {
+     "label": "None at all",
+     "observes": null,
+     "test": "the preference is a full withdrawal from optional communication",
+     "to": "x.opted-out"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.opted-out",
+   "class": "no-action",
+   "state": "full opt-out; this journey sends nothing",
+   "reEntry": "if a reduced cadence is later chosen instead of none, that qualifies here again"
+  },
+  {
+   "type": "state-update",
+   "node": "a.recalculate",
+   "does": "Recalculate the forward cadence for the optional classes only, leaving required and transactional communication under its own rules. Somebody asking to hear from us less often has not asked to stop being told about their own obligations",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.queued",
+   "asks": "Does what is already scheduled exceed the new cadence?",
+   "branches": [
+    {
+     "label": "Exceeds it",
+     "observes": null,
+     "test": "optional communication is already queued at a rate the new cadence does not allow",
+     "to": "a.trim"
+    },
+    {
+     "label": "Within it",
+     "observes": null,
+     "test": "what is scheduled already fits the new cadence",
+     "to": "a.confirm"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.trim",
+   "does": "Suppress or reschedule the optional communication that now exceeds the cadence, choosing between the two by whether the message still means anything later. The first thing somebody receives after asking for less must not be the backlog",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "frequency_reduction.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t1",
+   "stage": "confirm",
+   "purpose": "Confirm once what changed: how often optional communication will now arrive, what is unaffected because it was never optional, and the route to stopping it altogether.",
+   "brief": "Confirm once what changed: how often optional communication will now arrive, what is unaffected because it was never optional, and the route to stopping it altogether. Naming what is unaffected is what stops the person concluding that nothing was applied when a required notice arrives next week",
+   "destination": {
+    "target": "preference-centre",
+    "boundTo": "person_id",
+    "mustNotClaim": [
+     "that required or transactional communication changes"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.less-or-none",
+    "c.queued"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "person_id + a.confirm"
+  },
+  {
+   "type": "wait",
+   "node": "w.cycle",
+   "timing": {
+    "key": "frequency_reduction.cycle",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.holding"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.cycle",
+   "cancelOn": [
+    {
+     "event": "frequency_preference_changed",
+     "meaning": "a deliberate change to how often communication should arrive - weekly to monthly, everything to important only, a reduction to a stated minimum"
+    },
+    {
+     "event": "optional_communication_withdrawn",
+     "meaning": "the person withdraws from all optional communication"
+    }
+   ],
+   "onEvent": "c.settled"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.cycle",
+   "reads": "the the person and the optional communication classes the reduced frequency actually governs re-read from the system of record before acting on the timeout",
+   "before": "x.holding"
+  },
+  {
+   "type": "condition",
+   "node": "c.settled",
+   "asks": "What changed during the first cycle?",
+   "branches": [
+    {
+     "label": "Reduced again",
+     "observes": null,
+     "test": "a further reduction was recorded before the cycle completed",
+     "to": "x.reduced-again"
+    },
+    {
+     "label": "Stopped altogether",
+     "observes": null,
+     "test": "a full withdrawal was recorded before the cycle completed",
+     "to": "x.opted-out"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.reduced-again",
+   "class": "success",
+   "state": "reduced a second time before the first cadence settled",
+   "reEntry": "each recorded reduction is its own instance and gets its own single confirmation"
+  },
+  {
+   "type": "exit",
+   "node": "x.holding",
+   "class": "success",
+   "state": "reduced cadence in effect and holding",
+   "reEntry": "a later change to the same preference starts a new instance"
+  }
+ ]
+}

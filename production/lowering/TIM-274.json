@@ -1,0 +1,527 @@
+{
+ "id": "TIM-274",
+ "shortName": "Grace Period Recovery",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.grace",
+   "event": "grace_period_started",
+   "meaning": "an authoritative grace state recorded against the entity after its primary validity ended; a fixed end date for that grace period; a recorded condition that would recover the active state",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative grace state recorded against the entity after its primary validity ended",
+    "a fixed end date for that grace period",
+    "a recorded condition that would recover the active state",
+    "no instance of this journey is already open for the the entity whose primary validity ended",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "entity_ref",
+    "grace_period_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.restricted",
+   "asks": "Does grace restrict anything the holder will actually notice?",
+   "branches": [
+    {
+     "label": "Function reduced",
+     "observes": null,
+     "test": "the capabilities recorded for grace are narrower than the active state in a way the holder uses",
+     "to": "a.notify-restricted"
+    },
+    {
+     "label": "Continuity unchanged",
+     "observes": null,
+     "test": "everything the holder relies on continues untouched for the length of the window",
+     "to": "a.notify-quiet"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.notify-restricted",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "grace_period.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.notify-restricted",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.notify-restricted",
+   "touch": "t1",
+   "stage": "notify-restricted",
+   "purpose": "Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state.",
+   "brief": "Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state. Naming what still works is what stops a reduction being read as a termination",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.restricted"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.notify-restricted",
+   "key": "person_id + a.notify-restricted"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.notify-quiet",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "grace_period.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.notify-quiet",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.notify-quiet",
+   "touch": "t2",
+   "stage": "notify-quiet",
+   "purpose": "State that validity has lapsed, that nothing has changed yet, and the date it will.",
+   "brief": "State that validity has lapsed, that nothing has changed yet, and the date it will. Dramatising a restriction the holder cannot feel teaches them to discount the message that arrives when they can",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.restricted"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.notify-quiet",
+   "key": "person_id + a.notify-quiet"
+  },
+  {
+   "type": "wait",
+   "node": "w.grace",
+   "timing": {
+    "key": "grace_period.grace",
+    "class": "reminder-before-attribute",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "grace_deadline_at",
+   "onTimeout": "a.last-call"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.grace",
+   "cancelOn": [
+    {
+     "event": "recovery_condition_satisfied",
+     "meaning": "the condition that ends the recoverable state is satisfied"
+    },
+    {
+     "event": "entity_terminated",
+     "meaning": "the entity is terminated"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.grace",
+   "reads": "the the entity whose primary validity ended re-read from the system of record before acting on the timeout",
+   "before": "a.last-call"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Recovered",
+     "observes": null,
+     "test": "the recovery condition was satisfied and the entity left grace for the active state",
+     "to": "a.confirm"
+    },
+    {
+     "label": "Ended early",
+     "observes": null,
+     "test": "the entity was terminated or withdrawn before the window ran out",
+     "to": "x.moot"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "grace_period.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t3",
+   "stage": "confirm",
+   "purpose": "Confirm the active state is back and name which reduced capabilities returned.",
+   "brief": "Confirm the active state is back and name which reduced capabilities returned. A recovery nobody confirms leaves the holder still behaving as though restricted, which is the same cost as not recovering",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "person_id + a.confirm"
+  },
+  {
+   "type": "exit",
+   "node": "x.recovered",
+   "class": "success",
+   "state": "recovered inside the window",
+   "reEntry": "a later lapse opens a new grace period and a new instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.moot",
+   "class": "invalid-state",
+   "state": "grace ended by termination before its window closed",
+   "reEntry": "an entity reinstated and later lapsing again qualifies afresh"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.last-call",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "grace_period.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.last-call",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.last-call",
+   "touch": "t4",
+   "stage": "last-call",
+   "purpose": "Send one message naming the exact end date, what stops at it, and the same single recovery route.",
+   "brief": "Send one message naming the exact end date, what stops at it, and the same single recovery route. There is no second reminder - the fixed end is the pressure, and repeating it only spends the attention needed to act",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.last-call",
+   "key": "person_id + a.last-call"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "grace_period.final",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "grace_deadline_at",
+   "onTimeout": "a.lost"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "recovery_condition_satisfied",
+     "meaning": "the condition that ends the recoverable state is satisfied"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the the entity whose primary validity ended re-read from the system of record before acting on the timeout",
+   "before": "a.lost"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.lost",
+   "touch": "t5",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "grace_period.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.lost",
+   "touch": "t5",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.lost",
+   "touch": "t5",
+   "stage": "lost",
+   "purpose": "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms.",
+   "brief": "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms. A holder who is not told the window shut will go on assuming it is open",
+   "destination": {
+    "target": "route-back-on-new-terms",
+    "boundTo": "entity_ref",
+    "mustNotClaim": [
+     "that the old validity can be revived"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": "t4"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.lost",
+   "key": "person_id + a.lost"
+  },
+  {
+   "type": "exit",
+   "node": "x.lost",
+   "class": "timeout",
+   "state": "window closed unrecovered",
+   "reEntry": "a validity granted later starts a fresh lifecycle; re-entry here needs a new lapse"
+  }
+ ]
+}

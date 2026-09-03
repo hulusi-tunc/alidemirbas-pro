@@ -1,0 +1,280 @@
+{
+ "id": "ACQ-09",
+ "shortName": "Lead Nurture",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "state-update",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.not-ready",
+   "event": "valid_lead_not_destination_ready",
+   "meaning": "a captured lead with a recorded entry reason and no destination it is ready for",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "a captured lead with a recorded entry reason and no destination it is ready for",
+    "no instance of this journey is already open for the lead or person",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "lead_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.basis",
+   "asks": "Is there explicit permission and a lawful basis for this kind of communication?",
+   "branches": [
+    {
+     "label": "Basis exists",
+     "observes": null,
+     "test": "permission was given and covers education of this kind",
+     "to": "a.educate"
+    },
+    {
+     "label": "No basis",
+     "observes": null,
+     "test": "the capture carried no permission, or the basis does not cover this - the ordinary case, since submitting a form is not consent",
+     "to": "x.no-basis"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.no-basis",
+   "class": "no-action",
+   "state": "held, no nurture started",
+   "reEntry": "permission given later re-opens this normally; the capture itself never counted as consent and nothing was sent in the meantime"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.educate",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "bounded_education.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.educate",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.educate",
+   "touch": "t1",
+   "stage": "educate",
+   "purpose": "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
+   "brief": "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.basis"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.educate",
+   "key": "lead_id + person_id + a.educate"
+  },
+  {
+   "type": "wait",
+   "node": "w.window",
+   "timing": {
+    "key": "bounded_education.window",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "a.sunset"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.window",
+   "cancelOn": [
+    {
+     "event": "nurture_progression_signal",
+     "meaning": "the lead does something that moves them along the declared subject - a reply, a request, a purchase step"
+    },
+    {
+     "event": "permission_withdrawn",
+     "meaning": "the person withdraws the permission this communication runs on"
+    },
+    {
+     "event": "contactability_lost",
+     "meaning": "no permitted destination for this person is deliverable any more"
+    }
+   ],
+   "onEvent": "c.window-event"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.window",
+   "reads": "the lead or person re-read from the system of record before acting on the timeout",
+   "before": "a.sunset"
+  },
+  {
+   "type": "condition",
+   "node": "c.window-event",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "They progressed",
+     "observes": null,
+     "test": "a meaningful progression signal arrived",
+     "to": "h.progressed"
+    },
+    {
+     "label": "Permission withdrawn",
+     "observes": null,
+     "test": "the lawful basis or permission this nurture relied on no longer covers it",
+     "to": "a.stop-permission"
+    },
+    {
+     "label": "Route lost",
+     "observes": null,
+     "test": "no permitted destination for this person is deliverable any more",
+     "to": "a.stop-contactability"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.stop-permission",
+   "does": "Invalidate the nurture already queued against this instance and append the reason. A window that only ends on progression or its own clock keeps sending after the permission it depended on has gone",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.stop-contactability",
+   "does": "Stop this nurture route without recording it as disengagement. A destination that stopped working says nothing about whether the person is still interested, and filing route failure as a lack of interest loses a lead twice",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "exit",
+   "node": "x.permission-ended",
+   "class": "suppression",
+   "state": "nurture stopped; permission no longer covers it",
+   "reEntry": "a new valid permission plus a new qualifying reason starts a new window"
+  },
+  {
+   "type": "exit",
+   "node": "x.unreachable",
+   "class": "suppression",
+   "state": "nurture stopped; no permitted route is deliverable",
+   "reEntry": "a repaired or newly permitted route, while the entry reason is still live, resumes nurture"
+  },
+  {
+   "type": "handoff",
+   "node": "h.progressed",
+   "to": "ACQ-03",
+   "on": "a progression signal strong enough to change what this person needs",
+   "carries": [
+    "the entry reason and what education was already sent, so the next journey does not restate it",
+    "the progression signal itself"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.sunset",
+   "does": "Close the window and record that it ended without progression, which is a fact about this attempt rather than a judgement about the person",
+   "writes": [
+    {
+     "field": "nurture_history",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.sunset",
+   "key": "lead_id + person_id + a.sunset"
+  },
+  {
+   "type": "exit",
+   "node": "x.sunset",
+   "class": "timeout",
+   "state": "nurture window closed without progression",
+   "reEntry": "a new inbound signal or a newly declared request can open a new window; immediate re-entry into the same education is suppressed"
+  }
+ ]
+}

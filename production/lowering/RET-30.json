@@ -1,0 +1,351 @@
+{
+ "id": "RET-30",
+ "shortName": "Retention Offer Follow-Up",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "condition",
+  "state-update",
+  "idempotency-key",
+  "handoff",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.delivered",
+   "event": "retention_intervention_delivered",
+   "meaning": "a defined intervention actually delivered: a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a defined intervention actually delivered: a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer",
+    "no instance of this journey is already open for the the customer",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "account_id",
+    "retention_episode_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "wait",
+   "node": "w.outcome",
+   "timing": {
+    "key": "retention_intervention.outcome",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "c.followup"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.outcome",
+   "cancelOn": [
+    {
+     "event": "retention_offer_accepted",
+     "meaning": "the person accepts the retention alternative offered"
+    },
+    {
+     "event": "retention_offer_declined",
+     "meaning": "the person explicitly declines the retention alternative"
+    },
+    {
+     "event": "relationship_recovered",
+     "meaning": "the relationship's own state recovers without the person answering the offer"
+    },
+    {
+     "event": "intervention_failed",
+     "meaning": "the intervention could not be executed"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.outcome",
+   "reads": "the the customer re-read from the system of record before acting on the timeout",
+   "before": "c.followup"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What happened to the intervention?",
+   "branches": [
+    {
+     "label": "Accepted",
+     "observes": null,
+     "test": "the customer took what was offered",
+     "to": "a.verify"
+    },
+    {
+     "label": "Declined",
+     "observes": null,
+     "test": "the customer explicitly turned it down",
+     "to": "a.record-decline"
+    },
+    {
+     "label": "Recovered without answering",
+     "observes": null,
+     "test": "the relationship improved but nobody responded to the offer itself",
+     "to": "h.observe"
+    },
+    {
+     "label": "Failed to execute",
+     "observes": null,
+     "test": "the intervention was accepted or attempted and did not actually apply",
+     "to": "h.fix"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.verify",
+   "does": "Verify against the system of record that the relationship actually changed - the plan changed, the pause is active, the issue is closed, the subscription is retained. Acceptance is a customer saying yes; application is the state having moved, and the gap between them is where retention numbers go wrong",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.verify",
+   "key": "subscription_id + account_id + a.verify"
+  },
+  {
+   "type": "condition",
+   "node": "c.applied",
+   "asks": "Did the state actually change?",
+   "branches": [
+    {
+     "label": "Applied",
+     "observes": null,
+     "test": "the authoritative record shows the change",
+     "to": "h.observe"
+    },
+    {
+     "label": "Accepted but not applied",
+     "observes": null,
+     "test": "the customer agreed and the change did not take effect",
+     "to": "h.fix"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.observe",
+   "to": "RET-27",
+   "on": "a retention outcome that looks positive",
+   "carries": [
+    "what was accepted and what actually changed",
+    "the fact that this is one positive event, which is why it goes to observation rather than to a recovered state"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.fix",
+   "to": "external:operational-resolution",
+   "on": "an intervention that did not apply",
+   "carries": [
+    "what was agreed and what failed to happen",
+    "the explicit fact that retention has not succeeded, however the customer answered"
+   ],
+   "suppresses": [
+    "any recording of this as a retained relationship until the change actually applies"
+   ],
+   "contract": {
+    "requiredFields": [
+     "subscription_id",
+     "account_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-decline",
+   "does": "Record the decline against this cancellation episode, so the same offer is not made again inside it. Repeating a declined offer is the behaviour that makes a save attempt read as an obstacle",
+   "writes": [
+    {
+     "field": "retention_episode_history",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.record-decline",
+   "key": "subscription_id + account_id + a.record-decline"
+  },
+  {
+   "type": "condition",
+   "node": "c.proceed",
+   "asks": "Is a cancellation still in progress?",
+   "branches": [
+    {
+     "label": "Still cancelling",
+     "observes": null,
+     "test": "the customer declined and is continuing to leave",
+     "to": "h.proceed"
+    },
+    {
+     "label": "No cancellation underway",
+     "observes": null,
+     "test": "the offer was declined but nothing is being cancelled",
+     "to": "x.declined"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.proceed",
+   "to": "SUB-167",
+   "on": "a declined save offer with cancellation continuing",
+   "carries": [
+    "what was offered and declined",
+    "the declared reason it was chosen against"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.declined",
+   "class": "no-action",
+   "state": "intervention declined, relationship intact",
+   "reEntry": "a new episode with new evidence may justify a different intervention; the declined one is not re-sent inside this episode"
+  },
+  {
+   "type": "condition",
+   "node": "c.followup",
+   "asks": "With no response, is one bounded follow-up justified?",
+   "branches": [
+    {
+     "label": "Justified",
+     "observes": null,
+     "test": "the offer is time-limited or its terms were plausibly not understood",
+     "to": "a.followup"
+    },
+    {
+     "label": "Not justified",
+     "observes": null,
+     "test": "silence is a clear enough answer and repeating it adds only pressure",
+     "to": "x.cooldown"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.followup",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "retention_intervention.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": {
+    "exclusionGroup": "retention-outreach",
+    "scope": "account",
+    "precedence": "lowest in the group - any live risk case or open issue on the same account outranks it",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.followup",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.followup",
+   "touch": "t1",
+   "stage": "followup",
+   "purpose": "Send one follow-up and stop.",
+   "brief": "Send one follow-up and stop. There is no second, whatever the value of the relationship",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.followup"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.followup",
+   "key": "subscription_id + account_id + a.followup"
+  },
+  {
+   "type": "exit",
+   "node": "x.cooldown",
+   "class": "timeout",
+   "state": "no response; episode closed, cooldown in force",
+   "reEntry": "a new episode may open on new evidence, and this intervention is not repeated within the cooldown"
+  }
+ ]
+}

@@ -171,6 +171,10 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the obligation itself - its amount, its currency, its payer and the business entity it arose from",
       note: "The obligation outlives every payment attempt against it. Attempts come and go; what is owed changes only when an authoritative financial event satisfies, adjusts or cancels it.",
+      instanceKey: [
+        "obligation_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -179,6 +183,71 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "An attempt is one try at discharging an obligation. It can fail without the obligation changing at all, which is exactly why they are two entities.",
       },
     ],
+    objective: "Hold what is owed as its own state, independent of any attempt to pay it and of anything sent about it.",
+    eligibility: [
+      "an authoritative record that an amount is owed, by whom, to whom, and arising from what",
+      "no instance of this journey is already open for the the obligation itself",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An invoice issued is not a payment received."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "An outstanding obligation is not a payment failure."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Reminder activity does not define financial truth. What is owed is established by financial events, not by what was sent about it."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "obligation_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.adjusted",
+          "x.aged",
+          "h.satisfy",
+          "h.due"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "financial obligation tracking",
+        "invoice outstanding",
+        "amount owed state",
+        "receivable tracking"
+      ],
+      "useCases": [
+        "an amount owed held as its own state, independent of reminders and attempts",
+        "an obligation becoming due, handed to due-state handling"
+      ]
+    },
     entry: "t.created",
     nodes: [
       {
@@ -203,6 +272,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the obligation id, the amount, the currency, the payer, the payee, the due date where one applies, the source, the related business entity and the settlement requirement. Currency is part of the amount - a monetary value without it cannot be reconciled against anything later",
         writes: [{ field: "obligation_log", mode: "append" }],
         next: "c.already",
+        idempotencyKey: "obligation_id + a.record",
       },
       {
         id: "c.already",
@@ -227,23 +297,30 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record OUTSTANDING. This is the normal state of a new obligation and not a failure - nothing has gone wrong and nothing has been paid, and the two are different facts",
         writes: [{ field: "obligation_log", mode: "append" }],
         next: "w.obligation",
+        idempotencyKey: "obligation_id + a.outstanding",
       },
       {
         id: "w.obligation",
         kind: "wait",
         until: [
-          "an authoritative financial event satisfies or partly satisfies it",
-          "an adjustment or cancellation is recorded against it",
-          "it becomes due or overdue",
+          "obligation_satisfied",
+          "obligation_adjusted_or_cancelled",
+          "obligation_due"
         ],
         onEvent: "c.event",
         timeout: {
-          after: "the obligation's own horizon - its limitation period, its write-off point, or the end of the relationship it belongs to",
-          reason:
-            "an obligation outstanding indefinitely is a balance nobody is collecting and nobody has decided to stop collecting, and which of those it is should be stated",
+          "after": {
+            "key": "financial_obligation.obligation",
+            "rule": "The obligation's own horizon - its limitation period, its write-off point, or the end of the relationship it belongs to.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an obligation outstanding indefinitely is a balance nobody is collecting and nobody has decided to stop collecting, and which of those it is should be stated",
+          "relativeTo": "trigger"
         },
         onTimeout: "x.aged",
         windowExtendsOnEngagement: false,
+        recheck: "the the obligation itself re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.event",
@@ -273,6 +350,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Version the obligation and reconcile the financial state. An adjustment does not overwrite the original amount - the obligation's history is what any later dispute or reconciliation reads, and a silently edited balance cannot be explained to anyone",
         writes: [{ field: "obligation_log", mode: "append" }],
         next: "x.adjusted",
+        idempotencyKey: "obligation_id + a.version",
       },
       {
         id: "x.adjusted",
@@ -280,6 +358,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "obligation adjusted; prior versions preserved",
         terminal: false,
         reEntry: "the adjusted obligation continues its own lifecycle from its new amount",
+        class: "success",
       },
       {
         id: "h.satisfy",
@@ -308,6 +387,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "what happens to an aged obligation is an accounting decision - writing it off is a policy act with its own authority, and this journey does not make it",
+        class: "timeout",
       },
     ],
     guardrails: [
@@ -1453,6 +1533,80 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the obligation and the financial event being applied to it",
       note: "Applying is idempotent by key. The same event arriving twice moves the balance once, which is the difference between a balance and a running total of deliveries.",
+      instanceKey: [
+        "obligation_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Apply a financial event to an obligation exactly once, and release only what actually depended on that obligation.",
+    eligibility: [
+      "an authoritative payment, credit or settlement that discharges some or all of an obligation",
+      "no instance of this journey is already open for the the obligation and the financial event being applied to it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A payment success is never applied twice."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Financial satisfaction does not automatically restore unrelated suspended capabilities."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Partial payment is not full payment, and the remainder is carried explicitly."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Amounts are not netted across incompatible currencies."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "obligation_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.partial",
+          "x.satisfied",
+          "h.overpayment",
+          "h.restore"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "balance reconciliation",
+        "payment applied",
+        "obligation satisfied",
+        "partial payment handling"
+      ],
+      "useCases": [
+        "a payment applied to its obligation exactly once",
+        "a restriction released only where it rested on that obligation"
+      ]
     },
     entry: "t.satisfying",
     nodes: [
@@ -1464,6 +1618,11 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           requires: [
             "an authoritative payment, credit or settlement that discharges some or all of an obligation",
           ],
+          insufficientAlone: [
+            "a payment authorised but not settled",
+            "a financial event that names no obligation",
+            "a reminder or dunning event, which is communication about an obligation"
+          ],
           source: "authoritative",
         },
         next: "a.apply",
@@ -1474,6 +1633,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the amount idempotently against the obligation, keyed so the same financial event arriving twice moves the balance once. Currency compatibility is checked before anything is netted - amounts in different currencies are not offset against each other",
         writes: [{ field: "obligation_log", mode: "append" }],
         next: "a.recalculate",
+        idempotencyKey: "obligation_id + a.apply",
       },
       {
         id: "a.recalculate",
@@ -1481,6 +1641,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Recalculate the remaining balance, the obligation's status, any overpayment, and which dependent restrictions or holds rested on this obligation specifically",
         writes: [{ field: "obligation_log", mode: "append" }],
         next: "c.status",
+        idempotencyKey: "obligation_id + a.recalculate",
       },
       {
         id: "c.status",
@@ -1510,6 +1671,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PARTIALLY_SATISFIED with the remaining balance stated explicitly. Partial is not paid, and a remainder that is implied rather than carried is one nobody can collect and nobody can dispute",
         writes: [{ field: "obligation_log", mode: "append" }],
         next: "x.partial",
+        idempotencyKey: "obligation_id + a.partial",
       },
       {
         id: "x.partial",
@@ -1518,6 +1680,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "further financial events apply against the remaining balance. Restrictions that depended on this obligation stay in force, because it is not discharged",
+        class: "success",
       },
       {
         id: "h.overpayment",
@@ -1528,6 +1691,13 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "the obligation, the amount applied and the excess, with its currency",
           "the fact that the obligation is satisfied and the excess is a separate financial position",
         ],
+        contract: {
+          "requiredFields": [
+            "obligation_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "a.satisfied",
@@ -1535,6 +1705,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record SATISFIED against the obligation",
         writes: [{ field: "obligation_log", mode: "append" }],
         next: "c.restriction",
+        idempotencyKey: "obligation_id + a.satisfied",
       },
       {
         id: "c.restriction",
@@ -1570,6 +1741,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a later adjustment or reversal against this obligation is its own financial event, applied to a discharged balance rather than an outstanding one",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1596,6 +1768,10 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the refund request and the original transaction it is made against",
       note: "The request does not modify the original payment history. It creates a decision process alongside it.",
+      instanceKey: [
+        "refund_request_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1604,6 +1780,216 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "Approving a refund authorises the movement. FIN-138 performs it and confirms the money arrived, which fails independently and more often than the decision does.",
       },
     ],
+    objective: "Turn a refund request into an authorised decision, without money moving on the request itself.",
+    eligibility: [
+      "a refund requested against an identified original transaction",
+      "no instance of this journey is already open for the the refund request and the original transaction it is made against",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A refund requested is not a refund owed."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A refund request does not modify the original payment history."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Eligibility policy is never invented. Where none exists the decision goes to a person."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "refund_request.touches",
+          "rule": "Every touch in this plan is the request's own process and is mandatory; nothing discretionary exists to cap.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "refund_request.cooldown",
+        "rule": "This journey is per the refund request and the original transaction it is made against; a later instance concerns a different the refund request and the original transaction it is made against and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "human",
+          "channels": [
+            "task"
+          ],
+          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "reject-scope",
+          "action": "a.reject-scope",
+          "prerequisites": [
+            "c.scope"
+          ],
+          "purpose": "Reject with the actual reason and whatever process does apply.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "notify-rejection",
+          "action": "a.notify-rejection",
+          "prerequisites": [
+            "c.scope",
+            "c.policy",
+            "c.eligible"
+          ],
+          "purpose": "Tell the requester the refund was refused and the governing reason, whether that came from policy directly or from a reviewer.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "acknowledge-review",
+          "action": "a.acknowledge-review",
+          "prerequisites": [
+            "c.scope",
+            "c.policy",
+            "c.eligible"
+          ],
+          "purpose": "Tell the requester the refund is under review and what that state means, without implying an outcome.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "after": "t4"
+        },
+        {
+          "id": "t4",
+          "stage": "review",
+          "action": "a.review",
+          "prerequisites": [
+            "c.scope",
+            "c.policy",
+            "c.eligible"
+          ],
+          "purpose": "Record UNDER_REVIEW and gather whatever the decision requires.",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t5",
+          "stage": "approve",
+          "action": "a.approve",
+          "prerequisites": [
+            "c.scope",
+            "c.policy",
+            "c.eligible"
+          ],
+          "purpose": "Record APPROVED with the authorised amount and the authority that approved it.",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "refund_request_id",
+          "original_transaction_id",
+          "requester_id",
+          "eligibility_policy",
+          "decision_sla",
+          "refund_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.rejected",
+          "h.undefined",
+          "h.escalate",
+          "h.execute"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "refund request",
+        "refund eligibility",
+        "money-back request",
+        "refund decision"
+      ],
+      "useCases": [
+        "a refund request turned into an authorised decision without money moving on the request",
+        "a request needing judgement, acknowledged as under review without implying an outcome"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -1625,6 +2011,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the request id, the original transaction, the requested amount, the reason, the requester and the submission time. The original payment history is not modified by a request made against it",
         writes: [{ field: "refund_log", mode: "append" }],
         next: "c.scope",
+        idempotencyKey: "obligation_id + a.record",
       },
       {
         id: "c.scope",
@@ -1650,6 +2037,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "refund_log", mode: "append" }],
         next: "x.rejected",
         execution: "communication",
+        idempotencyKey: "obligation_id + a.reject-scope",
       },
       {
         id: "c.policy",
@@ -1706,6 +2094,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record REJECTED with the reason drawn from the policy that ruled it out",
         writes: [{ field: "refund_log", mode: "append" }],
         next: "a.notify-rejection",
+        idempotencyKey: "obligation_id + a.reject",
       },
       {
         id: "a.notify-rejection",
@@ -1713,6 +2102,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the requester the refund was refused and the governing reason, whether that came from policy directly or from a reviewer. A refusal recorded and never sent leaves someone waiting on a decision that has already been made",
         execution: "communication",
         next: "x.rejected",
+        idempotencyKey: "obligation_id + a.notify-rejection",
       },
       {
         id: "x.rejected",
@@ -1721,6 +2111,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a differently grounded request, or new evidence, is assessed on its own. A refund requested is not a refund owed",
+        class: "failure",
       },
       {
         id: "a.review",
@@ -1729,6 +2120,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "refund_log", mode: "append" }],
         next: "a.acknowledge-review",
         execution: "human",
+        idempotencyKey: "obligation_id + a.review",
       },
       {
         id: "a.acknowledge-review",
@@ -1736,19 +2128,28 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the requester the refund is under review and what that state means, without implying an outcome. The wait for a human decision is the longest silence in this journey and the one most easily read as no answer coming",
         execution: "communication",
         next: "w.decision",
+        idempotencyKey: "obligation_id + a.acknowledge-review",
       },
       {
         id: "w.decision",
         kind: "wait",
-        until: ["a decision is recorded"],
+        until: [
+          "decision_recorded"
+        ],
         onEvent: "c.decision",
         timeout: {
-          after: "the decision SLA",
-          reason:
-            "a refund request left undecided is a customer waiting on money with no answer, which produces a dispute that costs more than the refund",
+          "after": {
+            "key": "refund_request.decision",
+            "rule": "The decision SLA.",
+            "class": "decision-sla",
+            "required": true
+          },
+          "reason": "a refund request left undecided is a customer waiting on money with no answer, which produces a dispute that costs more than the refund",
+          "relativeTo": "trigger"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the the refund request and the original transaction it is made against re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.decision",
@@ -1773,6 +2174,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "refund_log", mode: "append" }],
         next: "h.execute",
         execution: "human",
+        idempotencyKey: "obligation_id + a.approve",
       },
       {
         id: "h.execute",

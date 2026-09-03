@@ -1,0 +1,410 @@
+{
+ "id": "REM-152",
+ "shortName": "Return Request",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "handoff",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit",
+  "human-task",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.requested",
+   "event": "return_requested",
+   "meaning": "a request to send back an identified item, resource or deliverable",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "a request to send back an identified item, resource or deliverable",
+    "no instance of this journey is already open for the the return request and the original fulfillment it concerns",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "return_request_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.capture",
+   "does": "Capture the request id, the item or resource, the quantity or scope, the reason, the requester and the request time",
+   "writes": [
+    {
+     "field": "return_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.capture",
+   "key": "order_id + a.capture"
+  },
+  {
+   "type": "condition",
+   "node": "c.applicable",
+   "asks": "Does a return process apply to this at all?",
+   "branches": [
+    {
+     "label": "Returnable",
+     "observes": null,
+     "test": "the thing exists physically or as a revocable deliverable and can be sent back",
+     "to": "c.policy"
+    },
+    {
+     "label": "Nothing to return",
+     "observes": null,
+     "test": "the delivery was a service performed, a consumed resource, or something with no return path",
+     "to": "h.alternative"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.alternative",
+   "to": "REM-157",
+   "on": "a return requested against something that cannot be returned",
+   "carries": [
+    "the request and the unresolved obligation behind it",
+    "the fact that no return route exists, so the remedy is something else rather than nothing"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.policy",
+   "asks": "Is a return eligibility policy defined for this?",
+   "branches": [
+    {
+     "label": "Defined",
+     "observes": null,
+     "test": "policy states what may be returned, within what window and on what conditions",
+     "to": "c.eligible"
+    },
+    {
+     "label": "Not defined",
+     "observes": null,
+     "test": "no policy covers returns of this kind",
+     "to": "h.undefined"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.undefined",
+   "to": "DEC-181",
+   "on": "a return request with no governing eligibility policy",
+   "carries": [
+    "the request and the original fulfillment",
+    "the explicit fact that no eligibility rule was invented in order to decide it"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.eligible",
+   "asks": "What does the policy determine?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": null,
+     "test": "the policy's conditions are met deterministically",
+     "to": "a.authorize"
+    },
+    {
+     "label": "Ineligible",
+     "observes": null,
+     "test": "the policy rules it out deterministically",
+     "to": "a.reject"
+    },
+    {
+     "label": "Requires review or evidence",
+     "observes": null,
+     "test": "the policy leaves this case to a decision rather than a rule",
+     "to": "a.review"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.reject",
+   "does": "Record RETURN_REJECTED with the reason drawn from the policy that ruled it out",
+   "writes": [
+    {
+     "field": "return_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reject",
+   "key": "order_id + a.reject"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.notify-rejection",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "return_authorization.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.notify-rejection",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.notify-rejection",
+   "touch": "t1",
+   "stage": "notify-rejection",
+   "purpose": "Tell the requester the return was refused and the governing reason, whether policy ruled it out directly or a reviewer did.",
+   "brief": "Tell the requester the return was refused and the governing reason, whether policy ruled it out directly or a reviewer did. Someone holding an item they were told nothing about goes on believing a return is still coming",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.applicable",
+    "c.policy",
+    "c.eligible"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.notify-rejection",
+   "key": "order_id + a.notify-rejection"
+  },
+  {
+   "type": "exit",
+   "node": "x.rejected",
+   "class": "failure",
+   "state": "RETURN_REJECTED; the original fulfillment is unchanged",
+   "reEntry": "a return refused does not settle whether another remedy is owed - that question is separate and is asked separately"
+  },
+  {
+   "type": "human-task",
+   "node": "a.review",
+   "does": "Record RETURN_UNDER_REVIEW and gather what the decision requires. Nothing is authorised while it is under review",
+   "touch": "t3"
+  },
+  {
+   "type": "wait",
+   "node": "w.decision",
+   "timing": {
+    "key": "return_authorization.decision",
+    "class": "decision-sla",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "h.escalate"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.decision",
+   "cancelOn": [
+    {
+     "event": "decision_recorded",
+     "meaning": "an authorised decision is recorded on the request"
+    }
+   ],
+   "onEvent": "c.decision"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.decision",
+   "reads": "the the return request and the original fulfillment it concerns re-read from the system of record before acting on the timeout",
+   "before": "h.escalate"
+  },
+  {
+   "type": "condition",
+   "node": "c.decision",
+   "asks": "What was decided?",
+   "branches": [
+    {
+     "label": "Authorized",
+     "observes": null,
+     "test": "the reviewer permitted the return",
+     "to": "a.authorize"
+    },
+    {
+     "label": "Rejected",
+     "observes": null,
+     "test": "the reviewer refused it",
+     "to": "a.reject"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "OWN-55",
+   "on": "a return decision outliving its SLA",
+   "carries": [
+    "the request, its age and what is holding the decision"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.authorize",
+   "does": "Record RETURN_AUTHORIZED with the scope, the method and the validity. Authorising a return permits the resource to come back and decides nothing about whether money is owed - refund eligibility is a separate question with its own rules and its own answer",
+   "writes": [
+    {
+     "field": "return_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.authorize",
+   "key": "order_id + a.authorize"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.notify-authorization",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "return_authorization.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.notify-authorization",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.notify-authorization",
+   "touch": "t2",
+   "stage": "notify-authorization",
+   "purpose": "Tell the requester the return is authorised, within what scope and by what method, and that authorisation permits the resource to come back without deciding that money is owed.",
+   "brief": "Tell the requester the return is authorised, within what scope and by what method, and that authorisation permits the resource to come back without deciding that money is owed. Leaving them to discover the answer from the transit lifecycle makes the next step arrive before the decision does",
+   "destination": {
+    "target": "return-instructions",
+    "boundTo": "return_request_id",
+    "mustNotClaim": [
+     "that a refund is owed"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.applicable",
+    "c.policy",
+    "c.eligible"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.notify-authorization",
+   "key": "order_id + a.notify-authorization"
+  },
+  {
+   "type": "handoff",
+   "node": "h.transit",
+   "to": "REM-153",
+   "on": "an authorised return",
+   "carries": [
+    "the authorised scope, method and validity",
+    "the explicit fact that nothing has moved and no remedy has been decided"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

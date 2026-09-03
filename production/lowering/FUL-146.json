@@ -1,0 +1,557 @@
+{
+ "id": "FUL-146",
+ "shortName": "Delivery Delay Alert",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.slip",
+   "event": "expected_fulfillment_timing_slipped",
+   "meaning": "a material slip against the timing this obligation was committed to",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a material slip against the timing this obligation was committed to",
+    "no instance of this journey is already open for the the obligation and its timing commitment",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "obligation_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.assess",
+   "does": "Determine the original commitment, the current estimate, the cause, the affected scope and the impact, and record DELAYED. Delayed is a change to timing and not a failure - the obligation is still owed and nothing downstream may treat it as gone",
+   "writes": [
+    {
+     "field": "fulfillment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.assess",
+   "key": "obligation_id + a.assess"
+  },
+  {
+   "type": "condition",
+   "node": "c.estimate",
+   "asks": "Is there a reliable new completion estimate?",
+   "branches": [
+    {
+     "label": "A reliable estimate",
+     "observes": null,
+     "test": "the cause is understood well enough to predict when it clears",
+     "to": "a.update"
+    },
+    {
+     "label": "No reliable estimate",
+     "observes": null,
+     "test": "the cause is not understood well enough to name a date that will hold",
+     "to": "a.no-estimate"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.update",
+   "does": "Update the expected timing, appending to the commitment history. The original commitment is preserved - what was promised and what it became are two facts, and keeping both is the only way a repeated slip becomes visible",
+   "writes": [
+    {
+     "field": "fulfillment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.update",
+   "key": "obligation_id + a.update"
+  },
+  {
+   "type": "state-update",
+   "node": "a.no-estimate",
+   "does": "Record that no reliable estimate exists rather than issuing one. Repeatedly promising dates that do not hold costs more trust than admitting the date is unknown, and each broken date makes the next one worth less",
+   "writes": [
+    {
+     "field": "fulfillment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.no-estimate",
+   "key": "obligation_id + a.no-estimate"
+  },
+  {
+   "type": "condition",
+   "node": "c.recipient-impact",
+   "asks": "Does the changed timing alter what the recipient should plan around?",
+   "branches": [
+    {
+     "label": "It changes their plans",
+     "observes": null,
+     "test": "the new estimate, or the loss of a reliable one, moves something they arranged their own time or commitments around",
+     "to": "a.delay-update"
+    },
+    {
+     "label": "No material change for them",
+     "observes": null,
+     "test": "the slip stays inside what they were already told to expect and nothing they arranged moves",
+     "to": "c.threshold"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.delay-update",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "fulfillment_delay.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.delay-update",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.delay-update",
+   "touch": "t1",
+   "stage": "delay-update",
+   "purpose": "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed.",
+   "brief": "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.estimate",
+    "c.recipient-impact"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.delay-update",
+   "key": "obligation_id + a.delay-update"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.no-choice-update",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "fulfillment_delay.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.no-choice-update",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.no-choice-update",
+   "touch": "t2",
+   "stage": "no-choice-update",
+   "purpose": "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left.",
+   "brief": "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left. Escalating in silence tells the recipient nothing is happening at the exact moment most is",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.estimate",
+    "c.recipient-impact",
+    "c.threshold",
+    "c.choice"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.no-choice-update",
+   "key": "obligation_id + a.no-choice-update"
+  },
+  {
+   "type": "condition",
+   "node": "c.threshold",
+   "asks": "Does the delay exceed the acceptable threshold?",
+   "branches": [
+    {
+     "label": "Within tolerance",
+     "observes": null,
+     "test": "the new timing is still inside what the commitment or policy accepts",
+     "to": "w.resume"
+    },
+    {
+     "label": "Beyond tolerance",
+     "observes": null,
+     "test": "the delay has passed what the commitment or policy accepts",
+     "to": "c.choice"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.choice",
+   "asks": "Does the counterparty have a decision to make?",
+   "branches": [
+    {
+     "label": "They choose",
+     "observes": null,
+     "test": "real options exist and the choice between them is theirs",
+     "to": "a.offer"
+    },
+    {
+     "label": "Nothing to offer",
+     "observes": null,
+     "test": "no option exists that they could meaningfully choose between",
+     "to": "a.no-choice-update"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "fulfillment_delay.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer",
+   "touch": "t3",
+   "stage": "offer",
+   "purpose": "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel.",
+   "brief": "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
+   "destination": {
+    "target": "delay-choices",
+    "boundTo": "obligation_id",
+    "mustNotClaim": [
+     "a date that will not hold",
+     "a choice that cannot be honoured"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.estimate",
+    "c.recipient-impact",
+    "c.threshold",
+    "c.choice"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer",
+   "key": "obligation_id + a.offer"
+  },
+  {
+   "type": "wait",
+   "node": "w.decision",
+   "timing": {
+    "key": "fulfillment_delay.decision",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "w.resume"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.decision",
+   "cancelOn": [
+    {
+     "event": "choice_made",
+     "meaning": "the person makes the offered choice"
+    }
+   ],
+   "onEvent": "c.decision"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.decision",
+   "reads": "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+   "before": "w.resume"
+  },
+  {
+   "type": "condition",
+   "node": "c.decision",
+   "asks": "What did they choose?",
+   "branches": [
+    {
+     "label": "Wait",
+     "observes": null,
+     "test": "they accept the revised timing",
+     "to": "w.resume"
+    },
+    {
+     "label": "Reschedule",
+     "observes": null,
+     "test": "they want a different date or window",
+     "to": "a.reschedule"
+    },
+    {
+     "label": "An alternative",
+     "observes": null,
+     "test": "they would take something different instead",
+     "to": "h.exception"
+    },
+    {
+     "label": "Cancel",
+     "observes": null,
+     "test": "they no longer want it",
+     "to": "h.cancel"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.reschedule",
+   "does": "Record the rescheduled commitment, appended to the history rather than replacing what came before it",
+   "writes": [
+    {
+     "field": "fulfillment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reschedule",
+   "key": "obligation_id + a.reschedule"
+  },
+  {
+   "type": "wait",
+   "node": "w.resume",
+   "timing": {
+    "key": "fulfillment_delay.resume",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "h.escalate"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.resume",
+   "cancelOn": [
+    {
+     "event": "fulfillment_resumed_or_completed",
+     "meaning": "fulfilment resumes or completes"
+    }
+   ],
+   "onEvent": "h.resume"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.resume",
+   "reads": "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+   "before": "h.escalate"
+  },
+  {
+   "type": "handoff",
+   "node": "h.resume",
+   "to": "FUL-144",
+   "on": "a delayed obligation resuming",
+   "carries": [
+    "the current commitment and the history of what preceded it",
+    "the scope already completed, which the delay never touched"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.exception",
+   "to": "FUL-145",
+   "on": "a counterparty choosing an alternative over waiting",
+   "carries": [
+    "the alternative they chose",
+    "the obligation as it currently stands"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.cancel",
+   "to": "FUL-150",
+   "on": "a counterparty cancelling rather than waiting",
+   "carries": [
+    "the completed and remaining scope, separately",
+    "the delay history, which is the reason and belongs in the record"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "OWN-55",
+   "on": "a delay beyond tolerance with nothing to offer, or outliving its revised horizon",
+   "carries": [
+    "the original commitment, every revision and the cause",
+    "the fact that communicating about the delay has not resolved the operational problem behind it"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

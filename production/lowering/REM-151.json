@@ -1,0 +1,237 @@
+{
+ "id": "REM-151",
+ "shortName": "Post-Purchase Issue Recovery",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.reported",
+   "event": "post_completion_issue_reported",
+   "meaning": "a concrete problem with a completed fulfillment or service: a wrong item or result, damaged output, a missing component, a quality problem, a service defect, an incorrect configuration or an incomplete outcome",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "a concrete problem with a completed fulfillment or service: a wrong item or result, damaged output, a missing component, a quality problem, a service defect, an incorrect configuration or an incomplete outcome",
+    "no instance of this journey is already open for the the completed fulfillment or service",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "issue_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.capture",
+   "does": "Capture the issue id, the fulfillment or service it concerns, the problem as reported, the affected scope, when it was reported and whatever evidence exists",
+   "writes": [
+    {
+     "field": "issue_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.capture",
+   "key": "order_id + a.capture"
+  },
+  {
+   "type": "condition",
+   "node": "c.duplicate",
+   "asks": "Does an existing recovery case already cover this problem?",
+   "branches": [
+    {
+     "label": "Already covered",
+     "observes": null,
+     "test": "an open case concerns the same defect on the same obligation",
+     "to": "a.attach"
+    },
+    {
+     "label": "Nothing open",
+     "observes": null,
+     "test": "no existing case covers it",
+     "to": "a.assess"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.attach",
+   "does": "Attach the new evidence and context to the existing case. No second recovery lifecycle is opened - two remedies running against one obligation produce two replacements or two refunds, and the second is found by accounting rather than by the process that issued it",
+   "writes": [
+    {
+     "field": "issue_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.attach",
+   "key": "order_id + a.attach"
+  },
+  {
+   "type": "exit",
+   "node": "x.attached",
+   "class": "suppression",
+   "state": "attached to the existing recovery case",
+   "reEntry": "if that case closes with the problem still present, the recurrence is assessed on its own terms rather than as a fresh report"
+  },
+  {
+   "type": "state-update",
+   "node": "a.assess",
+   "does": "Establish whether the report describes an unresolved obligation a remedy could satisfy, or an experience that fell short without anything having gone wrong. Both are real; only the first creates something to fix",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.actionable",
+   "asks": "Is there an actionable unresolved obligation?",
+   "branches": [
+    {
+     "label": "Actionable",
+     "observes": null,
+     "test": "something identifiable was owed and is not what was delivered",
+     "to": "a.classify"
+    },
+    {
+     "label": "Not actionable",
+     "observes": null,
+     "test": "the delivery matched what was owed and the experience still disappointed",
+     "to": "a.acknowledge"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "post_completion.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "stage": "acknowledge",
+   "purpose": "Acknowledge and explain, closing according to policy.",
+   "brief": "Acknowledge and explain, closing according to policy. No defect is manufactured to give the report somewhere to go, and no refund is issued as a way of ending the conversation",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.duplicate",
+    "c.actionable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.acknowledge",
+   "key": "order_id + a.acknowledge"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-defect",
+   "class": "no-action",
+   "state": "heard; no unresolved obligation and no remedy owed",
+   "reEntry": "new evidence of an actual defect re-opens this. Repetition of the same report is itself worth reading, without becoming a defect by repetition"
+  },
+  {
+   "type": "state-update",
+   "node": "a.classify",
+   "does": "Classify the remedy route the problem actually implies - a correction, a reperformance, a replacement, a return, a refund review, a service recovery, or another policy-defined remedy. Refund is one route among several rather than the default, and choosing it because it is the easiest to execute leaves the customer without the thing they wanted",
+   "writes": [
+    {
+     "field": "issue_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.classify",
+   "key": "order_id + a.classify"
+  },
+  {
+   "type": "handoff",
+   "node": "h.remedy",
+   "to": "REM-157",
+   "on": "a confirmed unresolved obligation needing a remedy decision",
+   "carries": [
+    "the unresolved obligation, stated as what is owed rather than as what was complained about",
+    "the routes the classification suggests, and the evidence behind them"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

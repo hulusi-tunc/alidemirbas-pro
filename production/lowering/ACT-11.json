@@ -1,0 +1,155 @@
+{
+ "id": "ACT-11",
+ "shortName": "Onboarding Route Assignment",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "human-task",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.entry",
+   "event": "authoritative_lifecycle_entry",
+   "meaning": "a recorded entry: account created, trial started, subscription started, or customer onboarding started",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a recorded entry: account created, trial started, subscription started, or customer onboarding started",
+    "no instance of this journey is already open for the person",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "account_id",
+    "onboarding_instance_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.context",
+   "does": "Read the onboarding context: the declared goal, the role, the product or use-case, the setup complexity, the account or organisation type, any implementation requirement, and any stated need for assistance. Plan tier is not read as a proxy for any of these",
+   "writes": [
+    {
+     "field": "onboarding_context",
+     "mode": "set"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.context",
+   "key": "subscription_id + account_id + a.context"
+  },
+  {
+   "type": "condition",
+   "node": "c.assisted",
+   "asks": "Does reaching value here require assisted onboarding?",
+   "branches": [
+    {
+     "label": "Assisted",
+     "observes": null,
+     "test": "the setup work genuinely needs a person: an implementation, a migration, a configuration the account cannot complete alone, or an explicit request for help",
+     "to": "a.assisted"
+    },
+    {
+     "label": "Self-service",
+     "observes": null,
+     "test": "the setup work is within what the account can complete on its own, whatever its value or plan",
+     "to": "a.self-service"
+    }
+   ]
+  },
+  {
+   "type": "human-task",
+   "node": "a.assisted",
+   "does": "Record the assisted route and raise the internal task that gives this onboarding a human owner - the route is a property of the onboarding, carried into every step that follows",
+   "touch": "t1"
+  },
+  {
+   "type": "state-update",
+   "node": "a.self-service",
+   "does": "Record the self-service route, which stays revisable: discovering later that a person is needed is a re-route, not a failure",
+   "writes": [
+    {
+     "field": "onboarding_route",
+     "mode": "set"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.self-service",
+   "key": "subscription_id + account_id + a.self-service"
+  },
+  {
+   "type": "condition",
+   "node": "c.prerequisite",
+   "asks": "Is a critical prerequisite missing before onboarding can start at all?",
+   "branches": [
+    {
+     "label": "Blocked at the start",
+     "observes": null,
+     "test": "something named and mandatory is absent - a verification, an access grant, a required party - and nothing meaningful can proceed without it",
+     "to": "h.requirement"
+    },
+    {
+     "label": "Clear to start",
+     "observes": null,
+     "test": "no mandatory prerequisite is outstanding; incomplete optional fields do not count",
+     "to": "h.progress"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.requirement",
+   "to": "ACT-13",
+   "on": "a mandatory prerequisite missing before onboarding can begin",
+   "carries": [
+    "the named requirement, not a general sense that setup is unfinished",
+    "the chosen route, since who resolves the requirement depends on it",
+    "the onboarding context already gathered"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.progress",
+   "to": "ACT-12",
+   "on": "a route chosen and nothing blocking the start",
+   "carries": [
+    "the chosen route and why it was chosen",
+    "the onboarding context, so the first step does not re-ask what was already known"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

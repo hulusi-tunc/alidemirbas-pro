@@ -1612,6 +1612,11 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "one connection to one external provider, plus the failure recorded against it",
       note: "The connection is the subject. A second provider failing at the same time is its own instance, and a capability that never depended on this connection is untouched.",
+      instanceKey: [
+        "connection_id",
+        "failure_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1625,6 +1630,234 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
           "INT-116 stops unsafe operations and preserves in-flight work. Here nothing operational happens; the subject is the holder's window to re-authorise before the break becomes permanent.",
       },
     ],
+    objective: "Tell the person who owns a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and what one step restores it - so a silent dependency failure becomes a decision instead of a slow discovery.",
+    eligibility: [
+      "an authoritative failed or disconnected state recorded against a named connection",
+      "a diagnosed failure cause",
+      "the list of capabilities that depended on it",
+      "no instance of this journey is already open for the one connection to one external provider",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is sent before the failure has a diagnosed cause. A notice that cannot say what to do is a notice that generates the question it should have answered."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A reduced authorization disables what depended on it, never the whole connection."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Where the holder cannot perform the fix, no reconnection step is attached."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Restoration is confirmed capability by capability, because a partial recovery and a full one are told apart nowhere else."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "integration_reconnect.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; one notice and one confirmation"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "integration_reconnect.cooldown",
+        "rule": "This journey is per one connection to one external provider; a later instance concerns a different one connection to one external provider and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "inform-only",
+          "action": "a.inform-only",
+          "prerequisites": [
+            "c.fixable"
+          ],
+          "purpose": "Say which capabilities have stopped and that nothing is required from them, with no reconnection step attached - because there is no step that would work.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "partial",
+          "action": "a.partial",
+          "prerequisites": [
+            "c.fixable",
+            "c.scope"
+          ],
+          "purpose": "Name exactly which capabilities stopped, which are still running, and the single re-authorisation step.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "re-authorisation-step",
+            "boundTo": "connection_id",
+            "mustNotClaim": [
+              "a reduced authorisation as a full one"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "total",
+          "action": "a.total",
+          "prerequisites": [
+            "c.fixable",
+            "c.scope"
+          ],
+          "purpose": "Say the connection is carrying nothing at present, name what has stopped depending on it, and give the single re-authorisation step.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "re-authorisation-step",
+            "boundTo": "connection_id"
+          }
+        },
+        {
+          "id": "t4",
+          "stage": "restored",
+          "action": "a.restored",
+          "gatedBy": "w.revalidate",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Confirm which capabilities are working again and name any that came back reduced.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "connection_id",
+          "failure_id",
+          "provider",
+          "holder_id",
+          "failure_cause",
+          "dependent_capabilities",
+          "reauthorisation_step"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.informed",
+          "x.restored",
+          "x.removed",
+          "x.unreconnected",
+          "h.abandoned"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ],
+      "businessOutcome": {
+        "event": "connection_revalidated",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      }
+    },
+    discovery: {
+      "aliases": [
+        "integration recovery",
+        "reconnect integration",
+        "integration disconnected",
+        "re-authorise connection",
+        "broken integration notice"
+      ],
+      "useCases": [
+        "a de-authorised connection whose owner is told which capabilities stopped and the one step that restores them",
+        "a break the holder cannot fix, stated without a reconnection step"
+      ]
+    },
     entry: "t.disconnected",
     nodes: [
       {
@@ -1669,6 +1902,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say which capabilities have stopped and that nothing is required from them, with no reconnection step attached - because there is no step that would work. Prompting a re-auth against a provider outage produces a person who tries three times and then opens a ticket",
         next: "x.informed",
         execution: "communication",
+        idempotencyKey: "person_id + a.inform-only",
       },
       {
         id: "x.informed",
@@ -1676,6 +1910,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "informed, recovery not the holder's to perform",
         terminal: false,
         reEntry: "if the cause is later reclassified as holder-fixable, this qualifies again on the re-authorisation path",
+        class: "success",
       },
       {
         id: "c.scope",
@@ -1700,6 +1935,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name exactly which capabilities stopped, which are still running, and the single re-authorisation step. Telling somebody their whole connection is broken when most of it works buys an afternoon of unnecessary work and a lasting distrust of the next notice",
         next: "w.revalidate",
         execution: "communication",
+        idempotencyKey: "person_id + a.partial",
       },
       {
         id: "a.total",
@@ -1707,22 +1943,30 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the connection is carrying nothing at present, name what has stopped depending on it, and give the single re-authorisation step. What stopped is the part the holder needs in order to judge how urgent this is",
         next: "w.revalidate",
         execution: "communication",
+        idempotencyKey: "person_id + a.total",
       },
       {
         id: "w.revalidate",
         kind: "wait",
         until: [
-          "the connection revalidates against a new authorization",
-          "the holder removes the connection",
-          "the cause is reclassified as not the holder's to fix",
+          "connection_revalidated",
+          "connection_removed",
+          "cause_reclassified_not_holders"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the period beyond which an unreconnected dependency stops being an interruption and starts being a decision",
-          reason: "a broken connection nobody has reconnected is a churn signal long before it is reported as one, and it must be handed over while that is still true",
+          "after": {
+            "key": "integration_reconnect.revalidate",
+            "rule": "The re-authorisation step is left open for a bounded response window from the notice; a connection still broken past it is judged against independent relationship evidence, never labelled from this break alone.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "a broken connection nobody has reconnected is a churn signal long before it is reported as one, and it must be handed over while that is still true",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.unreconnected",
         windowExtendsOnEngagement: false,
+        recheck: "the one connection to one external provider re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1752,6 +1996,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm which capabilities are working again and name any that came back reduced. A reconnection that silently restores less than before is discovered later, at whatever moment the missing capability was needed",
         next: "x.restored",
         execution: "communication",
+        idempotencyKey: "person_id + a.restored",
       },
       {
         id: "x.restored",
@@ -1759,6 +2004,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "reconnected and confirmed",
         terminal: false,
         reEntry: "a later break on the same connection is a new instance",
+        class: "success",
       },
       {
         id: "x.removed",
@@ -1766,12 +2012,14 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "connection deliberately removed by the holder",
         terminal: true,
         reEntry: "connecting the same provider again is a new connection and enters through activation, not through this journey",
+        class: "invalid-state",
       },
       {
         id: "a.unreconnected",
         kind: "action",
         does: "Record that the recovery window closed with the connection still broken, as a dated fact about this integration rather than a conclusion about the relationship. A connection somebody chose not to restore is one signal, and it may be the deliberate end of a use case rather than a customer leaving",
         next: "c.relationship-signal",
+        idempotencyKey: "person_id + a.unreconnected",
       },
       {
         id: "c.relationship-signal",
@@ -1796,6 +2044,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "recovery window closed, connection still broken, relationship not labelled at risk",
         terminal: false,
         reEntry: "a further disconnection event, or a re-authorisation attempt, opens recovery again",
+        class: "timeout",
       },
       {
         id: "h.abandoned",
@@ -1831,6 +2080,10 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the single connection attempt and the integration it configures",
       note: "One instance per connection. A second connection to the same provider has its own credentials, scopes and outcome, and inherits nothing from this one.",
+      instanceKey: [
+        "connection_attempt_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1844,6 +2097,238 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
           "INT-269 addresses an established connection that has broken. Here nothing has ever worked, so there is no prior capability to restore and nothing to describe as degraded.",
       },
     ],
+    objective: "Tell the person who started a connection which stage it actually failed at and what would fix that stage - because a generic failure sends a capable person to support and an incapable one away for good.",
+    eligibility: [
+      "a connection attempt recorded against a named integration by a named configurer",
+      "a recorded outcome from the authentication, scope and capability checks",
+      "no instance of this journey is already open for the the single connection attempt and the integration it configures",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The stage that failed is named, or the failure is admitted as unidentified. A generic error is a support ticket with extra steps."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A saved credential is never described as a connection."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The message states the capabilities that were validated, never the ones that were configured."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "No fix is suggested that the configurer cannot perform. Where the cause sits with the provider, the message says so."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "One message per named failure. A fix already given is not repeated on the next attempt."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "integration_setup.touches",
+          "rule": "Stage messages are repeated only as retries recur, against a total budget fixed at the first attempt; the budget is the company's, and the plan never repeats a stage message without a new attempt behind it.",
+          "required": true
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "integration_setup.cooldown",
+        "rule": "This journey is per the single connection attempt and the integration it configures; a later instance concerns a different the single connection attempt and the integration it configures and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "active",
+          "action": "a.active",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Confirm the connection is active and name the capabilities that were actually validated rather than the ones that were configured.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "fix-auth",
+          "action": "a.fix-auth",
+          "prerequisites": [
+            "c.outcome",
+            "c.stage"
+          ],
+          "purpose": "Say the credential itself was refused and give the one step that re-establishes it.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "re-enter-credential",
+            "boundTo": "connection_attempt_id"
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "fix-scope",
+          "action": "a.fix-scope",
+          "prerequisites": [
+            "c.outcome",
+            "c.stage"
+          ],
+          "purpose": "Name the specific permission that is missing and where it is granted.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "grant-missing-permission",
+            "boundTo": "connection_attempt_id"
+          }
+        },
+        {
+          "id": "t4",
+          "stage": "fix-capability",
+          "action": "a.fix-capability",
+          "prerequisites": [
+            "c.outcome",
+            "c.stage"
+          ],
+          "purpose": "Say that access was granted but the minimum operation could not be performed, and name which operation.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "capability-check",
+            "boundTo": "connection_attempt_id",
+            "mustNotClaim": [
+              "that a saved credential is a connection"
+            ]
+          }
+        },
+        {
+          "id": "t5",
+          "stage": "generic",
+          "action": "a.generic",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say the attempt failed, that the stage has not been identified, and that nothing further is needed from the configurer while it is looked at.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "connection_attempt_id",
+          "integration_id",
+          "configurer_id",
+          "stage_outcomes",
+          "validated_capabilities",
+          "retry_budget"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.active",
+          "x.unresolved",
+          "x.abandoned",
+          "h.diagnose"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "integration setup",
+        "connect integration",
+        "integration failed at setup",
+        "connection failed",
+        "integration onboarding"
+      ],
+      "useCases": [
+        "a connection attempt that names the stage it failed at and the fix for that stage",
+        "a successful connection confirmed with the capabilities actually validated"
+      ]
+    },
     entry: "t.started",
     nodes: [
       {
@@ -1891,6 +2376,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the connection is active and name the capabilities that were actually validated rather than the ones that were configured. The difference is what stops somebody building on a permission they do not have",
         next: "x.active",
         execution: "communication",
+        idempotencyKey: "person_id + a.active",
       },
       {
         id: "x.active",
@@ -1898,6 +2384,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "active, with validated capabilities stated",
         terminal: false,
         reEntry: "a further connection to the same provider is a new instance",
+        class: "success",
       },
       {
         id: "c.stage",
@@ -1927,6 +2414,12 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the credential itself was refused and give the one step that re-establishes it. This is the only stage the configurer can usually fix unaided, and it is the one most often buried under a generic error",
         next: "w.retry",
         execution: "communication",
+        idempotencyKey: "person_id + a.fix-auth",
+        attemptBudget: {
+          "key": "integration_setup.fix_auth_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "a.fix-scope",
@@ -1934,6 +2427,12 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the specific permission that is missing and where it is granted. A missing permission reported as a failed setup makes somebody redo an entire connection to change one switch",
         next: "w.retry",
         execution: "communication",
+        idempotencyKey: "person_id + a.fix-scope",
+        attemptBudget: {
+          "key": "integration_setup.fix_scope_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "a.fix-capability",
@@ -1941,6 +2440,12 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that access was granted but the minimum operation could not be performed, and name which operation. This usually sits with a limit on the provider side, so the message points there rather than at the configurer",
         next: "w.retry",
         execution: "communication",
+        idempotencyKey: "person_id + a.fix-capability",
+        attemptBudget: {
+          "key": "integration_setup.fix_capability_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "a.generic",
@@ -1948,6 +2453,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the attempt failed, that the stage has not been identified, and that nothing further is needed from the configurer while it is looked at. Admitting there is no cause yet beats inventing one - a guessed cause sends somebody to fix what is not broken",
         next: "h.diagnose",
         execution: "communication",
+        idempotencyKey: "person_id + a.generic",
       },
       {
         id: "h.diagnose",
@@ -1963,16 +2469,23 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.retry",
         kind: "wait",
         until: [
-          "a further connection attempt is recorded for this integration",
-          "the configuration is removed",
+          "connection_attempt_recorded",
+          "connection_removed"
         ],
         onEvent: "c.retry",
         timeout: {
-          after: "the period beyond which an unfinished connection is treated as abandoned",
-          reason: "a half-configured integration nobody returns to is not work in progress and must stop being counted as such",
+          "after": {
+            "key": "integration_setup.retry",
+            "rule": "The period beyond which an unfinished connection is treated as abandoned.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a half-configured integration nobody returns to is not work in progress and must stop being counted as such",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.abandoned",
         windowExtendsOnEngagement: false,
+        recheck: "the the single connection attempt and the integration it configures re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.retry",
@@ -2007,6 +2520,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "still not connected after the named fix",
         terminal: false,
         reEntry: "a later attempt re-enters at the outcome check; a fix already given is not sent twice",
+        class: "failure",
       },
       {
         id: "x.abandoned",
@@ -2014,6 +2528,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "abandoned before the connection was ever made",
         terminal: false,
         reEntry: "a new attempt on the same integration starts a fresh instance",
+        class: "timeout",
       },
     ],
     guardrails: [

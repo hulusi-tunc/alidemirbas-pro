@@ -150,6 +150,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the individual identity claim - which attribute, at what assurance, for what purpose",
       note: "Verification belongs to a claim, not to a person. Two claims about the same person are two verifications, and neither carries the other.",
+      instanceKey: [
+        "claim_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -158,6 +162,203 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "Verification asks whether a claim is true. Authentication asks whether whoever is present right now controls it. A verified claim from last year says nothing about who is at the keyboard.",
       },
     ],
+    objective: "Establish confidence in one specific identity claim, bound to the evidence that established it.",
+    eligibility: [
+      "a specific identity claim that a process or policy requires to be verified, at a stated scope",
+      "no instance of this journey is already open for the the individual identity claim",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An identity supplied is not an identity verified."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Verifying one attribute does not verify unrelated attributes."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Evidence is scoped to the claim being verified. Asking for more than the claim needs creates liability without confidence."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Evidence rounds are bounded by policy rather than repeated until something is accepted."
+      }
+    ],
+    contact: {
+      "defaultPriority": "security",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "identity_claim.touches",
+          "rule": "Every touch in this plan is the verification itself and is mandatory; nothing discretionary exists to cap.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "identity_claim.cooldown",
+        "rule": "This journey is per the individual identity claim; a later instance concerns a different the individual identity claim and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "request",
+          "action": "a.request",
+          "prerequisites": [
+            "c.evidence"
+          ],
+          "purpose": "Request the minimum evidence this claim requires, and record the state as EVIDENCE_REQUIRED.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "evidence-submission",
+            "boundTo": "claim_id",
+            "mustNotClaim": [
+              "that unrelated attributes are verified"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "request-more",
+          "action": "a.request-more",
+          "prerequisites": [
+            "c.evidence",
+            "c.result",
+            "c.rounds"
+          ],
+          "purpose": "Request the specific additional evidence that would settle it, naming what is missing rather than repeating the original request",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "after": "t1",
+          "gatedBy": "w.evidence",
+          "destination": {
+            "target": "evidence-submission",
+            "boundTo": "claim_id"
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "claim_id",
+          "identity_id",
+          "attribute",
+          "required_assurance",
+          "purpose",
+          "evidence_policy",
+          "round_limit",
+          "verification_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.expired",
+          "x.verified",
+          "h.review",
+          "h.failure"
+        ]
+      },
+      "businessOutcome": {
+        "event": "verification_evidence_received",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "identity verification",
+        "KYC verification",
+        "ID check",
+        "identity proofing",
+        "document verification"
+      ],
+      "useCases": [
+        "a claim a process requires to be verified at a stated assurance",
+        "an inconclusive check that asks for the specific missing evidence, within the round limit"
+      ]
+    },
     entry: "t.required",
     nodes: [
       {
@@ -182,6 +383,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the verification instance bound to the exact claim - which attribute, at what assurance level, for what purpose - and record it as PENDING. A verification that is not bound to a claim verifies nothing in particular, and is read later as having verified everything",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "c.evidence",
+        idempotencyKey: "issue_id + identity_id + a.instance",
       },
       {
         id: "c.evidence",
@@ -207,19 +409,28 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "verification_log", mode: "append" }],
         next: "w.evidence",
         execution: "communication",
+        idempotencyKey: "issue_id + identity_id + a.request",
       },
       {
         id: "w.evidence",
         kind: "wait",
-        until: ["the requested evidence is received"],
+        until: [
+          "verification_evidence_received"
+        ],
         onEvent: "a.validate",
         timeout: {
-          after: "the verification timeout for this claim",
-          reason:
-            "an open verification is a process held up somewhere else, and leaving it pending indefinitely blocks that process without anyone deciding to",
+          "after": {
+            "key": "identity_claim.evidence",
+            "rule": "The verification timeout for this claim.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an open verification is a process held up somewhere else, and leaving it pending indefinitely blocks that process without anyone deciding to",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.expired",
         windowExtendsOnEngagement: false,
+        recheck: "the the individual identity claim re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.expired",
@@ -228,6 +439,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new verification instance may be opened for the same claim. Expired is not rejected - nobody assessed the claim and found against it",
+        class: "timeout",
       },
       {
         id: "a.validate",
@@ -235,6 +447,12 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Validate the evidence against this claim's acceptance rules, recording the state as UNDER_REVIEW while it runs",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "c.result",
+        idempotencyKey: "issue_id + identity_id + a.validate",
+        attemptBudget: {
+          "key": "identity_claim.validate_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "c.result",
@@ -287,6 +505,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "verification_log", mode: "append" }],
         next: "w.evidence",
         execution: "communication",
+        idempotencyKey: "issue_id + identity_id + a.request-more",
       },
       {
         id: "h.review",
@@ -314,6 +533,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Mark this exact claim VERIFIED, at the assurance the evidence supports and for the scope it covers, together with the evidence that established it. Verifying one attribute verifies nothing else - a verified address says nothing about a verified identity, and the binding is what stops the second being read out of the first",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.verified",
+        idempotencyKey: "issue_id + identity_id + a.verified",
       },
       {
         id: "x.verified",
@@ -322,6 +542,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a different claim is verified on its own evidence, and this one is re-verified when its own validity lapses",
+        class: "success",
       },
     ],
     guardrails: [
@@ -710,6 +931,186 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the verification instance that failed",
       note: "The failure belongs to the attempt. A technical failure and a mismatch are different facts about different things, and only one of them is about the person.",
+      instanceKey: [
+        "verification_instance_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
+    eligibility: [
+      "a verification attempt that did not establish its claim",
+      "no instance of this journey is already open for the the verification instance that failed",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Retry limits are policy-defined and bounded, and the bound is tighter where the claim is security-sensitive."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A technical failure is never recorded as an identity rejection."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Repeated retries do not bypass security controls. Exhausting the budget routes to a person, not to an acceptance."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The failure reason is preserved, because the route out depends on it."
+      }
+    ],
+    contact: {
+      "defaultPriority": "security",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "verification_failure.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "verification_failure.cooldown",
+        "rule": "This journey is per the verification instance that failed; a later instance concerns a different the verification instance that failed and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "explain",
+          "action": "a.explain",
+          "prerequisites": [
+            "c.class",
+            "c.retry-budget"
+          ],
+          "purpose": "Explain exactly what needs correcting and offer the bounded retry.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "retry-verification",
+            "boundTo": "verification_instance_id"
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "explain-terminal",
+          "action": "a.explain-terminal",
+          "prerequisites": [
+            "c.class"
+          ],
+          "purpose": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "alternative-verification-basis",
+            "boundTo": "verification_instance_id"
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "verification_instance_id",
+          "claim_id",
+          "failure_class",
+          "retry_budget",
+          "backoff_budget",
+          "verification_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.retry",
+          "x.terminal",
+          "h.escalate",
+          "h.review"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "verification recovery",
+        "failed verification",
+        "ID check failed",
+        "verification retry"
+      ],
+      "useCases": [
+        "a failed check explained with exactly what to correct and a bounded retry",
+        "our own technical failure kept out of the person's verification record"
+      ]
     },
     entry: "t.failed",
     nodes: [
@@ -733,6 +1134,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the failure as INSUFFICIENT_EVIDENCE, MISMATCH, UNREADABLE, EXPIRED_EVIDENCE, TECHNICAL_FAILURE, POLICY_FAILURE, REVIEW_REQUIRED or UNKNOWN. The class decides the route, and it decides something else: recording our own outage as an identity rejection marks someone as having failed a check they never got to attempt",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "c.class",
+        idempotencyKey: "identity_id + a.classify",
       },
       {
         id: "c.class",
@@ -785,6 +1187,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.retry",
         execution: "communication",
+        idempotencyKey: "identity_id + a.explain",
       },
       {
         id: "c.technical-budget",
@@ -809,6 +1212,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Retry with backoff, recording nothing against the person's verification history. Our failure is not their rejection, and the distinction has to survive into whatever reads that history later",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.retry",
+        idempotencyKey: "identity_id + a.backoff",
       },
       {
         id: "a.explain-terminal",
@@ -816,6 +1220,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
         execution: "communication",
         next: "x.terminal",
+        idempotencyKey: "identity_id + a.explain-terminal",
       },
       {
         id: "x.retry",
@@ -824,6 +1229,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the retry runs as part of the same verification instance, against the same budget - a new instance would reset the count, which is how a bounded retry becomes an unbounded one",
+        class: "success",
       },
       {
         id: "h.escalate",
@@ -852,6 +1258,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a different basis or a different claim is assessed on its own terms; what would have to change here is the policy rather than the evidence",
+        class: "failure",
       },
     ],
     guardrails: [
@@ -878,6 +1285,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the authentication session, bound to an actor and an account",
       note: "An authenticated session carries an explicit validity. A session with no stated lifetime is one that nothing can decide has expired.",
+      instanceKey: [
+        "session_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -886,6 +1297,181 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "This establishes who is present. ACC-75 decides what they may do. A successful authentication is an input to that decision and never a substitute for it.",
       },
     ],
+    objective: "Establish that whoever is present controls the required identity, at the assurance the context demands.",
+    eligibility: [
+      "a context requiring the actor's control of an identity to be established",
+      "no instance of this journey is already open for the the authentication session",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Authentication is not authorization."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A successful login does not prove entitlement to any particular resource."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An authenticated session carries an explicit assurance level and an explicit validity."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "An unanswered challenge is not recorded as a failed authentication."
+      }
+    ],
+    contact: {
+      "defaultPriority": "security",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "authentication_challenge.touches",
+          "rule": "The challenge is the authentication itself and is mandatory; nothing discretionary exists to cap.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "authentication_challenge.cooldown",
+        "rule": "This journey is per the authentication session; a later instance concerns a different the authentication session and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a valid token or app session exists and the message is a single step from the notification"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "challenge",
+          "action": "a.challenge",
+          "prerequisites": [
+            "c.sufficient"
+          ],
+          "purpose": "Issue the challenge appropriate to the required assurance level",
+          "channelRoles": [
+            "urgent",
+            "low-friction",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "session_id",
+          "identity_id",
+          "account_id",
+          "required_assurance",
+          "existing_assurance",
+          "authentication_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.satisfied",
+          "x.timeout",
+          "x.authenticated",
+          "h.stepup",
+          "h.failure"
+        ]
+      },
+      "businessOutcome": {
+        "event": "authentication_succeeded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "login verification",
+        "OTP",
+        "2FA",
+        "MFA challenge",
+        "one-time code",
+        "login code"
+      ],
+      "useCases": [
+        "a challenge issued at the assurance the context demands",
+        "a session already at the required level, challenged for nothing"
+      ]
+    },
     entry: "t.required",
     nodes: [
       {
@@ -932,6 +1518,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a context requiring higher assurance re-opens this. Being authenticated says who the actor is and nothing about what they may do",
+        class: "success",
       },
       {
         id: "a.challenge",
@@ -940,19 +1527,29 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "authentication_log", mode: "append" }],
         next: "w.auth",
         execution: "communication",
+        idempotencyKey: "identity_id + account_id + a.challenge",
       },
       {
         id: "w.auth",
         kind: "wait",
-        until: ["authentication succeeds", "authentication fails"],
+        until: [
+          "authentication_succeeded",
+          "authentication_failed"
+        ],
         onEvent: "c.result",
         timeout: {
-          after: "the challenge window",
-          reason:
-            "an unanswered challenge is not a failure to authenticate and is not recorded as one; the attempt simply ends",
+          "after": {
+            "key": "authentication_challenge.auth",
+            "rule": "The challenge window.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an unanswered challenge is not a failure to authenticate and is not recorded as one; the attempt simply ends",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.timeout",
         windowExtendsOnEngagement: false,
+        recheck: "the the authentication session re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.timeout",
@@ -960,6 +1557,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "challenge unanswered; nothing authenticated and nothing recorded against the actor",
         terminal: false,
         reEntry: "a new attempt issues a new challenge",
+        class: "timeout",
       },
       {
         id: "c.result",
@@ -989,6 +1587,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Issue or update the authenticated session with an explicit assurance level and an explicit validity. Both are needed downstream: without the level nothing can require a step-up, and without the validity nothing can decide the session has aged out",
         writes: [{ field: "authentication_log", mode: "append" }],
         next: "x.authenticated",
+        idempotencyKey: "identity_id + account_id + a.session",
       },
       {
         id: "x.authenticated",
@@ -997,6 +1596,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "authorization for any particular action is decided separately, every time - a successful login proves control of an account and entitlement to nothing",
+        class: "success",
       },
       {
         id: "h.stepup",
@@ -1163,6 +1763,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the account plus the authentication activity observed against it",
       note: "The pattern belongs to the account. A shared IP producing failures across many accounts is a different signal, assessed at a different scope.",
+      instanceKey: [
+        "account_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1171,6 +1775,70 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "This weighs whether failures mean anything. IDN-90 starts from a material compromise signal and contains first. The route between them exists, and it is deliberately a decision rather than a default.",
       },
     ],
+    objective: "Tell an ordinary forgotten password apart from an account under attack, without converting the first into the second.",
+    eligibility: [
+      "authentication failures crossing a meaningful threshold, or matching a pattern the detection considers notable",
+      "no instance of this journey is already open for the the account plus the authentication activity observed against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "One failed password attempt is not a compromise."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A risk model's output is not a confirmed attacker. It orders investigation and concludes nothing."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Any security response uses the smallest necessary scope."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "security_signal_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.normal",
+          "h.recovery",
+          "h.security"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "authentication risk assessment",
+        "failed login pattern",
+        "brute force detection",
+        "login anomaly"
+      ],
+      "useCases": [
+        "repeated failed logins told apart from an attack",
+        "a legitimate-looking actor with no way through, routed to recovery"
+      ]
+    },
     entry: "t.pattern",
     nodes: [
       {
@@ -1195,6 +1863,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the context around the failures: how fast they arrived, from what device and context, whether a credential reset is in play, whether the shape matches a known attack, and whether any session succeeded. A model's score orders the work and concludes nothing - what it produces is a case to look at, not an attacker",
         writes: [{ field: "security_signal_log", mode: "append" }],
         next: "c.assessment",
+        idempotencyKey: "account_id + a.evaluate",
       },
       {
         id: "c.assessment",
@@ -1225,6 +1894,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the usual recovery routes remain open to them, unchanged. Treating this as an attack would lock out mostly legitimate people, which is the failure mode this branch exists to hold open",
+        class: "no-action",
       },
       {
         id: "h.recovery",
@@ -1242,6 +1912,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the smallest restriction the evidence justifies, and record what justified it. Most signals in this category are false positives, and for those the restriction is the entire customer-visible incident",
         writes: [{ field: "security_signal_log", mode: "append" }],
         next: "h.security",
+        idempotencyKey: "account_id + a.restrict",
       },
       {
         id: "h.security",
@@ -1277,6 +1948,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the account plus this recovery case",
       note: "Recovery restores control of one existing account. It never merges identities, and it never creates a second account for the same person as a shortcut.",
+      instanceKey: [
+        "recovery_case_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1285,6 +1960,81 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "Verification establishes that a claim is true. Recovery establishes that this requester is entitled to regain control of a specific account, which a true claim about their identity does not by itself demonstrate.",
       },
     ],
+    objective: "Give someone a way back into an account they can no longer authenticate to, without that route being weaker than the one it replaces.",
+    eligibility: [
+      "a valid recovery request against an identified account",
+      "no instance of this journey is already open for the the account plus this recovery case",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Recovery does not weaken normal security controls. It is a different route to the same assurance, not a lower one."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Unsafe credentials and sessions are invalidated before replacement access is established, not after."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Account recovery is not identity merge."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The recovery window is not restarted by repeated attempts."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "recovery_case_id",
+          "account_id",
+          "required_assurance",
+          "recovery_window_ends_at",
+          "recovery_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.expired",
+          "x.recovered",
+          "x.more",
+          "x.denied",
+          "h.security",
+          "h.review"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "account recovery verification",
+        "prove control",
+        "recovery proof",
+        "locked-out recovery"
+      ],
+      "useCases": [
+        "a recovery route no weaker than the login it replaces",
+        "insufficient proof routed to more evidence, a person, or denial"
+      ]
+    },
     entry: "t.recovery",
     nodes: [
       {
@@ -1293,6 +2043,11 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         event: "account_recovery_initiated",
         evidence: {
           requires: ["a valid recovery request against an identified account"],
+          insufficientAlone: [
+            "a failed authentication with no recovery request behind it",
+            "a support conversation about being locked out that names no identified account",
+            "a destination supplied inside the request itself"
+          ],
           source: "authoritative",
         },
         next: "a.basis",
@@ -1303,6 +2058,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the recovery basis available and read the account's current security state. What is happening on the account changes what recovery is allowed to do",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "c.incident",
+        idempotencyKey: "issue_id + account_id + a.basis",
       },
       {
         id: "c.incident",
@@ -1337,19 +2093,30 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Collect only the evidence this recovery basis requires. Recovery is not an opportunity to gather more than normal authentication would, and it must not be an easier route to the same access than the one it replaces - it exists for the case where normal authentication has already failed, which makes it the door an attacker reaches for first",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "w.proof",
+        idempotencyKey: "issue_id + account_id + a.evidence",
       },
       {
         id: "w.proof",
         kind: "wait",
-        until: ["proof of control or identity is provided", "the attempt fails"],
+        until: [
+          "proof_of_control_provided",
+          "recovery_attempt_failed"
+        ],
         onEvent: "c.proof",
         timeout: {
-          after: "the recovery window",
-          reason:
-            "an open recovery case is a standing invitation to keep trying, and closing it is part of not being a weaker route",
+          "after": {
+            "key": "account_recovery.proof",
+            "rule": "Proof is waited for until the recovery window closes; the window is never restarted by repeated attempts.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "an open recovery case is a standing invitation to keep trying, and closing it is part of not being a weaker route",
+          "relativeTo": "attribute",
+          "attribute": "recovery_window_ends_at"
         },
         onTimeout: "x.expired",
         windowExtendsOnEngagement: false,
+        recheck: "the the account plus this recovery case re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.expired",
@@ -1357,6 +2124,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "recovery window closed without sufficient proof",
         terminal: false,
         reEntry: "a new recovery request opens its own case, with this one in the history",
+        class: "timeout",
       },
       {
         id: "c.proof",
@@ -1384,6 +2152,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "a.replace",
+        idempotencyKey: "issue_id + account_id + a.invalidate",
       },
       {
         id: "a.replace",
@@ -1391,6 +2160,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Establish secure replacement access at the assurance this account requires",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "a.verify",
+        idempotencyKey: "issue_id + account_id + a.replace",
       },
       {
         id: "a.verify",
@@ -1398,6 +2168,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Verify the recovered state: that the intended access works, and that the invalidated credentials genuinely no longer do. The second half is the one that gets skipped",
         writes: [{ field: "recovery_log", mode: "append" }],
         next: "x.recovered",
+        idempotencyKey: "issue_id + account_id + a.verify",
       },
       {
         id: "x.recovered",
@@ -1406,6 +2177,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "this recovered one account and merged nothing. Two identities that turn out to be one person is a different problem with different evidence",
+        class: "success",
       },
       {
         id: "c.next",
@@ -1435,6 +2207,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "further evidence may be provided within the recovery window",
         terminal: false,
         reEntry: "the same case continues; the window is not restarted by another attempt",
+        class: "no-action",
       },
       {
         id: "h.review",
@@ -1453,6 +2226,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new request with genuinely new evidence may be assessed; repeating the same evidence is not new evidence",
+        class: "failure",
       },
     ],
     guardrails: [
@@ -1479,6 +2253,86 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the person or account plus the specific attribute changing",
       note: "Each dependent - a credential, a contact point, a permission - is reconciled on its own terms. None of them travels with the attribute automatically.",
+      instanceKey: [
+        "account_id",
+        "attribute_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Change an identity attribute safely, and reconcile everything that depended on the old value independently rather than by inheritance.",
+    eligibility: [
+      "a change to an identity attribute, requested by the holder or received from an authoritative source",
+      "no instance of this journey is already open for the the person or account plus the specific attribute changing",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Changing an email does not transfer the old address's contactability or its consent to the new one."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Identity history is not silently overwritten where auditability is required."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A stale update never restores a previous value - propagation carries origin and version so a late arrival is discarded."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A sensitive change is not applied on the strength of an existing session alone."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "account_id",
+          "attribute_id",
+          "previous_value",
+          "requested_value",
+          "verification_policy",
+          "dependents",
+          "identity_change_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.not-applied",
+          "x.rejected",
+          "x.reconciled",
+          "x.updated"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "identity attribute update",
+        "change of name",
+        "identity data change",
+        "profile identity update"
+      ],
+      "useCases": [
+        "an identity attribute changed with verification where policy requires it",
+        "credentials, contactability and permissions re-evaluated independently after the change"
+      ]
     },
     entry: "t.change",
     nodes: [
@@ -1490,6 +2344,11 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           requires: [
             "a change to an identity attribute, requested by the holder or received from an authoritative source",
           ],
+          insufficientAlone: [
+            "a contact point change, which contact verification (CON-264) owns",
+            "a display-name edit with nothing depending on it",
+            "a propagation of an old value arriving after a newer change"
+          ],
           source: "authoritative",
         },
         next: "a.sensitivity",
@@ -1500,6 +2359,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the attribute's sensitivity and what verification the change requires. Changing a display name and changing a legal name are not the same operation, and neither is changing a recovery address",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "c.verification",
+        idempotencyKey: "account_id + person_id + a.sensitivity",
       },
       {
         id: "c.verification",
@@ -1527,15 +2387,24 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.verification",
         kind: "wait",
-        until: ["the verification succeeds", "the verification fails"],
+        until: [
+          "verification_succeeded",
+          "verification_failed"
+        ],
         onEvent: "c.verified",
         timeout: {
-          after: "the verification window for this change",
-          reason:
-            "an unverified sensitive change is not applied by default, so an unanswered verification simply leaves the attribute as it was",
+          "after": {
+            "key": "identity_attribute.verification",
+            "rule": "The verification window for this change.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an unverified sensitive change is not applied by default, so an unanswered verification simply leaves the attribute as it was",
+          "relativeTo": "trigger"
         },
         onTimeout: "x.not-applied",
         windowExtendsOnEngagement: false,
+        recheck: "the the person or account plus the specific attribute changing re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.verified",
@@ -1553,6 +2422,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new request is verified on its own terms. Nothing partial was written, so no downstream system holds a value that was never confirmed",
+        class: "invalid-state",
       },
       {
         id: "c.valid",
@@ -1577,6 +2447,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "change rejected as invalid",
         terminal: false,
         reEntry: "a corrected value may be submitted",
+        class: "invalid-state",
       },
       {
         id: "a.update",
@@ -1584,6 +2455,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the authoritative identity record, preserving the previous value where policy permits, the new value, when it took effect, the source, and the verification evidence and status. Identity history is not silently overwritten where auditability is required - what someone was called, and when that changed, is often the whole question later",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "a.propagate",
+        idempotencyKey: "account_id + person_id + a.update",
       },
       {
         id: "a.propagate",
@@ -1591,6 +2463,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Propagate to dependent systems carrying origin and version, so a stale update arriving late cannot restore the previous value",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "c.dependents",
+        idempotencyKey: "account_id + person_id + a.propagate",
       },
       {
         id: "c.dependents",
@@ -1615,6 +2488,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Re-evaluate each dependent independently. A new email address inherits neither the old one's deliverability nor its consent - the new address starts with its own contactability state and its own permission, both empty unless policy explicitly says otherwise. Credentials tied to the old value are assessed on their own terms, and so are permissions that rested on it",
         writes: [{ field: "identity_change_log", mode: "append" }],
         next: "x.reconciled",
+        idempotencyKey: "account_id + person_id + a.reconcile",
       },
       {
         id: "x.reconciled",
@@ -1623,6 +2497,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "each dependent's own journey owns what happens next - contactability, permission and credential lifecycles are separately triggered, because they have different owners and different rules",
+        class: "success",
       },
       {
         id: "x.updated",
@@ -1630,6 +2505,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "identity updated; nothing depended on the previous value",
         terminal: false,
         reEntry: "a further change to the same attribute is assessed on its own sensitivity",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1656,6 +2532,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the account plus this security incident and the scope it affects",
       note: "The incident is its own record with its own history. Containment attaches to it, and both survive whichever way the investigation concludes.",
+      instanceKey: [
+        "incident_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1664,6 +2544,86 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "Suspension restricts for a stated business reason and expects to be resolved by that reason going away. This restricts on incomplete evidence about an adversary, which is why it opens an investigation rather than a review.",
       },
     ],
+    objective: "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
+    eligibility: [
+      "a material signal: a credential-theft indication, an unauthorised sensitive change, a credible report from the owner, a high-confidence detection, or a suspicious session combined with a consequential action",
+      "no instance of this journey is already open for the the account plus this security incident and the scope it affects",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Suspected is not confirmed. The two are separate states and containment belongs to the first."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Containment does not erase forensic or audit history."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Restoration never blindly reactivates old credentials, sessions or permissions - it rebuilds from current valid state."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Unauthorised financial or business actions are corrected through their own dispute lifecycles, not from inside the incident."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Containment uses the smallest scope the evidence justifies, because most signals here are false positives."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "incident_id",
+          "account_id",
+          "signal",
+          "scope",
+          "containment_applied",
+          "review_sla",
+          "security_incident_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.continued",
+          "h.recover",
+          "h.lift",
+          "h.review"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "account compromise recovery",
+        "account takeover response",
+        "compromise containment",
+        "security incident (account)"
+      ],
+      "useCases": [
+        "precautionary containment in the smallest scope while the question is open",
+        "a conclusion that can go either way: confirmed and restored securely, or cleared and lifted"
+      ]
+    },
     entry: "t.signal",
     nodes: [
       {
@@ -1688,6 +2648,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the affected scope - which sessions, which credentials, which sensitive capabilities. Scope is the whole question here, because most signals in this category turn out to be false positives, and for those the containment is the entire customer-visible incident",
         writes: [{ field: "security_incident_log", mode: "append" }],
         next: "c.containment",
+        idempotencyKey: "incident_id + account_id + a.scope",
       },
       {
         id: "c.containment",
@@ -1715,6 +2676,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "w.resolution",
+        idempotencyKey: "incident_id + account_id + a.contain",
       },
       {
         id: "a.open",
@@ -1722,19 +2684,29 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Open the security recovery state without restricting anything, recording that containment was considered and judged unnecessary. Suspected is not confirmed, and the record says which one this is",
         writes: [{ field: "security_incident_log", mode: "append" }],
         next: "w.resolution",
+        idempotencyKey: "incident_id + account_id + a.open",
       },
       {
         id: "w.resolution",
         kind: "wait",
-        until: ["the owner is verified", "the security review concludes"],
+        until: [
+          "owner_verified",
+          "security_review_concluded"
+        ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the resolution SLA for this incident class",
-          reason:
-            "an open incident with containment in force is costing a possibly-innocent person their access every day it continues, so an undecided one escalates rather than settles",
+          "after": {
+            "key": "suspected_account.resolution",
+            "rule": "The resolution SLA for this incident class.",
+            "class": "decision-sla",
+            "required": true
+          },
+          "reason": "an open incident with containment in force is costing a possibly-innocent person their access every day it continues, so an undecided one escalates rather than settles",
+          "relativeTo": "trigger"
         },
         onTimeout: "c.inconclusive",
         windowExtendsOnEngagement: false,
+        recheck: "the the account plus this security incident and the scope it affects re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1759,6 +2731,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Revoke the affected credentials and sessions, and correct the unauthorised changes where correction is valid. Unauthorised financial or business actions are not corrected here - each carries its own dispute or correction lifecycle with its own evidence rules and its own authority, and reversing them from a security incident would bypass both",
         writes: [{ field: "security_incident_log", mode: "append" }],
         next: "h.recover",
+        idempotencyKey: "incident_id + account_id + a.confirmed",
       },
       {
         id: "h.recover",
@@ -1776,6 +2749,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the signal as cleared, keeping it in the security history. A cleared suspicion is still a fact about what was seen, and erasing it makes a recurrence look like a first occurrence - which is the pattern most worth catching",
         writes: [{ field: "security_incident_log", mode: "append" }],
         next: "h.lift",
+        idempotencyKey: "incident_id + account_id + a.cleared",
       },
       {
         id: "h.lift",
@@ -1811,6 +2785,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the investigation continues and reaches its conclusion on its own. Suspected remains suspected - it does not become confirmed by lasting longer",
+        class: "timeout",
       },
       {
         id: "h.review",
@@ -1846,6 +2821,10 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "one existing account plus this recovery case and its window",
       note: "One case, one window. A second recovery request on the same account opens its own case; it does not extend or restart this one.",
+      instanceKey: [
+        "recovery_case_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1859,6 +2838,227 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "IDN-90 governs a suspected compromise. Here the account is not under suspicion; somebody simply cannot get in, and treating the two the same makes every locked-out person a suspect.",
       },
     ],
+    objective: "Carry somebody who cannot authenticate through the evidence their recovery actually requires, inside a stated window, on a route that is no weaker than the login it is standing in for.",
+    eligibility: [
+      "a recovery case authoritatively opened against one existing account",
+      "the recovery basis and the evidence that basis requires",
+      "a recovery window with a stated end",
+      "no instance of this journey is already open for the one existing account plus this recovery case and its window",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The recovery route goes to a destination the account already held, never to one supplied with the request."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Recovery is a different route to the same assurance, not a lower one. Nothing here is easier than the authentication it stands in for."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The window is never restarted by repeated attempts, and never extended by engagement."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder, never two. On a security route, repetition is indistinguishable from pressure."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "What was invalidated is named in the confirmation, or the next refused credential reads as a fresh attack."
+      }
+    ],
+    contact: {
+      "defaultPriority": "security",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "account_recovery.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "account_recovery.cooldown",
+        "rule": "This journey is per one existing account plus this recovery case and its window; a later instance concerns a different one existing account plus this recovery case and its window and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "issue",
+          "action": "a.issue",
+          "prerequisites": [
+            "c.incident"
+          ],
+          "purpose": "Send the recovery route to a destination the account already held, and state exactly what evidence is required and when the window closes.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "recovery-route",
+            "boundTo": "recovery_case_id",
+            "mustNotClaim": [
+              "a destination supplied inside the request"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "restored",
+          "action": "a.restored",
+          "after": "t1",
+          "gatedBy": "w.proof",
+          "prerequisites": [
+            "c.proof"
+          ],
+          "purpose": "Confirm that control is back and name what was invalidated on the way - the sessions and credentials that will no longer work.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "remind",
+          "action": "a.remind",
+          "gatedBy": "w.proof",
+          "prerequisites": [
+            "c.remind"
+          ],
+          "purpose": "Send one reminder on the same already-held destination, naming the deadline and the evidence still outstanding.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT",
+          "after": "t1",
+          "destination": {
+            "target": "recovery-route",
+            "boundTo": "recovery_case_id",
+            "mustNotClaim": [
+              "a restarted window"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "recovery_case_id",
+          "account_id",
+          "recovery_basis",
+          "required_evidence",
+          "recovery_window_ends_at",
+          "held_destinations"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.restored",
+          "x.moot",
+          "x.closed",
+          "h.security"
+        ]
+      },
+      "businessOutcome": {
+        "event": "proof_of_control_provided",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "account recovery",
+        "forgot password recovery",
+        "locked-out recovery",
+        "recovery link",
+        "regain access"
+      ],
+      "useCases": [
+        "a recovery route sent only to a destination the account already held",
+        "one reminder inside a stated window that repeated attempts never restart"
+      ]
+    },
     entry: "t.recovery",
     nodes: [
       {
@@ -1913,22 +3113,31 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send the recovery route to a destination the account already held, and state exactly what evidence is required and when the window closes. A route sent to whichever destination asked for it is not recovery, it is the thing recovery exists to prevent",
         next: "w.proof",
         execution: "communication",
+        idempotencyKey: "issue_id + account_id + a.issue",
       },
       {
         id: "w.proof",
         kind: "wait",
         until: [
-          "sufficient proof of control is provided",
-          "the requester regains access by ordinary authentication",
-          "the case is withdrawn",
+          "proof_of_control_provided",
+          "access_regained",
+          "request_withdrawn"
         ],
         onEvent: "c.proof",
         timeout: {
-          after: "the point in the window at which a reminder would still leave time to act",
-          reason: "a reminder that lands after the window tells somebody they have lost something instead of helping them keep it",
+          "after": {
+            "key": "account_recovery.proof",
+            "rule": "The point in the window at which a reminder would still leave time to act.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "a reminder that lands after the window tells somebody they have lost something instead of helping them keep it",
+          "relativeTo": "attribute",
+          "attribute": "recovery_window_ends_at"
         },
         onTimeout: "c.remind",
         windowExtendsOnEngagement: false,
+        recheck: "the one existing account plus this recovery case and its window re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.proof",
@@ -1953,6 +3162,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm that control is back and name what was invalidated on the way - the sessions and credentials that will no longer work. Somebody who is not told what was cut off reads the next refusal as a second compromise",
         next: "x.restored",
         execution: "communication",
+        idempotencyKey: "issue_id + account_id + a.restored",
       },
       {
         id: "x.restored",
@@ -1960,6 +3170,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "control restored and confirmed",
         terminal: false,
         reEntry: "a later recovery case on the same account is a new instance with its own window",
+        class: "success",
       },
       {
         id: "x.moot",
@@ -1967,6 +3178,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "recovery closed without being used",
         terminal: false,
         reEntry: "a new request opens a new case; this one is not resumed",
+        class: "success",
       },
       {
         id: "c.remind",
@@ -1991,20 +3203,29 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder on the same already-held destination, naming the deadline and the evidence still outstanding. There is no second reminder - a recovery nobody is pursuing has usually been abandoned rather than forgotten, and repetition on a security route is itself a pressure tactic",
         next: "w.final",
         execution: "communication",
+        idempotencyKey: "issue_id + account_id + a.remind",
       },
       {
         id: "w.final",
         kind: "wait",
         until: [
-          "sufficient proof of control is provided",
+          "proof_of_control_provided"
         ],
-        onEvent: "a.restored",
+        onEvent: "c.proof",
         timeout: {
-          after: "the remainder of the recovery window",
-          reason: "the window is a security control rather than a courtesy, and a route left open indefinitely is weaker than the login it replaced",
+          "after": {
+            "key": "account_recovery.final",
+            "rule": "After the reminder the instance waits until the recovery window itself closes; the window is never restarted.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the window is a security control rather than a courtesy, and a route left open indefinitely is weaker than the login it replaced",
+          "relativeTo": "attribute",
+          "attribute": "recovery_window_ends_at"
         },
         onTimeout: "x.closed",
         windowExtendsOnEngagement: false,
+        recheck: "the one existing account plus this recovery case and its window re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.closed",
@@ -2012,6 +3233,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         state: "recovery window closed without sufficient proof",
         terminal: false,
         reEntry: "a fresh request opens a new case and a new window; the closed one is never extended",
+        class: "timeout",
       },
     ],
     guardrails: [
