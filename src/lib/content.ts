@@ -228,8 +228,6 @@ export const copy = {
           eyebrow: "Start reading",
           title: "Pick a half and open a journey.",
           body: "Both pages search and filter by category and goal; the communication page filters by channel as well.",
-          relatedLabel: "See also",
-          relatedName: "Lifecycle Marketing Journey Builder",
         },
       },
       journeysSplit: {
@@ -403,7 +401,6 @@ export const copy = {
       eyebrow: "Lab / Journey Builder",
       title: "Lifecycle journeys as state machines, not campaign templates.",
       sub: "Every journey here is a graph: what starts it and what deliberately doesn't, where it forks and what each arm means, how long it waits and what happens when that runs out, and which lifecycle owns the person next.",
-      ctaLibrary: "Explore the library",
       ctaJourney: "Open this journey",
       proof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
       canvas: {
@@ -544,7 +541,7 @@ export const copy = {
         eyebrow: "OPEN SOURCE · GITHUB",
         title: "Build lifecycle logic from a stronger starting point.",
         primary: "View on GitHub",
-        secondary: "Explore journeys",
+        secondary: "Open the live demo",
       },
       watchDemo: "Watch demo",
     },
@@ -943,8 +940,6 @@ export const copy = {
           eyebrow: "Okumaya başla",
           title: "Bir yarıyı seç, bir journey aç.",
           body: "İki sayfa da kategori ve goal'e göre aranıp filtreleniyor; iletişim sayfası kanala göre de.",
-          relatedLabel: "Ayrıca bak",
-          relatedName: "Lifecycle Marketing Journey Builder",
         },
       },
       journeysSplit: {
@@ -1102,7 +1097,6 @@ export const copy = {
       eyebrow: "Lab / Journey Builder",
       title: "Kampanya şablonu değil, durum makinesi olarak lifecycle journey'ler.",
       sub: "Buradaki her journey bir graf: onu ne başlatır ve bilinçli olarak ne başlatmaz, nerede çatallanır ve her kolun anlamı nedir, ne kadar bekler ve o süre dolduğunda ne olur, kişinin sahipliği sonra hangi lifecycle'a geçer.",
-      ctaLibrary: "Kütüphaneyi keşfet",
       ctaJourney: "Bu journey'i aç",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
       canvas: {
@@ -1243,7 +1237,7 @@ export const copy = {
         eyebrow: "AÇIK KAYNAK · GITHUB",
         title: "Lifecycle mantığını daha güçlü bir başlangıç noktasından kur.",
         primary: "GitHub'da görüntüle",
-        secondary: "Journey'leri keşfet",
+        secondary: "Canlı demoyu aç",
       },
       watchDemo: "Demoyu izle",
     },

@@ -325,17 +325,6 @@ function Final({ lang }: { lang: Lang }) {
           <Pill href={P(lang, "/lab/communication-journeys")} tone="light">{copy[lang].lab.journeysHub.ctaCommunication}</Pill>
           <Pill href={P(lang, "/lab/internal-journeys")} tone="ghost">{copy[lang].lab.journeysHub.ctaInternal}</Pill>
         </Reveal>
-        <Reveal delay={140} className="mt-10">
-          <p className="text-sm text-white/55">
-            {c.relatedLabel}:{" "}
-            <Link
-              href={P(lang, "/lab/claude-lifecycle")}
-              className="text-white/85 underline-offset-4 transition-colors hover:text-white hover:underline"
-            >
-              {c.relatedName}
-            </Link>
-          </p>
-        </Reveal>
       </PortraitContainer>
     </section>
   );

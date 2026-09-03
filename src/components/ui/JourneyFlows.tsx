@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check, Minus } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 
 import {
   Connector, FlowStrip, Fork, ForkArm, JourneyNode, NODE_KIND_META, kindLabel, nodeById,
@@ -404,18 +404,5 @@ export function JourneyLibrarySpread({ lang }: { lang: Lang }) {
         </div>
       </div>
     </div>
-  );
-}
-
-/* ---- A small shared CTA used by the library + hero -------------------- */
-export function JourneyLibraryCta({ lang, label }: { lang: Lang; label: string }) {
-  return (
-    <Link
-      href={lang === "en" ? "/lab/journeys" : "/tr/lab/journeys"}
-      className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors duration-[var(--duration-fast)] hover:bg-primary-600"
-    >
-      {label}
-      <ArrowRight aria-hidden className="size-4" />
-    </Link>
   );
 }

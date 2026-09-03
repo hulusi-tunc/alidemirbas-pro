@@ -1,11 +1,9 @@
-import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, Lock } from "lucide-react";
+import { ArrowUpRight, Check, Lock } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
-import { JourneyLibraryCta } from "@/components/ui/JourneyFlows";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { copy, type Lang } from "@/lib/content";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
@@ -39,6 +37,13 @@ import { breadcrumbList, softwareApplication } from "@/lib/schema";
    remains on this page. */
 
 const REPO = "https://github.com/ali-demirbas/claude-lifecycle";
+/* The plugin's own hosted demo - the same URL content.ts's Lab project
+   entry links. This page used to send people to /lab/journeys, the
+   Canonical Journey Library, as its second destination everywhere; that
+   library is a different subsystem with no relation to this plugin (site-
+   owner correction, 2026-09), so every one of those links is gone and the
+   demo is the second destination instead. */
+const DEMO = "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html";
 
 /* ---- 01 · Hero — text left, the demo video right ---------------------
    The video is the primary hero visual (poster + play, swaps in place on
@@ -57,14 +62,22 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
         </Reveal>
         <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
-          <JourneyLibraryCta lang={lang} label={c.ctaLibrary} />
           <a
             href={REPO}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-12 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-medium text-ink-700 transition-colors duration-[var(--duration-fast)] hover:border-ink-300 hover:text-ink-950"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors duration-[var(--duration-fast)] hover:bg-primary-600"
           >
             {t.abTesting.repoLink}
+            <ArrowUpRight aria-hidden className="size-4" />
+          </a>
+          <a
+            href={DEMO}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-12 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-medium text-ink-700 transition-colors duration-[var(--duration-fast)] hover:border-ink-300 hover:text-ink-950"
+          >
+            {t.abTesting.demoLink}
             <ArrowUpRight aria-hidden className="size-3.5" />
           </a>
         </Reveal>
@@ -243,7 +256,6 @@ function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
               {t.abTesting.repoLink}
               <ArrowUpRight aria-hidden className="size-3.5" />
             </a>
-            <JourneyLibraryCta lang={lang} label={t.journeyBuilder.pageCta.secondary} />
           </Reveal>
         </PortraitContainer>
       </ProductSection>
@@ -415,7 +427,6 @@ function CarouselSection({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             {lang === "en" ? "Browse the pattern library" : "Pattern kütüphanesine göz at"}
             <ArrowUpRight aria-hidden className="size-3.5" />
           </a>
-          <JourneyLibraryCta lang={lang} label={t.journeyBuilder.pageCta.secondary} />
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -442,7 +453,7 @@ function Faq({ t }: { t: (typeof copy)[Lang] }) {
    the wrong destination for an open-source repo. Same dark band language
    (bg-ink-950), this page's own two CTAs, three floating fragment images
    as decoration (desktop only, matching the brief). */
-function PageCta({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+function PageCta({ t }: { t: (typeof copy)[Lang] }) {
   const c = t.journeyBuilder.pageCta;
   return (
     <section className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
@@ -461,13 +472,15 @@ function PageCta({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             {c.primary}
             <ArrowUpRight aria-hidden className="size-4" />
           </a>
-          <Link
-            href={lang === "en" ? "/lab/journeys" : "/tr/lab/journeys"}
+          <a
+            href={DEMO}
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 px-6 text-sm font-medium text-white transition-colors hover:border-white/50"
           >
             {c.secondary}
-            <ArrowRight aria-hidden className="size-4" />
-          </Link>
+            <ArrowUpRight aria-hidden className="size-4" />
+          </a>
         </Reveal>
       </PortraitContainer>
     </section>
@@ -505,7 +518,7 @@ export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
         <WhyDifferent t={t} lang={lang} />
         <CarouselSection t={t} lang={lang} />
         <Faq t={t} />
-        <PageCta t={t} lang={lang} />
+        <PageCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </>
