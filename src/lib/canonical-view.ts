@@ -7,6 +7,9 @@ import {
   byId,
   resolveJourneyId,
 } from "@/canonical";
+import { configText } from "@/canonical/config-text";
+import { eventText } from "@/canonical/events";
+import { practitionerView, type PractitionerView } from "@/lib/practitioner-view";
 import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId, SignalSource } from "@/canonical/types";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
@@ -255,8 +258,8 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
     case "wait":
       return {
         ...base,
-        headline: `until ${n.until.join(", or ")}`,
-        detail: `timeout after ${n.timeout.after}`,
+        headline: `until ${n.until.map(eventText).join(", or ")}`,
+        detail: `timeout after ${configText(n.timeout.after)}`,
         meta: [
           n.timeout.reason,
           n.windowExtendsOnEngagement
@@ -323,6 +326,10 @@ export type JourneyDetail = {
       pre-emption ships no empty array to the browser. */
   preemptedBy: readonly { event: string; then: string }[];
   nodes: readonly FlowNode[];
+  /** vNext: the practitioner's view, projected from the journey's own
+      orchestration/timing/contact/measurement fields. Null until a journey
+      is migrated - no view is better than a half view. */
+  practitioner: PractitionerView | null;
 };
 
 /** Breadth-first from the entry, so the order on screen follows the order the
@@ -434,6 +441,7 @@ function detailOf(j: CanonicalJourney): JourneyDetail {
     competition: j.competition ?? null,
     preemptedBy: j.preemptedBy ?? [],
     nodes: withDirection,
+    practitioner: practitionerView(j),
   };
 }
 

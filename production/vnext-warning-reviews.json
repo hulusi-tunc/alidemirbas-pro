@@ -1,0 +1,13 @@
+{
+ "_about": "Warnings on vNext journeys that a person reviewed and accepted, with the reason. The validator counts vNext warnings not listed here as unreviewed. `match` is an optional substring of the message.",
+ "reviews": [
+  {
+   "id": "SCH-266",
+   "code": "simultaneous_review",
+   "match": "touches t2, t3",
+   "note": "t2 (at-risk notice) and t3 (reminder) are the two exclusive arms of c.critical - a critical prerequisite is either missing or it is not. They are never sent together; no simultaneous rule is needed.",
+   "reviewedBy": "migration pass, Gate 2",
+   "reviewedAt": "2026-09-01"
+  }
+ ]
+}

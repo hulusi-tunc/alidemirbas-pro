@@ -1,5 +1,7 @@
 import { CATEGORIES, JOURNEYS, byId } from "@/canonical";
 import type { CanonicalJourney, CanonicalNode } from "@/canonical/types";
+import { configText } from "@/canonical/config-text";
+import { eventText } from "@/canonical/events";
 
 /* Read model for the Journey Builder PRODUCT PAGE (/lab/claude-lifecycle).
 
@@ -113,7 +115,7 @@ function projectNode(n: CanonicalNode): FlowNode {
       };
     case "wait":
       return {
-        id: n.id, kind: n.kind, label: n.until.join(", "), detail: n.timeout.after,
+        id: n.id, kind: n.kind, label: n.until.map(eventText).join(", "), detail: configText(n.timeout.after),
         edges: [{ to: n.onEvent, label: "on event" }, { to: n.onTimeout, label: "on timeout" }],
       };
     case "outcome":
@@ -189,8 +191,8 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
     wait:
       wait?.kind === "wait"
         ? {
-            until: wait.until,
-            timeoutAfter: wait.timeout.after,
+            until: wait.until.map(eventText),
+            timeoutAfter: configText(wait.timeout.after),
             timeoutReason: wait.timeout.reason,
             extendsOnEngagement: wait.windowExtendsOnEngagement,
           }

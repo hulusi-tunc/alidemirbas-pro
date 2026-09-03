@@ -1283,6 +1283,90 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the confirmed reservation and the occurrence about to begin",
       note: "The scheduled job carries the booking version it was created against. Everything it does begins with comparing that against the booking as it now stands.",
+      instanceKey: [
+        "booking_id",
+        "occurrence_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Start a service from what the booking is at its start time, and establish attendance from evidence rather than from the fact that a reminder went out.",
+    eligibility: [
+      "the booking's pre-start window has been reached in the booking's own local time",
+      "the booking was confirmed and has not been superseded by a later confirmation"
+    ],
+    suppressions: [
+      {
+        "id": "s.stale",
+        "label": "CANONICAL_RULE",
+        "text": "A start that no longer matches authoritative state - cancelled, moved, reassigned - is suppressed: no service is begun and no attendance is recorded against a booking that is not the one the person holds."
+      },
+      {
+        "id": "s.cancelled-inside-window",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation arriving inside the start window is a cancellation, not a no-show; it hands to cancellation reconciliation and nothing here treats it as a miss."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "occurrence_id",
+          "person_id",
+          "scheduled_at",
+          "timezone",
+          "provider_id",
+          "arrival_evidence_source"
+        ],
+        "optional": [
+          "grace_policy_id"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "h.attended",
+          "h.missed",
+          "h.cancelled",
+          "h.provider-exception",
+          "x.suppressed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "attendance_recorded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "guardrails": [
+        "service_started_on_stale_booking",
+        "attendance_recorded_without_evidence"
+      ],
+      "operational": [
+        "arrival_rate",
+        "suppressed_start_rate",
+        "cancellation_inside_window_rate",
+        "time_from_scheduled_to_arrival"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "pre-service check",
+        "arrival window",
+        "check-in",
+        "start-time revalidation"
+      ],
+      "useCases": [
+        "an appointment reaching its start time",
+        "a reservation whose arrival must be established before service begins"
+      ]
     },
     entry: "t.window",
     nodes: [
@@ -1292,6 +1376,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         event: "pre_start_window_reached",
         evidence: {
           requires: ["the defined pre-start or start window for a scheduled occurrence being reached"],
+          insufficientAlone: [
+            "a reminder having been sent, which says nothing about the start",
+            "the scheduled time itself passing - that is the arrival window, not its opening",
+            "a provider-side readiness check, which SCH-174 owns"
+          ],
           source: "authoritative",
         },
         next: "a.revalidate",
@@ -1336,6 +1425,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the booking's current version has its own scheduled occurrence, which revalidates on its own terms when it arrives",
+        class: "invalid-state",
       },
       {
         id: "c.provider",
@@ -1409,17 +1499,29 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.arrival",
         kind: "wait",
         until: [
-          "attendance or check-in is authoritatively established",
-          "the reservation is cancelled inside the window",
+          "attendance_recorded",
+          "booking_cancelled"
         ],
         onEvent: "c.arrival",
         timeout: {
-          after: "the arrival window policy defines",
-          reason:
-            "the arrival window is what makes a missed appointment a fact rather than an assumption. Concluding before it closes records a no-show against someone who is running late and about to walk in",
+          "after": {
+            "key": "scheduling.arrival_window",
+            "rule": "The arrival window is the tolerance after the scheduled start that the service's own attendance semantics allow. Its end is what turns a late arrival into a miss.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "scheduled_at plus the arrival tolerance policy records",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the arrival window is what makes a missed appointment a fact rather than an assumption. Concluding before it closes records a no-show against someone who is running late and about to walk in",
+          "relativeTo": "attribute",
+          "attribute": "scheduled_at"
         },
         onTimeout: "h.missed",
         windowExtendsOnEngagement: false,
+        recheck: "the booking re-read at the end of the window: still the same commitment, and attendance evidence from the source that records it",
       },
       {
         id: "c.arrival",
@@ -2182,6 +2284,16 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the confirmed booking occurrence plus the prerequisites its customer owes against it",
       note: "One occurrence, one instance. Each occurrence of a recurring commitment revalidates and reminds on its own.",
+      instanceKey: [
+        "booking_id",
+        "occurrence_id"
+      ],
+      concurrency: "one-active-per-key",
+      supersession: {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A rescheduled occurrence is the same instance re-timed from the new scheduled time. A cancellation or a material change supersedes it; the replacement booking runs its own readiness from its own confirmation."
+      }
     },
     distinctFrom: [
       {
@@ -2195,6 +2307,246 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all.",
       },
     ],
+    objective: "Get the customer's side of a confirmed commitment done before it arrives, and remind them from what the booking is at the moment of sending.",
+    eligibility: [
+      "the booking is confirmed in the system of record and its scheduled time is in the future",
+      "the customer is contactable for service messages about this booking",
+      "no reminder has been sent for this occurrence",
+      "hard gates (GLB-31) permit service communication to this person"
+    ],
+    suppressions: [
+      {
+        "id": "s.changed",
+        "label": "CANONICAL_RULE",
+        "text": "Exit on cancellation or material change. A reminder is never built from a stored copy of the booking: every touch re-reads authoritative state first, which is how somebody who cancelled is not told to turn up."
+      },
+      {
+        "id": "s.once",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder per occurrence. A second reminder sent because nothing could tell whether the first arrived is what teaches people to stop reading them."
+      },
+      {
+        "id": "s.too-close",
+        "label": "CANONICAL_RULE",
+        "text": "Where the confirmation already falls inside the pre-start window, no prerequisite prompt is sent; the journey goes straight to revalidation and the reminder."
+      },
+      {
+        "id": "s.dedup",
+        "label": "CANONICAL_RULE",
+        "text": "Deduplicated by booking and occurrence against the confirmation (SCH-277) and any reschedule notice (SCH-180) about the same booking."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply. The service pressure class deduplicates against other service messages about this booking; it does not ration a reminder the person is owed."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "scheduling.reminder_touches",
+          "rule": "A prerequisite prompt and one reminder per occurrence. The at-risk notice is an obligation to the person and sits outside the cap.",
+          "default": {
+            "value": 2,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24 and this journey's own guardrail: one reminder per occurrence"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "scheduling.reminder_cooldown",
+        "rule": "Per occurrence. The next occurrence of a recurring commitment is its own instance and no cooldown applies between occurrences.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: each further occurrence of a recurring commitment is its own instance"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the scheduled time is within the same day, or a critical prerequisite is outstanding, and permission for service SMS is recorded"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message lists things to read and do over time, or no urgent channel is permitted"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is in the product"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "deadline-countdown",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "prerequisite-prompt",
+          "action": "a.prompt",
+          "prerequisites": [
+            "c.time"
+          ],
+          "purpose": "Every outstanding prerequisite, whose it is and the point by which each must be done - in one message rather than one per requirement.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "booking-prerequisites",
+            "boundTo": "booking_id"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "at-risk-notice",
+          "action": "a.at-risk",
+          "gatedBy": "w.prestart",
+          "prerequisites": [
+            "c.valid",
+            "c.critical"
+          ],
+          "purpose": "The reminder plus the one thing that will stop this going ahead, with the last point at which it can still be done. The confirmed time is not moved.",
+          "channelRoles": [
+            "urgent",
+            "persistent"
+          ],
+          "destination": {
+            "target": "booking-prerequisites",
+            "boundTo": "booking_id"
+          },
+          "mandatory": true,
+          "priority": "service-critical",
+          "priorityReason": "the service cannot be delivered without this prerequisite - not saying so costs the person the appointment",
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "reminder",
+          "action": "a.remind",
+          "gatedBy": "w.prestart",
+          "prerequisites": [
+            "c.valid",
+            "c.critical"
+          ],
+          "purpose": "The time, the place or joining route, and anything still outstanding that does not block the service.",
+          "channelRoles": [
+            "urgent",
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "booking-detail",
+            "boundTo": "booking_id"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.changed",
+        "s.once",
+        "s.too-close",
+        "s.dedup",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "occurrence_id",
+          "person_id",
+          "scheduled_at",
+          "timezone",
+          "location_or_joining_route",
+          "prerequisites",
+          "provider_id"
+        ],
+        "optional": [
+          "service_type",
+          "travel_required",
+          "has_active_session"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "h.prestart",
+          "h.at-risk"
+        ]
+      },
+      "businessOutcome": {
+        "event": "attendance_recorded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "handoff-chain",
+          "journeys": [
+            "SCH-177"
+          ]
+        },
+        "window": {
+          "type": "through-handoff",
+          "until": "service_completion_recorded"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [
+        "prerequisites_completed"
+      ],
+      "guardrails": [
+        "complaint",
+        "reminder_sent_for_cancelled_booking",
+        "duplicate_reminder_per_occurrence"
+      ],
+      "operational": [
+        "prompt_sent_rate",
+        "at_risk_rate",
+        "no_action_rate_by_reason",
+        "channel_role_used",
+        "time_between_reminder_and_start"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "appointment reminder",
+        "booking reminder",
+        "pre-appointment preparation",
+        "reservation reminder",
+        "event reminder"
+      ],
+      "useCases": [
+        "a confirmed appointment with forms, documents or payments the customer must complete first",
+        "a class, delivery slot or reservation with a joining route to restate",
+        "a recurring commitment whose every occurrence needs its own reminder"
+      ]
+    },
     entry: "t.booking",
     nodes: [
       {
@@ -2237,21 +2589,40 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name every outstanding prerequisite, whose it is and the point by which it has to be done, in one message rather than one message per requirement. Somebody with three things to do has one problem, and splitting it into three makes it look like three systems that do not talk",
         next: "w.prereq",
         execution: "communication",
+        idempotencyKey: "booking_id + occurrence_id + touch id",
       },
       {
         id: "w.prereq",
         kind: "wait",
         until: [
-          "every customer-owed prerequisite is recorded complete",
-          "the booking is cancelled, moved or materially changed",
+          "prerequisites_completed",
+          "booking_materially_changed"
         ],
         onEvent: "c.prereq",
         timeout: {
-          after: "the pre-start window for this kind of booking",
-          reason: "the pre-start point is where the booking is read again, and anything sent past it is about a commitment that may no longer exist",
+          "after": {
+            "key": "scheduling.pre_start_window",
+            "rule": "The reminder is built at the pre-start point so it reflects the booking as it is then. The point is set from how long the customer's own preparation takes, not from how long ago the booking was made.",
+            "class": "reminder-before-attribute",
+            "default": {
+              "value": {
+                "min": "24 hours",
+                "max": "72 hours"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "appointments the customer must prepare for",
+              "avoidWhen": "same-day bookings - the pre-start point is whatever time remains between confirmation and start"
+            },
+            "required": false
+          },
+          "reason": "the pre-start point is where the booking is read again, and anything sent past it is about a commitment that may no longer exist",
+          "relativeTo": "attribute",
+          "attribute": "scheduled_at"
         },
         onTimeout: "a.revalidate",
         windowExtendsOnEngagement: false,
+        recheck: "the booking re-read from authoritative state: still confirmed, same time, same provider, and which prerequisites are outstanding now",
       },
       {
         id: "c.prereq",
@@ -2274,15 +2645,33 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.prestart",
         kind: "wait",
         until: [
-          "the booking is cancelled or moved",
+          "booking_materially_changed"
         ],
         onEvent: "a.revalidate",
         timeout: {
-          after: "the pre-start window for this kind of booking",
-          reason: "the reminder exists to arrive before the commitment; after it there is nothing left to remind anybody about",
+          "after": {
+            "key": "scheduling.pre_start_window",
+            "rule": "The same pre-start point: the reminder is sent against the booking as it is at that moment.",
+            "class": "reminder-before-attribute",
+            "default": {
+              "value": {
+                "min": "24 hours",
+                "max": "72 hours"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "appointments the customer must prepare for",
+              "avoidWhen": "same-day bookings"
+            },
+            "required": false
+          },
+          "reason": "the reminder exists to arrive before the commitment; after it there is nothing left to remind anybody about",
+          "relativeTo": "attribute",
+          "attribute": "scheduled_at"
         },
         onTimeout: "a.revalidate",
         windowExtendsOnEngagement: false,
+        recheck: "the booking re-read from authoritative state before either the at-risk notice or the reminder is built",
       },
       {
         id: "a.revalidate",
@@ -2330,6 +2719,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send the reminder and name the one thing that will stop this going ahead, with the last point at which it can still be done. The confirmed time is not moved here - a prerequisite failing is a reason to warn somebody, not a reason to rewrite a commitment they have planned around",
         next: "h.at-risk",
         execution: "communication",
+        idempotencyKey: "booking_id + occurrence_id + touch id",
       },
       {
         id: "h.at-risk",
@@ -2340,20 +2730,46 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "which prerequisite is missing and when it was last prompted",
           "that the customer has been told, and what they were told",
         ],
+        contract: {
+          "requiredFields": [
+            "booking_id",
+            "occurrence_id",
+            "scheduled_at",
+            "missing_prerequisite",
+            "last_point_to_complete"
+          ]
+        },
       },
       {
         id: "a.remind",
         kind: "action",
         does: "Remind them of the time, the place or joining route, and anything still outstanding that does not block it. One reminder per occurrence - a second one sent because nothing could tell that the first arrived is how people stop reading them",
-        next: "x.reminded",
+        next: "h.prestart",
         execution: "communication",
+        idempotencyKey: "booking_id + occurrence_id + touch id",
       },
       {
-        id: "x.reminded",
-        kind: "exit",
-        state: "reminded against a revalidated booking",
-        terminal: false,
-        reEntry: "each further occurrence of a recurring commitment is its own instance",
+        "id": "h.prestart",
+        "kind": "handoff",
+        "to": "SCH-177",
+        "on": "reminded against a revalidated booking; the start window and attendance belong to pre-service revalidation",
+        "carries": [
+          "the booking and occurrence",
+          "what the reminder said and when it was sent",
+          "the prerequisites still outstanding that do not block the service"
+        ],
+        "suppresses": [
+          "any further reminder for this occurrence"
+        ],
+        "contract": {
+          "requiredFields": [
+            "booking_id",
+            "occurrence_id",
+            "scheduled_at",
+            "reminded_at",
+            "outstanding_prerequisites"
+          ]
+        }
       },
       {
         id: "x.superseded",
@@ -2361,6 +2777,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         state: "superseded; the booking changed before the reminder was due",
         terminal: false,
         reEntry: "the booking that replaced it runs its own readiness from its own confirmation",
+        class: "invalid-state",
       },
     ],
     guardrails: [

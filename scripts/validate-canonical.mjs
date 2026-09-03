@@ -167,7 +167,11 @@ for (const j of all) {
         break;
       case "wait":
         if (!n.until?.length) err("wait_no_event", w, `wait "${n.id}" names no awaited event`);
-        if (!n.timeout?.after?.trim()) err("wait_no_timeout", w, `wait "${n.id}" has no timeout - it can strand people forever`);
+        {
+          const a = n.timeout?.after;
+          const has = typeof a === "string" ? a.trim().length > 0 : !!(a && typeof a === "object" && a.key && a.rule);
+          if (!has) err("wait_no_timeout", w, `wait "${n.id}" has no timeout - it can strand people forever`);
+        }
         if (!n.timeout?.reason?.trim()) warn("wait_timeout_unexplained", w, `wait "${n.id}" has a timeout with no stated reason`);
         if (n.windowExtendsOnEngagement === undefined)
           err("wait_window_policy", w, `wait "${n.id}" does not say whether engagement extends the window`);
@@ -314,8 +318,10 @@ sendPath.forEach((s2, i) => {
    actually meets, which is the failure the competition rules exist to stop. */
 const groups = {};
 for (const j of all) {
-  if (!j.competition) continue;
-  const { scope, exclusionGroup, precedence, onLoss } = j.competition;
+  // vNext journeys carry their contest inside `contact`; the group check is the same
+  const comp = j.contact && j.contact.competition && j.contact.competition !== "none" ? j.contact.competition : j.competition;
+  if (!comp) continue;
+  const { scope, exclusionGroup, precedence, onLoss } = comp;
   if (!scope || !exclusionGroup || !precedence || !onLoss)
     err("competition_incomplete", j.id, "competition needs scope, exclusionGroup, precedence and onLoss");
   if (!["suppressed", "paused", "superseded", "exit"].includes(onLoss))
@@ -385,14 +391,45 @@ for (const j of all) {
     );
 }
 
+/* vNext rules (scripts/vnext-rules.mjs). Errors for journeys that declare
+   `measurement`, warnings for the un-migrated rest, so the migration backlog
+   is visible without blocking the build. */
+import { checkVnext } from "./vnext-rules.mjs";
+const eventsSrc = await readFile("src/canonical/events.ts", "utf8");
+const registry = [...eventsSrc.matchAll(/\{ id: "([^"]+)", meaning: "((?:[^"\\]|\\.)*)", source: "([^"]+)"/g)].map((m) => ({ id: m[1], meaning: m[2], source: m[3] }));
+const surfaceSrc = await readFile("src/canonical/surface.ts", "utf8");
+const pickList = (name) => new Set([...surfaceSrc.match(new RegExp(`export const ${name}[^=]*=\\s*\\[([\\s\\S]*?)\\];`))[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
+const customerEntity = new RegExp(surfaceSrc.match(/CUSTOMER_ENTITY = \/(.*)\/i;/)[1], "i");
+let surfaceFile = null;
+try { surfaceFile = JSON.parse(await readFile("production/surface-assignment.json", "utf8")); } catch { warn("surface_file_missing", "corpus", "production/surface-assignment.json not found - run scripts/surface-assignment.mjs"); }
+const vnextStats = checkVnext({ all, registry, surfaceFile, mechanismIds: pickList("MECHANISM_IDS"), customerCategories: pickList("CUSTOMER_CATEGORIES"), customerEntity, err, warn });
+
+/* Warnings on a vNext journey are not free: each one is either fixed or
+   reviewed by a person and recorded in production/vnext-warning-reviews.json
+   with a note. The summary counts the unreviewed ones; the migration is not
+   complete while that number is above zero. */
+let reviews = [];
+try { reviews = JSON.parse(await readFile("production/vnext-warning-reviews.json", "utf8")).reviews ?? []; } catch { /* none yet */ }
+const vnextIds = new Set(all.filter((j) => j.measurement).map((j) => j.id));
+const isReviewed = (w) => { const m = w.match(/^\[([^\]]+)\] ([A-Z]{3}-\d+): (.*)$/); if (!m) return true; return reviews.some((r) => r.id === m[2] && r.code === m[1] && (!r.match || m[3].includes(r.match))); };
+const vnextWarnings = warnings.filter((w) => { const m = w.match(/^\[[^\]]+\] ([A-Z]{3}-\d+):/); return m && vnextIds.has(m[1]); });
+const unreviewed = vnextWarnings.filter((w) => !isReviewed(w));
+
 const line = (s) => console.log("  " + s);
 if (errors.length) {
   console.log(`\nERRORS (${errors.length})`);
   errors.forEach(line);
 }
 if (warnings.length) {
-  console.log(`\nWARNINGS (${warnings.length})`);
-  warnings.forEach(line);
+  const byCode = {};
+  for (const w of warnings) { const c = w.match(/^\[([^\]]+)\]/)[1]; byCode[c] = (byCode[c] || 0) + 1; }
+  console.log(`\nWARNINGS (${warnings.length}) by code`);
+  Object.entries(byCode).sort((a, b) => b[1] - a[1]).forEach(([c, n]) => line(`${String(n).padStart(5)}  ${c}`));
+  if (process.env.SHOW_WARNINGS) warnings.forEach(line);
+}
+if (unreviewed.length) {
+  console.log(`\nUNREVIEWED WARNINGS ON vNEXT JOURNEYS (${unreviewed.length})`);
+  unreviewed.forEach(line);
 }
 if (externals.size) {
   console.log(`\nPENDING EXTERNAL TARGETS (${externals.size}) - a later category has to define these`);
@@ -404,6 +441,6 @@ const ruleCount = loaded.reduce((n, l) => n + l.rules.length, 0);
 console.log(
   `\n${all.length} canonical journeys · ${nodeCount} nodes · ${ruleCount} orchestration rules · ` +
     `${globalRules.length} global rules · ${Object.keys(groups).length} competition groups · ${sendPath.length} send-path stages · ` +
-    `${Object.keys(merged).length} merged redirects (not counted) · ${errors.length} errors · ${warnings.length} warnings`,
+    `${Object.keys(merged).length} merged redirects (not counted) · surfaces customer ${vnextStats.counts.customer} (${vnextStats.counts["customer-communicating"]} communicating / ${vnextStats.counts["customer-silent"]} silent) · mechanism ${vnextStats.counts.mechanism} · operational ${vnextStats.counts.operational} · ${vnextStats.vnext} vNext · ${errors.length} errors · ${warnings.length} warnings (${unreviewed.length} unreviewed on vNext journeys)`,
 );
 process.exit(errors.length ? 1 : 0);

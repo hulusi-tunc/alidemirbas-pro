@@ -791,6 +791,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the subscription, account, entitlement or obligation whose primary validity ended",
       note: "Grace is a state on the entity, with its own capability set. Anything reading the entity has to be able to tell grace from active, which is why the capabilities are recorded rather than assumed.",
+      instanceKey: [
+        "entity_id",
+        "grace_period_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -799,6 +804,82 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "Grace is a specific degraded continuity after validity ends, with a recovery condition. TIM-67 is the generic mechanism for any temporary state, most of which are not degradations of anything.",
       },
     ],
+    objective: "Keep limited continuity while something recoverable is unresolved, and end the grace period at the moment recorded when it began - never later because activity happened.",
+    eligibility: [
+      "the primary validity of the entity has ended and a grace policy exists for it",
+      "the grace end is computed and recorded at entry from policy, in the entity's own time"
+    ],
+    suppressions: [
+      {
+        "id": "s.no-policy",
+        "label": "CANONICAL_RULE",
+        "text": "No grace period opens without a policy that defines it; an entity whose validity ended with no grace policy expires (TIM-64) rather than lingering in an invented grace state."
+      },
+      {
+        "id": "s.no-extension",
+        "label": "CANONICAL_RULE",
+        "text": "Activity, engagement or a partial recovery never extends the recorded grace end. The end is a fact recorded at entry."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "entity_id",
+          "grace_period_id",
+          "person_id",
+          "recovery_condition",
+          "grace_end",
+          "grace_policy_id"
+        ],
+        "optional": [
+          "restricted_capabilities"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.recovered",
+          "h.expire",
+          "h.terminate",
+          "h.revalidate"
+        ]
+      },
+      "businessOutcome": {
+        "event": "recovery_condition_satisfied",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "guardrails": [
+        "grace_extended_after_entry",
+        "service_continued_past_grace_end"
+      ],
+      "operational": [
+        "recovery_within_grace_rate",
+        "grace_end_distribution",
+        "handoff_distribution"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "grace period",
+        "dunning grace",
+        "past-due grace",
+        "soft expiry"
+      ],
+      "useCases": [
+        "a subscription whose renewal payment failed and whose policy keeps it usable for a while",
+        "an entitlement whose validity ended with a recovery route still open"
+      ]
+    },
     entry: "t.grace",
     nodes: [
       {
@@ -826,15 +907,29 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.grace",
         kind: "wait",
-        until: ["the recovery condition is satisfied"],
+        until: [
+          "recovery_condition_satisfied"
+        ],
         onEvent: "c.eligibility",
         timeout: {
-          after: "the grace end recorded at entry",
-          reason:
-            "grace is bounded at the moment it is granted and does not extend itself - a grace period that quietly lengthens is an active state nobody approved",
+          "after": {
+            "key": "time.grace_end",
+            "rule": "The grace end is recorded at entry from policy and is the timeout itself. Nothing later moves it.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "grace_end as recorded at entry",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "grace is bounded at the moment it is granted and does not extend itself - a grace period that quietly lengthens is an active state nobody approved",
+          "relativeTo": "attribute",
+          "attribute": "grace_end"
         },
         onTimeout: "c.terminate",
         windowExtendsOnEngagement: false,
+        recheck: "the recovery condition and the entity's eligibility re-read at the grace end from authoritative state",
       },
       {
         id: "c.eligibility",
@@ -867,6 +962,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a further lapse enters grace again, and the history of how often that happens is itself worth reading",
+        class: "success",
       },
       {
         id: "h.revalidate",
@@ -911,6 +1007,15 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "what was allowed during grace and what is ending now",
           "the recovery condition that was never met",
         ],
+        contract: {
+          "requiredFields": [
+            "entity_id",
+            "grace_period_id",
+            "person_id",
+            "grace_end",
+            "unrecovered_condition"
+          ]
+        },
       },
     ],
     guardrails: [

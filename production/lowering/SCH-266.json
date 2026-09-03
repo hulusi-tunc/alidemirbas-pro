@@ -1,0 +1,490 @@
+{
+ "id": "SCH-266",
+ "shortName": "Appointment Reminder",
+ "strategy": "deadline-countdown",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "state-update",
+  "handoff",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "downstream outcome through handoff chain",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.booking",
+   "event": "confirmed_booking_with_customer_owed_prerequisites",
+   "meaning": "a confirmed booking with a scheduled time; at least one prerequisite recorded as outstanding and owned by the customer",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "the booking is confirmed in the system of record and its scheduled time is in the future",
+    "the customer is contactable for service messages about this booking",
+    "no reminder has been sent for this occurrence",
+    "hard gates (GLB-31) permit service communication to this person"
+   ],
+   "instanceKey": [
+    "booking_id",
+    "occurrence_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.time",
+   "asks": "Is there enough time left for a prompt to be worth sending?",
+   "branches": [
+    {
+     "label": "Time remains",
+     "observes": null,
+     "test": "the scheduled time is far enough out that an outstanding prerequisite could still be completed",
+     "to": "a.prompt"
+    },
+    {
+     "label": "Too close to prompt",
+     "observes": null,
+     "test": "the booking is already inside its pre-start window",
+     "to": "a.revalidate"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.prompt",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "scheduling.reminder_touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.changed",
+    "s.once",
+    "s.too-close",
+    "s.dedup",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.prompt",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message lists things to read and do over time, or no urgent channel is permitted"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is in the product"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.prompt",
+   "touch": "t1",
+   "stage": "prerequisite-prompt",
+   "purpose": "Every outstanding prerequisite, whose it is and the point by which each must be done - in one message rather than one per requirement.",
+   "brief": "Name every outstanding prerequisite, whose it is and the point by which it has to be done, in one message rather than one message per requirement. Somebody with three things to do has one problem, and splitting it into three makes it look like three systems that do not talk",
+   "destination": {
+    "target": "booking-prerequisites",
+    "boundTo": "booking_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.time"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.prompt",
+   "key": "booking_id + occurrence_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.prereq",
+   "timing": {
+    "key": "scheduling.pre_start_window",
+    "class": "reminder-before-attribute",
+    "default": {
+     "min": "24 hours",
+     "max": "72 hours"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "scheduled_at",
+   "onTimeout": "a.revalidate"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.prereq",
+   "cancelOn": [
+    {
+     "event": "prerequisites_completed",
+     "meaning": "every customer-owed prerequisite is recorded complete"
+    },
+    {
+     "event": "booking_materially_changed",
+     "meaning": "the booking is cancelled, moved or materially changed"
+    }
+   ],
+   "onEvent": "c.prereq"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.prereq",
+   "reads": "the booking re-read from authoritative state: still confirmed, same time, same provider, and which prerequisites are outstanding now",
+   "before": "a.revalidate"
+  },
+  {
+   "type": "condition",
+   "node": "c.prereq",
+   "asks": "What resolved the wait?",
+   "branches": [
+    {
+     "label": "All complete",
+     "observes": null,
+     "test": "every prerequisite the customer owed is recorded satisfied",
+     "to": "w.prestart"
+    },
+    {
+     "label": "Booking changed",
+     "observes": null,
+     "test": "the booking was cancelled, moved or materially changed",
+     "to": "x.superseded"
+    }
+   ]
+  },
+  {
+   "type": "wait",
+   "node": "w.prestart",
+   "timing": {
+    "key": "scheduling.pre_start_window",
+    "class": "reminder-before-attribute",
+    "default": {
+     "min": "24 hours",
+     "max": "72 hours"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "scheduled_at",
+   "onTimeout": "a.revalidate"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.prestart",
+   "cancelOn": [
+    {
+     "event": "booking_materially_changed",
+     "meaning": "the booking is cancelled, moved or materially changed"
+    }
+   ],
+   "onEvent": "a.revalidate"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.prestart",
+   "reads": "the booking re-read from authoritative state before either the at-risk notice or the reminder is built",
+   "before": "a.revalidate"
+  },
+  {
+   "type": "state-update",
+   "node": "a.revalidate",
+   "does": "Re-read the booking from authoritative current state before anything is sent - still confirmed, same time, same provider, and which prerequisites are outstanding now. A reminder generated from the booking as it was is how somebody who cancelled correctly gets told to turn up",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.valid",
+   "asks": "Does the booking still stand as it was just read?",
+   "branches": [
+    {
+     "label": "Still valid",
+     "observes": null,
+     "test": "the booking is confirmed, at the time recorded, and deliverable",
+     "to": "c.critical"
+    },
+    {
+     "label": "Cancelled, moved or superseded",
+     "observes": null,
+     "test": "current state no longer matches the booking this reminder was scheduled against",
+     "to": "x.superseded"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.critical",
+   "asks": "Is anything outstanding that would stop the service happening?",
+   "branches": [
+    {
+     "label": "Critical prerequisite missing",
+     "observes": null,
+     "test": "a requirement the service cannot be delivered without is still not satisfied",
+     "to": "a.at-risk"
+    },
+    {
+     "label": "Nothing critical outstanding",
+     "observes": null,
+     "test": "everything blocking is done, whatever remains is not blocking",
+     "to": "a.remind"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.at-risk",
+   "touch": "t2",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "scheduling.reminder_touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "service-critical",
+   "competition": "none",
+   "noActionReasons": [
+    "s.changed",
+    "s.once",
+    "s.too-close",
+    "s.dedup",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.at-risk",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "the scheduled time is within the same day, or a critical prerequisite is outstanding, and permission for service SMS is recorded"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message lists things to read and do over time, or no urgent channel is permitted"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.at-risk",
+   "touch": "t2",
+   "stage": "at-risk-notice",
+   "purpose": "The reminder plus the one thing that will stop this going ahead, with the last point at which it can still be done. The confirmed time is not moved.",
+   "brief": "Send the reminder and name the one thing that will stop this going ahead, with the last point at which it can still be done. The confirmed time is not moved here - a prerequisite failing is a reason to warn somebody, not a reason to rewrite a commitment they have planned around",
+   "destination": {
+    "target": "booking-prerequisites",
+    "boundTo": "booking_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.valid",
+    "c.critical"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.at-risk",
+   "key": "booking_id + occurrence_id + touch id"
+  },
+  {
+   "type": "handoff",
+   "node": "h.at-risk",
+   "to": "SCH-174",
+   "on": "a booking reaching its pre-start point with a critical prerequisite still outstanding",
+   "carries": [
+    "which prerequisite is missing and when it was last prompted",
+    "that the customer has been told, and what they were told"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "booking_id",
+     "occurrence_id",
+     "scheduled_at",
+     "missing_prerequisite",
+     "last_point_to_complete"
+    ]
+   }
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "scheduling.reminder_touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.changed",
+    "s.once",
+    "s.too-close",
+    "s.dedup",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "the scheduled time is within the same day, or a critical prerequisite is outstanding, and permission for service SMS is recorded"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message lists things to read and do over time, or no urgent channel is permitted"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is in the product"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t3",
+   "stage": "reminder",
+   "purpose": "The time, the place or joining route, and anything still outstanding that does not block the service.",
+   "brief": "Remind them of the time, the place or joining route, and anything still outstanding that does not block it. One reminder per occurrence - a second one sent because nothing could tell that the first arrived is how people stop reading them",
+   "destination": {
+    "target": "booking-detail",
+    "boundTo": "booking_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.valid",
+    "c.critical"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "booking_id + occurrence_id + touch id"
+  },
+  {
+   "type": "handoff",
+   "node": "h.prestart",
+   "to": "SCH-177",
+   "on": "reminded against a revalidated booking; the start window and attendance belong to pre-service revalidation",
+   "carries": [
+    "the booking and occurrence",
+    "what the reminder said and when it was sent",
+    "the prerequisites still outstanding that do not block the service"
+   ],
+   "suppresses": [
+    "any further reminder for this occurrence"
+   ],
+   "contract": {
+    "requiredFields": [
+     "booking_id",
+     "occurrence_id",
+     "scheduled_at",
+     "reminded_at",
+     "outstanding_prerequisites"
+    ]
+   }
+  },
+  {
+   "type": "exit",
+   "node": "x.superseded",
+   "class": "invalid-state",
+   "state": "superseded; the booking changed before the reminder was due",
+   "reEntry": "the booking that replaced it runs its own readiness from its own confirmation"
+  }
+ ]
+}

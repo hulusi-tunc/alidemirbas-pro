@@ -229,6 +229,179 @@ export type SignalSource = "authoritative" | "declared" | "behavioral" | "inferr
 
 export type NodeId = string;
 
+/* ─────────────────────────── vNext primitives ───────────────────────────
+   Added at Gate 1 of the vNext migration (see JOURNEY_VNEXT_ARCHITECTURE.md
+   §F and ARCHITECTURE_PATCH_0_5.md). Every vNext field on a node or a
+   journey is optional so the un-migrated corpus keeps compiling; the
+   validator treats the same fields as required the moment a journey
+   declares `measurement`, which is the migration marker. */
+
+/** How a statement is to be read. Nothing numeric may sit inside a
+    CANONICAL_RULE - the validator refuses a number with a unit there. */
+export type Label = "CANONICAL_RULE" | "RECOMMENDED_DEFAULT" | "CONFIG_REQUIRED" | "OPTIONAL_STRATEGY";
+
+/** A sentence whose classification matters: suppressions, supersession,
+    and any strategy statement a company may switch off. */
+export interface RuleStatement {
+  id: string;
+  label: Label;
+  text: string;
+}
+
+/** Where a recommended value comes from. `published-benchmark` needs a
+    citation and is unused until one exists in the repository; `example-only`
+    renders as an example and never as a recommendation. */
+export type DefaultBasis = "corpus-rule" | "attribute-bound" | "example-only" | "published-benchmark";
+
+/** Time is relative to something; the class says what. Business context is
+    not a class - it goes in `default.applicableWhen`. */
+export type TimingClass =
+  | "attribute-bound"
+  | "reminder-before-attribute"
+  | "response-window"
+  | "recovery-window"
+  | "decision-sla"
+  | "observation-window"
+  | "cooldown"
+  | "backoff"
+  | "external-window";
+
+/** A value the adopting company supplies, with what the library can say
+    about it: `rule` is the CANONICAL_RULE the value serves (never a number),
+    `default` is a RECOMMENDED_DEFAULT, `required: true` is CONFIG_REQUIRED. */
+export interface Config<T = string> {
+  key: string;
+  rule: string;
+  class?: TimingClass;
+  default?: {
+    value: T | { min: T; max: T };
+    confidence: "high" | "medium" | "low";
+    basis: DefaultBasis;
+    citation?: string;
+    applicableWhen?: string;
+    avoidWhen?: string;
+  };
+  required: boolean;
+}
+
+/** One entry in the semantic-event registry (events.ts). Triggers, waits and
+    measurement reference registry ids; the adopting company maps its own
+    event names onto the meaning. `commonMappings` are examples only. */
+export interface SemanticEvent {
+  id: string;
+  meaning: string;
+  source: SignalSource;
+  entity: string;
+  commonMappings?: readonly string[];
+}
+export type SemanticEventRef = string;
+
+export type PriorityClass =
+  | "security"
+  | "transactional"
+  | "service-critical"
+  | "service"
+  | "retention"
+  | "lifecycle"
+  | "promotional";
+export type PressureClass = "none" | "service" | "lifecycle" | "promotional";
+export type ChannelRole = "in-session" | "low-friction" | "persistent" | "urgent" | "human";
+export type ExitClass = "success" | "invalid-state" | "suppression" | "timeout" | "failure" | "no-action";
+export type Capability =
+  | "delayed-execution"
+  | "event-cancellation"
+  | "attribute-date-wait"
+  | "consent-lookup"
+  | "contactability-lookup"
+  | "frequency-counter"
+  | "deep-link-binding"
+  | "human-task-queue"
+  | "holdout-assignment"
+  | "idempotent-send";
+/** Derived only - never authored. See surface.ts. */
+export type Surface = "customer" | "mechanism" | "operational";
+
+/** One communication in the practitioner's touch plan. Every touch REFERENCES
+    graph nodes; timing is read from the referenced wait and never restated.
+    `channelRoles` is ORDERED: the first role whose strategy `when` holds is
+    used - channel selection inside one touch, which is neither touch
+    progression (the touch order) nor delivery fallback (channelStrategy.fallback). */
+export interface Touch {
+  id: string;
+  stage: string;
+  action: NodeId;
+  /** The touch this one follows in the plan. Absent = the touch is reached
+      from the entry (a first touch, or an alternative first touch on another
+      branch). Progression is this reference, never array position. */
+  after?: string;
+  gatedBy?: NodeId;
+  prerequisites: readonly NodeId[];
+  purpose: string;
+  channelRoles: readonly ChannelRole[];
+  destination?: { target: string; boundTo: string; mustNotClaim?: readonly string[] };
+  /** Exempt from pressure caps and from a non-mandatory local cap; never from
+      hard gates, deduplication, authoritative recheck or idempotency. */
+  mandatory: boolean;
+  priority?: PriorityClass;
+  priorityReason?: string;
+  label: Label;
+}
+
+export interface ChannelStrategy {
+  roles: readonly { role: ChannelRole; channels: readonly ChannelId[]; when: string }[];
+  /** DELIVERY recovery for the same touch after a delivery failure - not the next touch. */
+  fallback: "next-eligible-role" | "same-role-other-channel" | "none";
+  simultaneous?: { allowed: true; reason: string };
+  label: Label;
+}
+
+export type OrchestrationStrategy =
+  | "single-notice"
+  | "notice-then-confirm"
+  | "progressive-recovery"
+  | "deadline-countdown"
+  | "offer-decide-remind"
+  | "two-party-confirmation"
+  | "human-escalation-ladder";
+
+export interface Orchestration {
+  strategy: OrchestrationStrategy;
+  touches: readonly Touch[];
+  /** Ids of suppressions/eligibility items under which this journey legitimately sends nothing. */
+  noAction: readonly string[];
+}
+
+export interface Measurement {
+  /** Did THIS journey complete its own responsibility. Always self-scoped. */
+  journeyOutcome: { type: "exit" | "handoff" | "exit-or-handoff" | "event"; refs: readonly string[] };
+  /** The customer/business event we ultimately care about, which may be
+      recorded downstream through an explicitly declared handoff chain. */
+  businessOutcome?: {
+    event: SemanticEventRef;
+    unit: "instance" | "person";
+    observationScope: { type: "self" } | { type: "handoff-chain"; journeys: readonly string[] };
+    window: { type: "until-exit" } | { type: "through-handoff"; until: SemanticEventRef } | Config;
+    attribution: "entered-before-event" | "touched-before-event";
+    comparison: "persistent-holdout" | "pre-post" | "none" | "not-applicable";
+    holdout?: Config<number>;
+  };
+  secondary?: readonly SemanticEventRef[];
+  guardrails: readonly string[];
+  operational: readonly string[];
+}
+
+/** A practitioner-facing specialisation of a generic canonical journey. It may
+    override Config keys and channelStrategy.roles only - never nodes, touches
+    or exits; if it needs those, it is a separate canonical journey. */
+export interface Preset {
+  id: string;
+  name: string;
+  applicableWhen: RuleStatement;
+  overrides: Readonly<Record<string, unknown>>;
+  destination?: string;
+  aliases: readonly string[];
+}
+
 /** Where a journey starts, and what it refuses to start on. `insufficientAlone`
     is the load-bearing half: most bad lifecycle automation is a journey that
     fired on one weak signal. */
@@ -254,6 +427,10 @@ export interface ActionNode {
   kind: "action";
   does: string;
   writes?: readonly { field: string; mode: "append" | "set" }[];
+  /** vNext: required by the validator on actions with an external side effect. */
+  idempotencyKey?: string;
+  /** vNext: required on the action that re-enters a loop. */
+  attemptBudget?: Config<number>;
   next: NodeId;
   /** What this action's own effect is on the world outside the system.
       Omitted is the ordinary case and means an internal state or data
@@ -276,7 +453,8 @@ export interface ConditionNode {
   id: NodeId;
   kind: "condition";
   asks: string;
-  branches: readonly { label: string; when: string; to: NodeId }[];
+  /** vNext `observes`: the attribute or event the test reads. */
+  branches: readonly { label: string; when: string; observes?: string; to: NodeId }[];
 }
 
 /** An asynchronous pause with both arms named. A wait with no timeout strands
@@ -285,10 +463,21 @@ export interface ConditionNode {
 export interface WaitNode {
   id: NodeId;
   kind: "wait";
+  /** Registry event ids on migrated journeys (they ARE the cancellation
+      events); prose on un-migrated ones. */
   until: readonly string[];
   onEvent: NodeId;
-  timeout: { after: string; reason: string };
+  /** vNext: `after` becomes a Config with a timing class; `relativeTo` says
+      what the clock starts from, `attribute` names the stored moment. */
+  timeout: {
+    after: string | Config;
+    reason: string;
+    relativeTo?: "trigger" | "previous-touch" | "attribute";
+    attribute?: string;
+  };
   onTimeout: NodeId;
+  /** vNext: the authoritative state re-read before acting on timeout. */
+  recheck?: string;
   /** Whether activity during the wait pushes the deadline back. Almost always
       false: a bounded window that any engagement extends is not bounded. */
   windowExtendsOnEngagement: boolean;
@@ -312,6 +501,8 @@ export interface ExitNode {
   id: NodeId;
   kind: "exit";
   state: string;
+  /** vNext: which kind of ending this is. */
+  class?: ExitClass;
   terminal: boolean;
   reEntry: string;
 }
@@ -328,6 +519,8 @@ export interface HandoffNode {
   on: string;
   carries: readonly string[];
   suppresses?: readonly string[];
+  /** vNext: what the receiving side needs, machine-readable. */
+  contract?: { requiredFields: readonly string[] };
 }
 
 export type CanonicalNode =
@@ -370,10 +563,42 @@ export interface CanonicalJourney {
       journey without one is an omission rather than a stage. */
   shortName: string;
   purpose: string;
+  /** vNext: the business behaviour this journey exists to cause or protect. */
+  objective?: string;
   /** What the journey is about, which is what its exits and suppressions are
       scoped to. A journey about one order does not close because a different
-      order was placed. */
-  entity: { scope: string; note: string };
+      order was placed. vNext adds the machine-readable instance model. */
+  entity: {
+    scope: string;
+    note: string;
+    instanceKey?: readonly string[];
+    concurrency?: "one-active-per-key" | "many";
+    supersession?: RuleStatement;
+  };
+  /** vNext: what must be true at entry; may cite global gates by id. */
+  eligibility?: readonly string[];
+  /** vNext: who must never enter or must exit - typed so the label is enforced. */
+  suppressions?: readonly RuleStatement[];
+  /** vNext, customer communicating journeys only. */
+  contact?: {
+    defaultPriority: PriorityClass;
+    pressureClass: PressureClass;
+    localCap: { value: Config<number>; appliesTo: "non-mandatory" | "all" };
+    cooldown: Config;
+    competition: JourneyCompetition | "none";
+  };
+  channelStrategy?: ChannelStrategy;
+  orchestration?: Orchestration;
+  /** vNext: attributes the company must supply; events and the base
+      capability set are derived from the graph, never authored. */
+  implementation?: {
+    attributes: { required: readonly string[]; optional?: readonly string[] };
+    capabilities?: readonly Capability[];
+  };
+  /** vNext: the migration marker - a journey that declares measurement is
+      held to every vNext rule as an error rather than a warning. */
+  measurement?: Measurement;
+  discovery?: { aliases: readonly string[]; useCases: readonly string[]; presets?: readonly Preset[] };
   /** Why this is not the neighbouring journey. Written where the two would
       otherwise look like variations of each other. */
   distinctFrom?: readonly { journey: string; because: string }[];

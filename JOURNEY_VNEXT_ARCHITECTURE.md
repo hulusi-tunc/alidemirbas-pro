@@ -59,7 +59,7 @@ Date: 2026-09-01 · Corpus at `1297468` · Second-pass review of `JOURNEY_IMPLEM
 | **Runtime Mechanisms** | **24** | CMS-201…208/210 (the send path), CON-34/35/36/39/40 (frequency, permission sync, contactability, cooldown, reconciliation), OPS-121…130 (execution, retry, dead-letter, backlog, outcome verification) | Not journeys. Rendered as the *contract* every customer journey runs on — one page per mechanism, referenced from the touch plan ("delivery failure → CMS-208"). Migrated to a contract format, never given a touch plan or aliases. |
 | **Operational Workflows** | **124** | ownership (10), decision (9), data (10), document (7), control (8), rollout (10), incident (9), integration (10), risk (10), structure (5), terminal (6), access (7), time (6), financial (6), remedy (6), identity (3), subscription (1), scheduling (1) | The second product, for operations and engineering. Same graph, its own readiness standard (§D), its own list, no channel/touch/uplift dimensions. |
 
-The assignment rule is mechanical and re-runnable: mechanism ⇐ explicit list; customer ⇐ has a message channel, **or** is in a customer-lifecycle category *and* names a person/account/relationship/obligation/booking/order as its entity; operational ⇐ the rest. Fifteen operational workflows are direct handoff targets of customer journeys (OWN-51/55, DEC-181/183/189, TIM-64, IDN-86, INT-111, FIN-138, REM-153/155/159, SUB-164, DOC-216, RLT-242); these render as cross-surface links with the receiving workflow's contract, not as customer journeys.
+The assignment rule is mechanical and re-runnable: mechanism ⇐ explicit list; customer ⇐ has a message channel, **or** is in a customer-lifecycle category *and* names a person/account/relationship/obligation/booking/order as its entity; operational ⇐ the rest. **Surface is always derived by this rule and never authored** (Gate 0.5G): there is no override field; a journey that lands on the wrong surface is fixed by correcting its category or its entity scope, which are the facts the rule reads. The mechanism list is a constant in `index.ts`, versioned with the corpus. Fifteen operational workflows are direct handoff targets of customer journeys (OWN-51/55, DEC-181/183/189, TIM-64, IDN-86, INT-111, FIN-138, REM-153/155/159, SUB-164, DOC-216, RLT-242); these render as cross-surface links with the receiving workflow's contract, not as customer journeys.
 
 **Why this and not fewer surfaces.** The website already split the corpus into "communication" (84) and "internal" (197) by the presence of a channel. That split is wrong in both directions: it files Payment Failure Recovery's *relationship-state* twin (SUB-165) and Grace Period (TIM-65) as "internal" beside Data Parsing, and it files the send path's own delivery-recovery step (CMS-208) as a "communication journey". The three-way assignment fixes both errors with one rule.
 
@@ -93,189 +93,174 @@ Two sub-kinds, same schema: **communicating** (≥1 communication or human actio
 
 ---
 
-## F. Final vNext schema
+## F. Final vNext schema (Gate 0.5 corrected)
 
-Complete types. Fields marked `// derived` are computed by the build from the graph and never authored; fields marked `// existing` are unchanged from today's `types.ts`.
+Complete types, as implemented in `src/canonical/types.ts`. Every vNext field is optional during migration so the un-migrated corpus keeps compiling; the validator turns the same fields into errors the moment a journey declares `measurement` (the migration marker). Fields marked `// derived` are computed by the build and never authored; `// existing` fields are unchanged from the pre-vNext schema.
 
 ```ts
 // ─────────────────────────── shared primitives ───────────────────────────
 
-/** How a statement is to be read. Every default, strategy and rule in the
-    library carries one of these, and the validator refuses a number that
-    is not inside a RECOMMENDED_DEFAULT. */
+/** How a statement is to be read. Nothing numeric may sit inside a CANONICAL_RULE. */
 export type Label = "CANONICAL_RULE" | "RECOMMENDED_DEFAULT" | "CONFIG_REQUIRED" | "OPTIONAL_STRATEGY";
 
+/** A sentence whose classification matters to the validator or the reader:
+    suppressions, and any strategy statement that a company may switch off. */
+export interface RuleStatement { id: string; label: Label; text: string; }
+
+/** Where a recommended value comes from. `published-benchmark` requires a
+    citation and is unused until one exists in the repository. `example-only`
+    renders as an example, never as a recommendation. */
+export type DefaultBasis = "corpus-rule" | "attribute-bound" | "example-only" | "published-benchmark";
+
 /** A value the adopting company supplies, with what the library can say
-    about it. `required: true` is CONFIG_REQUIRED; a `default` present is a
+    about it. `required: true` is CONFIG_REQUIRED; a `default` is a
     RECOMMENDED_DEFAULT; `rule` is the CANONICAL_RULE the value serves. */
 export interface Config<T = string> {
-  key: string;                       // stable config key, e.g. "abandonment.first_check"
-  rule: string;                      // the semantic rule this value serves (never a number)
-  class?: TimingClass;               // only on timing configs
+  key: string;                       // stable config key, e.g. "recovery.first_check"
+  rule: string;                      // the semantic rule this value serves - never a number
+  class?: TimingClass;               // timing configs only
   default?: {
     value: T | { min: T; max: T };   // a range is the normal form for timing
     confidence: "high" | "medium" | "low";
-    basis: string;                   // where the default comes from
+    basis: DefaultBasis;
+    citation?: string;               // required when basis is published-benchmark
     applicableWhen?: string;
     avoidWhen?: string;
   };
-  required: boolean;                 // true = no responsible library-level default exists
+  required: boolean;
 }
 
-/** Time is relative to something; the class says what. Business context is
-    NOT a class - it goes in default.applicableWhen. See §I. */
 export type TimingClass =
-  | "attribute-bound"        // a stored date/time: deadline, expiry, start, effective date
-  | "reminder-before-attribute" // a point before an attribute-bound moment
-  | "response-window"        // time given to a person to answer/choose/confirm
-  | "recovery-window"        // time a recoverable state is pursued before it lapses
-  | "decision-sla"           // time an internal actor has to decide/review/accept
-  | "observation-window"     // time to watch for a signal: investigation, stability, monitoring, nurture
-  | "cooldown"               // time nothing is sent after an outcome
-  | "backoff"                // retry/reconciliation interval
-  | "external-window";       // a window an external party owns: delivery, distribution, transit, sync
+  | "attribute-bound" | "reminder-before-attribute" | "response-window" | "recovery-window"
+  | "decision-sla" | "observation-window" | "cooldown" | "backoff" | "external-window";
 
-/** One entry in the semantic-event registry (global.ts). Triggers, waits and
-    measurement reference registry ids; companies map their own names. */
 export interface SemanticEvent {
-  id: string;                        // snake_case, e.g. "checkout_completed"
-  meaning: string;                   // what must be true for a company event to map here
-  source: SignalSource;              // authoritative | declared | behavioral | inferred
-  entity: string;                    // what the event is about
-  commonMappings?: string[];         // "order_created", "purchase", "checkout_success"
+  id: string; meaning: string; source: SignalSource; entity: string; commonMappings?: readonly string[];
 }
-export type SemanticEventRef = string; // a SemanticEvent.id
+export type SemanticEventRef = string;
 
 export type PriorityClass = "security" | "transactional" | "service-critical" | "service" | "retention" | "lifecycle" | "promotional";
 export type PressureClass = "none" | "service" | "lifecycle" | "promotional";
 export type ChannelRole = "in-session" | "low-friction" | "persistent" | "urgent" | "human";
 export type ExitClass = "success" | "invalid-state" | "suppression" | "timeout" | "failure" | "no-action";
 export type Capability = "delayed-execution" | "event-cancellation" | "attribute-date-wait" | "consent-lookup" | "contactability-lookup" | "frequency-counter" | "deep-link-binding" | "human-task-queue" | "holdout-assignment" | "idempotent-send";
+export type Surface = "customer" | "mechanism" | "operational"; // derived only - never authored (0.5G, Option 1)
 
 // ─────────────────────────── nodes ───────────────────────────
 
-export interface TriggerNode {                       // existing shape, event becomes a registry ref
-  id: NodeId; kind: "trigger";
-  event: SemanticEventRef;
-  evidence: { requires: readonly string[]; insufficientAlone: readonly string[]; source: SignalSource }; // insufficientAlone now required
+export interface TriggerNode {                       // existing; insufficientAlone becomes required by the validator
+  id: NodeId; kind: "trigger"; event: SemanticEventRef;
+  evidence: { requires: readonly string[]; insufficientAlone?: readonly string[]; source: SignalSource };
   next: NodeId;
 }
-
 export interface ActionNode {                        // existing; NO channel or destination fields
-  id: NodeId; kind: "action";
-  does: string;
+  id: NodeId; kind: "action"; does: string;
   writes?: readonly { field: string; mode: "append" | "set" }[];
   execution?: "communication" | "human";
-  idempotencyKey?: string;                           // required by validator when the action has an external side effect
+  idempotencyKey?: string;                           // required by the validator on external side effects
   attemptBudget?: Config<number>;                    // required on the action that re-enters a loop
   next: NodeId;
 }
-
-export interface ConditionNode { id: NodeId; kind: "condition"; asks: string; branches: readonly { label: string; when: string; observes?: string; to: NodeId }[]; } // `observes`: the attribute/event the test reads
-
+export interface ConditionNode { id: NodeId; kind: "condition"; asks: string; branches: readonly { label: string; when: string; observes?: string; to: NodeId }[]; }
 export interface WaitNode {
   id: NodeId; kind: "wait";
-  until: readonly SemanticEventRef[];               // was free text; now registry refs - these ARE the cancellation events
+  until: readonly string[];                          // registry refs on migrated journeys - these ARE the cancellation events
   onEvent: NodeId;
-  timeout: { after: Config; relativeTo: "trigger" | "previous-touch" | "attribute"; attribute?: string; reason: string };
+  timeout: { after: string | Config; reason: string; relativeTo?: "trigger" | "previous-touch" | "attribute"; attribute?: string };
   onTimeout: NodeId;
-  recheck?: string;                                  // the authoritative state re-read before acting on timeout (GLB-18 made local)
-  windowExtendsOnEngagement: false;                  // narrowed: the corpus has zero `true` and the rule says never
+  recheck?: string;                                  // authoritative state re-read before acting on timeout
+  windowExtendsOnEngagement: boolean;                // validator: must be false
 }
-
-export interface OutcomeNode { id: NodeId; kind: "outcome"; state: string; means: string; next: NodeId; } // existing
-export interface ExitNode { id: NodeId; kind: "exit"; state: string; class: ExitClass; terminal: boolean; reEntry: string; }
+export interface OutcomeNode { id: NodeId; kind: "outcome"; state: string; means: string; next: NodeId; }
+export interface ExitNode { id: NodeId; kind: "exit"; state: string; class?: ExitClass; terminal: boolean; reEntry: string; }
 export interface HandoffNode { id: NodeId; kind: "handoff"; to: string; on: string; carries: readonly string[]; suppresses?: readonly string[]; contract?: { requiredFields: readonly string[] }; }
 
 // ─────────────────────────── orchestration (customer, communicating) ───────────────────────────
 
-/** The practitioner's view of the communication plan. Every touch REFERENCES
-    graph nodes; timing is read from the referenced wait, never restated.
-    The validator proves the touch sequence is a path in the graph. */
 export interface Touch {
-  id: string;                        // "t1"
-  stage: string;                     // "initial-recovery", "follow-up", "final-notice", "confirmation"
-  action: NodeId;                    // the communication (or human) action node
-  gatedBy?: NodeId;                  // the wait whose timeout/event precedes this touch - timing lives there
-  prerequisites: readonly NodeId[];  // conditions/rechecks that must pass before the send (graph nodes)
-  purpose: string;                   // one sentence: why this touch exists
-  channelRole: ChannelRole;          // resolved against journey.channelStrategy
+  id: string; stage: string;
+  action: NodeId;                    // the communication or human action node
+  gatedBy?: NodeId;                  // the wait whose timeout/event precedes this touch; timing lives there. Absent = sent on classification
+  prerequisites: readonly NodeId[];  // conditions/rechecks before the send
+  purpose: string;
+  channelRoles: readonly ChannelRole[]; // ORDERED: first role whose strategy `when` holds wins (0.5B) - channel selection inside one touch
   destination?: { target: string; boundTo: string; mustNotClaim?: readonly string[] };
-  mandatory: boolean;                // true = exempt from pressure caps (still subject to hard gates)
+  mandatory: boolean;                // exempt from pressure caps and from a non-mandatory local cap; never from hard gates, dedup, recheck, idempotency
+  priority?: PriorityClass;          // overrides contact.defaultPriority (0.5C)
+  priorityReason?: string;           // required when priority is set
   label: Label;                      // CANONICAL_RULE (always sent when reached) | OPTIONAL_STRATEGY (company may disable)
 }
-
 export interface ChannelStrategy {
   roles: readonly { role: ChannelRole; channels: readonly ChannelId[]; when: string }[]; // ordered; channels ⊆ journey.channels
-  fallback: "next-eligible-role" | "same-role-other-channel" | "none";
-  simultaneous?: { allowed: true; reason: string };  // absent = never send two channels for one touch
-  label: Label;                                      // RECOMMENDED_DEFAULT is the normal case
+  fallback: "next-eligible-role" | "same-role-other-channel" | "none";   // DELIVERY recovery for the same touch - not touch progression
+  simultaneous?: { allowed: true; reason: string };
+  label: Label;
 }
-
 export interface Orchestration {
   strategy: "single-notice" | "notice-then-confirm" | "progressive-recovery" | "deadline-countdown" | "offer-decide-remind" | "two-party-confirmation" | "human-escalation-ladder";
   touches: readonly Touch[];
-  noAction: readonly string[];       // the reasons this journey may legitimately send nothing (references to suppressions/eligibility items)
+  noAction: readonly string[];       // ids of suppressions/eligibility items under which this journey legitimately sends nothing
 }
 
 // ─────────────────────────── journey ───────────────────────────
 
 export interface CanonicalJourney {
   id: string; slug: string; category: CategoryId; goal: GoalId;              // existing
-  surface: "customer" | "operational" | "mechanism";                          // derived from the assignment rule; authored override allowed with a reason
-  name: string; shortName: string; purpose: string; objective: string;       // objective: the business behaviour to cause/protect
-  channels: readonly ChannelId[];                                             // existing: the permitted set
-  entity: { scope: string; note: string; instanceKey: readonly string[]; concurrency: "one-active-per-key" | "many"; supersession?: string };
-  eligibility: readonly string[];      // what must be true at entry; may reference global gates by id ("GLB-31")
-  suppressions: readonly string[];     // who must not enter / must exit; each item is a Label-tagged sentence
-  contact?: {                          // customer communicating only
-    priority: PriorityClass;
+  name: string; shortName: string; purpose: string;                          // existing
+  objective?: string;                                                        // the business behaviour to cause/protect
+  channels: readonly ChannelId[];                                            // existing: the permitted set
+  entity: { scope: string; note: string; instanceKey?: readonly string[]; concurrency?: "one-active-per-key" | "many"; supersession?: RuleStatement };
+  eligibility?: readonly string[];                                           // what must be true at entry; may cite global gates ("GLB-31")
+  suppressions?: readonly RuleStatement[];                                   // typed (0.5F) - each has an id the orchestration's noAction references
+  contact?: {                                                                // customer communicating only
+    defaultPriority: PriorityClass;                                          // (0.5C)
     pressureClass: PressureClass;
-    localCap: Config<number>;          // touches per instance
-    cooldown: Config;                  // after exit, before a new instance may message the same person
-    competition?: JourneyCompetition;  // existing shape
+    localCap: { value: Config<number>; appliesTo: "non-mandatory" | "all" }; // (0.5D)
+    cooldown: Config;
+    competition: JourneyCompetition | "none";
   };
-  channelStrategy?: ChannelStrategy;   // customer communicating only
-  orchestration?: Orchestration;       // customer communicating only
-  entry: NodeId; nodes: readonly CanonicalNode[];
-  preemptedBy?: readonly { event: SemanticEventRef; then: string }[];        // existing, event becomes a ref
-  implementation: {
-    events: readonly SemanticEventRef[];        // derived: trigger.event ∪ every wait.until ∪ measurement events
+  channelStrategy?: ChannelStrategy;
+  orchestration?: Orchestration;
+  entry: NodeId; nodes: readonly CanonicalNode[];                           // existing
+  preemptedBy?: readonly { event: SemanticEventRef; then: string }[];       // existing
+  competition?: JourneyCompetition;                                         // existing; superseded by contact.competition on migrated journeys
+  implementation?: {
     attributes: { required: readonly string[]; optional?: readonly string[] };
-    capabilities: readonly Capability[];        // derived from node kinds + contact + measurement; authored additions allowed
+    capabilities?: readonly Capability[];                                    // authored additions; the base set is derived
+    // events: derived = trigger.event ∪ every wait.until ∪ measurement events
   };
-  measurement: Measurement;
-  discovery: { aliases: readonly string[]; useCases: readonly string[]; presets?: readonly Preset[] }; // customer only; operational may carry aliases
-  distinctFrom?: readonly { journey: string; because: string }[];             // existing
-  guardrails: readonly string[]; reusableRule: string;                        // existing
+  measurement?: Measurement;                                                 // the migration marker
+  discovery?: { aliases: readonly string[]; useCases: readonly string[]; presets?: readonly Preset[] };
+  distinctFrom?: readonly { journey: string; because: string }[];            // existing
+  guardrails: readonly string[]; reusableRule: string;                       // existing
 }
 
-export interface Measurement {
-  outcome: {
-    event: SemanticEventRef;           // "checkout_completed"
-    unit: "instance" | "person";       // what is counted
-    window: "until-exit" | Config;     // attribution window
-    attribution: "entered-before-event" | "touched-before-event"; // silent journeys use entered-before-event
+export interface Measurement {                                               // (0.5E)
+  journeyOutcome: { type: "exit" | "handoff" | "event"; refs: readonly string[] };   // did THIS journey do its job
+  businessOutcome?: {                                                        // the customer/business event we ultimately care about
+    event: SemanticEventRef;
+    unit: "instance" | "person";
+    observationScope: { type: "self" } | { type: "handoff-chain"; journeys: readonly string[] };
+    window: { type: "until-exit" } | { type: "through-handoff"; until: SemanticEventRef } | Config;
+    attribution: "entered-before-event" | "touched-before-event";
     comparison: "persistent-holdout" | "pre-post" | "none" | "not-applicable";
-    holdout?: Config<number>;          // share, when comparison is holdout
+    holdout?: Config<number>;
   };
   secondary?: readonly SemanticEventRef[];
-  guardrails: readonly string[];       // event or metric names: "unsubscribe", "complaint", "duplicate_send", "message_after_success"
-  operational: readonly string[];      // "entry_volume", "no_action_rate_by_reason", "channel_role_used", "time_to_outcome"
+  guardrails: readonly string[];
+  operational: readonly string[];
 }
 
 export interface Preset {
-  id: string; name: string;            // "checkout-abandonment", "Checkout Abandonment"
-  applicableWhen: string;              // the entity/trigger specialisation
-  overrides: Readonly<Record<string, unknown>>; // config key → value; may only touch Config keys and channelStrategy.roles
-  destination?: string;                // preset-specific destination target
-  aliases: readonly string[];
+  id: string; name: string; applicableWhen: RuleStatement;
+  overrides: Readonly<Record<string, unknown>>;   // Config keys and channelStrategy.roles only - never nodes, touches or exits
+  destination?: string; aliases: readonly string[];
 }
 ```
 
-**What was removed from the first draft.** `ActionNode.channelPolicy`, `ActionNode.destination` (moved to `Touch`), `WaitNode.cancelOn` (redundant with `until` once `until` is a registry ref), authored `requiredEvents`/`requiredCapabilities` (derived), `recommendedDefaults` as a separate block (lives inside each `Config`), numeric `priority` (a class, per GLB-02).
+**Removed from the first draft:** `ActionNode.channelPolicy`, `ActionNode.destination` (→ `Touch`), `WaitNode.cancelOn` (redundant with `until` as refs), authored `requiredEvents`/`requiredCapabilities` (derived), `Touch.channelRole` singular (→ ordered `channelRoles`), `contact.priority` (→ `defaultPriority` + touch override), bare `localCap: Config` (→ value + `appliesTo`), flat `measurement.outcome` (→ `journeyOutcome` + `businessOutcome`), `surface` field and any authored override (derived only), untyped `suppressions: string[]` (→ `RuleStatement[]`).
 
----
+**Three concepts the schema keeps apart (0.5B):** *touch progression* (`orchestration.touches` in order, gated by waits), *channel selection inside a touch* (`Touch.channelRoles` resolved against `channelStrategy.roles[*].when`), *delivery fallback* (`channelStrategy.fallback`, exercised by CMS-208 for the same touch after a delivery failure). A rule that mixes them is a validator error.
 
 ## G. Field ownership table
 
@@ -286,7 +271,7 @@ export interface Preset {
 | Cancellation events of a wait | **`WaitNode.until` (registry refs)** | `implementation.events` (derived), touch view |
 | Meaning of an event; common vendor names | **semantic-event registry (`global.ts`)** | triggers, waits, measurement, preset docs |
 | Touch sequence, purpose, prerequisites | **`orchestration.touches`** (references nodes) | practitioner view; validator proves path consistency |
-| Channel roles and fallback order | **`channelStrategy`** (journey) | touches (`channelRole`), CMS-204 at runtime |
+| Channel roles, eligibility conditions and delivery fallback | **`channelStrategy`** (journey) | touches (`channelRoles`, ordered), CMS-204 at runtime |
 | Which channels are permitted at all | **`channels`** (journey) | `channelStrategy` (validated ⊆) |
 | CTA target and must-not-claim | **`Touch.destination`** | message brief, validator |
 | Priority, pressure class, local cap, cooldown, mandatory | **`contact`** + `Touch.mandatory` | send path stages 3–5 (GLB-01…05, GLB-28) |
@@ -299,7 +284,7 @@ export interface Preset {
 | Idempotency key | **`ActionNode.idempotencyKey`** | runtime |
 | Instance identity, concurrency, supersession | **`entity`** | re-entry semantics, measurement unit |
 | Practitioner names, use cases, presets | **`discovery`** | search, cards, SEO (derived, never the reverse) |
-| Product surface | **derived** by the assignment rule; override authored with reason | site lists, readiness scorer |
+| Product surface | **derived** by the assignment rule from `category`, `entity.scope`, `channels` and the mechanism constant; never authored | site lists, readiness scorer |
 
 **Drift prevention.** Three mechanisms: (1) *reference, not restatement* — a touch names a node id and reads timing from it; (2) *derivation* — events, capabilities and surface are computed; (3) *validator rules* `orch_touch_not_in_graph`, `orch_path_broken`, `timing_stated_twice`, `duplicate_source_of_truth` (§T) fail the build when the same fact appears in two places.
 
@@ -342,7 +327,7 @@ Findings: (1) the first draft's twelve classes mixed axis and context ("abandonm
 
 ### Defaults: ranges, confidence, basis
 
-A default is never one number. Its shape is `{ value: {min,max} | value, confidence, basis, applicableWhen, avoidWhen }`. Basis is one of: `"platform-convention"` (what orchestration platforms ship as templates), `"corpus-rule"` (a global rule implies it, e.g. GLB-24 bounds), `"published-benchmark"` (a citable source — none exist in the repo today, so this basis may not be used until one is added), `"example-only"` (confidence low; renders as an example). This is what stops a number copied across dozens of journeys: the validator rejects a default without a basis, and `example-only` never renders as a recommendation.
+A default is never one number. Its shape is `{ value: {min,max} | value, confidence, basis, applicableWhen, avoidWhen }`. Basis is one of: `"corpus-rule"` (a global rule implies it, e.g. GLB-24 bounds a ladder to one reminder), `"attribute-bound"` (the value is a stored attribute; no number is recommended), `"published-benchmark"` (a citable source with a `citation` — none exist in the repository today, so this basis may not be used until one is added), `"example-only"` (an illustrative range; confidence low or medium; renders as an example, never as a recommendation). There is no `"platform-convention"` basis: nothing in this repository evidences one, and labelling a guess as convention is exactly the false precision §H forbids. This is what stops a number copied across dozens of journeys: the validator rejects a default without a basis, and `example-only` never renders as a recommendation.
 
 Which defaults may be **global** (set once in `global.ts` per class and inherited): response-window for confirmations (minutes for OTP-class, 24–72h for email-class), cooldown (7–30 days), backoff (exponential 1 min → 1 h, budget CONFIG), reminder-before-attribute (24 h and 25 % of remaining time, whichever is later). Which need **journey-specific** ranges: recovery-window (abandonment 30–60 min first check for considered purchases; 10–20 min for impulse; 24 h second; 3–7 days lifetime), observation/nurture windows. Which are **CONFIG_REQUIRED** always: decision-sla, grace, investigation, anything a contract or law sets.
 
@@ -357,7 +342,7 @@ Already in §F: `WaitNode.timeout.after: Config` with `class`, plus `relativeTo`
 Three levels were considered; **two** are adopted.
 
 1. **Journey-level `channelStrategy`** — an ordered list of *roles* each mapped to the channels that may play it in this journey, a fallback rule, and whether simultaneous sends are ever allowed. Roles: `in-session` (the person is in the product now), `low-friction` (push/in-app: a nudge while intent is fresh), `persistent` (email: carries content and survives), `urgent` (SMS/WhatsApp: only against a real, asserted deadline and explicit permission), `human` (sales/task). Example: *low-friction while an app session or valid token exists → persistent otherwise → urgent only for the deadline touch*.
-2. **Touch-level `channelRole`** — each touch names the role it uses; the strategy resolves role → concrete channel at send time via CMS-204, which now has a real input instead of "smallest valid set".
+2. **Touch-level `channelRoles`** — an *ordered set* of roles this touch may use, e.g. `["in-session", "persistent"]` or `["urgent", "persistent"]`. Resolution at send time: take the first role in the touch's list whose `channelStrategy.roles[*].when` condition holds, then resolve that role to an eligible concrete channel through CMS-204. This is **channel selection inside one touch**, and it is distinct from the two things it is easy to confuse it with: *touch progression* (`t1 → wait → t2`, which is orchestration) and *delivery fallback* (an invalid token or a bounce → another eligible route for the same touch, which is delivery recovery under CMS-208). The validator keeps the three apart (`touch_channel_role_ambiguous`, `fallback_as_touch`, `role_no_eligible_channel`).
 3. **Action-level** — nothing. The action node is behaviour text; giving it a channel would duplicate the touch.
 
 Rules: `channelStrategy.roles[*].channels ⊆ journey.channels` (validator); a journey with one message channel still declares one role (so the practitioner view is uniform); simultaneous sends require `simultaneous.reason` (e.g. a security alert to every verified destination, CON-264's two-recipient case); fallback is a *delivery* concept (bounce, invalid token → next eligible role for the *same* touch, once) and is never a "next touch" — the validator flags a touch whose only prerequisite is a delivery failure of the previous touch (`fallback_as_touch`).
@@ -387,16 +372,20 @@ GLB-31 evaluates hard gates first; GLB-04/30 let a more authoritative lifecycle 
 | Mechanism | Owner | Journey-level field | Default |
 |---|---|---|---|
 | **Hard gates** (closed account, fraud hold, legal, absent permission for the purpose, service-recovery pause) | GLB-31 + CMS-205 | referenced in `suppressions` | evaluated globally, applied by purpose |
-| **Priority precedence** within one hour for one person | send path stage 3 (GLB-01/02/05) | `contact.priority` | higher class sends; lower classes in the same pressure class are deferred, not dropped, and re-evaluated (GLB-06/10) |
+| **Priority precedence** within one hour for one person | send path stage 3 (GLB-01/02/05) | `contact.defaultPriority`, overridable per touch (`Touch.priority` + `priorityReason`) | higher class sends; lower classes in the same pressure class are deferred, not dropped, and re-evaluated (GLB-06/10) |
 | **Exclusion / competition** on the same scope instance | GLB-03/08 | `contact.competition` | extended from 14 to every customer communicating journey (66): each names a group or `none` explicitly |
 | **Pressure caps** across journeys | GLB-28 + CON-34/39 | `contact.pressureClass` | RECOMMENDED_DEFAULT per class: promotional ≤1/day and ≤3/week per person; lifecycle ≤1/day; service uncapped but deduplicated; transactional/security none. CONFIG. |
-| **Local cap** within an instance | `contact.localCap` | touches per instance | equals `orchestration.touches.length` unless a lower Config is set |
+| **Local cap** within an instance | `contact.localCap` = `{ value: Config<number>, appliesTo: "non-mandatory" \| "all" }` | discretionary touches per instance | `appliesTo: "non-mandatory"` is the normal case: a security, transactional or required-service confirmation never disappears because a discretionary-touch cap was spent. Mandatory touches still pass dedup, authoritative recheck, hard gates and idempotency. **Local-touch-cap exemption** (this row) and **pressure-cap exemption** (the row above, `Touch.mandatory` against `contact.pressureClass`) are two mechanisms: the first bounds *this instance*, the second bounds *this person across journeys*. |
 | **Cooldown** after exit | `contact.cooldown` | per exit class | RECOMMENDED_DEFAULT: after `timeout`/`suppression` 7–30 days; after `success` none; after `invalid-state` none |
 | **Dedup** | GLB-17/19 + `Touch` key | `idempotencyKey` = instance key + touch id | always |
 
 ### The brief's scenario, resolved
 
 Person qualifies within one hour for payment failure (transactional), abandoned checkout (promotional), churn prevention (retention), feedback request (promotional ask, `outbound-ask` group), generic promotion (promotional). Result under the model: FIN-134's corrective request sends (transactional, mandatory). RET-28/24 hold the `retention-outreach` group; a retention touch may send but FBK-41's own rule defers a satisfaction ask while a service or retention journey is open (`x.deferred`). Checkout recovery and the generic promotion share the promotional pressure class with a default of one per day: the send path takes the higher-precedence *purpose* (a recovery bound to an open checkout outranks a generic promotion by GLB-04's "more current state"); the other is deferred and re-evaluated against current state when the cap frees — by which time the checkout may be converted and the deferred touch becomes `no-action`. Every deferral and suppression is a recorded `no-action` reason, which is how measurement sees it.
+
+### Touch-level priority
+
+A journey carries `contact.defaultPriority`; a touch inherits it unless it sets `priority`, and an override must carry `priorityReason` naming the changed obligation (SCH-266: prompt and reminder are *service*, the critical-prerequisite notice is *service-critical* because the service fails without it). The validator rejects an override with no reason (`invalid_priority_override`), a transactional or security touch inside a promotional journey with no documented handoff (`mandatory_promotional_conflict`), and any touch that does not resolve to exactly one class (`touch_priority_unresolved`). No numeric rank exists in any file; the ordering of classes is global policy.
 
 ### Mandatory communication exception
 
@@ -406,17 +395,14 @@ Person qualifies within one hour for payment failure (transactional), abandoned 
 
 ## L. Measurement model
 
-`measurement.outcome` defines success as **event + unit + window + attribution + comparison**, so two companies measure the same thing:
+Two things are measured separately, because a journey's responsibility and the business result are not the same thing (Gate 0.5E). SCH-266 has executed correctly when the right reminder was sent against a revalidated booking; whether the person *attended* is recorded by SCH-178, downstream. FIN-134 has executed correctly when the corrective request went out and the obligation reached a resolution or a handoff; whether the obligation was *satisfied* may happen inside TIM-65's grace period, downstream.
 
-- **event** — a semantic-event ref that must appear in the journey's graph (`until`, exit, or handoff condition); the validator enforces it.
-- **unit** — `instance` (the entity instance: this checkout, this obligation) or `person` (silent lifecycle states and person-scoped journeys).
-- **window** — `until-exit` (default: the instance's own lifetime) or a `Config` (e.g. renewal measured to term end).
-- **attribution** — `entered-before-event` for silent journeys and single-notice journeys; `touched-before-event` for progressive recovery (a conversion after entry but before any touch is *not* the journey's).
-- **comparison** — `persistent-holdout` where the journey exists to cause a behaviour the person might do anyway (abandonment, win-back, replenishment, nurture, feedback asks: required); `pre-post` where a holdout is unethical or impossible (payment corrective requests, security alerts, deadline reminders); `not-applicable` for silent states.
+- **`journeyOutcome`** — did this journey complete its own responsibility? `{ type: "exit" | "handoff" | "event", refs }` naming the exit classes, handoff ids or events that count as the journey having done its job. Always self-scoped; always present.
+- **`businessOutcome`** (optional — silent states and routers may have none) — the customer/business event we ultimately care about: `event` (registry ref), `unit` (instance | person), `observationScope` (`self`, or `handoff-chain` naming the journeys the event is reached through), `window` (`until-exit`; `through-handoff` until a named event; or a `Config`), `attribution` (`entered-before-event` | `touched-before-event`), `comparison` (`persistent-holdout` | `pre-post` | `none` | `not-applicable`), `holdout` share as a `Config` when applicable.
 
-`guardrails` are names, never targets: `unsubscribe`, `complaint`, `duplicate_send`, `message_after_success` (must be zero — it measures the recheck), `support_contact_within_24h`, `incentive_issued`. `operational` includes `no_action_rate_by_reason`, which is how NO_ACTION becomes visible (§24 of the brief). Nothing in the file is a number, a target or an analytics query; that stays the company's.
+Validation: a **self**-scoped business event must appear in this journey's graph (`until`, exit or handoff condition); a **handoff-chain** event must be reachable through handoffs this journey actually declares, in order, and the event must appear in the last journey of the chain (`downstream_measurement_unreachable`); an event that is neither is invalid. A journey never restates another journey's measurement — it *references* the chain.
 
----
+`guardrails` and `operational` are names, never targets: `unsubscribe`, `complaint`, `duplicate_send`, `message_after_success` (must be zero — it measures the recheck), `no_action_rate_by_reason` (how NO_ACTION becomes visible). Nothing in the file is a number, a target or a query.
 
 ## M. Discoverability model
 
@@ -479,7 +465,7 @@ Two journeys merge only if they share entity lifecycle, trigger semantics, requi
 | Abandoned Process vs Abandoned Selection vs Unresolved Interest (new) | process with expiry / recorded selection / inferred interest | authoritative process / authoritative record / behavioural | resumable? / available & priced? / interest still unresolved? | recovery window (values differ) | purchase | same | progressive recovery | per instance | **three canonical** (differ on entity, trigger source and checks) |
 | CON-264 vs IDN-270 (both contact/account changes) | contact point vs account control | change vs recovery request | — | confirmation window | permitted vs restored | same | two-party vs single | same | keep separate (not previously proposed; checked because of shape similarity) |
 
-Result: 2 merges (−2 journeys), 0 splits, 5 new, corpus 281 → **284**, customer surface 133 → **136**.
+Result: 2 merge decisions retiring **3** canonical records (FBK-44, FBK-45, ACT-15), 0 splits, 5 new; corpus 281 → **283**, customer surface 133 → **135**, communicating 66 → **68**, silent 67 unchanged. Recomputed from `surfaces.json`: all three retired ids are communicating customer journeys.
 
 ---
 
@@ -531,7 +517,7 @@ Notation: **[C]** CANONICAL_RULE · **[D]** RECOMMENDED_DEFAULT (with confidence
 
 **Orchestration — strategy `progressive-recovery`.**
 
-| Touch | Gated by (wait) | Timing (on the wait) | Prerequisites (graph) | Role | Purpose | Destination | Label |
+| Touch | Gated by (wait) | Timing (on the wait) | Prerequisites (graph) | Channel roles (ordered) | Purpose | Destination | Label |
 |---|---|---|---|---|---|---|---|
 | t1 initial-recovery | `w.abandon` until `process_resumed`, `process_completed`, `process_cancelled`, `process_expired`; timeout `recovery.first_check` **[D 30–60 min after `last_activity_at`, medium; basis platform-convention; applicableWhen considered purchases; avoidWhen impulse baskets → 10–20 min]**; relativeTo attribute `last_activity_at`; recheck: process still resumable | `c.state` (authoritative re-read) [C] · `c.sendable` (send path) [C] | low-friction | the process is still open; the current items; a link that reopens *this* process with state restored | `resume_destination` boundTo `logical_process_id`; mustNotClaim: stock reserved, price held, discount applies — unless the system asserts it [C] | CANONICAL_RULE |
 | t2 follow-up | `w.second` until same events + `process_resumed` handled specially; timeout `recovery.second_check` **[D 20–28 h after t1, medium; basis platform-convention; avoidWhen perishable/time-boxed processes → resumable window minus margin]**; relativeTo previous-touch; recheck same | `c.state` · `c.resumed-since` (if resumed but not completed since t1 → wait `recovery.first_check` again, once, then re-evaluate — a person who came back is deciding, not forgetting [C]) · `c.sendable` | persistent | address the likely blocker (shipping, returns, trust, questions); still no unasserted claims | same | CANONICAL_RULE |
@@ -544,13 +530,13 @@ Notation: **[C]** CANONICAL_RULE · **[D]** RECOMMENDED_DEFAULT (with confidence
 
 **Exits.** `x.converted` success (`process_completed`; re-entry: a new logical process) · `x.invalid` invalid-state (cancelled/expired/emptied; new process) · `x.superseded` suppression (newer process; none for this id) · `x.no-action` no-action (every gate that stopped every touch, with reason; new process) · `x.lapsed` timeout (lifetime passed; new process subject to cooldown) · `h.payment` → FIN-134.
 
-**Contact.** priority promotional · pressureClass promotional · localCap = 3 (touches; **[D]** 2 when t3 disabled) · cooldown after lapse/no-action **[D 7–30 days, medium; basis platform-convention]** — a new process inside the cooldown enters, is tracked, and sends nothing (records `no-action: cooldown`) · competition: group `commerce-recovery` with Abandoned Selection and Unresolved Interest on scope `person`; precedence: process > selection > interest (the more authoritative state wins, GLB-04) · person-level pressure: promotional class default one per day.
+**Contact.** defaultPriority promotional · pressureClass promotional · localCap `{ value: [D 3, medium; basis corpus-rule GLB-24], appliesTo: "all" }` (no touch is mandatory here; 2 when t3 is disabled) · cooldown after lapse/no-action **[D 7–30 days, medium; basis platform-convention]** — a new process inside the cooldown enters, is tracked, and sends nothing (records `no-action: cooldown`) · competition: group `commerce-recovery` with Abandoned Selection and Unresolved Interest on scope `person`; precedence: process > selection > interest (the more authoritative state wins, GLB-04) · person-level pressure: promotional class default one per day.
 
 **Idempotency [C].** Touch key `logical_process_id + touch.id`.
 
 **Implementation.** events (derived): `process_started, process_resumed, process_completed, process_cancelled, process_expired, items_removed_all, payment_failed` · attributes required: `logical_process_id, person_id, items[], started_at, last_activity_at, resume_destination`; optional: `expires_at, value, currency, category, has_active_app_session, hold_expires_at, delivery_cutoff_at` · capabilities (derived): delayed-execution, event-cancellation, attribute-date-wait, consent-lookup, contactability-lookup, frequency-counter, deep-link-binding, holdout-assignment, idempotent-send.
 
-**Measurement.** outcome `process_completed`, unit instance, window until-exit, attribution touched-before-event, comparison **persistent-holdout required** [C for the *method*; share **[D 10 %, medium]**] · secondary `process_resumed` · guardrails `unsubscribe, complaint, message_after_success, incentive_issued, support_contact_within_24h` · operational `entry_volume, no_action_rate_by_reason, role_used_t1, branch_distribution`.
+**Measurement.** journeyOutcome: exits `success | timeout | no-action | suppression` (the journey did its job whichever of these it reached) · businessOutcome `process_completed`, unit instance, observationScope self, window until-exit, attribution touched-before-event, comparison **persistent-holdout required** [C for the *method*; share **[D 10 %, medium]**] · secondary `process_resumed` · guardrails `unsubscribe, complaint, message_after_success, incentive_issued, support_contact_within_24h` · operational `entry_volume, no_action_rate_by_reason, role_used_t1, branch_distribution`.
 
 **Discovery.** aliases `checkout abandonment, abandoned checkout, checkout recovery, begin checkout, cart recovery (checkout stage)`; useCases: a started checkout with items that has gone quiet; presets: *Checkout Abandonment* (overrides none beyond destination = checkout session), *Quote Abandonment* (destination = the quote; `recovery.first_check` **[D 4–24 h]** because quotes are considered), *Application Abandonment* (destination = the application; hard deadline via TIM-61 handoff), *Incomplete Registration* (destination = the registration step; `recovery.first_check` **[D 1–4 h]**; identity verification via IDN-81 handoff).
 
@@ -578,7 +564,7 @@ The current FIN-134 graph is kept (failure-class routing, idempotent retry, alte
 
 **Orchestration — strategy `notice-then-confirm` with an embedded decision.**
 
-| Touch | Gated by | Timing | Prerequisites | Role | Purpose | Destination | Label |
+| Touch | Gated by | Timing | Prerequisites | Channel roles (ordered) | Purpose | Destination | Label |
 |---|---|---|---|---|---|---|---|
 | t1 corrective-request (`a.corrective`) | none (sent on classification) | — | `c.class` = customer-fixable [C]; send path | in-session → persistent | the exact corrective action (update method, complete authentication, choose another method); what is owed; no provider risk detail, no internal codes [C] | payment-method update flow, boundTo `obligation_id` [C] | CANONICAL_RULE |
 | t1′ offer-alternate (`a.offer-alternate`) | none | — | `c.class` = declined/no reason · `c.alternate` = customer must choose [C] | in-session → persistent | the available alternatives and that the obligation stands either way | payment-method choice flow | CANONICAL_RULE |
@@ -591,13 +577,13 @@ The current FIN-134 graph is kept (failure-class routing, idempotent retry, alte
 
 **Exits.** `x.recovered` success (`obligation_satisfied`; re-entry: a future failure on a future obligation) · `x.no-action` (retry-in-progress or no-instruction; instance continues internally — recorded, not exited, until `c.next`) · `h.grace` → TIM-65 · `h.overdue` → TIM-62 · `h.restrict` → ACC-78 (handoff exits carry `contract.requiredFields: obligation_id, amount_outstanding, failure_class, attempts, consequence_policy`).
 
-**Contact.** priority transactional · pressureClass none · `Touch.mandatory: true` on t1/t1′/confirmation · localCap **[D 2 customer-facing messages before the consequence handoff, high]** · cooldown not-applicable (per obligation) · competition: none declared (transactional outranks by class); SUB-163 already treats an open FIN-134 as a renewal blocker; RET-28's offer step yields to an open FIN-134 on the same account (added to `retention-outreach` precedence text).
+**Contact.** defaultPriority transactional · pressureClass none · `Touch.mandatory: true` on t1/t1′/confirmation · localCap `{ value: [D 1 discretionary message before the consequence handoff, medium; basis corpus-rule GLB-24], appliesTo: "non-mandatory" }` — the corrective request and the confirmation are mandatory and do not count; only the optional reminder does · cooldown not-applicable (per obligation) · competition: none declared (transactional outranks by class); SUB-163 already treats an open FIN-134 as a renewal blocker; RET-28's offer step yields to an open FIN-134 on the same account (added to `retention-outreach` precedence text).
 
 **Idempotency [C].** Attempt key = provider idempotency key per attempt; message key = `obligation_id + touch.id`.
 
 **Implementation.** events (derived): `payment_failed, payment_method_updated, authentication_completed, alternate_method_selected, obligation_satisfied, recovery_abandoned, obligation_cancelled_or_waived` · attributes required: `obligation_id, person_id, amount_outstanding, currency, failure_class, failed_at, method_id, alternate_methods[], consequence_date (nullable)`; optional: `provider_reason_code (never shown), grace_policy_id` · capabilities: delayed-execution, event-cancellation, attribute-date-wait, consent-lookup, contactability-lookup, deep-link-binding, idempotent-send.
 
-**Measurement.** outcome `obligation_satisfied`, unit instance, window until-exit (including the grace handoff's window when TIM-65 follows), attribution entered-before-event, comparison **pre-post** (a holdout that withholds a corrective instruction is not acceptable) · secondary `payment_method_updated` · guardrails `complaint, support_contact_within_24h, duplicate_charge (must be 0), message_after_success` · operational `failure_class_distribution, retry_success_rate, time_to_recovery, no_action_rate_by_reason, handoff_distribution`.
+**Measurement.** journeyOutcome: exit `x.recovered` or handoffs `h.grace | h.overdue | h.restrict` (the journey has done its job once the obligation is recovered or its consequence is owned elsewhere) · businessOutcome `obligation_satisfied`, unit instance, observationScope handoff-chain `[TIM-65]`, window through-handoff until `grace_period_ended`, attribution entered-before-event, comparison **pre-post** (a holdout that withholds a corrective instruction is not acceptable) · secondary `payment_method_updated` · guardrails `complaint, support_contact_within_24h, duplicate_charge (must be 0), message_after_success` · operational `failure_class_distribution, retry_success_rate, time_to_recovery, no_action_rate_by_reason, handoff_distribution`.
 
 **Discovery.** aliases `dunning, failed payment, card decline recovery, involuntary churn, payment retry`; useCases: a subscription renewal or order payment declined; presets: none (SUB-165 is the relationship-state twin, linked, not a preset).
 
@@ -607,7 +593,7 @@ The current FIN-134 graph is kept (failure-class routing, idempotent retry, alte
 
 The current SCH-266 graph (time check → prerequisite prompt → wait → revalidate → valid? → critical? → at-risk or remind) is kept; SCH-280 No-Show Follow-Up remains the post-event journey it hands to via SCH-178/179.
 
-**Identity.** SCH-266 · surface customer · priority **service-critical** for the at-risk touch, **service** for prompt and reminder · pressure class service · channels `email, sms, in-app`.
+**Identity.** SCH-266 · surface customer · `contact.defaultPriority` **service**; the at-risk touch overrides to **service-critical** with `priorityReason` "the service cannot be delivered without this prerequisite" · pressure class service · channels `email, sms, in-app`.
 
 **Objective.** Get the customer's side of a confirmed commitment done before it arrives, and remind them from what the booking *is* at send time.
 
@@ -623,7 +609,7 @@ The current SCH-266 graph (time check → prerequisite prompt → wait → reval
 
 **Orchestration — strategy `deadline-countdown`.**
 
-| Touch | Gated by | Timing | Prerequisites | Role | Purpose | Destination | Label |
+| Touch | Gated by | Timing | Prerequisites | Channel roles (ordered) | Purpose | Destination | Label |
 |---|---|---|---|---|---|---|---|
 | t1 prerequisite-prompt (`a.prompt`) | none; sent if `c.time` = time remains | — (the *decision* to send depends on `reminder.prompt_min_lead` **[D 48 h before `scheduled_at`, medium; applicableWhen prerequisites take a day to complete; avoidWhen same-day bookings → skip to t3]**) | `c.time` [C] | persistent | every outstanding prerequisite, whose it is, and the point by which each must be done — in one message [C] | booking detail / prerequisite completion, boundTo `booking_id` | CANONICAL_RULE when prerequisites exist |
 | — | `w.prereq` until `prerequisites_completed`, `booking_cancelled`, `booking_materially_changed`; timeout `reminder.pre_start_window` class reminder-before-attribute, relativeTo attribute `scheduled_at`, **[D 24 h before, high; basis platform-convention; applicableWhen appointments; avoidWhen events with travel → 72 h]** | | | | | | |
@@ -639,13 +625,13 @@ The current SCH-266 graph (time check → prerequisite prompt → wait → reval
 
 **Exits.** `x.reminded` success-of-journey (the reminder was sent against a revalidated booking; the *outcome* is measured on attendance via SCH-178) · `x.superseded` invalid-state · `x.no-action` no-action with reason · `h.at-risk` → SCH-174 (critical prerequisite outstanding at pre-start) · `h.undeliverable` → SCH-174.
 
-**Contact.** priority service-critical (t2) / service (t1, t3, t4) · pressureClass service · localCap **[D 3, high]** (prompt, one reminder, optional day-of) · cooldown not-applicable (per occurrence) · competition: none; dedup against SCH-277/SCH-180 on the same `booking_id` by key.
+**Contact.** defaultPriority service; t2 overrides to service-critical · pressureClass service · localCap `{ value: [D 3, medium; basis example-only], appliesTo: "non-mandatory" }` (prompt, one reminder, optional day-of; the at-risk notice is mandatory and outside the cap) · cooldown not-applicable (per occurrence) · competition: none; dedup against SCH-277/SCH-180 on the same `booking_id` by key.
 
 **Idempotency [C].** `booking_id + occurrence_id + touch.id`.
 
 **Implementation.** events (derived): `booking_confirmed_with_customer_prerequisites, prerequisites_completed, booking_cancelled, booking_rescheduled, booking_materially_changed, attendance_recorded, no_show_recorded` · attributes required: `booking_id, occurrence_id, person_id, scheduled_at (with timezone), location_or_joining_route, prerequisites[] {id, owner, due_by, status}, provider_id`; optional: `service_type, travel_required` · capabilities: attribute-date-wait, event-cancellation, delayed-execution, consent-lookup, contactability-lookup, deep-link-binding, idempotent-send.
 
-**Measurement.** outcome `attendance_recorded` (from SCH-178), unit instance, window until `scheduled_at` + the service's attendance tolerance, attribution entered-before-event, comparison **pre-post** (withholding reminders from a holdout is defensible for low-stakes bookings and is offered as `persistent-holdout` **[O]**; default pre-post) · secondary `prerequisites_completed` · guardrails `complaint, reminder_sent_for_cancelled_booking (must be 0 — measures revalidation), duplicate_reminder_per_occurrence (must be 0)` · operational `prompt_sent_rate, at_risk_rate, no_action_rate_by_reason, channel_role_used, time_between_reminder_and_start`.
+**Measurement.** journeyOutcome: exit `x.reminded` or handoff `h.at-risk` (a correct reminder was sent, or the provider side was told the customer is not ready) · businessOutcome `attendance_recorded`, unit instance, observationScope handoff-chain `[SCH-178]`, window through-handoff until `service_completion_recorded`, attribution entered-before-event, comparison **pre-post** (withholding reminders from a holdout is defensible for low-stakes bookings and is offered as `persistent-holdout` **[O]**; default pre-post) · secondary `prerequisites_completed` · guardrails `complaint, reminder_sent_for_cancelled_booking (must be 0 — measures revalidation), duplicate_reminder_per_occurrence (must be 0)` · operational `prompt_sent_rate, at_risk_rate, no_action_rate_by_reason, channel_role_used, time_between_reminder_and_start`.
 
 **Discovery.** aliases `appointment reminder, booking reminder, pre-appointment prep, reservation reminder, event reminder`; useCases: a confirmed appointment, class, delivery slot, reservation or event with things the customer must do first; presets: *Appointment Reminder* (24 h / 2 h), *Event Reminder* (`reminder.pre_start_window` 72 h; `prompt_min_lead` 7 days), *Delivery Slot Reminder* (prerequisite = access instructions; roles sms-first).
 
@@ -660,7 +646,7 @@ The current SCH-266 graph (time check → prerequisite prompt → wait → reval
 
 ### Q.4 · Portability stress test
 
-For each of the three, could it map onto typical orchestration primitives? Only the answers, no tutorials.
+For each of the three, could it map onto typical orchestration primitives? Conceptual only — this repository has no connected orchestration platform, and no deployment is claimed. Gate 2 replaces this table with generated lowering fixtures and written mapping notes.
 
 | Concept | Braze (Canvas) | Insider (Architect) | SFMC (Journey Builder) | Iterable / Customer.io | Verdict |
 |---|---|---|---|---|---|
@@ -685,14 +671,14 @@ Too theoretical to implement anywhere: none of the schema's concepts. Two concep
 | Work item | Count | Basis |
 |---|---|---|
 | Journeys that change product surface (leave the current "communication vs internal" site split) | **91** — 67 silent customer states move to the customer surface; 24 mechanisms leave both lists | surfaces.json |
-| Customer journeys (surface) | **133** today → **136** after 2 merges and 5 additions | §N, §O |
-| …of which communicating (get `orchestration`, `channelStrategy`, `contact`) | **66** today → **69** (−FBK-44, −FBK-45, −ACT-15; +5 new) | |
+| Customer journeys (surface) | **133** today → **135** after 3 retired records (2 merge decisions) and 5 additions | §N, §O |
+| …of which communicating (get `orchestration`, `channelStrategy`, `contact`) | **66** today → **68** (−FBK-44, −FBK-45, −ACT-15; +5 new) | |
 | …of which silent lifecycle states (no orchestration) | 67 | |
 | Runtime mechanisms (converted to contract format, no touch plan) | 24 | |
 | Operational workflows (operational readiness standard) | 124 | |
 | New canonical journeys | **5** | §N |
 | Presets | **10** (checkout, quote, application, registration; cart, saved item; browse, product-view, search; predicted next purchase) | §N |
-| Alias sets authored | 136 customer journeys (12 named in §N; every customer journey gets ≥2) | §M |
+| Alias sets authored | 135 customer journeys (12 named in §N; every customer journey gets ≥2) | §M |
 | Semantic-event registry entries | *estimate* 180–240 after normalising 281 trigger events and the `until` vocabulary (exact count is a Gate 1 deliverable) | |
 | Waits gaining `Config` | 209 (141 need class + default or `required`; 33 need a default; 35 need `relativeTo: attribute` only) | audit B1 |
 | Touches authored | *estimate* 159 communication actions → ~150 touches after merges, +12 for new journeys | actions.communication = 159 |
@@ -712,11 +698,11 @@ Too theoretical to implement anywhere: none of the schema's concepts. Two concep
 
 **Gate 1 — Schema, registry, validator, scorer.** Add §F types as optional fields; seed the semantic-event registry from the 281 trigger events and the `until` vocabulary; implement §T's machine rules as *warnings*; implement the two readiness scorers (customer 16 dims, operational 11); regenerate the surface assignment. Acceptance: `tsc` clean; validator: 0 errors, warnings on every un-migrated journey; scorer report reproduces the audit's numbers; registry has no duplicate meanings; no corpus content changed.
 
-**Gate 2 — Three reference journeys.** Author Q1 (new), Q2 (FIN-134 upgraded), Q3 (SCH-266 upgraded) in the schema. Acceptance: zero validator warnings on the three; the practitioner view (§19 of the brief) renders from data alone for each; one real mapping per journey onto one platform from §Q.4 with no schema concept left unmapped; a second author can read the touch plan and reproduce the graph's send order without seeing the graph.
+**Gate 2 — Three reference journeys.** Author Q1 (new), Q2 (FIN-134 upgraded), Q3 (SCH-266 upgraded) in the schema. Acceptance: zero validator errors and zero unreviewed warnings on the three; the practitioner view (§19 of the brief) renders from data alone for each; a platform-neutral **lowering fixture** per journey (`production/lowering/<id>.json`) proves every vNext concept reduces to ordinary orchestration primitives — entry, condition, wait, event cancellation, state recheck, channel-role resolution, message, frequency gate, holdout, handoff, exit — plus mapping notes for Braze, Insider, SFMC and Iterable/Customer.io-style systems that mark unsupported or expensive constructs; no deployment is claimed, because this repository has no connected orchestration platform; a second author can read the touch plan and reproduce the graph's send order without seeing the graph.
 
 **Gate 3 — Fifteen gold standards.** The §P set. Acceptance: zero warnings; every `TimingClass`, `Orchestration.strategy`, `PriorityClass` and both attribution modes exercised at least once; the collision scenario in §K executed against the set on paper with recorded outcomes; the two merges done.
 
-**Gate 4 — Customer surface.** The remaining 118 customer journeys: silent states get `eligibility`/`suppressions`/`implementation`/`measurement`/`discovery` and wait configs; communicating ones additionally `orchestration`, `channelStrategy`, `contact`, node changes; presets and aliases; site split to the three surfaces. Acceptance: validator errors enabled for the customer surface; median customer readiness ≥ 80 %, no journey < 65 %; every communicating journey has ≥1 `no-action` reason and a holdout decision; the four coverage gaps' presets render.
+**Gate 4 — Customer surface.** The remaining 120 customer journeys (135 minus the 15 gold standards): silent states get `eligibility`/`suppressions`/`implementation`/`measurement`/`discovery` and wait configs; communicating ones additionally `orchestration`, `channelStrategy`, `contact`, node changes; presets and aliases; site split to the three surfaces. Acceptance: validator errors enabled for the customer surface; median customer readiness ≥ 80 %, no journey < 65 %; every communicating journey has ≥1 `no-action` reason and a holdout decision; all 5 new canonical journeys (Abandoned Process Recovery, Abandoned Selection Recovery, Unresolved Interest Recovery, Predicted Need Replenishment, Lapsed Customer Win-Back) exist and validate; all 10 presets (Checkout, Quote, Application, Incomplete Registration; Cart, Saved Item; Browse, Product View, Search; Predicted Next Purchase) render as cards that open their parent with the preset applied; the 3 retired ids resolve to their survivors; the Customer Journey total equals 135.
 
 **Gate 5 — Mechanisms and operational workflows.** Mechanisms rewritten as contracts (inputs, outputs, what they guarantee — no touch plan); operational workflows get the §D fields. Acceptance: validator errors enabled corpus-wide; `external:*` contracts written or replaced; operational median ≥ 75 % on the operational scorer.
 
@@ -748,7 +734,9 @@ Too theoretical to implement anywhere: none of the schema's concepts. Two concep
 | `engagement_as_prerequisite` | a touch prerequisite or `until` naming an engagement-class registry event (open/click/read) | warning → human review |
 | `fallback_as_touch` | a touch whose only prerequisite is a delivery-failure event of the previous touch | error |
 | `simultaneous_without_reason` | two touches gated by the same wait with no `channelStrategy.simultaneous.reason` | error |
-| `channel_role_undeclared` | `Touch.channelRole` not in `channelStrategy.roles`, or role channels ⊄ `journey.channels` | error |
+| `channel_role_undeclared` | a role in `Touch.channelRoles` not in `channelStrategy.roles`, or role channels ⊄ `journey.channels` | error |
+| `touch_channel_role_ambiguous` | `Touch.channelRoles` empty, duplicated, or listing two roles whose `when` conditions are identical (nothing decides between them) | error |
+| `role_no_eligible_channel` | a declared role maps to no channel in `journey.channels` | error |
 | `contact_missing` / `pressure_class_conflict` | communicating journey without `contact`; `priority` transactional/security with `pressureClass` ≠ none; `mandatory` touch in a promotional journey | error |
 | `competition_undeclared` | communicating customer journey with neither `competition` nor explicit `none` | error |
 | `no_action_missing` | `orchestration.noAction` empty, or a suppression with no corresponding `no-action` reason | error |
@@ -760,6 +748,12 @@ Too theoretical to implement anywhere: none of the schema's concepts. Two concep
 | `preset_changes_graph` | a preset override key that is not a `Config.key` or `channelStrategy.roles` | error |
 | `surface_rule_mismatch` | authored `surface` differs from the derived one with no reason | warning |
 | `trigger_no_negative_evidence` | `insufficientAlone` empty | error |
+| `orch_timing_duplicate` | a duration, offset or window stated in a touch, purpose or strategy text while the referenced wait already carries it | error |
+| `downstream_measurement_unreachable` | `businessOutcome.observationScope: handoff-chain` names journeys this journey does not hand off to, in order, or the event is absent from the chain's last journey | error |
+| `mandatory_cap_conflict` | `localCap.appliesTo: "all"` on a journey with a mandatory touch, or a mandatory touch in a journey whose `defaultPriority` is promotional/lifecycle with no `priorityReason` | error |
+| `surface_count_drift` | the derived surface counts differ from the totals recorded in the migration report | error |
+| `invalid_priority_override` / `touch_priority_unresolved` / `mandatory_promotional_conflict` | see §K | error |
+| `suppression_unlabelled` | a suppression without a `label`, or a strategy statement (`channelStrategy`, `Preset.applicableWhen`, `contact.cooldown.rule`) without one where classification matters | error |
 | `external_target_uncontracted` | `external:*` handoff without a contract entry | error |
 
 ### Human review (cannot be linted)
@@ -789,7 +783,7 @@ Too theoretical to implement anywhere: none of the schema's concepts. Two concep
 
 **Q6 — Can the schema represent Checkout Abandonment, Payment Failure and Appointment Reminder cleanly without special cases?** Yes, after two amendments made while authoring them (optional `gatedBy`; `relativeTo: attribute` with an attribute name). No prose blocks stand in for structure in any of the three.
 
-**Q7 — What is the smallest migration that achieves the product goal?** Gates 1–4 on the customer surface only: schema + registry + validator; 3 reference journeys; 15 gold standards; then the remaining 118 customer journeys with orchestration on the 66 communicating ones, wait configs, aliases, presets and the site split. Operational workflows and mechanisms (Gate 5) can follow later without blocking the product goal, because nothing a lifecycle manager needs lives there except the mechanism contracts, which Gate 2 already writes for CMS-208, CON-36 and OPS-124.
+**Q7 — What is the smallest migration that achieves the product goal?** Gates 1–4 on the customer surface only: schema + registry + validator; 3 reference journeys; 15 gold standards; then the remaining 120 customer journeys with orchestration on the 66 communicating ones, wait configs, aliases, presets and the site split. Operational workflows and mechanisms (Gate 5) can follow later without blocking the product goal, because nothing a lifecycle manager needs lives there except the mechanism contracts, which Gate 2 already writes for CMS-208, CON-36 and OPS-124.
 
 **Q8 — What should we NOT migrate?** The 28-journey commercial archive as-is (it carries the same deferred-timing defect and would be re-authored against vNext journey by journey, five of them now). The 21 archive journeys outside this pass's coverage decisions. The previous Implementation Recipes (regenerated, never migrated). The `writes` ledger vocabulary (kept as-is; it is not the data contract). Message copy, thresholds, SLAs, incentive policy — never in the corpus. And the graphs themselves: they are the part that is already right.
 

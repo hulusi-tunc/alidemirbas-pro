@@ -648,6 +648,10 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the failed attempt, the obligation behind it and the customer relationship it belongs to",
       note: "Three things, and the failure touches only the first. The obligation stands and the relationship continues while recovery runs.",
+      instanceKey: [
+        "obligation_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -656,6 +660,280 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "OPS-124 is a generic technical retry against a transient fault. This makes a business recovery decision: what to ask the customer for, whether an alternative route exists, and what happens to the obligation if none of it works.",
       },
     ],
+    objective: "Get the obligation paid by responding to the failure that actually happened, while the obligation stays alive and the relationship's own state is decided elsewhere.",
+    eligibility: [
+      "the obligation is still outstanding in the system of record",
+      "the failure class is established from the provider's own response - temporary, customer-fixable, or declined with or without a usable reason - before anything is retried or said",
+      "no recovery instance is already open for this obligation; a second failure on the same obligation is an event inside the open instance (GLB-19)",
+      "the relationship has not been terminated",
+      "hard gates (GLB-31) permit obligation communication to this person - a closed account still receives it, a fraud or security hold does not"
+    ],
+    suppressions: [
+      {
+        "id": "s.resolved",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment the obligation is satisfied, cancelled or waived by any means. A recovery message about a paid obligation is the failure this journey exists to prevent."
+      },
+      {
+        "id": "s.retry-in-progress",
+        "label": "CANONICAL_RULE",
+        "text": "No corrective request is sent while a system-side retry is scheduled and may still succeed. The failure class decides: a temporary failure retries silently first."
+      },
+      {
+        "id": "s.no-instruction",
+        "label": "CANONICAL_RULE",
+        "text": "No corrective request is sent for a decline whose reason cannot be turned into an instruction the customer can act on; the alternate-route path applies instead."
+      },
+      {
+        "id": "s.unknown-outcome",
+        "label": "CANONICAL_RULE",
+        "text": "An attempt whose outcome is unknown is reconciled first (FIN-135, GLB-20). Unknown is not failed, and nothing is sent or retried on it."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply. Pressure caps do not: this is transactional communication about an obligation the person already holds, and it is deduplicated by obligation and touch rather than rationed."
+      }
+    ],
+    contact: {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "payment.discretionary_touches",
+          "rule": "Only discretionary messages count against the cap. The corrective request and the discharge confirmation are obligations, not touches to ration.",
+          "default": {
+            "value": 1,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24: every reminder runs against a budget fixed when the instance opened"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "payment.cooldown",
+        "rule": "Recovery is per obligation. A later failure against a later obligation is its own instance, and no cooldown applies between obligations.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: a future failure against a future obligation is its own instance"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person has an active session in the product - the corrective action is a form, and the shortest route to it is inside the product"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no active session, or the instruction and its link have to survive until the person can act"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms",
+            "push"
+          ],
+          "when": "an asserted consequence date exists inside the urgent horizon and permission for service messages on this channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "corrective-request",
+          "action": "a.corrective",
+          "prerequisites": [
+            "c.class"
+          ],
+          "purpose": "Name the exact corrective action - update the method, complete the authentication, choose another method - and what is owed. Provider risk detail and internal decline codes are never shown.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "payment-method-update",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "the reason the provider gave, beyond its class",
+              "that the obligation is waived, reduced or extended"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t1-alt",
+          "stage": "offer-alternate",
+          "action": "a.offer-alternate",
+          "prerequisites": [
+            "c.class",
+            "c.alternate"
+          ],
+          "purpose": "Put the available alternative methods in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "payment-method-choice",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "that a method was chosen for them"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.recovery",
+          "prerequisites": [
+            "c.reminder"
+          ],
+          "purpose": "One reminder naming the consequence and its date, with the same corrective action. It is not repeated.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "payment-method-update",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "the reason the provider gave, beyond its class"
+            ]
+          },
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
+        },
+        {
+          "id": "t3",
+          "stage": "confirmation",
+          "action": "a.confirmed",
+          "after": "t1",
+          "prerequisites": [
+            "c.recovered"
+          ],
+          "purpose": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "obligation-receipt",
+            "boundTo": "obligation_id"
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.resolved",
+        "s.retry-in-progress",
+        "s.no-instruction",
+        "s.unknown-outcome",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "person_id",
+          "amount_outstanding",
+          "currency",
+          "failure_class",
+          "failed_at",
+          "method_id",
+          "alternate_methods",
+          "consequence_date"
+        ],
+        "optional": [
+          "provider_reason_code",
+          "grace_policy_id",
+          "has_active_session"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.recovered",
+          "h.grace",
+          "h.overdue",
+          "h.restrict"
+        ]
+      },
+      "businessOutcome": {
+        "event": "obligation_satisfied",
+        "unit": "instance",
+        "observationScope": {
+          "type": "handoff-chain",
+          "journeys": [
+            "TIM-65"
+          ]
+        },
+        "window": {
+          "type": "through-handoff",
+          "until": "grace_period_ended"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [
+        "payment_method_updated",
+        "alternate_method_selected"
+      ],
+      "guardrails": [
+        "complaint",
+        "support_contact_within_24h",
+        "duplicate_charge",
+        "message_after_success"
+      ],
+      "operational": [
+        "failure_class_distribution",
+        "retry_success_rate",
+        "time_to_recovery",
+        "no_action_rate_by_reason",
+        "handoff_distribution"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "dunning",
+        "failed payment recovery",
+        "card decline recovery",
+        "involuntary churn",
+        "payment retry"
+      ],
+      "useCases": [
+        "a subscription renewal charge is declined",
+        "an order payment fails after the order was placed",
+        "a stored card expires before a scheduled charge",
+        "a bank requires authentication the customer never completed"
+      ]
+    },
     entry: "t.failure",
     nodes: [
       {
@@ -706,6 +984,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Retry within the bounded policy, using the same idempotency key so that a first attempt which did land can be absorbed rather than repeated",
         writes: [{ field: "payment_log", mode: "append" }],
         next: "w.recovery",
+        idempotencyKey: "the failed attempt's own idempotency key - the same key, so a first attempt that did land is absorbed rather than repeated",
       },
       {
         id: "a.corrective",
@@ -714,6 +993,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "payment_log", mode: "append" }],
         next: "w.recovery",
         execution: "communication",
+        idempotencyKey: "obligation_id + touch id",
       },
       {
         id: "c.alternate",
@@ -743,6 +1023,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Charge the authorised alternative route as a new attempt with its own identifiers. Reached either because standing authority already covered it or because the customer selected it - in both cases the authority to use this method exists before it is used",
         writes: [{ field: "payment_log", mode: "append" }],
         next: "w.recovery",
+        idempotencyKey: "obligation_id + the new attempt's identifier",
       },
       {
         id: "a.offer-alternate",
@@ -750,41 +1031,148 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Put the available alternatives in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make; an internal action that quietly picks one is a charge they did not authorise",
         execution: "communication",
         next: "w.alternate-choice",
+        idempotencyKey: "obligation_id + touch id",
       },
       {
         id: "w.alternate-choice",
         kind: "wait",
-        until: ["the customer selects or authorises an alternative method"],
+        until: [
+          "alternate_method_selected"
+        ],
         onEvent: "a.use-alternate",
         timeout: {
-          after: "the recovery window defined for this obligation class",
-          reason:
-            "an unanswered choice is not a refusal to pay - the obligation goes on to its unpaid consequence rather than being treated as declined",
+          "after": {
+            "key": "payment.alternate_choice_window",
+            "rule": "The customer's choice of method is theirs to make and is waited for. An unanswered choice is not a refusal to pay, and the obligation goes on to its consequence rather than being treated as declined.",
+            "class": "response-window",
+            "default": {
+              "value": {
+                "min": "3 days",
+                "max": "7 days"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "avoidWhen": "a consequence date is sooner - the choice window ends at the consequence date"
+            },
+            "required": false
+          },
+          "reason": "an unanswered choice is not a refusal to pay - the obligation goes on to its unpaid consequence rather than being treated as declined",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "c.next",
         windowExtendsOnEngagement: false,
+        recheck: "the obligation is still outstanding and no method has been selected, read from the system of record",
       },
       {
         id: "w.recovery",
         kind: "wait",
-        until: ["the obligation is satisfied", "the customer abandons the attempt"],
+        until: [
+          "obligation_satisfied",
+          "recovery_attempt_abandoned"
+        ],
         onEvent: "c.recovered",
         timeout: {
-          after: "the recovery window for this obligation",
-          reason:
-            "the window bounds how long recovery runs before the obligation's own consequences apply - it does not end the obligation, which continues regardless",
+          "after": {
+            "key": "payment.reminder_point",
+            "rule": "One reminder, placed so the customer can still act before the consequence date. Where no consequence date exists the reminder point is the recovery window itself and the reminder is skipped.",
+            "class": "reminder-before-attribute",
+            "default": {
+              "value": {
+                "min": "2 days",
+                "max": "3 days"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "an asserted consequence date exists for this obligation",
+              "avoidWhen": "no consequence date - the recovery window is the only bound"
+            },
+            "required": false
+          },
+          "reason": "the window bounds how long recovery runs before the obligation's own consequences apply - it does not end the obligation, which continues regardless",
+          "relativeTo": "attribute",
+          "attribute": "consequence_date"
         },
-        onTimeout: "c.next",
+        onTimeout: "c.reminder",
         windowExtendsOnEngagement: false,
+        recheck: "the obligation is still outstanding and the method is still invalid, read from the system of record immediately before the reminder",
+      },
+      {
+        "id": "c.reminder",
+        "kind": "condition",
+        "asks": "Is a reminder still useful, and is there a consequence to name?",
+        "branches": [
+          {
+            "label": "Consequence ahead, obligation open",
+            "when": "the obligation is still outstanding, the method is still invalid, and an asserted consequence date lies ahead",
+            "observes": "obligation state and consequence_date",
+            "to": "a.remind"
+          },
+          {
+            "label": "Nothing to add",
+            "when": "no consequence date exists, or the situation has not changed in a way a reminder would change",
+            "observes": "obligation state and consequence_date",
+            "to": "c.next"
+          }
+        ]
+      },
+      {
+        "id": "a.remind",
+        "kind": "action",
+        "does": "Say once that the consequence is approaching and when, and repeat the same corrective action. One notice - a second one is a recovery sequence, not a reminder",
+        "execution": "communication",
+        "idempotencyKey": "obligation_id + touch id",
+        "writes": [
+          {
+            "field": "payment_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.final"
+      },
+      {
+        "id": "w.final",
+        "kind": "wait",
+        "until": [
+          "obligation_satisfied",
+          "recovery_attempt_abandoned"
+        ],
+        "onEvent": "c.recovered",
+        "timeout": {
+          "after": {
+            "key": "payment.recovery_window",
+            "rule": "The recovery window is the obligation class's own grace or consequence policy. Its end is the consequence, owned by the grace, overdue or restriction lifecycle - never an extension invented here.",
+            "class": "recovery-window",
+            "required": true
+          },
+          "reason": "the recovery window for this obligation class is the point at which the consequence policy takes over",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.next",
+        "recheck": "the obligation is still outstanding, read from the system of record",
+        "windowExtendsOnEngagement": false
       },
       {
         id: "c.recovered",
         kind: "condition",
         asks: "How did recovery end?",
         branches: [
-          { label: "Satisfied", when: "a subsequent attempt discharged the obligation", to: "x.recovered" },
+          { label: "Satisfied", when: "a subsequent attempt discharged the obligation", to: "a.confirmed" },
           { label: "Abandoned", when: "the customer stopped trying", to: "c.next" },
         ],
+      },
+      {
+        "id": "a.confirmed",
+        "kind": "action",
+        "does": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside",
+        "execution": "communication",
+        "idempotencyKey": "obligation_id + touch id",
+        "writes": [
+          {
+            "field": "payment_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.recovered"
       },
       {
         id: "x.recovered",
@@ -792,6 +1180,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         state: "obligation satisfied through recovery",
         terminal: false,
         reEntry: "a future failure against a future obligation is its own instance",
+        class: "success",
       },
       {
         id: "c.next",
@@ -824,6 +1213,15 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "the obligation and the recovery already attempted",
           "the explicit fact that the commercial relationship has not ended - this is a payment problem",
         ],
+        contract: {
+          "requiredFields": [
+            "obligation_id",
+            "amount_outstanding",
+            "failure_class",
+            "attempts",
+            "consequence_policy"
+          ]
+        },
       },
       {
         id: "h.overdue",
@@ -831,6 +1229,15 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         to: "TIM-62",
         on: "an unpaid obligation becoming overdue",
         carries: ["the obligation, its due date and the failure history against it"],
+        contract: {
+          "requiredFields": [
+            "obligation_id",
+            "amount_outstanding",
+            "failure_class",
+            "attempts",
+            "consequence_policy"
+          ]
+        },
       },
       {
         id: "h.restrict",
@@ -841,6 +1248,16 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "the obligation, so restoring access has something to check against",
           "the explicit instruction that the restriction is scoped to what the unpaid obligation covers",
         ],
+        contract: {
+          "requiredFields": [
+            "obligation_id",
+            "amount_outstanding",
+            "failure_class",
+            "attempts",
+            "consequence_policy",
+            "restriction_scope"
+          ]
+        },
       },
     ],
     guardrails: [

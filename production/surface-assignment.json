@@ -1,0 +1,2552 @@
+{
+  "generatedFrom": "production/canonical-dump.json",
+  "rule": "src/canonical/surface.ts",
+  "totals": {
+    "journeys": 282,
+    "customer": 134,
+    "customer-silent": 67,
+    "customer-communicating": 67,
+    "mechanism": 24,
+    "operational": 124
+  },
+  "journeys": [
+    {
+      "id": "ACQ-01",
+      "shortName": "Anonymous Identity Resolution",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-02",
+      "shortName": "Interest Qualification Routing",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-03",
+      "shortName": "Intent Escalation Handoff",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-04",
+      "shortName": "High-Intent Lead Routing",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": true,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-05",
+      "shortName": "Qualification State Routing",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-06",
+      "shortName": "Eligibility Recalculation",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-07",
+      "shortName": "Intent Decay",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-08",
+      "shortName": "Acquisition Exit Handoff",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-09",
+      "shortName": "Lead Nurture",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "ACQ-10",
+      "shortName": "Commercial Decline Routing",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"acquisition\" and a customer-worded entity"
+    },
+    {
+      "id": "ACQ-285",
+      "shortName": "New Lead Welcome",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "ACQ-11",
+      "shortName": "Abandoned Process Recovery",
+      "category": "acquisition",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push, in-app, sms)"
+    },
+    {
+      "id": "ACT-11",
+      "shortName": "Onboarding Route Assignment",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"activation\" and a customer-worded entity"
+    },
+    {
+      "id": "ACT-12",
+      "shortName": "Onboarding Nurture",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "ACT-13",
+      "shortName": "Onboarding Blocker Reminder",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, task)"
+    },
+    {
+      "id": "ACT-14",
+      "shortName": "Onboarding Help",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "ACT-15",
+      "shortName": "First Value Milestone",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "ACT-16",
+      "shortName": "Onboarding Completion Handoff",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"activation\" and a customer-worded entity"
+    },
+    {
+      "id": "ACT-17",
+      "shortName": "Adoption Nurture",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "ACT-18",
+      "shortName": "Adoption Recovery",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push)"
+    },
+    {
+      "id": "ACT-19",
+      "shortName": "Onboarding Personalization",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "ACT-20",
+      "shortName": "Dormant Lead Reactivation",
+      "category": "activation",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push)"
+    },
+    {
+      "id": "RET-21",
+      "shortName": "Engagement Reclassification",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
+    },
+    {
+      "id": "RET-22",
+      "shortName": "Usage Gap Assessment",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
+    },
+    {
+      "id": "RET-23",
+      "shortName": "Health Deterioration Diagnosis",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
+    },
+    {
+      "id": "RET-24",
+      "shortName": "Churn Risk Escalation",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": true,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
+    },
+    {
+      "id": "RET-26",
+      "shortName": "Service Recovery",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push)"
+    },
+    {
+      "id": "RET-27",
+      "shortName": "Recovery Stability Check",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
+    },
+    {
+      "id": "RET-28",
+      "shortName": "Cancellation Save",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "RET-29",
+      "shortName": "Cancellation Wind-Down",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
+    },
+    {
+      "id": "RET-30",
+      "shortName": "Retention Offer Follow-Up",
+      "category": "retention",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "CON-31",
+      "shortName": "Permission Validation",
+      "category": "consent",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"consent\" and a customer-worded entity"
+    },
+    {
+      "id": "CON-32",
+      "shortName": "Preference Capture",
+      "category": "consent",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"consent\" and a customer-worded entity"
+    },
+    {
+      "id": "CON-33",
+      "shortName": "Preference Recalculation",
+      "category": "consent",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"consent\" and a customer-worded entity"
+    },
+    {
+      "id": "CON-34",
+      "shortName": "Frequency Recalculation",
+      "category": "consent",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CON-35",
+      "shortName": "Permission Change Enforcement",
+      "category": "consent",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CON-36",
+      "shortName": "Contactability Recalculation",
+      "category": "consent",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CON-38",
+      "shortName": "Communication Suppression",
+      "category": "consent",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"consent\" and a customer-worded entity"
+    },
+    {
+      "id": "CON-39",
+      "shortName": "Communication Cooldown",
+      "category": "consent",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CON-40",
+      "shortName": "Permission Conflict Resolution",
+      "category": "consent",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CON-264",
+      "shortName": "Contact Verification",
+      "category": "consent",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "CON-272",
+      "shortName": "Contact Recovery",
+      "category": "consent",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (in-app, sms, email)"
+    },
+    {
+      "id": "CON-283",
+      "shortName": "Frequency Preference Update",
+      "category": "consent",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "FBK-41",
+      "shortName": "Feedback Request",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "FBK-42",
+      "shortName": "Advocacy Request",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "FBK-43",
+      "shortName": "Feedback Follow-Up",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, task)"
+    },
+    {
+      "id": "FBK-44",
+      "shortName": "Negative Feedback Recovery",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, task)"
+    },
+    {
+      "id": "FBK-45",
+      "shortName": "Positive Feedback Follow-Up",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "FBK-46",
+      "shortName": "Complaint Resolution",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (task, email, in-app)"
+    },
+    {
+      "id": "FBK-47",
+      "shortName": "Appeal Review",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "FBK-48",
+      "shortName": "Declared Context Recalculation",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"feedback\" and a customer-worded entity"
+    },
+    {
+      "id": "FBK-49",
+      "shortName": "Missing Information Reminder",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, task)"
+    },
+    {
+      "id": "FBK-50",
+      "shortName": "Relationship State Reassessment",
+      "category": "feedback",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"feedback\" and a customer-worded entity"
+    },
+    {
+      "id": "OWN-51",
+      "shortName": "Task Assignment",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-52",
+      "shortName": "Assignment Acceptance",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-53",
+      "shortName": "Ownership Context Transfer",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-54",
+      "shortName": "Ownership Transfer",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-55",
+      "shortName": "Ownership Escalation",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-56",
+      "shortName": "Approval Request",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-57",
+      "shortName": "Multi-Party Approval",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-58",
+      "shortName": "Re-Approval Request",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-59",
+      "shortName": "Approval Re-Entry",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "OWN-60",
+      "shortName": "Approval Owner Update",
+      "category": "ownership",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TIM-61",
+      "shortName": "Deadline Tracking",
+      "category": "time",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push, sms, whatsapp)"
+    },
+    {
+      "id": "TIM-62",
+      "shortName": "Overdue State Recalculation",
+      "category": "time",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"time\" and a customer-worded entity"
+    },
+    {
+      "id": "TIM-63",
+      "shortName": "Expiry Reminder",
+      "category": "time",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, push, sms)"
+    },
+    {
+      "id": "TIM-64",
+      "shortName": "Expiry Validation",
+      "category": "time",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TIM-65",
+      "shortName": "Grace Period Management",
+      "category": "time",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"time\" and a customer-worded entity"
+    },
+    {
+      "id": "TIM-66",
+      "shortName": "Temporary Exception Expiry",
+      "category": "time",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TIM-67",
+      "shortName": "Temporary State Expiry",
+      "category": "time",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TIM-68",
+      "shortName": "State Reversal",
+      "category": "time",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TIM-69",
+      "shortName": "Expired State Re-Entry",
+      "category": "time",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TIM-70",
+      "shortName": "Scheduled Transition Validation",
+      "category": "time",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TIM-268",
+      "shortName": "Action Required Reminder",
+      "category": "time",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "TIM-274",
+      "shortName": "Grace Period Recovery",
+      "category": "time",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "TIM-281",
+      "shortName": "Expired Access Recovery",
+      "category": "time",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "ACC-71",
+      "shortName": "Entitlement Qualification",
+      "category": "access",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"access\" and a customer-worded entity"
+    },
+    {
+      "id": "ACC-72",
+      "shortName": "Entitlement Provisioning",
+      "category": "access",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "ACC-73",
+      "shortName": "Entitlement Recalculation",
+      "category": "access",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "ACC-74",
+      "shortName": "Entitlement Revocation",
+      "category": "access",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "ACC-75",
+      "shortName": "Access Authorization",
+      "category": "access",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "ACC-76",
+      "shortName": "Credential Lifecycle",
+      "category": "access",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "ACC-77",
+      "shortName": "Credential Revocation",
+      "category": "access",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "ACC-78",
+      "shortName": "Access Suspension",
+      "category": "access",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"access\" and a customer-worded entity"
+    },
+    {
+      "id": "ACC-79",
+      "shortName": "Capability Restoration",
+      "category": "access",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"access\" and a customer-worded entity"
+    },
+    {
+      "id": "ACC-80",
+      "shortName": "Deprovisioning Reconciliation",
+      "category": "access",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "ACC-261",
+      "shortName": "Access Recovery",
+      "category": "access",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "ACC-263",
+      "shortName": "Activation Reminder",
+      "category": "access",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "IDN-81",
+      "shortName": "Identity Verification",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (in-app, email)"
+    },
+    {
+      "id": "IDN-82",
+      "shortName": "Verification Dependency Resolution",
+      "category": "identity",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "IDN-83",
+      "shortName": "Document Verification",
+      "category": "identity",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "IDN-84",
+      "shortName": "Verification Recovery",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (in-app, email)"
+    },
+    {
+      "id": "IDN-85",
+      "shortName": "Login Verification",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (sms, push, email)"
+    },
+    {
+      "id": "IDN-86",
+      "shortName": "Step-Up Authentication",
+      "category": "identity",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "IDN-87",
+      "shortName": "Authentication Risk Assessment",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"identity\" and a customer-worded entity"
+    },
+    {
+      "id": "IDN-88",
+      "shortName": "Account Recovery Verification",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"identity\" and a customer-worded entity"
+    },
+    {
+      "id": "IDN-89",
+      "shortName": "Identity Attribute Update",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"identity\" and a customer-worded entity"
+    },
+    {
+      "id": "IDN-90",
+      "shortName": "Account Compromise Recovery",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"identity\" and a customer-worded entity"
+    },
+    {
+      "id": "IDN-270",
+      "shortName": "Account Recovery",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "IDN-271",
+      "shortName": "Account Security Alert",
+      "category": "identity",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "REL-91",
+      "shortName": "Relationship Validation",
+      "category": "structure",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"structure\" and a customer-worded entity"
+    },
+    {
+      "id": "REL-92",
+      "shortName": "Relationship Impact Recalculation",
+      "category": "structure",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"structure\" and a customer-worded entity"
+    },
+    {
+      "id": "REL-93",
+      "shortName": "Entity Relationship End Reconciliation",
+      "category": "structure",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"structure\" and a customer-worded entity"
+    },
+    {
+      "id": "REL-94",
+      "shortName": "Role Authority Update",
+      "category": "structure",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"structure\" and a customer-worded entity"
+    },
+    {
+      "id": "REL-95",
+      "shortName": "Parent State Propagation",
+      "category": "structure",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REL-96",
+      "shortName": "Parent State Aggregation",
+      "category": "structure",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REL-97",
+      "shortName": "Duplicate Entity Assessment",
+      "category": "structure",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REL-98",
+      "shortName": "Entity Linking",
+      "category": "structure",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REL-99",
+      "shortName": "Entity Split",
+      "category": "structure",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REL-100",
+      "shortName": "Orphan Relationship Recovery",
+      "category": "structure",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"structure\" and a customer-worded entity"
+    },
+    {
+      "id": "REL-284",
+      "shortName": "Invitation Reminder",
+      "category": "structure",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "TRM-101",
+      "shortName": "Entity Merge",
+      "category": "terminal",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TRM-102",
+      "shortName": "Merge Conflict Resolution",
+      "category": "terminal",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TRM-103",
+      "shortName": "Account Consolidation",
+      "category": "terminal",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TRM-104",
+      "shortName": "Primary Relationship Transfer",
+      "category": "terminal",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TRM-105",
+      "shortName": "Responsibility Handover",
+      "category": "terminal",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"terminal\" and a customer-worded entity"
+    },
+    {
+      "id": "TRM-106",
+      "shortName": "Account Closure",
+      "category": "terminal",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "TRM-107",
+      "shortName": "Account Closure Reconciliation",
+      "category": "terminal",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"terminal\" and a customer-worded entity"
+    },
+    {
+      "id": "TRM-108",
+      "shortName": "Account Closure Wind-Down",
+      "category": "terminal",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"terminal\" and a customer-worded entity"
+    },
+    {
+      "id": "TRM-109",
+      "shortName": "Data Deletion Validation",
+      "category": "terminal",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TRM-110",
+      "shortName": "Data Deletion Reconciliation",
+      "category": "terminal",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "TRM-275",
+      "shortName": "Data Deletion Confirmation",
+      "category": "terminal",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "INT-111",
+      "shortName": "Integration Activation",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-112",
+      "shortName": "Integration Authorization Revalidation",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-113",
+      "shortName": "Integration Health Recovery",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-114",
+      "shortName": "External Request Reconciliation",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-115",
+      "shortName": "External Outcome Reconciliation",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-116",
+      "shortName": "Integration Failure Recovery",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-117",
+      "shortName": "Integration Work Hold",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-118",
+      "shortName": "Integration Backfill Reconciliation",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-119",
+      "shortName": "Synchronization Conflict Resolution",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-120",
+      "shortName": "Dependency Degradation Recovery",
+      "category": "integration",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INT-269",
+      "shortName": "Integration Recovery",
+      "category": "integration",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "INT-278",
+      "shortName": "Integration Setup",
+      "category": "integration",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "OPS-121",
+      "shortName": "Asynchronous Work Processing",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-122",
+      "shortName": "Queue Lag Management",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-123",
+      "shortName": "Stalled Work Recovery",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-124",
+      "shortName": "Retry Management",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-125",
+      "shortName": "Work Deduplication",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-126",
+      "shortName": "Partial Processing Recovery",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-127",
+      "shortName": "Dead-Letter Recovery",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-128",
+      "shortName": "Worker Failure Recovery",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-129",
+      "shortName": "Backlog Recovery",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-130",
+      "shortName": "Business Outcome Verification",
+      "category": "processing",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "FIN-131",
+      "shortName": "Financial Obligation Tracking",
+      "category": "financial",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"financial\" and a customer-worded entity"
+    },
+    {
+      "id": "FIN-132",
+      "shortName": "Payment Outcome Resolution",
+      "category": "financial",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "FIN-133",
+      "shortName": "Payment Settlement Lifecycle",
+      "category": "financial",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "FIN-134",
+      "shortName": "Payment Failure Recovery",
+      "category": "financial",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, push, sms)"
+    },
+    {
+      "id": "FIN-135",
+      "shortName": "Unknown Payment Reconciliation",
+      "category": "financial",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "FIN-136",
+      "shortName": "Balance Reconciliation",
+      "category": "financial",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"financial\" and a customer-worded entity"
+    },
+    {
+      "id": "FIN-137",
+      "shortName": "Refund Request",
+      "category": "financial",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, task)"
+    },
+    {
+      "id": "FIN-138",
+      "shortName": "Refund Execution Verification",
+      "category": "financial",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "FIN-139",
+      "shortName": "Financial Dispute Reconciliation",
+      "category": "financial",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "FIN-140",
+      "shortName": "Financial Reconciliation",
+      "category": "financial",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "FUL-141",
+      "shortName": "Fulfillment Request Validation",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-142",
+      "shortName": "Fulfillment Allocation",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-143",
+      "shortName": "Resource Reservation",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-144",
+      "shortName": "Fulfillment Execution",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-145",
+      "shortName": "Fulfillment Exception Recovery",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-146",
+      "shortName": "Delivery Delay Alert",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "FUL-147",
+      "shortName": "Delivery Outcome Tracking",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-148",
+      "shortName": "Failed Delivery Recovery",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "FUL-149",
+      "shortName": "Delivery Acceptance Finalization",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-150",
+      "shortName": "Fulfillment Cancellation Reconciliation",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
+    },
+    {
+      "id": "FUL-265",
+      "shortName": "Delivery Tracking",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "FUL-276",
+      "shortName": "Substitution Approval",
+      "category": "fulfillment",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "REM-151",
+      "shortName": "Post-Purchase Issue Recovery",
+      "category": "remedy",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "REM-152",
+      "shortName": "Return Request",
+      "category": "remedy",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (task, email)"
+    },
+    {
+      "id": "REM-153",
+      "shortName": "Return Transit Resolution",
+      "category": "remedy",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REM-154",
+      "shortName": "Return Inspection",
+      "category": "remedy",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REM-155",
+      "shortName": "Replacement Fulfillment",
+      "category": "remedy",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REM-156",
+      "shortName": "Corrective Reperformance",
+      "category": "remedy",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"remedy\" and a customer-worded entity"
+    },
+    {
+      "id": "REM-157",
+      "shortName": "Remedy Confirmation",
+      "category": "remedy",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "REM-158",
+      "shortName": "Remedy Outcome Verification",
+      "category": "remedy",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REM-159",
+      "shortName": "Compensation Eligibility",
+      "category": "remedy",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REM-160",
+      "shortName": "Remedy Recurrence Assessment",
+      "category": "remedy",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "SUB-161",
+      "shortName": "Relationship Activation",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-162",
+      "shortName": "Future Activation Revalidation",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-163",
+      "shortName": "Renewal Reminder",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app, push, sms)"
+    },
+    {
+      "id": "SUB-164",
+      "shortName": "Renewal Execution",
+      "category": "subscription",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "SUB-165",
+      "shortName": "Renewal Payment Recovery",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-166",
+      "shortName": "Plan Change Validation",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-167",
+      "shortName": "Cancellation Effective-Date Resolution",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-168",
+      "shortName": "Scheduled Cancellation Revalidation",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-169",
+      "shortName": "Relationship Suspension",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-170",
+      "shortName": "Continuing Relationship End Reconciliation",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"subscription\" and a customer-worded entity"
+    },
+    {
+      "id": "SUB-262",
+      "shortName": "Cancellation Confirmation",
+      "category": "subscription",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "SCH-171",
+      "shortName": "Availability Evaluation",
+      "category": "scheduling",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "SCH-172",
+      "shortName": "Temporary Slot Hold",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-173",
+      "shortName": "Reservation Validation",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-174",
+      "shortName": "Reservation Readiness",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-175",
+      "shortName": "Reschedule Validation",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-176",
+      "shortName": "Reservation Cancellation Reconciliation",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-177",
+      "shortName": "Pre-Service Revalidation",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-178",
+      "shortName": "Service Completion",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-179",
+      "shortName": "No-Show Validation",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": false,
+      "silent": true,
+      "reason": "silent lifecycle state: category \"scheduling\" and a customer-worded entity"
+    },
+    {
+      "id": "SCH-180",
+      "shortName": "Booking Reschedule",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "SCH-266",
+      "shortName": "Appointment Reminder",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms, in-app)"
+    },
+    {
+      "id": "SCH-277",
+      "shortName": "Booking Confirmation",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "SCH-280",
+      "shortName": "No-Show Follow-Up",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "SCH-282",
+      "shortName": "Availability Search Abandonment",
+      "category": "scheduling",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, push)"
+    },
+    {
+      "id": "DEC-181",
+      "shortName": "Decision Request",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-182",
+      "shortName": "Review Assignment",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-183",
+      "shortName": "Evidence Review",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-184",
+      "shortName": "More Information Request",
+      "category": "decision",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, task)"
+    },
+    {
+      "id": "DEC-185",
+      "shortName": "Approval Execution Validation",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-186",
+      "shortName": "Rejection Resolution",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-187",
+      "shortName": "Partial Approval Resolution",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-188",
+      "shortName": "Approval Expiry Revalidation",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-189",
+      "shortName": "Decision Escalation",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-190",
+      "shortName": "Decision Re-Review",
+      "category": "decision",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DEC-267",
+      "shortName": "Adverse Decision Recovery",
+      "category": "decision",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "RSK-191",
+      "shortName": "Policy Evaluation",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-192",
+      "shortName": "Risk Evidence Assessment",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-193",
+      "shortName": "Risk Restriction Management",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-194",
+      "shortName": "Policy Violation Validation",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-195",
+      "shortName": "Compliance Requirement Verification",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-196",
+      "shortName": "Compliance Hold Resolution",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-197",
+      "shortName": "Policy Exception Review",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-198",
+      "shortName": "Policy Exception Lifecycle",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-199",
+      "shortName": "Limit Enforcement",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-200",
+      "shortName": "Risk State Recalculation",
+      "category": "risk",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RSK-273",
+      "shortName": "Usage Limit Alert",
+      "category": "risk",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (in-app, email)"
+    },
+    {
+      "id": "CMS-201",
+      "shortName": "Communication Obligation Creation",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-202",
+      "shortName": "Recipient Resolution",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-203",
+      "shortName": "Channel Eligibility Resolution",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-204",
+      "shortName": "Channel Routing",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-205",
+      "shortName": "Send Eligibility Check",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-206",
+      "shortName": "Send Attempt Status",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-207",
+      "shortName": "Delivery Outcome Reconciliation",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-208",
+      "shortName": "Message Delivery Recovery",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": true,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "CMS-210",
+      "shortName": "Communication Obligation Closure",
+      "category": "communication",
+      "surface": "mechanism",
+      "communicating": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "DOC-211",
+      "shortName": "Document Requirement Resolution",
+      "category": "document",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DOC-212",
+      "shortName": "Document Readiness Validation",
+      "category": "document",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DOC-213",
+      "shortName": "Document Issuance",
+      "category": "document",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DOC-214",
+      "shortName": "Document Delivery",
+      "category": "document",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "DOC-215",
+      "shortName": "Signature Reminder",
+      "category": "document",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "DOC-216",
+      "shortName": "Document Effectiveness Validation",
+      "category": "document",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DOC-217",
+      "shortName": "Document Versioning",
+      "category": "document",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DOC-218",
+      "shortName": "Document Expiry Resolution",
+      "category": "document",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DOC-219",
+      "shortName": "Document Revocation Reconciliation",
+      "category": "document",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DOC-220",
+      "shortName": "Document Conflict Review",
+      "category": "document",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "DOC-286",
+      "shortName": "Document Activation",
+      "category": "document",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "DAT-221",
+      "shortName": "Data Parsing",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-222",
+      "shortName": "Data Validation",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-223",
+      "shortName": "Data Change Approval",
+      "category": "data",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-224",
+      "shortName": "Import Execution",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-225",
+      "shortName": "Partial Import Recovery",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-226",
+      "shortName": "Migration Readiness Validation",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-227",
+      "shortName": "Migration Verification",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-228",
+      "shortName": "Cutover Stabilization",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-229",
+      "shortName": "Historical Backfill",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "DAT-230",
+      "shortName": "Transformation Error Recovery",
+      "category": "data",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-231",
+      "shortName": "Ownership Assignment",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-232",
+      "shortName": "Ownership Transfer Validation",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-233",
+      "shortName": "Ownership Transfer Execution",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-234",
+      "shortName": "Ownership Cutover",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-235",
+      "shortName": "Delegation Authorization",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-236",
+      "shortName": "Temporary Delegation Expiry",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-237",
+      "shortName": "Delegation Revocation",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "CTL-238",
+      "shortName": "Ownership Recovery",
+      "category": "control",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-241",
+      "shortName": "Change Eligibility",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-242",
+      "shortName": "Change Readiness",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-243",
+      "shortName": "Scheduled Change Revalidation",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-244",
+      "shortName": "Change Execution Verification",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-245",
+      "shortName": "Staged Rollout Expansion",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-246",
+      "shortName": "Rollout Pause Resolution",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-247",
+      "shortName": "Rollback Decision",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-248",
+      "shortName": "Rollback Verification",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-249",
+      "shortName": "Target Change Recovery",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-250",
+      "shortName": "Change Stability Review",
+      "category": "rollout",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "RLT-279",
+      "shortName": "Upgrade Blocker Reminder",
+      "category": "rollout",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (in-app, email)"
+    },
+    {
+      "id": "INC-251",
+      "shortName": "Incident Confirmation",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-252",
+      "shortName": "Incident Escalation",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-253",
+      "shortName": "Incident Containment",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-254",
+      "shortName": "Incident Update",
+      "category": "incident",
+      "surface": "customer",
+      "communicating": true,
+      "silent": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "INC-255",
+      "shortName": "Root Cause Investigation",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-256",
+      "shortName": "Service Recovery Verification",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-257",
+      "shortName": "Recovery Stability Monitoring",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-258",
+      "shortName": "Incident Closure Reconciliation",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-259",
+      "shortName": "Post-Incident Review",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": true,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "INC-260",
+      "shortName": "Recurring Incident Prevention",
+      "category": "incident",
+      "surface": "operational",
+      "communicating": false,
+      "silent": false,
+      "reason": "no message channel and a system-side entity or category"
+    }
+  ]
+}
