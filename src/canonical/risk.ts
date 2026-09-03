@@ -2559,7 +2559,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
         next: "c.path",
         execution: "communication",
-        idempotencyKey: "person_id + a.at-the-wall",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.at-the-wall",
       },
       {
         id: "c.path",
@@ -2606,7 +2606,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
         next: "w.capacity",
         execution: "communication",
-        idempotencyKey: "person_id + a.offer-self",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.offer-self",
       },
       {
         id: "a.offer-holder",
@@ -2614,7 +2614,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
         next: "a.notify-blocked-party",
         execution: "communication",
-        idempotencyKey: "person_id + a.offer-holder",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.offer-holder",
       },
       {
         id: "a.notify-blocked-party",
@@ -2622,7 +2622,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway. Told only that they hit a limit, they wait on a person who does not know they are being waited on",
         next: "w.capacity",
         execution: "communication",
-        idempotencyKey: "person_id + a.notify-blocked-party",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.notify-blocked-party",
       },
       {
         id: "w.capacity",
@@ -2686,7 +2686,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
         next: "x.reset",
         execution: "communication",
-        idempotencyKey: "person_id + a.reset",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.reset",
       },
       {
         id: "x.reset",

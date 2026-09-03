@@ -2080,7 +2080,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do. A prompt to act where acting is impossible reads as blame and produces a support contact instead of a cleared blocker",
         next: "x.held",
         execution: "communication",
-        idempotencyKey: "person_id + a.inform-hold",
+        idempotencyKey: "target_id + change_id + a.inform-hold",
       },
       {
         id: "x.held",
@@ -2096,7 +2096,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window. A generic notice that something is available leaves the holder to discover the blocker themselves, which is the whole reason the target is stuck",
         next: "w.clear",
         execution: "communication",
-        idempotencyKey: "person_id + a.name-blocker",
+        idempotencyKey: "target_id + change_id + a.name-blocker",
       },
       {
         id: "w.clear",
@@ -2179,7 +2179,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one further prompt naming the same prerequisite and the date it stops mattering. There is no third - a blocker nobody has cleared twice is a decision, not an oversight",
         next: "w.final",
         execution: "communication",
-        idempotencyKey: "person_id + a.last-call",
+        idempotencyKey: "target_id + change_id + a.last-call",
       },
       {
         id: "w.final",

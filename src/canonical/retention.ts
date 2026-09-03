@@ -1080,21 +1080,21 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Assemble the signals with their sources and strengths. What matters is whether they corroborate each other, not how many there are - three readings of the same underlying event are one piece of evidence",
         writes: [{ field: "risk_evidence", mode: "append" }],
         next: "c.operational",
-        idempotencyKey: "subscription_id + account_id + a.evidence",
+        idempotencyKey: "risk_episode_id + account_id + a.evidence",
       },
       {
         id: "c.operational",
         kind: "condition",
-        asks: "Is the risk driven by a known operational problem?",
+        asks: "Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery?",
         branches: [
           {
             label: "Known problem",
-            when: "the evidence points at something specific that is broken or unresolved",
+            when: "the evidence points at something specific that is broken or unresolved, and it is not a payment failure with an open payment recovery instance on this relationship - that cause already has an owner",
             to: "h.resolve-first",
           },
           {
             label: "No known problem",
-            when: "the relationship is deteriorating and nothing identifiable is causing it",
+            when: "the relationship is deteriorating and nothing identifiable is causing it, or the identifiable cause is a payment failure that payment recovery already owns",
             to: "c.human",
           },
         ],
@@ -1137,7 +1137,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         next: "h.human",
         execution: "human",
-        idempotencyKey: "subscription_id + account_id + a.owner-task",
+        idempotencyKey: "risk_episode_id + account_id + a.owner-task",
       },
       {
         id: "h.human",
@@ -2114,7 +2114,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the reason with its source among PRICE, LOW_USAGE, MISSING_VALUE, TECHNICAL_PROBLEM, SERVICE_ISSUE, TEMPORARY_NEED, SWITCHING or OTHER. A reason inferred later never overwrites one that was declared",
         writes: [{ field: "cancellation_reason_history", mode: "append" }],
         next: "c.resolution",
-        idempotencyKey: "intent_id + reason",
+        idempotencyKey: "intent_id + declared_reason",
       },
       {
         id: "a.no-reason",
@@ -2726,7 +2726,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Verify against the system of record that the relationship actually changed - the plan changed, the pause is active, the issue is closed, the subscription is retained. Acceptance is a customer saying yes; application is the state having moved, and the gap between them is where retention numbers go wrong",
         next: "c.applied",
-        idempotencyKey: "subscription_id + account_id + a.verify",
+        idempotencyKey: "retention_episode_id + account_id + a.verify",
       },
       {
         id: "c.applied",
@@ -2780,7 +2780,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the decline against this cancellation episode, so the same offer is not made again inside it. Repeating a declined offer is the behaviour that makes a save attempt read as an obstacle",
         writes: [{ field: "retention_episode_history", mode: "append" }],
         next: "c.proceed",
-        idempotencyKey: "subscription_id + account_id + a.record-decline",
+        idempotencyKey: "retention_episode_id + account_id + a.record-decline",
       },
       {
         id: "c.proceed",
@@ -2838,7 +2838,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one follow-up and stop. There is no second, whatever the value of the relationship",
         next: "x.cooldown",
         execution: "communication",
-        idempotencyKey: "subscription_id + account_id + a.followup",
+        idempotencyKey: "retention_episode_id + account_id + a.followup",
       },
       {
         id: "x.cooldown",

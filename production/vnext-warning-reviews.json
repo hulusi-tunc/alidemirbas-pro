@@ -513,6 +513,608 @@
    "note": "The hold notice and the blocker prompt are the exclusive arms of c.resolvable.",
    "reviewedBy": "migration pass, Gate 4",
    "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-78",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-01",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-04",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-09",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-10",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-11",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-12",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-16",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-19",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-20",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-264",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "DOC-220",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-42",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-43",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FIN-134",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FIN-136",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-141",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-142",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-143",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-144",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-146",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-147",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-148",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-149",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-150",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-265",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-270",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-81",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-87",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-88",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-90",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "INT-269",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REM-156",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REM-157",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-22",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-23",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-24",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-27",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-30",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RSK-273",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-173",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-176",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-177",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-178",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-179",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-277",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-280",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-161",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-162",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-165",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-166",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TIM-65",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-71",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-78",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-79",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-01",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-02",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-05",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-06",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-08",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-10",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-31",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-141",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-142",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-143",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-144",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-147",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-149",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-88",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-89",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REL-100",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REL-94",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REM-156",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-23",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-29",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-172",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-173",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-161",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-105",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-108",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
   }
  ]
 }

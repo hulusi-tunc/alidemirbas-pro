@@ -700,7 +700,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the request id, the item or resource, the quantity or scope, the reason, the requester and the request time",
         writes: [{ field: "return_log", mode: "append" }],
         next: "c.applicable",
-        idempotencyKey: "order_id + a.capture",
+        idempotencyKey: "return_request_id + a.capture",
       },
       {
         id: "c.applicable",
@@ -725,9 +725,11 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         to: "REM-157",
         on: "a return requested against something that cannot be returned",
         carries: [
-          "the request and the unresolved obligation behind it",
+          "the request and the unresolved obligation behind it - original_fulfillment_id becomes REM-157's obligation_id",
           "the fact that no return route exists, so the remedy is something else rather than nothing",
+          "a fresh issue_id, minted at this handoff and deterministically derived from return_request_id - REM-152 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
         ],
+        contract: { requiredFields: ["issue_id", "obligation_id"] },
       },
       {
         id: "c.policy",
@@ -784,7 +786,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RETURN_REJECTED with the reason drawn from the policy that ruled it out",
         writes: [{ field: "return_log", mode: "append" }],
         next: "a.notify-rejection",
-        idempotencyKey: "order_id + a.reject",
+        idempotencyKey: "return_request_id + a.reject",
       },
       {
         id: "a.notify-rejection",
@@ -792,7 +794,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the requester the return was refused and the governing reason, whether policy ruled it out directly or a reviewer did. Someone holding an item they were told nothing about goes on believing a return is still coming",
         execution: "communication",
         next: "x.rejected",
-        idempotencyKey: "order_id + a.notify-rejection",
+        idempotencyKey: "return_request_id + a.notify-rejection",
       },
       {
         id: "x.rejected",
@@ -810,7 +812,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "return_log", mode: "append" }],
         next: "w.decision",
         execution: "human",
-        idempotencyKey: "order_id + a.review",
+        idempotencyKey: "return_request_id + a.review",
       },
       {
         id: "w.decision",
@@ -855,7 +857,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RETURN_AUTHORIZED with the scope, the method and the validity. Authorising a return permits the resource to come back and decides nothing about whether money is owed - refund eligibility is a separate question with its own rules and its own answer",
         writes: [{ field: "return_log", mode: "append" }],
         next: "a.notify-authorization",
-        idempotencyKey: "order_id + a.authorize",
+        idempotencyKey: "return_request_id + a.authorize",
       },
       {
         id: "a.notify-authorization",
@@ -863,7 +865,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the requester the return is authorised, within what scope and by what method, and that authorisation permits the resource to come back without deciding that money is owed. Leaving them to discover the answer from the transit lifecycle makes the next step arrive before the decision does",
         execution: "communication",
         next: "h.transit",
-        idempotencyKey: "order_id + a.notify-authorization",
+        idempotencyKey: "return_request_id + a.notify-authorization",
       },
       {
         id: "h.transit",
@@ -1888,7 +1890,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           },
           {
             label: "Return, before anything else",
-            when: "the resource has to come back before a further remedy can be settled",
+            when: "the resource has to come back before a further remedy can be settled, and a return was not already rejected for this issue - a rejected return does not get re-selected when REM-152's own h.alternative routes back here; that path already arrives at c.route with the rejection recorded, and this branch's condition is false the second time",
             to: "h.return",
           },
           {

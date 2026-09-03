@@ -1111,7 +1111,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Specify the exact requirement - which fact, which document, from whom, and why the decision needs it. A vague request produces a vague answer and a second round; and asking for unrelated things in case they help turns one gap into a questionnaire, which is how a two-day case becomes a three-week one",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "a.state",
-        idempotencyKey: "issue_id + a.specify",
+        idempotencyKey: "decision_case_id + requirement_id + a.specify",
       },
       {
         id: "a.state",
@@ -1119,7 +1119,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record AWAITING_INFORMATION and preserve everything the review has already established. The case is paused rather than reset - more information required is not a rejection, and a reviewer returning to it should not be starting again from the beginning",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.source-type",
-        idempotencyKey: "issue_id + a.state",
+        idempotencyKey: "decision_case_id + requirement_id + a.state",
       },
       {
         id: "c.source-type",
@@ -1145,7 +1145,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.info",
         execution: "communication",
-        idempotencyKey: "issue_id + a.request",
+        idempotencyKey: "decision_case_id + requirement_id + a.request",
         attemptBudget: {
           "key": "information_requirement.request_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -1159,7 +1159,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "decision_log", mode: "append" }],
         next: "w.info",
         execution: "human",
-        idempotencyKey: "issue_id + a.request-internal",
+        idempotencyKey: "decision_case_id + requirement_id + a.request-internal",
         attemptBudget: {
           "key": "information_requirement.request_internal_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -1212,7 +1212,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the case as no longer requiring a decision, with the reason. This is not a rejection and not an approval, and reporting it as either tells the requester something untrue about what happened",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "x.moot",
-        idempotencyKey: "issue_id + a.moot",
+        idempotencyKey: "decision_case_id + requirement_id + a.moot",
       },
       {
         id: "x.moot",
@@ -1269,7 +1269,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the timeout semantics policy defines - escalation, closure, or a decision on the evidence available. Which one applies comes from policy: a case that quietly closes because nobody answered is a rejection nobody made, and a case that quietly proceeds is a decision made on evidence somebody knew was incomplete",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.timeout",
-        idempotencyKey: "issue_id + a.deadline",
+        idempotencyKey: "decision_case_id + requirement_id + a.deadline",
       },
       {
         id: "c.timeout",
@@ -1299,7 +1299,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the case under the semantics policy actually states, recording that it closed for want of information rather than on its merits",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "x.closed-noinfo",
-        idempotencyKey: "issue_id + a.close",
+        idempotencyKey: "decision_case_id + requirement_id + a.close",
       },
       {
         id: "x.closed-noinfo",
@@ -2852,7 +2852,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State what was decided, why, exactly what would have to change, and by when - taken from the policy that defines the path rather than from what sounds achievable. A decision delivered without its route back is a reprimand, and it produces a complaint instead of a correction",
         next: "w.remediate",
         execution: "communication",
-        idempotencyKey: "issue_id + a.correctable",
+        idempotencyKey: "decision_id + a.correctable",
       },
       {
         id: "w.remediate",
@@ -2906,7 +2906,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the decision is resolved and name what it no longer affects. Silence after a correction reads as the decision still standing, and the person goes on behaving as though it does",
         next: "x.corrected",
         execution: "communication",
-        idempotencyKey: "issue_id + a.cleared",
+        idempotencyKey: "decision_id + a.cleared",
       },
       {
         id: "x.corrected",
@@ -2930,7 +2930,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say once that the window has closed and what now stands. The end of a stated deadline is the single moment where saying nothing changes somebody's position without telling them",
         next: "c.residual",
         execution: "communication",
-        idempotencyKey: "issue_id + a.expired",
+        idempotencyKey: "decision_id + a.expired",
       },
       {
         id: "c.residual",
@@ -2955,7 +2955,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the conditions policy actually defines for a fresh request - after what period, on what basis, with what evidence - and nothing beyond them. A right that was invented to soften the message becomes one somebody plans around and is refused again for",
         next: "x.reapply",
         execution: "communication",
-        idempotencyKey: "issue_id + a.reapply",
+        idempotencyKey: "decision_id + a.reapply",
       },
       {
         id: "x.reapply",
@@ -2971,7 +2971,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the decision is final and that no route back exists, with no call to action attached to soften it. A false path offered out of kindness costs more than the refusal did, because it is discovered later and by somebody who has already acted on it",
         next: "x.final",
         execution: "communication",
-        idempotencyKey: "issue_id + a.final",
+        idempotencyKey: "decision_id + a.final",
       },
       {
         id: "x.final",

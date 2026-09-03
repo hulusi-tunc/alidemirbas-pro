@@ -1519,6 +1519,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "Communicating a delay does not resolve the operational delay."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait."
       }
     ],
     contact: {
@@ -2415,7 +2420,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the failure into the class the executor actually reported. Refused and unavailable are different outcomes - one is a decision by the recipient and the other is an absence, and treating the first as the second keeps redelivering to someone who has already said no",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.class",
-        idempotencyKey: "order_id + obligation_id + a.classify",
+        idempotencyKey: "delivery_attempt_id + obligation_id + a.classify",
       },
       {
         id: "c.class",
@@ -2456,7 +2461,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "w.correction",
         execution: "communication",
-        idempotencyKey: "order_id + obligation_id + a.correct",
+        idempotencyKey: "delivery_attempt_id + obligation_id + a.correct",
       },
       {
         id: "w.correction",
@@ -2524,7 +2529,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Use the authorised alternative route, recorded as a change of route rather than a new obligation. Reached either because policy permits the change or because the recipient chose it - the authority exists before the route moves",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.retry",
-        idempotencyKey: "order_id + obligation_id + a.alternate",
+        idempotencyKey: "delivery_attempt_id + obligation_id + a.alternate",
       },
       {
         id: "a.offer-route",
@@ -2532,7 +2537,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way. Moving where somebody has to be, without asking, is a decision taken on their behalf",
         execution: "communication",
         next: "w.route-choice",
-        idempotencyKey: "order_id + obligation_id + a.offer-route",
+        idempotencyKey: "delivery_attempt_id + obligation_id + a.offer-route",
       },
       {
         id: "w.route-choice",
@@ -2579,7 +2584,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Schedule the bounded reattempt, against the remaining attempt budget rather than a fresh one",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.retry",
-        idempotencyKey: "order_id + obligation_id + a.reattempt",
+        idempotencyKey: "delivery_attempt_id + obligation_id + a.reattempt",
       },
       {
         id: "h.retry",
@@ -2598,8 +2603,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         on: "a delivery that cannot be completed - refused, uncorrectable, or out of attempts",
         carries: [
           "the failure classification and the full attempt history",
-          "the obligation, which is unresolved rather than discharged - and any financial consequence, which is a separate lifecycle",
+          "the obligation, which is unresolved rather than discharged - and any financial consequence, which is a separate lifecycle - obligation_id stands in for REM-151's order_id",
+          "a fresh issue_id, minted at this handoff and deterministically derived from delivery_attempt_id - FUL-148 has no issue concept of its own, so REM-151's instance is opened here rather than carried",
         ],
+        contract: { requiredFields: ["issue_id", "order_id"] },
       },
       {
         id: "h.exception",
@@ -3198,6 +3205,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g5",
         "label": "CANONICAL_RULE",
         "text": "Acceptance by agreement and acceptance by expiry stay separable forever."
+      },
+      {
+        "id": "s.g6",
+        "label": "CANONICAL_RULE",
+        "text": "A pre-dispatch slip against the original commitment is FUL-146's delay narrative, not this journey's; this journey's own tracking begins at dispatch and reports what the executor authoritatively confirms from there."
       }
     ],
     contact: {
@@ -3469,11 +3481,15 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       },
       {
         id: "x.unresolved",
-        kind: "exit",
-        state: "not delivered; failed or unaccounted for, and being reconciled with the executor",
-        terminal: false,
-        reEntry: "a re-dispatch of the same obligation starts a new instance",
-        class: "failure",
+        kind: "handoff",
+        to: "FUL-148",
+        on: "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait",
+        carries: [
+          "the failure classification told to the recipient - confirmed failure or executor lost sight of - which becomes FUL-148's failure_reason",
+          "the dispatch and tracking history, so recovery does not start from nothing",
+          "a fresh delivery_attempt_id, minted at this handoff and deterministically derived from obligation_id and the dispatch record - FUL-265 tracks by obligation and person, not by attempt, so FUL-148's per-attempt instance is opened here rather than carried",
+        ],
+        contract: { requiredFields: ["delivery_attempt_id", "obligation_id", "failure_reason"] },
       },
       {
         id: "a.arrived",

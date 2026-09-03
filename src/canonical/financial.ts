@@ -2011,7 +2011,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the request id, the original transaction, the requested amount, the reason, the requester and the submission time. The original payment history is not modified by a request made against it",
         writes: [{ field: "refund_log", mode: "append" }],
         next: "c.scope",
-        idempotencyKey: "obligation_id + a.record",
+        idempotencyKey: "refund_request_id + a.record",
       },
       {
         id: "c.scope",
@@ -2037,7 +2037,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "refund_log", mode: "append" }],
         next: "x.rejected",
         execution: "communication",
-        idempotencyKey: "obligation_id + a.reject-scope",
+        idempotencyKey: "refund_request_id + a.reject-scope",
       },
       {
         id: "c.policy",
@@ -2094,7 +2094,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record REJECTED with the reason drawn from the policy that ruled it out",
         writes: [{ field: "refund_log", mode: "append" }],
         next: "a.notify-rejection",
-        idempotencyKey: "obligation_id + a.reject",
+        idempotencyKey: "refund_request_id + a.reject",
       },
       {
         id: "a.notify-rejection",
@@ -2102,7 +2102,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the requester the refund was refused and the governing reason, whether that came from policy directly or from a reviewer. A refusal recorded and never sent leaves someone waiting on a decision that has already been made",
         execution: "communication",
         next: "x.rejected",
-        idempotencyKey: "obligation_id + a.notify-rejection",
+        idempotencyKey: "refund_request_id + a.notify-rejection",
       },
       {
         id: "x.rejected",
@@ -2120,7 +2120,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "refund_log", mode: "append" }],
         next: "a.acknowledge-review",
         execution: "human",
-        idempotencyKey: "obligation_id + a.review",
+        idempotencyKey: "refund_request_id + a.review",
       },
       {
         id: "a.acknowledge-review",
@@ -2128,7 +2128,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the requester the refund is under review and what that state means, without implying an outcome. The wait for a human decision is the longest silence in this journey and the one most easily read as no answer coming",
         execution: "communication",
         next: "w.decision",
-        idempotencyKey: "obligation_id + a.acknowledge-review",
+        idempotencyKey: "refund_request_id + a.acknowledge-review",
       },
       {
         id: "w.decision",
@@ -2174,7 +2174,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "refund_log", mode: "append" }],
         next: "h.execute",
         execution: "human",
-        idempotencyKey: "obligation_id + a.approve",
+        idempotencyKey: "refund_request_id + a.approve",
       },
       {
         id: "h.execute",

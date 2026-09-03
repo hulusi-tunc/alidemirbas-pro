@@ -2088,18 +2088,18 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
             "role": "in-session",
             "channels": [
               "in-app"
             ],
             "when": "the person is active in the product and the action is taken there"
+          },
+          {
+            "role": "persistent",
+            "channels": [
+              "email"
+            ],
+            "when": "no active session - the message has to be kept and survive until the person returns to act on it"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -2117,8 +2117,8 @@
             ],
             "purpose": "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -5600,7 +5600,7 @@
             }
           ],
           "next": "c.assisted",
-          "idempotencyKey": "subscription_id + account_id + a.context"
+          "idempotencyKey": "account_id + onboarding_instance_id + a.context"
         },
         {
           "id": "c.assisted",
@@ -5631,7 +5631,7 @@
           ],
           "next": "c.prerequisite",
           "execution": "human",
-          "idempotencyKey": "subscription_id + account_id + a.assisted"
+          "idempotencyKey": "account_id + onboarding_instance_id + a.assisted"
         },
         {
           "id": "a.self-service",
@@ -5644,7 +5644,7 @@
             }
           ],
           "next": "c.prerequisite",
-          "idempotencyKey": "subscription_id + account_id + a.self-service"
+          "idempotencyKey": "account_id + onboarding_instance_id + a.self-service"
         },
         {
           "id": "c.prerequisite",
@@ -5718,6 +5718,7 @@
         "an onboarding instance is open for the account and activation is not yet recorded",
         "the product's own record of setup milestones is readable",
         "no nurture instance is already open for this onboarding instance",
+        "no ACT-14 assisted-help session is open (booked and not yet resolved) for this account",
         "hard gates (GLB-31) permit lifecycle communication"
       ],
       "suppressions": [
@@ -5745,6 +5746,11 @@
           "id": "s.contest",
           "label": "CANONICAL_RULE",
           "text": "This journey sits below the activation event and below any open issue under human ownership on the same account (GLB-06)."
+        },
+        {
+          "id": "s.assisted",
+          "label": "CANONICAL_RULE",
+          "text": "An open ACT-14 assisted-help session (booked at a.confirm, not yet resolved) on the same account takes ownership from this journey's generic next-step prompts; nurture steps pause until ACT-14's w.session resolves (assisted_session_outcome_recorded or booking_cancelled) or exits, and resume against the milestone record as it then stands."
         },
         {
           "id": "s.permission",
@@ -5839,6 +5845,7 @@
           "s.done-step",
           "s.window",
           "s.contest",
+          "s.assisted",
           "s.permission"
         ]
       },
@@ -5853,7 +5860,8 @@
           ],
           "optional": [
             "has_active_session",
-            "blocker_candidate"
+            "blocker_candidate",
+            "assisted_session_open"
           ]
         }
       },
@@ -6655,13 +6663,6 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
             "role": "in-session",
             "channels": [
               "in-app"
@@ -6673,7 +6674,14 @@
             "channels": [
               "push"
             ],
-            "when": "a valid token or app session exists and the message is a single step from the notification"
+            "when": "no active session, a valid token exists, and the message is a single step from the notification"
+          },
+          {
+            "role": "persistent",
+            "channels": [
+              "email"
+            ],
+            "when": "no active session and no valid push token - the message has to be kept and survive until the person returns to act on it"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -6692,9 +6700,9 @@
             ],
             "purpose": "Offer help named against the step they keep returning to.",
             "channelRoles": [
-              "persistent",
               "in-session",
-              "low-friction"
+              "low-friction",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -6714,9 +6722,9 @@
             ],
             "purpose": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
             "channelRoles": [
-              "persistent",
               "in-session",
-              "low-friction"
+              "low-friction",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -6737,9 +6745,9 @@
             ],
             "purpose": "Send one follow-up tied to what the session actually covered.",
             "channelRoles": [
-              "persistent",
               "in-session",
-              "low-friction"
+              "low-friction",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -6754,9 +6762,9 @@
             ],
             "purpose": "Send one final self-service option and stop.",
             "channelRoles": [
-              "persistent",
               "in-session",
-              "low-friction"
+              "low-friction",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -8680,7 +8688,7 @@
           "does": "Make one bounded attempt built on the recorded reason. Not a general note that they have been missed, which says nothing and asks for nothing",
           "next": "w.return",
           "execution": "communication",
-          "idempotencyKey": "account_id + lead_id + a.attempt"
+          "idempotencyKey": "lead_id + context_id + a.attempt"
         },
         {
           "id": "w.return",
@@ -9769,21 +9777,21 @@
             }
           ],
           "next": "c.operational",
-          "idempotencyKey": "subscription_id + account_id + a.evidence"
+          "idempotencyKey": "risk_episode_id + account_id + a.evidence"
         },
         {
           "id": "c.operational",
           "kind": "condition",
-          "asks": "Is the risk driven by a known operational problem?",
+          "asks": "Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery?",
           "branches": [
             {
               "label": "Known problem",
-              "when": "the evidence points at something specific that is broken or unresolved",
+              "when": "the evidence points at something specific that is broken or unresolved, and it is not a payment failure with an open payment recovery instance on this relationship - that cause already has an owner",
               "to": "h.resolve-first"
             },
             {
               "label": "No known problem",
-              "when": "the relationship is deteriorating and nothing identifiable is causing it",
+              "when": "the relationship is deteriorating and nothing identifiable is causing it, or the identifiable cause is a payment failure that payment recovery already owns",
               "to": "c.human"
             }
           ]
@@ -9834,7 +9842,7 @@
           ],
           "next": "h.human",
           "execution": "human",
-          "idempotencyKey": "subscription_id + account_id + a.owner-task"
+          "idempotencyKey": "risk_episode_id + account_id + a.owner-task"
         },
         {
           "id": "h.human",
@@ -10846,7 +10854,7 @@
             }
           ],
           "next": "c.resolution",
-          "idempotencyKey": "intent_id + reason"
+          "idempotencyKey": "intent_id + declared_reason"
         },
         {
           "id": "a.no-reason",
@@ -11477,7 +11485,7 @@
           "kind": "action",
           "does": "Verify against the system of record that the relationship actually changed - the plan changed, the pause is active, the issue is closed, the subscription is retained. Acceptance is a customer saying yes; application is the state having moved, and the gap between them is where retention numbers go wrong",
           "next": "c.applied",
-          "idempotencyKey": "subscription_id + account_id + a.verify"
+          "idempotencyKey": "retention_episode_id + account_id + a.verify"
         },
         {
           "id": "c.applied",
@@ -11538,7 +11546,7 @@
             }
           ],
           "next": "c.proceed",
-          "idempotencyKey": "subscription_id + account_id + a.record-decline"
+          "idempotencyKey": "retention_episode_id + account_id + a.record-decline"
         },
         {
           "id": "c.proceed",
@@ -11598,7 +11606,7 @@
           "does": "Send one follow-up and stop. There is no second, whatever the value of the relationship",
           "next": "x.cooldown",
           "execution": "communication",
-          "idempotencyKey": "subscription_id + account_id + a.followup"
+          "idempotencyKey": "retention_episode_id + account_id + a.followup"
         },
         {
           "id": "x.cooldown",
@@ -14498,7 +14506,8 @@
       "eligibility": [
         "a contact point is added or changed for an identity",
         "the new destination is well-formed and deliverable in principle",
-        "no verification instance is already open for this contact point"
+        "no verification instance is already open for this contact point",
+        "change_source is not CON-272's own repair flow - a destination CON-272 already confirmed at its own a.confirm is not asked to confirm itself a second time for the same change"
       ],
       "suppressions": [
         {
@@ -14827,7 +14836,7 @@
           "kind": "action",
           "does": "Record the confirmation against this destination and this destination only. Permission held by the address it replaced is not lent forward - consent does not travel with a change of address, and treating it as though it does is how a confirmed opt-in becomes an unconfirmed one",
           "next": "x.permitted",
-          "idempotencyKey": "contact_point_id + confirmation"
+          "idempotencyKey": "contact_point_id + a.activate"
         },
         {
           "id": "x.permitted",
@@ -14927,6 +14936,10 @@
         {
           "journey": "CON-38",
           "because": "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed."
+        },
+        {
+          "journey": "CON-264",
+          "because": "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart."
         }
       ],
       "objective": "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
@@ -15731,7 +15744,7 @@
         "competition": {
           "exclusionGroup": "outbound-ask",
           "scope": "communication-purpose",
-          "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+          "precedence": "FBK-42 (advocacy) wins when both are eligible for the same person at the same moment: advocacy already presupposes satisfaction, its evidence is accumulated across the relationship rather than one experience, and asking both back-to-back for the same goodwill moment reads as farming it twice. This journey's ask is recorded as not-now and remains free to re-open independently at its next moment.",
           "onLoss": "suppressed"
         }
       },
@@ -16169,7 +16182,7 @@
         "competition": {
           "exclusionGroup": "outbound-ask",
           "scope": "communication-purpose",
-          "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+          "precedence": "This journey wins when both this journey and FBK-41 (satisfaction) are eligible for the same person at the same moment: advocacy is the rarer, higher-value ask built on accumulated relationship evidence rather than one experience, so it takes the one ask slot. FBK-41 is recorded as not-now and remains free to re-open independently at its next moment.",
           "onLoss": "suppressed"
         }
       },
@@ -16233,8 +16246,7 @@
             "purpose": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.",
             "channelRoles": [
               "persistent",
-              "in-session",
-              "low-friction"
+              "in-session"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -16615,6 +16627,13 @@
               "in-app"
             ],
             "when": "the feedback was given inside the product and the person is still there"
+          },
+          {
+            "role": "human",
+            "channels": [
+              "task"
+            ],
+            "when": "the feedback creates internal work rather than a message to the person - a support-need work item, or marking an issue's severity before handoff"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -16669,6 +16688,42 @@
               "persistent",
               "in-session"
             ],
+            "mandatory": false,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t-obligation",
+            "stage": "routing",
+            "action": "a.obligation",
+            "prerequisites": [
+              "c.route"
+            ],
+            "purpose": "Create the support-need work item in the owning process's queue - internal routing, not a message to the person.",
+            "channelRoles": [
+              "human"
+            ],
+            "destination": {
+              "target": "owning-process-queue",
+              "boundTo": "feedback_id"
+            },
+            "mandatory": false,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t-escalate",
+            "stage": "routing",
+            "action": "a.escalate",
+            "prerequisites": [
+              "c.severity"
+            ],
+            "purpose": "Mark the issue's severity ahead of handoff so the receiving owner and SLA are the escalated ones, not the default - internal routing, not a message to the person.",
+            "channelRoles": [
+              "human"
+            ],
+            "destination": {
+              "target": "owning-process-queue",
+              "boundTo": "feedback_id"
+            },
             "mandatory": false,
             "label": "CANONICAL_RULE"
           }
@@ -17041,7 +17096,7 @@
           "kind": "action",
           "does": "Apply the policy escalation and mark the severity on the issue, so that the ownership and SLA it inherits are the escalated ones rather than the default",
           "execution": "human",
-          "idempotencyKey": "feedback_id + escalation",
+          "idempotencyKey": "feedback_id + a.escalate",
           "writes": [
             {
               "field": "issue_context_log",
@@ -17122,7 +17177,7 @@
           ],
           "next": "w.outcome",
           "execution": "human",
-          "idempotencyKey": "feedback_id + work item"
+          "idempotencyKey": "feedback_id + a.obligation"
         },
         {
           "id": "w.outcome",
@@ -17545,7 +17600,7 @@
           ],
           "next": "w.resolution",
           "execution": "human",
-          "idempotencyKey": "issue_id + owner"
+          "idempotencyKey": "issue_id + owner_id"
         },
         {
           "id": "w.resolution",
@@ -18028,7 +18083,7 @@
             }
           ],
           "next": "c.eligible",
-          "idempotencyKey": "issue_id + a.link"
+          "idempotencyKey": "appeal_id + a.link"
         },
         {
           "id": "c.eligible",
@@ -18059,7 +18114,7 @@
           ],
           "next": "x.rejected",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.reject"
+          "idempotencyKey": "appeal_id + a.reject"
         },
         {
           "id": "x.rejected",
@@ -18097,7 +18152,7 @@
             }
           ],
           "next": "w.review",
-          "idempotencyKey": "issue_id + a.hold"
+          "idempotencyKey": "appeal_id + a.hold"
         },
         {
           "id": "w.review",
@@ -18191,7 +18246,7 @@
             }
           ],
           "next": "a.communicate-outcome",
-          "idempotencyKey": "issue_id + a.apply"
+          "idempotencyKey": "appeal_id + a.apply"
         },
         {
           "id": "a.request-more-info",
@@ -18199,7 +18254,7 @@
           "does": "Ask the appellant for the specific evidence the review is missing, naming only what is missing and leaving the appeal deadline where it was. Suspending a review for information nobody requested makes the appellant responsible for a gap they were never told about",
           "execution": "communication",
           "next": "w.more-info",
-          "idempotencyKey": "issue_id + a.request-more-info",
+          "idempotencyKey": "appeal_id + a.request-more-info",
           "attemptBudget": {
             "key": "appeal_and.request_more_info_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -18212,7 +18267,7 @@
           "does": "State the review's conclusion, which effective state now applies as a result, and what remains available procedurally. An appeal that concludes in silence leaves the appellant holding the original decision and no way to know it was reconsidered",
           "execution": "communication",
           "next": "x.concluded",
-          "idempotencyKey": "issue_id + a.communicate-outcome"
+          "idempotencyKey": "appeal_id + a.communicate-outcome"
         },
         {
           "id": "x.concluded",
@@ -18684,7 +18739,7 @@
             }
           ],
           "next": "c.authoritative",
-          "idempotencyKey": "person_id + a.identify"
+          "idempotencyKey": "blocked_entity_id + requirement_id + a.identify"
         },
         {
           "id": "c.authoritative",
@@ -18732,7 +18787,7 @@
           "does": "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
           "next": "w.received",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.request"
+          "idempotencyKey": "blocked_entity_id + requirement_id + a.request"
         },
         {
           "id": "a.request-internal",
@@ -18740,7 +18795,7 @@
           "does": "Raise the request as owned work against the internal party who holds the item, carrying the blocked process and the running deadline. Routing an internal dependency down a customer channel asks the wrong person on a route they never agreed to",
           "next": "w.received",
           "execution": "human",
-          "idempotencyKey": "person_id + a.request-internal"
+          "idempotencyKey": "blocked_entity_id + requirement_id + a.request-internal"
         },
         {
           "id": "w.received",
@@ -18791,7 +18846,7 @@
             }
           ],
           "next": "x.resumed",
-          "idempotencyKey": "person_id + a.persist"
+          "idempotencyKey": "blocked_entity_id + requirement_id + a.persist"
         },
         {
           "id": "x.resumed",
@@ -21200,7 +21255,7 @@
               "sms",
               "whatsapp"
             ],
-            "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+            "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -21252,7 +21307,9 @@
             "consequence_on_miss",
             "deadline_log"
           ],
-          "optional": []
+          "optional": [
+            "urgent_horizon"
+          ]
         }
       },
       "measurement": {
@@ -21334,7 +21391,7 @@
             }
           ],
           "next": "w.tracking",
-          "idempotencyKey": "obligation_id + issue_id + a.store"
+          "idempotencyKey": "obligation_id + a.store"
         },
         {
           "id": "w.tracking",
@@ -21391,7 +21448,7 @@
             }
           ],
           "next": "x.satisfied",
-          "idempotencyKey": "obligation_id + issue_id + a.satisfied"
+          "idempotencyKey": "obligation_id + a.satisfied"
         },
         {
           "id": "x.satisfied",
@@ -21424,7 +21481,7 @@
           "does": "Send the reminder defined for this threshold. The reminder schedule is not the deadline and does not move it - a deadline nobody was reminded about is still the deadline",
           "next": "w.tracking",
           "execution": "communication",
-          "idempotencyKey": "obligation_id + issue_id + a.remind",
+          "idempotencyKey": "obligation_id + a.remind",
           "attemptBudget": {
             "key": "deadline_tracking.remind_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -21877,7 +21934,7 @@
               "sms",
               "push"
             ],
-            "when": "the expiry is inside the urgent horizon, the action is a single step, and permission for service messages on the channel is recorded"
+            "when": "expires_at falls inside the urgent_horizon attribute, the action is a single step, and permission for service messages on the channel is recorded"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -21949,7 +22006,8 @@
           "optional": [
             "has_active_session",
             "urgent_channel_permission",
-            "action_destination"
+            "action_destination",
+            "urgent_horizon"
           ]
         }
       },
@@ -22161,7 +22219,7 @@
             }
           ],
           "next": "h.resolved",
-          "idempotencyKey": "validity_id + invalidation"
+          "idempotencyKey": "entity_ref + validity_id + a.invalidate"
         },
         {
           "id": "h.resolved",
@@ -23453,7 +23511,7 @@
             "channels": [
               "sms"
             ],
-            "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+            "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -23539,7 +23597,9 @@
             "discharge_route",
             "consequence_policy"
           ],
-          "optional": []
+          "optional": [
+            "urgent_horizon"
+          ]
         }
       },
       "measurement": {
@@ -23916,7 +23976,7 @@
             "channels": [
               "sms"
             ],
-            "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+            "when": "grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -24026,7 +24086,9 @@
             "restricted_capabilities",
             "holder_id"
           ],
-          "optional": []
+          "optional": [
+            "urgent_horizon"
+          ]
         }
       },
       "measurement": {
@@ -24119,7 +24181,7 @@
           "does": "Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state. Naming what still works is what stops a reduction being read as a termination",
           "next": "w.grace",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.notify-restricted"
+          "idempotencyKey": "entity_ref + grace_period_id + a.notify-restricted"
         },
         {
           "id": "a.notify-quiet",
@@ -24127,7 +24189,7 @@
           "does": "State that validity has lapsed, that nothing has changed yet, and the date it will. Dramatising a restriction the holder cannot feel teaches them to discount the message that arrives when they can",
           "next": "w.grace",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.notify-quiet"
+          "idempotencyKey": "entity_ref + grace_period_id + a.notify-quiet"
         },
         {
           "id": "w.grace",
@@ -24175,7 +24237,7 @@
           "does": "Confirm the active state is back and name which reduced capabilities returned. A recovery nobody confirms leaves the holder still behaving as though restricted, which is the same cost as not recovering",
           "next": "x.recovered",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.confirm"
+          "idempotencyKey": "entity_ref + grace_period_id + a.confirm"
         },
         {
           "id": "x.recovered",
@@ -24199,7 +24261,7 @@
           "does": "Send one message naming the exact end date, what stops at it, and the same single recovery route. There is no second reminder - the fixed end is the pressure, and repeating it only spends the attention needed to act",
           "next": "w.final",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.last-call"
+          "idempotencyKey": "entity_ref + grace_period_id + a.last-call"
         },
         {
           "id": "w.final",
@@ -24229,7 +24291,7 @@
           "does": "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms. A holder who is not told the window shut will go on assuming it is open",
           "next": "x.lost",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.lost"
+          "idempotencyKey": "entity_ref + grace_period_id + a.lost"
         },
         {
           "id": "x.lost",
@@ -24587,7 +24649,7 @@
           "does": "Name renewal as the route, what it costs, and what carries across the gap. Somebody who came back on their own does not need persuading, only telling exactly what to do next",
           "next": "w.act",
           "execution": "communication",
-          "idempotencyKey": "issue_id + person_id + a.renew"
+          "idempotencyKey": "entity_ref + attempt_id + a.renew"
         },
         {
           "id": "a.requalify",
@@ -24595,7 +24657,7 @@
           "does": "Say plainly that this is not a renewal and that the conditions have to be met again, listing them. Letting somebody believe a click will fix it, and then asking for evidence halfway through, is how an intent that arrived willing leaves annoyed",
           "next": "w.act",
           "execution": "communication",
-          "idempotencyKey": "issue_id + person_id + a.requalify"
+          "idempotencyKey": "entity_ref + attempt_id + a.requalify"
         },
         {
           "id": "a.replace",
@@ -24603,7 +24665,7 @@
           "does": "Explain that the old one stays expired and a new one is issued in its place, and what differs between them. The replacement is a different object, and the holder will be asked later about a period when they held neither",
           "next": "w.act",
           "execution": "communication",
-          "idempotencyKey": "issue_id + person_id + a.replace"
+          "idempotencyKey": "entity_ref + attempt_id + a.replace"
         },
         {
           "id": "a.no-route",
@@ -24611,7 +24673,7 @@
           "does": "Say there is no way back to this one and name what exists instead, if anything does. A dead end stated clearly ends the attempt once; a dead end left vague produces three more attempts and a support contact",
           "next": "x.terminal",
           "execution": "communication",
-          "idempotencyKey": "issue_id + person_id + a.no-route"
+          "idempotencyKey": "entity_ref + attempt_id + a.no-route"
         },
         {
           "id": "w.act",
@@ -24659,7 +24721,7 @@
           "does": "Confirm what is valid now and, where a replacement was issued, that it is a new one rather than the old one revived. The gap during which nothing was valid is a fact the holder will need later, and hiding it here is what makes that conversation go wrong",
           "next": "x.restored",
           "execution": "communication",
-          "idempotencyKey": "issue_id + person_id + a.confirm"
+          "idempotencyKey": "entity_ref + attempt_id + a.confirm"
         },
         {
           "id": "x.restored",
@@ -26897,7 +26959,7 @@
           "does": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
           "next": "x.informed",
           "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.inform-only"
+          "idempotencyKey": "account_id + restriction_id + a.inform-only"
         },
         {
           "id": "x.informed",
@@ -26948,7 +27010,7 @@
           "does": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
           "next": "w.resolve",
           "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.notify"
+          "idempotencyKey": "account_id + restriction_id + a.notify"
         },
         {
           "id": "w.resolve",
@@ -26997,7 +27059,7 @@
           "does": "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
           "next": "x.restored",
           "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.confirm"
+          "idempotencyKey": "account_id + restriction_id + a.confirm"
         },
         {
           "id": "x.restored",
@@ -27306,7 +27368,7 @@
           "does": "Say what is now available, what it lets them do, and the single first action that uses it. Naming one action rather than listing the capability is the difference between an announcement and an activation",
           "next": "w.first-use",
           "execution": "communication",
-          "idempotencyKey": "issue_id + identity_id + a.ready"
+          "idempotencyKey": "entitlement_id + holder_id + a.ready"
         },
         {
           "id": "a.brief",
@@ -27314,7 +27376,7 @@
           "does": "Confirm the new grant briefly and name only what changed from what they already had. Re-explaining a capability somebody already uses reads as a system that does not know them",
           "next": "w.first-use",
           "execution": "communication",
-          "idempotencyKey": "issue_id + identity_id + a.brief"
+          "idempotencyKey": "entitlement_id + holder_id + a.brief"
         },
         {
           "id": "w.first-use",
@@ -27395,7 +27457,7 @@
           "does": "Send one reminder naming the deadline and the same single first action. There is no second reminder - a capability nobody wanted is not made wanted by asking twice",
           "next": "w.last-chance",
           "execution": "communication",
-          "idempotencyKey": "issue_id + identity_id + a.remind"
+          "idempotencyKey": "entitlement_id + holder_id + a.remind"
         },
         {
           "id": "w.last-chance",
@@ -27688,7 +27750,7 @@
             }
           ],
           "next": "c.evidence",
-          "idempotencyKey": "issue_id + identity_id + a.instance"
+          "idempotencyKey": "claim_id + identity_id + a.instance"
         },
         {
           "id": "c.evidence",
@@ -27719,7 +27781,7 @@
           ],
           "next": "w.evidence",
           "execution": "communication",
-          "idempotencyKey": "issue_id + identity_id + a.request"
+          "idempotencyKey": "claim_id + identity_id + a.request"
         },
         {
           "id": "w.evidence",
@@ -27761,7 +27823,7 @@
             }
           ],
           "next": "c.result",
-          "idempotencyKey": "issue_id + identity_id + a.validate",
+          "idempotencyKey": "claim_id + identity_id + a.validate",
           "attemptBudget": {
             "key": "identity_claim.validate_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -27824,7 +27886,7 @@
           ],
           "next": "w.evidence",
           "execution": "communication",
-          "idempotencyKey": "issue_id + identity_id + a.request-more"
+          "idempotencyKey": "claim_id + identity_id + a.request-more"
         },
         {
           "id": "h.review",
@@ -27857,7 +27919,7 @@
             }
           ],
           "next": "x.verified",
-          "idempotencyKey": "issue_id + identity_id + a.verified"
+          "idempotencyKey": "claim_id + identity_id + a.verified"
         },
         {
           "id": "x.verified",
@@ -28511,7 +28573,7 @@
             }
           ],
           "next": "c.class",
-          "idempotencyKey": "identity_id + a.classify"
+          "idempotencyKey": "verification_instance_id + a.classify"
         },
         {
           "id": "c.class",
@@ -28569,7 +28631,7 @@
           ],
           "next": "x.retry",
           "execution": "communication",
-          "idempotencyKey": "identity_id + a.explain"
+          "idempotencyKey": "verification_instance_id + a.explain"
         },
         {
           "id": "c.technical-budget",
@@ -28599,7 +28661,7 @@
             }
           ],
           "next": "x.retry",
-          "idempotencyKey": "identity_id + a.backoff"
+          "idempotencyKey": "verification_instance_id + a.backoff"
         },
         {
           "id": "a.explain-terminal",
@@ -28607,7 +28669,7 @@
           "does": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
           "execution": "communication",
           "next": "x.terminal",
-          "idempotencyKey": "identity_id + a.explain-terminal"
+          "idempotencyKey": "verification_instance_id + a.explain-terminal"
         },
         {
           "id": "x.retry",
@@ -30585,7 +30647,7 @@
           "does": "Send the recovery route to a destination the account already held, and state exactly what evidence is required and when the window closes. A route sent to whichever destination asked for it is not recovery, it is the thing recovery exists to prevent",
           "next": "w.proof",
           "execution": "communication",
-          "idempotencyKey": "issue_id + account_id + a.issue"
+          "idempotencyKey": "recovery_case_id + account_id + a.issue"
         },
         {
           "id": "w.proof",
@@ -30634,7 +30696,7 @@
           "does": "Confirm that control is back and name what was invalidated on the way - the sessions and credentials that will no longer work. Somebody who is not told what was cut off reads the next refusal as a second compromise",
           "next": "x.restored",
           "execution": "communication",
-          "idempotencyKey": "issue_id + account_id + a.restored"
+          "idempotencyKey": "recovery_case_id + account_id + a.restored"
         },
         {
           "id": "x.restored",
@@ -30675,7 +30737,7 @@
           "does": "Send one reminder on the same already-held destination, naming the deadline and the evidence still outstanding. There is no second reminder - a recovery nobody is pursuing has usually been abandoned rather than forgotten, and repetition on a security route is itself a pressure tactic",
           "next": "w.final",
           "execution": "communication",
-          "idempotencyKey": "issue_id + account_id + a.remind"
+          "idempotencyKey": "recovery_case_id + account_id + a.remind"
         },
         {
           "id": "w.final",
@@ -33378,7 +33440,7 @@
           "does": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record. An existing holder's first question is what accepting costs them, not what it gives the inviter",
           "next": "w.response",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.invite-known"
+          "idempotencyKey": "invitation_id + a.invite-known"
         },
         {
           "id": "a.invite-new",
@@ -33386,7 +33448,7 @@
           "does": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold. Somebody with no prior relationship reads an unexplained invitation as a claim already made on them",
           "next": "w.response",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.invite-new"
+          "idempotencyKey": "invitation_id + a.invite-new"
         },
         {
           "id": "w.response",
@@ -33435,7 +33497,7 @@
           "does": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do. An unstated scope is assumed to be total by whoever has less to gain from it",
           "next": "x.active",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.confirm"
+          "idempotencyKey": "invitation_id + a.confirm"
         },
         {
           "id": "x.active",
@@ -33476,7 +33538,7 @@
           "does": "Send one reminder naming who is waiting and the date the invitation expires. There is no second one - a counterparty who has not answered twice has answered",
           "next": "w.final",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.remind"
+          "idempotencyKey": "invitation_id + a.remind"
         },
         {
           "id": "w.final",
@@ -36319,7 +36381,7 @@
           "does": "Acknowledge the request, state the date by which the obligation requires an answer, and say that establishing who is asking comes first. An unacknowledged request leaves the person unable to tell a mandated wait from being ignored",
           "next": "c.verified",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.acknowledge"
+          "idempotencyKey": "deletion_request_id + a.acknowledge"
         },
         {
           "id": "c.verified",
@@ -36344,7 +36406,7 @@
           "does": "Ask for exactly the proof of control the obligation requires and nothing beyond it. Collecting extra identifying data in order to honour a deletion request is the contradiction the request exists to end",
           "next": "w.verify",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.verify"
+          "idempotencyKey": "deletion_request_id + a.verify"
         },
         {
           "id": "w.verify",
@@ -36373,7 +36435,7 @@
           "does": "Close the request as unverified, saying plainly that nothing was deleted, why, and that a fresh request can be raised at any time. A silent close reads as a deletion that happened",
           "next": "x.unverified",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.unverified"
+          "idempotencyKey": "deletion_request_id + a.unverified"
         },
         {
           "id": "x.unverified",
@@ -36445,7 +36507,7 @@
           "does": "Confirm what was deleted, the scope it covered and the date the request closed. This message is the record the requester keeps, so it states the outcome rather than thanking them for their patience",
           "next": "x.closed",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.closed-full"
+          "idempotencyKey": "deletion_request_id + a.closed-full"
         },
         {
           "id": "a.closed-partial",
@@ -36453,7 +36515,7 @@
           "does": "State what was deleted, what is retained, which obligation requires it and when that obligation ends. Naming the obligation is what makes retention a rule rather than a preference",
           "next": "x.closed",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.closed-partial"
+          "idempotencyKey": "deletion_request_id + a.closed-partial"
         },
         {
           "id": "x.closed",
@@ -38443,7 +38505,7 @@
           "does": "Say which capabilities have stopped and that nothing is required from them, with no reconnection step attached - because there is no step that would work. Prompting a re-auth against a provider outage produces a person who tries three times and then opens a ticket",
           "next": "x.informed",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.inform-only"
+          "idempotencyKey": "connection_id + failure_id + a.inform-only"
         },
         {
           "id": "x.informed",
@@ -38476,7 +38538,7 @@
           "does": "Name exactly which capabilities stopped, which are still running, and the single re-authorisation step. Telling somebody their whole connection is broken when most of it works buys an afternoon of unnecessary work and a lasting distrust of the next notice",
           "next": "w.revalidate",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.partial"
+          "idempotencyKey": "connection_id + failure_id + a.partial"
         },
         {
           "id": "a.total",
@@ -38484,7 +38546,7 @@
           "does": "Say the connection is carrying nothing at present, name what has stopped depending on it, and give the single re-authorisation step. What stopped is the part the holder needs in order to judge how urgent this is",
           "next": "w.revalidate",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.total"
+          "idempotencyKey": "connection_id + failure_id + a.total"
         },
         {
           "id": "w.revalidate",
@@ -38537,7 +38599,7 @@
           "does": "Confirm which capabilities are working again and name any that came back reduced. A reconnection that silently restores less than before is discovered later, at whatever moment the missing capability was needed",
           "next": "x.restored",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.restored"
+          "idempotencyKey": "connection_id + failure_id + a.restored"
         },
         {
           "id": "x.restored",
@@ -38560,7 +38622,7 @@
           "kind": "action",
           "does": "Record that the recovery window closed with the connection still broken, as a dated fact about this integration rather than a conclusion about the relationship. A connection somebody chose not to restore is one signal, and it may be the deliberate end of a use case rather than a customer leaving",
           "next": "c.relationship-signal",
-          "idempotencyKey": "person_id + a.unreconnected"
+          "idempotencyKey": "connection_id + failure_id + a.unreconnected"
         },
         {
           "id": "c.relationship-signal",
@@ -38916,7 +38978,7 @@
           "does": "Confirm the connection is active and name the capabilities that were actually validated rather than the ones that were configured. The difference is what stops somebody building on a permission they do not have",
           "next": "x.active",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.active"
+          "idempotencyKey": "connection_attempt_id + a.active"
         },
         {
           "id": "x.active",
@@ -38954,7 +39016,7 @@
           "does": "Say the credential itself was refused and give the one step that re-establishes it. This is the only stage the configurer can usually fix unaided, and it is the one most often buried under a generic error",
           "next": "w.retry",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.fix-auth",
+          "idempotencyKey": "connection_attempt_id + a.fix-auth",
           "attemptBudget": {
             "key": "integration_setup.fix_auth_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -38967,7 +39029,7 @@
           "does": "Name the specific permission that is missing and where it is granted. A missing permission reported as a failed setup makes somebody redo an entire connection to change one switch",
           "next": "w.retry",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.fix-scope",
+          "idempotencyKey": "connection_attempt_id + a.fix-scope",
           "attemptBudget": {
             "key": "integration_setup.fix_scope_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -38980,7 +39042,7 @@
           "does": "Say that access was granted but the minimum operation could not be performed, and name which operation. This usually sits with a limit on the provider side, so the message points there rather than at the configurer",
           "next": "w.retry",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.fix-capability",
+          "idempotencyKey": "connection_attempt_id + a.fix-capability",
           "attemptBudget": {
             "key": "integration_setup.fix_capability_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -38993,7 +39055,7 @@
           "does": "Say the attempt failed, that the stage has not been identified, and that nothing further is needed from the configurer while it is looked at. Admitting there is no cause yet beats inventing one - a guessed cause sends somebody to fix what is not broken",
           "next": "h.diagnose",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.generic"
+          "idempotencyKey": "connection_attempt_id + a.generic"
         },
         {
           "id": "h.diagnose",
@@ -42845,7 +42907,7 @@
             }
           ],
           "next": "c.scope",
-          "idempotencyKey": "obligation_id + a.record"
+          "idempotencyKey": "refund_request_id + a.record"
         },
         {
           "id": "c.scope",
@@ -42876,7 +42938,7 @@
           ],
           "next": "x.rejected",
           "execution": "communication",
-          "idempotencyKey": "obligation_id + a.reject-scope"
+          "idempotencyKey": "refund_request_id + a.reject-scope"
         },
         {
           "id": "c.policy",
@@ -42938,7 +43000,7 @@
             }
           ],
           "next": "a.notify-rejection",
-          "idempotencyKey": "obligation_id + a.reject"
+          "idempotencyKey": "refund_request_id + a.reject"
         },
         {
           "id": "a.notify-rejection",
@@ -42946,7 +43008,7 @@
           "does": "Tell the requester the refund was refused and the governing reason, whether that came from policy directly or from a reviewer. A refusal recorded and never sent leaves someone waiting on a decision that has already been made",
           "execution": "communication",
           "next": "x.rejected",
-          "idempotencyKey": "obligation_id + a.notify-rejection"
+          "idempotencyKey": "refund_request_id + a.notify-rejection"
         },
         {
           "id": "x.rejected",
@@ -42968,7 +43030,7 @@
           ],
           "next": "a.acknowledge-review",
           "execution": "human",
-          "idempotencyKey": "obligation_id + a.review"
+          "idempotencyKey": "refund_request_id + a.review"
         },
         {
           "id": "a.acknowledge-review",
@@ -42976,7 +43038,7 @@
           "does": "Tell the requester the refund is under review and what that state means, without implying an outcome. The wait for a human decision is the longest silence in this journey and the one most easily read as no answer coming",
           "execution": "communication",
           "next": "w.decision",
-          "idempotencyKey": "obligation_id + a.acknowledge-review"
+          "idempotencyKey": "refund_request_id + a.acknowledge-review"
         },
         {
           "id": "w.decision",
@@ -43037,7 +43099,7 @@
           ],
           "next": "h.execute",
           "execution": "human",
-          "idempotencyKey": "obligation_id + a.approve"
+          "idempotencyKey": "refund_request_id + a.approve"
         },
         {
           "id": "h.execute",
@@ -45057,6 +45119,11 @@
           "id": "s.g4",
           "label": "CANONICAL_RULE",
           "text": "Communicating a delay does not resolve the operational delay."
+        },
+        {
+          "id": "s.g5",
+          "label": "CANONICAL_RULE",
+          "text": "Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait."
         }
       ],
       "contact": {
@@ -46014,7 +46081,7 @@
             }
           ],
           "next": "c.class",
-          "idempotencyKey": "order_id + obligation_id + a.classify"
+          "idempotencyKey": "delivery_attempt_id + obligation_id + a.classify"
         },
         {
           "id": "c.class",
@@ -46060,7 +46127,7 @@
           ],
           "next": "w.correction",
           "execution": "communication",
-          "idempotencyKey": "order_id + obligation_id + a.correct"
+          "idempotencyKey": "delivery_attempt_id + obligation_id + a.correct"
         },
         {
           "id": "w.correction",
@@ -46133,7 +46200,7 @@
             }
           ],
           "next": "h.retry",
-          "idempotencyKey": "order_id + obligation_id + a.alternate"
+          "idempotencyKey": "delivery_attempt_id + obligation_id + a.alternate"
         },
         {
           "id": "a.offer-route",
@@ -46141,7 +46208,7 @@
           "does": "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way. Moving where somebody has to be, without asking, is a decision taken on their behalf",
           "execution": "communication",
           "next": "w.route-choice",
-          "idempotencyKey": "order_id + obligation_id + a.offer-route"
+          "idempotencyKey": "delivery_attempt_id + obligation_id + a.offer-route"
         },
         {
           "id": "w.route-choice",
@@ -46193,7 +46260,7 @@
             }
           ],
           "next": "h.retry",
-          "idempotencyKey": "order_id + obligation_id + a.reattempt"
+          "idempotencyKey": "delivery_attempt_id + obligation_id + a.reattempt"
         },
         {
           "id": "h.retry",
@@ -46212,8 +46279,15 @@
           "on": "a delivery that cannot be completed - refused, uncorrectable, or out of attempts",
           "carries": [
             "the failure classification and the full attempt history",
-            "the obligation, which is unresolved rather than discharged - and any financial consequence, which is a separate lifecycle"
-          ]
+            "the obligation, which is unresolved rather than discharged - and any financial consequence, which is a separate lifecycle - obligation_id stands in for REM-151's order_id",
+            "a fresh issue_id, minted at this handoff and deterministically derived from delivery_attempt_id - FUL-148 has no issue concept of its own, so REM-151's instance is opened here rather than carried"
+          ],
+          "contract": {
+            "requiredFields": [
+              "issue_id",
+              "order_id"
+            ]
+          }
         },
         {
           "id": "h.exception",
@@ -46852,6 +46926,11 @@
           "id": "s.g5",
           "label": "CANONICAL_RULE",
           "text": "Acceptance by agreement and acceptance by expiry stay separable forever."
+        },
+        {
+          "id": "s.g6",
+          "label": "CANONICAL_RULE",
+          "text": "A pre-dispatch slip against the original commitment is FUL-146's delay narrative, not this journey's; this journey's own tracking begins at dispatch and reports what the executor authoritatively confirms from there."
         }
       ],
       "contact": {
@@ -47123,11 +47202,21 @@
         },
         {
           "id": "x.unresolved",
-          "kind": "exit",
-          "state": "not delivered; failed or unaccounted for, and being reconciled with the executor",
-          "terminal": false,
-          "reEntry": "a re-dispatch of the same obligation starts a new instance",
-          "class": "failure"
+          "kind": "handoff",
+          "to": "FUL-148",
+          "on": "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait",
+          "carries": [
+            "the failure classification told to the recipient - confirmed failure or executor lost sight of - which becomes FUL-148's failure_reason",
+            "the dispatch and tracking history, so recovery does not start from nothing",
+            "a fresh delivery_attempt_id, minted at this handoff and deterministically derived from obligation_id and the dispatch record - FUL-265 tracks by obligation and person, not by attempt, so FUL-148's per-attempt instance is opened here rather than carried"
+          ],
+          "contract": {
+            "requiredFields": [
+              "delivery_attempt_id",
+              "obligation_id",
+              "failure_reason"
+            ]
+          }
         },
         {
           "id": "a.arrived",
@@ -48269,7 +48358,7 @@
             }
           ],
           "next": "c.applicable",
-          "idempotencyKey": "order_id + a.capture"
+          "idempotencyKey": "return_request_id + a.capture"
         },
         {
           "id": "c.applicable",
@@ -48294,9 +48383,16 @@
           "to": "REM-157",
           "on": "a return requested against something that cannot be returned",
           "carries": [
-            "the request and the unresolved obligation behind it",
-            "the fact that no return route exists, so the remedy is something else rather than nothing"
-          ]
+            "the request and the unresolved obligation behind it - original_fulfillment_id becomes REM-157's obligation_id",
+            "the fact that no return route exists, so the remedy is something else rather than nothing",
+            "a fresh issue_id, minted at this handoff and deterministically derived from return_request_id - REM-152 has no issue concept of its own, so REM-157's instance is opened here rather than carried"
+          ],
+          "contract": {
+            "requiredFields": [
+              "issue_id",
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "c.policy",
@@ -48358,7 +48454,7 @@
             }
           ],
           "next": "a.notify-rejection",
-          "idempotencyKey": "order_id + a.reject"
+          "idempotencyKey": "return_request_id + a.reject"
         },
         {
           "id": "a.notify-rejection",
@@ -48366,7 +48462,7 @@
           "does": "Tell the requester the return was refused and the governing reason, whether policy ruled it out directly or a reviewer did. Someone holding an item they were told nothing about goes on believing a return is still coming",
           "execution": "communication",
           "next": "x.rejected",
-          "idempotencyKey": "order_id + a.notify-rejection"
+          "idempotencyKey": "return_request_id + a.notify-rejection"
         },
         {
           "id": "x.rejected",
@@ -48388,7 +48484,7 @@
           ],
           "next": "w.decision",
           "execution": "human",
-          "idempotencyKey": "order_id + a.review"
+          "idempotencyKey": "return_request_id + a.review"
         },
         {
           "id": "w.decision",
@@ -48448,7 +48544,7 @@
             }
           ],
           "next": "a.notify-authorization",
-          "idempotencyKey": "order_id + a.authorize"
+          "idempotencyKey": "return_request_id + a.authorize"
         },
         {
           "id": "a.notify-authorization",
@@ -48456,7 +48552,7 @@
           "does": "Tell the requester the return is authorised, within what scope and by what method, and that authorisation permits the resource to come back without deciding that money is owed. Leaving them to discover the answer from the transit lifecycle makes the next step arrive before the decision does",
           "execution": "communication",
           "next": "h.transit",
-          "idempotencyKey": "order_id + a.notify-authorization"
+          "idempotencyKey": "return_request_id + a.notify-authorization"
         },
         {
           "id": "h.transit",
@@ -49587,7 +49683,7 @@
             },
             {
               "label": "Return, before anything else",
-              "when": "the resource has to come back before a further remedy can be settled",
+              "when": "the resource has to come back before a further remedy can be settled, and a return was not already rejected for this issue - a rejected return does not get re-selected when REM-152's own h.alternative routes back here; that path already arrives at c.route with the rejection recorded, and this branch's condition is false the second time",
               "to": "h.return"
             },
             {
@@ -50889,7 +50985,8 @@
       "eligibility": [
         "a renewal decision window has opened on a continuing relationship with a current term",
         "the renewal terms, model and required notice are defined - or the cycle goes to decision resolution first",
-        "no renewal instance is already open for this cycle"
+        "no renewal instance is already open for this cycle",
+        "no open payment recovery process exists on the relationship - payment recovery owns the relationship until it resolves"
       ],
       "suppressions": [
         {
@@ -50911,6 +51008,11 @@
           "id": "s.asking-not-deciding",
           "label": "CANONICAL_RULE",
           "text": "Putting the decision to its holder is not deciding; a non-response is resolved by what the governing terms define, never assumed."
+        },
+        {
+          "id": "s.payment-recovery",
+          "label": "CANONICAL_RULE",
+          "text": "An open payment recovery process on the relationship suppresses the renewal decision request entirely; a routine renewal ask is not put to someone whose current term is already in question over an unresolved payment failure."
         },
         {
           "id": "s.hard-gates",
@@ -50948,7 +51050,7 @@
         "competition": {
           "exclusionGroup": "relationship-continuity",
           "scope": "subscription",
-          "precedence": "below a cancellation in motion and below an active risk state on the same relationship",
+          "precedence": "below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship",
           "onLoss": "suppressed"
         }
       },
@@ -51035,6 +51137,7 @@
           "s.blocked",
           "s.decided",
           "s.asking-not-deciding",
+          "s.payment-recovery",
           "s.hard-gates"
         ]
       },
@@ -51311,7 +51414,7 @@
             }
           ],
           "next": "w.review",
-          "idempotencyKey": "renewal_cycle_id + review"
+          "idempotencyKey": "renewal_cycle_id + relationship_id + a.review"
         },
         {
           "id": "w.review",
@@ -51360,7 +51463,7 @@
             }
           ],
           "next": "h.execute",
-          "idempotencyKey": "renewal_cycle_id + decision"
+          "idempotencyKey": "renewal_cycle_id + relationship_id + a.decided"
         },
         {
           "id": "h.execute",
@@ -51383,7 +51486,7 @@
             }
           ],
           "next": "h.scheduled-end",
-          "idempotencyKey": "renewal_cycle_id + decision"
+          "idempotencyKey": "renewal_cycle_id + relationship_id + a.non-renew"
         },
         {
           "id": "h.scheduled-end",
@@ -56885,9 +56988,16 @@
           "to": "REM-157",
           "on": "a service obligation left unresolved by a provider-side failure",
           "carries": [
-            "the obligation as it stands and the fact that the customer did nothing wrong",
-            "the explicit fact that the impact of the failure is a separate question from the obligation, and compensation is decided on its own terms"
-          ]
+            "the obligation as it stands and the fact that the customer did nothing wrong - provider_failure_id stands in for REM-157's obligation_id",
+            "the explicit fact that the impact of the failure is a separate question from the obligation, and compensation is decided on its own terms",
+            "a fresh issue_id, minted at this handoff and deterministically derived from provider_failure_id - SCH-180 has no issue concept of its own, so REM-157's instance is opened here rather than carried"
+          ],
+          "contract": {
+            "requiredFields": [
+              "issue_id",
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "h.financial",
@@ -56896,8 +57006,14 @@
           "on": "a provider-cancelled booking that was paid for",
           "carries": [
             "what was paid and the fact that the cancellation was ours",
-            "the explicit fact that no cancellation fee applies to a booking the provider could not keep"
-          ]
+            "the explicit fact that no cancellation fee applies to a booking the provider could not keep",
+            "a fresh refund_request_id, minted at this handoff and deterministically derived from provider_failure_id"
+          ],
+          "contract": {
+            "requiredFields": [
+              "refund_request_id"
+            ]
+          }
         },
         {
           "id": "x.cancelled-provider",
@@ -58679,7 +58795,7 @@
           "does": "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held. Somebody who wanted one day and is shown another should see that at a glance, not discover it at the point of booking",
           "next": "w.respond",
           "execution": "communication",
-          "idempotencyKey": "booking_id + a.offer"
+          "idempotencyKey": "person_id + availability_query_id + a.offer"
         },
         {
           "id": "a.waitlist",
@@ -58687,7 +58803,7 @@
           "does": "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
           "next": "w.waitlist",
           "execution": "communication",
-          "idempotencyKey": "booking_id + a.waitlist"
+          "idempotencyKey": "person_id + availability_query_id + a.waitlist"
         },
         {
           "id": "w.waitlist",
@@ -59789,7 +59905,7 @@
             }
           ],
           "next": "a.state",
-          "idempotencyKey": "issue_id + a.specify"
+          "idempotencyKey": "decision_case_id + requirement_id + a.specify"
         },
         {
           "id": "a.state",
@@ -59802,7 +59918,7 @@
             }
           ],
           "next": "c.source-type",
-          "idempotencyKey": "issue_id + a.state"
+          "idempotencyKey": "decision_case_id + requirement_id + a.state"
         },
         {
           "id": "c.source-type",
@@ -59833,7 +59949,7 @@
           ],
           "next": "w.info",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.request",
+          "idempotencyKey": "decision_case_id + requirement_id + a.request",
           "attemptBudget": {
             "key": "information_requirement.request_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -59852,7 +59968,7 @@
           ],
           "next": "w.info",
           "execution": "human",
-          "idempotencyKey": "issue_id + a.request-internal",
+          "idempotencyKey": "decision_case_id + requirement_id + a.request-internal",
           "attemptBudget": {
             "key": "information_requirement.request_internal_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -59910,7 +60026,7 @@
             }
           ],
           "next": "x.moot",
-          "idempotencyKey": "issue_id + a.moot"
+          "idempotencyKey": "decision_case_id + requirement_id + a.moot"
         },
         {
           "id": "x.moot",
@@ -59971,7 +60087,7 @@
             }
           ],
           "next": "c.timeout",
-          "idempotencyKey": "issue_id + a.deadline"
+          "idempotencyKey": "decision_case_id + requirement_id + a.deadline"
         },
         {
           "id": "c.timeout",
@@ -60006,7 +60122,7 @@
             }
           ],
           "next": "x.closed-noinfo",
-          "idempotencyKey": "issue_id + a.close"
+          "idempotencyKey": "decision_case_id + requirement_id + a.close"
         },
         {
           "id": "x.closed-noinfo",
@@ -61666,7 +61782,7 @@
           "does": "State what was decided, why, exactly what would have to change, and by when - taken from the policy that defines the path rather than from what sounds achievable. A decision delivered without its route back is a reprimand, and it produces a complaint instead of a correction",
           "next": "w.remediate",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.correctable"
+          "idempotencyKey": "decision_id + a.correctable"
         },
         {
           "id": "w.remediate",
@@ -61720,7 +61836,7 @@
           "does": "Confirm the decision is resolved and name what it no longer affects. Silence after a correction reads as the decision still standing, and the person goes on behaving as though it does",
           "next": "x.corrected",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.cleared"
+          "idempotencyKey": "decision_id + a.cleared"
         },
         {
           "id": "x.corrected",
@@ -61744,7 +61860,7 @@
           "does": "Say once that the window has closed and what now stands. The end of a stated deadline is the single moment where saying nothing changes somebody's position without telling them",
           "next": "c.residual",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.expired"
+          "idempotencyKey": "decision_id + a.expired"
         },
         {
           "id": "c.residual",
@@ -61769,7 +61885,7 @@
           "does": "Name the conditions policy actually defines for a fresh request - after what period, on what basis, with what evidence - and nothing beyond them. A right that was invented to soften the message becomes one somebody plans around and is refused again for",
           "next": "x.reapply",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.reapply"
+          "idempotencyKey": "decision_id + a.reapply"
         },
         {
           "id": "x.reapply",
@@ -61785,7 +61901,7 @@
           "does": "Say the decision is final and that no route back exists, with no call to action attached to soften it. A false path offered out of kindness costs more than the refusal did, because it is discovered later and by somebody who has already acted on it",
           "next": "x.final",
           "execution": "communication",
-          "idempotencyKey": "issue_id + a.final"
+          "idempotencyKey": "decision_id + a.final"
         },
         {
           "id": "x.final",
@@ -64431,7 +64547,7 @@
           "does": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
           "next": "c.path",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.at-the-wall"
+          "idempotencyKey": "entity_ref + limit_id + window_id + a.at-the-wall"
         },
         {
           "id": "c.path",
@@ -64478,7 +64594,7 @@
           "does": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
           "next": "w.capacity",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.offer-self"
+          "idempotencyKey": "entity_ref + limit_id + window_id + a.offer-self"
         },
         {
           "id": "a.offer-holder",
@@ -64486,7 +64602,7 @@
           "does": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
           "next": "a.notify-blocked-party",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.offer-holder"
+          "idempotencyKey": "entity_ref + limit_id + window_id + a.offer-holder"
         },
         {
           "id": "a.notify-blocked-party",
@@ -64494,7 +64610,7 @@
           "does": "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway. Told only that they hit a limit, they wait on a person who does not know they are being waited on",
           "next": "w.capacity",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.notify-blocked-party"
+          "idempotencyKey": "entity_ref + limit_id + window_id + a.notify-blocked-party"
         },
         {
           "id": "w.capacity",
@@ -64558,7 +64674,7 @@
           "does": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
           "next": "x.reset",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.reset"
+          "idempotencyKey": "entity_ref + limit_id + window_id + a.reset"
         },
         {
           "id": "x.reset",
@@ -66956,7 +67072,7 @@
             }
           ],
           "next": "a.version",
-          "idempotencyKey": "document_version_id + issue_id + a.recipient"
+          "idempotencyKey": "document_version_id + recipient_id + a.recipient"
         },
         {
           "id": "a.version",
@@ -66969,7 +67085,7 @@
             }
           ],
           "next": "a.distribute",
-          "idempotencyKey": "document_version_id + issue_id + a.version"
+          "idempotencyKey": "document_version_id + recipient_id + a.version"
         },
         {
           "id": "a.distribute",
@@ -66983,7 +67099,7 @@
           ],
           "next": "w.distribution",
           "execution": "communication",
-          "idempotencyKey": "document_version_id + issue_id + a.distribute"
+          "idempotencyKey": "document_version_id + recipient_id + a.distribute"
         },
         {
           "id": "w.distribution",
@@ -67035,7 +67151,7 @@
             }
           ],
           "next": "x.distributed",
-          "idempotencyKey": "document_version_id + issue_id + a.confirmed"
+          "idempotencyKey": "document_version_id + recipient_id + a.confirmed"
         },
         {
           "id": "x.distributed",
@@ -67056,7 +67172,7 @@
             }
           ],
           "next": "h.reconcile",
-          "idempotencyKey": "document_version_id + issue_id + a.unknown"
+          "idempotencyKey": "document_version_id + recipient_id + a.unknown"
         },
         {
           "id": "h.reconcile",
@@ -67123,7 +67239,8 @@
       "eligibility": [
         "a document version requires signature, with required signers, their signing authority and any signing order defined",
         "a signature validity window is either defined by the request's own terms or explicitly recorded as not set",
-        "no signature process is already open for this version"
+        "no signature process is already open for this version",
+        "no DOC-220 conflict review is open for this document's lineage - a version under active conflict review is not simultaneously collecting signatures against it as though it were already settled"
       ],
       "suppressions": [
         {
@@ -67258,7 +67375,8 @@
             "required_signers",
             "signing_authority",
             "signing_order",
-            "validity_ends_at"
+            "validity_ends_at",
+            "signer_id"
           ],
           "optional": [
             "review_point_at",
@@ -67350,7 +67468,7 @@
             }
           ],
           "next": "c.window",
-          "idempotencyKey": "document_version_id + definition"
+          "idempotencyKey": "document_version_id + a.define"
         },
         {
           "id": "c.window",
@@ -67522,7 +67640,7 @@
             }
           ],
           "next": "c.complete",
-          "idempotencyKey": "document_version_id + signer_id + signature",
+          "idempotencyKey": "document_version_id + signer_id + a.record-sig",
           "attemptBudget": {
             "key": "signature.required_signers",
             "rule": "The signature loop runs once per required signer; the budget is the signer list fixed when the process opened.",
@@ -67580,7 +67698,7 @@
             }
           ],
           "next": "h.declined",
-          "idempotencyKey": "document_version_id + signer_id + decline"
+          "idempotencyKey": "document_version_id + signer_id + a.declined"
         },
         {
           "id": "h.declined",
@@ -67616,7 +67734,7 @@
             }
           ],
           "next": "x.superseded",
-          "idempotencyKey": "document_version_id + superseded"
+          "idempotencyKey": "document_version_id + a.superseded"
         },
         {
           "id": "x.superseded",
@@ -67637,7 +67755,7 @@
             }
           ],
           "next": "x.expired",
-          "idempotencyKey": "document_version_id + expired"
+          "idempotencyKey": "document_version_id + a.expired"
         },
         {
           "id": "x.expired",
@@ -68779,7 +68897,7 @@
             }
           ],
           "next": "c.identifiable",
-          "idempotencyKey": "document_version_id + issue_id + a.collect"
+          "idempotencyKey": "document_lineage_id + conflict_id + a.collect"
         },
         {
           "id": "c.identifiable",
@@ -68809,7 +68927,7 @@
             }
           ],
           "next": "h.review",
-          "idempotencyKey": "document_version_id + issue_id + a.cannot"
+          "idempotencyKey": "document_lineage_id + conflict_id + a.cannot"
         },
         {
           "id": "h.review",
@@ -68824,7 +68942,7 @@
         {
           "id": "a.authoritative",
           "kind": "action",
-          "does": "Record which version is authoritative and why, preserving every conflicting record alongside it. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
+          "does": "Record which version is authoritative and why, preserving every conflicting record alongside it. This is a deterministic resolver applying c.identifiable's own criteria - lineage, issuance authority and effective semantics - never a human judgment call at this step; the resolver having already singled out one version is what makes this action reachable at all, which is why an inability to do so routes to h.review's human decision instead of arriving here. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
           "writes": [
             {
               "field": "document_log",
@@ -68832,7 +68950,7 @@
             }
           ],
           "next": "c.signature",
-          "idempotencyKey": "document_version_id + issue_id + a.authoritative"
+          "idempotencyKey": "document_lineage_id + conflict_id + a.authoritative"
         },
         {
           "id": "c.signature",
@@ -68862,7 +68980,7 @@
             }
           ],
           "next": "h.resign",
-          "idempotencyKey": "document_version_id + issue_id + a.sig-invalid"
+          "idempotencyKey": "document_lineage_id + conflict_id + a.sig-invalid"
         },
         {
           "id": "h.resign",
@@ -68908,7 +69026,7 @@
           ],
           "next": "x.reconciled",
           "execution": "communication",
-          "idempotencyKey": "document_version_id + issue_id + a.correct-distribution"
+          "idempotencyKey": "document_lineage_id + conflict_id + a.correct-distribution"
         },
         {
           "id": "a.preserve-history",
@@ -68921,7 +69039,7 @@
             }
           ],
           "next": "h.remedy",
-          "idempotencyKey": "document_version_id + issue_id + a.preserve-history"
+          "idempotencyKey": "document_lineage_id + conflict_id + a.preserve-history"
         },
         {
           "id": "h.remedy",
@@ -68929,9 +69047,16 @@
           "to": "REM-157",
           "on": "a business action taken on a non-authoritative document version",
           "carries": [
-            "what was done, under which version, and what the authoritative version says instead",
-            "the explicit fact that the history is preserved intact - the remedy addresses the consequence rather than the record"
-          ]
+            "what was done, under which version, and what the authoritative version says instead - conflict_id stands in for REM-157's obligation_id",
+            "the explicit fact that the history is preserved intact - the remedy addresses the consequence rather than the record",
+            "a fresh issue_id, minted at this handoff and deterministically derived from conflict_id - DOC-220 has no issue concept of its own, so REM-157's instance is opened here rather than carried"
+          ],
+          "contract": {
+            "requiredFields": [
+              "issue_id",
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "x.reconciled",
@@ -68987,6 +69112,7 @@
         "the entitlement it confers, expressed as something the holder can act on",
         "a named holder with a permitted route to them",
         "no instance of this journey is already open for the the effective document version and the entitlement it confers on its holder",
+        "no DOC-220 conflict review is open for this document's lineage - a version review can retroactively make what looked authoritative not authoritative, and this journey does not tell a holder an entitlement is active while that question is still open",
         "hard gates (GLB-31) allow communication for this purpose"
       ],
       "suppressions": [
@@ -74996,7 +75122,7 @@
           "does": "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do. A prompt to act where acting is impossible reads as blame and produces a support contact instead of a cleared blocker",
           "next": "x.held",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.inform-hold"
+          "idempotencyKey": "target_id + change_id + a.inform-hold"
         },
         {
           "id": "x.held",
@@ -75012,7 +75138,7 @@
           "does": "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window. A generic notice that something is available leaves the holder to discover the blocker themselves, which is the whole reason the target is stuck",
           "next": "w.clear",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.name-blocker"
+          "idempotencyKey": "target_id + change_id + a.name-blocker"
         },
         {
           "id": "w.clear",
@@ -75095,7 +75221,7 @@
           "does": "Send one further prompt naming the same prerequisite and the date it stops mattering. There is no third - a blocker nobody has cleared twice is a decision, not an oversight",
           "next": "w.final",
           "execution": "communication",
-          "idempotencyKey": "person_id + a.last-call"
+          "idempotencyKey": "target_id + change_id + a.last-call"
         },
         {
           "id": "w.final",
@@ -75864,7 +75990,7 @@
             }
           ],
           "next": "c.cohort",
-          "idempotencyKey": "obligation_id + incident_id + a.determine"
+          "idempotencyKey": "incident_id + recipient_cohort_id + state_change_id + a.determine"
         },
         {
           "id": "c.cohort",
@@ -75894,7 +76020,7 @@
             }
           ],
           "next": "c.verified",
-          "idempotencyKey": "obligation_id + incident_id + a.scoped"
+          "idempotencyKey": "incident_id + recipient_cohort_id + state_change_id + a.scoped"
         },
         {
           "id": "a.broad",
@@ -75907,7 +76033,7 @@
             }
           ],
           "next": "c.verified",
-          "idempotencyKey": "obligation_id + incident_id + a.broad"
+          "idempotencyKey": "incident_id + recipient_cohort_id + state_change_id + a.broad"
         },
         {
           "id": "c.verified",
@@ -75937,7 +76063,7 @@
             }
           ],
           "next": "c.material",
-          "idempotencyKey": "obligation_id + incident_id + a.hold-claim"
+          "idempotencyKey": "incident_id + recipient_cohort_id + state_change_id + a.hold-claim"
         },
         {
           "id": "c.material",
@@ -75976,7 +76102,7 @@
             }
           ],
           "next": "x.no-send",
-          "idempotencyKey": "obligation_id + incident_id + a.no-send"
+          "idempotencyKey": "incident_id + recipient_cohort_id + state_change_id + a.no-send"
         },
         {
           "id": "x.no-send",
@@ -75998,7 +76124,7 @@
           ],
           "next": "c.final",
           "execution": "communication",
-          "idempotencyKey": "obligation_id + incident_id + a.communicate"
+          "idempotencyKey": "incident_id + recipient_cohort_id + state_change_id + a.communicate"
         },
         {
           "id": "c.final",

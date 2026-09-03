@@ -39,32 +39,49 @@ export const CUSTOMER_ENTITY = /\b(person|customer|account|lead|relationship|sub
 
 export type SurfaceAssignment = {
   surface: Surface;
-  /** Whether the journey itself sends or routes to a human. */
-  communicating: boolean;
-  /** Whether the journey sends a message on a customer channel. A journey
-      that only routes work to a person (sales, task) is not silent for the
-      validator but is a lifecycle state on the product surface. */
+  /** Whether the journey sends a message on a customer channel (email, sms,
+      push, in-app, whatsapp). A journey that only routes work to a person
+      (sales, task) is not silent for the validator but is a lifecycle state
+      on the product surface - see `routesToHuman`. */
   sends: boolean;
+  /** Whether the journey routes work to a person via `sales` or `task`,
+      independent of `sends`. A journey can have `routesToHuman: true` and
+      `sends: false` - ACQ-04, ACT-11 and RET-24 are exactly this - and it
+      still carries a full vNext orchestration contract (`contact`,
+      `channelStrategy`, `orchestration`), the same as one that sends.
+
+      There is deliberately no combined `communicating` field here. Naming
+      the union that way once meant two different things at two different
+      layers of the codebase - the broad `sends || routesToHuman` this file
+      itself needs, and the narrower `sends`-only meaning the site's
+      "Customer journeys" tab uses (`JourneyRow.communicating` in
+      `src/lib/canonical-view.ts`, deliberately kept as `sf.sends` there and
+      named for what the site shows, not for this file's own union). Where a
+      caller needs the union - "does this journey need orchestration
+      metadata at all" - it reads `sends || routesToHuman` at the call site;
+      see `scripts/vnext-draft.mjs` and `scripts/vnext-rules.mjs`, which
+      compute the identical union under that same name rather than importing
+      a fourth name for it. */
+  routesToHuman: boolean;
   reason: string;
 };
 
 export function surfaceOf(j: Pick<CanonicalJourney, "id" | "category" | "channels" | "entity">): SurfaceAssignment {
   const sends = j.channels.some((c) => MESSAGE_CHANNELS.includes(c));
   const routesToHuman = j.channels.some((c) => c === "sales" || c === "task");
-  const communicating = sends || routesToHuman;
   if (MECHANISM_IDS.includes(j.id)) {
-    return { surface: "mechanism", communicating, sends, reason: "listed in MECHANISM_IDS - runtime machinery customer journeys depend on" };
+    return { surface: "mechanism", sends, routesToHuman, reason: "listed in MECHANISM_IDS - runtime machinery customer journeys depend on" };
   }
   if (sends) {
-    return { surface: "customer", communicating: true, sends, reason: `declares a message channel (${j.channels.join(", ")})` };
+    return { surface: "customer", sends, routesToHuman, reason: `declares a message channel (${j.channels.join(", ")})` };
   }
   if (CUSTOMER_CATEGORIES.includes(j.category) && CUSTOMER_ENTITY.test(j.entity.scope)) {
     return {
       surface: "customer",
-      communicating,
       sends,
+      routesToHuman,
       reason: `silent lifecycle state: category "${j.category}" and a customer-worded entity ("${j.entity.scope.slice(0, 60)}")`,
     };
   }
-  return { surface: "operational", communicating, sends, reason: "no message channel and a system-side entity or category" };
+  return { surface: "operational", sends, routesToHuman, reason: "no message channel and a system-side entity or category" };
 }

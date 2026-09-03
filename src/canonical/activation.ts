@@ -284,7 +284,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Read the onboarding context: the declared goal, the role, the product or use-case, the setup complexity, the account or organisation type, any implementation requirement, and any stated need for assistance. Plan tier is not read as a proxy for any of these",
         writes: [{ field: "onboarding_context", mode: "set" }],
         next: "c.assisted",
-        idempotencyKey: "subscription_id + account_id + a.context",
+        idempotencyKey: "account_id + onboarding_instance_id + a.context",
       },
       {
         id: "c.assisted",
@@ -310,7 +310,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "onboarding_route", mode: "set" }],
         next: "c.prerequisite",
         execution: "human",
-        idempotencyKey: "subscription_id + account_id + a.assisted",
+        idempotencyKey: "account_id + onboarding_instance_id + a.assisted",
       },
       {
         id: "a.self-service",
@@ -318,7 +318,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the self-service route, which stays revisable: discovering later that a person is needed is a re-route, not a failure",
         writes: [{ field: "onboarding_route", mode: "set" }],
         next: "c.prerequisite",
-        idempotencyKey: "subscription_id + account_id + a.self-service",
+        idempotencyKey: "account_id + onboarding_instance_id + a.self-service",
       },
       {
         id: "c.prerequisite",
@@ -393,6 +393,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "an onboarding instance is open for the account and activation is not yet recorded",
       "the product's own record of setup milestones is readable",
       "no nurture instance is already open for this onboarding instance",
+      "no ACT-14 assisted-help session is open (booked and not yet resolved) for this account",
       "hard gates (GLB-31) permit lifecycle communication"
     ],
     suppressions: [
@@ -420,6 +421,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.contest",
         "label": "CANONICAL_RULE",
         "text": "This journey sits below the activation event and below any open issue under human ownership on the same account (GLB-06)."
+      },
+      {
+        "id": "s.assisted",
+        "label": "CANONICAL_RULE",
+        "text": "An open ACT-14 assisted-help session (booked at a.confirm, not yet resolved) on the same account takes ownership from this journey's generic next-step prompts; nurture steps pause until ACT-14's w.session resolves (assisted_session_outcome_recorded or booking_cancelled) or exits, and resume against the milestone record as it then stands."
       },
       {
         "id": "s.permission",
@@ -513,6 +519,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.done-step",
         "s.window",
         "s.contest",
+        "s.assisted",
         "s.permission"
       ]
     },
@@ -527,7 +534,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         "optional": [
           "has_active_session",
-          "blocker_candidate"
+          "blocker_candidate",
+          "assisted_session_open"
         ]
       }
     },
@@ -1311,13 +1319,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
           "role": "in-session",
           "channels": [
             "in-app"
@@ -1329,7 +1330,14 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "push"
           ],
-          "when": "a valid token or app session exists and the message is a single step from the notification"
+          "when": "no active session, a valid token exists, and the message is a single step from the notification"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no active session and no valid push token - the message has to be kept and survive until the person returns to act on it"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -1348,9 +1356,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Offer help named against the step they keep returning to.",
           "channelRoles": [
-            "persistent",
             "in-session",
-            "low-friction"
+            "low-friction",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1370,9 +1378,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
           "channelRoles": [
-            "persistent",
             "in-session",
-            "low-friction"
+            "low-friction",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1393,9 +1401,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one follow-up tied to what the session actually covered.",
           "channelRoles": [
-            "persistent",
             "in-session",
-            "low-friction"
+            "low-friction",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -1410,9 +1418,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one final self-service option and stop.",
           "channelRoles": [
-            "persistent",
             "in-session",
-            "low-friction"
+            "low-friction",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3325,7 +3333,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Make one bounded attempt built on the recorded reason. Not a general note that they have been missed, which says nothing and asks for nothing",
         next: "w.return",
         execution: "communication",
-        idempotencyKey: "account_id + lead_id + a.attempt",
+        idempotencyKey: "lead_id + context_id + a.attempt",
       },
       {
         id: "w.return",

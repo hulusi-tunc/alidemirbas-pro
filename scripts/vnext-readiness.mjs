@@ -63,7 +63,7 @@ function score(j) {
   const keys = Object.keys(d);
   const total = keys.reduce((a, k) => a + d[k], 0);
   const pct = Math.round((total / (keys.length * 5)) * 100);
-  return { id: j.id, shortName: j.shortName, category: j.category, surface: s.surface, kind, communicating: s.communicating, vnext, dims: d, total, max: keys.length * 5, pct, orchestration_strategy: j.orchestration?.strategy ?? null, touch_count: j.orchestration?.touches?.length ?? 0, measurement_scope: j.measurement?.businessOutcome?.observationScope?.type ?? (j.measurement ? "journey-only" : null), aliases: j.discovery?.aliases ?? [], presets: (j.discovery?.presets ?? []).map((p) => p.id) };
+  return { id: j.id, shortName: j.shortName, category: j.category, surface: s.surface, kind, sends: s.sends, routesToHuman: s.routesToHuman, vnext, dims: d, total, max: keys.length * 5, pct, orchestration_strategy: j.orchestration?.strategy ?? null, touch_count: j.orchestration?.touches?.length ?? 0, measurement_scope: j.measurement?.businessOutcome?.observationScope?.type ?? (j.measurement ? "journey-only" : null), aliases: j.discovery?.aliases ?? [], presets: (j.discovery?.presets ?? []).map((p) => p.id) };
 }
 
 const rows = dump.journeys.map(score);

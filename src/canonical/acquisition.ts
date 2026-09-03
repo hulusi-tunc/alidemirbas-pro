@@ -2077,18 +2077,18 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
           "role": "in-session",
           "channels": [
             "in-app"
           ],
           "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no active session - the message has to be kept and survive until the person returns to act on it"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2106,8 +2106,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"

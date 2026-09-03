@@ -46,7 +46,7 @@ const slugKey = (j) => j.slug.split("-").slice(0, 2).join("_");
 
 function draft(j) {
   const s = surfaceOf[j.id];
-  const comm = !!s.communicating;
+  const comm = !!(s.sends || s.routesToHuman); // orchestrated - see src/canonical/surface.ts
   const byId = Object.fromEntries(j.nodes.map((n) => [n.id, n]));
   const trig = byId[j.entry];
   const instanceKey = j.entity.instanceKey?.length ? [...j.entity.instanceKey] : keyFor(j.entity.scope);

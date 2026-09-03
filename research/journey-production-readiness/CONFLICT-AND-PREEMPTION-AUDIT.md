@@ -5,6 +5,16 @@ question per plausible pair or cluster: **if both states are true on the same pe
 once, does the corpus already say who owns the next action — and if it does, is that rule
 enforced in the graph itself or only stated in prose?**
 
+**Status after the gap-closure round:** every P0 in the "Open questions" table below is now
+closed - FBK-41/FBK-42's tie-break, the FUL-146/FUL-265/FUL-148 delay-failure triangle, and the
+`issue_id` minting gap (SCH-180, FUL-148, REM-152, plus DOC-220 found on re-check) all have an
+enforceable rule or a contract now. Several P1s are also closed: ACT-12/ACT-14, SUB-163/FIN-134,
+CON-264/CON-272, the DOC-215/DOC-220/DOC-286 trio, RET-24's operational-cause branch, and the
+REM-157/REM-152 ping-pong. `FIXES-APPLIED.md` has the specific edit for each. The IDN-81/IDN-85
+reciprocal-suppression gap and FBK-47's cluster-boundary question were named but not in this
+round's explicit scope and remain open. Findings below are as first written; only the closed items
+are marked inline.
+
 Entries are only recorded where a real conflict is plausible. A pair that cannot overlap by
 construction (different entities, strictly sequential lifecycle stages) is noted as resolved and
 not carried into the matrix as an open question.

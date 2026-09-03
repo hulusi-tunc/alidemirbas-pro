@@ -1902,7 +1902,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say which capabilities have stopped and that nothing is required from them, with no reconnection step attached - because there is no step that would work. Prompting a re-auth against a provider outage produces a person who tries three times and then opens a ticket",
         next: "x.informed",
         execution: "communication",
-        idempotencyKey: "person_id + a.inform-only",
+        idempotencyKey: "connection_id + failure_id + a.inform-only",
       },
       {
         id: "x.informed",
@@ -1935,7 +1935,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name exactly which capabilities stopped, which are still running, and the single re-authorisation step. Telling somebody their whole connection is broken when most of it works buys an afternoon of unnecessary work and a lasting distrust of the next notice",
         next: "w.revalidate",
         execution: "communication",
-        idempotencyKey: "person_id + a.partial",
+        idempotencyKey: "connection_id + failure_id + a.partial",
       },
       {
         id: "a.total",
@@ -1943,7 +1943,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the connection is carrying nothing at present, name what has stopped depending on it, and give the single re-authorisation step. What stopped is the part the holder needs in order to judge how urgent this is",
         next: "w.revalidate",
         execution: "communication",
-        idempotencyKey: "person_id + a.total",
+        idempotencyKey: "connection_id + failure_id + a.total",
       },
       {
         id: "w.revalidate",
@@ -1996,7 +1996,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm which capabilities are working again and name any that came back reduced. A reconnection that silently restores less than before is discovered later, at whatever moment the missing capability was needed",
         next: "x.restored",
         execution: "communication",
-        idempotencyKey: "person_id + a.restored",
+        idempotencyKey: "connection_id + failure_id + a.restored",
       },
       {
         id: "x.restored",
@@ -2019,7 +2019,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record that the recovery window closed with the connection still broken, as a dated fact about this integration rather than a conclusion about the relationship. A connection somebody chose not to restore is one signal, and it may be the deliberate end of a use case rather than a customer leaving",
         next: "c.relationship-signal",
-        idempotencyKey: "person_id + a.unreconnected",
+        idempotencyKey: "connection_id + failure_id + a.unreconnected",
       },
       {
         id: "c.relationship-signal",
@@ -2376,7 +2376,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the connection is active and name the capabilities that were actually validated rather than the ones that were configured. The difference is what stops somebody building on a permission they do not have",
         next: "x.active",
         execution: "communication",
-        idempotencyKey: "person_id + a.active",
+        idempotencyKey: "connection_attempt_id + a.active",
       },
       {
         id: "x.active",
@@ -2414,7 +2414,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the credential itself was refused and give the one step that re-establishes it. This is the only stage the configurer can usually fix unaided, and it is the one most often buried under a generic error",
         next: "w.retry",
         execution: "communication",
-        idempotencyKey: "person_id + a.fix-auth",
+        idempotencyKey: "connection_attempt_id + a.fix-auth",
         attemptBudget: {
           "key": "integration_setup.fix_auth_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -2427,7 +2427,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the specific permission that is missing and where it is granted. A missing permission reported as a failed setup makes somebody redo an entire connection to change one switch",
         next: "w.retry",
         execution: "communication",
-        idempotencyKey: "person_id + a.fix-scope",
+        idempotencyKey: "connection_attempt_id + a.fix-scope",
         attemptBudget: {
           "key": "integration_setup.fix_scope_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -2440,7 +2440,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that access was granted but the minimum operation could not be performed, and name which operation. This usually sits with a limit on the provider side, so the message points there rather than at the configurer",
         next: "w.retry",
         execution: "communication",
-        idempotencyKey: "person_id + a.fix-capability",
+        idempotencyKey: "connection_attempt_id + a.fix-capability",
         attemptBudget: {
           "key": "integration_setup.fix_capability_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -2453,7 +2453,7 @@ export const INTEGRATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the attempt failed, that the stage has not been identified, and that nothing further is needed from the configurer while it is looked at. Admitting there is no cause yet beats inventing one - a guessed cause sends somebody to fix what is not broken",
         next: "h.diagnose",
         execution: "communication",
-        idempotencyKey: "person_id + a.generic",
+        idempotencyKey: "connection_attempt_id + a.generic",
       },
       {
         id: "h.diagnose",

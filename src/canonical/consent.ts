@@ -1703,7 +1703,8 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     eligibility: [
       "a contact point is added or changed for an identity",
       "the new destination is well-formed and deliverable in principle",
-      "no verification instance is already open for this contact point"
+      "no verification instance is already open for this contact point",
+      "change_source is not CON-272's own repair flow - a destination CON-272 already confirmed at its own a.confirm is not asked to confirm itself a second time for the same change"
     ],
     suppressions: [
       {
@@ -2032,7 +2033,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record the confirmation against this destination and this destination only. Permission held by the address it replaced is not lent forward - consent does not travel with a change of address, and treating it as though it does is how a confirmed opt-in becomes an unconfirmed one",
         next: "x.permitted",
-        idempotencyKey: "contact_point_id + confirmation",
+        idempotencyKey: "contact_point_id + a.activate",
       },
       {
         id: "x.permitted",
@@ -2132,6 +2133,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "CON-38",
         because:
           "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed.",
+      },
+      {
+        journey: "CON-264",
+        because:
+          "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart.",
       },
     ],
     objective: "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",

@@ -232,7 +232,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
             "sms",
             "whatsapp"
           ],
-          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+          "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -284,7 +284,9 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "consequence_on_miss",
           "deadline_log"
         ],
-        "optional": []
+        "optional": [
+          "urgent_horizon"
+        ]
       }
     },
     measurement: {
@@ -361,7 +363,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Store the deadline with its timezone where that changes the answer, its source, the obligation it governs, its owner, and what would count as completion. The completion condition is the load-bearing part - a deadline that cannot say what would satisfy it can only ever measure elapsed time",
         writes: [{ field: "deadline_log", mode: "append" }],
         next: "w.tracking",
-        idempotencyKey: "obligation_id + issue_id + a.store",
+        idempotencyKey: "obligation_id + a.store",
       },
       {
         id: "w.tracking",
@@ -412,7 +414,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.satisfied",
-        idempotencyKey: "obligation_id + issue_id + a.satisfied",
+        idempotencyKey: "obligation_id + a.satisfied",
       },
       {
         id: "x.satisfied",
@@ -445,7 +447,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send the reminder defined for this threshold. The reminder schedule is not the deadline and does not move it - a deadline nobody was reminded about is still the deadline",
         next: "w.tracking",
         execution: "communication",
-        idempotencyKey: "obligation_id + issue_id + a.remind",
+        idempotencyKey: "obligation_id + a.remind",
         attemptBudget: {
           "key": "deadline_tracking.remind_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -882,7 +884,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
             "sms",
             "push"
           ],
-          "when": "the expiry is inside the urgent horizon, the action is a single step, and permission for service messages on the channel is recorded"
+          "when": "expires_at falls inside the urgent_horizon attribute, the action is a single step, and permission for service messages on the channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -954,7 +956,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "optional": [
           "has_active_session",
           "urgent_channel_permission",
-          "action_destination"
+          "action_destination",
+          "urgent_horizon"
         ]
       }
     },
@@ -1161,7 +1164,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Invalidate the expiry actions queued against the old validity, so a renewal granted today is not undone by an expiry scheduled yesterday",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "h.resolved",
-        idempotencyKey: "validity_id + invalidation",
+        idempotencyKey: "entity_ref + validity_id + a.invalidate",
       },
       {
         id: "h.resolved",
@@ -2385,7 +2388,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "sms"
           ],
-          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+          "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2471,7 +2474,9 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "discharge_route",
           "consequence_policy"
         ],
-        "optional": []
+        "optional": [
+          "urgent_horizon"
+        ]
       }
     },
     measurement: {
@@ -2848,7 +2853,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "sms"
           ],
-          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+          "when": "grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2958,7 +2963,9 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "restricted_capabilities",
           "holder_id"
         ],
-        "optional": []
+        "optional": [
+          "urgent_horizon"
+        ]
       }
     },
     measurement: {
@@ -3051,7 +3058,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state. Naming what still works is what stops a reduction being read as a termination",
         next: "w.grace",
         execution: "communication",
-        idempotencyKey: "person_id + a.notify-restricted",
+        idempotencyKey: "entity_ref + grace_period_id + a.notify-restricted",
       },
       {
         id: "a.notify-quiet",
@@ -3059,7 +3066,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State that validity has lapsed, that nothing has changed yet, and the date it will. Dramatising a restriction the holder cannot feel teaches them to discount the message that arrives when they can",
         next: "w.grace",
         execution: "communication",
-        idempotencyKey: "person_id + a.notify-quiet",
+        idempotencyKey: "entity_ref + grace_period_id + a.notify-quiet",
       },
       {
         id: "w.grace",
@@ -3107,7 +3114,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the active state is back and name which reduced capabilities returned. A recovery nobody confirms leaves the holder still behaving as though restricted, which is the same cost as not recovering",
         next: "x.recovered",
         execution: "communication",
-        idempotencyKey: "person_id + a.confirm",
+        idempotencyKey: "entity_ref + grace_period_id + a.confirm",
       },
       {
         id: "x.recovered",
@@ -3131,7 +3138,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one message naming the exact end date, what stops at it, and the same single recovery route. There is no second reminder - the fixed end is the pressure, and repeating it only spends the attention needed to act",
         next: "w.final",
         execution: "communication",
-        idempotencyKey: "person_id + a.last-call",
+        idempotencyKey: "entity_ref + grace_period_id + a.last-call",
       },
       {
         id: "w.final",
@@ -3161,7 +3168,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms. A holder who is not told the window shut will go on assuming it is open",
         next: "x.lost",
         execution: "communication",
-        idempotencyKey: "person_id + a.lost",
+        idempotencyKey: "entity_ref + grace_period_id + a.lost",
       },
       {
         id: "x.lost",
@@ -3520,7 +3527,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name renewal as the route, what it costs, and what carries across the gap. Somebody who came back on their own does not need persuading, only telling exactly what to do next",
         next: "w.act",
         execution: "communication",
-        idempotencyKey: "issue_id + person_id + a.renew",
+        idempotencyKey: "entity_ref + attempt_id + a.renew",
       },
       {
         id: "a.requalify",
@@ -3528,7 +3535,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say plainly that this is not a renewal and that the conditions have to be met again, listing them. Letting somebody believe a click will fix it, and then asking for evidence halfway through, is how an intent that arrived willing leaves annoyed",
         next: "w.act",
         execution: "communication",
-        idempotencyKey: "issue_id + person_id + a.requalify",
+        idempotencyKey: "entity_ref + attempt_id + a.requalify",
       },
       {
         id: "a.replace",
@@ -3536,7 +3543,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Explain that the old one stays expired and a new one is issued in its place, and what differs between them. The replacement is a different object, and the holder will be asked later about a period when they held neither",
         next: "w.act",
         execution: "communication",
-        idempotencyKey: "issue_id + person_id + a.replace",
+        idempotencyKey: "entity_ref + attempt_id + a.replace",
       },
       {
         id: "a.no-route",
@@ -3544,7 +3551,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say there is no way back to this one and name what exists instead, if anything does. A dead end stated clearly ends the attempt once; a dead end left vague produces three more attempts and a support contact",
         next: "x.terminal",
         execution: "communication",
-        idempotencyKey: "issue_id + person_id + a.no-route",
+        idempotencyKey: "entity_ref + attempt_id + a.no-route",
       },
       {
         id: "w.act",
@@ -3592,7 +3599,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm what is valid now and, where a replacement was issued, that it is a new one rather than the old one revived. The gap during which nothing was valid is a fact the holder will need later, and hiding it here is what makes that conversation go wrong",
         next: "x.restored",
         execution: "communication",
-        idempotencyKey: "issue_id + person_id + a.confirm",
+        idempotencyKey: "entity_ref + attempt_id + a.confirm",
       },
       {
         id: "x.restored",

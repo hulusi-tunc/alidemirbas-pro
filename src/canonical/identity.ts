@@ -383,7 +383,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the verification instance bound to the exact claim - which attribute, at what assurance level, for what purpose - and record it as PENDING. A verification that is not bound to a claim verifies nothing in particular, and is read later as having verified everything",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "c.evidence",
-        idempotencyKey: "issue_id + identity_id + a.instance",
+        idempotencyKey: "claim_id + identity_id + a.instance",
       },
       {
         id: "c.evidence",
@@ -409,7 +409,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "verification_log", mode: "append" }],
         next: "w.evidence",
         execution: "communication",
-        idempotencyKey: "issue_id + identity_id + a.request",
+        idempotencyKey: "claim_id + identity_id + a.request",
       },
       {
         id: "w.evidence",
@@ -447,7 +447,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Validate the evidence against this claim's acceptance rules, recording the state as UNDER_REVIEW while it runs",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "c.result",
-        idempotencyKey: "issue_id + identity_id + a.validate",
+        idempotencyKey: "claim_id + identity_id + a.validate",
         attemptBudget: {
           "key": "identity_claim.validate_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -505,7 +505,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "verification_log", mode: "append" }],
         next: "w.evidence",
         execution: "communication",
-        idempotencyKey: "issue_id + identity_id + a.request-more",
+        idempotencyKey: "claim_id + identity_id + a.request-more",
       },
       {
         id: "h.review",
@@ -533,7 +533,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Mark this exact claim VERIFIED, at the assurance the evidence supports and for the scope it covers, together with the evidence that established it. Verifying one attribute verifies nothing else - a verified address says nothing about a verified identity, and the binding is what stops the second being read out of the first",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.verified",
-        idempotencyKey: "issue_id + identity_id + a.verified",
+        idempotencyKey: "claim_id + identity_id + a.verified",
       },
       {
         id: "x.verified",
@@ -1134,7 +1134,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the failure as INSUFFICIENT_EVIDENCE, MISMATCH, UNREADABLE, EXPIRED_EVIDENCE, TECHNICAL_FAILURE, POLICY_FAILURE, REVIEW_REQUIRED or UNKNOWN. The class decides the route, and it decides something else: recording our own outage as an identity rejection marks someone as having failed a check they never got to attempt",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "c.class",
-        idempotencyKey: "identity_id + a.classify",
+        idempotencyKey: "verification_instance_id + a.classify",
       },
       {
         id: "c.class",
@@ -1187,7 +1187,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.retry",
         execution: "communication",
-        idempotencyKey: "identity_id + a.explain",
+        idempotencyKey: "verification_instance_id + a.explain",
       },
       {
         id: "c.technical-budget",
@@ -1212,7 +1212,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Retry with backoff, recording nothing against the person's verification history. Our failure is not their rejection, and the distinction has to survive into whatever reads that history later",
         writes: [{ field: "verification_log", mode: "append" }],
         next: "x.retry",
-        idempotencyKey: "identity_id + a.backoff",
+        idempotencyKey: "verification_instance_id + a.backoff",
       },
       {
         id: "a.explain-terminal",
@@ -1220,7 +1220,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
         execution: "communication",
         next: "x.terminal",
-        idempotencyKey: "identity_id + a.explain-terminal",
+        idempotencyKey: "verification_instance_id + a.explain-terminal",
       },
       {
         id: "x.retry",
@@ -3113,7 +3113,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send the recovery route to a destination the account already held, and state exactly what evidence is required and when the window closes. A route sent to whichever destination asked for it is not recovery, it is the thing recovery exists to prevent",
         next: "w.proof",
         execution: "communication",
-        idempotencyKey: "issue_id + account_id + a.issue",
+        idempotencyKey: "recovery_case_id + account_id + a.issue",
       },
       {
         id: "w.proof",
@@ -3162,7 +3162,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm that control is back and name what was invalidated on the way - the sessions and credentials that will no longer work. Somebody who is not told what was cut off reads the next refusal as a second compromise",
         next: "x.restored",
         execution: "communication",
-        idempotencyKey: "issue_id + account_id + a.restored",
+        idempotencyKey: "recovery_case_id + account_id + a.restored",
       },
       {
         id: "x.restored",
@@ -3203,7 +3203,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder on the same already-held destination, naming the deadline and the evidence still outstanding. There is no second reminder - a recovery nobody is pursuing has usually been abandoned rather than forgotten, and repetition on a security route is itself a pressure tactic",
         next: "w.final",
         execution: "communication",
-        idempotencyKey: "issue_id + account_id + a.remind",
+        idempotencyKey: "recovery_case_id + account_id + a.remind",
       },
       {
         id: "w.final",

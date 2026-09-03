@@ -29,7 +29,7 @@ Customer journey · category acquisition · slug `bounded-education-progress-or-
 
 1. **educate** (`a.educate`) — on classification, no wait
    - checks: Is there explicit permission and a lawful basis for this kind of communication?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → in-session (in-app: the person is active in the product and the action is taken there)
+   - channel roles, in order: in-session (in-app: the person is active in the product and the action is taken there) → persistent (email: no active session - the message has to be kept and survive until the person returns to act on it)
    - discretionary · priority promotional · [CANONICAL_RULE]
    - purpose: Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals
 
@@ -367,6 +367,7 @@ Customer journey · category activation · slug `onboarding-progress-next-step`
 - an onboarding instance is open for the account and activation is not yet recorded
 - the product's own record of setup milestones is readable
 - no nurture instance is already open for this onboarding instance
+- no ACT-14 assisted-help session is open (booked and not yet resolved) for this account
 - hard gates (GLB-31) permit lifecycle communication
 
 **Suppressed when.**
@@ -375,6 +376,7 @@ Customer journey · category activation · slug `onboarding-progress-next-step`
 - [CANONICAL_RULE] A completed step is never suggested again; every touch re-reads the milestone record first.
 - [CANONICAL_RULE] When the onboarding window closes without activation the instance exits; onboarding prompts are not sent into a closed window.
 - [CANONICAL_RULE] This journey sits below the activation event and below any open issue under human ownership on the same account (GLB-06).
+- [CANONICAL_RULE] An open ACT-14 assisted-help session (booked at a.confirm, not yet resolved) on the same account takes ownership from this journey's generic next-step prompts; nurture steps pause until ACT-14's w.session resolves (assisted_session_outcome_recorded or booking_cancelled) or exits, and resume against the milestone record as it then stands.
 - [CANONICAL_RULE] No touch without permission for lifecycle communication; absent permission is a recorded no-action.
 
 **Recommended orchestration** · strategy `progressive-recovery`
@@ -386,7 +388,7 @@ Customer journey · category activation · slug `onboarding-progress-next-step`
    - purpose: Surface the single most useful next action, read from the product's own record of what is done. Never a completed step, never the whole checklist.
    - destination: next-setup-step bound to `onboarding_instance_id`
 
-Delivery fallback: same-role-other-channel. No action when: s.activated, s.blocker, s.done-step, s.window, s.contest, s.permission (see Suppressed when).
+Delivery fallback: same-role-other-channel. No action when: s.activated, s.blocker, s.done-step, s.window, s.contest, s.assisted, s.permission (see Suppressed when).
 
 **Stops when.**
 - `x.window-closed` [timeout] onboarding window closed without activation — re-entry: a later setup or activation event re-opens this normally; the completed milestones are kept, so a return does not start from the beginning
@@ -399,7 +401,7 @@ Delivery fallback: same-role-other-channel. No action when: s.activated, s.block
 - `onboarding.cooldown` · cooldown — **example: 14 days–30 days** (confidence low) — Onboarding is per instance; a re-opened onboarding after the window closed is a new instance and enters silently until the cooldown has passed.
 - `onboarding.holdout_share` — **example: 10** (confidence low) — A persistent holdout is required: accounts activate on their own often enough that a treated-only measurement cannot tell the prompts' effect from theirs.
 
-**Required data.** Events: `onboarding_active_without_activation` (an onboarding instance that is open and an activation event that has not been recorded); `setup_milestone_completed` (the product's own record marks a setup milestone complete); `activation_recorded` (the authoritative activation event for this onboarding is recorded). Attributes: `account_id`, `onboarding_instance_id`, `milestones`, `critical_steps`, `window_ends_at` (optional: `has_active_session`, `blocker_candidate`).
+**Required data.** Events: `onboarding_active_without_activation` (an onboarding instance that is open and an activation event that has not been recorded); `setup_milestone_completed` (the product's own record marks a setup milestone complete); `activation_recorded` (the authoritative activation event for this onboarding is recorded). Attributes: `account_id`, `onboarding_instance_id`, `milestones`, `critical_steps`, `window_ends_at` (optional: `has_active_session`, `blocker_candidate`, `assisted_session_open`).
 
 **Collision & priority.** default lifecycle · pressure class lifecycle · local cap 5 (example) (all) · cooldown 14 days–30 days (example) · competition lifecycle-stage (person; below the authoritative activation event, which supersedes it wherever it sits; on loss: superseded)
 
@@ -496,24 +498,24 @@ Customer journey · category activation · slug `struggling-user-assistance`
 
 1. **offer** (`a.offer`) — on classification, no wait
    - checks: Are the hard entry conditions met? · Is a person already working this same blocker?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: a valid token or app session exists and the message is a single step from the notification)
+   - channel roles, in order: in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: no active session, a valid token exists, and the message is a single step from the notification) → persistent (email: no active session and no valid push token - the message has to be kept and survive until the person returns to act on it)
    - discretionary · priority lifecycle · [CANONICAL_RULE]
    - purpose: Offer help named against the step they keep returning to.
    - destination: book-assisted-setup bound to `account_id`
 2. **confirm** (`a.confirm`, after t1) — configure struggling_user.response after the previous touch; cancelled by `assisted_session_scheduled` (an assisted session is booked), `activation_recorded` (the authoritative activation event for this onboarding is recorded), `assistance_declined` (the person explicitly turns the help offer down); re-read before sending: the person or account plus the open onboarding or trial instance re-read from the system of record before acting on the timeout
    - checks: What did they do?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: a valid token or app session exists and the message is a single step from the notification)
+   - channel roles, in order: in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: no active session, a valid token exists, and the message is a single step from the notification) → persistent (email: no active session and no valid push token - the message has to be kept and survive until the person returns to act on it)
    - discretionary · priority lifecycle · [CANONICAL_RULE]
    - purpose: Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on
    - destination: assisted-session-details bound to `session_id`
 3. **followup** (`a.followup`, after t2) — configure struggling_user.session after the previous touch; cancelled by `assisted_session_outcome_recorded` (the outcome of the assisted session is recorded), `booking_cancelled` (the booking is cancelled in the system of record); re-read before sending: the person or account plus the open onboarding or trial instance re-read from the system of record before acting on the timeout
    - checks: Did activation follow the assistance? · Is there one genuinely useful follow-up left?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: a valid token or app session exists and the message is a single step from the notification)
+   - channel roles, in order: in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: no active session, a valid token exists, and the message is a single step from the notification) → persistent (email: no active session and no valid push token - the message has to be kept and survive until the person returns to act on it)
    - discretionary · priority lifecycle · [CANONICAL_RULE]
    - purpose: Send one follow-up tied to what the session actually covered.
 4. **final** (`a.final`, after t1) — configure struggling_user.response after the previous touch; cancelled by `assisted_session_scheduled` (an assisted session is booked), `activation_recorded` (the authoritative activation event for this onboarding is recorded), `assistance_declined` (the person explicitly turns the help offer down); re-read before sending: the person or account plus the open onboarding or trial instance re-read from the system of record before acting on the timeout
    - checks: With no response, is one final self-service option worth sending?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: a valid token or app session exists and the message is a single step from the notification)
+   - channel roles, in order: in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: no active session, a valid token exists, and the message is a single step from the notification) → persistent (email: no active session and no valid push token - the message has to be kept and survive until the person returns to act on it)
    - discretionary · priority lifecycle · [CANONICAL_RULE]
    - purpose: Send one final self-service option and stop.
 
@@ -1099,6 +1101,7 @@ Customer journey · category consent · slug `contact-point-confirmation`
 - a contact point is added or changed for an identity
 - the new destination is well-formed and deliverable in principle
 - no verification instance is already open for this contact point
+- change_source is not CON-272's own repair flow - a destination CON-272 already confirmed at its own a.confirm is not asked to confirm itself a second time for the same change
 
 **Suppressed when.**
 - [CANONICAL_RULE] The confirmation request goes to the new destination itself and nowhere else; a confirmation answered from inside an authenticated session proves control of the session, not of the destination.
@@ -1328,7 +1331,7 @@ Delivery fallback: same-role-other-channel. No action when: s.incomplete, s.open
 
 **Required data.** Events: `potential_feedback_moment` (an experience reaching a point worth asking about: a transaction completed, a service interaction finished, an onboarding milestone reached, a support case resolved, a meaningful usage milestone); `experience_completed` (the experience the feedback would be about completes); `feedback_submitted` (the person submits feedback). Attributes: `person_id`, `experience_ref`, `experience_type`, `completed_at`, `open_issue_ref`, `last_asked_at` (optional: `has_active_session`, `has_push_token`, `completion_horizon`).
 
-**Collision & priority.** default lifecycle · pressure class lifecycle · local cap 1 (recommended) (all) · cooldown 30 days–90 days (example) · competition outbound-ask (communication-purpose; policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other; on loss: suppressed)
+**Collision & priority.** default lifecycle · pressure class lifecycle · local cap 1 (recommended) (all) · cooldown 30 days–90 days (example) · competition outbound-ask (communication-purpose; FBK-42 (advocacy) wins when both are eligible for the same person at the same moment: advocacy already presupposes satisfaction, its evidence is accumulated across the relationship rather than one experience, and asking both back-to-back for the same goodwill moment reads as farming it twice. This journey's ask is recorded as not-now and remains free to re-open independently at its next moment.; on loss: suppressed)
 
 **Measurement.** journey outcome: exit x.received, x.no-response, x.never-completed, x.deferred, x.duplicate, x.not-now · business outcome: `feedback_submitted` (the person submits feedback) per instance, observed in this journey, attribution touched-before-event, comparison none · guardrails: unsubscribe, complaint, ask_with_open_issue, ask_outside_frequency_bound
 
@@ -1369,7 +1372,7 @@ Customer journey · category feedback · slug `advocacy-eligibility`
    - purpose: Make the small ask, once, with no follow-up sequence behind it.
 2. **ask-heavy** (`a.ask-heavy`) — on classification, no wait
    - checks: Is there an open negative issue anywhere in this relationship? · Is the evidence sufficient to justify asking? · What size of request does this evidence support?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → in-session (in-app: the person is active in the product and the action is taken there) → low-friction (push: a valid token or app session exists and the message is a single step from the notification)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → in-session (in-app: the person is active in the product and the action is taken there)
    - discretionary · priority lifecycle · [CANONICAL_RULE]
    - purpose: Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.
    - destination: advocacy-contribution-form bound to `relationship_id`; must not claim: that contributing is permission to publish
@@ -1391,7 +1394,7 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.
 
 **Required data.** Events: `potential_advocacy_opportunity` (a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it); `advocacy_action_taken` (the requested advocacy action is recorded as done); `request_declined` (the person declines the request). Attributes: `account_id`, `relationship_id`, `advocacy_evidence`, `open_negative_issues`, `decline_cooldown_until`.
 
-**Collision & priority.** default lifecycle · pressure class lifecycle · local cap 2 (recommended) (all) · cooldown configure advocacy_eligibility.cooldown · competition outbound-ask (communication-purpose; policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other; on loss: suppressed)
+**Collision & priority.** default lifecycle · pressure class lifecycle · local cap 2 (recommended) (all) · cooldown configure advocacy_eligibility.cooldown · competition outbound-ask (communication-purpose; This journey wins when both this journey and FBK-41 (satisfaction) are eligible for the same person at the same moment: advocacy is the rarer, higher-value ask built on accumulated relationship evidence rather than one experience, so it takes the one ask slot. FBK-41 is recorded as not-now and remains free to re-open independently at its next moment.; on loss: suppressed)
 
 **Measurement.** journey outcome: exit-or-handoff x.suppressed, x.delay, x.contributed, x.declined, x.no-response, h.permission · business outcome: `advocacy_action_taken` (the requested advocacy action is recorded as done) per instance, observed in this journey, attribution touched-before-event, comparison none · guardrails: complaint, message_after_success, unsubscribe
 
@@ -1439,6 +1442,18 @@ Customer journey · category feedback · slug `feedback-routing-and-loop-closure
    - channel roles, in order: persistent (email: the acknowledgement should reach the person where they can keep it, which is the default for something they wrote to us) → in-session (in-app: the feedback was given inside the product and the person is still there)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Acknowledge what they said about an experience we did not meet, without manufacturing a fault and without offering compensation in place of a fix.
+4. **routing** (`a.obligation`) — on classification, no wait
+   - checks: What does this mean operationally?
+   - channel roles, in order: human (task: the feedback creates internal work rather than a message to the person - a support-need work item, or marking an issue's severity before handoff)
+   - discretionary · priority service · [CANONICAL_RULE]
+   - purpose: Create the support-need work item in the owning process's queue - internal routing, not a message to the person.
+   - destination: owning-process-queue bound to `feedback_id`
+5. **routing** (`a.escalate`) — on classification, no wait
+   - checks: Do the escalation criteria apply?
+   - channel roles, in order: human (task: the feedback creates internal work rather than a message to the person - a support-need work item, or marking an issue's severity before handoff)
+   - discretionary · priority service · [CANONICAL_RULE]
+   - purpose: Mark the issue's severity ahead of handoff so the receiving owner and SLA are the escalated ones, not the default - internal routing, not a message to the person.
+   - destination: owning-process-queue bound to `feedback_id`
 
 Delivery fallback: same-role-other-channel. No action when: s.existing-case, s.no-fault, s.generic-thanks, s.not-consent, s.noise (see Suppressed when).
 
@@ -1679,7 +1694,7 @@ Customer journey · category time · slug `deadline-tracking`
 
 1. **remind** (`a.remind`) — configure deadline_tracking.tracking relative to `due_at`; cancelled by `obligation_satisfied` (the obligation is satisfied in the system of record), `pre_deadline_threshold_reached` (a defined point before the deadline is reached); re-read before sending: the the obligation the deadline is attached to re-read from the system of record before acting on the timeout
    - checks: Which happened? · Is a pre-deadline reminder useful here, and does policy define one?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → low-friction (push: a valid token or app session exists and the message is a single step from the notification) → urgent (sms/whatsapp: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → low-friction (push: a valid token or app session exists and the message is a single step from the notification) → urgent (sms/whatsapp: due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Send the reminder defined for this threshold.
    - destination: discharge-the-obligation bound to `obligation_id`; must not claim: a moved deadline
@@ -1700,7 +1715,7 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.
 - `deadline_tracking.touches` — **CONFIG_REQUIRED** — One reminder per pre-deadline threshold the governing policy defines; the thresholds are policy, and none is added to make a schedule.
 - `deadline_tracking.cooldown` — **recommended: none** (confidence high; when the entity note: one instance per entity) — This journey is per the obligation the deadline is attached to; a later instance concerns a different the obligation the deadline is attached to and no cooldown applies between them.
 
-**Required data.** Events: `authoritative_deadline_assigned` (a deadline assigned to a specific obligation by a system or rule entitled to set one); `obligation_satisfied` (the obligation is satisfied in the system of record); `pre_deadline_threshold_reached` (a defined point before the deadline is reached). Attributes: `obligation_id`, `due_at`, `governing_rule`, `thresholds`, `consequence_on_miss`, `deadline_log`.
+**Required data.** Events: `authoritative_deadline_assigned` (a deadline assigned to a specific obligation by a system or rule entitled to set one); `obligation_satisfied` (the obligation is satisfied in the system of record); `pre_deadline_threshold_reached` (a defined point before the deadline is reached). Attributes: `obligation_id`, `due_at`, `governing_rule`, `thresholds`, `consequence_on_miss`, `deadline_log` (optional: `urgent_horizon`).
 
 **Collision & priority.** default service · pressure class service · local cap configure deadline_tracking.touches (all) · cooldown none (recommended) · competition none
 
@@ -1737,7 +1752,7 @@ Customer journey · category time · slug `pre-expiry-window`
 
 1. **action-prompt** (`a.prompt-action`) — on classification, no wait
    - checks: Has it already been renewed, replaced or completed? · Is an action available that would materially change the outcome?
-   - channel roles, in order: persistent (email: the message names an action and a boundary and must survive until the responsible actor can act - the default) → in-session (in-app: the responsible actor is in the product and the action is taken there) → urgent (sms/push: the expiry is inside the urgent horizon, the action is a single step, and permission for service messages on the channel is recorded)
+   - channel roles, in order: persistent (email: the message names an action and a boundary and must survive until the responsible actor can act - the default) → in-session (in-app: the responsible actor is in the product and the action is taken there) → urgent (sms/push: expires_at falls inside the urgent_horizon attribute, the action is a single step, and permission for service messages on the channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point by which it must be taken.
    - destination: expiry-action bound to `validity_id`; must not claim: an expiry the system of record does not assert, that the action has been taken
@@ -1760,7 +1775,7 @@ Delivery fallback: same-role-other-channel. No action when: s.already-resolved, 
 - `expiry.touches` — **recommended: 1** (confidence high; when the graph reaches at most one message per instance) — One pre-expiry message per validity - a prompt to act or an informational notice, never both; the expiry itself is handled by expiry validation.
 - `expiry.cooldown` — **recommended: none** (confidence high) — Reminders are per validity; a renewed entity's next validity is its own instance and no cooldown applies between validities.
 
-**Required data.** Events: `pre_expiry_window_entered` (a time-bound entity entering a pre-expiry window whose length reflects how long acting on it actually takes); `renewed` (the expiring item is renewed); `completion_recorded` (the required action is completed before expiry); `replaced` (the expiring item is replaced). Attributes: `entity_ref`, `validity_id`, `expires_at`, `entity_type`, `responsible_actor`, `available_action` (optional: `has_active_session`, `urgent_channel_permission`, `action_destination`).
+**Required data.** Events: `pre_expiry_window_entered` (a time-bound entity entering a pre-expiry window whose length reflects how long acting on it actually takes); `renewed` (the expiring item is renewed); `completion_recorded` (the required action is completed before expiry); `replaced` (the expiring item is replaced). Attributes: `entity_ref`, `validity_id`, `expires_at`, `entity_type`, `responsible_actor`, `available_action` (optional: `has_active_session`, `urgent_channel_permission`, `action_destination`, `urgent_horizon`).
 
 **Collision & priority.** default service · pressure class service · local cap 1 (recommended) (all) · cooldown none (recommended) · competition none
 
@@ -1798,18 +1813,18 @@ Customer journey · category time · slug `outstanding-obligation-reminder`
 
 1. **remind** (`a.remind`) — configure outstanding_obligation.due relative to `due_at`; cancelled by `obligation_no_longer_owed` (the obligation is satisfied, cancelled or adjusted to nothing), `obligation_changed_still_owed` (the obligation changes but remains owed); re-read before sending: the the outstanding obligation re-read from the system of record before acting on the timeout
    - checks: Is there a gap before the deadline worth waiting through? · Is anything still owed at the moment of sending?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Name the obligation, what remains outstanding, the deadline and the single way to discharge it.
    - destination: discharge-route bound to `obligation_id`; must not claim: that partly met is met
 2. **confirm** (`a.confirm`, after t1) — configure outstanding_obligation.deadline relative to `due_at`; cancelled by `obligation_satisfied` (the obligation is satisfied in the system of record), `obligation_no_longer_owed` (the obligation is satisfied, cancelled or adjusted to nothing), `deadline_passed_unmet` (the deadline passes with the obligation still owed); re-read before sending: the the outstanding obligation re-read from the system of record before acting on the timeout
    - checks: How did it resolve?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Confirm it is discharged and that nothing further is expected.
 3. **overdue** (`a.overdue`, after t1) — configure outstanding_obligation.deadline relative to `due_at`; cancelled by `obligation_satisfied` (the obligation is satisfied in the system of record), `obligation_no_longer_owed` (the obligation is satisfied, cancelled or adjusted to nothing), `deadline_passed_unmet` (the deadline passes with the obligation still owed); re-read before sending: the the outstanding obligation re-read from the system of record before acting on the timeout
    - checks: How did it resolve?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Say once that the deadline has passed, what stands now, and what consequence policy actually attaches to it.
 
@@ -1827,7 +1842,7 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.
 - `outstanding_obligation.touches` — **recommended: 3** (confidence high; when GLB-24; the graph's own touch count) — Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.
 - `outstanding_obligation.cooldown` — **recommended: none** (confidence high; when the entity note: one instance per entity) — This journey is per the outstanding obligation; a later instance concerns a different the outstanding obligation and no cooldown applies between them.
 
-**Required data.** Events: `customer_owed_obligation_outstanding` (an authoritative record that a defined action is owed by a named person; a due date recorded against it); `obligation_no_longer_owed` (the obligation is satisfied, cancelled or adjusted to nothing); `obligation_changed_still_owed` (the obligation changes but remains owed); `obligation_satisfied` (the obligation is satisfied in the system of record); `deadline_passed_unmet` (the deadline passes with the obligation still owed). Attributes: `obligation_id`, `person_id`, `due_at`, `what_is_owed`, `discharge_route`, `consequence_policy`.
+**Required data.** Events: `customer_owed_obligation_outstanding` (an authoritative record that a defined action is owed by a named person; a due date recorded against it); `obligation_no_longer_owed` (the obligation is satisfied, cancelled or adjusted to nothing); `obligation_changed_still_owed` (the obligation changes but remains owed); `obligation_satisfied` (the obligation is satisfied in the system of record); `deadline_passed_unmet` (the deadline passes with the obligation still owed). Attributes: `obligation_id`, `person_id`, `due_at`, `what_is_owed`, `discharge_route`, `consequence_policy` (optional: `urgent_horizon`).
 
 **Collision & priority.** default service · pressure class service · local cap 3 (recommended) (all) · cooldown none (recommended) · competition none
 
@@ -1866,25 +1881,25 @@ Customer journey · category time · slug `grace-period-recovery`
 
 1. **notify-restricted** (`a.notify-restricted`) — on classification, no wait
    - checks: Does grace restrict anything the holder will actually notice?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state.
 2. **notify-quiet** (`a.notify-quiet`) — on classification, no wait
    - checks: Does grace restrict anything the holder will actually notice?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: State that validity has lapsed, that nothing has changed yet, and the date it will.
 3. **confirm** (`a.confirm`) — configure grace_period.grace relative to `grace_deadline_at`; cancelled by `recovery_condition_satisfied` (the condition that ends the recoverable state is satisfied), `entity_terminated` (the entity is terminated); re-read before sending: the the entity whose primary validity ended re-read from the system of record before acting on the timeout
    - checks: What ended the wait?
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Confirm the active state is back and name which reduced capabilities returned.
 4. **last-call** (`a.last-call`) — configure grace_period.grace relative to `grace_deadline_at`; cancelled by `recovery_condition_satisfied` (the condition that ends the recoverable state is satisfied), `entity_terminated` (the entity is terminated); re-read before sending: the the entity whose primary validity ended re-read from the system of record before acting on the timeout
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Send one message naming the exact end date, what stops at it, and the same single recovery route.
 5. **lost** (`a.lost`, after t4) — configure grace_period.final relative to `grace_deadline_at`; cancelled by `recovery_condition_satisfied` (the condition that ends the recoverable state is satisfied); re-read before sending: the the entity whose primary validity ended re-read from the system of record before acting on the timeout
-   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded)
+   - channel roles, in order: persistent (email: the message has to be kept and survive until the person can act on it) → urgent (sms: grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded)
    - discretionary · priority service · [CANONICAL_RULE]
    - purpose: Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms.
    - destination: route-back-on-new-terms bound to `entity_ref`; must not claim: that the old validity can be revived
@@ -1903,7 +1918,7 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.
 - `grace_period.touches` — **recommended: 3** (confidence high; when GLB-24; the longest path sends a notice, a last call and a confirmation or loss notice) — Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.
 - `grace_period.cooldown` — **recommended: none** (confidence high; when the entity note: one instance per entity) — This journey is per the entity whose primary validity ended; a later instance concerns a different the entity whose primary validity ended and no cooldown applies between them.
 
-**Required data.** Events: `grace_period_started` (an authoritative grace state recorded against the entity after its primary validity ended; a fixed end date for that grace period; a recorded condition that would recover the active state); `recovery_condition_satisfied` (the condition that ends the recoverable state is satisfied); `entity_terminated` (the entity is terminated). Attributes: `entity_ref`, `grace_period_id`, `grace_deadline_at`, `recovery_condition`, `restricted_capabilities`, `holder_id`.
+**Required data.** Events: `grace_period_started` (an authoritative grace state recorded against the entity after its primary validity ended; a fixed end date for that grace period; a recorded condition that would recover the active state); `recovery_condition_satisfied` (the condition that ends the recoverable state is satisfied); `entity_terminated` (the entity is terminated). Attributes: `entity_ref`, `grace_period_id`, `grace_deadline_at`, `recovery_condition`, `restricted_capabilities`, `holder_id` (optional: `urgent_horizon`).
 
 **Collision & priority.** default service · pressure class service · local cap 3 (recommended) (all) · cooldown none (recommended) · competition none
 
@@ -2984,6 +2999,7 @@ Customer journey · category fulfillment · slug `fulfillment-delay`
 - [CANONICAL_RULE] Dates that will not hold are not promised repeatedly. Where no reliable estimate exists, that is what is said.
 - [CANONICAL_RULE] A changed ETA preserves the original commitment history.
 - [CANONICAL_RULE] Communicating a delay does not resolve the operational delay.
+- [CANONICAL_RULE] Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait.
 
 **Recommended orchestration** · strategy `offer-decide-remind`
 
@@ -3071,7 +3087,7 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.
 **Stops when.**
 
 - handoff `h.retry` → FUL-147 (Delivery Outcome Tracking) — a further delivery attempt being dispatched
-- handoff `h.return` → REM-151 (Post-Purchase Issue Recovery) — a delivery that cannot be completed - refused, uncorrectable, or out of attempts
+- handoff `h.return` → REM-151 (Post-Purchase Issue Recovery) — a delivery that cannot be completed - refused, uncorrectable, or out of attempts · contract: issue_id, order_id
 - handoff `h.exception` → FUL-145 (Fulfillment Exception Recovery) — an item that arrived damaged
 
 **Configure.**
@@ -3113,6 +3129,7 @@ Customer journey · category fulfillment · slug `dispatch-to-acceptance`
 - [CANONICAL_RULE] No acceptance window is invented beyond what policy defines; where none exists, nothing is asked for.
 - [CANONICAL_RULE] An executor gone quiet is reported as unknown, not as failure.
 - [CANONICAL_RULE] Acceptance by agreement and acceptance by expiry stay separable forever.
+- [CANONICAL_RULE] A pre-dispatch slip against the original commitment is FUL-146's delay narrative, not this journey's; this journey's own tracking begins at dispatch and reports what the executor authoritatively confirms from there.
 
 **Recommended orchestration** · strategy `offer-decide-remind`
 
@@ -3139,10 +3156,10 @@ Customer journey · category fulfillment · slug `dispatch-to-acceptance`
 Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.g4, s.g5 (see Suppressed when).
 
 **Stops when.**
-- `x.unresolved` [failure] not delivered; failed or unaccounted for, and being reconciled with the executor — re-entry: a re-dispatch of the same obligation starts a new instance
 - `x.delivered` [success] delivered; no acceptance was required — re-entry: a later obligation to the same recipient is a new instance
 - `x.accepted` [success] accepted by the recipient — re-entry: rights policy independently provides afterwards do not run through here
 - `x.finalized` [timeout] finalised on expiry of the acceptance window, with no explicit acceptance — re-entry: an issue raised later runs on whatever right policy independently provides, not on this window
+- handoff `x.unresolved` → FUL-148 (Failed Delivery Recovery) — a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait · contract: delivery_attempt_id, obligation_id, failure_reason
 - handoff `h.issue` → FUL-149 (Delivery Acceptance Finalization) — a delivered obligation the recipient has raised an issue against inside its acceptance window
 
 **Configure.**
@@ -3333,7 +3350,7 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3 (se
 
 **Stops when.**
 - `x.rejected` [failure] RETURN_REJECTED; the original fulfillment is unchanged — re-entry: a return refused does not settle whether another remedy is owed - that question is separate and is asked separately
-- handoff `h.alternative` → REM-157 (Remedy Confirmation) — a return requested against something that cannot be returned
+- handoff `h.alternative` → REM-157 (Remedy Confirmation) — a return requested against something that cannot be returned · contract: issue_id, obligation_id
 - handoff `h.undefined` → DEC-181 (Decision Request) — a return request with no governing eligibility policy
 - handoff `h.escalate` → OWN-55 (Ownership Escalation) — a return decision outliving its SLA
 - handoff `h.transit` → REM-153 (Return Transit Resolution) — an authorised return
@@ -3429,12 +3446,14 @@ Customer journey · category subscription · slug `renewal-decision`
 - a renewal decision window has opened on a continuing relationship with a current term
 - the renewal terms, model and required notice are defined - or the cycle goes to decision resolution first
 - no renewal instance is already open for this cycle
+- no open payment recovery process exists on the relationship - payment recovery owns the relationship until it resolves
 
 **Suppressed when.**
 - [CANONICAL_RULE] A window with no defined notice period or renewing terms goes to decision resolution (DEC-181); nothing is asked or noticed on undefined terms.
 - [CANONICAL_RULE] An outstanding blocker puts the cycle in review; the relationship stays active on its current term throughout and no decision is requested until the blocker is settled.
 - [CANONICAL_RULE] A recorded, authorised decision ends asking; nothing further is sent by this journey once the decision exists.
 - [CANONICAL_RULE] Putting the decision to its holder is not deciding; a non-response is resolved by what the governing terms define, never assumed.
+- [CANONICAL_RULE] An open payment recovery process on the relationship suppresses the renewal decision request entirely; a routine renewal ask is not put to someone whose current term is already in question over an unresolved payment failure.
 - [CANONICAL_RULE] Hard gates (GLB-31) apply; pressure caps do not to the required notice, which is an obligation of the terms rather than outreach.
 
 **Recommended orchestration** · strategy `deadline-countdown`
@@ -3452,7 +3471,7 @@ Customer journey · category subscription · slug `renewal-decision`
    - purpose: Put the renewal decision to whoever holds it, with the terms that would apply and the point by which the notice period requires an answer.
    - destination: renewal-decision bound to `renewal_cycle_id`; must not claim: that a decision has been made
 
-Delivery fallback: same-role-other-channel. No action when: s.undefined-terms, s.blocked, s.decided, s.asking-not-deciding, s.hard-gates (see Suppressed when).
+Delivery fallback: same-role-other-channel. No action when: s.undefined-terms, s.blocked, s.decided, s.asking-not-deciding, s.payment-recovery, s.hard-gates (see Suppressed when).
 
 **Stops when.**
 
@@ -3469,7 +3488,7 @@ Delivery fallback: same-role-other-channel. No action when: s.undefined-terms, s
 
 **Required data.** Events: `renewal_decision_window_opens` (a relationship whose term end is inside the renewal decision window its governing terms define); `renewal_decision_recorded` (an authorised renewal decision is recorded). Attributes: `relationship_id`, `renewal_cycle_id`, `term_end_at`, `renewal_model`, `notice_period`, `renewing_terms`, `decision_holder` (optional: `blockers`, `has_active_session`, `urgent_channel_permission`).
 
-**Collision & priority.** default service · pressure class service · local cap 1 (recommended) (non-mandatory) · cooldown none (recommended) · competition relationship-continuity (subscription; below a cancellation in motion and below an active risk state on the same relationship; on loss: suppressed)
+**Collision & priority.** default service · pressure class service · local cap 1 (recommended) (non-mandatory) · cooldown none (recommended) · competition relationship-continuity (subscription; below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship; on loss: suppressed)
 
 **Measurement.** journey outcome: handoff h.execute, h.scheduled-end, h.escalate, h.undefined · business outcome: `renewal_decision_recorded` (an authorised renewal decision is recorded) per instance, observed in this journey, attribution entered-before-event, comparison not-applicable · guardrails: complaint, notice_missed, decision_assumed, support_contact_within_24h
 
@@ -3574,8 +3593,8 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.
 - `x.reallocated` [success] reallocated; the time and the commitment both stand — re-entry: the booking continues to its scheduled occurrence and revalidates there like any other
 - `x.cancelled-provider` [failure] cancelled on the provider side; recorded as ours, with nothing attributed to the customer — re-entry: a new booking is a new commitment. This cancellation stays in the record as a provider failure, which is what any later question about the customer's booking history depends on
 - handoff `h.reschedule` → SCH-175 (Reschedule Validation) — a provider-side failure that can be recovered at another time
-- handoff `h.remedy` → REM-157 (Remedy Confirmation) — a service obligation left unresolved by a provider-side failure
-- handoff `h.financial` → FIN-137 (Refund Request) — a provider-cancelled booking that was paid for
+- handoff `h.remedy` → REM-157 (Remedy Confirmation) — a service obligation left unresolved by a provider-side failure · contract: issue_id, obligation_id
+- handoff `h.financial` → FIN-137 (Refund Request) — a provider-cancelled booking that was paid for · contract: refund_request_id
 
 **Configure.**
 - `provider_cancellation.touches` — **recommended: 2** (confidence high; when GLB-24; the graph's own touch count) — Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.
@@ -4138,6 +4157,7 @@ Customer journey · category document · slug `signature-process`
 - a document version requires signature, with required signers, their signing authority and any signing order defined
 - a signature validity window is either defined by the request's own terms or explicitly recorded as not set
 - no signature process is already open for this version
+- no DOC-220 conflict review is open for this document's lineage - a version under active conflict review is not simultaneously collecting signatures against it as though it were already settled
 
 **Suppressed when.**
 - [CANONICAL_RULE] Every request and reminder is bound to the exact document version; a superseded version ends the process and suppresses its outstanding reminders.
@@ -4176,7 +4196,7 @@ Delivery fallback: same-role-other-channel. No action when: s.version, s.outstan
 - `signature.reminders` — **recommended: 1** (confidence high; when the graph sends one reminder per signer) — Only the reminder counts against the cap; the request itself is the process and is never rationed.
 - `signature.cooldown` — **recommended: none** (confidence high) — Signature is per document version; a new version is a new process and no cooldown applies between versions.
 
-**Required data.** Events: `document_requires_signature` (an issued or prepared document version requiring signature by identified parties); `signer_signed` (a required signer signs); `signer_declined` (a signer declines); `document_version_superseded` (the document version is superseded). Attributes: `document_version_id`, `document_id`, `required_signers`, `signing_authority`, `signing_order`, `validity_ends_at` (optional: `review_point_at`, `signer_destinations`).
+**Required data.** Events: `document_requires_signature` (an issued or prepared document version requiring signature by identified parties); `signer_signed` (a required signer signs); `signer_declined` (a signer declines); `document_version_superseded` (the document version is superseded). Attributes: `document_version_id`, `document_id`, `required_signers`, `signing_authority`, `signing_order`, `validity_ends_at`, `signer_id` (optional: `review_point_at`, `signer_destinations`).
 
 **Collision & priority.** default transactional · pressure class none · local cap 1 (recommended) (non-mandatory) · cooldown none (recommended) · competition none
 
@@ -4222,7 +4242,7 @@ Delivery fallback: same-role-other-channel. No action when: s.g1, s.g2, s.g3, s.
 - `x.reconciled` [success] authoritative version established; conflicting records preserved and explained — re-entry: a further inconsistency in this lineage is assessed with this reconciliation as part of its evidence, which is why none of it was deleted
 - handoff `h.review` → DEC-181 (Decision Request) — a conflict where the authoritative version cannot be safely determined
 - handoff `h.resign` → DOC-215 (Signature Reminder) — signatures that bind to a version other than the authoritative one
-- handoff `h.remedy` → REM-157 (Remedy Confirmation) — a business action taken on a non-authoritative document version
+- handoff `h.remedy` → REM-157 (Remedy Confirmation) — a business action taken on a non-authoritative document version · contract: issue_id, obligation_id
 
 **Configure.**
 - `document_conflict.touches` — **recommended: 1** (confidence high; when GLB-24; the graph's own touch count) — Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.
@@ -4254,6 +4274,7 @@ Customer journey · category document · slug `document-effective-notice`
 - the entitlement it confers, expressed as something the holder can act on
 - a named holder with a permitted route to them
 - no instance of this journey is already open for the the effective document version and the entitlement it confers on its holder
+- no DOC-220 conflict review is open for this document's lineage - a version review can retroactively make what looked authoritative not authoritative, and this journey does not tell a holder an entitlement is active while that question is still open
 - hard gates (GLB-31) allow communication for this purpose
 
 **Suppressed when.**
@@ -4999,7 +5020,7 @@ Silent lifecycle state · category retention · slug `churn-risk-escalation`
 **Recommended orchestration** · strategy `single-notice`
 
 1. **owner-task** (`a.owner-task`) — on classification, no wait
-   - checks: Has explicit cancellation intent already been expressed? · Is the risk driven by a known operational problem? · Does the evidence justify a person?
+   - checks: Has explicit cancellation intent already been expressed? · Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery? · Does the evidence justify a person?
    - channel roles, in order: human (task: the step is carried out by a person - a call, a task, a visit - and recorded as done by them)
    - discretionary · priority retention · [CANONICAL_RULE]
    - purpose: Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work

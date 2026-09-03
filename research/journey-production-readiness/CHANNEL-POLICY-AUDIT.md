@@ -5,6 +5,14 @@ the corpus count is 71, not the 68 named in this round's brief). This document a
 question only: **does a journey's declared channel list actually tell an implementer which
 channel to use for which message, or does it just list what the journey is capable of?**
 
+**Status after the gap-closure round:** §4's FBK-43 (P0) is closed - `task` now has a declared
+`channelStrategy` role and two touches. §4's ACQ-09, ACT-14 and §5's TIM-61/63/268/274 are closed
+- see `FIXES-APPLIED.md` for the specific edits. §4's FBK-46 (P1, `task` unmapped, lower risk than
+FBK-43) and §4's SCH-266/SCH-180/SCH-282 (P1, urgent-role eligibility text not evaluable) were named
+here but not in this round's explicit scope list and remain open - both are real, itemized findings
+worth a future pass. The findings below are otherwise as first written; only the closed items are
+marked.
+
 Channel richness is not scored here as a virtue. A journey with one channel and a stated reason
 is READY on this dimension; a journey with three channels and no selection rule is not, however
 many channels it lists.

@@ -3051,9 +3051,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         to: "REM-157",
         on: "a service obligation left unresolved by a provider-side failure",
         carries: [
-          "the obligation as it stands and the fact that the customer did nothing wrong",
+          "the obligation as it stands and the fact that the customer did nothing wrong - provider_failure_id stands in for REM-157's obligation_id",
           "the explicit fact that the impact of the failure is a separate question from the obligation, and compensation is decided on its own terms",
+          "a fresh issue_id, minted at this handoff and deterministically derived from provider_failure_id - SCH-180 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
         ],
+        contract: { requiredFields: ["issue_id", "obligation_id"] },
       },
       {
         id: "h.financial",
@@ -3063,7 +3065,9 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "what was paid and the fact that the cancellation was ours",
           "the explicit fact that no cancellation fee applies to a booking the provider could not keep",
+          "a fresh refund_request_id, minted at this handoff and deterministically derived from provider_failure_id",
         ],
+        contract: { requiredFields: ["refund_request_id"] },
       },
       {
         id: "x.cancelled-provider",
@@ -4848,7 +4852,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held. Somebody who wanted one day and is shown another should see that at a glance, not discover it at the point of booking",
         next: "w.respond",
         execution: "communication",
-        idempotencyKey: "booking_id + a.offer",
+        idempotencyKey: "person_id + availability_query_id + a.offer",
       },
       {
         id: "a.waitlist",
@@ -4856,7 +4860,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
         next: "w.waitlist",
         execution: "communication",
-        idempotencyKey: "booking_id + a.waitlist",
+        idempotencyKey: "person_id + availability_query_id + a.waitlist",
       },
       {
         id: "w.waitlist",

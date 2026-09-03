@@ -825,7 +825,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine who is materially affected, what is known, what is not known, what action the user needs to take, any safe workaround, and the condition under which the next meaningful update would happen. Saying what is not yet known is information; leaving it out and stating the rest as certainty is not",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.cohort",
-        idempotencyKey: "obligation_id + incident_id + a.determine",
+        idempotencyKey: "incident_id + recipient_cohort_id + state_change_id + a.determine",
       },
       {
         id: "c.cohort",
@@ -850,7 +850,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Scope the communication to the affected population. Telling everybody about an incident affecting one region trains the whole base to ignore incident notices, and the next one will be one that matters to them",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.verified",
-        idempotencyKey: "obligation_id + incident_id + a.scoped",
+        idempotencyKey: "incident_id + recipient_cohort_id + state_change_id + a.scoped",
       },
       {
         id: "a.broad",
@@ -858,7 +858,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Broaden only as far as necessary, and say explicitly that the scope is still being established. Uncertainty stated is information; uncertainty implied as precision is a claim that will have to be corrected",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.verified",
-        idempotencyKey: "obligation_id + incident_id + a.broad",
+        idempotencyKey: "incident_id + recipient_cohort_id + state_change_id + a.broad",
       },
       {
         id: "c.verified",
@@ -883,7 +883,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say what is known and what is not, and claim nothing about cause or resolution that has not been established. A root cause announced and then retracted costs more credibility than a slow update, and technical detail stated as fact while still uncertain is the most common source of that retraction",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.material",
-        idempotencyKey: "obligation_id + incident_id + a.hold-claim",
+        idempotencyKey: "incident_id + recipient_cohort_id + state_change_id + a.hold-claim",
       },
       {
         id: "c.material",
@@ -916,7 +916,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.no-send",
-        idempotencyKey: "obligation_id + incident_id + a.no-send",
+        idempotencyKey: "incident_id + recipient_cohort_id + state_change_id + a.no-send",
       },
       {
         id: "x.no-send",
@@ -934,7 +934,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.final",
         execution: "communication",
-        idempotencyKey: "obligation_id + incident_id + a.communicate",
+        idempotencyKey: "incident_id + recipient_cohort_id + state_change_id + a.communicate",
       },
       {
         id: "c.final",

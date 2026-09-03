@@ -24,13 +24,16 @@ const LABELS = ["CANONICAL_RULE", "RECOMMENDED_DEFAULT", "CONFIG_REQUIRED", "OPT
 const TIMING_CLASSES = ["attribute-bound", "reminder-before-attribute", "response-window", "recovery-window", "decision-sla", "observation-window", "cooldown", "backoff", "external-window"];
 const EXIT_CLASSES = ["success", "invalid-state", "suppression", "timeout", "failure", "no-action"];
 
+// Mirrors src/canonical/surface.ts's SurfaceAssignment - see that file's comment for why
+// there is no combined `communicating` field. `sends` and `routesToHuman` are independent;
+// a caller wanting the union reads `sends || routesToHuman` at the call site (line ~73 below).
 export function surfaceOf(j, mechanismIds, customerCategories, customerEntity) {
   const sends = j.channels.some((c) => MESSAGE.has(c));
-  const human = j.channels.some((c) => HUMAN.has(c));
-  if (mechanismIds.has(j.id)) return { surface: "mechanism", communicating: sends || human, sends };
-  if (sends) return { surface: "customer", communicating: true, sends };
-  if (customerCategories.has(j.category) && customerEntity.test(j.entity?.scope ?? "")) return { surface: "customer", communicating: human, sends };
-  return { surface: "operational", communicating: sends || human, sends };
+  const routesToHuman = j.channels.some((c) => HUMAN.has(c));
+  if (mechanismIds.has(j.id)) return { surface: "mechanism", sends, routesToHuman };
+  if (sends) return { surface: "customer", sends, routesToHuman };
+  if (customerCategories.has(j.category) && customerEntity.test(j.entity?.scope ?? "")) return { surface: "customer", sends, routesToHuman };
+  return { surface: "operational", sends, routesToHuman };
 }
 
 const successors = (n) => n.kind === "condition" ? n.branches.map((b) => b.to) : n.kind === "wait" ? [n.onEvent, n.onTimeout] : ["trigger", "action", "outcome"].includes(n.kind) ? [n.next] : [];
@@ -70,7 +73,12 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
     const hands = j.nodes.filter((n) => n.kind === "handoff");
     const conds = j.nodes.filter((n) => n.kind === "condition");
     const isCustomer = surf.surface === "customer";
-    const communicating = isCustomer && surf.sends;
+    // Orchestrated = carries a full vNext orchestration contract, whether it sends a customer
+    // message or only routes work to a person (task/sales) - ACQ-04, ACT-11 and RET-24 are the
+    // latter and are held to the same orchestration/contact/channelStrategy requirements below.
+    // See src/canonical/surface.ts's SurfaceAssignment comment for why this is not called
+    // `communicating` - that name meant two different things in two different places.
+    const orchestrated = isCustomer && (surf.sends || surf.routesToHuman);
 
     // ---- triggers and registry
     const trig = byId[j.entry];
@@ -104,6 +112,60 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
     if (j.entity?.instanceKey?.length && !j.entity.concurrency) sev("instance_key_missing", "entity.concurrency not stated");
     for (const h of hands) if (h.to.startsWith("external:") && !h.contract?.requiredFields?.length) sev("external_target_uncontracted", `handoff "${h.id}" to ${h.to} carries no contract`);
     for (const n of j.nodes) if (n.kind === "action" && SIDE_EFFECT.test(n.does) && !n.idempotencyKey) sev("tx_no_idempotency", `action "${n.id}" has an external side effect and no idempotencyKey`);
+
+    // ---- Validator A: idempotency key field provenance (production-readiness gap-closure round)
+    // Every field-shaped token in an idempotencyKey must be declared in implementation.attributes
+    // or derived (written by some action in this journey's own graph) - not copy-pasted from a
+    // different journey's template, which was the root cause behind FBK-47/FBK-49/IDN-81/IDN-84/
+    // ACC-261/ACC-263/IDN-270 and 29 others found by re-running this check corpus-wide. A bare
+    // action/node-id reference (`a.remind`) or a multi-word phrase (`touch id`, `fully signed`) is
+    // a self-scoping token, not a field claim, and is not checked. Severity follows `orchestrated`
+    // (the 68 message-sending + 3 human-routing journeys), not generic vnext status, so the
+    // remaining corpus-wide backlog in silent lifecycle states stays a warning until that round
+    // is explicitly scoped - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/.
+    {
+      const declared = new Set([...(j.implementation?.attributes?.required ?? []), ...(j.implementation?.attributes?.optional ?? [])]);
+      const derived = new Set(j.nodes.flatMap((n) => (n.writes ?? []).map((w) => w.field)));
+      const vocab = new Set([...declared, ...derived]);
+      const idemSev = (code, msg) => (orchestrated && vnext ? err : warn)(code, j.id, msg);
+      for (const n of j.nodes) {
+        if (n.kind !== "action" || !n.idempotencyKey) continue;
+        for (const part of n.idempotencyKey.split("+").map((s) => s.trim())) {
+          if (part.includes(" ")) continue;
+          if (/^[a-z]\.[a-z0-9-]+$/.test(part)) continue;
+          if (!/^[a-z][a-z0-9_]*$/.test(part)) continue;
+          if (!vocab.has(part)) idemSev("idempotency_field_undeclared", `action "${n.id}" idempotencyKey references "${part}", which this journey neither declares in implementation.attributes nor derives via a writes step - "${n.idempotencyKey}"`);
+        }
+      }
+    }
+
+    // ---- Validator B: handoff identifier provenance (production-readiness gap-closure round)
+    // For every internal handoff, each field in the TARGET journey's own entity.instanceKey must
+    // be resolvable from this journey's own declared/derived vocabulary, or be explicitly named in
+    // the handoff's own contract.requiredFields - which is also where a fresh identifier minted at
+    // the handoff itself (documented in `carries`) is declared, exactly as FUL-148/SCH-180/REM-152/
+    // DOC-220's handoffs into the issue_id-keyed remedy chain now do. This is corpus-wide and
+    // WARN-only everywhere, deliberately never an error: many targets legitimately mint their own
+    // instance key on entry from data the graph text does not literally `write` (a database row's
+    // own id, assigned the moment the real-world record is created), and this check cannot tell
+    // that case apart from a genuine gap without the kind of domain judgment this round applied by
+    // hand to the four handoffs above. Treat every finding as a prompt to check, not a verdict.
+    for (const h of hands) {
+      if (h.to.startsWith("external:")) continue;
+      const target = byJourney[h.to];
+      if (!target) continue; // an unresolvable target is a different, pre-existing failure mode
+      const targetKey = target.entity?.instanceKey ?? [];
+      if (!targetKey.length) continue;
+      const contractFields = new Set(h.contract?.requiredFields ?? []);
+      const srcVocab = new Set([
+        ...(j.implementation?.attributes?.required ?? []),
+        ...(j.implementation?.attributes?.optional ?? []),
+        ...(j.entity?.instanceKey ?? []),
+        ...j.nodes.flatMap((n) => (n.writes ?? []).map((w) => w.field)),
+      ]);
+      const missing = targetKey.filter((f) => !srcVocab.has(f) && !contractFields.has(f));
+      if (missing.length) warn("handoff_identifier_unprovenanced", j.id, `handoff "${h.id}" to ${h.to} does not carry [${missing.join(", ")}], which ${h.to}'s own entity.instanceKey requires, and does not declare it in contract.requiredFields`);
+    }
     if (vnext && !j.objective) err("objective_missing", j.id, "no objective");
     if (vnext && !j.eligibility?.length) err("eligibility_missing", j.id, "no eligibility");
     if (vnext && !j.suppressions?.length) err("suppressions_missing", j.id, "no suppressions");
@@ -176,10 +238,10 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
       }
     }
 
-    // ---- orchestration (communicating customer journeys)
-    if (communicating || j.orchestration) {
+    // ---- orchestration (orchestrated customer journeys - sends a message, routes to a human, or both)
+    if (orchestrated || j.orchestration) {
       const o = j.orchestration;
-      if (!o) { if (communicating) sev("orch_missing", "communicating customer journey has no orchestration"); }
+      if (!o) { if (orchestrated) sev("orch_missing", "orchestrated customer journey has no orchestration"); }
       else {
         if (!o.touches?.length) err("orch_missing", j.id, "orchestration has no touches");
         const touched = new Set();
@@ -256,7 +318,7 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
         if (!exits.some((x) => x.class === "no-action") && !(j.suppressions ?? []).length) err("no_action_missing", j.id, "no no-action exit and no suppressions");
         // contact
         const c = j.contact;
-        if (!c) err("contact_missing", j.id, "communicating journey without contact block");
+        if (!c) err("contact_missing", j.id, "orchestrated journey without contact block");
         else {
           if (!PRIORITIES.includes(c.defaultPriority)) err("touch_priority_unresolved", j.id, "contact.defaultPriority invalid");
           if (["transactional", "security"].includes(c.defaultPriority) && c.pressureClass !== "none") err("pressure_class_conflict", j.id, "transactional/security journey with a pressure class");
@@ -266,7 +328,7 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
           if (NUM_UNIT.test(c.cooldown?.rule ?? "")) err("canonical_rule_contains_number", j.id, "cooldown rule contains a number");
         }
       }
-    } else if (!communicating && (j.orchestration || j.channelStrategy || j.contact)) {
+    } else if (!orchestrated && (j.orchestration || j.channelStrategy || j.contact)) {
       err("silent_with_communication_metadata", j.id, "a silent or non-customer journey carries orchestration/channelStrategy/contact");
     }
 

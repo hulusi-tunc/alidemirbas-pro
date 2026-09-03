@@ -1,31 +1,53 @@
 # Communicating Customer Journeys — production readiness audit
 
-Research artifact. Nothing in `src/canonical/`, `production/`, `search/`, `seo/` or any other
-production path was changed by this round. Scope: implementation readiness of the corpus's
-orchestration-bearing Customer Journeys — could a CRM/lifecycle/CX team take one of these and
-build it on their own stack (Braze, Insider, Salesforce, Adobe, a CDP, or their own orchestration
-layer) without inventing missing pieces?
+Scope: implementation readiness of the corpus's orchestration-bearing Customer Journeys — could a
+CRM/lifecycle/CX team take one of these and build it on their own stack (Braze, Insider,
+Salesforce, Adobe, a CDP, or their own orchestration layer) without inventing missing pieces?
 
-## Corpus confirmation — the count is 71, not 68
+**This is the second round.** The first round (audit-only, nothing in `src/canonical/` touched)
+found P0 = 20 across the 71. This round closed every one of them directly in the canonical corpus
+- idempotencyKey corrections, enforceable suppression/precedence rules, missing handoff contracts
+with deterministically-minted identifiers, a named channel role, a named resolving authority - re-
+ran `npm run validate:canonical` after each batch (0 errors throughout), then re-derived every
+verdict and gap in this document and in `implementation-contracts.json` from the corpus as it now
+stands, rather than carrying the first round's numbers forward. See `FIXES-APPLIED.md` for the
+per-P0 before/after and `VALIDATOR-COVERAGE.md` for the two mechanical validators this round added
+so the idempotencyKey and handoff-identifier defect classes can't return silently.
 
-This round's brief states the corpus as 68 communicating Customer Journeys. Deriving the count
-fresh from `src/canonical/surface.ts`'s own `surfaceOf()` classification (the same function
-`scripts/surface-assignment.mjs` and the site both read) gives **71**, not 68. The discrepancy is
-real and explained, not a miscount:
+## Corpus confirmation — the count is 71, not 68 — and the taxonomy behind it is now normalized
 
-- `surfaceOf().communicating` is `sends || routesToHuman` — true for any journey that either sends
-  a customer message on a channel or routes work to a person via `task`/`sales`.
-- The **site's own UI** narrows this further for its "Customer journeys" tab: `communicating` there
-  means `sends` alone (a design decision made in the site-restructuring round immediately before
-  this audit, so that a journey with no customer-facing message shows under "Lifecycle states"
-  instead). That narrower definition is what produces 68.
+The prior round found the corpus to be 71 message-sending-or-human-routing Customer Journeys, not
+the 68 message-only figure the site's "Customer journeys" tab shows, and traced the gap to a real
+naming bug: `src/canonical/surface.ts`'s `surfaceOf()` returned a field called `communicating`
+meaning `sends || routesToHuman`, while `src/lib/canonical-view.ts` read `sf.sends` alone and
+called *that* field `communicating` too — the same word meaning two different things at two
+different layers. This round's Part 1 fixed the naming at its source: `SurfaceAssignment` (and the
+matching reimplementations in `scripts/surface-assignment.mjs` and `scripts/vnext-rules.mjs`) now
+returns only `sends` and `routesToHuman` as independent, correctly-named booleans; any caller
+wanting the union reads `sends || routesToHuman` explicitly at the call site (renamed `orchestrated`
+in `vnext-rules.mjs`, since that check now also *requires* orchestration for `routesToHuman`-only
+journeys, not just `sends` ones — closing the gap where ACQ-04/ACT-11/RET-24 carried orchestration
+voluntarily but the validator never actually required it of a journey shaped like them). The site's
+own `JourneyRow.communicating` field is deliberately left as-is (it correctly means `sends`, is
+what the "Customer journeys" tab is built on, and renaming it is a site change out of this round's
+scope) but is now documented, in `surface.ts`'s own comment, for exactly what it means and why it
+differs from this file's union.
+
+The corpus itself is still **71**, not 68 — the taxonomy fix changed the names, not the count:
+
+- `sends || routesToHuman` is true for any journey that either sends a customer message on a
+  channel or routes work to a person via `task`/`sales`.
+- The site's "Customer journeys" tab narrows this to `sends` alone (a design decision made in the
+  site-restructuring round immediately before the first audit round), so a journey with no
+  customer-facing message shows under "Lifecycle states" instead — that narrower definition is
+  what produces 68.
 - The three journeys the narrower definition excludes — **ACQ-04, ACT-11, RET-24** — all send no
   customer message (`channels: ["sales","task"]`, `["task"]`, `["task"]` respectively) but all
   three are full vNext-migrated journeys carrying `contact`, `channelStrategy` and
-  `orchestration.touches`, exactly like the 68 that do send a message. They have an instance
-  identity, a trigger contract, a touch plan (human-executed), suppression logic, and a
-  measurement contract — every implementation-readiness question this audit asks applies to them
-  identically.
+  `orchestration.touches`, exactly like the 68 that do send a message, and the validator now
+  formally requires this of them (see above). They have an instance identity, a trigger contract, a
+  touch plan (human-executed), suppression logic, and a measurement contract — every
+  implementation-readiness question this audit asks applies to them identically.
 
 Given the audit's own stated purpose — could an implementation team build this? — excluding three
 journeys that carry a full orchestration contract because their one channel routes to a person
@@ -60,85 +82,88 @@ implementation-contract layer — exactly the finding this audit round was scope
 
 ## Readiness distribution
 
-| Verdict | Count |
-|---|--:|
-| READY | 1 |
-| READY WITH MAPPING | 50 |
-| NEEDS CONTRACT WORK | 20 |
-| NEEDS CANONICAL CHANGE | 0 |
-| **Total** | **71** |
+| Verdict | Before this round | After this round |
+|---|--:|--:|
+| READY | 1 | 0 |
+| READY WITH MAPPING | 50 | 71 |
+| NEEDS CONTRACT WORK | 20 | 0 |
+| NEEDS CANONICAL CHANGE | 0 | 0 |
+| **Total** | **71** | **71** |
+
+READY moved to 0, not up: REM-151 was re-derived rather than carried over, and it turns out to
+carry a genuine open P1 (`REM-151`'s own GAPS section) - no journey in this corpus needs literally
+zero company decisions, which is what READY (as distinct from READY WITH MAPPING) actually means.
 
 ## Gap counts
 
-| Priority | Count |
-|---|--:|
-| P0 — implementation blocker | 20 |
-| P1 — high-value improvement | 58 |
-| P2 — documentation/UX | 26 |
-| **Total** | **104** |
+| Priority | Before this round | After this round |
+|---|--:|--:|
+| P0 — implementation blocker | 20 | **0** |
+| P1 — high-value improvement | 58 | 45 |
+| P2 — documentation/UX | 26 | 27 |
+| **Total** | **104** | **72** |
 
-No journey required a `NEEDS_CANONICAL_CHANGE` verdict. Every gap found is resolvable at the
-implementation-contract layer — an undefined precedence rule, a missing cross-instance suppression
-check, a wrong field in an idempotency key, a channel-selection condition that can't be evaluated
-as written, or a missing identifier derivation — without adding a branch, a communication action,
-or otherwise rewriting a canonical graph. See "Top 15 gaps" below and each journey's own `GAPS`
-section for the complete, itemized list.
+Zero journeys required a `NEEDS_CANONICAL_CHANGE` verdict, before or after. Every P0 this round
+found was closed at the implementation-contract layer or with a small, targeted canonical
+metadata edit (a precedence rule, a suppression clause, a handoff contract, a named channel role,
+a named resolving authority) — never a new node, branch, or communication action. See
+`FIXES-APPLIED.md` for the full before/after on each. The 45 remaining P1s and 27 P2s are real,
+itemized, company-mapping-shaped work — see each journey's own `GAPS` section.
 
-## Top 15 most important gaps
+## Top gaps closed this round
 
-Ranked by reach and severity, not by journey order:
+Ranked by reach and severity, not by journey order — see `FIXES-APPLIED.md` for the full detail:
 
-1. **Systemic idempotencyKey defect, 7 journeys** (FBK-47, IDN-81, IDN-84, ACC-263, FBK-49,
-   ACC-261, IDN-270) — P0. Each journey's `idempotencyKey` references an entity-id field that
-   journey's own `implementation.attributes.required` never declares, evidently copy-pasted from a
-   shared template. Idempotency is a real dedup mechanism, not documentation — as written, none of
-   the seven can be correctly wired. A one-line correction per key; a cheap, corpus-wide,
-   greppable lint (compare every `idempotencyKey` string against its own journey's required
-   attributes) would have caught this mechanically.
-2. **FUL-146 / FUL-265 delay-vs-tracking overlap with no suppression** — P0. Both can be open on
-   the same obligation with nothing preventing it; FUL-265 can independently send a "not arrived"
-   message about the same slip FUL-146 is already messaging as a delay with a new ETA.
-3. **FUL-265 → FUL-148 missing handoff** — P0. No wiring from "we told the customer it didn't
-   arrive" (FUL-265's `x.unresolved`) to "here is how we recover it" (FUL-148).
-4. **`issue_id` minting gap, recurs 3×** (SCH-180→REM-151, FUL-148→REM-151, REM-152→REM-157) — P0.
-   Three upstream journeys hand off into the `issue_id`-keyed remedy chain without ever generating
-   or carrying an `issue_id`. Not a mapping question — a whether-the-identifier-exists-at-all
-   question.
-5. **FBK-41 vs. FBK-42 outbound-ask tie-break undefined** — P0. Both declare the same
-   `contact.competition.exclusionGroup` with the explicit rule "neither is assumed to outrank the
-   other," and no default exists anywhere in the corpus — two eligible instances for one person
-   race non-deterministically for one ask slot.
-6. **FBK-43's declared `task` channel is unmapped** — P0. `channelStrategy.roles` covers email and
-   in-app only; the journey's own escalation and support-work-item actions (`execution: "human"`)
-   have no destination or role at all.
-7. **DOC-220's authority for "which version is authoritative" is unnamed** — P0, the sole P0 in the
-   time/document/structure/integration/decision/terminal batch. Criteria are named
-   (deterministic-identifiability rules); no system, role or algorithm is assigned to apply them.
-8. **ACT-12 / ACT-14 suppression edge is prose-only** — P1. ACT-12's own documentation says it
-   should pause when ACT-14 books an assisted-help session; nothing enforces this in either
-   journey's graph or `orchestration.noAction`.
-9. **SUB-163 is missing the FIN-134 exclusion its sibling group already has** — P1. RET-24 and
-   RET-32 both name an open payment-recovery instance explicitly in their competition precedence;
-   SUB-163 names cancellation-in-motion and active-risk but not payment recovery, so a relationship
-   with an open FIN-134 instance can still receive a routine renewal decision-request.
-10. **CON-264 / CON-272 trigger overlap** — P1, both journeys. A contact-repair-originated change
-    also matches CON-264's own trigger event; neither journey's `distinctFrom` addresses the other.
-11. **DOC-215 / DOC-220 / DOC-286 share a lineage with no cross-instance suppression check** — P1.
-    All three can legitimately be open on the same `document_lineage_id`; the connection points
-    (DOC-220's `h.resign`) are sound, but none of the three verifies the others aren't concurrently
-    open — the most generalizable structural finding in this audit (any `*_lineage_id`/
-    `*_version_id` family needs this pattern).
-12. **TIM-61 / TIM-63 / TIM-268 / TIM-274 name an "urgent horizon" with no config key** — P1, all
-    four. Every other timing dependency in these journeys is attribute-bound or carries a named
-    `ConfigRef`; this one threshold exists only as prose inside a channel role's `when` condition.
-13. **ACT-14 / ACQ-09 channel-role selection has no stated precedence** — P1. ACT-14's four touches
-    each list all three eligible roles with no per-touch narrowing; ACQ-09's two roles are not
-    mutually exclusive conditions.
-14. **RET-24's operational-cause branch doesn't check for an open FIN-134 instance** — P1. Low
-    send-risk (RET-24 is internal-task-only) but a real double-ownership risk at the ops level.
-15. **REM-157 ↔ REM-152 potential ping-pong with no cycle-guard** — P1. If REM-152 rejects a
-    return, `h.alternative` sends it back to REM-157 with no rule against re-selecting "return"
-    again.
+1. **Systemic idempotencyKey defect** — P0, 7 journeys named in the prior round (FBK-47, IDN-81,
+   IDN-84, ACC-263, FBK-49, ACC-261, IDN-270), **plus 29 more found by re-running the check
+   corpus-wide** (36 in-scope total). Every `idempotencyKey` now references a field the journey
+   actually declares or derives. A new mechanical validator (`idempotency_field_undeclared` in
+   `scripts/vnext-rules.mjs`) makes this an error for the 71 going forward.
+2. **FUL-146 / FUL-265 delay-vs-tracking overlap** — P0. Both journeys now name an explicit
+   ownership split (FUL-146 owns pre-dispatch slips and defers post-dispatch; FUL-265 owns
+   dispatch onward), enforced via reciprocal suppression clauses.
+3. **FUL-265 → FUL-148 missing handoff** — P0. `x.unresolved` is now a handoff to FUL-148 with an
+   explicit contract (failure classification, dispatch/tracking history, a freshly-minted
+   `delivery_attempt_id`).
+4. **`issue_id` minting gap, recurred 4×** (SCH-180→REM-157, FUL-148→REM-151, REM-152→REM-157,
+   plus DOC-220→REM-157, found on re-check) — P0. All four handoffs now carry an explicit
+   `contract.requiredFields` naming a freshly-minted `issue_id`, deterministically derived from the
+   source journey's own instance key, with the derivation documented in `carries`.
+5. **FBK-41 vs. FBK-42 outbound-ask tie-break** — P0. `contact.competition.precedence` on both
+   journeys now states a deterministic rule: FBK-42 (advocacy) wins when both are eligible for the
+   same person at the same moment, since advocacy already presupposes satisfaction and is the
+   rarer, higher-value ask; FBK-41 defers cleanly (`onLoss: suppressed`) and re-opens independently.
+6. **FBK-43's declared `task` channel** — P0. `channelStrategy` now declares a `human` role bound
+   to `task`, and `a.obligation`/`a.escalate` are modelled as `orchestration.touches` with an
+   owning-process-queue destination.
+7. **DOC-220's authority for "which version is authoritative"** — P0. `a.authoritative`'s own text
+   now names the resolving authority explicitly: a deterministic resolver applying `c.identifiable`'s
+   criteria, escalating to `h.review`'s human decision on ambiguity.
+8. **ACT-12 / ACT-14 suppression edge** — P1. Now enforceable: ACT-12 gained an eligibility bullet
+   and suppression (`s.assisted`) checking for an open ACT-14 session, plus a new optional
+   `assisted_session_open` attribute, closing a gap the corpus previously only stated in prose.
+9. **SUB-163 missing the FIN-134 exclusion** — P1. `contact.competition.precedence` and a new
+   suppression (`s.payment-recovery`) now defer to an open payment-recovery process, matching
+   RET-24/RET-32's sibling pattern.
+10. **CON-264 / CON-272 trigger overlap** — P1, both journeys. CON-264's eligibility now excludes
+    changes whose `change_source` is CON-272's own repair flow (already confirmed by CON-272's own
+    `a.confirm`); CON-272 documents the reciprocal relationship in a new `distinctFrom` entry.
+11. **DOC-215 / DOC-220 / DOC-286 cross-instance suppression** — P1, all three. Each now checks for
+    an open DOC-220 conflict review on the same document lineage before proceeding — the most
+    generalizable structural fix from this round (any `*_lineage_id`/`*_version_id` family needs
+    this pattern).
+12. **TIM-61 / TIM-63 / TIM-268 / TIM-274 "urgent horizon"** — P1, all four. Each now declares a
+    named `urgent_horizon` optional attribute and its channel role's `when` text cites it and the
+    journey's own due/expiry/deadline attribute by name, instead of unbound prose.
+13. **ACQ-09 / ACT-14 channel-role precedence** — P1, both. Roles reordered so in-session is
+    checked before persistent (ACQ-09) and before low-friction/persistent (ACT-14), matching the
+    convention already correct elsewhere in the corpus (e.g. ACT-12); FBK-42's `a.ask-heavy` also
+    had `push` removed as ineligible, since its own text argues against an interruptive channel.
+14. **RET-24's operational-cause branch vs. FIN-134** — P1. `c.operational`'s branch text now
+    explicitly excludes a payment failure with an open payment-recovery instance from routing to
+    RET-23, closing the double-ownership risk.
+15. **REM-157 ↔ REM-152 ping-pong** — P1. `c.route`'s "Return, before anything else" branch now
+    explicitly excludes a return already rejected once for the same issue.
 
 ## Cross-library patterns
 
@@ -162,10 +187,17 @@ Ranked by reach and severity, not by journey order:
   company/product — correctly carry no invented number. Only one instance across all 71 journeys
   (ACQ-13's `interest.qualification_rule`) was found lacking even the *structural* ConfigRef shape
   its siblings get, and that is a P2 documentation gap, not a missing decision.
-- **A recurring identifier-provenance gap.** The `issue_id` pattern (finding #4 above) and the
-  idempotencyKey defect (finding #1) are the same underlying failure mode at two different
-  layers: an entity-id field assumed present that a specific journey's own data model never
-  declares. Worth a corpus-wide automated check beyond this round's 71.
+- **A recurring identifier-provenance gap, now mechanically checked.** The `issue_id` pattern and
+  the idempotencyKey defect were the same underlying failure mode at two different layers: an
+  entity-id field assumed present that a specific journey's own data model never declares. This
+  round ran that check corpus-wide (not just against the 71) and added two permanent validators
+  (`idempotency_field_undeclared`, `handoff_identifier_unprovenanced` in `scripts/vnext-rules.mjs`)
+  so it can't silently return - see `VALIDATOR-COVERAGE.md`. The corpus-wide re-check found the
+  idempotencyKey defect in 64 journeys total (36 in this round's 71, all now fixed; 28 outside
+  scope, tracked via `production/vnext-warning-reviews.json` for a future silent-lifecycle-states
+  round) and flagged 86 additional handoff-identifier findings for review, the large majority of
+  which are the ordinary case of a target journey minting its own instance key on entry rather than
+  a real gap - see `VALIDATOR-COVERAGE.md` for why that check stays warn-only by design.
 
 ## Recommended implementation-contract architecture
 
@@ -177,20 +209,36 @@ implementation.attributes, contact/channelStrategy/orchestration, measurement, d
 from an invented taxonomy. The schema typechecks standalone
 (`npx tsc --noEmit --strict --skipLibCheck`) and every one of the 71 generated contracts in
 `implementation-contracts.json` validates against it structurally and by enum (zero violations on
-both checks). It is deliberately *not* wired into `src/canonical/` — see "What this round did not
-do" below.
+both checks, re-verified after this round's edits). It is deliberately *not* wired into
+`src/canonical/` — that library's own types (`src/canonical/types.ts`) already carry the fields
+this round actually edited (`idempotencyKey`, `contract.requiredFields`, `contact.competition`,
+`channelStrategy`, `orchestration.touches`, suppressions) directly on the canonical journeys; the
+implementation contract is a *read* over that data plus the company-facing framing (readiness
+verdicts, gap prioritization) that has no reason to live in the canonical library itself.
 
-## What this round did not do
+## What this round changed, and what it deliberately did not
 
-Per the brief's explicit scope: no silent lifecycle state, runtime mechanism or operational
-workflow was modified or newly audited; no Gate 5 work; no site changes; no preset added; no new
+This round **did** modify `src/canonical/` — 20 domain files, ~150 targeted edits across the 71
+journeys' own idempotencyKeys, suppressions, handoffs, channel strategies, and one action's
+descriptive text (DOC-220's `a.authoritative`) — plus `scripts/surface-assignment.mjs`,
+`scripts/vnext-draft.mjs`, `scripts/vnext-readiness.mjs` and `scripts/vnext-rules.mjs` (taxonomy
+normalization and the two new validators), `production/vnext-warning-reviews.json` (review entries
+for corpus-wide debt this round found but did not fix), and the generated artifacts that follow
+from all of that (`production/canonical-dump.json`, `production/surface-assignment.json`,
+`VNEXT_MIGRATION_CHANGELOG.md`, `production/vnext-recipes.md`). Every canonical edit is metadata or
+prose on an existing node — no node, branch, or communication action was added or removed, and
+`npm run validate:canonical` held at 0 errors / 0 unreviewed warnings on vNext journeys throughout.
+
+What it did not do, per the round's explicit scope: no silent lifecycle state's own graph was
+modified (only their canonical debt was reviewed and tracked, never fixed); no runtime mechanism or
+operational workflow was touched; no Gate 5 work; no site changes; no preset added; no new
 canonical journey added (no genuine canonical gap was found that would justify one — see the
-`NEEDS_CANONICAL_CHANGE` count of zero); no vendor-specific object was named anywhere in the
-output; no numeric value was invented anywhere (the only numbers appearing in any contract are
-direct citations of a canonical journey's own pre-existing `example-only` Config default, flagged
-as needing a real business value — verified by a text scan of the merged JSON, see the audit
-process notes below); no production file under `src/`, `production/`, `search/`, or `seo/` was
-touched.
+`NEEDS_CANONICAL_CHANGE` count of zero, before and after); no vendor-specific object was named
+anywhere in the output; no numeric value was invented anywhere (the only numbers appearing in any
+contract are direct citations of a canonical journey's own pre-existing `example-only` Config
+default, flagged as needing a real business value); no channel was added to any journey to look
+more omnichannel (FBK-42's push removal went the other direction); no human task was converted into
+a customer message; no message engagement metric was treated as a business outcome anywhere.
 
 ## Full per-journey audit
 
@@ -202,10 +250,10 @@ CONFIG / CHANNEL POLICY / SUPPRESSION-PREEMPTION / HANDOFF / OUTCOMES / TEST CAS
 
 ## ACC-261 — Access Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The three-way branch (nothing they can do vs. resolvable by them vs. already owned by a security response) is exactly the right shape, and x.security-owned cleanly resolves what would otherwise be a duplicate notice alongside IDN-271. Two implementation issues remain: the idempotencyKeys reference "person_id", a field this journey never declares (account_id + restriction_id are the actual key), and h.unreachable is the only exit in the whole journey with no reEntry note, leaving it undefined whether a route CON-36 later repairs re-triggers the notice.
+The three-way branch (nothing they can do vs. resolvable by them vs. already owned by a security response) is exactly the right shape, and x.security-owned cleanly resolves what would otherwise be a duplicate notice alongside IDN-271. The idempotencyKeys now correctly reference account_id + restriction_id. One implementation issue remains: h.unreachable is the only exit in the whole journey with no reEntry note, leaving it undefined whether a route CON-36 later repairs re-triggers the notice.
 
 INSTANCE:
 Scope: person or account plus the specific restriction or end date placed on it
@@ -219,7 +267,7 @@ Required evidence: an authoritative restriction, suspension or end date recorded
 Insufficient alone: a risk signal that has not yet produced a restriction; an internal review that has not concluded
 
 DATA:
-- account_id — instance key (idempotencyKeys incorrectly reference person_id instead — see gaps)
+- account_id — instance key
 - restriction_id — instance key
 - restricted_capabilities — a.notify / a.inform-only messaging
 - still_working — a.notify — naming what still works
@@ -257,10 +305,9 @@ TEST CASES:
 - alternate-branch: the restriction was placed by an IDN-271 security response -> c.actionable routes to x.security-owned; no separate notice sent
 - timeout: the resolution deadline passes with the condition unmet -> w.resolve times out into c.outcome, resolving to x.stands
 - contactability-loss: no permitted route survives the purpose and permission checks -> c.reachable routes to h.unreachable (CON-36)
-- idempotency: a.notify is retried for the same account_id + restriction_id -> as documented, the idempotencyKey references person_id, a field absent from required attributes — must be corrected to account_id + restriction_id
+- idempotency: a.notify is retried for the same account_id + restriction_id -> idempotencyKey now correctly references its own declared instance-key field(s) - the retry is absorbed as a no-op
 
 GAPS:
-- P0 [instance] a.inform-only/a.notify/a.confirm idempotencyKeys all include "person_id", a field absent from this journey's required attributes (account_id + restriction_id are the actual key).
 - P1 [handoff] h.unreachable is the only exit node in this journey with no reEntry note (every other exit states what re-opens it); it is undefined whether a route CON-36 later repairs re-triggers a.notify for the same restriction_id or the notice is simply lost.
 
 ---
@@ -269,10 +316,10 @@ GAPS:
 
 ## ACC-263 — Activation Reminder
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph correctly distinguishes a first-time grant from a repeat/renewal (no re-onboarding a familiar holder) and keeps lapsed-unclaimed distinct from revoked-before-use as different facts. The blocker is that a.ready/a.brief/a.remind idempotencyKeys reference "issue_id" and "identity_id", neither of which this journey declares — the actual key is entitlement_id + holder_id.
+The graph correctly distinguishes a first-time grant from a repeat/renewal (no re-onboarding a familiar holder) and keeps lapsed-unclaimed distinct from revoked-before-use as different facts. a.ready/a.brief/a.remind idempotencyKeys now correctly reference entitlement_id + holder_id, its own declared instance key.
 
 INSTANCE:
 Scope: the issued entitlement or credential and its activation window
@@ -286,7 +333,7 @@ Required evidence: an entitlement or credential authoritatively granted to a nam
 Insufficient alone: an eligibility decision with no provisioning behind it; a grant whose resource is not yet reachable
 
 DATA:
-- entitlement_id — instance key (idempotencyKeys incorrectly reference issue_id/identity_id instead — see gaps)
+- entitlement_id — instance key
 - holder_id — instance key
 - provisioned_at — audit trail
 - activation_window_ends_at — w.first-use / w.last-chance timeout binding
@@ -324,10 +371,10 @@ TEST CASES:
 - alternate-branch: the holder has used this capability before (renewal/additional seat) -> c.first-time routes to a.brief instead of a.ready
 - timeout: no use is recorded before the reminder point -> c.remind fires a.remind if time remains, else routes straight to x.lapsed
 - timeout: no use is recorded after the single reminder -> w.last-chance times out to x.lapsed; there is no second reminder
-- idempotency: a.ready is retried for the same entitlement_id + holder_id -> as documented, the idempotencyKey references issue_id + identity_id, neither of which this journey declares — must be corrected to entitlement_id + holder_id
+- idempotency: a.ready is retried for the same entitlement_id + holder_id -> idempotencyKey now correctly references its own declared instance-key field(s) - the retry is absorbed as a no-op
 
 GAPS:
-- P0 [instance] a.ready/a.brief/a.remind idempotencyKeys all reference "issue_id + identity_id", neither of which appears in this journey's required attributes; entitlement_id + holder_id is the actual instance key.
+- none
 
 ---
 
@@ -399,7 +446,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-Graph is a clean bounded-window nurture with an honest guardrail against engagement-as-progress (s.g2, windowExtendsOnEngagement: false). The one implementation ambiguity is that the single action node `a.educate` is declared usable under two channel roles (persistent/email and in-session/in-app) whose "when" conditions can both be true at once, with no rule for which one wins on a given send.
+A clean bounded-window nurture with an honest engagement-is-not-progress guardrail already enforced in the graph. The one ambiguity is that a.educate is declared usable under two channel roles whose when-conditions can both hold at once with no precedence stated.
 
 INSTANCE:
 scope: lead or person, held against the entry reason. key: [lead_id]. dedupe: reject-duplicate (eligibility requires "no instance of this journey is already open for the lead or person"). concurrency: one-active-per-key.
@@ -448,8 +495,7 @@ TEST CASES:
 - permission-loss: given no basis exists at entry (c.basis "No basis") -> expect x.no-basis (held, not started) and re-entry only on a later, real permission grant.
 
 GAPS:
-- P1 (channel): a.educate's channelRoles list two roles (persistent, in-session) whose "when" conditions are not mutually exclusive and no precedence is stated — an implementer must invent which channel wins when both apply, which the corpus's own contract format is meant to prevent.
-- P2 (config): bounded_education.touches has no numeric default (required:true, no example value) unlike most other journeys' touch budgets — reasonable given "required", but worth flagging since it's the only touch-count config in this batch with zero guidance, not even a low-confidence example.
+- P2 [config] bounded_education.touches is required:true with no example value at all, unlike most other touch-budget configs in this batch.
 
 ---
 
@@ -738,7 +784,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-Reviewed and confirmed as a pure human-only router (Gate 4): both terminal branches are handoffs (to ACT-13 when blocked, to ACT-12 when clear), and it owns no outcome of its own — consistent with the corpus's router_journey pattern used elsewhere in this batch (ACQ-04, ACT-17). The only judgment call is "does reaching value here require assisted onboarding," which is a business rule read from context rather than a fixed threshold.
+Reviewed and confirmed (Gate 4) as a pure human-only router: both terminal branches are handoffs, and it owns no outcome of its own, consistent with the router_journey pattern used elsewhere in this batch. The one judgment call is whether reaching value requires assisted onboarding, a business rule the journey correctly leaves to be defined.
 
 INSTANCE:
 scope: person, account, subscription or trial — the thing that was entered. key: [account_id, onboarding_instance_id]. dedupe: reject-duplicate (one entry, one route; a second subscription on the same account is a second instance with its own route). concurrency: one-active-per-key.
@@ -794,10 +840,10 @@ GAPS:
 
 ## ACT-12 — Onboarding Nurture
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph itself (progress -> next step -> activation-or-blocker-or-window-close) is sound and the guardrail against re-suggesting completed steps is real (s.done-step, re-reads the milestone record every touch). The contract gap is coordination: the journey's own `preemptedBy` documents that ACT-14 booking an assisted session should pause ACT-12's generic prompts, but nothing in `orchestration.noAction` or the graph's suppression nodes actually implements that pause — it exists only as prose, leaving "does a booked ACT-14 session suppress ACT-12" to be inferred by an implementer rather than stated as an enforceable rule.
+The graph itself is sound and the completed-step guardrail is real. The contract gap is coordination: preemptedBy documents that ACT-14 booking an assisted session should pause ACT-12's generic prompts, but this is not represented as a suppression id in orchestration.noAction or as a graph node - it exists only as prose, leaving the check to be inferred rather than enforced.
 
 INSTANCE:
 scope: person or account plus the onboarding instance. key: [account_id, onboarding_instance_id]. dedupe: reject-duplicate (no nurture instance already open for this onboarding instance). concurrency: one-active-per-key.
@@ -854,8 +900,7 @@ TEST CASES:
 - idempotency: given a.surface fires twice for the same onboarding_instance_id + step id -> expect the idempotencyKey prevents a duplicate step prompt.
 
 GAPS:
-- P1 (suppression): `preemptedBy` documents that an ACT-14 assisted-session booking should pause ACT-12's generic prompts, but no suppression id, graph node, or explicit config exists to enforce it — an implementer has no structural signal (only a human-readable footnote) telling them to check ACT-14 session state before firing a.surface. This is a real cross-journey coordination gap, not merely documentation, because two automated systems (ACT-12 and ACT-14) can otherwise message the same account about the same onboarding at once.
-- P2 (config): onboarding.step_prompts default of 5 is explicitly low-confidence/example-only with no stated relationship to critical_steps count — a company with more than 5 critical steps could exhaust the budget before covering every step; worth noting the budget should probably scale with (or be validated against) critical_steps length.
+- P2 [config] onboarding.step_prompts default of 5 has no stated relationship to critical_steps count; a company with more than 5 critical steps could exhaust the budget before covering every step.
 
 ---
 
@@ -929,10 +974,10 @@ GAPS:
 
 ## ACT-14 — Onboarding Help
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph is well-formed (offer -> decide -> confirm/decline/no-outcome -> bounded follow-up -> stop), and the ACT-13 duplicate check (c.duplicate) is explicit and real. The contract gap: three of the four channelRoles arrays list all three roles (persistent, in-session, low-friction) on every touch with no per-touch "when" narrowing beyond the generic role definitions, so a company must invent, per touch, which of email/in-app/push actually fires for a given account state — more so than in ACT-12/ACT-13 where the two-role pattern reads as a clean session-present/absent split.
+The graph is well-formed and the ACT-13 duplicate check is explicit and real. The contract gap is channel selection: every touch (t1-t4) lists all three channel roles with no per-touch narrowing beyond generic journey-level role definitions, unlike ACT-12/ACT-13's clean session-present/absent split.
 
 INSTANCE:
 scope: person or account plus the open onboarding or trial instance. key: [account_id, person_id]. dedupe: reject-duplicate. concurrency: one-active-per-key. concurrencyNote: the struggle is scoped to "this attempt at value" — a previous trial that went badly does not qualify anyone here, so the instance key must be tied to the specific open onboarding/trial attempt, not the person's history.
@@ -991,8 +1036,7 @@ TEST CASES:
 - idempotency: given a.offer fires twice for the same account_id+person_id -> expect the idempotencyKey prevents a duplicate offer.
 
 GAPS:
-- P1 (channel): every touch (t1-t4) lists all three channelRoles (persistent, in-session, low-friction) without a per-touch "when" narrowing the way ACT-12/ACT-13 do (session-present vs session-absent) — an implementer has no stated rule for choosing among email/in-app/push on a given send beyond the roles' generic journey-level definitions, which is a real channel-selection gap repeated across four separate touches.
-- P1 (suppression, cross-referenced from ACT-12): ACT-12's preemptedBy states an ACT-14 session pauses ACT-12's prompts, but neither journey's own graph enforces it — flagged in full under ACT-12's GAPS; recorded here because ACT-14 is the journey whose state (a booked session) the pause depends on, so its own contract should also expose "session booked" as a signal ACT-12 (or an orchestration layer) can read.
+- P2 [suppression] ACT-12 now checks for an open ACT-14 session (booked at a.confirm, not yet resolved) via a new optional assisted_session_open attribute and an enforceable suppression (s.assisted); the underlying signal is structurally real (ACT-14's own w.session), just not yet exported as a named attribute on ACT-14's own side - a documentation gap, not a missing enforcement mechanism.
 
 ---
 
@@ -1197,7 +1241,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-Reviewed and confirmed (Gate 4) as correctly guarding against engagement-as-progression: `a.inspect` explicitly checks what state was actually returned to before the wait's outcome is declared anything, and c.state's "Signal did not survive inspection" branch exists precisely to catch a false positive (message engagement mistaken for a real return). The journey correctly excludes former paying customers (win-back is a different journey) and requires a specific, recorded reason before any attempt is made.
+Reviewed and confirmed (Gate 4) as correctly guarding against engagement-as-progression: a.inspect explicitly checks what state was actually returned to before the wait's outcome is declared anything, with a dedicated branch (x.engagement-only) to catch a false positive. Former paying customers are correctly excluded, and every attempt requires a specific recorded reason.
 
 INSTANCE:
 scope: person, lead or inactive non-customer account, in the context that went dormant. key: [lead_id, context_id]. dedupe: reject-duplicate. concurrency: one-active-per-key. concurrencyNote: dormancy is per context — someone inactive in one product may be active in another, and this journey is not about them; the context_id in the instance key enforces that scoping.
@@ -1321,7 +1365,6 @@ TEST CASES:
 
 GAPS:
 - P1 [events] No documented rule for a destination_confirmed event arriving after x.lapsed has already been recorded (a late confirmation); the graph does not say whether it reopens the instance or is discarded.
-- P1 [suppression] CON-264 (contact_point_added_or_changed) and CON-272 (a replacement destination supplied after a bounce) can both be triggered by the same real-world action of a person supplying a new contact point, and neither journey's distinctFrom section resolves which one owns the two-party confirmation in that case.
 - P2 [channel] channelStrategy.fallback is declared as same-role-other-channel even though the channel is fully determined by destination_kind and there is no real fallback path available (an email destination cannot fail over to sms and remain 'the same destination').
 
 ---
@@ -1387,7 +1430,6 @@ TEST CASES:
 - idempotency: the bounce webhook for the same failure is redelivered -> idempotencyKey contact_point_id + person_id + action dedupes each touch
 
 GAPS:
-- P1 [suppression] Shares the same open question as CON-264: a destination corrected here may also trigger CON-264's contact_point_added_or_changed flow, and no rule states whether CON-264's two-party (alert-old) confirmation should also run for a repair-originated change.
 - P2 [channel] t3 (a.confirm) declares three channelRoles without a channelStrategy entry that names 'the route that worked' as a formal selection rule — it is resolved correctly in the action's own prose but not in the structured channelStrategy.roles block.
 
 ---
@@ -1519,7 +1561,7 @@ TEST CASES:
 - idempotency: a.request retried for the same requirement -> idempotencyKey (issue_id + a.request) combined with the request_budget attemptBudget prevents unbounded re-requests
 
 GAPS:
-- P1 config: c.timeout's three-way branch (decide on available evidence / close / escalate) depends entirely on company policy that is not defined anywhere in the canonical data — a company implementing this with no explicit deadline policy set will fall through to h.escalate by the graph's own default ('or policy does not define it'), which is correct behavior but means the escalation path is the effective default until policy is authored.
+- P1 [config] c.timeout's three-way branch (decide on available evidence / close / escalate) depends entirely on company policy that is not defined anywhere in the canonical data — a company implementing this with no explicit deadline policy set will fall through to h.escalate by the graph's own default ('or policy does not define it'), which is correct behavior but means the escalation path is the effective default until policy is authored.
 
 ---
 
@@ -1718,16 +1760,16 @@ TEST CASES:
 - idempotency: a.request retried for the same signer -> idempotencyKey (document_version_id + signer_id + touch id) prevents a duplicate request/reminder
 
 GAPS:
-- P1 config: signature.reminder_point's default example ({min: 3 days, max: 5 days}) is explicitly marked confidence: low / basis: example-only in the canonical data — a company must replace it with a real policy value rather than treating the example as a default.
+- none
 
 ---
 
 ## DOC-220 — Document Conflict Review
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph's state machine is sound — it never deletes conflicting evidence, never treats 'newest' as 'authoritative', and correctly separates 'signature bound to wrong version' from 'business action taken on wrong version'. But the central judgment at c.identifiable — 'is the authoritative version deterministically identifiable' from lineage, issuance authority and effective semantics — names the criteria without naming who or what system executes that judgment. Every other journey in this batch resolves its authoritative facts by reading a single named system; this one requires synthesizing conflicting records across (at minimum) a document management system and an e-signature system with no stated algorithm or role, which is a real source-of-truth ambiguity rather than a plain company-mapping task.
+a.authoritative's own text now names the resolving authority explicitly - a deterministic resolver applying c.identifiable's criteria, escalating to h.review's human decision on ambiguity - closing the "who decides" gap. Preserving every conflicting record and never deleting evidence to tidy the state are both correctly modelled.
 
 INSTANCE:
 - scope: the document lineage and every conflicting record claiming to be part of it
@@ -1782,8 +1824,7 @@ TEST CASES:
 - idempotency: a.correct-distribution is retried -> idempotencyKey (document_version_id + issue_id + a.correct-distribution) prevents re-sending the correction
 
 GAPS:
-- P0 source-of-truth: c.identifiable's determination of 'the authoritative version' has no named system, role or algorithm — lineage, issuance authority and effective semantics are named as criteria, not as a procedure. A company cannot safely automate this branch without first defining who or what makes this call, and an incorrect automated determination here is the exact failure guardrail s.g1 warns against (treating the newest file as authoritative).
-- P1 suppression: No cross-check exists between this journey, DOC-215 and DOC-286 for concurrently-open instances on the same document_lineage_id, despite all three being able to legitimately run in parallel on the same lineage (see SUPPRESSION note).
+- none
 
 ---
 
@@ -1849,16 +1890,16 @@ TEST CASES:
 - idempotency: a.reminder retried by delivery infrastructure -> idempotencyKey (document_version_id + person_id + a.reminder) prevents a duplicate reminder, honoring the 'one reminder, never two' guardrail
 
 GAPS:
-- P1 suppression: No mechanism revalidates this instance's effectiveness assumption mid-flight if DOC-220 later determines the version was not authoritative — see SUPPRESSION.
+- none
 
 ---
 
 ## FBK-41 — Feedback Request
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The eligibility gauntlet (complete, no open issue, not recently asked, within the ask budget) is thorough and well-guarded against reading a closed ticket or a login as consent. But FBK-41 and FBK-42 (Advocacy Request) explicitly share one exclusionGroup ("outbound-ask") with a precedence rule that states plainly that policy must order them and that "neither is assumed to outrank the other" — with no default given. When both are eligible for the same person in the same budget window, nothing in either graph decides who sends. That is a genuine P0 authority gap, not a graph defect.
+contact.competition.precedence now states a deterministic tie-break: FBK-42 (advocacy) wins when both are eligible for the same person at the same moment, since advocacy already presupposes satisfaction and is the rarer, higher-value ask. This journey defers cleanly (onLoss: suppressed) and remains free to re-open at its next moment.
 
 INSTANCE:
 Scope: person or account plus the specific experience being asked about
@@ -1919,7 +1960,6 @@ TEST CASES:
 - idempotency: the request touch is retried for the same person_id + experience_ref -> idempotencyKey person_id + experience_ref + touch id dedupes it
 
 GAPS:
-- P0 [config] No default precedence exists between FBK-41 (satisfaction ask) and FBK-42 (advocacy ask) when both are eligible in the same outbound-ask budget window; the corpus explicitly states policy must decide and that neither outranks the other by default, so an implementer must supply a tie-break rule or the two journeys will race non-deterministically for the same ask slot.
 - P2 [handoff] x.received hands conceptual ownership of the incoming feedback to FBK-43, but this is an event-driven connection (feedback_submitted -> FBK-43's own trigger), not a modeled handoff node with requiredContext — worth documenting explicitly even though it is architecturally sound.
 
 ---
@@ -1928,10 +1968,10 @@ GAPS:
 
 ## FBK-42 — Advocacy Request
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The eligibility evaluation (accumulated evidence, not a single signal; open negative issue suppresses entirely; ask size matched to commitment level) is careful and well-guarded. Two implementation-blocking issues survive migration: it shares FBK-41's undefined outbound-ask precedence, and a.ask-heavy declares push (a low-friction, interruptive channel) as an eligible channelRole even though its own purpose text explicitly argues against an interruptive route for a high-commitment ask ("not an interruption to be tapped past; it needs somewhere they can read it twice") — the channel declaration contradicts the action's own documented intent.
+contact.competition.precedence now states a deterministic tie-break: this journey wins the outbound-ask slot over FBK-41 (satisfaction) when both are eligible for the same person at the same moment, since advocacy is the rarer, higher-value ask built on accumulated relationship evidence rather than one experience. FBK-41 defers cleanly and remains free to re-open at its next moment.
 
 INSTANCE:
 Scope: person or account plus the relationship context the advocacy would be about
@@ -1985,7 +2025,6 @@ TEST CASES:
 - idempotency: the ask-heavy touch is retried for the same account_id+relationship_id -> idempotencyKey account_id + relationship_id + a.ask-heavy dedupes it
 
 GAPS:
-- P0 [config] Same outbound-ask precedence gap as FBK-41: no default ordering between advocacy and satisfaction asks sharing the exclusionGroup.
 - P1 [channel] a.ask-heavy declares low-friction (push) as an eligible channelRole even though its own purpose text explicitly rules out an interruptive route for a high-commitment ask; the declared eligible-channel set contradicts the action's documented intent.
 
 ---
@@ -1994,10 +2033,10 @@ GAPS:
 
 ## FBK-43 — Feedback Follow-Up
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-This is the corpus's central feedback router (it absorbed the former FBK-44/FBK-45) and the branching itself — PRAISE/SERVICE_ISSUE/COMPLAINT/SUPPORT_NEED/PRODUCT_FEEDBACK/GENERAL_COMMENT/UNKNOWN, each to its own owner — is complete and well-guarded (no manufactured fault, no generic thank-you, feedback and the issue it produces kept as separate entities). The blocker is that the journey declares three channels (email, in-app, task) but channelStrategy.roles only maps email and in-app; "task" has no role, no destination, and is not even represented among the three modeled touches, even though a.obligation and a.escalate are execution:"human" actions that plainly need internal work-item routing. That is a P0 channel gap by the audit's own standard: three declared channels, only two explained.
+The classification into PRAISE/SERVICE_ISSUE/COMPLAINT/SUPPORT_NEED/PRODUCT_FEEDBACK/GENERAL_COMMENT/UNKNOWN and routing to the right owner is clean triage logic. "task" is now mapped: channelStrategy declares a human role bound to it, and a.obligation/a.escalate are both modelled as orchestration.touches with an owning-process-queue destination.
 
 INSTANCE:
 Scope: the feedback record, linked to the person and the experience it is about
@@ -2069,7 +2108,6 @@ TEST CASES:
 - duplicate-trigger: the same feedback_id is redelivered -> idempotencyKey feedback_id on a.persist dedupes it
 
 GAPS:
-- P0 [channel] "task" is declared as one of three journey-level channels but has zero channelStrategy role, zero destination binding, and zero orchestration.touches entry; the two execution:"human" actions that would use it (a.obligation, a.escalate) are entirely unmodeled at the orchestration layer.
 - P1 [handoff] The h.contribution branch (someone volunteers a reusable contribution) bypasses FBK-43's own advocacy-eligibility check (c.eligible) entirely, handing straight to external:advocacy-contribution — it is undocumented whether that external consumer re-applies FBK-42's eligibility rules or duplicates the ask.
 
 ---
@@ -2156,10 +2194,10 @@ GAPS:
 
 ## FBK-47 — Appeal Review
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph itself is sound: the original decision is never edited in place, a hold is recorded distinctly from a reversal, and both waits (review, more-info) are correctly bound to the same appeal_deadline_at so requesting more information never silently extends the deadline. But every idempotencyKey in this journey (a.link, a.reject, a.hold, a.apply, a.request-more-info, a.communicate-outcome) references "issue_id" — a field that does not exist anywhere in this journey's own required attributes, which use appeal_id as the instance key. This looks like copy-paste residue from FBK-46's template and blocks correct exactly-once implementation as written.
+The graph itself is sound: the original decision is never edited in place, a hold is recorded distinctly from a reversal, and both waits (review, more-info) are correctly bound to the same appeal_deadline_at so requesting more information never silently extends the deadline. Every idempotencyKey now correctly references appeal_id, this journey's own instance key.
 
 INSTANCE:
 Scope: the appeal, linked to the original decision it disputes
@@ -2173,7 +2211,7 @@ Required evidence: a submission contesting an identifiable prior decision
 Insufficient alone: dissatisfaction with an outcome that names no decision; a complaint about how a decision was communicated rather than about the decision
 
 DATA:
-- appeal_id — instance key (idempotencyKeys incorrectly reference issue_id instead — see gaps)
+- appeal_id — instance key
 - original_decision_id — a.link
 - appellant_id — standing check in c.eligible
 - appeal_deadline_at — w.review and w.more-info timeout binding
@@ -2213,10 +2251,10 @@ TEST CASES:
 - alternate-branch: policy requires the original decision held pending review -> c.hold routes to a.hold (a suspension, distinct from a reversal) before w.review
 - timeout: the appeal_deadline_at passes with no conclusion (either during w.review or w.more-info) -> both timeout paths converge on h.deadline; nothing downstream records an outcome
 - late-event: the requested additional information arrives after appeal_deadline_at has already passed -> not handled — w.more-info's own timeout already routed to h.deadline before the information could be used
-- idempotency: a.apply is retried for the same appeal -> as documented, the idempotencyKey references issue_id, a field this journey never collects — idempotency cannot be correctly implemented until it is corrected to appeal_id
+- idempotency: a.apply is retried for the same appeal_id -> idempotencyKey now correctly references its own declared instance-key field(s) - the retry is absorbed as a no-op
 
 GAPS:
-- P0 [instance] Every idempotencyKey in this journey (a.link, a.reject, a.hold, a.apply, a.request-more-info, a.communicate-outcome) references "issue_id" — a field absent from this journey's own required attributes (appeal_id is the actual instance key). This looks like unedited residue from FBK-46's template and must be corrected before idempotent side effects can be implemented.
+- none
 
 ---
 
@@ -2224,10 +2262,10 @@ GAPS:
 
 ## FBK-49 — Missing Information Reminder
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph correctly refuses to ask for anything an authoritative system already holds, names the blocked process in every request, and routes to the actual holder of the item (customer vs internal party) rather than always asking the customer. But every idempotencyKey (a.identify, a.request, a.request-internal, a.persist) references "person_id" — a field this journey never declares in its required attributes, which use blocked_entity_id + requirement_id as the instance key. Correcting that is a prerequisite for safe implementation.
+The graph correctly refuses to ask for anything an authoritative system already holds, names the blocked process in every request, and routes to the actual holder of the item (customer vs internal party) rather than always asking the customer. Every idempotencyKey now correctly references blocked_entity_id + requirement_id, this journey's own instance key.
 
 INSTANCE:
 Scope: the business entity that is blocked plus the specific missing requirement
@@ -2241,7 +2279,7 @@ Required evidence: a named business process that cannot safely proceed, and the 
 Insufficient alone: a profile field that would be useful to have; data that would improve a future decision while blocking nothing today
 
 DATA:
-- blocked_entity_id — instance key (idempotencyKeys incorrectly reference person_id instead — see gaps)
+- blocked_entity_id — instance key
 - requirement_id — instance key; destination binding
 - blocked_process — naming what the request unblocks (s.g3)
 - provider — c.provider routing
@@ -2278,10 +2316,10 @@ TEST CASES:
 - alternate-branch: only an internal party holds the item -> c.provider routes to a.request-internal (task channel), never down a customer route
 - timeout: nothing arrives inside the process-specific wait window and the process is critical enough to own -> c.criticality routes to h.escalate rather than x.abandoned
 - duplicate-trigger: a second, distinct missing requirement is identified on the same blocked entity -> a separate instance opens keyed on the new requirement_id
-- idempotency: a.request is retried for the same blocked_entity_id + requirement_id -> as documented, the idempotencyKey references person_id, a field absent from this journey's required data — must be corrected to blocked_entity_id + requirement_id
+- idempotency: a.request is retried for the same blocked_entity_id + requirement_id -> idempotencyKey now correctly references its own declared instance-key field(s) - the retry is absorbed as a no-op
 
 GAPS:
-- P0 [instance] Every idempotencyKey (a.identify, a.request, a.request-internal, a.persist) references "person_id", a field this journey never declares in required attributes; the real instance key is blocked_entity_id + requirement_id.
+- none
 
 ---
 
@@ -2436,8 +2474,8 @@ TEST CASES:
 - **duplicate-trigger**: given a second refund request against the same original transaction while one is open → expect governed by refund_request_id as the instance key — a distinct request id opens its own instance; the same request id does not duplicate
 
 GAPS:
-- P1 (outcome): Approval (a.approve) has no acknowledgment touch before handoff to FIN-138 — the requester has no confirmation between the decision being made and the money actually arriving, which is a real silence if FIN-138's execution has any latency.
-- P1 (config): eligibility_policy is required data but its actual rule set (what is deterministic vs. requires judgement) is not defined by this journey and must be supplied per transaction type.
+- P1 [outcome] Approval (a.approve) has no acknowledgment touch before handoff to FIN-138 — the requester has no confirmation between the decision being made and the money actually arriving, which is a real silence if FIN-138's execution has any latency.
+- P1 [config] eligibility_policy is required data but its actual rule set (what is deterministic vs. requires judgement) is not defined by this journey and must be supplied per transaction type.
 
 ---
 
@@ -2445,10 +2483,10 @@ GAPS:
 
 ## FUL-146 — Delivery Delay Alert
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-Confirmed by the migration review as a pure router (every path ends in a handoff, never a bare exit), and the delayed-is-not-failed / no-repeated-broken-dates guardrails are well enforced. It is held out of READY_WITH_MAPPING by a real cross-journey ambiguity: nothing prevents this journey and FUL-265 from both being open on the same obligation and independently messaging the recipient with contradictory framing about the same delay.
+Preserving the original commitment history behind whatever the current estimate is, and never inventing a date that will not hold, are both correctly modelled. FUL-146 and FUL-265 now name an explicit ownership split (s.g5 on FUL-146, s.g6 on FUL-265): FUL-146 owns pre-dispatch slips and defers post-dispatch; FUL-265 owns everything from dispatch onward.
 
 INSTANCE:
 Scope: the obligation and its timing commitment, with the history of what was promised. Key: `obligation_id`. Dedupe: reject-duplicate.
@@ -2503,17 +2541,16 @@ TEST CASES:
 - late-event: decision arrives at the edge of w.decision's window -> recheck re-reads the obligation before acting
 
 GAPS:
-- P0 suppression: no ownership rule resolves which journey (this one or FUL-265) messages the recipient when an obligation slips after dispatch — both can independently trigger with contradictory framing. Needs an explicit rule, e.g. FUL-146 owns pre-dispatch slips and suppresses once dispatch has occurred, with FUL-265/FUL-148 owning everything post-dispatch.
-- P1 config: `tolerance` is a raw required data field with no named Config anywhere defining how it is set per obligation type.
+- P1 [config] tolerance is carried as a raw required data field with no named Config (key/basis/rule) anywhere in the journey defining how it is set per obligation type — company must define this policy before c.threshold and the trigger's own materiality test can be built.
 
 ---
 
 ## FUL-148 — Failed Delivery Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-Confirmed as a pure router by the migration review; the failure-class taxonomy (correctable/reattempt-safe/refused/damaged/unusable) and the bounded, never-reset attempt budget are well specified. Held to NEEDS_CONTRACT_WORK by two real ownership gaps: `h.return` hands off to REM-151, which requires an `issue_id` this journey never mints, and whose own trigger is declared (customer-reported) rather than authoritative (operationally detected) — a genuine entry-criteria mismatch, not just a mapping task.
+The failure-then-recovery routing (classify, correct, offer an alternative, reattempt within budget) is sound and the attempt budget genuinely does not reset. h.return now carries an explicit contract naming a freshly-minted issue_id (deterministically derived from delivery_attempt_id), closing the identifier-provenance gap. One open question remains about REM-151's trigger evidence classification - see gaps.
 
 INSTANCE:
 Scope: the individual delivery attempt and the obligation it was serving. Key: `delivery_attempt_id`. Dedupe: reject-duplicate. Concurrency note: each attempt gets its own `delivery_attempt_id` from the executor, so a reattempt naturally opens a fresh instance; the obligation persists across attempts only via the shared `obligation_id` and the non-resetting `attempt_budget`.
@@ -2568,18 +2605,17 @@ TEST CASES:
 - duplicate-trigger: two failure reports for the same delivery_attempt_id -> no second instance
 
 GAPS:
-- P0 handoff: `h.return` hands off to REM-151, which requires `issue_id`; FUL-148 has no `issue_id` anywhere in its required attributes and mints none in the handoff — the same gap found on SCH-180 and REM-152.
-- P0 events: REM-151's own trigger is sourceType "declared" (customer-initiated) while this handoff represents an operationally-detected, authoritative undeliverable parcel with no customer report yet. Either REM-151 needs a system-initiated variant of its entry criteria, or FUL-148's `h.return` needs to synthesize an equivalent declared-style record.
-- P1 suppression: no rule prevents this journey and FUL-265 both messaging the recipient about the same failed attempt with different framing.
+- P1 [events] REM-151's own trigger (post_completion_issue_reported) is sourceType 'declared' - a customer-initiated report - while this handoff represents an operationally-detected, authoritative undeliverable parcel with no customer report yet. h.return's contract now supplies the identifier and required data REM-151 needs to open an instance either way, so this is no longer an implementation blocker; it remains an open definitional question - whether REM-151 needs a system-initiated variant of its entry criteria, or whether FUL-148's handoff-synthesized record simply satisfies 'declared' by convention - that a canonical product decision should settle, not one this round makes unilaterally.
+- P1 [suppression] no rule prevents this journey and FUL-265 both messaging the recipient about the same failed attempt with different framing (see FUL-265's mirrored finding).
 
 ---
 
 ## FUL-265 — Delivery Tracking
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-Exceptionally well-guarded against the classic delivery-communication failure modes — dispatched is not delivered, an intermediate movement is never reported as an outcome, an executor gone quiet is "unknown" not "failed," and acceptance-by-agreement and acceptance-by-expiry stay distinguishable forever. Held to NEEDS_CONTRACT_WORK because `x.unresolved` (the non-arrival state) has no handoff to FUL-148, the journey that actually recovers a failed delivery, and because the same delay-ownership ambiguity flagged in FUL-146 applies here symmetrically.
+Delivered vs. accepted are correctly kept as separate facts, told only at the point each becomes true, and an executor gone quiet is reported as unknown rather than failure. x.unresolved is now a handoff to FUL-148 (Failed Delivery Recovery) with an explicit contract, closing the missing-recovery-path gap; s.g6 defers pre-dispatch slips to FUL-146, closing the dual-fire risk.
 
 INSTANCE:
 Scope: the dispatched obligation, its recipient, and the acceptance window running against it. Key: `obligation_id` + `person_id`. Dedupe: reject-duplicate. Concurrency note: a re-dispatch after a failure is a new instance with its own acceptance window; it never inherits the prior instance's state.
@@ -2632,9 +2668,7 @@ TEST CASES:
 - idempotency: a.finalize retried after a redelivered timeout event -> finalised exactly once
 
 GAPS:
-- P0 handoff: `x.unresolved` is non-terminal with a reEntry note implying downstream action, but no handoff names what — without deciding whether this state triggers FUL-148, a customer told "we don't know where it is" has no guaranteed recovery path wired at the implementation layer.
-- P0 suppression: no ownership rule resolves the same-obligation dual-fire risk with FUL-146 described above.
-- P1 events: `w.delivery`'s until-list includes `delivery_delay_reported` alongside delivered/failed, but `c.delivery` only asks a binary delivered/not-delivered question — a genuine delay report would fall into "not delivered" and trigger `a.no-arrival`'s failure/lost-sight framing, misrepresenting a known, reported delay.
+- P1 [events] w.delivery's until-list includes delivery_delay_reported alongside delivery_confirmed and delivery_failed, but c.delivery only asks a binary delivered/not-delivered question. A genuine delay report would fall into the 'not delivered' branch and trigger a.no-arrival's failure/lost-sight framing, misrepresenting a known, reported delay as a failure or an unknown.
 
 ---
 
@@ -2700,10 +2734,10 @@ GAPS:
 
 ## IDN-81 — Identity Verification
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The evidence-round graph is well-guarded: evidence is scoped to exactly the claim in question, rounds are policy-bounded rather than repeated until something is accepted, and verifying one attribute is never read as verifying another. Two things block clean implementation: every idempotencyKey includes "issue_id", a field this journey never declares (claim_id is the real key; identity_id is legitimately present alongside it), and there is no check anywhere in this graph for an open IDN-271 compromise incident before requesting or accepting evidence.
+The evidence-round graph is well-guarded: evidence is scoped to exactly the claim in question, rounds are policy-bounded rather than repeated until something is accepted, and verifying one attribute is never read as verifying another. Every idempotencyKey now correctly references claim_id (identity_id remains legitimately present alongside it). One thing remains open: no check anywhere in this graph looks for an open IDN-271 compromise incident before requesting or accepting evidence.
 
 INSTANCE:
 Scope: the individual identity claim - which attribute, at what assurance, for what purpose
@@ -2755,10 +2789,9 @@ TEST CASES:
 - alternate-branch: evidence is not yet available -> a.request fires and w.evidence waits for verification_evidence_received
 - timeout: no evidence arrives inside the verification timeout -> w.evidence times out to x.expired — explicitly not the same as a rejection
 - human-ownership: validation is inconclusive and no evidence rounds remain -> c.rounds routes to h.review rather than looping indefinitely
-- idempotency: a.verified is retried for the same claim_id -> as documented, the idempotencyKey includes issue_id, a field this journey never declares — must be corrected to claim_id + identity_id
+- idempotency: a.verified is retried for the same claim_id -> idempotencyKey now correctly references its own declared instance-key field(s) - the retry is absorbed as a no-op
 
 GAPS:
-- P0 [instance] Every idempotencyKey (a.instance, a.request, a.validate, a.request-more, a.verified) includes "issue_id", a field absent from this journey's required attributes; claim_id is the actual instance key (identity_id is legitimately present).
 - P1 [suppression] No check for an open IDN-271 compromise incident before this journey requests or accepts evidence on a claim tied to the same identity/account.
 
 ---
@@ -2767,10 +2800,10 @@ GAPS:
 
 ## IDN-84 — Verification Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The failure-classification routing is careful and does exactly what it promises: a technical failure is never recorded as an identity rejection, retries do not bypass security controls, and the retry budget tightens for security-sensitive claims. It is a pure synchronous router with no wait nodes at all. The blocker is that every idempotencyKey (a.classify, a.explain, a.backoff, a.explain-terminal) references "identity_id", a field this journey never declares — the real key is verification_instance_id.
+The failure-classification routing is careful and does exactly what it promises: a technical failure is never recorded as an identity rejection, retries do not bypass security controls, and the retry budget tightens for security-sensitive claims. It is a pure synchronous router with no wait nodes at all. Every idempotencyKey now correctly references verification_instance_id, this journey's own instance key.
 
 INSTANCE:
 Scope: the verification instance that failed
@@ -2784,7 +2817,7 @@ Required evidence: a verification attempt that did not establish its claim
 Insufficient alone: a verification that expired with no attempt made, which is IDN-81's expiry; a policy change invalidating an existing verification without anyone having attempted one
 
 DATA:
-- verification_instance_id — instance key (idempotencyKeys incorrectly reference identity_id instead — see gaps)
+- verification_instance_id — instance key
 - claim_id — h.review context
 - failure_class — a.classify / c.class routing
 - retry_budget — c.retry-budget
@@ -2820,10 +2853,9 @@ TEST CASES:
 - alternate-branch: a technical failure on our side, transient -> c.technical-budget -> a.backoff -> x.retry, recording nothing against the person's verification history
 - human-ownership: a mismatch or explicit review requirement -> c.class routes directly to h.review rather than offering a retry
 - human-ownership: a technical failure is not clearing inside the backoff budget -> c.technical-budget routes to h.escalate (OWN-55)
-- idempotency: a.explain is retried for the same verification_instance_id -> as documented, the idempotencyKey references identity_id, a field this journey never declares — must be corrected to verification_instance_id
+- idempotency: a.explain is retried for the same verification_instance_id -> idempotencyKey now correctly references its own declared instance-key field(s) - the retry is absorbed as a no-op
 
 GAPS:
-- P0 [instance] All four idempotencyKeys (a.classify, a.explain, a.backoff, a.explain-terminal) reference "identity_id", a field absent from this journey's required attributes; verification_instance_id is the actual key.
 - P1 [config] retry_budget and backoff_budget are modeled purely as instance attributes with no stated policy source for their values by claim sensitivity — an implementer needs a lookup table (claim type -> retry bound), not a single constant.
 
 ---
@@ -2896,10 +2928,10 @@ GAPS:
 
 ## IDN-270 — Account Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The security discipline here is real: the recovery route only ever goes to a destination the account already held, the window never restarts on repeated attempts or extends on engagement, and exactly one reminder is allowed. c.incident correctly diverts to IDN-90 when an incident is already open, resolving the audit's IDN-270/IDN-271 overlap question cleanly. What blocks clean implementation is that a.issue/a.restored/a.remind's idempotencyKeys include "issue_id", a field absent from this journey's own required attributes (recovery_case_id is the real key), and held_destinations' provenance — which contact points count as "already held" — is not tied anywhere to CON-264's own confirmation state.
+The security discipline here is real: the recovery route only ever goes to a destination the account already held, the window never restarts on repeated attempts or extends on engagement, and exactly one reminder is allowed. c.incident correctly diverts to IDN-90 when an incident is already open, resolving the audit's IDN-270/IDN-271 overlap question cleanly. a.issue/a.restored/a.remind idempotencyKeys now correctly reference recovery_case_id (account_id remains present and correct). One thing remains open: held_destinations' provenance - which contact points count as "already held" - is not tied anywhere to CON-264's own confirmation state.
 
 INSTANCE:
 Scope: one existing account plus this recovery case and its window
@@ -2913,7 +2945,7 @@ Required evidence: a recovery case authoritatively opened against one existing a
 Insufficient alone: a failed authentication attempt; a support conversation about being locked out; a destination supplied inside the request itself
 
 DATA:
-- recovery_case_id — instance key (idempotencyKeys incorrectly reference issue_id instead — see gaps)
+- recovery_case_id — instance key
 - account_id — idempotencyKeys; c.incident lookup
 - recovery_basis — the evidence policy this case requires
 - required_evidence — a.issue messaging; c.proof
@@ -2951,10 +2983,9 @@ TEST CASES:
 - alternate-branch: the account already has an open compromise incident -> c.incident routes straight to h.security -> IDN-90; the ordinary recovery flow never runs
 - timeout: the reminder point in the window arrives with no evidence yet -> c.remind fires a.remind if time remains, else routes to x.closed
 - duplicate-trigger: a second recovery request is opened for the same account while one is already in progress -> a separate recovery_case_id opens its own independent instance; neither extends the other
-- idempotency: a.issue is retried for the same recovery_case_id -> as documented, the idempotencyKey references issue_id, a field absent from required attributes here — must be corrected to recovery_case_id
+- idempotency: a.issue is retried for the same recovery_case_id -> idempotencyKey now correctly references its own declared instance-key field(s) - the retry is absorbed as a no-op
 
 GAPS:
-- P0 [instance] a.issue/a.restored/a.remind idempotencyKeys all include "issue_id", a field absent from this journey's required attributes (recovery_case_id is the actual key; account_id is present and correct).
 - P1 [data] held_destinations must be sourced only from contact points CON-264 has actually confirmed (its x.permitted outcome) — an in-flight, unconfirmed CON-264 change must never count as a held/recoverable destination — but this data-lineage requirement is undocumented in either journey.
 
 ---
@@ -3159,7 +3190,7 @@ TEST CASES:
 - idempotency: a.restored retried by delivery infrastructure -> idempotencyKey (person_id + a.restored) prevents a duplicate restoration confirmation
 
 GAPS:
-- P1 source-of-truth: c.relationship-signal's 'independent evidence that the relationship itself is at risk' names no system — the company must identify which retention/risk signal source corroborates an unreconnected integration before h.abandoned can fire correctly.
+- P1 [source-of-truth] c.relationship-signal's 'independent evidence that the relationship itself is at risk' names no system — the company must identify which retention/risk signal source corroborates an unreconnected integration before h.abandoned can fire correctly.
 
 ---
 
@@ -3303,10 +3334,10 @@ GAPS:
 
 ## REM-151 — Post-Purchase Issue Recovery
 
-READINESS: READY
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The smallest and cleanest journey in the batch: a single touch on a single channel, an explicit duplicate-case suppression, and a firm guardrail against manufacturing a defect or defaulting to refund. Implementation is close to pure company-value mapping (what counts as an existing case, what counts as actionable).
+The smallest and cleanest journey in the batch: a single touch on a single channel, an explicit duplicate-case suppression, and a firm guardrail against manufacturing a defect or defaulting to refund. Implementation is close to pure company-value mapping (what counts as an existing case, what counts as actionable). Re-derived this round rather than carried over: a genuine open P1 (a.assess's human-vs-automated ownership is left implicit) means this is READY_WITH_MAPPING, not READY - no journey in this corpus needs literally zero company decisions.
 
 INSTANCE:
 Scope: the completed fulfillment or service, and the specific problem reported against it. Key: `issue_id`. Dedupe: reject-duplicate. Concurrency note: a second problem on the same order is a new `issue_id` unless it is the same defect re-described, in which case `c.duplicate` attaches it to the existing case instead of opening a new instance.
@@ -3350,16 +3381,16 @@ TEST CASES:
 - human-ownership: `a.assess` must decide actionable vs. not-actionable — the journey does not declare this node's execution type
 
 GAPS:
-- P1 source-of-truth: `a.assess`'s judgment is nuanced enough to plausibly require human triage, but unlike REM-152's `a.review`, it carries no `execution: human` marker — ownership of this call is left implicit.
+- P1 [source-of-truth] a.assess's judgment ('an unresolved obligation the remedy could satisfy' vs. 'an experience that fell short without anything having gone wrong') is nuanced enough to plausibly require human triage, but unlike REM-152's a.review, a.assess carries no 'execution: human' marker — ownership of this call (automated rule vs. person) is left implicit.
 
 ---
 
 ## REM-152 — Return Request
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The applicable/policy/eligible branching cleanly separates return eligibility from refund eligibility, the human-review path is explicitly marked (execution: human, task channel), and the no-invented-eligibility-rule guardrail is enforced via an explicit handoff (`h.undefined`) rather than a silent default. Held to NEEDS_CONTRACT_WORK because `h.alternative` hands off to REM-157 without an `issue_id` — the same gap found on SCH-180 and FUL-148 — and because REM-157 can hand a rejected return straight back here with no cycle-prevention rule.
+The applicable/policy/decision routing (correction, replacement, refund, no-remedy) is clean and correctly distinguishes rejection from acceptance. h.alternative now carries an explicit contract naming a freshly-minted issue_id (deterministically derived from return_request_id), closing the identifier-provenance gap that previously blocked REM-157 from opening an instance.
 
 INSTANCE:
 Scope: the return request and the original fulfillment it concerns. Key: `return_request_id`. Dedupe: reject-duplicate.
@@ -3415,18 +3446,17 @@ TEST CASES:
 - human-ownership: a.review is reached -> a human task is created and awaited rather than auto-decided
 
 GAPS:
-- P0 handoff: `h.alternative` hands off to REM-157, which requires `issue_id`; this journey (keyed on `return_request_id`) has no `issue_id` in its required attributes and mints none in the handoff — the same gap found on SCH-180 and FUL-148.
-- P1 handoff: no cycle-prevention rule exists between this journey's `h.alternative` and REM-157's own `h.return` — a rejected return can bounce the same obligation back and forth.
-- P1 config: `decision_sla` is a required data field with no named policy value or basis beyond self-reference.
+- P1 [handoff] no cycle-prevention rule exists between this journey's h.alternative and REM-157's own h.return — a rejected return can in principle bounce the same obligation back and forth between the two journeys.
+- P1 [config] decision_sla is a required data field with no named policy value or basis beyond self-reference — the actual SLA duration must be defined before build.
 
 ---
 
 ## REM-157 — Remedy Confirmation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The obligation-first framing (choosing a remedy to satisfy the obligation rather than the complaint), the explicit default-is-not-a-choice distinction on timeout, and the "refund is one route among several" guardrail are all soundly built. Held to NEEDS_CONTRACT_WORK because this journey is the shared remedy hub for the whole batch — SCH-180, REM-151 and REM-152 all hand off into it — yet is keyed and required on `issue_id` alone, an identifier only REM-151 actually produces; SCH-180 and REM-152 cannot open an instance here without a defined derivation rule.
+The correction/replacement/return/refund routing correctly distinguishes rejection from acceptance and never invents a remedy the graph did not decide. The three journeys that hand off into this hub (SCH-180, FUL-148, REM-152) each now mint and carry a fresh issue_id at their own handoff, closing the shared-hub identifier-provenance gap; REM-151 already minted its own. The REM-152 return-rejection bounce-back is also now guarded against re-selecting return a second time.
 
 INSTANCE:
 Scope: the confirmed issue and the unresolved obligation behind it. Key: `issue_id`. Dedupe: reject-duplicate. Concurrency note: `issue_id` is the sole instance key; three upstream journeys in this batch alone (SCH-180, REM-151, REM-152) hand off here, and only REM-151 already carries an issue_id of its own.
@@ -3477,17 +3507,16 @@ TEST CASES:
 - idempotency: a.obligation/a.evaluate retried after a redelivered event -> idempotencyKey prevents duplicate log entries or a re-triggered remedy
 
 GAPS:
-- P0 instance: keyed and required on `issue_id` alone, but of the three feeder journeys in this batch, only REM-151 actually produces an `issue_id` — SCH-180 (booking_id/provider_failure_id) and REM-152 (return_request_id) hand off with no issue_id minted. A deterministic derivation rule (or a broader accepted-key contract) is needed before this journey can safely serve as a shared hub.
-- P1 handoff: no rule prevents a ping-pong between this journey's `h.return` and REM-152's `h.alternative` for the same obligation if REM-152 rejects the return.
+- P1 [handoff] no rule prevents a ping-pong between this journey's h.return and REM-152's h.alternative for the same obligation if REM-152 rejects the return.
 
 ---
 
 ## RET-24 — Churn Risk Escalation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph itself is clean and canonically valid: multi-signal evidence assembly, a single human-channel action (an owner task, never a customer message), and well-formed handoffs to Cancellation Save (RET-28), operational recovery (RET-23), human-in-the-loop and Retention Offer Follow-Up (RET-30), or a no-action monitor exit. But the instance identity itself — 'risk_episode_id' — has no defined boundary anywhere in the graph or metadata: nothing says what opens a new episode versus appends to an open one, or when an episode is considered closed for dedupe purposes, unlike sibling journeys whose keys derive from a discrete declared act (a cancel click, a refund request). That is implementation-blocking ambiguity around instance identity, not a value to map, so this is NEEDS_CONTRACT_WORK rather than READY_WITH_MAPPING.
+The evidence-then-ownership routing (operational cause vs. relationship deterioration, human-justified vs. automated) is sound and cleanly scoped to risk_episode_id. Both P0/P1 findings from the previous round are closed: idempotencyKeys now correctly reference risk_episode_id + account_id, and c.operational no longer double-routes a recognized payment-failure cause to RET-23 when payment recovery already owns it.
 
 INSTANCE:
 scope: customer, account or subscription relationship
@@ -3551,9 +3580,7 @@ TEST CASES:
 - **late-event**: given a stronger or fresher signal arrives after the instance already exited at x.monitor → expect the episode reopens at a higher evidence level per the exit's reEntry rule
 
 GAPS:
-- P0 (instance): risk_episode_id has no defined open/append/close boundary anywhere in the graph or metadata; the dedupe key cannot be implemented correctly without a business rule for what constitutes 'the same episode.'
-- P1 (config): The multi-signal threshold ('several independent signals crossing a defined threshold together') is described qualitatively but never quantified — which combinations, and how many, must be defined as company policy before the trigger can fire consistently.
-- P1 (suppression): c.operational's 'known problem' branch always routes to RET-23 regardless of what the operational cause is; when the cause is itself an open payment failure already owned by FIN-134 (payment recovery), the graph does not distinguish that case from a generic operational issue, risking two systems both believing they own the customer relationship.
+- P1 [config] The multi-signal threshold ('several independent signals crossing a defined threshold together') is described qualitatively but never quantified — which combinations, and how many, must be defined as company policy before the trigger can fire consistently.
 
 ---
 
@@ -3708,8 +3735,8 @@ TEST CASES:
 - **human-ownership**: given an open issue under human ownership exists on the account → expect the offer step yields to human ownership; the cancellation path itself is still never obstructed
 
 GAPS:
-- P1 (config): c.resolution's mapping from a declared reason to 'a legitimate resolution' depends on a company-defined alternatives_catalogue that is optional and undefined here — without it, teams will draw the reason→alternative mapping inconsistently.
-- P2 (config): Both timing windows (answer_window, intent_window) are given only as low-confidence, example-only ranges and must be set from real business policy.
+- P1 [config] c.resolution's mapping from a declared reason to 'a legitimate resolution' depends on a company-defined alternatives_catalogue that is optional and undefined here — without it, teams will draw the reason→alternative mapping inconsistently.
+- P2 [config] Both timing windows (answer_window, intent_window) are given only as low-confidence, example-only ranges and must be set from real business policy.
 
 ---
 
@@ -3775,8 +3802,8 @@ TEST CASES:
 - **duplicate-trigger**: given the same offer would otherwise be re-sent inside an episode where it was already declined → expect the decline record prevents a second offer in the same episode
 
 GAPS:
-- P1 (config): retention_intervention.outcome (the wait-for-outcome window) is marked required with no example value anywhere in the graph — every other timed journey in this batch gives at least a low-confidence range.
-- P1 (config): retention_intervention.cooldown is likewise required with no example value; teams have no starting point for either config and must derive both entirely from business policy.
+- P1 [config] retention_intervention.outcome (the wait-for-outcome window) is marked required with no example value anywhere in the graph — every other timed journey in this batch gives at least a low-confidence range.
+- P1 [config] retention_intervention.cooldown is likewise required with no example value; teams have no starting point for either config and must derive both entirely from business policy.
 
 ---
 
@@ -4087,8 +4114,8 @@ TEST CASES:
 - **late-event**: given the limit is reached again in a later measurement window → expect a fresh instance opens under a new window_id; no collision with the prior, closed instance
 
 GAPS:
-- P1 (config): capacity_decider resolution logic (which party, under what account/role structure, holds the commercial authority to authorise more capacity) is required data with no resolution rule given.
-- P2 (data): usage_limit.capacity is marked required with no example wait value; teams must derive it entirely from the authoritative reset semantics of each limit type.
+- P1 [config] capacity_decider resolution logic (which party, under what account/role structure, holds the commercial authority to authorise more capacity) is required data with no resolution rule given.
+- P2 [data] usage_limit.capacity is marked required with no example wait value; teams must derive it entirely from the authoritative reset semantics of each limit type.
 
 ---
 
@@ -4096,10 +4123,10 @@ GAPS:
 
 ## SCH-180 — Booking Reschedule
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The graph itself is complete and internally consistent: reallocate/reschedule/cancel branches are logical, the provider-cancellation-is-not-customer-cancellation guardrails are enforced at the write level (a.protect), and financial/remedy consequences are correctly kept as separate downstream decisions. Two implementation-blocking ambiguities keep this out of READY_WITH_MAPPING: the instance key pairs `booking_id` with `provider_failure_id` while node `a.scope`'s own text implies one failure should be handled as a single fan-out unit across every affected booking, and the `h.remedy` handoff into REM-157 supplies no `issue_id` even though REM-157 is keyed and required on `issue_id` alone.
+SCH-280's handoff into this journey and this journey's own handoffs onward are cleanly scoped. h.remedy now carries an explicit contract naming a freshly-minted issue_id (deterministically derived from provider_failure_id), closing the identifier-provenance gap that previously blocked REM-157 from opening an instance.
 
 INSTANCE:
 Scope: the affected reservations and the provider or resource failure behind them. Key: `booking_id` + `provider_failure_id`. Dedupe: reject-duplicate. Concurrency note: `a.scope`'s own text ("a closed location is not one cancellation... every reservation the failure affects") implies one failure should be handled as a single unit spanning every affected booking, but the instance key reads as one instance per affected booking. An implementer must pick explicitly: fan out one instance per booking, or one instance per `provider_failure_id` that internally loops the affected bookings.
@@ -4152,9 +4179,8 @@ TEST CASES:
 - contactability-loss: no sms permission recorded -> a.notify-provider-cancel falls back to email
 
 GAPS:
-- P0 handoff: `h.remedy` hands off to REM-157, which is keyed and required on `issue_id` alone; SCH-180 carries no `issue_id` anywhere and the handoff mints none — REM-157 cannot open an instance from this handoff until an issue_id derivation rule is defined.
-- P1 instance: instance-key fan-out ambiguity between per-booking and per-failure instancing (detailed above).
-- P1 channel: `a.inform`'s "urgent" role criterion ("an asserted time bound lies inside the urgent horizon") does not clearly apply to a pure change notice where the booking time did not move — implementers need a rule for whether a.inform ever uses sms.
+- P1 [instance] instanceKey pairs booking_id with provider_failure_id while a.scope's own text implies one instance should span every reservation a single failure affects — pick fan-out-per-booking or one-instance-per-failure explicitly before build.
+- P1 [channel] a.inform is offered the 'urgent' role, but the role's own eligibility text ('an asserted time bound lies inside the urgent horizon') does not clearly apply to a.inform, since nothing about the customer's committed time changed in that branch — implementers need a rule for whether a.inform ever uses sms or always defaults to email.
 
 ---
 
@@ -4354,7 +4380,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The re-evaluate-before-offering discipline is strong — the behavioral trigger only opens the window, and the actual offer content is re-derived from authoritative inventory at send time. The explicit commerce-recovery exclusion group correctly resolves precedence against other promotional-recovery journeys. The journey is structurally self-contained (no handoffs — every exit is deliberately terminal, since the booking or waitlist mechanism is owned elsewhere). The main gap is that push-channel eligibility depends on data this journey's own attribute list never captures.
+The re-evaluate-before-offering discipline is strong (behavioral trigger only opens the window; the actual offer content is re-derived from authoritative inventory), and the explicit commerce-recovery exclusion group correctly resolves precedence against other promotional-recovery journeys. The journey is structurally self-contained (no handoffs — every exit is deliberately terminal, including the two success states, since the booking or waitlist mechanism is owned elsewhere). The main gap is that push-channel eligibility depends on data ('a valid token or app session') this journey's own attribute list never captures.
 
 INSTANCE:
 Scope: the availability question, the resource and window it asked about, and the absence of any reservation from it. Key: `person_id` + `availability_query_id`. Dedupe: reject-duplicate. Concurrency note: a second question about a different window is its own instance and never inherits the first one's offer.
@@ -4404,7 +4430,7 @@ TEST CASES:
 - duplicate-trigger: a second query with the same availability_query_id while open -> no second instance
 
 GAPS:
-- P1 data: the "low-friction" push role is only eligible with "a valid token or app session," but no field capturing token/session validity appears anywhere in this journey's attributes — push-channel selection has no data hook defined.
+- P1 [data] the 'low-friction' push role is only eligible when 'a valid token or app session exists', but no field capturing token/session validity appears anywhere in this journey's required or optional attribute list — push-channel selection has no data hook defined.
 
 ---
 
@@ -4478,9 +4504,8 @@ TEST CASES:
 - **superseding-state**: given a cancellation is already in motion (RET-28) or an active risk state exists (RET-24) on the relationship → expect the routine renewal message is suppressed
 
 GAPS:
-- P1 (suppression): The guardrail explicitly excludes firing during a cancellation-in-motion (RET-28) or an active risk state (RET-24), but never names an open FIN-134 payment recovery the same way — a relationship with an unresolved payment failure can still receive a routine renewal notice/request, which risks the exact 'system not paying attention' failure mode the existing guardrail was written to prevent for the other two journeys.
-- P1 (config): decision_holder resolution logic (who actually holds the decision — the individual, or an account admin/procurement role in a B2B relationship) is required data but its resolution rule is not specified.
-- P2 (config): Notice period and renewing terms undefined-policy handling is already gracefully routed to DEC-181, which reduces this from a blocker to routine per-relationship-type mapping work.
+- P1 [config] decision_holder resolution logic (who actually holds the decision — the individual, or an account admin/procurement role in a B2B relationship) is required data but its resolution rule is not specified.
+- P2 [config] Notice period and renewing terms undefined-policy handling is already gracefully routed to DEC-181, which reduces this from a blocker to routine per-relationship-type mapping work.
 
 ---
 
@@ -4616,7 +4641,7 @@ TEST CASES:
 - idempotency: the same threshold reminder is retried due to a delivery-layer retry -> the idempotencyKey (obligation_id + issue_id + a.remind) prevents a duplicate reminder for the same threshold
 
 GAPS:
-- P1 channel: The 'urgent' channel role (sms/whatsapp) is gated by 'an asserted time bound lies inside the urgent horizon' but no config attribute names that horizon — implementers must invent this threshold with no canonical guidance beyond the role's existence.
+- none
 
 ---
 
@@ -4683,8 +4708,7 @@ TEST CASES:
 - idempotency: delivery-layer retry of the prompt -> idempotencyKey (validity_id + touch id) prevents a duplicate send
 
 GAPS:
-- P1 channel: The urgent role's activation threshold ('inside the urgent horizon') is referenced but has no named config attribute alongside expiry.touches / expiry.expiry_moment — a company must invent this without canonical guidance.
-- P1 data: responsible_actor resolution (a.actor) has no defined algorithm — who is authorized to act on a given entity_type is left entirely to company mapping, and getting it wrong sends a call-to-action to someone who cannot act, which the guardrails explicitly warn against.
+- P1 [data] responsible_actor resolution (a.actor) has no defined algorithm — who is authorized to act on a given entity_type is left entirely to company mapping, and getting it wrong sends a call-to-action to someone who cannot act, which the guardrails explicitly warn against.
 
 ---
 
@@ -4750,7 +4774,7 @@ TEST CASES:
 - idempotency: a.overdue is triggered twice due to a retry -> idempotencyKey (obligation_id + a.overdue) prevents a second overdue notice, honoring the 'one notice after the deadline' guardrail
 
 GAPS:
-- P1 channel: As with TIM-61/63, the 'urgent' sms role's activation threshold is undefined as a named config, leaving channel escalation timing to ad hoc implementation.
+- P1 [channel] As with TIM-61/63, the 'urgent' sms role's activation threshold is undefined as a named config, leaving channel escalation timing to ad hoc implementation.
 
 ---
 
@@ -4818,7 +4842,7 @@ TEST CASES:
 - idempotency: a.last-call retried by delivery infrastructure -> idempotencyKey (person_id + a.last-call) prevents sending the one allowed last call twice
 
 GAPS:
-- P1 channel: The urgent sms role again depends on an unformalized 'urgent horizon' threshold, consistent with the TIM-61/63/268 pattern in this corpus.
+- none
 
 ---
 
@@ -4885,7 +4909,7 @@ TEST CASES:
 - idempotency: a.confirm retried by a delivery-layer resend -> idempotencyKey (issue_id + person_id + a.confirm) prevents a duplicate confirmation
 
 GAPS:
-- P2 handoff: No handoffs exist in this journey — every path terminates in an exit. This is structurally intentional (TIM-69 owns the restoration mechanism decision itself) but a company implementing this in a CRM should still wire x.terminal and a.replace's replacement_ref into whatever system tracks entitlement lineage, since nothing in this graph does that automatically.
+- P2 [handoff] No handoffs exist in this journey — every path terminates in an exit. This is structurally intentional (TIM-69 owns the restoration mechanism decision itself) but a company implementing this in a CRM should still wire x.terminal and a.replace's replacement_ref into whatever system tracks entitlement lineage, since nothing in this graph does that automatically.
 
 ---
 

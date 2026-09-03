@@ -2700,7 +2700,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Acknowledge the request, state the date by which the obligation requires an answer, and say that establishing who is asking comes first. An unacknowledged request leaves the person unable to tell a mandated wait from being ignored",
         next: "c.verified",
         execution: "communication",
-        idempotencyKey: "person_id + a.acknowledge",
+        idempotencyKey: "deletion_request_id + a.acknowledge",
       },
       {
         id: "c.verified",
@@ -2725,7 +2725,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask for exactly the proof of control the obligation requires and nothing beyond it. Collecting extra identifying data in order to honour a deletion request is the contradiction the request exists to end",
         next: "w.verify",
         execution: "communication",
-        idempotencyKey: "person_id + a.verify",
+        idempotencyKey: "deletion_request_id + a.verify",
       },
       {
         id: "w.verify",
@@ -2754,7 +2754,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the request as unverified, saying plainly that nothing was deleted, why, and that a fresh request can be raised at any time. A silent close reads as a deletion that happened",
         next: "x.unverified",
         execution: "communication",
-        idempotencyKey: "person_id + a.unverified",
+        idempotencyKey: "deletion_request_id + a.unverified",
       },
       {
         id: "x.unverified",
@@ -2826,7 +2826,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm what was deleted, the scope it covered and the date the request closed. This message is the record the requester keeps, so it states the outcome rather than thanking them for their patience",
         next: "x.closed",
         execution: "communication",
-        idempotencyKey: "person_id + a.closed-full",
+        idempotencyKey: "deletion_request_id + a.closed-full",
       },
       {
         id: "a.closed-partial",
@@ -2834,7 +2834,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State what was deleted, what is retained, which obligation requires it and when that obligation ends. Naming the obligation is what makes retention a rule rather than a preference",
         next: "x.closed",
         execution: "communication",
-        idempotencyKey: "person_id + a.closed-partial",
+        idempotencyKey: "deletion_request_id + a.closed-partial",
       },
       {
         id: "x.closed",

@@ -216,7 +216,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "outbound-ask",
         "scope": "communication-purpose",
-        "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+        "precedence": "FBK-42 (advocacy) wins when both are eligible for the same person at the same moment: advocacy already presupposes satisfaction, its evidence is accumulated across the relationship rather than one experience, and asking both back-to-back for the same goodwill moment reads as farming it twice. This journey's ask is recorded as not-now and remains free to re-open independently at its next moment.",
         "onLoss": "suppressed"
       }
     },
@@ -653,7 +653,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "outbound-ask",
         "scope": "communication-purpose",
-        "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+        "precedence": "This journey wins when both this journey and FBK-41 (satisfaction) are eligible for the same person at the same moment: advocacy is the rarer, higher-value ask built on accumulated relationship evidence rather than one experience, so it takes the one ask slot. FBK-41 is recorded as not-now and remains free to re-open independently at its next moment.",
         "onLoss": "suppressed"
       }
     },
@@ -717,8 +717,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "purpose": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.",
           "channelRoles": [
             "persistent",
-            "in-session",
-            "low-friction"
+            "in-session"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1103,6 +1102,13 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "in-app"
           ],
           "when": "the feedback was given inside the product and the person is still there"
+        },
+        {
+          "role": "human",
+          "channels": [
+            "task"
+          ],
+          "when": "the feedback creates internal work rather than a message to the person - a support-need work item, or marking an issue's severity before handoff"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -1157,6 +1163,42 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "persistent",
             "in-session"
           ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-obligation",
+          "stage": "routing",
+          "action": "a.obligation",
+          "prerequisites": [
+            "c.route"
+          ],
+          "purpose": "Create the support-need work item in the owning process's queue - internal routing, not a message to the person.",
+          "channelRoles": [
+            "human"
+          ],
+          "destination": {
+            "target": "owning-process-queue",
+            "boundTo": "feedback_id"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-escalate",
+          "stage": "routing",
+          "action": "a.escalate",
+          "prerequisites": [
+            "c.severity"
+          ],
+          "purpose": "Mark the issue's severity ahead of handoff so the receiving owner and SLA are the escalated ones, not the default - internal routing, not a message to the person.",
+          "channelRoles": [
+            "human"
+          ],
+          "destination": {
+            "target": "owning-process-queue",
+            "boundTo": "feedback_id"
+          },
           "mandatory": false,
           "label": "CANONICAL_RULE"
         }
@@ -1515,7 +1557,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         "kind": "action",
         "does": "Apply the policy escalation and mark the severity on the issue, so that the ownership and SLA it inherits are the escalated ones rather than the default",
         "execution": "human",
-        "idempotencyKey": "feedback_id + escalation",
+        "idempotencyKey": "feedback_id + a.escalate",
         "writes": [
           {
             "field": "issue_context_log",
@@ -1589,7 +1631,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "feedback_log", mode: "append" }],
         next: "w.outcome",
         execution: "human",
-        idempotencyKey: "feedback_id + work item",
+        idempotencyKey: "feedback_id + a.obligation",
       },
       {
         id: "w.outcome",
@@ -1999,7 +2041,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "issue_log", mode: "append" }],
         next: "w.resolution",
         execution: "human",
-        idempotencyKey: "issue_id + owner",
+        idempotencyKey: "issue_id + owner_id",
       },
       {
         id: "w.resolution",
@@ -2457,7 +2499,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Link the appeal to the original decision and capture the reason, the evidence submitted, when it arrived and any deadline. The original decision is not modified by an appeal existing against it",
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "c.eligible",
-        idempotencyKey: "issue_id + a.link",
+        idempotencyKey: "appeal_id + a.link",
       },
       {
         id: "c.eligible",
@@ -2483,7 +2525,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "x.rejected",
         execution: "communication",
-        idempotencyKey: "issue_id + a.reject",
+        idempotencyKey: "appeal_id + a.reject",
       },
       {
         id: "x.rejected",
@@ -2516,7 +2558,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suspend the effect of the decision, recorded as a hold rather than as a reversal. Suspended and overturned are different states, and writing one as the other pre-decides the review",
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "w.review",
-        idempotencyKey: "issue_id + a.hold",
+        idempotencyKey: "appeal_id + a.hold",
       },
       {
         id: "w.review",
@@ -2593,7 +2635,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the effective business state to match the conclusion - upheld leaves the decision standing, reversed replaces its effect, modified supersedes it in part. In every case the original decision, the appeal and the review outcome all remain readable; nothing is edited in place, because the record of what was decided and then changed is the point of having an appeal process at all",
         writes: [{ field: "appeal_log", mode: "append" }],
         next: "a.communicate-outcome",
-        idempotencyKey: "issue_id + a.apply",
+        idempotencyKey: "appeal_id + a.apply",
       },
       {
         id: "a.request-more-info",
@@ -2601,7 +2643,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask the appellant for the specific evidence the review is missing, naming only what is missing and leaving the appeal deadline where it was. Suspending a review for information nobody requested makes the appellant responsible for a gap they were never told about",
         execution: "communication",
         next: "w.more-info",
-        idempotencyKey: "issue_id + a.request-more-info",
+        idempotencyKey: "appeal_id + a.request-more-info",
         attemptBudget: {
           "key": "appeal_and.request_more_info_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -2614,7 +2656,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State the review's conclusion, which effective state now applies as a result, and what remains available procedurally. An appeal that concludes in silence leaves the appellant holding the original decision and no way to know it was reconsidered",
         execution: "communication",
         next: "x.concluded",
-        idempotencyKey: "issue_id + a.communicate-outcome",
+        idempotencyKey: "appeal_id + a.communicate-outcome",
       },
       {
         id: "x.concluded",
@@ -3077,7 +3119,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify the exact missing item and the named process it blocks. A request that cannot name what it unblocks is progressive profiling wearing a blocker's clothes, and the two must not be confusable",
         writes: [{ field: "blocking_requirement_log", mode: "append" }],
         next: "c.authoritative",
-        idempotencyKey: "person_id + a.identify",
+        idempotencyKey: "blocked_entity_id + requirement_id + a.identify",
       },
       {
         id: "c.authoritative",
@@ -3125,7 +3167,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
         next: "w.received",
         execution: "communication",
-        idempotencyKey: "person_id + a.request",
+        idempotencyKey: "blocked_entity_id + requirement_id + a.request",
       },
       {
         id: "a.request-internal",
@@ -3133,7 +3175,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the request as owned work against the internal party who holds the item, carrying the blocked process and the running deadline. Routing an internal dependency down a customer channel asks the wrong person on a route they never agreed to",
         next: "w.received",
         execution: "human",
-        idempotencyKey: "person_id + a.request-internal",
+        idempotencyKey: "blocked_entity_id + requirement_id + a.request-internal",
       },
       {
         id: "w.received",
@@ -3179,7 +3221,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist it and re-evaluate the blocked process, which resumes because its dependency is satisfied rather than because it was told to",
         writes: [{ field: "blocking_requirement_log", mode: "append" }],
         next: "x.resumed",
-        idempotencyKey: "person_id + a.persist",
+        idempotencyKey: "blocked_entity_id + requirement_id + a.persist",
       },
       {
         id: "x.resumed",

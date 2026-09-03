@@ -763,7 +763,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     eligibility: [
       "a renewal decision window has opened on a continuing relationship with a current term",
       "the renewal terms, model and required notice are defined - or the cycle goes to decision resolution first",
-      "no renewal instance is already open for this cycle"
+      "no renewal instance is already open for this cycle",
+      "no open payment recovery process exists on the relationship - payment recovery owns the relationship until it resolves"
     ],
     suppressions: [
       {
@@ -785,6 +786,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.asking-not-deciding",
         "label": "CANONICAL_RULE",
         "text": "Putting the decision to its holder is not deciding; a non-response is resolved by what the governing terms define, never assumed."
+      },
+      {
+        "id": "s.payment-recovery",
+        "label": "CANONICAL_RULE",
+        "text": "An open payment recovery process on the relationship suppresses the renewal decision request entirely; a routine renewal ask is not put to someone whose current term is already in question over an unresolved payment failure."
       },
       {
         "id": "s.hard-gates",
@@ -822,7 +828,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "relationship-continuity",
         "scope": "subscription",
-        "precedence": "below a cancellation in motion and below an active risk state on the same relationship",
+        "precedence": "below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship",
         "onLoss": "suppressed"
       }
     },
@@ -909,6 +915,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.blocked",
         "s.decided",
         "s.asking-not-deciding",
+        "s.payment-recovery",
         "s.hard-gates"
       ]
     },
@@ -1165,7 +1172,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RENEWAL_REVIEW with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.review",
-        idempotencyKey: "renewal_cycle_id + review",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.review",
       },
       {
         id: "w.review",
@@ -1207,7 +1214,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the renewal as decided, with the new term's dates and the terms that would apply. Decided is not renewed - the new term does not exist until its own requirements have been met, and a relationship can sit here and still lapse",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "h.execute",
-        idempotencyKey: "renewal_cycle_id + decision",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.decided",
       },
       {
         id: "h.execute",
@@ -1225,7 +1232,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record NON_RENEWING with the effective end being the current term's end. The relationship is still active and still governed by its current term - non-renewing is a decision about the next term and says nothing about this one",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "h.scheduled-end",
-        idempotencyKey: "renewal_cycle_id + decision",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.non-renew",
       },
       {
         id: "h.scheduled-end",

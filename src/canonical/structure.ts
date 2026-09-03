@@ -2240,7 +2240,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record. An existing holder's first question is what accepting costs them, not what it gives the inviter",
         next: "w.response",
         execution: "communication",
-        idempotencyKey: "issue_id + a.invite-known",
+        idempotencyKey: "invitation_id + a.invite-known",
       },
       {
         id: "a.invite-new",
@@ -2248,7 +2248,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold. Somebody with no prior relationship reads an unexplained invitation as a claim already made on them",
         next: "w.response",
         execution: "communication",
-        idempotencyKey: "issue_id + a.invite-new",
+        idempotencyKey: "invitation_id + a.invite-new",
       },
       {
         id: "w.response",
@@ -2297,7 +2297,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do. An unstated scope is assumed to be total by whoever has less to gain from it",
         next: "x.active",
         execution: "communication",
-        idempotencyKey: "issue_id + a.confirm",
+        idempotencyKey: "invitation_id + a.confirm",
       },
       {
         id: "x.active",
@@ -2338,7 +2338,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder naming who is waiting and the date the invitation expires. There is no second one - a counterparty who has not answered twice has answered",
         next: "w.final",
         execution: "communication",
-        idempotencyKey: "issue_id + a.remind",
+        idempotencyKey: "invitation_id + a.remind",
       },
       {
         id: "w.final",

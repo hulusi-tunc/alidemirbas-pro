@@ -752,7 +752,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the intended recipient and the route permitted for a document of this type. A document reaching the wrong party is worse than one not sent - the second can be retried and the first cannot be recalled",
         writes: [{ field: "document_log", mode: "append" }],
         next: "a.version",
-        idempotencyKey: "document_version_id + issue_id + a.recipient",
+        idempotencyKey: "document_version_id + recipient_id + a.recipient",
       },
       {
         id: "a.version",
@@ -760,7 +760,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Bind the distribution to the exact issued version. Sending an outdated version is the failure this step exists to prevent: the recipient then holds, relies on, and may sign terms that nobody currently offers",
         writes: [{ field: "document_log", mode: "append" }],
         next: "a.distribute",
-        idempotencyKey: "document_version_id + issue_id + a.version",
+        idempotencyKey: "document_version_id + recipient_id + a.version",
       },
       {
         id: "a.distribute",
@@ -769,7 +769,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "document_log", mode: "append" }],
         next: "w.distribution",
         execution: "communication",
-        idempotencyKey: "document_version_id + issue_id + a.distribute",
+        idempotencyKey: "document_version_id + recipient_id + a.distribute",
       },
       {
         id: "w.distribution",
@@ -816,7 +816,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERED or AVAILABLE against the exact version distributed. Delivery state describes the distribution and never the document - an undelivered contract is a valid contract nobody has, and treating delivery as validity turns a mail failure into a legal one",
         writes: [{ field: "document_log", mode: "append" }],
         next: "x.distributed",
-        idempotencyKey: "document_version_id + issue_id + a.confirmed",
+        idempotencyKey: "document_version_id + recipient_id + a.confirmed",
       },
       {
         id: "x.distributed",
@@ -833,7 +833,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the distribution outcome as unknown and do not treat it as delivered. The document's validity is untouched either way - what is unknown is whether anybody has it",
         writes: [{ field: "document_log", mode: "append" }],
         next: "h.reconcile",
-        idempotencyKey: "document_version_id + issue_id + a.unknown",
+        idempotencyKey: "document_version_id + recipient_id + a.unknown",
       },
       {
         id: "h.reconcile",
@@ -903,7 +903,8 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     eligibility: [
       "a document version requires signature, with required signers, their signing authority and any signing order defined",
       "a signature validity window is either defined by the request's own terms or explicitly recorded as not set",
-      "no signature process is already open for this version"
+      "no signature process is already open for this version",
+      "no DOC-220 conflict review is open for this document's lineage - a version under active conflict review is not simultaneously collecting signatures against it as though it were already settled"
     ],
     suppressions: [
       {
@@ -1038,7 +1039,8 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "required_signers",
           "signing_authority",
           "signing_order",
-          "validity_ends_at"
+          "validity_ends_at",
+          "signer_id"
         ],
         "optional": [
           "review_point_at",
@@ -1123,7 +1125,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Define the required signers, the signing authority each of them needs, the signing order where one applies, the scope of what is being signed, and the validity window where one is defined",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "c.window",
-        idempotencyKey: "document_version_id + definition",
+        idempotencyKey: "document_version_id + a.define",
       },
       {
         id: "c.window",
@@ -1280,7 +1282,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the signature evidence - who signed, when, which version, and under what authority. The version is part of the evidence rather than context around it",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "c.complete",
-        idempotencyKey: "document_version_id + signer_id + signature",
+        idempotencyKey: "document_version_id + signer_id + a.record-sig",
         attemptBudget: {
           "key": "signature.required_signers",
           "rule": "The signature loop runs once per required signer; the budget is the signer list fixed when the process opened.",
@@ -1328,7 +1330,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DECLINED with the signer and the reason where one was given. A decline is a business outcome rather than a failure, and the process that required the document decides what follows from it",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "h.declined",
-        idempotencyKey: "document_version_id + signer_id + decline",
+        idempotencyKey: "document_version_id + signer_id + a.declined",
       },
       {
         id: "h.declined",
@@ -1358,7 +1360,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.superseded",
-        idempotencyKey: "document_version_id + superseded",
+        idempotencyKey: "document_version_id + a.superseded",
       },
       {
         id: "x.superseded",
@@ -1375,7 +1377,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record SIGNATURE_EXPIRED. The request lapsed - nobody declined and nothing was decided, and reporting it as a refusal misstates what the signer did",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "x.expired",
-        idempotencyKey: "document_version_id + expired",
+        idempotencyKey: "document_version_id + a.expired",
       },
       {
         id: "x.expired",
@@ -2403,7 +2405,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Collect the document ids, the version ids, the content with its hashes or references, the issuance times, the signature evidence, the effective dates, the lineage, and the authority or source behind each record",
         writes: [{ field: "document_log", mode: "append" }],
         next: "c.identifiable",
-        idempotencyKey: "document_version_id + issue_id + a.collect",
+        idempotencyKey: "document_lineage_id + conflict_id + a.collect",
       },
       {
         id: "c.identifiable",
@@ -2428,7 +2430,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DOCUMENT_RECONCILIATION_REQUIRED and change nothing. The newest file is not automatically the authoritative version - recency is a property of a filesystem and authority is a property of an issuance, and picking the newer one is how a superseded draft becomes the contract",
         writes: [{ field: "document_log", mode: "append" }],
         next: "h.review",
-        idempotencyKey: "document_version_id + issue_id + a.cannot",
+        idempotencyKey: "document_lineage_id + conflict_id + a.cannot",
       },
       {
         id: "h.review",
@@ -2443,10 +2445,10 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.authoritative",
         kind: "action",
-        does: "Record which version is authoritative and why, preserving every conflicting record alongside it. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
+        does: "Record which version is authoritative and why, preserving every conflicting record alongside it. This is a deterministic resolver applying c.identifiable's own criteria - lineage, issuance authority and effective semantics - never a human judgment call at this step; the resolver having already singled out one version is what makes this action reachable at all, which is why an inability to do so routes to h.review's human decision instead of arriving here. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
         writes: [{ field: "document_log", mode: "append" }],
         next: "c.signature",
-        idempotencyKey: "document_version_id + issue_id + a.authoritative",
+        idempotencyKey: "document_lineage_id + conflict_id + a.authoritative",
       },
       {
         id: "c.signature",
@@ -2471,7 +2473,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that the signature does not bind to the authoritative version, without discarding the signature. It is valid evidence for the version it was made against and for no other, however similar the content of the two looks",
         writes: [{ field: "signature_log", mode: "append" }],
         next: "h.resign",
-        idempotencyKey: "document_version_id + issue_id + a.sig-invalid",
+        idempotencyKey: "document_lineage_id + conflict_id + a.sig-invalid",
       },
       {
         id: "h.resign",
@@ -2512,7 +2514,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "document_log", mode: "append" }],
         next: "x.reconciled",
         execution: "communication",
-        idempotencyKey: "document_version_id + issue_id + a.correct-distribution",
+        idempotencyKey: "document_lineage_id + conflict_id + a.correct-distribution",
       },
       {
         id: "a.preserve-history",
@@ -2520,7 +2522,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve what was done and under which version it was done. The action happened - what to do about it is a separate question with its own authority, and rewriting the record to show the right version leaves an effect with no cause",
         writes: [{ field: "document_log", mode: "append" }],
         next: "h.remedy",
-        idempotencyKey: "document_version_id + issue_id + a.preserve-history",
+        idempotencyKey: "document_lineage_id + conflict_id + a.preserve-history",
       },
       {
         id: "h.remedy",
@@ -2528,9 +2530,11 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "REM-157",
         on: "a business action taken on a non-authoritative document version",
         carries: [
-          "what was done, under which version, and what the authoritative version says instead",
+          "what was done, under which version, and what the authoritative version says instead - conflict_id stands in for REM-157's obligation_id",
           "the explicit fact that the history is preserved intact - the remedy addresses the consequence rather than the record",
+          "a fresh issue_id, minted at this handoff and deterministically derived from conflict_id - DOC-220 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
         ],
+        contract: { requiredFields: ["issue_id", "obligation_id"] },
       },
       {
         id: "x.reconciled",
@@ -2588,6 +2592,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "the entitlement it confers, expressed as something the holder can act on",
       "a named holder with a permitted route to them",
       "no instance of this journey is already open for the the effective document version and the entitlement it confers on its holder",
+      "no DOC-220 conflict review is open for this document's lineage - a version review can retroactively make what looked authoritative not authoritative, and this journey does not tell a holder an entitlement is active while that question is still open",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
     suppressions: [

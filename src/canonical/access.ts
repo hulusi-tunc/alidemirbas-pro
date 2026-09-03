@@ -2187,7 +2187,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
         next: "x.informed",
         execution: "communication",
-        idempotencyKey: "account_id + person_id + a.inform-only",
+        idempotencyKey: "account_id + restriction_id + a.inform-only",
       },
       {
         id: "x.informed",
@@ -2238,7 +2238,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
         next: "w.resolve",
         execution: "communication",
-        idempotencyKey: "account_id + person_id + a.notify",
+        idempotencyKey: "account_id + restriction_id + a.notify",
       },
       {
         id: "w.resolve",
@@ -2287,7 +2287,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
         next: "x.restored",
         execution: "communication",
-        idempotencyKey: "account_id + person_id + a.confirm",
+        idempotencyKey: "account_id + restriction_id + a.confirm",
       },
       {
         id: "x.restored",
@@ -2597,7 +2597,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say what is now available, what it lets them do, and the single first action that uses it. Naming one action rather than listing the capability is the difference between an announcement and an activation",
         next: "w.first-use",
         execution: "communication",
-        idempotencyKey: "issue_id + identity_id + a.ready",
+        idempotencyKey: "entitlement_id + holder_id + a.ready",
       },
       {
         id: "a.brief",
@@ -2605,7 +2605,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the new grant briefly and name only what changed from what they already had. Re-explaining a capability somebody already uses reads as a system that does not know them",
         next: "w.first-use",
         execution: "communication",
-        idempotencyKey: "issue_id + identity_id + a.brief",
+        idempotencyKey: "entitlement_id + holder_id + a.brief",
       },
       {
         id: "w.first-use",
@@ -2686,7 +2686,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one reminder naming the deadline and the same single first action. There is no second reminder - a capability nobody wanted is not made wanted by asking twice",
         next: "w.last-chance",
         execution: "communication",
-        idempotencyKey: "issue_id + identity_id + a.remind",
+        idempotencyKey: "entitlement_id + holder_id + a.remind",
       },
       {
         id: "w.last-chance",
