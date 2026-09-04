@@ -11,9 +11,9 @@ import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import {
   PRESET_ROWS,
-  SURFACE_KEYS,
   SURFACE_PATH,
   SURFACE_ROWS,
+  isHumanRoutingRow,
   type SurfaceKey,
   withCanonicalCount,
   type JourneyRow,
@@ -166,6 +166,8 @@ function Half({
   const href = P(lang, SURFACE_PATH[surfaceKey]);
   const emptyChannelLabel =
     surfaceKey === "lifecycle-states" ? t.lab.journeysSplit.silentBadge : surfaceKey === "runtime-mechanisms" ? t.lab.journeysSplit.mechanismBadge : t.lab.journeysSplit.internalBadge;
+  // Customer Journeys only - see isHumanRoutingRow in canonical-view.ts.
+  const humanRoutingLabel = surfaceKey === "customer-journeys" ? t.lab.journeysSplit.humanRoutingBadge : undefined;
   const preview = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
   const basePath = P(lang, "/lab/journeys");
   return (
@@ -202,6 +204,7 @@ function Half({
             nodesLabel={t.lab.page.nodesLabel}
             channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
             internalLabel={emptyChannelLabel}
+            typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
           />
         ))}
       </div>
@@ -214,6 +217,56 @@ function Half({
   );
 }
 
+/* The two primary destinations - what a first-time visitor opens the
+   library looking for. The other two surfaces (below, in ReferenceStrip)
+   are real, live and just as searchable, but neither is a thing a
+   practitioner browses to on its own: one is silent state a communicating
+   journey depends on, the other is delivery/retry machinery every journey
+   runs on. Route unchanged, this is a presentation weight change only -
+   see research/journey-library-user-taxonomy-audit.md. */
+const PRIMARY_SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "operational-workflows"];
+const SECONDARY_SURFACE_KEYS: readonly SurfaceKey[] = ["lifecycle-states", "runtime-mechanisms"];
+
+/* A secondary surface's own compact card - label, count, its own blurb,
+   one link. No preview cards: these are reference material a practitioner
+   is told exists and can open, not something to browse from the hub. */
+function ReferenceCard({ lang, surfaceKey, delay }: { lang: Lang; surfaceKey: SurfaceKey; delay: number }) {
+  const t = copy[lang];
+  const rows = SURFACE_ROWS[surfaceKey];
+  const label = t.lab.journeysSplit.surfaceLabels[surfaceKey];
+  const blurb = t.lab.journeysSplit.surfaceBlurbs[surfaceKey];
+  const href = P(lang, SURFACE_PATH[surfaceKey]);
+  return (
+    <Reveal delay={delay} className="flex flex-col gap-2 rounded-card border border-line bg-paper-soft p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h4 className="text-[15px] font-medium tracking-tight text-ink-950">{label}</h4>
+        <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
+          {rows.length} {t.lab.page.results}
+        </span>
+      </div>
+      <p className="text-sm leading-relaxed text-ink-950/65">{blurb}</p>
+      <Link href={href} className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-ink-700 transition-colors hover:text-ink-950">
+        {t.lab.journeysSplit.browseAll.replace("{count}", String(rows.length))}
+        <ArrowRight aria-hidden className="size-3.5" />
+      </Link>
+    </Reveal>
+  );
+}
+
+function ReferenceStrip({ lang }: { lang: Lang }) {
+  const c = copy[lang].lab.journeysSplit.referenceStrip;
+  return (
+    <div className="mt-10">
+      <p className="text-sm font-medium text-ink-500">{c}</p>
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {SECONDARY_SURFACE_KEYS.map((k, i) => (
+          <ReferenceCard key={k} lang={lang} surfaceKey={k} delay={200 + i * 60} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Split({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const c = t.lab.journeysHub.split;
@@ -222,10 +275,11 @@ function Split({ lang }: { lang: Lang }) {
       <PortraitContainer>
         <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
         <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-          {SURFACE_KEYS.map((k, i) => (
+          {PRIMARY_SURFACE_KEYS.map((k, i) => (
             <Half key={k} lang={lang} surfaceKey={k} tone={k === "customer-journeys" ? "dark" : "outline"} delay={80 + i * 60} />
           ))}
         </div>
+        <ReferenceStrip lang={lang} />
       </PortraitContainer>
     </ProductSection>
   );

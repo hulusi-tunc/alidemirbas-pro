@@ -36,6 +36,7 @@ export default function JourneyIdeaCard({
   nodesLabel,
   channelLabels,
   internalLabel,
+  typeLabel,
 }: {
   href: string;
   id: string;
@@ -50,11 +51,17 @@ export default function JourneyIdeaCard({
       not look alike, because one can reach a person and the other cannot. */
   channelLabels: readonly string[];
   internalLabel: string;
+  /** A fact about the entry, not a channel - the muted badge Sales/Task
+      cards already earn under Customer Journeys (isHumanRoutingRow). Not a
+      channel, so it is prepended rather than mixed into `channelLabels`. */
+  typeLabel?: string;
 }) {
-  const badges =
-    channelLabels.length === 0
+  const badges = [
+    ...(typeLabel ? [{ label: typeLabel, tone: "muted" as const }] : []),
+    ...(channelLabels.length === 0
       ? [{ label: internalLabel, tone: "muted" as const }]
-      : channelLabels.map((label) => ({ label, tone: "accent" as const }));
+      : channelLabels.map((label) => ({ label, tone: "accent" as const }))),
+  ];
 
   return (
     <IdeaCard

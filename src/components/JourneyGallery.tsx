@@ -6,12 +6,13 @@ import { Search, X } from "lucide-react";
 
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
-import type { CategoryMeta, JourneyRow, MergedRedirect, PresetRow, SurfaceKey } from "@/lib/canonical-view";
+import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNELS, CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { useJourneyFilters } from "@/lib/useJourneyFilters";
 import { copy, type Lang } from "@/lib/content";
 import type { ChannelId } from "@/canonical/types";
+import { OPERATIONAL_WORK_TYPES, OPERATIONAL_WORK_TYPE_OF, type OperationalWorkType } from "@/lib/operational-work-type";
 
 /* The journey library as a browsable gallery: category sections, each with
    the category's own title and purpose, over a responsive grid of cards.
@@ -44,6 +45,7 @@ function CategorySection({
   basePath,
   labels,
   emptyChannelLabel,
+  humanRoutingLabel,
 }: {
   meta: CategoryMeta;
   items: readonly JourneyRow[];
@@ -52,6 +54,10 @@ function CategorySection({
   basePath: string;
   labels: (typeof copy)[Lang]["lab"]["journeysSplit"];
   emptyChannelLabel: string;
+  /** Customer Journeys surface only - the badge for the 3 journeys that
+      reach a customer by routing to a person rather than by message
+      (isHumanRoutingRow). Undefined on every other surface. */
+  humanRoutingLabel?: string;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, SECTION_PREVIEW_COUNT);
@@ -94,6 +100,7 @@ function CategorySection({
             nodesLabel={t.nodesLabel}
             channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
             internalLabel={emptyChannelLabel}
+            typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
           />
         ))}
       </div>
@@ -148,6 +155,12 @@ export default function JourneyGallery({
   const labels = copy[lang].lab.journeysSplit;
   const [category, setCategory] = useState<string>("");
   const [channel, setChannel] = useState<string>("");
+  const [workType, setWorkType] = useState<string>("");
+
+  // Operations has its own coarser, non-canonical Type filter (see
+  // operational-work-type.ts) in place of Goal, which was tuned for
+  // customer journeys and fragments into 23 near-flat values here.
+  const usesWorkType = surface === "operational-workflows";
 
   // Only offer a filter value that some real row on this page actually has.
   const presentCategories = useMemo(() => {
@@ -158,19 +171,25 @@ export default function JourneyGallery({
     const present = new Set(allRows.flatMap((j) => j.channels));
     return CHANNELS.filter((c) => present.has(c));
   }, [allRows]);
+  const presentWorkTypes = useMemo(() => {
+    if (!usesWorkType) return [];
+    const present = new Set(allRows.map((j) => OPERATIONAL_WORK_TYPE_OF[j.category]).filter(Boolean));
+    return OPERATIONAL_WORK_TYPES.filter((wt) => present.has(wt));
+  }, [allRows, usesWorkType]);
 
   const localFiltered = useMemo(
     () =>
       rows.filter(
         (j) =>
           (!category || j.category === category) &&
-          (!channel || j.channels.includes(channel as ChannelId)),
+          (!channel || j.channels.includes(channel as ChannelId)) &&
+          (!workType || OPERATIONAL_WORK_TYPE_OF[j.category] === workType),
       ),
-    [rows, category, channel],
+    [rows, category, channel, workType],
   );
 
-  const isDefault = isDefaultView && !category && !channel;
-  const totalActive = activeCount + (category ? 1 : 0) + (channel ? 1 : 0);
+  const isDefault = isDefaultView && !category && !channel && !workType;
+  const totalActive = activeCount + (category ? 1 : 0) + (channel ? 1 : 0) + (workType ? 1 : 0);
 
   const sections = useMemo(() => {
     if (!isDefault) return [];
@@ -197,8 +216,12 @@ export default function JourneyGallery({
   const clearEverything = () => {
     setCategory("");
     setChannel("");
+    setWorkType("");
     clearAll();
   };
+
+  // Customer Journeys only - see isHumanRoutingRow.
+  const humanRoutingLabel = surface === "customer-journeys" ? labels.humanRoutingBadge : undefined;
 
   const selectClass =
     "w-full border border-line bg-paper px-3 py-2 text-sm text-ink-900 outline-none transition-colors focus:border-blue-600 sm:w-auto";
@@ -273,23 +296,41 @@ export default function JourneyGallery({
           </label>
         ) : null}
 
-        <label className="block">
-          <span className="sr-only">{t.goalLabel}</span>
-          <select
-            value={goal ?? ""}
-            onChange={(e) => setGoal(e.target.value ? (e.target.value as typeof goal) : null)}
-            className={selectClass}
-          >
-            <option value="">{t.allGoals}</option>
-            {[...new Set(allRows.map((j) => j.goal))]
-              .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
-              .map((g) => (
-                <option key={g} value={g}>
-                  {GOAL_LABEL[g][lang]}
+        {usesWorkType ? (
+          <label className="block">
+            <span className="sr-only">{labels.workTypeFilterLabel}</span>
+            <select
+              value={workType}
+              onChange={(e) => setWorkType(e.target.value)}
+              className={selectClass}
+            >
+              <option value="">{labels.allWorkTypes}</option>
+              {presentWorkTypes.map((wt) => (
+                <option key={wt} value={wt}>
+                  {labels.workTypeLabels[wt as OperationalWorkType]}
                 </option>
               ))}
-          </select>
-        </label>
+            </select>
+          </label>
+        ) : (
+          <label className="block">
+            <span className="sr-only">{t.goalLabel}</span>
+            <select
+              value={goal ?? ""}
+              onChange={(e) => setGoal(e.target.value ? (e.target.value as typeof goal) : null)}
+              className={selectClass}
+            >
+              <option value="">{t.allGoals}</option>
+              {[...new Set(allRows.map((j) => j.goal))]
+                .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
+                .map((g) => (
+                  <option key={g} value={g}>
+                    {GOAL_LABEL[g][lang]}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
       </div>
 
       {!isDefault ? (
@@ -351,6 +392,7 @@ export default function JourneyGallery({
               basePath={basePath}
               labels={labels}
               emptyChannelLabel={emptyChannelLabel}
+              humanRoutingLabel={humanRoutingLabel}
             />
           ))}
         </div>
@@ -383,6 +425,7 @@ export default function JourneyGallery({
               nodesLabel={t.nodesLabel}
               channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
               internalLabel={emptyChannelLabel}
+              typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
             />
           ))}
         </div>

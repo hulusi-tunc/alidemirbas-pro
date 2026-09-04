@@ -99,10 +99,17 @@ export type JourneyRow = {
   channels: readonly ChannelId[];
   /** Product surface, read from the journey by src/canonical/surface.ts -
       the one rule the site and the validator share. `communicating` is
-      true only where the journey sends a message on a customer channel;
-      a journey that only routes work to a person is a lifecycle state. */
+      true only where the journey sends a message on a customer channel. */
   surface: SurfaceName;
   communicating: boolean;
+  /** Whether the journey routes work to a person via `sales` or `task`,
+      independent of `communicating` - src/canonical/surface.ts's own
+      `routesToHuman`. A journey can have this true and `communicating`
+      false (ACQ-04, ACT-11, RET-24: they route to a person but send no
+      message) and it is still a Customer Journey on the site's listing -
+      see `surfaceKeyOf` below. Not a lifecycle state: a silent lifecycle
+      state does neither. */
+  routesToHuman: boolean;
   /** Practitioner names the journey answers to (discovery.aliases). */
   aliases: readonly string[];
   presetCount: number;
@@ -398,7 +405,7 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
    any earlier in the module would hit its temporal dead zone. */
 export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
   id: j.id,
-  ...(() => { const sf = surfaceOf(j); return { surface: sf.surface as SurfaceName, communicating: sf.sends }; })(),
+  ...(() => { const sf = surfaceOf(j); return { surface: sf.surface as SurfaceName, communicating: sf.sends, routesToHuman: sf.routesToHuman }; })(),
   aliases: j.discovery?.aliases ?? [],
   presetCount: j.discovery?.presets?.length ?? 0,
   slug: j.slug,
@@ -417,7 +424,19 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
    per journey - the site never keeps its own notion of what is a customer
    journey, and the old "has channels / has none" split is gone: a silent
    customer lifecycle state and an internal operational workflow both have
-   no channels and are different products. */
+   no channels and are different products.
+
+   Within the canonical "customer" surface, the site's own Customer
+   Journeys / Lifecycle States split is `communicating OR routesToHuman`:
+   a journey the customer's own request actually moves - by message, or by
+   putting a person on it - is a journey a practitioner looks for by name,
+   even where it never sends anything itself (ACQ-04, ACT-11, RET-24:
+   `routesToHuman: true`, `communicating: false`). Only a journey that does
+   neither is a silent lifecycle state - state a communicating journey
+   reads and writes, not a thing anyone opens looking for it. This is a
+   listing-classification choice read from src/canonical/surface.ts's own
+   `sends`/`routesToHuman` fields, not a new canonical rule - see
+   research/journey-library-user-taxonomy-audit.md §12. */
 export type SurfaceKey = "customer-journeys" | "lifecycle-states" | "runtime-mechanisms" | "operational-workflows";
 
 export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "lifecycle-states", "runtime-mechanisms", "operational-workflows"];
@@ -429,10 +448,19 @@ export const SURFACE_PATH: Readonly<Record<SurfaceKey, string>> = {
   "operational-workflows": "/lab/operational-workflows",
 };
 
-export const surfaceKeyOf = (row: Pick<JourneyRow, "surface" | "communicating">): SurfaceKey =>
+export const surfaceKeyOf = (row: Pick<JourneyRow, "surface" | "communicating" | "routesToHuman">): SurfaceKey =>
   row.surface === "customer"
-    ? row.communicating ? "customer-journeys" : "lifecycle-states"
+    ? (row.communicating || row.routesToHuman) ? "customer-journeys" : "lifecycle-states"
     : row.surface === "mechanism" ? "runtime-mechanisms" : "operational-workflows";
+
+/** Within Customer Journeys only: the practitioner-facing distinction
+    between a journey that reaches a customer by message and the 3 that
+    reach one only by putting a person on it (see surfaceKeyOf above).
+    Not a canonical concept and not a new filter - it is what the card's
+    own channel badges (Sales/Task vs Email/SMS/...) already say, named for
+    when a caller needs the boolean rather than the channel list. */
+export const isHumanRoutingRow = (row: Pick<JourneyRow, "communicating" | "routesToHuman">): boolean =>
+  !row.communicating && row.routesToHuman;
 
 export const SURFACE_ROWS: Readonly<Record<SurfaceKey, readonly JourneyRow[]>> = {
   "customer-journeys": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "customer-journeys"),

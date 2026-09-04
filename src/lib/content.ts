@@ -271,12 +271,12 @@ export const copy = {
         title: "{count} lifecycle state machines. Every one a graph you can read.",
         sub: "Domain-neutral journeys across {categories} categories, held together by {rules} orchestration rules. Each one names what starts it, where it forks, how long it waits and which lifecycle owns the person next - and none of them carries message copy.",
         ctaCommunication: "Customer journeys",
-        ctaInternal: "Operational workflows",
+        ctaInternal: "Operations",
         proof: ["Domain-neutral", "Graphs, not sequences", "No message copy"],
         split: {
-          eyebrow: "Four surfaces",
-          title: "Split by what the journey is, not by whether it has a channel.",
-          body: "Every journey lives on exactly one of four surfaces, read from the journey itself: customer journeys that reach a person, the silent lifecycle states they depend on, the runtime mechanisms they run on, and the operational workflows that resolve inside the organisation.",
+          eyebrow: "Two ways in",
+          title: "Split by whether the work reaches a customer.",
+          body: "Customer journeys reach a person - a touch plan, channel roles, a contact model. Operations is the internal work that resolves a promise once it's made - approvals, access, incidents, payments, deployments. Every journey also reads two supporting surfaces, the silent lifecycle states and the runtime mechanisms underneath - open from the journey itself, or browse them on their own below.",
         },
         stories: {
           eyebrow: "What the schema enforces",
@@ -296,18 +296,18 @@ export const copy = {
           "customer-journeys": "Customer journeys",
           "lifecycle-states": "Lifecycle states",
           "runtime-mechanisms": "Runtime mechanisms",
-          "operational-workflows": "Operational workflows",
+          "operational-workflows": "Operations",
         },
         surfaceBlurbs: {
           "customer-journeys": "Journeys whose own actions reach a customer - each with a touch plan, channel roles, a contact model and a measurement decision a practitioner can implement without inventing the cadence.",
           "lifecycle-states": "Silent customer lifecycle states: the state models the communicating journeys depend on. Nothing here sends anything; these are dependencies, not campaigns.",
           "runtime-mechanisms": "The machinery every journey runs on - send eligibility, contactability, delivery recovery, retry, cooldown. Contracts, not customer journeys.",
-          "operational-workflows": "Internal workflows that resolve inside the organisation: decisions, ownership, incidents, integrations, rollouts. A separate product from the customer surface.",
+          "operational-workflows": "The internal work that resolves a promise once it's made: approvals and ownership, account and access changes, incident response, payment and document resolution, deployments. Not customer-facing - your operations team's own surface.",
         },
         surfaces: {
           "customer-journeys": {
             title: "Customer journeys",
-            intro: "{count} communicating customer journeys and {presets} practitioner presets. Every journey opens on its practitioner view - trigger, who enters, the touch plan with its timing and channel roles, what stops it, what to configure, what to measure - with the graph underneath as the technical logic. Search by the names you already use.",
+            intro: "{count} customer journeys and {presets} practitioner presets - each one reaches a customer, by message or by routing the work to a person. Every journey opens on its practitioner view - trigger, who enters, the touch plan with its timing and channel roles, what stops it, what to configure, what to measure - with the graph underneath as the technical logic. Search by the names you already use.",
           },
           "lifecycle-states": {
             title: "Lifecycle states",
@@ -318,14 +318,20 @@ export const copy = {
             intro: "{count} runtime mechanisms - the contracts customer journeys rely on for send eligibility, contactability, delivery failure, retry and cooldown. Listed as supporting architecture, not as journeys.",
           },
           "operational-workflows": {
-            title: "Operational workflows",
-            intro: "{count} operational workflows that resolve inside the organisation - decisions, ownership, incidents, integrations, rollouts, processing. A separate surface from the customer journeys; they are not migrated to the practitioner view yet.",
+            title: "Operations",
+            intro: "{count} operational workflows - the internal work a business does to keep its promises: reviews and decisions, account and access changes, service and fulfillment, systems and reliability. Filter by type to browse by what kind of work it is.",
           },
         },
         presetsTitle: "Presets",
         presetsIntro: "Named specialisations of a canonical journey: the same graph, the same touches and exits, with config values, a destination and vocabulary set for a recognisable use case. A preset opens its parent with those values applied.",
         presetBadge: "Preset",
         presetOf: "preset of",
+        /* The hub's Split() section - heading over the two secondary
+           surfaces, presented smaller than Customer Journeys/Operations
+           because neither is a thing a practitioner browses to on its own
+           (see journeysSplit.surfaceBlurbs). Both stay fully live, linked
+           and searchable at their existing routes. */
+        referenceStrip: "Also part of the library - opened from a journey, not usually browsed on their own",
         silentBadge: "Silent state",
         mechanismBadge: "Mechanism",
         communicationLabel: "Communication journeys",
@@ -345,10 +351,28 @@ export const copy = {
            with no channels - it has to read as a statement ("this one
            reaches nobody"), not as a missing value. */
         internalBadge: "Internal",
+        /* Customer Journeys only - the 3 journeys that reach a customer by
+           routing the work to a person (sales, task) rather than by
+           message. Prepended to the card's own Sales/Task channel badge,
+           not a replacement for it - see isHumanRoutingRow in
+           canonical-view.ts. */
+        humanRoutingBadge: "Human routing",
         categoryFilterLabel: "Category",
         allCategories: "All categories",
         channelFilterLabel: "Channel",
         allChannels: "All channels",
+        /* Operations surface only (see lib/operational-work-type.ts) - a
+           coarser, practitioner-facing grouping of the same 18 categories
+           that surface carries, replacing Goal there (23 near-flat values,
+           tuned for customer journeys, not internal work). */
+        workTypeFilterLabel: "Type",
+        allWorkTypes: "All types",
+        workTypeLabels: {
+          "reviews-decisions": "Reviews & decisions",
+          "account-access": "Account & access",
+          "service-fulfillment": "Service & fulfillment",
+          "systems-reliability": "Systems & reliability",
+        },
         communication: {
           title: "Communication journeys",
           intro:
@@ -1078,12 +1102,12 @@ export const copy = {
         title: "{count} lifecycle state machine. Her biri okunabilir bir graf.",
         sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler ve bunları bir arada tutan {rules} orkestrasyon kuralı. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
         ctaCommunication: "Müşteri journey'leri",
-        ctaInternal: "Operasyonel iş akışları",
+        ctaInternal: "Operasyon",
         proof: ["Sektörden bağımsız", "Dizi değil, graf", "Mesaj metni yok"],
         split: {
-          eyebrow: "Dört yüzey",
-          title: "Journey'nin bir kanalı olup olmadığına göre değil, ne olduğuna göre ayrılır.",
-          body: "Her journey, journey'nin kendisinden okunan dört yüzeyden tam olarak birinde yaşar: bir kişiye ulaşan müşteri journey'leri, dayandıkları sessiz yaşam döngüsü durumları, üzerinde çalıştıkları çalışma zamanı mekanizmaları ve organizasyon içinde çözülen operasyonel iş akışları.",
+          eyebrow: "İki giriş yolu",
+          title: "İşin bir müşteriye ulaşıp ulaşmadığına göre ayrılır.",
+          body: "Müşteri journey'leri bir kişiye ulaşır - temas planı, kanal rolleri, temas modeli. Operasyon, bir söz verildikten sonra onu yerine getiren iç iştir - onaylar, erişim, olaylar, ödemeler, dağıtımlar. Her journey ayrıca iki destekleyici yüzeyi okur - dayandığı sessiz yaşam döngüsü durumları ve üzerinde çalıştığı çalışma zamanı mekanizmaları - journey'nin kendisinden açılır, ya da aşağıda kendi başlarına gezilebilir.",
         },
         stories: {
           eyebrow: "Şemanın zorunlu kıldığı",
@@ -1100,18 +1124,18 @@ export const copy = {
           "customer-journeys": "Müşteri journey'leri",
           "lifecycle-states": "Yaşam döngüsü durumları",
           "runtime-mechanisms": "Çalışma zamanı mekanizmaları",
-          "operational-workflows": "Operasyonel iş akışları",
+          "operational-workflows": "Operasyon",
         },
         surfaceBlurbs: {
           "customer-journeys": "Kendi eylemleri müşteriye ulaşan journey'ler - her biri bir temas planı, kanal rolleri, temas modeli ve ölçüm kararıyla; uygulayıcı kadansı uydurmadan hayata geçirebilir.",
           "lifecycle-states": "Sessiz müşteri yaşam döngüsü durumları: iletişim kuran journey'lerin dayandığı durum modelleri. Burada hiçbir şey gönderilmez; bunlar kampanya değil bağımlılıktır.",
           "runtime-mechanisms": "Her journey'nin üzerinde çalıştığı makine - gönderim uygunluğu, ulaşılabilirlik, teslimat kurtarma, yeniden deneme, soğuma. Müşteri journey'si değil, sözleşme.",
-          "operational-workflows": "Organizasyon içinde çözülen iş akışları: kararlar, sahiplik, olaylar, entegrasyonlar, dağıtımlar. Müşteri yüzeyinden ayrı bir ürün.",
+          "operational-workflows": "Bir söz verildikten sonra onu yerine getiren iç iş: onaylar ve sahiplik, hesap ve erişim değişiklikleri, olay müdahalesi, ödeme ve belge çözümü, dağıtımlar. Müşteriye dönük değil - operasyon ekibinizin kendi yüzeyi.",
         },
         surfaces: {
           "customer-journeys": {
             title: "Müşteri journey'leri",
-            intro: "{count} iletişim kuran müşteri journey'si ve {presets} uygulayıcı ön ayarı. Her journey uygulayıcı görünümüyle açılır - tetikleyici, kim girer, zamanlaması ve kanal rolleriyle temas planı, neyin durdurduğu, neyin yapılandırılacağı, neyin ölçüleceği - altta teknik mantık olarak graf. Zaten kullandığınız adlarla arayın.",
+            intro: "{count} müşteri journey'si ve {presets} uygulayıcı ön ayarı - her biri bir müşteriye ulaşır, mesajla ya da işi bir kişiye yönlendirerek. Her journey uygulayıcı görünümüyle açılır - tetikleyici, kim girer, zamanlaması ve kanal rolleriyle temas planı, neyin durdurduğu, neyin yapılandırılacağı, neyin ölçüleceği - altta teknik mantık olarak graf. Zaten kullandığınız adlarla arayın.",
           },
           "lifecycle-states": {
             title: "Yaşam döngüsü durumları",
@@ -1122,14 +1146,15 @@ export const copy = {
             intro: "{count} çalışma zamanı mekanizması - müşteri journey'lerinin gönderim uygunluğu, ulaşılabilirlik, teslimat hatası, yeniden deneme ve soğuma için dayandığı sözleşmeler. Journey olarak değil, destekleyici mimari olarak listelenir.",
           },
           "operational-workflows": {
-            title: "Operasyonel iş akışları",
-            intro: "{count} organizasyon içinde çözülen operasyonel iş akışı - kararlar, sahiplik, olaylar, entegrasyonlar, dağıtımlar, işleme. Müşteri journey'lerinden ayrı bir yüzey; henüz uygulayıcı görünümüne taşınmadılar.",
+            title: "Operasyon",
+            intro: "{count} operasyonel iş akışı - bir işletmenin sözünü tutmak için yaptığı iç iş: inceleme ve kararlar, hesap ve erişim değişiklikleri, hizmet ve tamamlama, sistemler ve güvenilirlik. Ne tür bir iş olduğuna göre filtrelemek için türe bakın.",
           },
         },
         presetsTitle: "Ön ayarlar",
         presetsIntro: "Kanonik bir journey'nin adlandırılmış özelleşmeleri: aynı graf, aynı temaslar ve çıkışlar; yapılandırma değerleri, hedef ve sözcük dağarcığı tanınabilir bir kullanım durumu için ayarlanmış. Bir ön ayar, ebeveynini bu değerler uygulanmış olarak açar.",
         presetBadge: "Ön ayar",
         presetOf: "ön ayarı:",
+        referenceStrip: "Kütüphanenin bir parçası - bir journey'den açılır, genelde kendi başına gezilmez",
         silentBadge: "Sessiz durum",
         mechanismBadge: "Mekanizma",
         communicationLabel: "İletişim journey'leri",
@@ -1144,10 +1169,19 @@ export const copy = {
         // deliberately identical - same as page.decisionsLabel above.
         journeysLabel: ["journey", "journey"],
         internalBadge: "Internal",
+        humanRoutingBadge: "İnsana yönlendirme",
         categoryFilterLabel: "Kategori",
         allCategories: "Tüm kategoriler",
         channelFilterLabel: "Kanal",
         allChannels: "Tüm kanallar",
+        workTypeFilterLabel: "Tür",
+        allWorkTypes: "Tüm türler",
+        workTypeLabels: {
+          "reviews-decisions": "İnceleme ve kararlar",
+          "account-access": "Hesap ve erişim",
+          "service-fulfillment": "Hizmet ve tamamlama",
+          "systems-reliability": "Sistemler ve güvenilirlik",
+        },
         communication: {
           title: "İletişim journey'leri",
           intro:
