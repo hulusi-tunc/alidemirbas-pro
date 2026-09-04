@@ -1013,7 +1013,7 @@ export const copy = {
           "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
         searchPlaceholder: "Journey ara...",
         goalLabel: "Goal",
-        allGoals: "Tüm goal'ler",
+        allGoals: "Tüm hedefler",
         removeFilterLabel: "{label} filtresini kaldır",
         clearAll: "Temizle",
         results: "journey",
