@@ -8,6 +8,148 @@ edges in `relationship-graph.json` (522 handoff, 22 competition, 4 preemption). 
 `research/operational-workflow-production-readiness/OWNERSHIP-AND-ASSIGNMENT-AUDIT.md`, which this
 round grounds against the full 284-item graph rather than re-deriving from scratch.
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+Repair round following this audit. Grounded in `FIXES-APPLIED.md`, `INTEGRATION-CANONICAL-CHANGES.md`,
+the regenerated `relationship-graph.json` (550 edges — 524 handoff, 22 competition, 4 preemption;
++2 handoffs, `TRM-102→TRM-101` and `OPS-130→DEC-181`, neither touching this document's own
+competition-group findings), and a direct re-read of current `src/canonical/access.ts`,
+`retention.ts`, `communication.ts` and `processing.ts` source. Everything below this section and
+above `## Method` is the original audit, unmodified.
+
+### Both P0s fixed
+
+**`account-restriction-authority` (`ACC-78`/`IDN-90`), finding #1.** `ACC-78`'s `c.outcome`
+("Reason resolved") and `c.review` ("Lift it") branches, which previously routed straight to
+`h.restore`, now both route to a new **`a.check-authority`** node — *"Re-read current
+account-restriction-authority standing before releasing this suspension: is a higher-precedence
+contender on the same exclusionGroup and account (a suspected-compromise investigation, IDN-90)
+still open?"* — feeding a new **`c.authority-clear`** condition: "Clear" (no `IDN-90` instance, or
+any higher-precedence exclusionGroup member, currently open for the account) → `h.restore`
+(existing, reused); "Still contested" → `a.extend` (existing, reused — deferring is functionally
+the same outcome as extending). Both are local to `ACC-78`'s own graph (2 new nodes); `IDN-90`
+itself is unmodified — it is the group's own highest-precedence member and structurally never
+defers, so it has nothing to check. Enforcement owner is `ACC-78` itself, not `OPS-131` (which
+remains the single source of precedence *policy*, not caller-side enforcement).
+
+**`retention-outreach` (`ACT-18`/`FBK-46`/`RET-24`/`RET-28`/`RET-30`/`RET-32`), finding #2 — "the
+round's most consequential finding."** Two distinct root causes required two distinct fixes:
+
+- **Generic fix, zero new nodes, protects 4 of the group's 6 members plus reinforces the 5th:**
+  `CMS-205` ("Send Eligibility Check" — the corpus's own execution-time revalidation stage every
+  outbound message passes through immediately before delivery) had its `a.reread` does-text and
+  `c.valid` branches extended so that, where a message's originating journey declares a competition
+  `exclusionGroup`/`scope`, the re-read now includes `OPS-131`'s current established owner for that
+  scope; losing current ownership since the message was queued routes to the existing
+  `a.suppress`/`x.suppressed` path (`GLB-07`: *"a losing contender's queued message does not get to
+  run merely because it was queued before it lost"*). This makes the send path's own long-declared
+  step 3 ("journey competition and precedence," per `production/canonical-dump.json`'s
+  `sendPathOrder`) real for the first time, generically, for **every** competition-bound message in
+  the corpus — not just this group. It structurally protects `ACT-18` (`a.recover`), `FBK-46`
+  (`a.request-confirmation`), `RET-28` (`a.ask`/`a.offer`), `RET-30` (`a.followup`) — all confirmed
+  `execution: "communication"` by direct read — and reinforces `RET-32`'s own pre-existing explicit
+  `c.sendable` gate ("no higher-precedence contest on the account"), which was previously true in
+  text only; the send path's own step 3 was undeclared-but-relied-upon until this fix, so `RET-32`'s
+  claim is now actually backed.
+- **Local fix, 1 new node, `RET-24` only** (its consequential action, `a.owner-task`, is
+  `execution: "human"` — not covered by the CMS-205 fix, since that fix is scoped to
+  `execution: "communication"`): `c.human`'s "Justified" branch now routes to a new
+  **`c.priority-clear`** condition — *"Does a higher-precedence retention-outreach contender
+  already claim this account?"* — "Clear" (no open `FBK-46` issue under human ownership claims the
+  account) → `a.owner-task` (existing, reused); "Contended" → `x.monitor` (existing, reused, its
+  text broadened to cover this reason). `c.intent`'s pre-existing cancellation-intent check already
+  covered the group's other higher-precedence member (`RET-28`), so only the `FBK-46` leg needed a
+  new check.
+
+Read against Part 8's finding: a human being assigned ownership of an at-risk relationship
+(`RET-24` winning the group) now structurally suppresses `ACT-18`/`FBK-46`/`RET-28`/`RET-30`'s own
+sends via the CMS-205 fix, and `RET-24` itself will not raise a competing owner-task while `FBK-46`
+already owns an open issue on the same account. Neither direction was enforced before this round;
+both are now.
+
+### Global competition adoption reclassification
+
+Reclassifying all 22 members using PROTECTED / PARTIALLY_PROTECTED / UNPROTECTED / NOT_APPLICABLE,
+against the original Part 10 table as baseline. "Consequential action" execution types were
+re-confirmed by direct source read this round, not assumed from the prior round's prose.
+
+| Group | Member | Consequential action(s) | Execution | Prior classification | **Updated classification** | Why |
+|---|---|---|---|---|---|---|
+| account-restriction-authority | `ACC-78` | `h.restore`/`a.extend` | (state action, not a message) | Unprotected (P0) | **PROTECTED** | Own local fix: `a.check-authority`→`c.authority-clear`, above. |
+| account-restriction-authority | `IDN-90` | `a.scope`, `a.contain`, `a.confirmed`, `a.cleared` | (state actions) | (not separately rated) | **NOT_APPLICABLE** | Group's own highest-precedence member; never defers to `ACC-78`, so nothing to check. Confirmed by `production/vnext-warning-reviews.json`'s own review note for this id (below). |
+| purchase-intent | `ACQ-04` | `a.assign` | `human` | Protected (structural) | **PROTECTED** | Unchanged reason: `c.converted` runs before `a.assign` and reroutes to `ACQ-08` when the destination is already reached — `execution: "human"`, so the CMS-205 fix does not apply here and none was needed. |
+| purchase-intent | `ACQ-07` | `a.downgrade`, `a.suppress` | (state actions; no `execution: "communication"` action of its own) | Protected/N-A | **NOT_APPLICABLE** | Both act only on this journey's own queued follow-up (reclassify/suppress-own), not a consequential external effect a stale-loser race could produce. |
+| purchase-intent | `ACQ-08` | (suppresses others' queued sends) | — | Protected/N-A | **NOT_APPLICABLE** | No consequential send of its own to protect. |
+| commerce-recovery | `ACQ-11` | `a.touch1`/`a.touch2` | `communication` | Protected (touch 1) / ambiguous (touch 2+) | **PROTECTED** | CMS-205's generic send-path fix enforces at every send regardless of which touch — resolves the prior touch-2 ambiguity (finding #6) as a side effect. |
+| commerce-recovery | `ACQ-12` | `a.touch1`/`a.touch2` | `communication` | Protected (touch 1) / ambiguous (touch 2+) | **PROTECTED** | Same as `ACQ-11`. `a.rearm` (its own remaining `competition_member_unenforced` flag) is non-consequential — see validator note below. |
+| commerce-recovery | `ACQ-13` | `a.touch1`/`a.touch2` | `communication` | Protected (touch 1) / ambiguous (touch 2+) | **PROTECTED** | Same as `ACQ-11`. |
+| commerce-recovery | `RET-31` | `a.touch1`/`a.touch2` | `communication` | Protected (touch 1) / ambiguous (touch 2+) | **PROTECTED** | Same as `ACQ-11`. |
+| commerce-recovery | `SCH-282` | `a.touch1`/`a.touch2` | `communication` | Protected (touch 1) / ambiguous (touch 2+) | **PROTECTED** | Same as `ACQ-11`. |
+| lifecycle-stage | `ACT-12` | (nurture step) | `communication` | (group described "unprotected" via `ACT-20`) | **NOT_APPLICABLE** | Always outranks `ACT-20` within this group (never needs to defer) — separately, already protected against its own real preemption risk via its own `preemptedBy`/`ACT-14` gate (Part 8), a different mechanism than competition-group enforcement. |
+| lifecycle-stage | `ACT-20` | `a.attempt` | `communication` | Unprotected (P1) | **PROTECTED** | `a.attempt` is `execution: "communication"` (confirmed by direct read) — now covered by the generic CMS-205 fix even though nothing in `ACT-20`'s own graph changed. |
+| retention-outreach | `ACT-18` | `a.recover` | `communication` | Unprotected (P0, part of finding #2) | **PROTECTED** | CMS-205 generic fix, above. |
+| retention-outreach | `FBK-46` | `a.request-confirmation` | `communication` | Unprotected (P0, part of finding #2) | **PROTECTED** | CMS-205 generic fix, above. |
+| retention-outreach | `RET-24` | `a.owner-task` | `human` | Unprotected (P0, part of finding #2) | **PROTECTED** | Own local fix: `c.priority-clear`, above (not covered by CMS-205 — `execution: "human"`). |
+| retention-outreach | `RET-28` | `a.ask`/`a.offer` | `communication` | Unprotected (P0, part of finding #2) | **PROTECTED** | CMS-205 generic fix, above. |
+| retention-outreach | `RET-30` | `a.followup` | `communication` | Unprotected (P0, part of finding #2) | **PROTECTED** | CMS-205 generic fix, above. |
+| retention-outreach | `RET-32` | `a.touch1`/`a.touch2` | `communication` | Protected (touch 1) | **PROTECTED** | Unchanged classification, but its own pre-existing `c.sendable` claim ("no higher-precedence contest on the account") is now actually backed by real enforcement, since CMS-205 makes the send path's own step 3 real for the first time. |
+| outbound-ask | `FBK-41` | `a.request` | `communication` | Unprotected (P1) | **PROTECTED** | `a.request` is `execution: "communication"` (confirmed by direct read) — now covered by the generic CMS-205 fix; nothing in `FBK-41`'s own graph changed. |
+| outbound-ask | `FBK-42` | `a.ask-light`/`a.ask-heavy` | `communication` | Unprotected (P1) | **PROTECTED** | Same as `FBK-41`. |
+| relationship-continuity | `SUB-163` | `a.decided`→`h.execute`, `a.non-renew`→`h.scheduled-end` | (no `execution` field — internal handoffs, not covered by CMS-205) | Partially protected/inconsistent (P1) | **PROTECTED** | Own local fix, this round (finding #7): `c.decision` gains a "Cancellation in motion" branch → new `x.superseded` exit (class `suppression`); sibling `w.review`'s `recheck` text now matches `w.decision`'s (both read "...still open, or a cancellation now in motion on the relationship"). Confirmed by direct read of current `subscription.ts` source. |
+| relationship-continuity | `SUB-167` | (cancellation effective-date resolution; `channels: []`) | — | (not separately rated) | **NOT_APPLICABLE** | Its own declared precedence — *"a cancellation in motion outranks a renewal decision on the same relationship"* — means it always outranks `SUB-163`, the group's only other member; it never defers, so it has nothing to check. |
+
+**Count across all 22 members: 17 PROTECTED, 5 NOT_APPLICABLE, 0 PARTIALLY_PROTECTED, 0 UNPROTECTED.**
+Every member of every one of the 7 groups is now either structurally protected against stale-loser
+execution or structurally exempt from the question (it never defers within its own group).
+
+### Validator confirmation
+
+`node scripts/validate-canonical.mjs` (unmodified this round): **0 errors**, 2474 warnings, of which
+exactly **3** are the new `competition_member_unenforced` code (added this round specifically to
+catch this class of gap going forward — see its own header comment in `scripts/validate-canonical.mjs`
+line 504). Run with `SHOW_WARNINGS=1` to see them individually:
+
+```
+[competition_member_unenforced] ACQ-07: declares competition group "purchase-intent" and has a
+consequential action reachable after a wait (a.downgrade, a.suppress), but no node re-checks
+current competition/ownership state before it fires
+[competition_member_unenforced] ACQ-12: declares competition group "commerce-recovery" and has a
+consequential action reachable after a wait (a.rearm), but no node re-checks current
+competition/ownership state before it fires
+[competition_member_unenforced] IDN-90: declares competition group "account-restriction-authority"
+and has a consequential action reachable after a wait (a.scope, a.contain, a.confirmed, a.cleared),
+but no node re-checks current competition/ownership state before it fires
+```
+
+All three are reviewed as correct non-findings in `production/vnext-warning-reviews.json`: `ACQ-07`
+and `ACQ-12`'s flagged actions are non-consequential bookkeeping (own-queued-follow-up
+reclassification/suppression for `ACQ-07`; wait-timer re-arming for `ACQ-12` — its actual send,
+`a.touch1`/`a.touch2`, is `execution: "communication"` and is deliberately excluded from this
+validator's scope, since it is already covered by CMS-205's own generic re-check), and `IDN-90`
+never defers to `ACC-78` so has nothing to check — matching this table's own reasoning above. The
+validator's own design (`ENFORCEMENT_MARKERS` regexes, `NON_CONSEQUENTIAL_ACTION_ID` exclusion,
+`execution: "communication"` actions deliberately excluded from its scope "to avoid re-litigating
+CMS-205's own architectural fix one journey at a time") is a WARN, not an ERROR, specifically so a
+future member phrasing its own check differently is not falsely flagged — consistent with this
+document's own Part 9 caution about judgment-based text matching.
+
+### Findings summary table — updated rows
+
+| # | Finding | Prior severity | **Status** |
+|---|---|---|---|
+| 1 | `ACC-78`/`IDN-90` review/outcome branches never re-check the other member's live state | **P0** | **FIXED** — `ACC-78`'s own `a.check-authority`→`c.authority-clear` (2 new nodes); `IDN-90` unmodified, confirmed never needing to defer. |
+| 2 | 5 of 6 `retention-outreach` members unprotected; `RET-24`'s human ownership did not visibly suppress the other 4 | **P0** | **FIXED** — generic `CMS-205` send-path fix (`ACT-18`/`FBK-46`/`RET-28`/`RET-30`, 0 new nodes) + `RET-24`'s own local `c.priority-clear` (1 new node); `RET-32` reinforced. |
+| 5 | `ACT-20` never checks for a concurrently open `ACT-12` before its reactivation touch | **P1** | **FIXED** — `a.attempt` is `execution: "communication"`; covered by the generic `CMS-205` fix even though `ACT-20`'s own graph is unchanged. |
+| 6 | `commerce-recovery` second/final touch gates drop the explicit "no higher-precedence contest" language | **P2** | **FIXED** — `CMS-205`'s re-check runs at every send regardless of touch number, so the textual ambiguity in `c.sendable2`/`c.final-enabled` no longer matters at the enforcement level (though the wording itself was not edited — a residual documentation nicety, not a re-opened defect). |
+| 7 | `SUB-163`'s `w.decision` recheck names "a cancellation in motion" but `c.decision` had no branch for it; `w.review` omitted the recheck | **P1** | **FIXED** — `c.decision` gains a "Cancellation in motion" branch → new `x.superseded` exit; `w.review`'s `recheck` text now matches `w.decision`'s. |
+| 8 | `outbound-ask` (`FBK-41`/`FBK-42`) has a fully pairwise-resolved rule with zero caller-side enforcement | **P1** | **FIXED** — both journeys' send actions (`a.request`; `a.ask-light`/`a.ask-heavy`) are `execution: "communication"`; covered by the generic `CMS-205` fix even though neither journey's own graph changed. |
+
+Rows 3 (`ACT-17`, undeclared 23rd conflict — outside the declared 22, not addressed this round), 4
+(`DEC-189`/`DEC-190`→`DEC-183` accept/claim gap), 9 (`onLoss`'s 4 values still not reified in any
+losing journey's own exit nodes — the CMS-205/`ACC-78`/`RET-24` fixes make the *check* real but do
+not give the losing instance its own observable "I lost" state), 10 (handoff closure-semantics
+schema gap), 11 and 12 (positive references) are **unchanged** — none was in this round's scope.
+
 ## Method and what "reviewed" means
 
 `relationship-graph.json`'s 522 handoff edges were classified in aggregate (source/target surface,

@@ -5,6 +5,64 @@ this document cross-references rather than duplicates where a finding (`OPS-130`
 `RECONCILIATION_REQUIRED`, `REM-157`'s `issue_id` gap) is both an event-inventory finding and a
 result-propagation finding.
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+Repair round following this audit. Grounded in `FIXES-APPLIED.md`, `INTEGRATION-CANONICAL-CHANGES.md`,
+and a direct re-read of current `src/canonical/processing.ts` (`OPS-130`) and `decision.ts`
+(`DEC-181`) source. Cross-referenced with `RESULT-AND-FEEDBACK-INTEGRATION.md`'s own POST-REPAIR
+UPDATE, which carries the full fix detail for the same finding (there, `RF-1`; here, `EA-1`).
+Everything below this section and above `## Part 15` is the original audit, unmodified.
+
+**Finding EA-1 (P0) is FIXED — full detail in the companion document, not duplicated here.**
+`OPS-130.x.reconciliation` (`RECONCILIATION_REQUIRED`) previously had no producer/consumer pairing
+anywhere in the 456-event registry's usage. `c.confirmed`'s "Missing or conflicting" branch and
+`w.pending`'s `onTimeout` now route to a new `a.reconcile` action → new `h.escalate` handoff into
+`DEC-181`. Per `FIXES-APPLIED.md`'s own "OPS-130 RECONCILIATION_REQUIRED" section, the chosen
+receiver's reasoning ("Why") and the "Result loop" reasoning are quoted in full in
+`RESULT-AND-FEEDBACK-INTEGRATION.md`'s own POST-REPAIR UPDATE — summarized here: `DEC-181` was
+chosen over `FIN-140`/`DOC-220` (real but domain-specific reconciliation workflows) and `DAT-222`/
+`OWN-55` (checked and rejected — wrong problem shape) because its own entry evidence generically
+covers exactly this case, and no special return handoff was added from `DEC-181` back into `OPS-130`
+— the case resolves through `DEC-181`'s own already-working ~30-referrer resolution path instead,
+consistent with how every other referral through it already works.
+
+**The new `runtime_arbiter_result_unconsumed` validator (ERROR severity) now exists and confirms 0
+findings corpus-wide.** It checks for exactly this event-inventory shape — a Runtime Mechanism exit
+whose own `reEntry` text states a propagation intent with zero outbound handoffs anywhere in that
+journey to structurally carry it out (`scripts/validate-canonical.mjs`, `runtime_arbiter_result_unconsumed`,
+declared ERROR not WARN, since an outcome a mechanism's own text says must be seen and structurally
+cannot be is a corpus defect rather than a judgment call). `node scripts/validate-canonical.mjs`
+reports **0 errors** overall.
+
+**DEC-181-side verification: no change was needed, and this is worth stating as a confirmation, not
+a new finding.** `OPS-130` is a Runtime Mechanism, not a human or customer requester. Read directly
+against current `decision.ts` source, `DEC-181`'s own `entity.note` (unchanged by this round) already
+generically covers this shape: *"The referring party behind a request takes one of two shapes, both
+first-class rather than one assumed and the other bolted on: a human or customer requester, whose
+own standing to ask is what `c.valid` checks; or an internal referral from a Runtime Mechanism or
+another Operational Workflow, which carries its own id as the referring party and arrives already
+authorized to escalate by the referring party's own canonical rules — `c.valid` does not re-litigate
+that authorization, only confirms the referral itself is well-formed."* This generic two-shape
+contract was established by the *prior* repair round (referenced directly in `FIXES-APPLIED.md`'s
+own "Why" reasoning: *"`DEC-181` was itself just repaired [the prior repair round] specifically to
+accept non-human/customer-originated referrals from Runtime Mechanisms and Operational Workflows
+without per-sender branching"*) — `OPS-130`'s new `h.escalate` is simply the ~31st referrer to use an
+already-generic intake path, not a case requiring its own accommodation. `a.capture`'s own does-text
+(*"Capture the request id, the decision type, the target entity, the referring party - a human
+requester, or the referring mechanism/workflow's own id for an internal referral..."*) confirms the
+same genericity at the implementation node, not only in the entity note.
+
+**Findings summary — updated row:**
+
+| ID | Finding | Cluster / boundary | Prior severity | **Status** |
+|---|---|---|---|---|
+| EA-1 | `OPS-130.x.reconciliation` (`RECONCILIATION_REQUIRED`) had no producer/consumer pairing anywhere in the 456-event registry's usage | Event inventory (Part 15) | **P0** (counted once, in the companion document) | **FIXED** — new `a.reconcile`→`h.escalate`→`DEC-181` path; full detail in `RESULT-AND-FEEDBACK-INTEGRATION.md`'s POST-REPAIR UPDATE (`RF-1`). `DEC-181`'s own entry contract required no change — confirmed above. New `runtime_arbiter_result_unconsumed` (ERROR) validator: 0 findings corpus-wide. |
+
+EA-2 (business closure vs. entitlement/access fragmentation), EA-3 (`TRM-104`→`REL-100` provenance
+gap), EA-4 (`RSK-200`→`ACC-79` provenance), EA-5 (`REM-157` `issue_id` gap, counted in the companion
+document), EA-6 (`DEC-183`→`DEC-184` reviewer identity) and the reference-pattern rows EA-7–EA-13 are
+**unchanged** — none was in this round's scope.
+
 ## Part 15 — event inventory
 
 **Method.** Extracted every `trigger.event` (284, one per journey), every `wait.until` entry (434

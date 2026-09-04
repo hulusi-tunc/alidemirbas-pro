@@ -8,6 +8,72 @@ Operational Workflow audits (`COMPLETION-AND-FEEDBACK-AUDIT.md`, `HANDOFF-AND-CH
 `CONSUMER-COVERAGE.md`) as a baseline this round tests against the *cross-layer* question rather
 than re-deriving.
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+Repair round following this audit. Grounded in `FIXES-APPLIED.md`, `INTEGRATION-CANONICAL-CHANGES.md`,
+and a direct re-read of current `src/canonical/processing.ts` (`OPS-130`) and `decision.ts`
+(`DEC-181`) source. Cross-referenced with `EVENT-AND-AUTHORITY-INTEGRATION.md`'s own POST-REPAIR
+UPDATE, which carries the same finding as `EA-1`. Everything below this section and above
+`## Method` is the original audit, unmodified.
+
+**Finding RF-1 (P0) is FIXED.** `OPS-130.x.reconciliation` — the exit whose own `reEntry` text said
+it existed *"so that gap is visible rather than reported as done"* but had no outbound handoff and
+no corpus-wide consumer — is gone. `c.confirmed`'s "Missing or conflicting" branch and `w.pending`'s
+`onTimeout` now both route to a new **`a.reconcile`** action (*"Record RECONCILIATION_REQUIRED:
+technical success without the business state it implies... this is recorded so the gap is visible
+rather than reported as done, once per work_id"*, `idempotencyKey: "work_id + a.reconcile"`), which
+hands to a new **`h.escalate`** handoff into `DEC-181`.
+
+Quoting `FIXES-APPLIED.md`'s own "OPS-130 RECONCILIATION_REQUIRED" section directly:
+
+- **Chosen receiver:** `DEC-181` (Decision Request) — an existing canonical item, not a new one.
+- **Why:** *"Searched the corpus for an existing generic (non-domain-specific) reconciliation/
+  investigation responsibility — none exists; `FIN-140` and `DOC-220` are real, working
+  reconciliation workflows but both are domain-specific, and `OPS-130` is domain-agnostic
+  infrastructure with no way to dispatch to the right one at a graph level... `DEC-181` fits: its
+  own entry evidence ('an action or state that cannot proceed without an authorized judgment being
+  made about it') matches once verification has already run and definitively found a gap... and
+  `DEC-181` was itself just repaired [the prior repair round] specifically to accept
+  non-human/customer-originated referrals from Runtime Mechanisms and Operational Workflows without
+  per-sender branching — `OPS-131`'s own `h.escalate` already uses it for exactly this shape of
+  'this mechanism cannot itself resolve this' case, and roughly 30 other referrers already work
+  through it."*
+- **Result loop:** *"No special return handoff from `DEC-181` back into `OPS-130` was added.
+  `DEC-181`'s own resolution path (`a.decide` → `c.outcome` → `h.approved`/`h.partial`/`h.rejected`
+  → ... → `DEC-185`'s own `h.execute` → `external:operational-resolution`) is the same,
+  already-working path every other one of `DEC-181`'s ~30 referrers already resolves through —
+  inventing a special-case callback for this one caller would have been inconsistent with how the
+  other ~30 work, and DEC-185's own text is explicit that 'execution is not complete until that
+  [domain] lifecycle says it is.' A remediation applied through that path produces its own new
+  technical job, which is verified through this same `OPS-130` mechanism on its own fresh `work_id`
+  — the loop closes through the business record and a fresh verification pass, not through a direct
+  software callback."*
+
+`h.escalate`'s actual handoff node (current `processing.ts` source) carries `work_id`,
+`logical_operation_key` and `correlation_id` (threaded from `OPS-121` through the mechanism), the
+business entity, the technical result, and verification evidence — `contract.requiredFields:
+["work_id"]`. `OPS-130`'s own idempotency (*"Verification is idempotent, so checking twice costs
+nothing"*) is preserved, not weakened, by `a.reconcile`'s own `idempotencyKey`.
+
+**New validator confirms 0 findings corpus-wide.** `runtime_arbiter_result_unconsumed` (new, ERROR
+severity, added this round) checks exactly the shape this finding described — a Runtime Mechanism's
+own designed-to-be-actionable result with no corpus-wide consumer — and `node
+scripts/validate-canonical.mjs` reports **0 errors** overall, confirming zero remaining instances.
+Per `FIXES-APPLIED.md`: *"its design was verified against the exact pre-fix text (`x.reconciliation`'s
+`reEntry`: 'this exit exists so that gap is visible rather than reported as done') to confirm it
+would have caught this shape before the fix existed."*
+
+**Findings summary — updated row:**
+
+| ID | Finding | Layer boundary | Prior severity | **Status** |
+|---|---|---|---|---|
+| RF-1 | `OPS-130.x.reconciliation` (`RECONCILIATION_REQUIRED`) had zero consumers anywhere in the corpus | Runtime Mechanism → (nothing) | **P0** | **FIXED** — new `a.reconcile`→`h.escalate`→`DEC-181` path (net +1 node in `OPS-130`, +1 new edge `OPS-130 h.escalate → DEC-181`); confirmed by the new `runtime_arbiter_result_unconsumed` validator (0 findings corpus-wide). |
+
+RF-2 (rollout domain silent to `RLT-279`), RF-3 (`REM-157` `issue_id` gap), RF-4
+(`CONSUMER-COVERAGE.md` documentation correction) and the reference-pattern rows RF-5–RF-7 are
+**unchanged** — none was in this round's scope (`FIXES-APPLIED.md`'s own "Remaining P1/P2" section
+lists `REM-157`'s gap as deliberately left open).
+
 ## Method
 
 1. Recomputed each journey's product surface from `src/canonical/surface.ts`'s own rule (matches
