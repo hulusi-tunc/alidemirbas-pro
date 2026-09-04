@@ -254,12 +254,14 @@
      corner — it silently lands on 10px instead. The clamps are guardrails, not
      design steps.
 
-     THE BUTTON IS A PILL and opts out of this numbered scale entirely, at
-     `--radius-pill` below — every variant and size. It used to be the one
-     deliberately square component (edges flush on the editorial grid); the
-     2026-08-30 style pass retired that along with the rest of the
-     hard-technical direction. Reasoning is recorded in
-     `src/components/ui/Button.tsx`.
+     THE BUTTON IS SQUARED AGAIN (2026-09-04) and back inside this numbered
+     scale, at `--radius-sm` — the "controls" step, the same one inputs and
+     selects use. It spent 2026-08-30 through today opted out entirely as a
+     pill at `--radius-pill` below; before that it was the one deliberately
+     square component (edges flush on the editorial grid, `rounded-none`).
+     `--radius-pill` itself is unchanged and still backs chips, filters and
+     the search field — only the Button component moved off it. Reasoning
+     for the move is recorded in `src/components/ui/Button.tsx`.
 
      CIRCLES REMAIN A SHAPE, NOT A RADIUS. Status dots, radio controls,
      spinners, pill-shaped rating badges and the avatar keep `rounded-full` and
@@ -558,8 +560,8 @@
      in @theme is the only global statement about corners.
 
      The focus ring keeps a radius of its own — it traces the control it is on,
-     and `Button` restates `focus-visible:rounded-full` locally because it is
-     a pill by design. */
+     and `Button` restates `focus-visible:rounded-sm` locally to match its own
+     8px corner rather than this default's 6px. */
   :focus-visible {
     outline: 2px solid var(--color-blue-600);
     outline-offset: 2px;
