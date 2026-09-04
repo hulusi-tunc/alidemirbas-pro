@@ -132,7 +132,7 @@
       "multi-exit",
       "no-re-entry"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "isMergedAlias": false,
     "resolvesTo": null
   },

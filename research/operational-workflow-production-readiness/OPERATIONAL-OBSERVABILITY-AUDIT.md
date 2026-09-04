@@ -5,6 +5,16 @@ who created the work and why, what evidence was available, who owned it and how 
 what decision was made under which policy/version, who approved it, what evidence supported
 completion, what was escalated, what outcome returned upstream.
 
+> **POST-REPAIR UPDATE (2026-09-04):** No observability-specific P0 existed in this document; the
+> repair round's fixes improve auditability as a side effect — every one of the 11 repaired
+> workflows now declares `entity.instanceKey`/`concurrency` and `idempotencyKey` on its
+> consequential actions, making "was this exact effect deduplicated" a directly answerable
+> question from the canonical source itself rather than only from an append-only log's prose. The
+> append-only-log pattern this document documents as the corpus's dominant (correct) observability
+> mechanism is unchanged and was preserved on every repair (see `FIXES-APPLIED.md` — no repair
+> overwrote a historical record; `DAT-228`'s fix specifically reconciles against preserved data
+> rather than erasing it).
+
 ## The dominant pattern: append-only logs, correctly used
 
 Every workflow in the corpus that writes state uses an append-only log field

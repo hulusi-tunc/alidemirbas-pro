@@ -1222,9 +1222,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "SUB-164",
         on: "a renewal decided and ready for execution",
         carries: [
-          "the decision, the new term's dates and its terms",
+          "renewal_cycle_id, the decision, the new term's dates and its terms",
           "the explicit fact that the new term does not yet exist and its requirements have not been tested",
         ],
+        contract: { requiredFields: ["renewal_cycle_id"] },
       },
       {
         id: "a.non-renew",
@@ -1268,7 +1269,9 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     purpose: "Make the new term exist, once the things it depends on have actually happened.",
     entity: {
       scope: "the renewal operation and the new term it would create",
-      note: "The new term is created as a new term. The previous one keeps its dates, its price and its scope, because that is what any later question about the relationship is asked against.",
+      note: "The new term is created as a new term. The previous one keeps its dates, its price and its scope, because that is what any later question about the relationship is asked against. renewal_cycle_id identifies this specific renewal cycle - the same relationship renews many times over its life, and each cycle is its own instance; a redelivered renewal_authorized_for_execution event for the same renewal_cycle_id must resolve to the same financial obligation and the same new term, never a second one, while a genuinely later renewal cycle for the same relationship is its own renewal_cycle_id and its own legitimate instance.",
+      instanceKey: ["renewal_cycle_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1318,9 +1321,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.financial",
         kind: "action",
-        does: "Raise the renewal's financial obligation through the financial lifecycle, which owns whether it is created, due and satisfied. This journey keeps ownership of the new term and waits for that outcome rather than handing the term away - otherwise a failed payment leaves a renewal nobody is holding",
+        does: "Raise the renewal's financial obligation through the financial lifecycle, which owns whether it is created, due and satisfied, once per renewal_cycle_id: a redelivered renewal_authorized_for_execution event for the same renewal_cycle_id resolves to the obligation already raised rather than raising a second one. This journey keeps ownership of the new term and waits for that outcome rather than handing the term away - otherwise a failed payment leaves a renewal nobody is holding",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.dependencies",
+        idempotencyKey: "renewal_cycle_id + a.financial",
       },
       {
         id: "w.dependencies",
@@ -1410,9 +1414,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.new-term",
         kind: "action",
-        does: "Create the new term as a new term, with its own dates, price and scope, and leave the previous term intact. Overwriting the old term's dates with the new ones erases that the relationship ran at a different price for a different period, which is the exact record anyone auditing a renewal is looking for",
+        does: "Create the new term as a new term, with its own dates, price and scope, and leave the previous term intact, once per renewal_cycle_id - if a new term already exists for this renewal_cycle_id (reached again after a redelivered dependency-resolution event), return that existing term rather than creating a second one. Overwriting the old term's dates with the new ones erases that the relationship ran at a different price for a different period, which is the exact record anyone auditing a renewal is looking for",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.activate-term",
+        idempotencyKey: "renewal_cycle_id + a.new-term",
       },
       {
         id: "a.activate-term",
@@ -1478,6 +1483,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "A renewal scheduled is not a renewal completed.",
       "A payment attempt is not renewal completion.",
       "The previous term is never overwritten with the new term's dates.",
+      "A redelivered authorization for the same renewal_cycle_id raises at most one financial obligation and creates at most one new term - never a duplicate of either.",
     ],
     reusableRule:
       "A renewal becomes effective only after the requirements for the new term have actually been satisfied.",

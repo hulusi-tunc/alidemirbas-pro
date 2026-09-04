@@ -32,7 +32,7 @@
     {
       "risk": "long-forward-chain",
       "description": "Depth from entry to the furthest node along non-backward edges. A layout that assumes a short chain will need vertical scroll or compression.",
-      "affectedCount": 29,
+      "affectedCount": 30,
       "threshold": ">=10 levels deep",
       "worst": [
         [
@@ -167,7 +167,7 @@
     {
       "risk": "node-convergence (fan-in)",
       "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
-      "affectedCount": 54,
+      "affectedCount": 55,
       "threshold": ">=3 incoming edges to one node",
       "worst": [
         [

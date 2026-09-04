@@ -192,7 +192,9 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
       "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
     entity: {
       scope: "the decision request and the business entity it concerns",
-      note: "One open case per unresolved decision scope. A second request over the same scope links to the first rather than opening a parallel judgment.",
+      note: "One open case per unresolved decision scope. A second request over the same scope links to the first rather than opening a parallel judgment. The referring party behind a request takes one of two shapes, both first-class rather than one assumed and the other bolted on: a human or customer requester, whose own standing to ask is what c.valid checks; or an internal referral from a Runtime Mechanism or another Operational Workflow, which carries its own id as the referring party and arrives already authorized to escalate by the referring party's own canonical rules - c.valid does not re-litigate that authorization, only confirms the referral itself is well-formed. request_id identifies one request regardless of which shape referred it.",
+      instanceKey: ["request_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -222,9 +224,10 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.capture",
         kind: "action",
-        does: "Capture the request id, the decision type, the target entity, the requester, the requested action, the decision scope, the submission time, the authority the decision requires, and the supporting context",
+        does: "Capture the request id, the decision type, the target entity, the referring party - a human requester, or the referring mechanism/workflow's own id for an internal referral - the requested action, the decision scope, the submission time, the authority the decision requires, and the supporting context",
         writes: [{ field: "decision_log", mode: "append" }],
         next: "c.duplicate",
+        idempotencyKey: "request_id + a.capture",
       },
       {
         id: "c.duplicate",
@@ -265,12 +268,12 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         branches: [
           {
             label: "Valid",
-            when: "the target exists, the requested action is real, and the requester may ask for it",
+            when: "the target exists, the requested action is real, and the referring party may ask for it - a human requester's own standing, or, for an internal referral, that it names a real referring mechanism/workflow and the referral is well-formed (its own authorization to escalate is the referring party's, established under its own rules, not re-checked here)",
             to: "c.deterministic",
           },
           {
             label: "Invalid",
-            when: "the target, the action or the requester's standing does not hold up",
+            when: "the target or the action does not hold up, a human requester's standing does not hold up, or an internal referral does not actually name a real referring mechanism/workflow",
             to: "a.invalid",
           },
         ],
@@ -288,8 +291,8 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "external:requesting-process",
         on: "a request the process itself rejected, with no judgment exercised",
         carries: [
-          "which of the target, the action or the requester's standing failed to hold up",
-          "that nobody decided this - it was rejected by the process, and a corrected request is a new request",
+          "which of the target, the action, a human requester's standing, or an internal referral's own well-formedness failed to hold up",
+          "that nobody decided this - it was rejected by the process, and a corrected request (or a corrected referral) is a new request",
         ],
       },
       {
@@ -337,9 +340,14 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "a.create",
           },
           {
-            label: "Missing",
-            when: "the request cannot yet be stated as a question anyone could answer",
+            label: "Missing, human/customer-originated",
+            when: "the request cannot yet be stated as a question anyone could answer, and there is an interactive requester who can be asked to supply it or to withdraw",
             to: "a.pending-info",
+          },
+          {
+            label: "Missing, internally referred",
+            when: "an internal referral from a Runtime Mechanism or another Operational Workflow did not carry everything this decision needs - there is no interactive party to wait on, so the gap is the referring party's own handoff contract to fix",
+            to: "a.return-to-referrer",
           },
         ],
       },
@@ -362,6 +370,22 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "a.lapse",
         windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.return-to-referrer",
+        kind: "action",
+        does: "Record that the referral was incomplete and return it to the referring mechanism/workflow, naming exactly what was missing. There is no interactive party to wait on for an internal referral, so this does not open a pending-information wait - the referring party's own next attempt either supplies what was missing or the underlying condition it was escalating has since resolved on its own",
+        writes: [{ field: "decision_log", mode: "append" }],
+        next: "x.returned",
+        idempotencyKey: "request_id + a.return-to-referrer",
+      },
+      {
+        id: "x.returned",
+        kind: "exit",
+        state: "returned to the referring mechanism/workflow; no case was opened",
+        terminal: false,
+        reEntry:
+          "the referring party's own re-escalation, once it carries what was missing, is assessed fresh - this exit does not itself remember what was incomplete about the prior attempt",
       },
       {
         id: "c.info-outcome",
@@ -416,9 +440,11 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "DEC-182",
         on: "a valid decision case needing ownership",
         carries: [
-          "the case, its explicit scope and the authority the decision requires",
+          "request_id, the case, its explicit scope and the authority the decision requires",
+          "the referring party - a human requester or the referring mechanism/workflow's own id",
           "the explicit fact that no review has started and no outcome is implied by the case existing",
         ],
+        contract: { requiredFields: ["request_id"] },
       },
     ],
     guardrails: [
@@ -426,6 +452,8 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
       "No approval case is created merely because the system is uncertain, where deterministic policy can decide.",
       "The decision scope is explicit rather than inferred from the request.",
       "An open case over the same scope suppresses a second one.",
+      "A referring party is either a human/customer requester or a named internal referral (a Runtime Mechanism or another Operational Workflow) - never assumed to be the former by default. An internal referral's own authorization to escalate is established under its own canonical rules, not re-litigated here; only the referral's well-formedness is checked.",
+      "An internal referral missing required information is returned to the referring party rather than held on an interactive wait nobody on the other end can answer.",
     ],
     reusableRule:
       "A decision workflow should exist only when an authorized judgment is genuinely required and the decision scope is clearly defined.",

@@ -3,6 +3,17 @@
 The round's most important dimension. What proves a workflow is actually done, and how does the
 lifecycle system that depended on it learn the result?
 
+> **POST-REPAIR UPDATE (2026-09-04):** Two of this document's findings were genuine P0s and are now
+> fixed via canonical graph changes: `INC-258` (closure previously reachable with zero mitigation
+> ever applied — `c.mitigations` now names that state explicitly via a 3rd branch to a new
+> `a.no-mitigations` node, routed through the same `c.cases` scrutiny as every other outcome) and
+> `DAT-228` (rollback data preserved but never consumed — a new `a.reconcile-preserved` →
+> `c.reconciled` path gives it a real consumer, escalating genuine conflicts to `DEC-181`). See
+> `CANONICAL-CHANGES.md` for both. The `RSK-200`/`INT-116`/`DAT-222` completion gaps and
+> `IDN-86`/`INT-118`/`RLT-244` result-propagation gaps this document also catalogs were confirmed
+> non-P0 and left unrepaired this round, per the brief's instruction not to manufacture downstream
+> consumers or force every adjacent P1 to zero.
+
 ## The reference principle: `OPS-130`, carried across the boundary correctly
 
 `OPS-130` (Business Outcome Verification, Runtime Mechanism) established the corpus-wide

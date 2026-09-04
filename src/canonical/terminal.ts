@@ -162,14 +162,16 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "entity-merge-execution",
     category: "terminal",
     goal: "merge-consolidation",
-    channels: [],
+    channels: ["task"],
     name: "Identity or entity merge → reconcile → consolidate → verify",
     shortName: "Entity Merge",
     purpose:
       "Consolidate records that represent one entity, after every dependent state has been reconciled under its own authority rule.",
     entity: {
       scope: "the source entities, the canonical target, and the merge operation itself as an auditable record",
-      note: "The merge operation is its own entity. Its record of conflict decisions and provenance is what makes the consolidated result reviewable, and often what makes it reversible.",
+      note: "The merge operation is its own entity. Its record of conflict decisions and provenance is what makes the consolidated result reviewable, and often what makes it reversible. Authority to authorize a merge is an authorized identity-consolidation role - never inferred from whoever happened to run the duplicate assessment. An irreversible merge (c.evidence's own elevated evidence bar) requires that same authority explicitly exercised at that elevated bar, not merely re-used from the original, lower-stakes authorization that started the operation.",
+      instanceKey: ["merge_operation_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -186,7 +188,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         event: "merge_explicitly_authorized",
         evidence: {
           requires: [
-            "an explicit merge authorization following a duplicate assessment, naming the sources, the target and the authority that authorised it",
+            "an explicit merge authorization following a duplicate assessment, naming the sources, the target, and the authorized identity-consolidation role that authorised it",
           ],
           insufficientAlone: [
             "a duplicate detection, which produces a candidate rather than a decision",
@@ -200,9 +202,11 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.operation",
         kind: "action",
-        does: "Create the auditable merge operation: source entity IDs, the canonical target, the basis, the authority that authorised it, the time, and every conflict decision as it is made. Provenance is what makes the result reviewable - without it the consolidated record cannot say where any part of itself came from",
+        does: "Create the auditable merge operation: source entity IDs, the canonical target, the basis, the authorized identity-consolidation role that authorised it and its own identity, the time, and every conflict decision as it is made. Provenance is what makes the result reviewable - without it the consolidated record cannot say where any part of itself came from",
         writes: [{ field: "merge_log", mode: "append" }],
         next: "a.inventory",
+        execution: "human",
+        idempotencyKey: "merge_operation_id + a.operation",
       },
       {
         id: "a.inventory",
@@ -231,16 +235,16 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.evidence",
         kind: "condition",
-        asks: "Does the evidence and authority meet the higher bar an irreversible merge requires?",
+        asks: "Does the evidence and the authorizing role meet the higher bar an irreversible merge requires?",
         branches: [
           {
             label: "Sufficient",
-            when: "verified identifiers or authoritative external IDs establish it, at the standard an unrecoverable decision demands",
+            when: "verified identifiers or authoritative external IDs establish it at the standard an unrecoverable decision demands, and the identity-consolidation role authorizing it was explicitly exercised at that elevated bar rather than re-used from the operation's original, lower-stakes authorization",
             to: "c.conflicts",
           },
           {
             label: "Not sufficient",
-            when: "the evidence would justify a reversible merge and not this one",
+            when: "the evidence would justify a reversible merge and not this one, or the authority behind it was never explicitly raised to the elevated bar this decision requires",
             to: "x.insufficient",
           },
         ],

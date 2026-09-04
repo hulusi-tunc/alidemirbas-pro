@@ -3,6 +3,14 @@
 Time source, `ConfigRef`s, SLA, deadline, escalation, ownership effects, loops, ageing,
 retry/review windows — across the 124.
 
+> **POST-REPAIR UPDATE (2026-09-04):** No canonical SLA/escalation topology changed this round —
+> the 16 SLA/time-configuration gaps and the escalation-ownership findings this document catalogs
+> were confirmed not to be among the 11 true P0s and were left as documented, honest mapping-time
+> dependencies (no duration was invented). `DEC-183`'s deadline-enforcement gap was checked and
+> confirmed non-P0 this round. The one escalation-adjacent P0 that *was* fixed, `INC-258`'s
+> closure-without-mitigation defect, is a completion/closure topology fix, not an SLA/escalation
+> one — see `COMPLETION-AND-FEEDBACK-AUDIT.md`'s own update note and `CANONICAL-CHANGES.md`.
+
 ## The house rule held: zero invented durations
 
 Every operational time concept in the corpus traces to a named policy pointer, an authoritative

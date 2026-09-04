@@ -252,11 +252,16 @@ check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 check(29, "production manifest covers all 284", manifest.length === 284);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
+// Baseline moved from 3674 to 3682 nodes in the operational-workflow production-readiness repair
+// round (2026-09-04): 8 nodes were deliberately added across 4 proven canonical graph defects —
+// DAT-228 (+3: a.reconcile-preserved, c.reconciled, h.decide-conflict), DEC-181 (+2:
+// a.return-to-referrer, x.returned), CTL-232 (+2: a.revalidate, c.revalidated), INC-258 (+1:
+// a.no-mitigations). See research/operational-workflow-production-readiness/CANONICAL-CHANGES.md.
 check(
   30,
-  "canonical source mutation = 0 (284 journeys / 3674 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (284 journeys / 3682 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 284 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3674 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3682 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

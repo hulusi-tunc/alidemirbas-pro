@@ -427,7 +427,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 13,
     "edgeCount": 13,
@@ -449,7 +449,7 @@
       "multi-exit",
       "no-re-entry"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 10,
     "edgeCount": 17,
@@ -1203,10 +1203,10 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
-    "complexityScore": 47,
-    "nodeCount": 12,
-    "edgeCount": 14,
+    "complexityTier": "complex",
+    "complexityScore": 57,
+    "nodeCount": 14,
+    "edgeCount": 17,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -1262,7 +1262,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 52,
     "nodeCount": 15,
     "edgeCount": 17,
@@ -1487,10 +1487,10 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
-    "complexityScore": 46,
-    "nodeCount": 14,
-    "edgeCount": 16,
+    "complexityTier": "complex",
+    "complexityScore": 58,
+    "nodeCount": 17,
+    "edgeCount": 20,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -1549,9 +1549,9 @@
       "multi-exit"
     ],
     "complexityTier": "extreme",
-    "complexityScore": 71,
-    "nodeCount": 20,
-    "edgeCount": 24,
+    "complexityScore": 76,
+    "nodeCount": 22,
+    "edgeCount": 26,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -1569,7 +1569,7 @@
       "wait-timeout",
       "cross-journey-handoff"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 52,
     "nodeCount": 14,
     "edgeCount": 18,
@@ -2177,7 +2177,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 11,
     "edgeCount": 13,
@@ -2390,7 +2390,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 12,
     "edgeCount": 13,
@@ -2473,7 +2473,7 @@
       "wait-timeout",
       "cross-journey-handoff"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 52,
     "nodeCount": 12,
     "edgeCount": 18,
@@ -2685,7 +2685,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 52,
     "nodeCount": 14,
     "edgeCount": 18,
@@ -2770,7 +2770,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 12,
     "edgeCount": 13,
@@ -3035,9 +3035,9 @@
       "cross-journey-handoff"
     ],
     "complexityTier": "medium",
-    "complexityScore": 49,
-    "nodeCount": 13,
-    "edgeCount": 16,
+    "complexityScore": 52,
+    "nodeCount": 14,
+    "edgeCount": 18,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -3095,7 +3095,7 @@
     "behaviors": [
       "multi-exit"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 12,
     "edgeCount": 11,
@@ -3136,7 +3136,7 @@
       "wait-timeout",
       "cross-journey-handoff"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 11,
     "edgeCount": 14,
@@ -3283,7 +3283,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 12,
     "edgeCount": 14,
@@ -3520,7 +3520,7 @@
       "wait-timeout",
       "cross-journey-handoff"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 11,
     "edgeCount": 13,
@@ -3688,9 +3688,9 @@
       "multi-exit"
     ],
     "complexityTier": "simple",
-    "complexityScore": 40,
+    "complexityScore": 41,
     "nodeCount": 12,
-    "edgeCount": 14,
+    "edgeCount": 15,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -4135,7 +4135,7 @@
       "wait-timeout",
       "cross-journey-handoff"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 52,
     "nodeCount": 14,
     "edgeCount": 19,
@@ -4156,7 +4156,7 @@
       "cross-journey-handoff",
       "external-handoff"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 12,
     "edgeCount": 15,
@@ -4472,7 +4472,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 12,
     "edgeCount": 13,
@@ -5241,7 +5241,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 52,
     "nodeCount": 15,
     "edgeCount": 18,
@@ -5387,7 +5387,7 @@
       "wait-timeout",
       "cross-journey-handoff"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 52,
     "nodeCount": 14,
     "edgeCount": 17,
@@ -5642,7 +5642,7 @@
       "wait-timeout",
       "cross-journey-handoff"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "complexityScore": 41,
     "nodeCount": 12,
     "edgeCount": 14,

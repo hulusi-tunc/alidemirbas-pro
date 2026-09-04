@@ -349,7 +349,9 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
     entity: {
       scope: "the risk case and the actor, account, transaction or resource it concerns",
-      note: "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together. The case is scoped to what the evidence is actually about - a flagged transaction is a flagged transaction, and reading it as a flagged customer is how one anomaly becomes a permanent mark.",
+      note: "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together. The case is scoped to what the evidence is actually about - a flagged transaction is a flagged transaction, and reading it as a flagged customer is how one anomaly becomes a permanent mark. risk_subject_id is that specific evidence subject (the actor, account, transaction or resource the signal concerns), never the broader actor generally - a.case is the atomic authority for that identity: two signals correlating to the same subject at the same time settle on one case between them, never two.",
+      instanceKey: ["risk_subject_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -519,9 +521,10 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.case",
         kind: "action",
-        does: "Record the risk case with its evidence and the provenance of each piece. A risk state whose basis cannot be shown cannot be appealed, explained or corrected - and this is exactly the state someone will eventually ask us to justify",
+        does: "Atomically record the risk case for this risk_subject_id: if no open case already exists for it, create one with its evidence and the provenance of each piece; if a concurrent evaluation already opened one for the same subject between the evidence check and this action, fold this evidence into the existing case rather than creating a second one. A risk state whose basis cannot be shown cannot be appealed, explained or corrected - and this is exactly the state someone will eventually ask us to justify",
         writes: [{ field: "risk_log", mode: "append" }],
         next: "c.route",
+        idempotencyKey: "risk_subject_id + a.case",
       },
       {
         id: "c.route",
@@ -571,6 +574,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "This journey restricts nothing itself. Where a restriction is warranted it hands to the journey whose job that is, carrying the fact that nothing has been concluded.",
       "A signal later cleared stays auditable. Erasing it removes the ability to tell a first occurrence from a fifth.",
       "Evidence and its provenance are preserved so the reasoning can be shown.",
+      "Concurrent evaluation of the same risk_subject_id yields at most one canonical case - a.case is atomic on that identity, and a losing concurrent evaluator folds its evidence into the existing case rather than opening a second one.",
     ],
     reusableRule:
       "Risk signals should change state only in proportion to the combined evidence and the policy-defined consequence of that evidence.",
@@ -1633,7 +1637,9 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "Let an authorized deviation apply exactly where it was authorized, and stop applying the moment it should.",
     entity: {
       scope: "the granted exception and each action it is invoked against",
-      note: "The exception is one record; each use is an event on it. Validity is asked at each use rather than set once when it was granted.",
+      note: "The exception is one record; each use is an event on it. Validity is asked at each use rather than set once when it was granted. exception_id's own concurrency is one-active-per-key precisely because validity and consumption are separated across c.applicable, a.override, c.single and a.consume: without serializing invocations against the same exception, two concurrent invocations of a single-use exception could both pass c.applicable's not-consumed check before either reaches a.consume's own mark, applying the override twice against an authorization for one. Serializing per exception_id is what keeps the validity-check-through-consume sequence atomic in effect without collapsing it into one node.",
+      instanceKey: ["exception_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1766,6 +1772,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the override for this action only, and record the use. The underlying policy is untouched - an exception overrides a decision rather than disabling a rule, and the next action it does not cover gets the normal answer",
         writes: [{ field: "exception_log", mode: "append" }],
         next: "c.single",
+        idempotencyKey: "exception_id + invocation + a.override",
       },
       {
         id: "c.single",
@@ -1787,9 +1794,10 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.consume",
         kind: "action",
-        does: "Mark the exception consumed. Its authority is spent, and any later invocation is refused rather than quietly honoured",
+        does: "Atomically mark the exception consumed for this exception_id: the first invocation to reach this action claims the single use and its authority is spent; a concurrent second invocation racing the same single-use exception finds it already consumed rather than being allowed to apply a second override, because exception_id's own one-active-per-key concurrency serializes both invocations' path through c.applicable and this action rather than letting them interleave. Any later invocation is refused rather than quietly honoured",
         writes: [{ field: "exception_log", mode: "append" }],
         next: "x.consumed",
+        idempotencyKey: "exception_id + a.consume",
       },
       {
         id: "x.consumed",
@@ -1841,6 +1849,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "An exception for one action or entity never leaks to another.",
       "An expired or revoked exception is never reused by stale work.",
       "An expiration is never invented where none exists.",
+      "A single-use exception authorizes exactly one deviation - concurrent invocations against the same exception_id are serialized so at most one can consume it, never two applying the override before either is marked consumed.",
     ],
     reusableRule:
       "Granted exceptions override only the policy decision explicitly authorized for their defined scope and validity.",

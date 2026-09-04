@@ -1012,7 +1012,9 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
     entity: {
       scope: "the approval request, bound to one specific version of the subject",
-      note: "The version binding is the mechanism. An approval attached to an entity rather than a version authorises whatever that entity becomes afterwards.",
+      note: "The version binding is the mechanism. An approval attached to an entity rather than a version authorises whatever that entity becomes afterwards. Three identities are kept distinct: the requester (who submitted the version for review), the executor (who acts on the approval once granted, via h.execute), and the approver (who decides). This journey's own purpose - keep approving separate from doing - requires the approver to be a different identity from the requester specifically; it says nothing about the executor, who is routinely the requester acting on their own now-approved request.",
+      instanceKey: ["request_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1037,10 +1039,11 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.create",
         kind: "action",
-        does: "Create the approval request bound to the exact version of the subject under review, and record the state as PENDING_REVIEW. Requested is not approved, and until this resolves nothing downstream may act as though it were",
+        does: "Create the approval request bound to the exact version of the subject under review, recording the requester's own identity alongside it so eligibility can exclude them from acting as approver on this same request, and record the state as PENDING_REVIEW. Requested is not approved, and until this resolves nothing downstream may act as though it were",
         writes: [{ field: "approval_log", mode: "append" }],
         next: "w.review",
         execution: "human",
+        idempotencyKey: "request_id + a.create",
       },
       {
         id: "w.review",
@@ -1058,9 +1061,18 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.outcome",
         kind: "condition",
-        asks: "What did the reviewer decide?",
+        asks: "What did the reviewer decide, and is the reviewer eligible to decide it?",
         branches: [
-          { label: "APPROVED", when: "the reviewed version is approved", to: "a.approved" },
+          {
+            label: "APPROVED",
+            when: "the reviewed version is approved by a reviewer whose identity differs from this request's own requester",
+            to: "a.approved",
+          },
+          {
+            label: "Self-approval attempted",
+            when: "the acting reviewer is the same identity as this request's own requester - not eligible to approve their own request, whatever the decision they recorded",
+            to: "h.rejected",
+          },
           { label: "REJECTED", when: "the reviewed version is rejected", to: "h.rejected" },
           {
             label: "CHANGES_REQUESTED",
@@ -1075,6 +1087,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the approval against the exact version reviewed, with who approved it and when. This authorises that version and nothing else",
         writes: [{ field: "approval_log", mode: "append" }],
         next: "h.execute",
+        idempotencyKey: "request_id + a.approved",
       },
       {
         id: "h.execute",
@@ -1090,8 +1103,11 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         id: "h.rejected",
         kind: "handoff",
         to: "OWN-59",
-        on: "a rejected approval outcome",
-        carries: ["the rejection reason", "the exact version rejected, which must not later execute"],
+        on: "a rejected approval outcome, including a blocked self-approval attempt",
+        carries: [
+          "the rejection reason - a content rejection or, for a blocked self-approval attempt, that no eligible review occurred at all",
+          "the exact version rejected, which must not later execute",
+        ],
       },
       {
         id: "a.changes",
@@ -1145,6 +1161,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       "Requested is not approved. The pending state exists so nothing can quietly proceed on the request itself.",
       "Approval is not execution. It authorises an action that still has to happen and be recorded separately.",
       "The approval names the exact version reviewed. An approval without a version is an authorisation with no boundary.",
+      "The requester cannot approve their own request - a decision recorded by the requester against their own request is treated as a blocked self-approval, never as a valid APPROVED or REJECTED outcome, regardless of what the requester themselves recorded.",
     ],
     reusableRule:
       "Approval authorizes a specific reviewed state; it should not silently authorize materially different future states.",

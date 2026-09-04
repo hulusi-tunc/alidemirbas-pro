@@ -1144,14 +1144,16 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "rollback-decision",
     category: "rollout",
     goal: "recovery-retry",
-    channels: [],
+    channels: ["task"],
     name: "Change failure threshold → rollback decision → execute or forward recover",
     shortName: "Rollback Decision",
     purpose:
       "Decide whether going back is actually safer than going on, before anyone starts going back.",
     entity: {
       scope: "the failing rollout or change and the targets it affects",
-      note: "Rollback is one strategy among several. Whether it is available at all depends on what the change has already made irreversible.",
+      note: "Rollback is one strategy among several. Whether it is available at all depends on what the change has already made irreversible. Choosing wrong here is irreversible in the direction that matters most, so a.determine's own determination - the input every downstream branch commits to - is made under an authorized recovery-decision role, never inferred silently from the technical facts alone.",
+      instanceKey: ["change_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1185,9 +1187,11 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.determine",
         kind: "action",
-        does: "Determine the known-good prior state, the rollback capability, the irreversible side effects, the data and schema compatibility, the forward-recovery option and the affected scope",
+        does: "Determine, under an authorized recovery-decision role, the known-good prior state, the rollback capability, the irreversible side effects, the data and schema compatibility, the forward-recovery option and the affected scope - recording who made this determination, since every branch that follows commits to it and the wrong branch here cannot be undone by choosing differently later",
         writes: [{ field: "rollout_log", mode: "append" }],
         next: "c.irreversible",
+        execution: "human",
+        idempotencyKey: "change_id + a.determine",
       },
       {
         id: "c.irreversible",
@@ -1267,6 +1271,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
       "Failure does not automatically imply rollback.",
       "A rollback is never taken across an irreversible boundary blindly.",
       "Rollback policy accounts for changed data, schema and state.",
+      "The rollback-versus-forward-recovery determination is made under a named, authorized recovery-decision role - never inferred silently, given that choosing wrong here is irreversible.",
     ],
     reusableRule:
       "Rollback is one recovery strategy and should be chosen only when returning to the previous state is safer and technically valid.",

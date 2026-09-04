@@ -454,7 +454,9 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
       "Propose a future controller without disturbing the one the entity currently has.",
     entity: {
       scope: "the entity, its current owner, the proposed owner and the transfer request between them",
-      note: "The request is a proposal. The current owner is unaffected by its existence, and remains the answer to who controls the entity.",
+      note: "The request is a proposal. The current owner is unaffected by its existence, and remains the answer to who controls the entity. Both paths this journey can take into CTL-234 revalidate immediately before handing off - the acceptance-required path via CTL-233's own a.revalidate, the acceptance-not-required path via this journey's own a.revalidate - because CTL-234's own entry contract requires a transfer revalidated against current state, and nothing upstream of either path can guarantee that state hasn't moved between initial validation and execution.",
+      instanceKey: ["transfer_request_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -568,7 +570,32 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "It is not",
             when: "policy permits the transfer to proceed on the requester's authority alone",
+            to: "a.revalidate",
+          },
+        ],
+      },
+      {
+        id: "a.revalidate",
+        kind: "action",
+        does: "Re-read the same facts c.authority/c.eligible/c.transferable checked, immediately before handing off to execution: is the requester's authority still standing, is the proposed owner still eligible, is the entity still transferable. Nothing about this path waits on another party the way the acceptance-required path does, but authorization-for-execution still has to be a fact about the entity now, not a fact about the entity when the request first validated",
+        writes: [{ field: "ownership_log", mode: "append" }],
+        next: "c.revalidated",
+        idempotencyKey: "transfer_request_id + a.revalidate",
+      },
+      {
+        id: "c.revalidated",
+        kind: "condition",
+        asks: "Does the transfer still hold against current state?",
+        branches: [
+          {
+            label: "It holds",
+            when: "authority, eligibility and transferability all still stand exactly as they did at validation",
             to: "h.execute",
+          },
+          {
+            label: "It no longer holds",
+            when: "authority, eligibility or transferability changed between validation and this revalidation",
+            to: "a.reject",
           },
         ],
       },
@@ -591,9 +618,10 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
         id: "h.execute",
         kind: "handoff",
         to: "CTL-234",
-        on: "a transfer authorized to proceed without recipient acceptance",
+        on: "a transfer authorized to proceed without recipient acceptance, revalidated against current state immediately before this handoff",
         carries: [
           "the entity, the current owner, the proposed owner and the transfer scope",
+          "the revalidation that supported it",
           "the explicit fact that ownership has not moved - the cutover establishes the new owner before touching the old one",
         ],
       },
@@ -602,6 +630,7 @@ export const CONTROL_JOURNEYS: readonly CanonicalJourney[] = [
       "A transfer requested is not a transfer completed.",
       "The current owner remains authoritative until the transfer is effective.",
       "The current owner is never revoked merely because a request or invitation exists.",
+      "Both paths into CTL-234's cutover revalidate immediately beforehand, whether acceptance was required or not - authorization-for-execution is never handed off on a state check that ran only at the original request.",
     ],
     reusableRule:
       "An ownership transfer request proposes a future controller while preserving existing ownership until all transfer conditions are satisfied.",

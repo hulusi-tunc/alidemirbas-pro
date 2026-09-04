@@ -5,6 +5,15 @@ round** — per the brief's explicit instruction, report candidates only; a recl
 belongs to a dedicated round, the same discipline the Runtime Mechanism round applied to the
 competition-arbitration gap before resolving it in a follow-up.
 
+> **POST-REPAIR UPDATE (2026-09-04):** Still none reclassified. All 7 boundary candidates this
+> document names (`REL-95`, `REL-96`, `RSK-191`, `RSK-198`, `IDN-86`, `ACC-75`, `ACC-76`) remain
+> classified as Operational Workflows, unchanged, including `RSK-198` specifically — its P0
+> concurrency defect was repaired *as an operational workflow* (`entity.concurrency:
+> "one-active-per-key"` on `exception_id`, closing the check-then-act race structurally) rather than
+> used as a reason to move it to Runtime Mechanisms; per the governing brief, operational workflows
+> can legitimately need idempotency/concurrency semantics, and this fix is itself evidence for that,
+> not evidence the classification is wrong.
+
 ## Method
 
 For every workflow, this audit asked whether its own ownership/assignment/evidence/approval/SLA

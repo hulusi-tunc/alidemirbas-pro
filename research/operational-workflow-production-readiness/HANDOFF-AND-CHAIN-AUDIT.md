@@ -3,6 +3,24 @@
 Workflow-to-workflow chains, receiver construction, cycles, duplicate work, ownership transfer,
 downstream result expectations — across the 124's 236 total handoff edges.
 
+> **POST-REPAIR UPDATE (2026-09-04):** `DEC-181`'s receiver-construction P0 is fixed — its ~30 real
+> senders (Runtime Mechanisms, Operational Workflows including `OPS-131`, and human/customer
+> requesters) previously hit an entry contract built only for human/customer origin. The fix adds
+> exactly one reusable structural distinction (human/customer-originated vs. internally-referred),
+> not per-sender branches, threaded through `a.capture`/`c.valid`/`c.info`; a new missing-info path
+> for internal referrals (`a.return-to-referrer` → `x.returned`) was added since the old model had
+> no correct destination for a referrer with no interactive party to prompt. `OPS-131` itself was
+> verified to need no change and was **not modified**. `SUB-163`'s handoff into `SUB-164` is also
+> fixed (renamed `renewal_id` → `renewal_cycle_id` to match `SUB-163`'s own pre-existing
+> vocabulary, plus a declared `contract.requiredFields`). The 8 `handoff_identifier_unprovenanced`
+> warnings this triggered on unrelated senders of `DEC-181` (`FBK-47`, `IDN-84`, `REL-100`,
+> `FIN-137`, `REM-152`, `SUB-163`, `SUB-167`×2, `SUB-169`) are false positives — `request_id` is
+> minted by `DEC-181`'s own `a.capture` on entry, so no sender could structurally carry it — and are
+> resolved via documented review entries in `production/vnext-warning-reviews.json`, not by forcing
+> senders to carry a nonexistent field. `CTL-232`'s dual-path revalidation P0 is also fixed (see
+> `CANONICAL-CHANGES.md`) — the "acceptance not required" path now revalidates before `h.execute`,
+> matching the "acceptance required" path's existing behavior via `CTL-233`.
+
 ## Method and its limit, stated up front
 
 A mechanical check (does a handoff's `carries` text plausibly cover a receiver's declared

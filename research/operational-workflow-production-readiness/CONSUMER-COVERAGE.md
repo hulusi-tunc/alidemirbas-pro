@@ -44,7 +44,7 @@ investigated per workflow, not assumed). Nothing here was changed — audit only
 | DAT-228 | active | DAT-227 | — | DAT-227 is the sole, well-formed handoff consumer via h.cutover, and is also named reciprocally in DAT-228's own distinctFrom-style relation |
 | DAT-229 | event-driven | — | — | consumers: [] — DAT-229 is triggered by an identified-gap event, presumably from an internal audit/detection process rather than a canonical |
 | DAT-230 | active | DAT-227, DAT-228, DAT-229 | — | Three real handoff consumers — DAT-227 (h.reconcile), DAT-228 (h.correct), DAT-229 (h.reconcile) — all carrying evidence that satisfies DAT- |
-| DEC-181 | active | ACQ-10, CON-40, FBK-43, FBK-47, OWN-55, OWN-57, OWN-58, OWN-60 (+58 more) | — | Extremely heavy caller list (~50 senders) confirms this is the corpus's genuine general escalation sink, matching its load-bearing role — bu |
+| DEC-181 | active | ACQ-10, CON-40, FBK-43, FBK-47, OWN-55, OWN-57, OWN-58, OWN-60 (+58 more) | — | Extremely heavy caller list (~30 real senders) confirms this is the corpus's genuine general escalation sink, matching its load-bearing role |
 | DEC-182 | active | DEC-181, DEC-183, DEC-189 | — | DEC-181 (h.assign), DEC-183 (h.reassign on mid-review conflict), DEC-189 (h.return with direction) are all real handoff senders whose carrie |
 | DEC-183 | active | DEC-182, DEC-184, DEC-189, DEC-190 | DOC-215 | DEC-182 (h.review), DEC-184 (h.resume), DEC-189 (h.decide), DEC-190 (h.review) are real handoff senders; DOC-215 references this workflow on |
 | DEC-185 | active | OWN-56, OWN-57, DEC-183 | DEC-187 | OWN-56, OWN-57 (h.execute) and DEC-183 (sender, h.approved) are real, well-matched consumers; DEC-187 is referenced only via distinctFrom pr |

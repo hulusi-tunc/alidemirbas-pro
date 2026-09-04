@@ -1,7 +1,17 @@
 # Operational Workflows — validator opportunities
 
-Candidate mechanical validators this audit's findings suggest. **None implemented this round** —
-audit only, per the brief; a repair round decides which to build and in what order.
+Candidate mechanical validators this audit's findings suggest.
+
+> **POST-REPAIR UPDATE (2026-09-04):** Of the candidates below, the two judged mechanically
+> buildable without inventing corpus-wide conventions were implemented this round in
+> `scripts/validate-canonical.mjs`: **`durable_work_without_idempotency`** (WARN — an operational
+> action that appends to a durable field with no declared `idempotencyKey`) and
+> **`workflow_result_unconsumed`** (WARN — a workflow with zero corpus-wide handoff consumers and
+> zero outbound handoffs of its own, i.e. fully isolated). See `VALIDATOR-COVERAGE.md` for their
+> full spec, severity rationale, and current finding counts. The remaining candidates below were
+> **not** implemented this round — none was judged mechanically buildable without either
+> hardcoding company policy or producing an unacceptable false-positive rate against the corpus's
+> current prose-only conventions.
 
 ## Prerequisite, stated before any of the eight below: the 124 predate the structural conventions the other three surfaces already have
 

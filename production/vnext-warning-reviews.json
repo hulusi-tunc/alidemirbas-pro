@@ -1667,6 +1667,62 @@
    "note": "Same finding and same reasoning as ACC-261's h.unreachable, above - an independent instance of the identical shape (all permitted routes exhausted, no single contact_point_id to carry) into the same target.",
    "reviewedBy": "runtime-mechanism gap-closure round",
    "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FBK-47",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Surfaced by the Operational Workflow gap-closure round giving DEC-181 a real entity.instanceKey (request_id) for the first time, to close the round's own confirmed P0 (DEC-181's entry contract assumed a human/customer requester; ~30 real senders, most internal referrals, do not have one). request_id is minted by DEC-181's own a.capture the moment ANY referral - human-submitted or internally referred - is received; no sender, this one included, could carry it even in principle, since it does not exist until DEC-181 itself creates it. This is the self-minted-by-receiver case DEC-181's own repair documents explicitly in its entity.note, not a gap this round's fix introduced or left unaddressed.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "IDN-84",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "REL-100",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FIN-137",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "REM-152",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "SUB-163",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Covers SUB-163's own h.undefined handoff into DEC-181 - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry. (SUB-163's separate h.execute handoff into SUB-164 was fixed directly, not reviewed away - it now carries renewal_cycle_id explicitly in both carries and contract.requiredFields, since SUB-163 already tracks that identity in its own idempotencyKey vocabulary and genuinely can supply it.)",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "SUB-167",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Covers both of SUB-167's handoffs into DEC-181 (h.authority and h.undefined) - request_id is minted by DEC-181's own a.capture on receipt, not a value either handoff could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "SUB-169",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
   }
  ]
 }

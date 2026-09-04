@@ -19363,7 +19363,7 @@
     "external": false,
     "title": "DAT-228 Cutover → switch authority → observe → stabilize or roll back",
     "summary": "Change which system is authoritative, once, with a way back that was defined before it was needed.",
-    "searchText": "Cutover → switch authority → observe → stabilize or roll back. Change which system is authoritative, once, with a way back that was defined before it was needed.. Verified target ready for cutover. Data change, import, migration & state transformation. Hands off to DEC-181, DAT-230. authority returned to the source; the target's cutover-window writes recorded for reconciliation. TARGET_AUTHORITATIVE; the cutover is complete and observed stable",
+    "searchText": "Cutover → switch authority → observe → stabilize or roll back. Change which system is authoritative, once, with a way back that was defined before it was needed.. Verified target ready for cutover. Data change, import, migration & state transformation. Hands off to DEC-181, DEC-181, DAT-230. authority returned to the source; the target's cutover-window writes reconciled against it. TARGET_AUTHORITATIVE; the cutover is complete and observed stable",
     "keywords": [
       "DAT-228"
     ],
@@ -19408,6 +19408,9 @@
     },
     "journeyRelationRefs": {
       "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        },
         {
           "targetId": "journey:DEC-181"
         },
@@ -19556,7 +19559,7 @@
     "external": false,
     "title": "DEC-181 Decision request → validate → route, reject or hold",
     "summary": "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
-    "searchText": "Decision request → validate → route, reject or hold. Establish that authorized judgment is genuinely required, and open a case whose scope is stated.. Authorized decision required. Approvals, decisions, reviews & human-in-the-loop work. Hands off to external:requesting-process, external:operational-resolution, DEC-182. linked to the open case; no second decision was opened. lapsed before a case was opened; nothing was decided",
+    "searchText": "Decision request → validate → route, reject or hold. Establish that authorized judgment is genuinely required, and open a case whose scope is stated.. Authorized decision required. Approvals, decisions, reviews & human-in-the-loop work. Hands off to external:requesting-process, external:operational-resolution, DEC-182. linked to the open case; no second decision was opened. returned to the referring mechanism/workflow; no case was opened. lapsed before a case was opened; nothing was decided",
     "keywords": [
       "DEC-181"
     ],

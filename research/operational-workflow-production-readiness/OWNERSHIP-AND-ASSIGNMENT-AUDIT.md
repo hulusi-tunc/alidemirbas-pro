@@ -3,6 +3,17 @@
 Owner, queue, assignment, claim, concurrency, transfer, release, automation overlap, orphan work —
 across the 124. Companion to `OPERATIONAL-WORKFLOWS-AUDIT.md`'s own ownership-related findings.
 
+> **POST-REPAIR UPDATE (2026-09-04):** `OWN-56`'s self-approval P0 (requester able to approve
+> their own request, contradicting the workflow's own stated purpose) is fixed — `c.outcome` now
+> has an explicit self-approval branch routed to `h.rejected`, and reassignment does not erase the
+> original requester identity the check compares against. See `FIXES-APPLIED.md`. The rest of this
+> document's findings — the escalation/reopen ownership-loss pattern in `DEC-189`/`DEC-190`/
+> `CTL-231` contrasted with `DEC-182`/`CTL-233`'s better pattern, and the corpus-wide
+> `entity.instanceKey`/`concurrency` gap — are unchanged below except where the 11 repaired
+> workflows now declare `instanceKey`/`concurrency` (`RSK-192`, `RSK-198`, `SUB-164`, `OWN-56`,
+> `DAT-228`, `DAT-229`, `RLT-247`, `TRM-101`, `DEC-181`, `CTL-232`, `INC-258`), narrowing the
+> corpus-wide count of workflows lacking that convention from 124 to 113.
+
 ## The corpus-wide fact this document exists to explain
 
 None of the 124 declare `entity.instanceKey`/`entity.concurrency` (the fields the customer-facing

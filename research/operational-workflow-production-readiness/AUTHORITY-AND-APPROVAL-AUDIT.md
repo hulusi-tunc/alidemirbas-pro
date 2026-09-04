@@ -4,6 +4,21 @@ Decision authority, approval, evidence, separation of duties, revocation, overri
 across the 124. Companion to `OWNERSHIP-AND-ASSIGNMENT-AUDIT.md` (ownership answers "who has the
 work"; this document answers "who is allowed to decide what happens to it").
 
+> **POST-REPAIR UPDATE (2026-09-04):** The Authority P0 family is fixed for the two workflows the
+> re-derived audit confirmed as true P0 (not the full `RLT-247`/`TRM-101`/`TRM-103`/`TRM-104`/
+> `TRM-109` list assumed by the original brief — `TRM-103`, `TRM-104`, `TRM-109`, and `REM-154`
+> were confirmed P1, not P0, and were deliberately left unrepaired this round per the "do not force
+> P1 to zero" instruction). `RLT-247` now requires an "authorized recovery-decision role" and
+> `TRM-101` an "authorized identity-consolidation role" — both abstract, structural role names, not
+> invented company-specific teams — before their consequential/irreversible actions proceed; both
+> gained `execution: "human"` + `channels: ["task"]` so the work surfaces as an assignable task.
+> `OWN-56`'s self-approval gap (a distinct, workflow-local authority defect, not part of this
+> "undefined authority" family) is fixed separately — see `OWNERSHIP-AND-ASSIGNMENT-AUDIT.md`'s own
+> update note. See `FIXES-APPLIED.md` for both repairs' before/after detail. The remaining 22
+> authority/approval findings this document catalogs were deliberately left unrepaired — none was
+> proven to require canonical-source changes, and none required inventing a company policy this
+> round would have had to fabricate.
+
 ## The pattern: "assigned operator" is not automatically "decision authority"
 
 This round's brief explicitly warns against treating the two as equivalent, and the corpus itself

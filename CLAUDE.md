@@ -95,7 +95,7 @@ Four routes are EN-only by design: `blog/[slug]`, `experiment-a`, `experiment-b`
 `src/canonical/` is **hand-authored TypeScript**: `types.ts` plus 26 flat domain files, each
 exporting exactly `<DOMAIN>_JOURNEYS` and `<DOMAIN>_RULES`, aggregated by `index.ts`. A journey
 is a **graph, not a sequence** — an `entry` node plus nodes that name their own successors.
-Currently 284 journeys / 3674 nodes / 8 merged (retired) ids.
+Currently 284 journeys / 3682 nodes / 8 merged (retired) ids.
 
 **vNext (Customer Journeys).** Every customer-surface journey carries the vNext contract
 (`eligibility`, `suppressions`, `implementation`, `measurement`, `discovery`; communicating ones

@@ -20226,7 +20226,11 @@
       "purpose": "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
       "entity": {
         "scope": "the approval request, bound to one specific version of the subject",
-        "note": "The version binding is the mechanism. An approval attached to an entity rather than a version authorises whatever that entity becomes afterwards."
+        "note": "The version binding is the mechanism. An approval attached to an entity rather than a version authorises whatever that entity becomes afterwards. Three identities are kept distinct: the requester (who submitted the version for review), the executor (who acts on the approval once granted, via h.execute), and the approver (who decides). This journey's own purpose - keep approving separate from doing - requires the approver to be a different identity from the requester specifically; it says nothing about the executor, who is routinely the requester acting on their own now-approved request.",
+        "instanceKey": [
+          "request_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -20254,7 +20258,7 @@
         {
           "id": "a.create",
           "kind": "action",
-          "does": "Create the approval request bound to the exact version of the subject under review, and record the state as PENDING_REVIEW. Requested is not approved, and until this resolves nothing downstream may act as though it were",
+          "does": "Create the approval request bound to the exact version of the subject under review, recording the requester's own identity alongside it so eligibility can exclude them from acting as approver on this same request, and record the state as PENDING_REVIEW. Requested is not approved, and until this resolves nothing downstream may act as though it were",
           "writes": [
             {
               "field": "approval_log",
@@ -20262,7 +20266,8 @@
             }
           ],
           "next": "w.review",
-          "execution": "human"
+          "execution": "human",
+          "idempotencyKey": "request_id + a.create"
         },
         {
           "id": "w.review",
@@ -20283,12 +20288,17 @@
         {
           "id": "c.outcome",
           "kind": "condition",
-          "asks": "What did the reviewer decide?",
+          "asks": "What did the reviewer decide, and is the reviewer eligible to decide it?",
           "branches": [
             {
               "label": "APPROVED",
-              "when": "the reviewed version is approved",
+              "when": "the reviewed version is approved by a reviewer whose identity differs from this request's own requester",
               "to": "a.approved"
+            },
+            {
+              "label": "Self-approval attempted",
+              "when": "the acting reviewer is the same identity as this request's own requester - not eligible to approve their own request, whatever the decision they recorded",
+              "to": "h.rejected"
             },
             {
               "label": "REJECTED",
@@ -20312,7 +20322,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.execute"
+          "next": "h.execute",
+          "idempotencyKey": "request_id + a.approved"
         },
         {
           "id": "h.execute",
@@ -20328,9 +20339,9 @@
           "id": "h.rejected",
           "kind": "handoff",
           "to": "OWN-59",
-          "on": "a rejected approval outcome",
+          "on": "a rejected approval outcome, including a blocked self-approval attempt",
           "carries": [
-            "the rejection reason",
+            "the rejection reason - a content rejection or, for a blocked self-approval attempt, that no eligible review occurred at all",
             "the exact version rejected, which must not later execute"
           ]
         },
@@ -20391,7 +20402,8 @@
       "guardrails": [
         "Requested is not approved. The pending state exists so nothing can quietly proceed on the request itself.",
         "Approval is not execution. It authorises an action that still has to happen and be recorded separately.",
-        "The approval names the exact version reviewed. An approval without a version is an authorisation with no boundary."
+        "The approval names the exact version reviewed. An approval without a version is an authorisation with no boundary.",
+        "The requester cannot approve their own request - a decision recorded by the requester against their own request is treated as a blocked self-approval, never as a valid APPROVED or REJECTED outcome, regardless of what the requester themselves recorded."
       ],
       "reusableRule": "Approval authorizes a specific reviewed state; it should not silently authorize materially different future states."
     },
@@ -33715,13 +33727,19 @@
       "slug": "entity-merge-execution",
       "category": "terminal",
       "goal": "merge-consolidation",
-      "channels": [],
+      "channels": [
+        "task"
+      ],
       "name": "Identity or entity merge → reconcile → consolidate → verify",
       "shortName": "Entity Merge",
       "purpose": "Consolidate records that represent one entity, after every dependent state has been reconciled under its own authority rule.",
       "entity": {
         "scope": "the source entities, the canonical target, and the merge operation itself as an auditable record",
-        "note": "The merge operation is its own entity. Its record of conflict decisions and provenance is what makes the consolidated result reviewable, and often what makes it reversible."
+        "note": "The merge operation is its own entity. Its record of conflict decisions and provenance is what makes the consolidated result reviewable, and often what makes it reversible. Authority to authorize a merge is an authorized identity-consolidation role - never inferred from whoever happened to run the duplicate assessment. An irreversible merge (c.evidence's own elevated evidence bar) requires that same authority explicitly exercised at that elevated bar, not merely re-used from the original, lower-stakes authorization that started the operation.",
+        "instanceKey": [
+          "merge_operation_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -33737,7 +33755,7 @@
           "event": "merge_explicitly_authorized",
           "evidence": {
             "requires": [
-              "an explicit merge authorization following a duplicate assessment, naming the sources, the target and the authority that authorised it"
+              "an explicit merge authorization following a duplicate assessment, naming the sources, the target, and the authorized identity-consolidation role that authorised it"
             ],
             "insufficientAlone": [
               "a duplicate detection, which produces a candidate rather than a decision",
@@ -33751,14 +33769,16 @@
         {
           "id": "a.operation",
           "kind": "action",
-          "does": "Create the auditable merge operation: source entity IDs, the canonical target, the basis, the authority that authorised it, the time, and every conflict decision as it is made. Provenance is what makes the result reviewable - without it the consolidated record cannot say where any part of itself came from",
+          "does": "Create the auditable merge operation: source entity IDs, the canonical target, the basis, the authorized identity-consolidation role that authorised it and its own identity, the time, and every conflict decision as it is made. Provenance is what makes the result reviewable - without it the consolidated record cannot say where any part of itself came from",
           "writes": [
             {
               "field": "merge_log",
               "mode": "append"
             }
           ],
-          "next": "a.inventory"
+          "next": "a.inventory",
+          "execution": "human",
+          "idempotencyKey": "merge_operation_id + a.operation"
         },
         {
           "id": "a.inventory",
@@ -33792,16 +33812,16 @@
         {
           "id": "c.evidence",
           "kind": "condition",
-          "asks": "Does the evidence and authority meet the higher bar an irreversible merge requires?",
+          "asks": "Does the evidence and the authorizing role meet the higher bar an irreversible merge requires?",
           "branches": [
             {
               "label": "Sufficient",
-              "when": "verified identifiers or authoritative external IDs establish it, at the standard an unrecoverable decision demands",
+              "when": "verified identifiers or authoritative external IDs establish it at the standard an unrecoverable decision demands, and the identity-consolidation role authorizing it was explicitly exercised at that elevated bar rather than re-used from the operation's original, lower-stakes authorization",
               "to": "c.conflicts"
             },
             {
               "label": "Not sufficient",
-              "when": "the evidence would justify a reversible merge and not this one",
+              "when": "the evidence would justify a reversible merge and not this one, or the authority behind it was never explicitly raised to the elevated bar this decision requires",
               "to": "x.insufficient"
             }
           ]
@@ -51931,9 +51951,14 @@
           "to": "SUB-164",
           "on": "a renewal decided and ready for execution",
           "carries": [
-            "the decision, the new term's dates and its terms",
+            "renewal_cycle_id, the decision, the new term's dates and its terms",
             "the explicit fact that the new term does not yet exist and its requirements have not been tested"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "renewal_cycle_id"
+            ]
+          }
         },
         {
           "id": "a.non-renew",
@@ -51979,7 +52004,11 @@
       "purpose": "Make the new term exist, once the things it depends on have actually happened.",
       "entity": {
         "scope": "the renewal operation and the new term it would create",
-        "note": "The new term is created as a new term. The previous one keeps its dates, its price and its scope, because that is what any later question about the relationship is asked against."
+        "note": "The new term is created as a new term. The previous one keeps its dates, its price and its scope, because that is what any later question about the relationship is asked against. renewal_cycle_id identifies this specific renewal cycle - the same relationship renews many times over its life, and each cycle is its own instance; a redelivered renewal_authorized_for_execution event for the same renewal_cycle_id must resolve to the same financial obligation and the same new term, never a second one, while a genuinely later renewal cycle for the same relationship is its own renewal_cycle_id and its own legitimate instance.",
+        "instanceKey": [
+          "renewal_cycle_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -52030,14 +52059,15 @@
         {
           "id": "a.financial",
           "kind": "action",
-          "does": "Raise the renewal's financial obligation through the financial lifecycle, which owns whether it is created, due and satisfied. This journey keeps ownership of the new term and waits for that outcome rather than handing the term away - otherwise a failed payment leaves a renewal nobody is holding",
+          "does": "Raise the renewal's financial obligation through the financial lifecycle, which owns whether it is created, due and satisfied, once per renewal_cycle_id: a redelivered renewal_authorized_for_execution event for the same renewal_cycle_id resolves to the obligation already raised rather than raising a second one. This journey keeps ownership of the new term and waits for that outcome rather than handing the term away - otherwise a failed payment leaves a renewal nobody is holding",
           "writes": [
             {
               "field": "renewal_log",
               "mode": "append"
             }
           ],
-          "next": "w.dependencies"
+          "next": "w.dependencies",
+          "idempotencyKey": "renewal_cycle_id + a.financial"
         },
         {
           "id": "w.dependencies",
@@ -52132,14 +52162,15 @@
         {
           "id": "a.new-term",
           "kind": "action",
-          "does": "Create the new term as a new term, with its own dates, price and scope, and leave the previous term intact. Overwriting the old term's dates with the new ones erases that the relationship ran at a different price for a different period, which is the exact record anyone auditing a renewal is looking for",
+          "does": "Create the new term as a new term, with its own dates, price and scope, and leave the previous term intact, once per renewal_cycle_id - if a new term already exists for this renewal_cycle_id (reached again after a redelivered dependency-resolution event), return that existing term rather than creating a second one. Overwriting the old term's dates with the new ones erases that the relationship ran at a different price for a different period, which is the exact record anyone auditing a renewal is looking for",
           "writes": [
             {
               "field": "relationship_log",
               "mode": "append"
             }
           ],
-          "next": "a.activate-term"
+          "next": "a.activate-term",
+          "idempotencyKey": "renewal_cycle_id + a.new-term"
         },
         {
           "id": "a.activate-term",
@@ -52213,7 +52244,8 @@
       "guardrails": [
         "A renewal scheduled is not a renewal completed.",
         "A payment attempt is not renewal completion.",
-        "The previous term is never overwritten with the new term's dates."
+        "The previous term is never overwritten with the new term's dates.",
+        "A redelivered authorization for the same renewal_cycle_id raises at most one financial obligation and creates at most one new term - never a duplicate of either."
       ],
       "reusableRule": "A renewal becomes effective only after the requirements for the new term have actually been satisfied."
     },
@@ -59370,7 +59402,11 @@
       "purpose": "Establish that authorized judgment is genuinely required, and open a case whose scope is stated.",
       "entity": {
         "scope": "the decision request and the business entity it concerns",
-        "note": "One open case per unresolved decision scope. A second request over the same scope links to the first rather than opening a parallel judgment."
+        "note": "One open case per unresolved decision scope. A second request over the same scope links to the first rather than opening a parallel judgment. The referring party behind a request takes one of two shapes, both first-class rather than one assumed and the other bolted on: a human or customer requester, whose own standing to ask is what c.valid checks; or an internal referral from a Runtime Mechanism or another Operational Workflow, which carries its own id as the referring party and arrives already authorized to escalate by the referring party's own canonical rules - c.valid does not re-litigate that authorization, only confirms the referral itself is well-formed. request_id identifies one request regardless of which shape referred it.",
+        "instanceKey": [
+          "request_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -59399,14 +59435,15 @@
         {
           "id": "a.capture",
           "kind": "action",
-          "does": "Capture the request id, the decision type, the target entity, the requester, the requested action, the decision scope, the submission time, the authority the decision requires, and the supporting context",
+          "does": "Capture the request id, the decision type, the target entity, the referring party - a human requester, or the referring mechanism/workflow's own id for an internal referral - the requested action, the decision scope, the submission time, the authority the decision requires, and the supporting context",
           "writes": [
             {
               "field": "decision_log",
               "mode": "append"
             }
           ],
-          "next": "c.duplicate"
+          "next": "c.duplicate",
+          "idempotencyKey": "request_id + a.capture"
         },
         {
           "id": "c.duplicate",
@@ -59451,12 +59488,12 @@
           "branches": [
             {
               "label": "Valid",
-              "when": "the target exists, the requested action is real, and the requester may ask for it",
+              "when": "the target exists, the requested action is real, and the referring party may ask for it - a human requester's own standing, or, for an internal referral, that it names a real referring mechanism/workflow and the referral is well-formed (its own authorization to escalate is the referring party's, established under its own rules, not re-checked here)",
               "to": "c.deterministic"
             },
             {
               "label": "Invalid",
-              "when": "the target, the action or the requester's standing does not hold up",
+              "when": "the target or the action does not hold up, a human requester's standing does not hold up, or an internal referral does not actually name a real referring mechanism/workflow",
               "to": "a.invalid"
             }
           ]
@@ -59479,8 +59516,8 @@
           "to": "external:requesting-process",
           "on": "a request the process itself rejected, with no judgment exercised",
           "carries": [
-            "which of the target, the action or the requester's standing failed to hold up",
-            "that nobody decided this - it was rejected by the process, and a corrected request is a new request"
+            "which of the target, the action, a human requester's standing, or an internal referral's own well-formedness failed to hold up",
+            "that nobody decided this - it was rejected by the process, and a corrected request (or a corrected referral) is a new request"
           ]
         },
         {
@@ -59533,9 +59570,14 @@
               "to": "a.create"
             },
             {
-              "label": "Missing",
-              "when": "the request cannot yet be stated as a question anyone could answer",
+              "label": "Missing, human/customer-originated",
+              "when": "the request cannot yet be stated as a question anyone could answer, and there is an interactive requester who can be asked to supply it or to withdraw",
               "to": "a.pending-info"
+            },
+            {
+              "label": "Missing, internally referred",
+              "when": "an internal referral from a Runtime Mechanism or another Operational Workflow did not carry everything this decision needs - there is no interactive party to wait on, so the gap is the referring party's own handoff contract to fix",
+              "to": "a.return-to-referrer"
             }
           ]
         },
@@ -59565,6 +59607,26 @@
           },
           "onTimeout": "a.lapse",
           "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "a.return-to-referrer",
+          "kind": "action",
+          "does": "Record that the referral was incomplete and return it to the referring mechanism/workflow, naming exactly what was missing. There is no interactive party to wait on for an internal referral, so this does not open a pending-information wait - the referring party's own next attempt either supplies what was missing or the underlying condition it was escalating has since resolved on its own",
+          "writes": [
+            {
+              "field": "decision_log",
+              "mode": "append"
+            }
+          ],
+          "next": "x.returned",
+          "idempotencyKey": "request_id + a.return-to-referrer"
+        },
+        {
+          "id": "x.returned",
+          "kind": "exit",
+          "state": "returned to the referring mechanism/workflow; no case was opened",
+          "terminal": false,
+          "reEntry": "the referring party's own re-escalation, once it carries what was missing, is assessed fresh - this exit does not itself remember what was incomplete about the prior attempt"
         },
         {
           "id": "c.info-outcome",
@@ -59633,16 +59695,24 @@
           "to": "DEC-182",
           "on": "a valid decision case needing ownership",
           "carries": [
-            "the case, its explicit scope and the authority the decision requires",
+            "request_id, the case, its explicit scope and the authority the decision requires",
+            "the referring party - a human requester or the referring mechanism/workflow's own id",
             "the explicit fact that no review has started and no outcome is implied by the case existing"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "request_id"
+            ]
+          }
         }
       ],
       "guardrails": [
         "A request submitted is not a review started.",
         "No approval case is created merely because the system is uncertain, where deterministic policy can decide.",
         "The decision scope is explicit rather than inferred from the request.",
-        "An open case over the same scope suppresses a second one."
+        "An open case over the same scope suppresses a second one.",
+        "A referring party is either a human/customer requester or a named internal referral (a Runtime Mechanism or another Operational Workflow) - never assumed to be the former by default. An internal referral's own authorization to escalate is established under its own canonical rules, not re-litigated here; only the referral's well-formedness is checked.",
+        "An internal referral missing required information is returned to the referring party rather than held on an interactive wait nobody on the other end can answer."
       ],
       "reusableRule": "A decision workflow should exist only when an authorized judgment is genuinely required and the decision scope is clearly defined."
     },
@@ -62588,7 +62658,11 @@
       "purpose": "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
       "entity": {
         "scope": "the risk case and the actor, account, transaction or resource it concerns",
-        "note": "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together. The case is scoped to what the evidence is actually about - a flagged transaction is a flagged transaction, and reading it as a flagged customer is how one anomaly becomes a permanent mark."
+        "note": "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together. The case is scoped to what the evidence is actually about - a flagged transaction is a flagged transaction, and reading it as a flagged customer is how one anomaly becomes a permanent mark. risk_subject_id is that specific evidence subject (the actor, account, transaction or resource the signal concerns), never the broader actor generally - a.case is the atomic authority for that identity: two signals correlating to the same subject at the same time settle on one case between them, never two.",
+        "instanceKey": [
+          "risk_subject_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -62778,14 +62852,15 @@
         {
           "id": "a.case",
           "kind": "action",
-          "does": "Record the risk case with its evidence and the provenance of each piece. A risk state whose basis cannot be shown cannot be appealed, explained or corrected - and this is exactly the state someone will eventually ask us to justify",
+          "does": "Atomically record the risk case for this risk_subject_id: if no open case already exists for it, create one with its evidence and the provenance of each piece; if a concurrent evaluation already opened one for the same subject between the evidence check and this action, fold this evidence into the existing case rather than creating a second one. A risk state whose basis cannot be shown cannot be appealed, explained or corrected - and this is exactly the state someone will eventually ask us to justify",
           "writes": [
             {
               "field": "risk_log",
               "mode": "append"
             }
           ],
-          "next": "c.route"
+          "next": "c.route",
+          "idempotencyKey": "risk_subject_id + a.case"
         },
         {
           "id": "c.route",
@@ -62834,7 +62909,8 @@
         "Monitoring is not restriction. Watching an open question is a state in its own right, and collapsing the two restricts people the evidence never reached.",
         "This journey restricts nothing itself. Where a restriction is warranted it hands to the journey whose job that is, carrying the fact that nothing has been concluded.",
         "A signal later cleared stays auditable. Erasing it removes the ability to tell a first occurrence from a fifth.",
-        "Evidence and its provenance are preserved so the reasoning can be shown."
+        "Evidence and its provenance are preserved so the reasoning can be shown.",
+        "Concurrent evaluation of the same risk_subject_id yields at most one canonical case - a.case is atomic on that identity, and a losing concurrent evaluator folds its evidence into the existing case rather than opening a second one."
       ],
       "reusableRule": "Risk signals should change state only in proportion to the combined evidence and the policy-defined consequence of that evidence."
     },
@@ -64020,7 +64096,11 @@
       "purpose": "Let an authorized deviation apply exactly where it was authorized, and stop applying the moment it should.",
       "entity": {
         "scope": "the granted exception and each action it is invoked against",
-        "note": "The exception is one record; each use is an event on it. Validity is asked at each use rather than set once when it was granted."
+        "note": "The exception is one record; each use is an event on it. Validity is asked at each use rather than set once when it was granted. exception_id's own concurrency is one-active-per-key precisely because validity and consumption are separated across c.applicable, a.override, c.single and a.consume: without serializing invocations against the same exception, two concurrent invocations of a single-use exception could both pass c.applicable's not-consumed check before either reaches a.consume's own mark, applying the override twice against an authorization for one. Serializing per exception_id is what keeps the validity-check-through-consume sequence atomic in effect without collapsing it into one node.",
+        "instanceKey": [
+          "exception_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -64177,7 +64257,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.single"
+          "next": "c.single",
+          "idempotencyKey": "exception_id + invocation + a.override"
         },
         {
           "id": "c.single",
@@ -64199,14 +64280,15 @@
         {
           "id": "a.consume",
           "kind": "action",
-          "does": "Mark the exception consumed. Its authority is spent, and any later invocation is refused rather than quietly honoured",
+          "does": "Atomically mark the exception consumed for this exception_id: the first invocation to reach this action claims the single use and its authority is spent; a concurrent second invocation racing the same single-use exception finds it already consumed rather than being allowed to apply a second override, because exception_id's own one-active-per-key concurrency serializes both invocations' path through c.applicable and this action rather than letting them interleave. Any later invocation is refused rather than quietly honoured",
           "writes": [
             {
               "field": "exception_log",
               "mode": "append"
             }
           ],
-          "next": "x.consumed"
+          "next": "x.consumed",
+          "idempotencyKey": "exception_id + a.consume"
         },
         {
           "id": "x.consumed",
@@ -64266,7 +64348,8 @@
         "An exception is not a policy disabled.",
         "An exception for one action or entity never leaks to another.",
         "An expired or revoked exception is never reused by stale work.",
-        "An expiration is never invented where none exists."
+        "An expiration is never invented where none exists.",
+        "A single-use exception authorizes exactly one deviation - concurrent invocations against the same exception_id are serialized so at most one can consume it, never two applying the override before either is marked consumed."
       ],
       "reusableRule": "Granted exceptions override only the policy decision explicitly authorized for their defined scope and validity."
     },
@@ -71512,7 +71595,11 @@
       "purpose": "Change which system is authoritative, once, with a way back that was defined before it was needed.",
       "entity": {
         "scope": "the migration, the source system or state, and the target that would replace it",
-        "note": "Exactly one side is authoritative at any moment. Dual authority is the failure this journey exists to prevent, not a transitional convenience."
+        "note": "Exactly one side is authoritative at any moment. Dual authority is the failure this journey exists to prevent, not a transitional convenience. rollback_snapshot_id identifies the specific set of writes the target accepted during one cutover-window, minted at a.rollback the moment authority reverts, so a.reconcile-preserved has a stable identity to reconcile against rather than an ambient 'whatever the target has' at reconciliation time.",
+        "instanceKey": [
+          "migration_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.ready",
       "nodes": [
@@ -71633,21 +71720,62 @@
         {
           "id": "a.rollback",
           "kind": "action",
-          "does": "Revert authority to the source under the defined plan, recording everything the target accepted during the cutover window so nothing written there is simply lost. A rollback that discards live work quietly is a second incident inside the first",
+          "does": "Revert authority to the source under the defined plan, minting rollback_snapshot_id to identify everything the target accepted during the cutover window so nothing written there is simply lost. A rollback that discards live work quietly is a second incident inside the first",
           "writes": [
             {
               "field": "migration_log",
               "mode": "append"
             }
           ],
-          "next": "x.rolled-back"
+          "next": "a.reconcile-preserved",
+          "idempotencyKey": "migration_id + a.rollback"
+        },
+        {
+          "id": "a.reconcile-preserved",
+          "kind": "action",
+          "does": "Reconcile the writes identified by rollback_snapshot_id against the source now authoritative again: apply what the source can absorb without contradiction, so real work the target accepted is not simply stranded. This is the action that makes 'recorded for reconciliation' actually happen, rather than a preservation step nothing downstream ever reads",
+          "writes": [
+            {
+              "field": "migration_log",
+              "mode": "append"
+            }
+          ],
+          "next": "c.reconciled",
+          "idempotencyKey": "rollback_snapshot_id + a.reconcile-preserved"
+        },
+        {
+          "id": "c.reconciled",
+          "kind": "condition",
+          "asks": "Did the preserved writes reconcile cleanly against the reverted source?",
+          "branches": [
+            {
+              "label": "Cleanly",
+              "when": "every preserved write applies without contradicting what the source did independently during the same window",
+              "to": "x.rolled-back"
+            },
+            {
+              "label": "Genuine conflict",
+              "when": "the source changed the same records independently during the cutover window, and applying a preserved write as-is would overwrite that independent change",
+              "to": "h.decide-conflict"
+            }
+          ]
+        },
+        {
+          "id": "h.decide-conflict",
+          "kind": "handoff",
+          "to": "DEC-181",
+          "on": "preserved cutover-window writes that conflict with what the source did independently during the same window",
+          "carries": [
+            "rollback_snapshot_id, the preserved writes it identifies, and the source's own independent changes to the same records",
+            "the explicit fact that applying either side blindly discards real work - this is a judgment call, not a data-quality defect"
+          ]
         },
         {
           "id": "x.rolled-back",
           "kind": "exit",
-          "state": "authority returned to the source; the target's cutover-window writes recorded for reconciliation",
+          "state": "authority returned to the source; the target's cutover-window writes reconciled against it",
           "terminal": false,
-          "reEntry": "a further cutover attempt starts from a fresh verification. What the target accepted during this window is reconciled on its own terms rather than assumed lost"
+          "reEntry": "a further cutover attempt starts from a fresh verification. What the target accepted during this window has already been reconciled, not merely recorded"
         },
         {
           "id": "a.forward",
@@ -71694,7 +71822,8 @@
       "guardrails": [
         "A migration copy completing is not a cutover completing.",
         "Uncontrolled dual authority is never permitted.",
-        "Rollback semantics are defined before rollback is relied on."
+        "Rollback semantics are defined before rollback is relied on.",
+        "Writes the target accepted during a cutover window that ends in rollback are reconciled against the reverted source, never merely preserved and left unconsumed - a genuine conflict with what the source did independently escalates to a decision rather than being applied or discarded blindly."
       ],
       "reusableRule": "Cutover changes the authoritative operating state only after the migrated target has been verified and while a controlled recovery path remains available."
     },
@@ -71703,13 +71832,19 @@
       "slug": "historical-backfill",
       "category": "data",
       "goal": "data-integrity",
-      "channels": [],
+      "channels": [
+        "task"
+      ],
       "name": "Historical backfill → scope window → apply without replaying stale actions",
       "shortName": "Historical Backfill",
       "purpose": "Repair a gap in the record without re-enacting the things those events would have caused.",
       "entity": {
         "scope": "the backfill, its defined window, and the target records inside it",
-        "note": "The window is exact. A backfill without a bounded scope is an unbounded rewrite that nobody can verify closed anything."
+        "note": "The window is exact. A backfill without a bounded scope is an unbounded rewrite that nobody can verify closed anything.",
+        "instanceKey": [
+          "backfill_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -71796,7 +71931,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.current-state"
+          "next": "c.current-state",
+          "idempotencyKey": "backfill_id + a.load"
         },
         {
           "id": "c.current-state",
@@ -71818,14 +71954,16 @@
         {
           "id": "a.reconcile-current",
           "kind": "action",
-          "does": "Reconcile the current state deliberately, decision by decision, rather than letting the load recompute it. A balance that should have been different for six months is a deliberate correction with consequences somebody has to own - not a side effect of a data load nobody reviewed",
+          "does": "Reconcile the current state deliberately, decision by decision, under the review of an authorized operational role for this backfill's own domain - never as a side effect of the load itself. A balance that should have been different for six months is a deliberate correction with consequences somebody has to own, and this action records who that reviewer was alongside what changed",
           "writes": [
             {
               "field": "backfill_log",
               "mode": "append"
             }
           ],
-          "next": "a.verify"
+          "next": "a.verify",
+          "execution": "human",
+          "idempotencyKey": "backfill_id + a.reconcile-current"
         },
         {
           "id": "a.verify",
@@ -71877,7 +72015,8 @@
       "guardrails": [
         "A backfill is not a live event replay.",
         "Historical timestamps remain historical.",
-        "Obsolete customer-facing actions are never triggered by a backfill."
+        "Obsolete customer-facing actions are never triggered by a backfill.",
+        "A backfill that reconciles current authoritative state is never a side effect of the load - it is a deliberate correction made under an authorized reviewer's own decision, recorded alongside what changed."
       ],
       "reusableRule": "Historical backfill repairs missing data and derived state while separating historical truth from actions that would only have been appropriate in real time."
     },
@@ -72395,7 +72534,11 @@
       "purpose": "Propose a future controller without disturbing the one the entity currently has.",
       "entity": {
         "scope": "the entity, its current owner, the proposed owner and the transfer request between them",
-        "note": "The request is a proposal. The current owner is unaffected by its existence, and remains the answer to who controls the entity."
+        "note": "The request is a proposal. The current owner is unaffected by its existence, and remains the answer to who controls the entity. Both paths this journey can take into CTL-234 revalidate immediately before handing off - the acceptance-required path via CTL-233's own a.revalidate, the acceptance-not-required path via this journey's own a.revalidate - because CTL-234's own entry contract requires a transfer revalidated against current state, and nothing upstream of either path can guarantee that state hasn't moved between initial validation and execution.",
+        "instanceKey": [
+          "transfer_request_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -72524,7 +72667,37 @@
             {
               "label": "It is not",
               "when": "policy permits the transfer to proceed on the requester's authority alone",
+              "to": "a.revalidate"
+            }
+          ]
+        },
+        {
+          "id": "a.revalidate",
+          "kind": "action",
+          "does": "Re-read the same facts c.authority/c.eligible/c.transferable checked, immediately before handing off to execution: is the requester's authority still standing, is the proposed owner still eligible, is the entity still transferable. Nothing about this path waits on another party the way the acceptance-required path does, but authorization-for-execution still has to be a fact about the entity now, not a fact about the entity when the request first validated",
+          "writes": [
+            {
+              "field": "ownership_log",
+              "mode": "append"
+            }
+          ],
+          "next": "c.revalidated",
+          "idempotencyKey": "transfer_request_id + a.revalidate"
+        },
+        {
+          "id": "c.revalidated",
+          "kind": "condition",
+          "asks": "Does the transfer still hold against current state?",
+          "branches": [
+            {
+              "label": "It holds",
+              "when": "authority, eligibility and transferability all still stand exactly as they did at validation",
               "to": "h.execute"
+            },
+            {
+              "label": "It no longer holds",
+              "when": "authority, eligibility or transferability changed between validation and this revalidation",
+              "to": "a.reject"
             }
           ]
         },
@@ -72551,9 +72724,10 @@
           "id": "h.execute",
           "kind": "handoff",
           "to": "CTL-234",
-          "on": "a transfer authorized to proceed without recipient acceptance",
+          "on": "a transfer authorized to proceed without recipient acceptance, revalidated against current state immediately before this handoff",
           "carries": [
             "the entity, the current owner, the proposed owner and the transfer scope",
+            "the revalidation that supported it",
             "the explicit fact that ownership has not moved - the cutover establishes the new owner before touching the old one"
           ]
         }
@@ -72561,7 +72735,8 @@
       "guardrails": [
         "A transfer requested is not a transfer completed.",
         "The current owner remains authoritative until the transfer is effective.",
-        "The current owner is never revoked merely because a request or invitation exists."
+        "The current owner is never revoked merely because a request or invitation exists.",
+        "Both paths into CTL-234's cutover revalidate immediately beforehand, whether acceptance was required or not - authorization-for-execution is never handed off on a state check that ran only at the original request."
       ],
       "reusableRule": "An ownership transfer request proposes a future controller while preserving existing ownership until all transfer conditions are satisfied."
     },
@@ -74748,13 +74923,19 @@
       "slug": "rollback-decision",
       "category": "rollout",
       "goal": "recovery-retry",
-      "channels": [],
+      "channels": [
+        "task"
+      ],
       "name": "Change failure threshold → rollback decision → execute or forward recover",
       "shortName": "Rollback Decision",
       "purpose": "Decide whether going back is actually safer than going on, before anyone starts going back.",
       "entity": {
         "scope": "the failing rollout or change and the targets it affects",
-        "note": "Rollback is one strategy among several. Whether it is available at all depends on what the change has already made irreversible."
+        "note": "Rollback is one strategy among several. Whether it is available at all depends on what the change has already made irreversible. Choosing wrong here is irreversible in the direction that matters most, so a.determine's own determination - the input every downstream branch commits to - is made under an authorized recovery-decision role, never inferred silently from the technical facts alone.",
+        "instanceKey": [
+          "change_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -74794,14 +74975,16 @@
         {
           "id": "a.determine",
           "kind": "action",
-          "does": "Determine the known-good prior state, the rollback capability, the irreversible side effects, the data and schema compatibility, the forward-recovery option and the affected scope",
+          "does": "Determine, under an authorized recovery-decision role, the known-good prior state, the rollback capability, the irreversible side effects, the data and schema compatibility, the forward-recovery option and the affected scope - recording who made this determination, since every branch that follows commits to it and the wrong branch here cannot be undone by choosing differently later",
           "writes": [
             {
               "field": "rollout_log",
               "mode": "append"
             }
           ],
-          "next": "c.irreversible"
+          "next": "c.irreversible",
+          "execution": "human",
+          "idempotencyKey": "change_id + a.determine"
         },
         {
           "id": "c.irreversible",
@@ -74890,7 +75073,8 @@
       "guardrails": [
         "Failure does not automatically imply rollback.",
         "A rollback is never taken across an irreversible boundary blindly.",
-        "Rollback policy accounts for changed data, schema and state."
+        "Rollback policy accounts for changed data, schema and state.",
+        "The rollback-versus-forward-recovery determination is made under a named, authorized recovery-decision role - never inferred silently, given that choosing wrong here is irreversible."
       ],
       "reusableRule": "Rollback is one recovery strategy and should be chosen only when returning to the previous state is safer and technically valid."
     },
@@ -77383,7 +77567,11 @@
       "purpose": "Close the shared failure without closing the individual problems it caused.",
       "entity": {
         "scope": "the incident and the individual cases and obligations linked to it",
-        "note": "The incident's resolution is a statement about the shared cause. Every linked case reaches its own resolution on its own terms."
+        "note": "The incident's resolution is a statement about the shared cause. Every linked case reaches its own resolution on its own terms. c.mitigations names all three reachable states explicitly - at least one mitigation applied and now removable, at least one applied and now worth keeping, or none ever applied because resolution came through investigation/root-cause correction alone - because closure is reachable via more than one upstream path and not every path applies a mitigation before resolution criteria are met.",
+        "instanceKey": [
+          "incident_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.criteria",
       "nodes": [
@@ -77412,7 +77600,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.stop-emergency"
+          "next": "a.stop-emergency",
+          "idempotencyKey": "incident_id + a.resolve"
         },
         {
           "id": "a.stop-emergency",
@@ -77429,17 +77618,22 @@
         {
           "id": "c.mitigations",
           "kind": "condition",
-          "asks": "What happens to the temporary mitigations?",
+          "asks": "What happens to the temporary mitigations, if any were ever applied?",
           "branches": [
             {
               "label": "Safe to remove",
-              "when": "the corrective action makes them unnecessary",
+              "when": "at least one temporary mitigation was applied during the incident, and the corrective action makes it unnecessary",
               "to": "a.remove"
             },
             {
               "label": "They should become permanent",
-              "when": "the mitigation turned out to be the right long-term behaviour",
+              "when": "at least one temporary mitigation was applied during the incident, and it turned out to be the right long-term behaviour",
               "to": "a.formalize"
+            },
+            {
+              "label": "None were ever applied",
+              "when": "the incident resolved through investigation or root-cause correction alone, reachable when a case never passed through a mitigation-applying stage before the resolution criteria were met - there is nothing to remove or formalize",
+              "to": "a.no-mitigations"
             }
           ]
         },
@@ -77459,6 +77653,18 @@
           "id": "a.formalize",
           "kind": "action",
           "does": "Formalize it explicitly as a change with an owner and a rationale, rather than leaving a temporary control quietly running forever. Every one of those was meant to last an afternoon",
+          "writes": [
+            {
+              "field": "incident_log",
+              "mode": "append"
+            }
+          ],
+          "next": "c.cases"
+        },
+        {
+          "id": "a.no-mitigations",
+          "kind": "action",
+          "does": "Record explicitly that no temporary mitigation was ever needed for this incident - resolution came from correcting the root cause directly rather than holding the system stable behind an interim control first. This is its own outcome worth recording, not a silent skip, because a reviewer comparing incidents needs to know which recovery pattern this one followed",
           "writes": [
             {
               "field": "incident_log",
@@ -77561,7 +77767,8 @@
       "guardrails": [
         "An incident resolved is not every individual case resolved.",
         "Temporary mitigations do not silently become permanent.",
-        "Incident closure preserves the timeline and the decisions taken."
+        "Incident closure preserves the timeline and the decisions taken.",
+        "Every incident reaching resolution has a defined mitigation outcome, including the outcome of never having applied one - closure is never reachable through a mitigation state c.mitigations cannot classify."
       ],
       "reusableRule": "Incident resolution closes the shared systemic failure while leaving entity-specific obligations open until they independently reach resolution."
     },

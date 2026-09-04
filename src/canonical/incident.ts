@@ -1472,7 +1472,9 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Close the shared failure without closing the individual problems it caused.",
     entity: {
       scope: "the incident and the individual cases and obligations linked to it",
-      note: "The incident's resolution is a statement about the shared cause. Every linked case reaches its own resolution on its own terms.",
+      note: "The incident's resolution is a statement about the shared cause. Every linked case reaches its own resolution on its own terms. c.mitigations names all three reachable states explicitly - at least one mitigation applied and now removable, at least one applied and now worth keeping, or none ever applied because resolution came through investigation/root-cause correction alone - because closure is reachable via more than one upstream path and not every path applies a mitigation before resolution criteria are met.",
+      instanceKey: ["incident_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.criteria",
     nodes: [
@@ -1495,6 +1497,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Mark the systemic incident RESOLVED, preserving its timeline, its mitigations and every decision taken during it. The record is what the review works from and what any later recurrence is compared against - an incident that keeps only its outcome teaches nothing",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "a.stop-emergency",
+        idempotencyKey: "incident_id + a.resolve",
       },
       {
         id: "a.stop-emergency",
@@ -1506,17 +1509,22 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.mitigations",
         kind: "condition",
-        asks: "What happens to the temporary mitigations?",
+        asks: "What happens to the temporary mitigations, if any were ever applied?",
         branches: [
           {
             label: "Safe to remove",
-            when: "the corrective action makes them unnecessary",
+            when: "at least one temporary mitigation was applied during the incident, and the corrective action makes it unnecessary",
             to: "a.remove",
           },
           {
             label: "They should become permanent",
-            when: "the mitigation turned out to be the right long-term behaviour",
+            when: "at least one temporary mitigation was applied during the incident, and it turned out to be the right long-term behaviour",
             to: "a.formalize",
+          },
+          {
+            label: "None were ever applied",
+            when: "the incident resolved through investigation or root-cause correction alone, reachable when a case never passed through a mitigation-applying stage before the resolution criteria were met - there is nothing to remove or formalize",
+            to: "a.no-mitigations",
           },
         ],
       },
@@ -1531,6 +1539,13 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.formalize",
         kind: "action",
         does: "Formalize it explicitly as a change with an owner and a rationale, rather than leaving a temporary control quietly running forever. Every one of those was meant to last an afternoon",
+        writes: [{ field: "incident_log", mode: "append" }],
+        next: "c.cases",
+      },
+      {
+        id: "a.no-mitigations",
+        kind: "action",
+        does: "Record explicitly that no temporary mitigation was ever needed for this incident - resolution came from correcting the root cause directly rather than holding the system stable behind an interim control first. This is its own outcome worth recording, not a silent skip, because a reviewer comparing incidents needs to know which recovery pattern this one followed",
         writes: [{ field: "incident_log", mode: "append" }],
         next: "c.cases",
       },
@@ -1625,6 +1640,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
       "An incident resolved is not every individual case resolved.",
       "Temporary mitigations do not silently become permanent.",
       "Incident closure preserves the timeline and the decisions taken.",
+      "Every incident reaching resolution has a defined mitigation outcome, including the outcome of never having applied one - closure is never reachable through a mitigation state c.mitigations cannot classify.",
     ],
     reusableRule:
       "Incident resolution closes the shared systemic failure while leaving entity-specific obligations open until they independently reach resolution.",

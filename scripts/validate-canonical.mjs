@@ -436,6 +436,66 @@ if (Object.keys(groups).length > 0) {
   else if (!ids.has(arbiterId)) err("competition_runtime_unenforced", "corpus", `COMPETITION_ARBITRATION_MECHANISM_ID "${arbiterId}" does not correspond to any canonical journey`);
 }
 
+/* Operational Workflow gap-closure round: which journeys are on the
+   operational surface, computed the same way surface.ts's own surfaceOf()
+   derives it (mechanism, then sends, then customer-category+customer-entity,
+   then operational by elimination) - inlined here rather than imported
+   because this whole script parses src/canonical/*.ts as text and evals it,
+   never importing TypeScript directly. */
+const customerCategoriesSet = pickList("CUSTOMER_CATEGORIES");
+function operationalSurfaceOf(j) {
+  if (mechanismIds.has(j.id)) return false;
+  const sends = (j.channels ?? []).some((c) => MESSAGE_CHANNELS.has(c));
+  if (sends) return false;
+  if (customerCategoriesSet.has(j.category) && customerEntity.test(j.entity?.scope ?? "")) return false;
+  return true;
+}
+const operationalIds = new Set(all.filter(operationalSurfaceOf).map((j) => j.id));
+
+/* durable_work_without_idempotency: an Operational Workflow action that
+   durably records consequential state (writes append) and can plausibly be
+   replayed (reached from a trigger, an authoritative event, or a handoff -
+   all of which a company's own infrastructure can redeliver) declares no
+   idempotencyKey. Mirrors the customer-facing/mechanism rounds' own
+   state_write_without_idempotency check, scoped to the operational surface
+   instead. Warn, not error: unlike the 25 Runtime Mechanisms (closed, every
+   instance fixed before the check was widened to error there), the 124
+   Operational Workflows predate the entity.instanceKey/idempotencyKey
+   convention almost entirely - this round fixed the 11 P0-adjacent
+   instances, not all ~40 the audit found. Widening to error is future work
+   once the corpus is actually ready for it, the same phased approach the
+   Runtime Mechanism round itself used. */
+for (const j of all) {
+  if (!operationalIds.has(j.id)) continue;
+  for (const n of j.nodes) {
+    if (n.kind !== "action") continue;
+    const appends = (n.writes ?? []).filter((w) => w.mode === "append");
+    if (appends.length && !n.idempotencyKey) {
+      warn("durable_work_without_idempotency", j.id, `action "${n.id}" appends to ${appends.map((w) => w.field).join(", ")} and declares no idempotencyKey - a replayed trigger, event or handoff can duplicate the write`);
+    }
+  }
+}
+
+/* workflow_result_unconsumed: an Operational Workflow with zero corpus-wide
+   handoff consumers AND zero outbound handoffs of its own is fully isolated
+   - the exact shape this round's audit confirmed for its two genuine
+   orphan-candidates (REL-99, INT-120), as distinct from the ~35 correctly
+   event-driven workflows (zero inbound consumers but at least one real
+   outbound handoff, so the work they do reaches somewhere). Deliberately
+   narrow to avoid false-positiving on event-driven entry points, per the
+   round's own "zero consumers does not automatically mean orphaned"
+   instruction - this is a warning/review signal, not a claim of deletion. */
+const handoffTargets = new Map(); // targetId -> [senderIds]
+for (const j of all) for (const n of j.nodes) if (n.kind === "handoff" && ids.has(n.to)) (handoffTargets.get(n.to) ?? handoffTargets.set(n.to, []).get(n.to)).push(j.id);
+for (const j of all) {
+  if (!operationalIds.has(j.id)) continue;
+  const hasInbound = handoffTargets.has(j.id) && handoffTargets.get(j.id).length > 0;
+  const hasOutbound = j.nodes.some((n) => n.kind === "handoff");
+  if (!hasInbound && !hasOutbound) {
+    warn("workflow_result_unconsumed", j.id, "zero corpus-wide handoff consumers and zero outbound handoffs of its own - fully isolated; confirm this is a legitimate event-driven entry point with no downstream result to propagate, or a genuine orphan candidate (see CONSUMER-COVERAGE.md)");
+  }
+}
+
 /* Warnings on a vNext journey are not free: each one is either fixed or
    reviewed by a person and recorded in production/vnext-warning-reviews.json
    with a note. The summary counts the unreviewed ones; the migration is not

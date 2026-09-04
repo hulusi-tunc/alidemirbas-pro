@@ -1136,7 +1136,7 @@
       "category": "terminal",
       "surface": "operational",
       "sends": false,
-      "routesToHuman": false,
+      "routesToHuman": true,
       "silent": false,
       "reason": "no message channel and a system-side entity or category"
     },
@@ -2546,7 +2546,7 @@
       "category": "data",
       "surface": "operational",
       "sends": false,
-      "routesToHuman": false,
+      "routesToHuman": true,
       "silent": false,
       "reason": "no message channel and a system-side entity or category"
     },
@@ -2706,7 +2706,7 @@
       "category": "rollout",
       "surface": "operational",
       "sends": false,
-      "routesToHuman": false,
+      "routesToHuman": true,
       "silent": false,
       "reason": "no message channel and a system-side entity or category"
     },

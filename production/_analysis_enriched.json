@@ -1222,7 +1222,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "ACQ-10": {
@@ -1415,7 +1415,7 @@
    "multi-exit",
    "no-re-entry"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "ACQ-285": {
@@ -10470,9 +10470,9 @@
   "id": "OWN-56",
   "category": "ownership",
   "nodeCount": 12,
-  "edgeCount": 14,
+  "edgeCount": 15,
   "branchNodeCount": 2,
-  "branchEdgeCount": 5,
+  "branchEdgeCount": 6,
   "waitCount": 1,
   "exitCount": 2,
   "terminalExitCount": 0,
@@ -10480,8 +10480,8 @@
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 3,
   "backwardEdgeCount": 0,
-  "maxFanIn": 1,
-  "maxFanOut": 3,
+  "maxFanIn": 2,
+  "maxFanOut": 4,
   "maxDepth": 5,
   "hasBranches": true,
   "hasBackwardEdges": false,
@@ -10533,6 +10533,15 @@
    {
     "from": "c.outcome",
     "to": "a.approved",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "h.rejected",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -10621,7 +10630,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 40,
+  "complexityScore": 41,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "wait-timeout",
@@ -12525,7 +12534,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "TIM-68": {
@@ -15561,7 +15570,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": true
  },
  "IDN-82": {
@@ -16258,7 +16267,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "IDN-86": {
@@ -21077,7 +21086,7 @@
   "behaviors": [
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "INT-112": {
@@ -21361,7 +21370,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "INT-114": {
@@ -22471,7 +22480,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "INT-269": {
@@ -24427,7 +24436,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": true
  },
  "OPS-130": {
@@ -24869,7 +24878,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "FIN-132": {
@@ -26783,7 +26792,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "FUL-142": {
@@ -27559,7 +27568,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "FUL-146": {
@@ -30254,7 +30263,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "REM-158": {
@@ -30428,7 +30437,7 @@
    "cross-journey-handoff",
    "external-handoff"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "REM-159": {
@@ -31195,7 +31204,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": true
  },
  "SUB-163": {
@@ -32709,7 +32718,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "SUB-170": {
@@ -35843,19 +35852,19 @@
  "DEC-181": {
   "id": "DEC-181",
   "category": "decision",
-  "nodeCount": 20,
-  "edgeCount": 24,
+  "nodeCount": 22,
+  "edgeCount": 26,
   "branchNodeCount": 5,
-  "branchEdgeCount": 10,
+  "branchEdgeCount": 11,
   "waitCount": 1,
-  "exitCount": 2,
+  "exitCount": 3,
   "terminalExitCount": 0,
   "handoffCount": 3,
   "externalHandoffCount": 2,
   "crossJourneyHandoffCount": 1,
   "backwardEdgeCount": 1,
   "maxFanIn": 2,
-  "maxFanOut": 2,
+  "maxFanOut": 3,
   "maxDepth": 10,
   "hasBranches": true,
   "hasBackwardEdges": true,
@@ -36004,6 +36013,15 @@
     "isBackward": false
    },
    {
+    "from": "c.info",
+    "to": "a.return-to-referrer",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
     "from": "a.pending-info",
     "to": "w.info",
     "syntacticKind": "forward",
@@ -36025,6 +36043,15 @@
     "from": "w.info",
     "to": "a.lapse",
     "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.return-to-referrer",
+    "to": "x.returned",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -36085,7 +36112,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 71,
+  "complexityScore": 76,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "backward-edge",
@@ -36295,7 +36322,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": true
  },
  "DEC-183": {
@@ -45337,20 +45364,20 @@
  "DAT-228": {
   "id": "DAT-228",
   "category": "data",
-  "nodeCount": 14,
-  "edgeCount": 16,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 5,
+  "nodeCount": 17,
+  "edgeCount": 20,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 7,
   "waitCount": 1,
   "exitCount": 2,
   "terminalExitCount": 0,
-  "handoffCount": 2,
+  "handoffCount": 3,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 2,
+  "crossJourneyHandoffCount": 3,
   "backwardEdgeCount": 0,
   "maxFanIn": 2,
   "maxFanOut": 3,
-  "maxDepth": 8,
+  "maxDepth": 10,
   "hasBranches": true,
   "hasBackwardEdges": false,
   "hasWait": true,
@@ -45472,11 +45499,47 @@
    },
    {
     "from": "a.rollback",
-    "to": "x.rolled-back",
+    "to": "a.reconcile-preserved",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reconcile-preserved",
+    "to": "c.reconciled",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.reconciled",
+    "to": "x.rolled-back",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.reconciled",
+    "to": "h.decide-conflict",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.decide-conflict",
+    "to": "DEC-181",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
     "isBackward": false
    },
    {
@@ -45507,14 +45570,14 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 46,
+  "complexityScore": 58,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "wait-timeout",
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "complex",
   "hasTrueCycle": false
  },
  "DAT-229": {
@@ -46138,20 +46201,20 @@
  "CTL-232": {
   "id": "CTL-232",
   "category": "control",
-  "nodeCount": 12,
-  "edgeCount": 14,
-  "branchNodeCount": 4,
-  "branchEdgeCount": 8,
+  "nodeCount": 14,
+  "edgeCount": 17,
+  "branchNodeCount": 5,
+  "branchEdgeCount": 10,
   "waitCount": 0,
   "exitCount": 2,
   "terminalExitCount": 0,
   "handoffCount": 1,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 1,
-  "backwardEdgeCount": 1,
-  "maxFanIn": 3,
+  "backwardEdgeCount": 2,
+  "maxFanIn": 4,
   "maxFanOut": 2,
-  "maxDepth": 8,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": false,
@@ -46264,12 +46327,39 @@
    },
    {
     "from": "c.acceptance",
+    "to": "a.revalidate",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.revalidate",
+    "to": "c.revalidated",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.revalidated",
     "to": "h.execute",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": false
+   },
+   {
+    "from": "c.revalidated",
+    "to": "a.reject",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
    },
    {
     "from": "a.pending",
@@ -46290,14 +46380,14 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 47,
+  "complexityScore": 57,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "backward-edge",
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "complex",
   "hasTrueCycle": false
  },
  "CTL-233": {
@@ -46761,7 +46851,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "CTL-236": {
@@ -47564,7 +47654,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "simple",
   "hasTrueCycle": false
  },
  "RLT-243": {
@@ -50361,10 +50451,10 @@
  "INC-258": {
   "id": "INC-258",
   "category": "incident",
-  "nodeCount": 13,
-  "edgeCount": 16,
+  "nodeCount": 14,
+  "edgeCount": 18,
   "branchNodeCount": 4,
-  "branchEdgeCount": 8,
+  "branchEdgeCount": 9,
   "waitCount": 0,
   "exitCount": 1,
   "terminalExitCount": 0,
@@ -50372,8 +50462,8 @@
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 2,
   "backwardEdgeCount": 0,
-  "maxFanIn": 2,
-  "maxFanOut": 2,
+  "maxFanIn": 3,
+  "maxFanOut": 3,
   "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": false,
@@ -50432,6 +50522,15 @@
     "isBackward": false
    },
    {
+    "from": "c.mitigations",
+    "to": "a.no-mitigations",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
     "from": "a.remove",
     "to": "c.cases",
     "syntacticKind": "forward",
@@ -50442,6 +50541,15 @@
    },
    {
     "from": "a.formalize",
+    "to": "c.cases",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.no-mitigations",
     "to": "c.cases",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -50531,7 +50639,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 49,
+  "complexityScore": 52,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "cross-journey-handoff"
