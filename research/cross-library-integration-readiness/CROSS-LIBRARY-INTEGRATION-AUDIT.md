@@ -1,5 +1,87 @@
 # Cross-Library Integration Audit — do all 284 canonical items work correctly together?
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+The audit below (original content preserved unchanged) was followed immediately by a **repair
+round** that closed all 3 confirmed integration P0s directly in `src/canonical/*.ts`, repaired 3
+adjacent P1s, added 2 new cross-library validators, and regenerated the relationship graph and
+every downstream artifact from the corrected source. Full detail: `FIXES-APPLIED.md` (every
+repair's before/root cause/after/enforcement owner/tests/validator), `INTEGRATION-CANONICAL-
+CHANGES.md` (topology changes), `VALIDATOR-COVERAGE.md` (the 2 new validators).
+
+**Headline change: Integration P0 3 → 0.** Node count 3682 → **3690** (+8, all deliberate — see
+`INTEGRATION-CANONICAL-CHANGES.md`). Edge count 548 → **550** (+2 handoffs: `TRM-102→TRM-101`,
+`OPS-130→DEC-181`; 524 handoff / 22 competition / 4 preemption). P1 21 → **17** (4 fixed: `SUB-163`
+→`SUB-164` version binding, `RET-24`→`RET-30` episode identity, `TRM-102`→`TRM-101`'s dead end —
+its unmerge-absence remains correctly undone and documented, not invented — and `SUB-163`'s own
+internal `w.decision`/`c.decision` inconsistency). P2 18 → **17** (`commerce-recovery`'s touch-2
+ambiguity is resolved as a byproduct of the generic `CMS-205` fix). Total confirmed findings 42 →
+**34**, none forced to zero beyond the 3 P0s.
+
+**The 3 P0 fixes, in one line each:**
+1. **`account-restriction-authority`** (`ACC-78`/`IDN-90`) — `ACC-78` gained a local
+   `a.check-authority`/`c.authority-clear` gate that re-reads `IDN-90`'s live state before
+   releasing a suspension, routing to the existing `a.extend` instead of `h.restore` while a
+   higher-precedence investigation is still open.
+2. **`retention-outreach`** (6 members, the corpus's largest group) — a **generic** fix at `CMS-205`
+   (the corpus's own execution-time send-revalidation stage) makes the send-path's own long-declared-
+   but-never-implemented step 3 ("journey competition and precedence") real for every
+   `execution: "communication"` competition member corpus-wide, protecting `ACT-18`/`FBK-46`/
+   `RET-28`/`RET-30` without touching their own graphs; `RET-24`'s own `execution: "human"` action
+   got a matching local gate (`c.priority-clear`).
+3. **`OPS-130`'s `RECONCILIATION_REQUIRED`** — a new `a.reconcile`→`h.escalate` path wires the
+   signal to `DEC-181` (an *existing* canonical item — `DAT-222` and `OWN-55` were considered and
+   rejected as receivers; see `FIXES-APPLIED.md`'s own reasoning), the same generic decision-request
+   sink ~30 other Runtime Mechanisms and Operational Workflows already resolve through.
+
+**Competition adoption, corpus-wide (all 22 members reclassified):** 17 PROTECTED, 5 NOT_APPLICABLE
+(`IDN-90`, `ACQ-07`, `ACQ-08`, `ACT-12`, `SUB-167` — each structurally never defers or has nothing
+consequential of its own to protect), 0 PARTIALLY_PROTECTED, 0 UNPROTECTED. Full per-member table:
+`OWNERSHIP-AND-COMPETITION-INTEGRATION.md`'s own POST-REPAIR UPDATE.
+
+**New validators:** `competition_member_unenforced` (WARNING, 3 current findings, all reviewed as
+correct non-findings) and `runtime_arbiter_result_unconsumed` (ERROR, 0 findings — its design was
+verified against `OPS-130`'s exact pre-fix text to confirm it would have caught that shape).
+
+**New cycle:** exactly one, `TRM-101 ↔ TRM-102` (a direct consequence of closing the dead end named
+in this document's own original Finding 15) — classified SAFE/bounded, the same evidence-gated
+re-entry pattern already found safe throughout the corpus's other 16 SCCs. 17 SCCs total now, all
+SAFE. The `OPS-130→DEC-181` fix created **no** new cycle (confirmed by direct source check: `DEC-
+181`'s own resolution chain does not loop back into `OPS-130`/`OPS-121`/`OPS-124`).
+
+**Unchanged, confirmed by direct re-check against the repaired graph:** both true orphans (`REL-99`,
+`INT-120`) and all 7 boundary-classification candidates — neither of this round's 2 new edges
+touches any of them.
+
+**Remaining scope, deliberately not forced to zero:** 17 P1s (including `ACT-17`'s unregistered
+prose-only conflict, the `DEC-189`/`DEC-190`→`DEC-183` accept/claim gap, the rollout-domain result-
+return gap, `REM-157`'s 3-sender construction gap, business-closure-vs-entitlement fragmentation,
+`TRM-104`→`REL-100` authority-provenance loss, `DEC-181`'s own fan-in prose-only idempotency
+protection, `ACT-20`'s sibling-check gap, `outbound-ask`'s zero enforcement, `onLoss`'s never-reified
+values, the two pre-existing `DEC-187`/`DOC-212` findings, `SCH-17x→SCH-180`'s cross-sender dedup
+gap, `TRM-101`'s absent unmerge capability) and 17 P2s — every one reviewed this round for adjacency
+to the 3 P0s and left open where it genuinely was not adjacent, per the governing brief's own
+explicit scoping discipline.
+
+**Final validation:** `validate:canonical` (0 errors, 0 unreviewed, 284/3690/operational 124),
+`validate:journey-production` (30/30 PASS, baseline updated), `validate:seo` (PASS), `tsc --noEmit`
+(clean), `build` (clean), `lint` (1 pre-existing unrelated error, confirmed present before this
+round). Git diff for the full 2-round program (audit + repair) touches
+`research/cross-library-integration-readiness/` (research artifacts), `src/canonical/*.ts` (6 files:
+`access.ts`, `communication.ts`, `processing.ts`, `retention.ts`, `subscription.ts`, `terminal.ts`),
+`scripts/validate-canonical.mjs` (2 new validators), `production/vnext-warning-reviews.json` (3 new
+review entries), `production/validate-journey-production.mjs` (baseline update), `CLAUDE.md` (node
+count), and the generated `production/`/`search/` artifacts (regenerated, not hand-edited).
+
+The original audit content below (corpus confirmation, edge inventory, executive summary, Top 25
+findings, architecture assessment) is preserved unchanged as the historical record of what this
+round's audit found before repair; findings now fixed are not retroactively rewritten below, only
+cross-referenced above.
+
+---
+
+# Cross-Library Integration Audit — do all 284 canonical items work correctly together?
+
 **AUDIT ONLY.** This round did not modify anything under `src/`, `production/`, `scripts/`, `seo/`,
 `search/`, or any site UI. It is the fifth round in this production-readiness program and the first
 to treat the unit of analysis as the *relationship* between canonical items rather than any single
