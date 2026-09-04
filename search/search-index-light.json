@@ -10836,7 +10836,8 @@
     ],
     "tags": [
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -11295,7 +11296,8 @@
     "tags": [
       "cross-journey-handoff",
       "external-handoff",
-      "preemption"
+      "preemption",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -11724,7 +11726,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -11800,7 +11803,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -11876,7 +11880,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -12052,7 +12057,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "preemption"
+      "preemption",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -12349,7 +12355,8 @@
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -12462,6 +12469,7 @@
       "wait-timeout",
       "cross-journey-handoff",
       "multi-exit",
+      "competition",
       "no-re-entry"
     ],
     "language": "en+tr",
@@ -12897,7 +12905,7 @@
       "distinctFrom": [
         {
           "targetId": "journey:OPS-124",
-          "because": "OPS-124 is the generic retryable-failure and backoff mechanism. This decides what a communication failure means - whether the address is dead, whether another channel may carry this purpose, and whether the message is even still worth delivering. It uses that retry machinery rather than being it."
+          "because": "This mechanism owns its own complete channel-aware retry loop end to end - classification, relevance, budget, fallback - and does not invoke OPS-124's generic engine for it, because the classification a communication failure needs (TEMPORARY / PROVIDER_FAILURE / RATE_LIMITED / PERMANENT / INVALID_DESTINATION / CHANNEL_RESTRICTED) is channel-specific domain knowledge OPS-124 deliberately has no reason to carry. Where a communication-triggering action is separately wrapped in OPS-121's own generic asynchronous-work tracking (the enqueue/dispatch step itself, not the channel delivery), that tracking's own possible OPS-124 delegation is a distinct, outer concern from this mechanism's inner channel-recovery loop - the two do not share a budget and are not the same retry."
         }
       ]
     }
@@ -13514,6 +13522,10 @@
         {
           "targetId": "journey:CON-38",
           "because": "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed."
+        },
+        {
+          "targetId": "journey:CON-264",
+          "because": "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart."
         }
       ]
     }
@@ -15742,7 +15754,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -15796,7 +15809,8 @@
     "tags": [
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -15926,7 +15940,8 @@
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -17340,6 +17355,9 @@
     "journeyRelationRefs": {
       "handoffs": [
         {
+          "targetId": "journey:FUL-148"
+        },
+        {
           "targetId": "journey:FUL-149"
         }
       ],
@@ -17935,7 +17953,8 @@
     ],
     "tags": [
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -19729,6 +19748,62 @@
     "journeyRelationRefs": {
       "handoffs": [],
       "distinctFrom": []
+    }
+  },
+  {
+    "id": "journey:OPS-131",
+    "type": "journey",
+    "slug": "journey-competition-arbitration",
+    "url": "/lab/journeys/journey-competition-arbitration",
+    "urlTr": "/tr/lab/journeys/journey-competition-arbitration",
+    "external": false,
+    "title": "OPS-131 Two or more journeys eligible on one exclusion scope → arbitrate → establish one owner",
+    "summary": "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared exclusion group, and apply what happens to everyone who does not - GLB-01 through GLB-10 made executable rather than left as policy nobody runs.",
+    "keywords": [
+      "OPS-131"
+    ],
+    "category": [
+      "processing"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "eligibility-qualification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/journey-competition-arbitration",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:OPS-125",
+          "because": "OPS-125 resolves multiple claims to the SAME logical operation - the identity is one business action retried or duplicated, and its own instance key (logical_operation_key) never varies between claimants. This mechanism resolves a contest between DIFFERENT journeys, each with its own identity, each independently and legitimately eligible under its own canonical rules, over one shared scope instance under a declared exclusionGroup. Deduplication asks whether two claims are the same thing said twice; this mechanism asks which of two genuinely different things gets to happen."
+        },
+        {
+          "targetId": "journey:OPS-128",
+          "because": "OPS-128 transfers a work item's execution ownership between workers when one becomes unavailable - an infrastructure-layer concern with no business precedence involved and no losing side, only a successor. This mechanism establishes which journey owns a contested business scope: the contenders are canonical journeys, not workers, and the winner is chosen by declared business precedence (GLB-02), not by which worker's heartbeat survived."
+        }
+      ]
     }
   },
   {
@@ -21645,7 +21720,8 @@
     ],
     "tags": [
       "cross-journey-handoff",
-      "external-handoff"
+      "external-handoff",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -21819,7 +21895,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -21930,7 +22007,8 @@
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -21998,7 +22076,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -22059,7 +22138,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -24062,7 +24142,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -24231,7 +24312,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -26960,11 +27042,11 @@
     "urlTr": "/tr/lab/journeys",
     "external": false,
     "title": "Canonical Journey Library",
-    "summary": "283 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
+    "summary": "284 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
     "keywords": [
       "CRM",
       "Lifecycle Marketing",
-      "283 journeys",
+      "284 journeys",
       "26 categories"
     ],
     "category": [],
@@ -26980,7 +27062,7 @@
     "tags": [
       "CRM",
       "Lifecycle Marketing",
-      "283 journeys",
+      "284 journeys",
       "26 categories"
     ],
     "language": "en+tr",

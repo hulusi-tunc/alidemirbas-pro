@@ -1222,7 +1222,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "ACQ-10": {
@@ -1415,7 +1415,7 @@
    "multi-exit",
    "no-re-entry"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "ACQ-285": {
@@ -12525,7 +12525,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "TIM-68": {
@@ -14535,7 +14535,7 @@
   "hasMultipleExits": false,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -14696,7 +14696,8 @@
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "wait-timeout",
-   "cross-journey-handoff"
+   "cross-journey-handoff",
+   "competition"
   ],
   "complexityTier": "medium",
   "hasTrueCycle": false
@@ -16257,7 +16258,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "IDN-86": {
@@ -16907,7 +16908,7 @@
   "hasMultipleExits": false,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -17068,7 +17069,8 @@
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "wait-timeout",
-   "cross-journey-handoff"
+   "cross-journey-handoff",
+   "competition"
   ],
   "complexityTier": "medium",
   "hasTrueCycle": false
@@ -21075,7 +21077,7 @@
   "behaviors": [
    "multi-exit"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "INT-112": {
@@ -21359,7 +21361,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "INT-114": {
@@ -22469,7 +22471,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "INT-269": {
@@ -24425,7 +24427,7 @@
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": true
  },
  "OPS-130": {
@@ -24565,6 +24567,153 @@
   ],
   "complexityTier": "simple",
   "hasTrueCycle": false
+ },
+ "OPS-131": {
+  "id": "OPS-131",
+  "category": "processing",
+  "nodeCount": 10,
+  "edgeCount": 12,
+  "branchNodeCount": 2,
+  "branchEdgeCount": 4,
+  "waitCount": 1,
+  "exitCount": 1,
+  "terminalExitCount": 0,
+  "handoffCount": 1,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 1,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 2,
+  "maxFanOut": 2,
+  "maxDepth": 7,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": true,
+  "hasMultipleExits": false,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": false,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.contended",
+    "to": "a.load-contenders",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.load-contenders",
+    "to": "c.still-contested",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-contested",
+    "to": "x.no-contest",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-contested",
+    "to": "c.precedence",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.precedence",
+    "to": "a.claim",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.precedence",
+    "to": "h.escalate",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.escalate",
+    "to": "DEC-181",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
+    "from": "a.claim",
+    "to": "a.suppress-losers",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.suppress-losers",
+    "to": "w.ownership",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.ownership",
+    "to": "a.reevaluate",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.ownership",
+    "to": "a.reevaluate",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reevaluate",
+    "to": "c.still-contested",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   }
+  ],
+  "complexityScore": 37,
+  "primaryStructure": "mixed-termination",
+  "behaviors": [
+   "backward-edge",
+   "wait-timeout",
+   "cross-journey-handoff"
+  ],
+  "complexityTier": "simple",
+  "hasTrueCycle": true
  },
  "FIN-131": {
   "id": "FIN-131",
@@ -24720,7 +24869,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "FIN-132": {
@@ -26634,7 +26783,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "FUL-142": {
@@ -28465,15 +28614,15 @@
   "id": "FUL-265",
   "category": "fulfillment",
   "nodeCount": 16,
-  "edgeCount": 17,
+  "edgeCount": 18,
   "branchNodeCount": 3,
   "branchEdgeCount": 6,
   "waitCount": 2,
-  "exitCount": 4,
+  "exitCount": 3,
   "terminalExitCount": 2,
-  "handoffCount": 1,
+  "handoffCount": 2,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 1,
+  "crossJourneyHandoffCount": 2,
   "backwardEdgeCount": 0,
   "maxFanIn": 2,
   "maxFanOut": 2,
@@ -28550,6 +28699,15 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "x.unresolved",
+    "to": "FUL-148",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
     "isBackward": false
    },
    {
@@ -28643,7 +28801,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 53,
+  "complexityScore": 54,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "wait-timeout",
@@ -30270,7 +30428,7 @@
    "cross-journey-handoff",
    "external-handoff"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "REM-159": {
@@ -47406,7 +47564,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "simple",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "RLT-243": {

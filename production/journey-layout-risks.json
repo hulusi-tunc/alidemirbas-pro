@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 150,
+      "affectedCount": 151,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -90,7 +90,7 @@
     {
       "risk": "true-graph-cycles",
       "description": "A backward edge is not automatically a cycle - only 33 of the 125 backward-edge journeys form an actual cycle (a path that returns to its own source). These need a recursion/traversal guard in the layout algorithm itself; the other 92 are simple back-references and do not.",
-      "affectedCount": 36,
+      "affectedCount": 37,
       "threshold": "DFS-detected true cycle",
       "worst": [
         "ACQ-11",
@@ -109,7 +109,7 @@
     {
       "risk": "many-exits",
       "description": "Multiple named terminal states from one journey. A layout with one exit slot at the bottom fails for these.",
-      "affectedCount": 30,
+      "affectedCount": 29,
       "threshold": ">=4 exits",
       "worst": [
         [

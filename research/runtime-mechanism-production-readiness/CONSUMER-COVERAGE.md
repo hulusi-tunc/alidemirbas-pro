@@ -27,9 +27,14 @@ investigated and classified, not left open.**
 
 **The possible-duplicate-mechanism finding (CMS-208/OPS-124) is resolved** — see the post-repair
 update in `RETRY-AND-FAILURE-AUDIT.md`. **The missing-runtime-primitive finding (conflict
-arbitration) is conclusively confirmed, not merely flagged** — see
-`COMPETITION-ARBITRATION-ARCHITECTURE.md`. **The rest of this document is the original audit-round
-text, kept for reference.**
+arbitration) is now closed, not merely confirmed** — `OPS-131` (Journey Competition Arbitration)
+exists as a 25th mechanism; see `COMPETITION-ARBITRATION-ARCHITECTURE.md` for the decision and
+design. Consequently, this document's own "24" scope and its zero-consumer count are both one
+short: `OPS-131` is itself a ninth zero-handoff-consumer mechanism, correctly so — it is entered by
+its own trigger event (`competing_journeys_became_simultaneously_eligible`), the same event-driven-
+entry-point shape as `CMS-201`/`CON-35`/`OPS-121`/`OPS-128`/`CON-34` below, not a defect. **The rest
+of this document is the original 24-mechanism audit-round text, kept for reference; add `OPS-131`
+to any count it states.**
 
 ## Method and its limits, stated up front (audit-round record)
 

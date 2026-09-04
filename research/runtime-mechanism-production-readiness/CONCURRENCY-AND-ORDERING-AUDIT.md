@@ -4,7 +4,27 @@ Duplicate workers, simultaneous journeys, stale queued work, race conditions, co
 ownership races, version changes, and causal ordering, across the 24. Companion to
 `RETRY-AND-FAILURE-AUDIT.md` and `RUNTIME-MECHANISMS-AUDIT.md`'s Part 14 finding.
 
-## POST-REPAIR UPDATE
+## POST-REPAIR UPDATE (round 2 — competition arbitration resolved)
+
+**The conflict-arbitration P0 this section's first update reported is now closed, not merely
+re-confirmed.** `OPS-131` (Journey Competition Arbitration) was added to the corpus — a 25th
+Runtime Mechanism, `src/canonical/processing.ts`, registered in `MECHANISM_IDS` and exported by id
+as `surface.ts`'s `COMPETITION_ARBITRATION_MECHANISM_ID`. Re-deriving the competition-group count
+from current source (rather than trusting the first update's own number) found **7 groups / 22
+members**, not 3 groups / 7 — the first investigation grepped only the plain top-level `competition`
+field and missed every `contact.competition` declaration (the nested form vNext communicating
+journeys use for the identical field). `OPS-131`'s own atomicity is `CMS-201`'s own fix pattern
+applied one level up: `a.claim` is atomic create-if-absent on `(exclusion_group, scope_instance_id)`
+— exactly the compare-and-set primitive this document's own table below lists as "needed, not
+present" for `CMS-201`, now also the primitive `OPS-131` itself uses for its own claim. Full
+design, the corrected 7-group re-derivation, and why the two other ownership options (extend an
+existing mechanism; name a non-canonical owner) were rejected with evidence is in
+`COMPETITION-ARBITRATION-ARCHITECTURE.md` — updated to record the decision, not only the
+investigation. Corpus totals changed accordingly: 24 → 25 mechanisms, 283 → 284 journeys, 3664 →
+3674 nodes. **The rest of this document, including its own first POST-REPAIR UPDATE below, is kept
+as the historical record of the round that found and investigated the gap this round closed.**
+
+## POST-REPAIR UPDATE (round 1)
 
 **The one confirmed race (CMS-201) is fixed.** `a.create` is now atomic create-if-absent on
 `(recipient_id, obligation_subject)` — `entity.instanceKey: [recipient_id, obligation_subject]`,

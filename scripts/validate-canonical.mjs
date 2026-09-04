@@ -326,7 +326,7 @@ for (const j of all) {
     err("competition_incomplete", j.id, "competition needs scope, exclusionGroup, precedence and onLoss");
   if (!["suppressed", "paused", "superseded", "exit"].includes(onLoss))
     err("competition_onloss", j.id, `onLoss "${onLoss}" is not a defined losing state`);
-  (groups[exclusionGroup] ??= []).push({ id: j.id, scope });
+  (groups[exclusionGroup] ??= []).push({ id: j.id, scope, precedence });
 }
 for (const [g, members] of Object.entries(groups)) {
   if (members.length < 2)
@@ -402,7 +402,39 @@ const pickList = (name) => new Set([...surfaceSrc.match(new RegExp(`export const
 const customerEntity = new RegExp(surfaceSrc.match(/CUSTOMER_ENTITY = \/(.*)\/i;/)[1], "i");
 let surfaceFile = null;
 try { surfaceFile = JSON.parse(await readFile("production/surface-assignment.json", "utf8")); } catch { warn("surface_file_missing", "corpus", "production/surface-assignment.json not found - run scripts/surface-assignment.mjs"); }
-const vnextStats = checkVnext({ all, registry, surfaceFile, mechanismIds: pickList("MECHANISM_IDS"), customerCategories: pickList("CUSTOMER_CATEGORIES"), customerEntity, err, warn });
+const mechanismIds = pickList("MECHANISM_IDS");
+const vnextStats = checkVnext({ all, registry, surfaceFile, mechanismIds, customerCategories: pickList("CUSTOMER_CATEGORIES"), customerEntity, err, warn });
+
+/* A precedence string exists to separate two contenders. If the exact same
+   precedence text appears twice within one live group, the ordering does not
+   actually distinguish them - most likely a copy-paste, not a genuine
+   declared tie (compare FBK-41/FBK-42, whose real tie is resolved by each
+   naming the OTHER by id, in different text, not by sharing one string).
+   Warn rather than error: a near-identical precedence pair is architecture
+   judgment about whether it's actually ambiguous, not a mechanical proof. */
+for (const [g, members] of Object.entries(groups)) {
+  const byPrecedence = {};
+  for (const m of members) (byPrecedence[m.precedence] ??= []).push(m.id);
+  for (const mids of Object.values(byPrecedence)) {
+    if (mids.length > 1)
+      warn("competition_duplicate_precedence", g, `${mids.join(", ")} declare the exact same precedence text - an ordering that does not actually distinguish them`);
+  }
+}
+
+/* Every exclusion group with a real contest (2+ members) needs a runtime
+   component that actually reads competition/exclusionGroup/precedence and
+   establishes one owner - GLB-01..GLB-10 declared as policy is not the same
+   as GLB-01..GLB-10 enforced. OPS-131 (surface.ts's own
+   COMPETITION_ARBITRATION_MECHANISM_ID) is that component, added in the
+   competition-arbitration repair round; this check exists so a future edit
+   that removes it without a replacement is caught immediately rather than
+   silently reopening the architectural P0 this round closed. */
+if (Object.keys(groups).length > 0) {
+  const arbiterId = surfaceSrc.match(/COMPETITION_ARBITRATION_MECHANISM_ID = "([^"]+)"/)?.[1];
+  if (!arbiterId) err("competition_runtime_unenforced", "corpus", "structured competition groups exist but no COMPETITION_ARBITRATION_MECHANISM_ID is declared in surface.ts");
+  else if (!mechanismIds.has(arbiterId)) err("competition_runtime_unenforced", "corpus", `COMPETITION_ARBITRATION_MECHANISM_ID "${arbiterId}" is declared but is not itself in MECHANISM_IDS`);
+  else if (!ids.has(arbiterId)) err("competition_runtime_unenforced", "corpus", `COMPETITION_ARBITRATION_MECHANISM_ID "${arbiterId}" does not correspond to any canonical journey`);
+}
 
 /* Warnings on a vNext journey are not free: each one is either fixed or
    reviewed by a person and recorded in production/vnext-warning-reviews.json

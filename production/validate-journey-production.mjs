@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 283", journeys.length === 283);
+check(1, "active journey count = 284", journeys.length === 284);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -248,15 +248,15 @@ const requiredGraphFixtures = ["SUB-166", "DOC-216", "RSK-194", "ACQ-10", "RET-2
 const missingGraphFixtures = requiredGraphFixtures.filter((i) => !fixtureIds.has(i));
 check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 
-// 29 — production manifest covers all 283
-check(29, "production manifest covers all 283", manifest.length === 283);
+// 29 — production manifest covers all 284
+check(29, "production manifest covers all 284", manifest.length === 284);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
 check(
   30,
-  "canonical source mutation = 0 (283 journeys / 3664 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 283 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3664 &&
+  "canonical source mutation = 0 (284 journeys / 3674 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 284 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3674 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

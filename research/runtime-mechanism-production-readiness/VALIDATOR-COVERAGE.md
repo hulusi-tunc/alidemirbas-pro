@@ -1,6 +1,26 @@
 # Runtime Mechanism Validator Coverage
 
-Documents the validator changes made in this repair round: one existing validator's severity
+Covers validators added across **two** repair rounds. Round 1's own table (below, marked
+accordingly) is unchanged. This section documents round 2's two new validators, both in
+`scripts/validate-canonical.mjs` (not `vnext-rules.mjs` — they check corpus-wide competition-group
+structure, alongside the existing `competition_incomplete`/`competition_group_of_one`/
+`competition_scope_split`/`competition_onloss` checks, rather than a per-mechanism rule).
+
+| Validator | Severity | Scope | Defect class | Example fixture | False-positive considerations | Production command |
+|---|---|---|---|---|---|---|
+| `competition_duplicate_precedence` (new) | warn | Every declared exclusion group (corpus-wide, not mechanism-scoped) | Two or more members of the same live group (2+ members) declare the exact same `precedence` text — an ordering that does not actually distinguish them | A hypothetical group where two members both wrote `"lowest in the group"` verbatim instead of each stating their own relative rank | Deliberately structural (exact string equality within a group), not a semantic-similarity heuristic — a near-identical but not identical precedence text (e.g. `FBK-41`/`FBK-42`, which name each other in different words) does not false-positive. Kept at warn because two members *could* legitimately share identical precedence text if a future group's own policy genuinely treats them as interchangeable — that judgment is architecture, not a mechanical proof of ambiguity | `node scripts/validate-canonical.mjs` (0 current findings across all 7 groups is the reviewed baseline) |
+| `competition_runtime_unenforced` (new) | **error** | Corpus-wide (fires once, not per-mechanism) | Structured competition groups exist (`Object.keys(groups).length > 0`) but `surface.ts`'s `COMPETITION_ARBITRATION_MECHANISM_ID` is undeclared, does not resolve to an id in `MECHANISM_IDS`, or does not correspond to a real canonical journey | Deleting `OPS-131`'s own journey object from `processing.ts`, or removing `MECHANISM_IDS`'s `"OPS-131"` entry, while any of the 7 competition groups still exist | Held at error deliberately, unlike every other validator this round or the prior one added: this is the one check whose entire purpose is guaranteeing the architectural P0 this round closed cannot silently reopen through a future edit. A false positive is structurally impossible while `OPS-131` exists and is registered — the check is three simple existence/membership lookups against parsed source, not a heuristic | `npm run validate:canonical` (`0 errors` confirms `OPS-131` is present and registered) |
+
+**Verification performed (round 2):** `npm run validate:canonical` reports `0 errors` on current
+source with both new validators active, confirming zero duplicate-precedence findings across the 7
+real groups and that `COMPETITION_ARBITRATION_MECHANISM_ID` correctly resolves to `OPS-131`.
+Temporarily reverting `surface.ts`'s `MECHANISM_IDS` entry for `OPS-131` during development
+reproduced the intended `competition_runtime_unenforced` error before the entry was restored,
+confirming the check actually fires rather than being vacuously true.
+
+**The rest of this document (below) is round 1's own record, unchanged.**
+
+Documents the validator changes made in the first repair round: one existing validator's severity
 widened, two new validators added — all in `scripts/vnext-rules.mjs`, all scoped to
 `isMechanism = surf.surface === "mechanism"` (checked directly against `MECHANISM_IDS`, the same
 way the corpus's customer-facing validators check `isCustomer`/`silentInScope` — not inferred from

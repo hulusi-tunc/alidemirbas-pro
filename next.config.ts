@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
      they have not checked what the old URL was:
 
        /lab/crm-journeys  "CRM Journey Archive"  ->  the Canonical Journey
-                          Library, the same archive rebuilt (283 journeys)
+                          Library, the same archive rebuilt (284 journeys)
        /content           "Insights", the LinkedIn post archive  ->  /blog,
                           the writing section that replaced it
 

@@ -13767,7 +13767,7 @@
   "hasMultipleExits": false,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -16014,7 +16014,7 @@
   "hasMultipleExits": false,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -23259,6 +23259,144 @@
   ]
  },
  {
+  "id": "OPS-131",
+  "category": "processing",
+  "nodeCount": 10,
+  "edgeCount": 12,
+  "branchNodeCount": 2,
+  "branchEdgeCount": 4,
+  "waitCount": 1,
+  "exitCount": 1,
+  "terminalExitCount": 0,
+  "handoffCount": 1,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 1,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 2,
+  "maxFanOut": 2,
+  "maxDepth": 7,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": true,
+  "hasMultipleExits": false,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": false,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.contended",
+    "to": "a.load-contenders",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.load-contenders",
+    "to": "c.still-contested",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-contested",
+    "to": "x.no-contest",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-contested",
+    "to": "c.precedence",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.precedence",
+    "to": "a.claim",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.precedence",
+    "to": "h.escalate",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.escalate",
+    "to": "DEC-181",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
+    "from": "a.claim",
+    "to": "a.suppress-losers",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.suppress-losers",
+    "to": "w.ownership",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.ownership",
+    "to": "a.reevaluate",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.ownership",
+    "to": "a.reevaluate",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reevaluate",
+    "to": "c.still-contested",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   }
+  ]
+ },
+ {
   "id": "FIN-131",
   "category": "financial",
   "nodeCount": 11,
@@ -26976,15 +27114,15 @@
   "id": "FUL-265",
   "category": "fulfillment",
   "nodeCount": 16,
-  "edgeCount": 17,
+  "edgeCount": 18,
   "branchNodeCount": 3,
   "branchEdgeCount": 6,
   "waitCount": 2,
-  "exitCount": 4,
+  "exitCount": 3,
   "terminalExitCount": 2,
-  "handoffCount": 1,
+  "handoffCount": 2,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 1,
+  "crossJourneyHandoffCount": 2,
   "backwardEdgeCount": 0,
   "maxFanIn": 2,
   "maxFanOut": 2,
@@ -27061,6 +27199,15 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "x.unresolved",
+    "to": "FUL-148",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
     "isBackward": false
    },
    {

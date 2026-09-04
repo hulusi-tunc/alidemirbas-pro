@@ -6,7 +6,7 @@
     "values": [
       {
         "value": "journey",
-        "documentCount": 283,
+        "documentCount": 284,
         "lowUtility": false
       },
       {
@@ -174,7 +174,7 @@
     "values": [
       {
         "value": "cross-lifecycle",
-        "documentCount": 238,
+        "documentCount": 239,
         "lowUtility": false
       },
       {
@@ -230,7 +230,7 @@
       },
       {
         "value": "eligibility-qualification",
-        "documentCount": 22,
+        "documentCount": 23,
         "lowUtility": false
       },
       {
@@ -2694,12 +2694,12 @@
     "values": [
       {
         "value": "cross-journey-handoff",
-        "documentCount": 240,
+        "documentCount": 241,
         "lowUtility": false
       },
       {
         "value": "wait-timeout",
-        "documentCount": 177,
+        "documentCount": 178,
         "lowUtility": false
       },
       {
@@ -2709,7 +2709,7 @@
       },
       {
         "value": "backward-edge",
-        "documentCount": 150,
+        "documentCount": 151,
         "lowUtility": false
       },
       {
@@ -2718,13 +2718,13 @@
         "lowUtility": false
       },
       {
-        "value": "no-re-entry",
-        "documentCount": 13,
+        "value": "competition",
+        "documentCount": 22,
         "lowUtility": false
       },
       {
-        "value": "competition",
-        "documentCount": 3,
+        "value": "no-re-entry",
+        "documentCount": 13,
         "lowUtility": false
       },
       {

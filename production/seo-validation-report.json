@@ -1,9 +1,9 @@
 {
   "totals": {
     "abPages": 211,
-    "journeyPages": 283,
-    "total": 494,
-    "expected": 494
+    "journeyPages": 284,
+    "total": 495,
+    "expected": 495
   },
   "counts": {
     "errors": 0,
@@ -212,6 +212,10 @@
     },
     {
       "id": "INT-278",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "OPS-131",
       "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
     },
     {

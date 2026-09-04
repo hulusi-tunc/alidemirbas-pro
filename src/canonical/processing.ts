@@ -1816,4 +1816,164 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "Technical processing is complete only at the infrastructure layer; business completion requires confirmation of the state the work was intended to create.",
   },
+
+  /* ------------------------------------------------------------ OPS-131 */
+  {
+    id: "OPS-131",
+    slug: "journey-competition-arbitration",
+    category: "processing",
+    goal: "routing-assignment",
+    channels: [],
+    name: "Two or more journeys eligible on one exclusion scope → arbitrate → establish one owner",
+    shortName: "Journey Competition Arbitration",
+    purpose:
+      "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared exclusion group, and apply what happens to everyone who does not - GLB-01 through GLB-10 made executable rather than left as policy nobody runs.",
+    entity: {
+      scope: "the exclusion group and the specific scope instance being contested, and the journey instances currently eligible for it",
+      note: "scope_instance_id is not a new canonical concept - it is whatever identifier the contending journeys' own declared CompetitionScope already names for one instance (an account id for scope \"account\", a product id for \"product\", a subscription id for \"subscription\", a person id for \"person\", a communication-purpose id for \"communication-purpose\"), read directly off each contender's own entity rather than duplicated into a second, mechanism-specific identifier. GLB-01's own key is exactly this pair: two journeys sharing only the exclusion group name are not yet competing; sharing the group and the same scope_instance_id, they are. GLB-08 is this key's mirror at the other end - a contest resolved on one instance constrains only that instance. This mechanism reads a contender's own declared precedence and onLoss text directly; it does not copy either into a separate runtime-specific configuration, so the two can never drift apart.",
+      instanceKey: ["exclusion_group", "scope_instance_id"],
+      concurrency: "one-active-per-key",
+    },
+    distinctFrom: [
+      {
+        journey: "OPS-125",
+        because:
+          "OPS-125 resolves multiple claims to the SAME logical operation - the identity is one business action retried or duplicated, and its own instance key (logical_operation_key) never varies between claimants. This mechanism resolves a contest between DIFFERENT journeys, each with its own identity, each independently and legitimately eligible under its own canonical rules, over one shared scope instance under a declared exclusionGroup. Deduplication asks whether two claims are the same thing said twice; this mechanism asks which of two genuinely different things gets to happen.",
+      },
+      {
+        journey: "OPS-128",
+        because:
+          "OPS-128 transfers a work item's execution ownership between workers when one becomes unavailable - an infrastructure-layer concern with no business precedence involved and no losing side, only a successor. This mechanism establishes which journey owns a contested business scope: the contenders are canonical journeys, not workers, and the winner is chosen by declared business precedence (GLB-02), not by which worker's heartbeat survived.",
+      },
+    ],
+    entry: "t.contended",
+    nodes: [
+      {
+        id: "t.contended",
+        kind: "trigger",
+        event: "competing_journeys_became_simultaneously_eligible",
+        evidence: {
+          requires: [
+            "at least two journey instances, each independently eligible under its own canonical eligibility rules",
+            "each declaring the same exclusionGroup - as a top-level competition field or as contact.competition on a vNext communicating journey - and the same CompetitionScope",
+            "the same concrete scope_instance_id, not merely the same scope type (GLB-01)",
+          ],
+          insufficientAlone: [
+            "two journeys sharing an exclusionGroup name on two different scope instances - GLB-01 is explicit that the scope instance, not the scope type, is the key, and unrelated instances run in parallel",
+            "one journey being eligible while no other member of its declared exclusionGroup currently is - a contest needs another side (competition_group_of_one)",
+          ],
+          source: "authoritative",
+        },
+        next: "a.load-contenders",
+      },
+      {
+        id: "a.load-contenders",
+        kind: "action",
+        does: "Load every journey instance currently declared eligible for this (exclusion_group, scope_instance_id) pair, re-reading each one's own current eligibility from authoritative state rather than trusting whatever was true at the moment this trigger fired - eligibility can have changed in the time it took to reach this action, and a contender that has already exited is not a real contender",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "c.still-contested",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.load-contenders",
+      },
+      {
+        id: "c.still-contested",
+        kind: "condition",
+        asks: "After re-reading current eligibility, do at least two contenders remain?",
+        branches: [
+          {
+            label: "Fewer than two remain",
+            when: "eligibility changed since the trigger and at most one contender is still genuinely eligible for this scope instance",
+            to: "x.no-contest",
+          },
+          {
+            label: "Two or more remain",
+            when: "at least two independently-eligible contenders still declare the same exclusion_group and scope_instance_id",
+            to: "c.precedence",
+          },
+        ],
+      },
+      {
+        id: "x.no-contest",
+        kind: "exit",
+        state: "no arbitration required - the contest resolved itself before a winner had to be chosen, because eligibility changed out from under it",
+        terminal: false,
+        reEntry: "a fresh trigger with its own freshly re-read contenders is a new arbitration, not a continuation of this one",
+      },
+      {
+        id: "c.precedence",
+        kind: "condition",
+        asks: "Does declared policy precedence separate the remaining contenders into exactly one highest-ranked contender?",
+        branches: [
+          {
+            label: "Strict order exists",
+            when: "each remaining contender's own declared precedence text - or one of the two discriminators GLB-02 permits beyond stated policy, an authoritative fresh event over a stale inferred state, or an active valid ownership over a merely-eligible contender - yields exactly one highest-ranked contender",
+            to: "a.claim",
+          },
+          {
+            label: "Genuine tie",
+            when: "declared policy leaves two or more remaining contenders at equal standing and neither GLB-02 discriminator applies",
+            to: "h.escalate",
+          },
+        ],
+      },
+      {
+        id: "h.escalate",
+        kind: "handoff",
+        to: "DEC-181",
+        on: "a competition whose remaining contenders have no policy-resolvable precedence between them",
+        carries: [
+          "the exclusion_group and scope_instance_id in contest",
+          "every remaining contender, its own declared precedence text, and why none discriminates the others",
+        ],
+        contract: { requiredFields: ["exclusion_group", "scope_instance_id"] },
+      },
+      {
+        id: "a.claim",
+        kind: "action",
+        does: "Atomically claim ownership of (exclusion_group, scope_instance_id) for the highest-ranked contender: if no owner is currently established, establish this one; if a concurrent evaluation already established an owner for the same identity between c.precedence's read and this action, return that existing owner rather than establishing a second one. This is the same at-most-one-canonical-outcome guarantee CMS-201's own obligation creation uses, applied to ownership of a contested scope instead of to an obligation - exactly one claim ever succeeds for one identity, and the loser of the race receives the authoritative winner rather than an error",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "a.suppress-losers",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.claim",
+      },
+      {
+        id: "a.suppress-losers",
+        kind: "action",
+        does: "Apply every non-winning contender's own declared onLoss - suppressed, paused, superseded or exit, never invented or defaulted - and invalidate whatever that contender already had queued for execution before it can fire: a losing contender's queued message or action does not get to run merely because it was queued before it lost (GLB-07)",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "w.ownership",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.suppress-losers",
+      },
+      {
+        id: "w.ownership",
+        kind: "wait",
+        until: ["the winning contender resolves, expires, fails, or otherwise becomes ineligible for this scope instance"],
+        onEvent: "a.reevaluate",
+        timeout: {
+          after: "a bounded check-in interval, where the winning contender's own governing policy states a maximum plausible ownership duration; otherwise no timeout-driven check is owed beyond the release event itself",
+          reason: "an owner that never explicitly reports release is not assumed to hold the scope forever on the strength of one earlier claim - a bounded check-in re-confirms current, authoritative ownership rather than resting on a record of having won once",
+        },
+        onTimeout: "a.reevaluate",
+        recheck: "the winning contender's own current eligibility and state, and whether any contender - including one this mechanism previously suppressed - is now independently eligible for the same (exclusion_group, scope_instance_id)",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.reevaluate",
+        kind: "action",
+        does: "Re-run arbitration for (exclusion_group, scope_instance_id) from current authoritative state rather than from the standing anyone held when they last won or lost (GLB-06). A previously-suppressed contender is never simply resumed from where it stopped (GLB-10) - it re-enters exactly as a new contender would, evaluated against current eligibility, intent, entity state, permission, cooldown and destination completion, the same list GLB-06 itself names",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "c.still-contested",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.reevaluate",
+      },
+    ],
+    guardrails: [
+      "Two journeys sharing an exclusionGroup name are not in competition unless they also share the same scope instance (GLB-01).",
+      "The winner is never selected by arrival order, worker scheduling, or which evaluation happened to run first - only by declared policy precedence, or by one of the two discriminators GLB-02 names explicitly.",
+      "Concurrent evaluation of the same (exclusion_group, scope_instance_id) yields at most one canonical owner - a losing concurrent claim resolves to the already-established owner rather than erroring or duplicating.",
+      "A losing contender's own onLoss value decides what happens to it - suppressed, paused, superseded and exit are different outcomes for different reasons, and collapsing them loses that difference (GLB-05).",
+      "A contest resolved on one scope instance constrains only that instance - winning ownership of one account, product or subscription never suppresses a journey about a different one (GLB-08).",
+      "Suppression ending is not the losing journey resuming from where it stopped - re-entry is recomputed from current state (GLB-10).",
+      "Work already queued by a contender that has since lost ownership is invalidated before it executes, not merely marked lost after the fact (GLB-07).",
+    ],
+    reusableRule:
+      "GLB-01 through GLB-10 - the corpus's own declared rules for journey competition and ownership resolution - made executable: load current contenders, apply declared precedence deterministically, establish exactly one winner atomically, apply each loser's own declared consequence, and re-evaluate from current state whenever the winner releases the scope, rather than leaving these ten rules as policy no runtime component actually runs.",
+  },
 ];

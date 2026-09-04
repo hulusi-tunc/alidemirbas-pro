@@ -7,9 +7,9 @@ AUDIT-ONLY round — no `src/canonical/*.ts` file, validator, or production file
 produce this table; "Runtime change?" records what the mechanism's own graph would need in a
 future repair round, not anything already done.
 
-Totals: 24 mechanisms — READY 4, READY_WITH_MAPPING 20,
+Totals: 25 mechanisms — READY 4, READY_WITH_MAPPING 21,
 NEEDS_CONTRACT_WORK 0, NEEDS_RUNTIME_CHANGE 0. P0 0, P1 0, P2
-5, total findings 5.
+7, total findings 7.
 
 | Mechanism | Responsibility | Readiness | P0 | P1 | Side-effect class | Main gap | Runtime change? |
 |---|---|---|---|---|---|---|---|
@@ -19,6 +19,7 @@ NEEDS_CONTRACT_WORK 0, NEEDS_RUNTIME_CHANGE 0. P0 0, P1 0, P2
 | CMS-204 (Channel Routing) | Pick the smallest channel set that satisfies the obligation and prepare the message insta… | READY_WITH_MAPPING | 0 | 0 | writes-internal-state | none found | No |
 | CMS-205 (Send Eligibility Check) | Re-check the message is still true immediately before it is submitted, and stop or regene… | READY | 0 | 0 | writes-internal-state | none found | No |
 | CMS-206 (Send Attempt Status) | Record the handover to a provider - accepted, refused, or unknown - as a fact about the p… | READY_WITH_MAPPING | 0 | 0 | submits-to-provider | [unknown-outcome] A late provider acceptance/refusal arriving after w.acceptance's own timeout already routed to a.unknown is n… | No |
+| OPS-131 (Journey Competition Arbitration) | Decide, atomically and deterministically, which of several currently-eligible journeys ow… | READY_WITH_MAPPING | 0 | 0 | transfers-ownership | [consumer-coverage] This mechanism's own contract is complete, but none of the 22 current competition-group member journeys struc… | No |
 | CMS-207 (Delivery Outcome Reconciliation) | Derive real delivery state from what the channel reports, correlated to the exact attempt… | READY | 0 | 0 | writes-internal-state | none found | No |
 | CMS-208 (Message Delivery Recovery) | Classify a delivery failure by its real cause and respond with the smallest correct actio… | READY_WITH_MAPPING | 0 | 0 | submits-to-provider | none found | No |
 | CMS-210 (Communication Obligation Closure) | Close a communication obligation against the completion standard it actually requires - a… | READY_WITH_MAPPING | 0 | 0 | writes-internal-state | none found | No |

@@ -2,11 +2,11 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 283,
+    "journeys": 284,
     "customer": 135,
     "customer-silent": 67,
     "customer-communicating": 68,
-    "mechanism": 24,
+    "mechanism": 25,
     "operational": 124
   },
   "journeys": [
@@ -1453,6 +1453,16 @@
     {
       "id": "OPS-130",
       "shortName": "Business Outcome Verification",
+      "category": "processing",
+      "surface": "mechanism",
+      "sends": false,
+      "routesToHuman": false,
+      "silent": false,
+      "reason": "listed in MECHANISM_IDS - runtime machinery customer journeys depend on"
+    },
+    {
+      "id": "OPS-131",
+      "shortName": "Journey Competition Arbitration",
       "category": "processing",
       "surface": "mechanism",
       "sends": false,

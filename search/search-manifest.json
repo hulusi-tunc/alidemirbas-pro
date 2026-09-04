@@ -2,17 +2,17 @@
   "_description": "Reproducibility + payload manifest for search-index.json. sourceVersion identifies the generator commit context by describing WHAT was read, not a timestamp (this repo's own convention for deterministic build scripts avoids Date.now()).",
   "sourceVersion": {
     "abTestRecordCount": 211,
-    "journeyRecordCount": 283,
+    "journeyRecordCount": 284,
     "mergedJourneyCount": 8,
     "presetFoldedCount": 10,
     "liveCalculatorCount": 19,
     "labProductCount": 6,
     "blogArticleCount": 5
   },
-  "totalDocuments": 524,
+  "totalDocuments": 525,
   "countsByType": {
     "ab-test": 211,
-    "journey": 283,
+    "journey": 284,
     "calculator": 19,
     "lab-product": 6,
     "blog-article": 5
@@ -50,7 +50,7 @@
     "engagement-retention": 33,
     "acquisition-qualification": 67,
     "ending-closure": 15,
-    "cross-lifecycle": 238,
+    "cross-lifecycle": 239,
     "activation-onboarding": 9
   },
   "countsByMetric": {
@@ -511,12 +511,12 @@
   "sizeReport": {
     "rawSourceSizeBytes": {
       "src/data/ab-tests.json": 635240,
-      "production/journey-view-model.json": 3112117
+      "production/journey-view-model.json": 3139786
     },
-    "searchIndexSizeBytes": 1249627,
-    "searchIndexLightSizeBytes": 794075,
-    "averageDocumentSizeBytes": 1919,
-    "maxDocumentSizeBytes": 3767,
+    "searchIndexSizeBytes": 1254528,
+    "searchIndexLightSizeBytes": 798086,
+    "averageDocumentSizeBytes": 1924,
+    "maxDocumentSizeBytes": 3781,
     "minDocumentSizeBytes": 992
   }
 }

@@ -2172,7 +2172,12 @@
           "because": "Grace continues a right whose validity has ended. Suspension restricts a right that is still valid. One is continuity after an ending; the other is a hold before one."
         }
       ],
-      "competition": null,
+      "competition": {
+        "scope": "account",
+        "exclusionGroup": "account-restriction-authority",
+        "precedence": "lower than a suspected-compromise investigation (IDN-90) on the same account - an active security incident is the more urgent, safety-critical question, and a business-reason suspension defers to it rather than resolving independently while it is open",
+        "onLoss": "paused"
+      },
       "preemptedBy": []
     },
     "governance": {
@@ -2197,7 +2202,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 13,
       "edgeCount": 17,
       "branchNodeCount": 3,
@@ -2210,7 +2215,8 @@
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "wait-timeout",
-        "cross-journey-handoff"
+        "cross-journey-handoff",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 47
@@ -2388,7 +2394,7 @@
       ],
       "reusableRule": "Capability restoration should reconstruct access from current valid state rather than rewind the system to a historical snapshot.",
       "entityScope": "the person or account plus each capability being considered for restoration",
-      "entityNote": "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities."
+      "entityNote": "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities. restoration_case_id is minted by whichever journey initiates eligibility for restoration - a suspension ending, a balance reconciling, a security incident clearing - deterministically from that journey's own instance identity, and carried explicitly in its handoff's contract.requiredFields rather than assumed."
     },
     "derived": {
       "hasBranches": true,
@@ -4332,7 +4338,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": true,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 8,
       "edgeCount": 10,
       "branchNodeCount": 2,
@@ -4346,7 +4352,8 @@
       "behaviors": [
         "cross-journey-handoff",
         "external-handoff",
-        "preemption"
+        "preemption",
+        "competition"
       ],
       "complexityTier": "simple",
       "complexityScore": 30
@@ -5773,7 +5780,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -6093,7 +6100,7 @@
         "multi-exit",
         "no-re-entry"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -6754,7 +6761,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 26,
       "edgeCount": 45,
       "branchNodeCount": 8,
@@ -6769,7 +6776,8 @@
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "extreme",
       "complexityScore": 141
@@ -7317,7 +7325,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 22,
       "edgeCount": 35,
       "branchNodeCount": 7,
@@ -7332,7 +7340,8 @@
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "extreme",
       "complexityScore": 111
@@ -7646,7 +7655,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 13,
       "edgeCount": 16,
       "branchNodeCount": 3,
@@ -7660,7 +7669,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 55
@@ -8575,7 +8585,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": true,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 12,
       "edgeCount": 17,
       "branchNodeCount": 5,
@@ -8590,7 +8600,8 @@
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
-        "preemption"
+        "preemption",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 55
@@ -10170,7 +10181,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 10,
       "edgeCount": 12,
       "branchNodeCount": 1,
@@ -10185,7 +10196,8 @@
         "wait-timeout",
         "cross-journey-handoff",
         "external-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "simple",
       "complexityScore": 34
@@ -10804,7 +10816,7 @@
       "hasTerminalExit": true,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 15,
       "edgeCount": 17,
       "branchNodeCount": 3,
@@ -10819,6 +10831,7 @@
         "wait-timeout",
         "cross-journey-handoff",
         "multi-exit",
+        "competition",
         "no-re-entry"
       ],
       "complexityTier": "complex",
@@ -10890,7 +10903,7 @@
         {
           "id": "c.existing",
           "kind": "condition",
-          "headline": "Is an equivalent communication already outstanding for this recipient?",
+          "headline": "Is an equivalent communication already outstanding for this recipient, as far as a non-atomic read can tell?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -10914,7 +10927,7 @@
         {
           "id": "a.create",
           "kind": "action",
-          "headline": "Create the communication obligation with its purpose, its recipient, the outcome it requires and the window in which it stays relevant. The obligation is a separate entity from the event - communication rules describe what happened and never redefine it",
+          "headline": "Atomically create-if-absent the communication obligation keyed on (recipient_id, obligation_subject): if no obligation exists for that identity, create one with its purpose, its recipient, the outcome it requires and the window in which it stays relevant, minting obligation_id deterministically from (recipient_id, obligation_subject) so the same identity always resolves to the same obligation_id; if a concurrent caller already created one for the same identity between c.existing's read and this action, return that existing obligation - same obligation_id - instead of minting a second one. The obligation is a separate entity from the event - communication rules describe what happened and never redefine it. This is the mechanism's own at-most-one guarantee; c.existing's earlier read is an optimization, not a substitute for it",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -10975,8 +10988,8 @@
           "from": "c.existing",
           "to": "a.create",
           "family": "branch",
-          "label": "None, or it cannot be merged",
-          "when": "nothing outstanding covers it, or the two are genuinely different messages"
+          "label": "None visible yet, or it cannot be merged",
+          "when": "nothing outstanding covers it by this read, or the two are genuinely different messages - a.create is the authority that actually settles the identity, this branch only decides whether it is worth trying"
         },
         {
           "from": "a.reuse",
@@ -11039,12 +11052,13 @@
         "An event occurring is not a message being required.",
         "Communication rules never redefine business truth.",
         "Duplicate events do not create duplicate communication obligations.",
+        "Concurrent creation for the same (recipient_id, obligation_subject) yields at most one canonical obligation - a.create is atomic on that identity, and a losing concurrent caller resolves to the existing obligation rather than erroring or duplicating.",
         "A repeated attempt at the same obligation is bounded by the distinct approaches actually available to it. When those are exhausted, sustained non-engagement is a permission question rather than a reason for one more send.",
         "Delivery and engagement patterns may suggest different diagnostic hypotheses about why an attempt did not land - the envelope, the message, or the friction after it. They are hypotheses rather than facts: the rule they support is not to repeat the same intervention blindly, and communication telemetry is never treated as causal proof of any of them."
       ],
       "reusableRule": "Business events create communication only when an explicit communication requirement exists for the current recipient and state.",
       "entityScope": "the business event, the recipient it concerns, and the communication obligation it may create",
-      "entityNote": "The obligation is a separate entity from the event. It carries its own purpose, its own required outcome and its own relevance window."
+      "entityNote": "The obligation is a separate entity from the event. It carries its own purpose, its own required outcome and its own relevance window. recipient_id + obligation_subject is the obligation's own logical identity, established the moment eligibility is confirmed (c.required) - not invented for this note. a.create is the atomic authority for that identity: c.existing is a fast-path read that lets an obviously-duplicate event fold in without ever reaching a.create, but the actual at-most-one guarantee belongs to a.create itself, which resolves to the canonical obligation for (recipient_id, obligation_subject) whether that means creating it or discovering that a concurrent caller already did - two concurrent callers for the same identity settle on one obligation between them, never two."
     },
     "derived": {
       "hasBranches": true,
@@ -11904,7 +11918,7 @@
         {
           "id": "a.prepare",
           "kind": "action",
-          "headline": "Prepare the channel-compatible message instance, referencing the business facts rather than restating them independently. Channel selection never alters the facts - a truncated message says less than the full one, and it must not say something different",
+          "headline": "Prepare the channel-compatible message instance, referencing the business facts rather than restating them independently, and mint message_id deterministically from obligation_id - re-invoking preparation for the same obligation (a redelivered trigger, a retried call) resolves to the same message_id rather than a second prepared instance. Channel selection never alters the facts - a truncated message says less than the full one, and it must not say something different",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -12019,7 +12033,7 @@
       ],
       "reusableRule": "Communication routing selects the smallest valid set of channels capable of satisfying the communication obligation.",
       "entityScope": "the obligation and the permitted channels available to it",
-      "entityNote": "A fallback is a route held in reserve rather than a second send. Multi-channel delivery is a decision somebody makes, never a side effect of several channels being available."
+      "entityNote": "A fallback is a route held in reserve rather than a second send. Multi-channel delivery is a decision somebody makes, never a side effect of several channels being available. a.prepare mints message_id deterministically from obligation_id, so a redelivered t.permitted for the same obligation reuses it rather than minting a second prepared instance - the identity CMS-206 later persists an attempt against."
     },
     "derived": {
       "hasBranches": true,
@@ -12136,7 +12150,7 @@
         {
           "id": "a.send",
           "kind": "action",
-          "headline": "Record the message as validated at send time, with what was checked and against what version. Historical sent messages are never mutated afterwards - what was sent is what was sent, and rewriting it removes the evidence that a wrong thing went out",
+          "headline": "Record the message as validated at send time, with what was checked and against what version, and mint attempt_id for the submission this hands off to. This mechanism runs at most once per message_id - CMS-208's own recovery loop retries independently downstream rather than looping back through this mechanism - so a.send is idempotent on message_id: a redelivered t.ready reuses the attempt_id already minted rather than minting a second one and risking a duplicate provider submission. Historical sent messages are never mutated afterwards - what was sent is what was sent, and rewriting it removes the evidence that a wrong thing went out",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -12324,7 +12338,7 @@
       "trigger": "Message submitted to provider",
       "triggerEvidenceClass": "authoritative",
       "requires": [
-        "a validated message submitted to a delivery mechanism or provider"
+        "a validated message submitted to a delivery mechanism or provider, carrying a message_id and an attempt_id already minted by the caller"
       ],
       "insufficientAlone": []
     },
@@ -12341,7 +12355,7 @@
         {
           "id": "a.persist",
           "kind": "action",
-          "headline": "Persist the message id, the attempt id, the channel, the provider and its reference, the submission time and the content version reference. The attempt is written before its outcome is known, so an outcome arriving hours later has something to attach to",
+          "headline": "Persist the message id, the attempt id, the destination_id it was submitted to, the channel, the provider and its reference, the submission time and the content version reference. The attempt is written before its outcome is known, so an outcome arriving hours later has something to attach to. Both message_id and attempt_id arrive already minted - a redelivered call for the same (message_id, attempt_id) persists once, not twice - and destination_id is read off the submission itself, one attempt always targeting exactly one destination even on a coordinated multi-channel obligation",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -12560,7 +12574,7 @@
       ],
       "reusableRule": "Submitting a message establishes a delivery attempt, not proof that the recipient received it.",
       "entityScope": "the individual delivery attempt, with its provider reference",
-      "entityNote": "One attempt per submission. Outcomes arriving later correlate to a specific attempt, which is why the attempt is written before its outcome is known."
+      "entityNote": "One attempt per submission. Outcomes arriving later correlate to a specific attempt, which is why the attempt is written before its outcome is known. attempt_id is caller-supplied - minted by CMS-205's a.send before this mechanism ever runs, per attempt, never by this mechanism itself - specifically so a redelivered t.submitted for the same attempt_id can be told apart from a genuinely new attempt for the same message_id (a retry, minting its own fresh attempt_id upstream)."
     },
     "derived": {
       "hasBranches": true,
@@ -12904,7 +12918,7 @@
       ],
       "reusableRule": "Communication delivery state should be derived from authoritative channel evidence and correlated to the exact delivery attempt.",
       "entityScope": "the delivery attempt and the outcomes reported against it",
-      "entityNote": "Outcomes arrive out of order, twice, and late. Each is processed against the attempt it names and against what is already recorded."
+      "entityNote": "Outcomes arrive out of order, twice, and late. Each is processed against the attempt it names and against what is already recorded. attempt_id is a correlation key, not a durable-entity key the way instanceKey means elsewhere - concurrency: one-active-per-key here means events for one attempt are processed sequentially against each other, not that only one outcome may ever arrive."
     },
     "derived": {
       "hasBranches": true,
@@ -13018,7 +13032,7 @@
         {
           "id": "a.retry",
           "kind": "action",
-          "headline": "Retry on the same channel through the canonical retry mechanism, with backoff, against a budget fixed at the first failure. The budget is set once and does not renew - that is the difference between a retry policy and a loop, and a schedule with no end looks like a working system from inside and like harassment from the recipient's inbox",
+          "headline": "Retry on the same channel, with backoff, minting a fresh attempt_id for this physical attempt and spending one unit of the budget fixed at the first failure against (message_id, destination_id). The budget is set once and does not renew - that is the difference between a retry policy and a loop, and a schedule with no end looks like a working system from inside and like harassment from the recipient's inbox",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -13271,7 +13285,7 @@
       "distinctFrom": [
         {
           "journey": "OPS-124",
-          "because": "OPS-124 is the generic retryable-failure and backoff mechanism. This decides what a communication failure means - whether the address is dead, whether another channel may carry this purpose, and whether the message is even still worth delivering. It uses that retry machinery rather than being it."
+          "because": "This mechanism owns its own complete channel-aware retry loop end to end - classification, relevance, budget, fallback - and does not invoke OPS-124's generic engine for it, because the classification a communication failure needs (TEMPORARY / PROVIDER_FAILURE / RATE_LIMITED / PERMANENT / INVALID_DESTINATION / CHANNEL_RESTRICTED) is channel-specific domain knowledge OPS-124 deliberately has no reason to carry. Where a communication-triggering action is separately wrapped in OPS-121's own generic asynchronous-work tracking (the enqueue/dispatch step itself, not the channel delivery), that tracking's own possible OPS-124 delegation is a distinct, outer concern from this mechanism's inner channel-recovery loop - the two do not share a budget and are not the same retry."
         }
       ],
       "competition": null,
@@ -13290,7 +13304,7 @@
       ],
       "reusableRule": "Communication recovery should respond to the actual delivery failure while preserving channel-specific contactability and message relevance.",
       "entityScope": "the failed delivery, its channel and the destination it was aimed at",
-      "entityNote": "The failure belongs to a destination on a channel. It says nothing about the recipient's other destinations, and recording it against the person loses them."
+      "entityNote": "The failure belongs to a destination on a channel. It says nothing about the recipient's other destinations, and recording it against the person loses them. message_id + destination_id is the recovery instance's own identity - one durable retry budget per (message, destination), fixed at the first failure and spent across however many physical attempts a.retry makes against it. Each physical attempt still mints its own fresh attempt_id (the same convention CMS-205/CMS-206 use), so the budget and the per-attempt identity are two different things scoped at two different granularities, not one field doing both jobs."
     },
     "derived": {
       "hasBranches": true,
@@ -14505,7 +14519,7 @@
       ],
       "reusableRule": "Frequency preferences modify future optional communication cadence without silently changing unrelated permission states.",
       "entityScope": "person plus the communication classes the frequency preference actually governs",
-      "entityNote": "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose."
+      "entityNote": "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose. This mechanism is a pure event-driven entry point - it is reached whenever frequency_preference_changed fires from wherever a person declares a cadence change (a preference center, a support-assisted change, an API), the same shallow entry-point shape as CMS-201/CON-35/OPS-121, not something another canonical journey hands off into."
     },
     "derived": {
       "hasBranches": true,
@@ -14564,7 +14578,7 @@
         {
           "id": "a.record",
           "kind": "action",
-          "headline": "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment",
+          "headline": "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment. Assigns change_version for this transition and records change_origin, the system it came from",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -14588,7 +14602,7 @@
         {
           "id": "a.propagate",
           "kind": "action",
-          "headline": "Propagate the new state to the dependent systems, carrying origin and version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange",
+          "headline": "Propagate the new state to the dependent systems, carrying change_origin and change_version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange - a dependent system applies a propagation only if its incoming change_version is newer than what it already holds for this (person_id, purpose, channel, scope), which is what makes redelivery and reordering both safe",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -14747,7 +14761,7 @@
       ],
       "reusableRule": "Permission withdrawal should be enforced immediately and propagated asynchronously rather than waiting for distributed systems to converge.",
       "entityScope": "person plus the permission record that changed, at its purpose, channel and scope",
-      "entityNote": "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure."
+      "entityNote": "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure. change_version is a counter maintained per (person, purpose, channel, scope) combination, so it disambiguates successive changes on the same permission without colliding across different ones; change_origin names the system the change came from. Both are what a.propagate's own guardrail means by \"origin and version\" - carried explicitly, not left as an unnamed concept."
     },
     "derived": {
       "hasBranches": true,
@@ -15418,7 +15432,7 @@
         {
           "id": "a.create",
           "kind": "action",
-          "headline": "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early",
+          "headline": "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early. Establishes cooldown_context itself",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -15598,7 +15612,7 @@
       ],
       "reusableRule": "Cooldown temporarily reduces optional communication pressure without changing the underlying permission relationship.",
       "entityScope": "person or account plus the communication context the cooldown was created for",
-      "entityNote": "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find."
+      "entityNote": "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find. cooldown_context is established at a.create itself, so a.create's own idempotency is scoped coarser (person_id alone) than the actions that follow it."
     },
     "derived": {
       "hasBranches": true,
@@ -15719,7 +15733,7 @@
         {
           "id": "a.apply",
           "kind": "action",
-          "headline": "Apply the established state and propagate the correction with origin and version, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
+          "headline": "Apply the established state and propagate the correction with change_origin and a fresh change_version for the resolution, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -15727,7 +15741,7 @@
         {
           "id": "a.verify",
           "kind": "action",
-          "headline": "Verify convergence across the systems that are required to agree, using idempotent versioned writes so verification cannot itself become another round of the exchange",
+          "headline": "Verify convergence across the systems that are required to agree, using change_version-checked writes so verification cannot itself become another round of the exchange - a system's own report is only accepted at the resolution's change_version, never inferred from a bare acknowledgement",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -15908,7 +15922,7 @@
       ],
       "reusableRule": "Distributed permission conflicts should fail safe until an authoritative state is established and verified across dependent systems.",
       "entityScope": "person plus the specific permission type, channel and purpose that disagrees",
-      "entityNote": "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure."
+      "entityNote": "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure. disputed_permission_ref stands for the (permission_type, channel, purpose) combination a.scope resolves - one conflict instance per disputed combination, distinct from CON-35's own change_version (a conflict is about which value is right, not about a single ordered change)."
     },
     "derived": {
       "hasBranches": true,
@@ -16481,6 +16495,10 @@
         {
           "journey": "CON-38",
           "because": "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed."
+        },
+        {
+          "journey": "CON-264",
+          "because": "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart."
         }
       ],
       "competition": null,
@@ -29709,7 +29727,7 @@
         {
           "id": "a.authoritative",
           "kind": "action",
-          "headline": "Record which version is authoritative and why, preserving every conflicting record alongside it. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
+          "headline": "Record which version is authoritative and why, preserving every conflicting record alongside it. This is a deterministic resolver applying c.identifiable's own criteria - lineage, issuance authority and effective semantics - never a human judgment call at this step; the resolver having already singled out one version is what makes this action reachable at all, which is why an inability to do so routes to h.review's human decision instead of arriving here. Conflicting evidence is not deleted to tidy the state - it is the only proof the conflict happened, and the only way to work out afterwards what anybody actually relied on",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -30592,7 +30610,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 14,
       "branchNodeCount": 4,
@@ -30606,7 +30624,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 51
@@ -30937,7 +30956,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 15,
       "edgeCount": 16,
       "branchNodeCount": 4,
@@ -30951,7 +30970,8 @@
       "behaviors": [
         "wait-timeout",
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 53
@@ -32076,7 +32096,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 18,
       "edgeCount": 23,
       "branchNodeCount": 5,
@@ -32092,7 +32112,8 @@
         "wait-timeout",
         "cross-journey-handoff",
         "external-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "extreme",
       "complexityScore": 72
@@ -33599,7 +33620,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -36926,7 +36947,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -40106,9 +40127,9 @@
         },
         {
           "id": "x.unresolved",
-          "kind": "exit",
-          "headline": "not delivered; failed or unaccounted for, and being reconciled with the executor",
-          "detail": "a re-dispatch of the same obligation starts a new instance",
+          "kind": "handoff",
+          "headline": "Delivery attempt failed → reason → retry, correct, alternate or return",
+          "detail": "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait",
           "isEntry": false,
           "terminal": false
         },
@@ -40244,6 +40265,13 @@
           "when": null
         },
         {
+          "from": "x.unresolved",
+          "to": "FUL-148",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait"
+        },
+        {
           "from": "a.arrived",
           "to": "c.acceptance",
           "family": "forward",
@@ -40326,18 +40354,23 @@
       "branchEdgeIds": [
         4,
         5,
-        8,
         9,
-        13,
-        14
+        10,
+        14,
+        15
       ],
       "handoffEdgeIds": [
-        15
+        7,
+        16
       ],
       "externalEdgeIds": []
     },
     "relationships": {
       "handoffs": [
+        {
+          "to": "FUL-148",
+          "isExternal": false
+        },
         {
           "to": "FUL-149",
           "isExternal": false
@@ -40381,11 +40414,11 @@
       "hasPreemption": false,
       "hasCompetition": false,
       "nodeCount": 16,
-      "edgeCount": 17,
+      "edgeCount": 18,
       "branchNodeCount": 3,
       "backwardEdgeCount": 0,
-      "handoffCount": 1,
-      "exitCount": 4,
+      "handoffCount": 2,
+      "exitCount": 3,
       "maxDepth": 9,
       "maxFanIn": 2,
       "maxFanOut": 2,
@@ -40397,7 +40430,7 @@
         "no-re-entry"
       ],
       "complexityTier": "complex",
-      "complexityScore": 53
+      "complexityScore": 54
     }
   },
   {
@@ -42347,7 +42380,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -43280,7 +43313,7 @@
         {
           "id": "a.propagate",
           "kind": "action",
-          "headline": "Propagate to dependent systems carrying origin and version, so a stale update arriving late cannot restore the previous value",
+          "headline": "Propagate to dependent systems carrying change_origin and change_version, so a stale update arriving late cannot restore the previous value",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -43803,7 +43836,12 @@
           "because": "Suspension restricts for a stated business reason and expects to be resolved by that reason going away. This restricts on incomplete evidence about an adversary, which is why it opens an investigation rather than a review."
         }
       ],
-      "competition": null,
+      "competition": {
+        "scope": "account",
+        "exclusionGroup": "account-restriction-authority",
+        "precedence": "highest in the group - a suspected compromise is the more urgent, safety-critical question, and a concurrent business-reason suspension (ACC-78) on the same account pauses rather than resolving independently while this investigation is open",
+        "onLoss": "paused"
+      },
       "preemptedBy": []
     },
     "governance": {
@@ -43829,7 +43867,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 17,
       "branchNodeCount": 3,
@@ -43842,7 +43880,8 @@
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "wait-timeout",
-        "cross-journey-handoff"
+        "cross-journey-handoff",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 48
@@ -47818,7 +47857,7 @@
       "behaviors": [
         "multi-exit"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -48334,7 +48373,7 @@
         "wait-timeout",
         "cross-journey-handoff"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -50338,7 +50377,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -51111,7 +51150,7 @@
         {
           "id": "a.persist",
           "kind": "action",
-          "headline": "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it",
+          "headline": "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it. Acceptance is itself idempotent on logical_operation_key: a second t.accepted for the same key returns the existing work_id rather than minting a new one",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -51167,7 +51206,7 @@
         {
           "id": "a.processing",
           "kind": "action",
-          "headline": "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
+          "headline": "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started, minting attempt_number fresh for this specific execution try. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -51464,7 +51503,7 @@
       ],
       "reusableRule": "Asynchronous work requires explicit accepted, queued, processing and terminal states so infrastructure acknowledgement is not mistaken for business completion.",
       "entityScope": "the individual work item, keyed by its own idempotency and correlation identifiers",
-      "entityNote": "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed."
+      "entityNote": "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed. logical_operation_key is the caller-supplied identity of the business operation this work item represents - accepting work twice under the same key resolves to the one existing work record, never a second one; work_id is this mechanism's own record identity, minted at acceptance and distinct from logical_operation_key the same way CMS-206's attempt_id is distinct from message_id (this domain's own version of the same invocation-identity-versus-record-identity distinction). correlation_id, also persisted at acceptance, is a separate concern from either - it exists purely to trace one logical operation across the mechanisms it passes through (OPS-122 through OPS-130), not to gate any write."
     },
     "derived": {
       "hasBranches": true,
@@ -51898,7 +51937,7 @@
         {
           "id": "a.reclaim",
           "kind": "action",
-          "headline": "Reclaim and restart according to the execution semantics, coordinating ownership so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
+          "headline": "Reclaim and restart according to the execution semantics, transferring the work item's lease so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -52053,7 +52092,7 @@
       ],
       "reusableRule": "Stalled work is defined by loss of meaningful progress, not simply by exceeding an arbitrary execution duration.",
       "entityScope": "the individual in-flight work item and the worker that holds it",
-      "entityNote": "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it."
+      "entityNote": "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it. This is the same lease concept OPS-128 names explicitly for worker failure, applied here to a work item whose owner is still nominally alive but has stopped progressing: a.reclaim only transfers ownership once the current lease is confirmed expired or explicitly released, never on the strength of the stall signal alone."
     },
     "derived": {
       "hasBranches": true,
@@ -52190,7 +52229,7 @@
         {
           "id": "a.attempt",
           "kind": "action",
-          "headline": "Execute the retry idempotently, under the same idempotency key, so that a downstream that did receive the first attempt can absorb this one",
+          "headline": "Execute the retry idempotently, under logical_operation_key - the same value on every physical try - so that a downstream that did receive an earlier attempt can absorb this one rather than double-processing it. attempt_number still advances for this mechanism's own bookkeeping; it is never itself part of what the downstream dedupes on",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -52411,7 +52450,7 @@
       ],
       "reusableRule": "Retries should occur only when the failure is transient, the work remains valid and repeating the operation is known to be safe.",
       "entityScope": "the work item together with its durable attempt history",
-      "entityNote": "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself."
+      "entityNote": "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself. Two different identities are in play here, deliberately not merged into one: logical_operation_key (carried unchanged from OPS-121, the same value on every retry) is what a.attempt sends downstream so a receiver that already processed one physical try can absorb a repeat under it - the side-effect idempotency identity. attempt_number is a separate, incrementing counter scoped to this mechanism's own bookkeeping only (backoff calculation, diagnosability) and is never itself sent downstream as a dedup key - encoding it into the downstream key would turn every retry into a fresh, undeduped operation, exactly the failure this design avoids."
     },
     "derived": {
       "hasBranches": true,
@@ -52478,7 +52517,7 @@
         {
           "id": "a.compare",
           "kind": "action",
-          "headline": "Compare the stable identifiers: the idempotency key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
+          "headline": "Compare the stable identifiers: logical_operation_key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -52659,7 +52698,7 @@
       ],
       "reusableRule": "Deduplication prevents repeated execution of the same logical operation without suppressing legitimate repeated business actions.",
       "entityScope": "the logical business operation, and the work instances claiming to be it",
-      "entityNote": "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for."
+      "entityNote": "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for. logical_operation_key is the same field OPS-121/OPS-124 carry - deduplication here compares against it directly rather than against a second, independently-invented identity."
     },
     "derived": {
       "hasBranches": true,
@@ -53036,7 +53075,7 @@
         {
           "id": "a.correct",
           "kind": "action",
-          "headline": "Correct the authoritative problem, then create a controlled replay linked to the original work. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
+          "headline": "Correct the authoritative problem, then mint replay_id and create a controlled replay linked to the original work via original_work_id. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -53257,7 +53296,7 @@
       ],
       "reusableRule": "Dead-letter handling converts exhausted automated work into an explicit remediation obligation rather than silently abandoning it.",
       "entityScope": "the dead-lettered item, linked to the original work it came from",
-      "entityNote": "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure."
+      "entityNote": "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure. replay_id (minted at a.correct) is a fresh identity for the new attempt, carrying original_work_id forward as its own link back - the same parent/child attempt-chain shape CMS-208's minted attempt_ids use, applied here at the dead-letter granularity."
     },
     "derived": {
       "hasBranches": true,
@@ -53380,7 +53419,7 @@
         {
           "id": "a.checkpoint",
           "kind": "action",
-          "headline": "Resume from the checkpoint under new ownership, so the completed portion is not repeated",
+          "headline": "Resume from the checkpoint under new ownership, minting a fresh lease_id for the new owner, so the completed portion is not repeated",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -53388,7 +53427,7 @@
         {
           "id": "a.restart",
           "kind": "action",
-          "headline": "Reclaim and restart idempotently, with ownership coordinated so no second worker can take it concurrently",
+          "headline": "Reclaim and restart idempotently, minting a fresh lease_id so no second worker can take it concurrently",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -53552,7 +53591,7 @@
       ],
       "reusableRule": "Worker failure should transfer execution responsibility without assuming that the underlying business operation failed or never ran.",
       "entityScope": "the failed worker and each in-flight work item it owned",
-      "entityNote": "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies."
+      "entityNote": "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies. lease_id identifies the current lease on work_id; c.lease's own branch is what makes waiting out an unexpired lease the default over reclaiming on suspicion, and c.confirmed's completion check runs before either resume path is even considered - the order these three checks run in is itself the safety property, not just their individual correctness."
     },
     "derived": {
       "hasBranches": true,
@@ -53861,7 +53900,7 @@
         "wait-timeout",
         "cross-journey-handoff"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -53921,7 +53960,7 @@
         {
           "id": "a.verify",
           "kind": "action",
-          "headline": "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent, so running it on every completion costs nothing and proves the same thing each time",
+          "headline": "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent by construction (re-checking recomputes the same conclusion from current state), and its own idempotencyKey is a consistent structural marker rather than the thing making repetition safe",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -54109,6 +54148,281 @@
         "backward-edge",
         "wait-timeout",
         "multi-exit"
+      ],
+      "complexityTier": "simple",
+      "complexityScore": 37
+    }
+  },
+  {
+    "identity": {
+      "id": "OPS-131",
+      "slug": "journey-competition-arbitration",
+      "category": "processing",
+      "categoryTitle": "Processing, queues, async work & operational reliability",
+      "title": "Two or more journeys eligible on one exclusion scope → arbitrate → establish one owner",
+      "purpose": "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared exclusion group, and apply what happens to everyone who does not - GLB-01 through GLB-10 made executable rather than left as policy nobody runs."
+    },
+    "entry": {
+      "trigger": "Competing journeys became simultaneously eligible",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "at least two journey instances, each independently eligible under its own canonical eligibility rules",
+        "each declaring the same exclusionGroup - as a top-level competition field or as contact.competition on a vNext communicating journey - and the same CompetitionScope",
+        "the same concrete scope_instance_id, not merely the same scope type (GLB-01)"
+      ],
+      "insufficientAlone": [
+        "two journeys sharing an exclusionGroup name on two different scope instances - GLB-01 is explicit that the scope instance, not the scope type, is the key, and unrelated instances run in parallel",
+        "one journey being eligible while no other member of its declared exclusionGroup currently is - a contest needs another side (competition_group_of_one)"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.contended",
+          "kind": "trigger",
+          "headline": "Competing journeys became simultaneously eligible",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "a.load-contenders",
+          "kind": "action",
+          "headline": "Load every journey instance currently declared eligible for this (exclusion_group, scope_instance_id) pair, re-reading each one's own current eligibility from authoritative state rather than trusting whatever was true at the moment this trigger fired - eligibility can have changed in the time it took to reach this action, and a contender that has already exited is not a real contender",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.still-contested",
+          "kind": "condition",
+          "headline": "After re-reading current eligibility, do at least two contenders remain?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-contest",
+          "kind": "exit",
+          "headline": "no arbitration required - the contest resolved itself before a winner had to be chosen, because eligibility changed out from under it",
+          "detail": "a fresh trigger with its own freshly re-read contenders is a new arbitration, not a continuation of this one",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.precedence",
+          "kind": "condition",
+          "headline": "Does declared policy precedence separate the remaining contenders into exactly one highest-ranked contender?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.escalate",
+          "kind": "handoff",
+          "headline": "Decision request → validate → route, reject or hold",
+          "detail": "a competition whose remaining contenders have no policy-resolvable precedence between them",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.claim",
+          "kind": "action",
+          "headline": "Atomically claim ownership of (exclusion_group, scope_instance_id) for the highest-ranked contender: if no owner is currently established, establish this one; if a concurrent evaluation already established an owner for the same identity between c.precedence's read and this action, return that existing owner rather than establishing a second one. This is the same at-most-one-canonical-outcome guarantee CMS-201's own obligation creation uses, applied to ownership of a contested scope instead of to an obligation - exactly one claim ever succeeds for one identity, and the loser of the race receives the authoritative winner rather than an error",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.suppress-losers",
+          "kind": "action",
+          "headline": "Apply every non-winning contender's own declared onLoss - suppressed, paused, superseded or exit, never invented or defaulted - and invalidate whatever that contender already had queued for execution before it can fire: a losing contender's queued message or action does not get to run merely because it was queued before it lost (GLB-07)",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.ownership",
+          "kind": "wait",
+          "headline": "until the winning contender resolves, expires, fails, or otherwise becomes ineligible for this scope instance",
+          "detail": "timeout after a bounded check-in interval, where the winning contender's own governing policy states a maximum plausible ownership duration; otherwise no timeout-driven check is owed beyond the release event itself",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.reevaluate",
+          "kind": "action",
+          "headline": "Re-run arbitration for (exclusion_group, scope_instance_id) from current authoritative state rather than from the standing anyone held when they last won or lost (GLB-06). A previously-suppressed contender is never simply resumed from where it stopped (GLB-10) - it re-enters exactly as a new contender would, evaluated against current eligibility, intent, entity state, permission, cooldown and destination completion, the same list GLB-06 itself names",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.contended",
+          "to": "a.load-contenders",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.load-contenders",
+          "to": "c.still-contested",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.still-contested",
+          "to": "x.no-contest",
+          "family": "branch",
+          "label": "Fewer than two remain",
+          "when": "eligibility changed since the trigger and at most one contender is still genuinely eligible for this scope instance"
+        },
+        {
+          "from": "c.still-contested",
+          "to": "c.precedence",
+          "family": "branch",
+          "label": "Two or more remain",
+          "when": "at least two independently-eligible contenders still declare the same exclusion_group and scope_instance_id"
+        },
+        {
+          "from": "c.precedence",
+          "to": "a.claim",
+          "family": "branch",
+          "label": "Strict order exists",
+          "when": "each remaining contender's own declared precedence text - or one of the two discriminators GLB-02 permits beyond stated policy, an authoritative fresh event over a stale inferred state, or an active valid ownership over a merely-eligible contender - yields exactly one highest-ranked contender"
+        },
+        {
+          "from": "c.precedence",
+          "to": "h.escalate",
+          "family": "branch",
+          "label": "Genuine tie",
+          "when": "declared policy leaves two or more remaining contenders at equal standing and neither GLB-02 discriminator applies"
+        },
+        {
+          "from": "h.escalate",
+          "to": "DEC-181",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "a competition whose remaining contenders have no policy-resolvable precedence between them"
+        },
+        {
+          "from": "a.claim",
+          "to": "a.suppress-losers",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.suppress-losers",
+          "to": "w.ownership",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.ownership",
+          "to": "a.reevaluate",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "the winning contender resolves, expires, fails, or otherwise becomes ineligible for this scope instance"
+        },
+        {
+          "from": "w.ownership",
+          "to": "a.reevaluate",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "an owner that never explicitly reports release is not assumed to hold the scope forever on the strength of one earlier claim - a bounded check-in re-confirms current, authoritative ownership rather than resting on a record of having won once"
+        },
+        {
+          "from": "a.reevaluate",
+          "to": "c.still-contested",
+          "family": "backward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.contended",
+      "terminalNodes": [
+        "x.no-contest",
+        "h.escalate"
+      ],
+      "backwardEdgeIds": [
+        11
+      ],
+      "branchEdgeIds": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "handoffEdgeIds": [
+        6
+      ],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [
+        {
+          "to": "DEC-181",
+          "isExternal": false
+        }
+      ],
+      "distinctFrom": [
+        {
+          "journey": "OPS-125",
+          "because": "OPS-125 resolves multiple claims to the SAME logical operation - the identity is one business action retried or duplicated, and its own instance key (logical_operation_key) never varies between claimants. This mechanism resolves a contest between DIFFERENT journeys, each with its own identity, each independently and legitimately eligible under its own canonical rules, over one shared scope instance under a declared exclusionGroup. Deduplication asks whether two claims are the same thing said twice; this mechanism asks which of two genuinely different things gets to happen."
+        },
+        {
+          "journey": "OPS-128",
+          "because": "OPS-128 transfers a work item's execution ownership between workers when one becomes unavailable - an infrastructure-layer concern with no business precedence involved and no losing side, only a successor. This mechanism establishes which journey owns a contested business scope: the contenders are canonical journeys, not workers, and the winner is chosen by declared business precedence (GLB-02), not by which worker's heartbeat survived."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Two journeys sharing an exclusionGroup name are not in competition unless they also share the same scope instance (GLB-01).",
+        "The winner is never selected by arrival order, worker scheduling, or which evaluation happened to run first - only by declared policy precedence, or by one of the two discriminators GLB-02 names explicitly.",
+        "Concurrent evaluation of the same (exclusion_group, scope_instance_id) yields at most one canonical owner - a losing concurrent claim resolves to the already-established owner rather than erroring or duplicating.",
+        "A losing contender's own onLoss value decides what happens to it - suppressed, paused, superseded and exit are different outcomes for different reasons, and collapsing them loses that difference (GLB-05).",
+        "A contest resolved on one scope instance constrains only that instance - winning ownership of one account, product or subscription never suppresses a journey about a different one (GLB-08).",
+        "Suppression ending is not the losing journey resuming from where it stopped - re-entry is recomputed from current state (GLB-10).",
+        "Work already queued by a contender that has since lost ownership is invalidated before it executes, not merely marked lost after the fact (GLB-07)."
+      ],
+      "reusableRule": "GLB-01 through GLB-10 - the corpus's own declared rules for journey competition and ownership resolution - made executable: load current contenders, apply declared precedence deterministically, establish exactly one winner atomically, apply each loser's own declared consequence, and re-evaluate from current state whenever the winner releases the scope, rather than leaving these ten rules as policy no runtime component actually runs.",
+      "entityScope": "the exclusion group and the specific scope instance being contested, and the journey instances currently eligible for it",
+      "entityNote": "scope_instance_id is not a new canonical concept - it is whatever identifier the contending journeys' own declared CompetitionScope already names for one instance (an account id for scope \"account\", a product id for \"product\", a subscription id for \"subscription\", a person id for \"person\", a communication-purpose id for \"communication-purpose\"), read directly off each contender's own entity rather than duplicated into a second, mechanism-specific identifier. GLB-01's own key is exactly this pair: two journeys sharing only the exclusion group name are not yet competing; sharing the group and the same scope_instance_id, they are. GLB-08 is this key's mirror at the other end - a contest resolved on one instance constrains only that instance. This mechanism reads a contender's own declared precedence and onLoss text directly; it does not copy either into a separate runtime-specific configuration, so the two can never drift apart."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": true,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": true,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": false,
+      "hasPreemption": false,
+      "hasCompetition": false,
+      "nodeCount": 10,
+      "edgeCount": 12,
+      "branchNodeCount": 2,
+      "backwardEdgeCount": 1,
+      "handoffCount": 1,
+      "exitCount": 1,
+      "maxDepth": 7,
+      "maxFanIn": 2,
+      "maxFanOut": 2,
+      "primaryStructure": "mixed-termination",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "cross-journey-handoff"
       ],
       "complexityTier": "simple",
       "complexityScore": 37
@@ -62345,7 +62659,7 @@
           "to": "h.return",
           "family": "branch",
           "label": "Return, before anything else",
-          "when": "the resource has to come back before a further remedy can be settled"
+          "when": "the resource has to come back before a further remedy can be settled, and a return was not already rejected for this issue - a rejected return does not get re-selected when REM-152's own h.alternative routes back here; that path already arrives at c.route with the rejection recorded, and this branch's condition is false the second time"
         },
         {
           "from": "c.route",
@@ -62805,7 +63119,7 @@
         "cross-journey-handoff",
         "external-handoff"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -63784,7 +64098,7 @@
         {
           "id": "a.inspect",
           "kind": "action",
-          "headline": "Look for evidence around the absence: repeated failures, an unresolved blocker, falling value realisation, negative feedback, narrowing depth or breadth, any exploration of cancellation",
+          "headline": "Look for evidence around the absence: repeated failures, an unresolved blocker, falling value realisation, negative feedback, narrowing depth or breadth, any exploration of cancellation. Record the miss itself, corroborated or not, so a later miss on the same use case has something to accumulate against - absence is evidence only in aggregate, and an aggregate needs a record to add to",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -64426,7 +64740,7 @@
         {
           "id": "c.operational",
           "kind": "condition",
-          "headline": "Is the risk driven by a known operational problem?",
+          "headline": "Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -64529,14 +64843,14 @@
           "to": "h.resolve-first",
           "family": "branch",
           "label": "Known problem",
-          "when": "the evidence points at something specific that is broken or unresolved"
+          "when": "the evidence points at something specific that is broken or unresolved, and it is not a payment failure with an open payment recovery instance on this relationship - that cause already has an owner"
         },
         {
           "from": "c.operational",
           "to": "c.human",
           "family": "branch",
           "label": "No known problem",
-          "when": "the relationship is deteriorating and nothing identifiable is causing it"
+          "when": "the relationship is deteriorating and nothing identifiable is causing it, or the identifiable cause is a payment failure that payment recovery already owns"
         },
         {
           "from": "h.resolve-first",
@@ -64668,7 +64982,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 12,
       "edgeCount": 15,
       "branchNodeCount": 4,
@@ -64681,7 +64995,8 @@
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "cross-journey-handoff",
-        "external-handoff"
+        "external-handoff",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 46
@@ -65577,7 +65892,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 16,
       "edgeCount": 22,
       "branchNodeCount": 5,
@@ -65591,7 +65906,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "cross-journey-handoff"
+        "cross-journey-handoff",
+        "competition"
       ],
       "complexityTier": "extreme",
       "complexityScore": 66
@@ -66199,7 +66515,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 19,
       "branchNodeCount": 4,
@@ -66215,7 +66531,8 @@
         "wait-timeout",
         "cross-journey-handoff",
         "external-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 55
@@ -66649,7 +66966,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 18,
       "edgeCount": 26,
       "branchNodeCount": 6,
@@ -66663,7 +66980,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "extreme",
       "complexityScore": 86
@@ -67016,7 +67334,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 15,
       "edgeCount": 19,
       "branchNodeCount": 5,
@@ -67030,7 +67348,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 65
@@ -67553,7 +67872,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },
@@ -79488,7 +79807,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 15,
       "edgeCount": 17,
       "branchNodeCount": 3,
@@ -79502,7 +79821,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 53
@@ -80648,7 +80968,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 19,
       "edgeCount": 27,
       "branchNodeCount": 5,
@@ -80662,7 +80982,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "cross-journey-handoff"
+        "cross-journey-handoff",
+        "competition"
       ],
       "complexityTier": "extreme",
       "complexityScore": 78
@@ -85488,7 +85809,7 @@
         "wait-timeout",
         "cross-journey-handoff"
       ],
-      "complexityTier": "simple",
+      "complexityTier": "medium",
       "complexityScore": 41
     }
   },

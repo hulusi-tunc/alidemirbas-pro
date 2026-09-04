@@ -95,7 +95,7 @@ Four routes are EN-only by design: `blog/[slug]`, `experiment-a`, `experiment-b`
 `src/canonical/` is **hand-authored TypeScript**: `types.ts` plus 26 flat domain files, each
 exporting exactly `<DOMAIN>_JOURNEYS` and `<DOMAIN>_RULES`, aggregated by `index.ts`. A journey
 is a **graph, not a sequence** — an `entry` node plus nodes that name their own successors.
-Currently 283 journeys / 3664 nodes / 8 merged (retired) ids.
+Currently 284 journeys / 3674 nodes / 8 merged (retired) ids.
 
 **vNext (Customer Journeys).** Every customer-surface journey carries the vNext contract
 (`eligibility`, `suppressions`, `implementation`, `measurement`, `discovery`; communicating ones
@@ -183,7 +183,7 @@ validators write.
 
 Hand-authored: everything in `src/`, every contract JSON in `seo/` and `search/`, and the
 validators themselves. Several validators and the search index generator **hardcode corpus
-counts** (`211` ab-tests, `283` journeys, `3664` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
+counts** (`211` ab-tests, `284` journeys, `3674` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
 adding a record fails them until those constants are updated in lockstep. `build-search-index.mjs`
 also duplicates the goal taxonomy from `src/lib/journey-taxonomy.ts` by hand — plain Node cannot
 resolve the `@/` alias, and the copy must be kept in sync manually.

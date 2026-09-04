@@ -21,7 +21,7 @@ const jrViewModel = await read("production/journey-view-model.json");
 const mergedContract = await read("production/journey-merged-id-contract.json");
 
 const AB_EXPECTED = 211;
-const JR_EXPECTED = 283;
+const JR_EXPECTED = 284;
 const TOTAL_EXPECTED = AB_EXPECTED + JR_EXPECTED;
 
 const AB_INTENTS = new Set(["a/b testing ideas", "a/b test examples", "cro experiments", "conversion optimization tests"]);
@@ -70,7 +70,7 @@ const jaccard = (a, b) => {
 
 /* ------------------------------------------------------------- 1-2 counts */
 check(1, `expected active record count = ${TOTAL_EXPECTED}`, all.length === TOTAL_EXPECTED, `got ${all.length} (ab ${abMeta.length}, journey ${jrMeta.length})`);
-check(2, "A/B = 211 and Journey = 283", abMeta.length === AB_EXPECTED && jrMeta.length === JR_EXPECTED);
+check(2, "A/B = 211 and Journey = 284", abMeta.length === AB_EXPECTED && jrMeta.length === JR_EXPECTED);
 
 /* ------------------------------------------------------------ 3 missing */
 const REQUIRED = ["id","slug","seoTitle","seoDescription","titleCharacterCount","descriptionCharacterCount","primaryIntent","secondaryIntent","canonicalPath","index","follow","sitemap","sourceBasis","needsSeoReview"];

@@ -126,7 +126,7 @@ for (const p of manifest.pages) {
 check(17, "no page assigns a schema type outside the approved candidate list (WebSite/Person/BreadcrumbList/Article-BlogPosting/ItemList)", badSchema === 0, `${badSchema} bad assignment(s)`);
 
 /* --------------------------------------------- 18. sitemap route counts match live data */
-check(18, "AB/journey/blog counts used by sitemap.ts match the live data sources", abTests.length === 211 && journeyViewModel.length === 283 && blogPostCount === 5, `ab=${abTests.length}, journey=${journeyViewModel.length}, blog=${blogPostCount}`);
+check(18, "AB/journey/blog counts used by sitemap.ts match the live data sources", abTests.length === 211 && journeyViewModel.length === 284 && blogPostCount === 5, `ab=${abTests.length}, journey=${journeyViewModel.length}, blog=${blogPostCount}`);
 
 /* --------------------------------------------- 19. structured-data verdicts respected */
 const rejectedTypes = ["SoftwareApplication", "WebApplication", "FAQPage"];

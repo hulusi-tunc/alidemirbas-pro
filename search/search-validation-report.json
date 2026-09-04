@@ -3,7 +3,7 @@
   "summary": {
     "pass": 32,
     "fail": 2,
-    "totalDocuments": 524
+    "totalDocuments": 525
   },
   "failures": [
     "30. search fixture queries pass (excluding disclosed known gaps - see run-query-fixtures.mjs) — 9 failure(s): MDE, CTOR, checkout, click through rate, cost per lead",

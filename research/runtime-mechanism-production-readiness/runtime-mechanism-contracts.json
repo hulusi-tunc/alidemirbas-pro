@@ -628,6 +628,185 @@
     ]
   },
   {
+    "id": "OPS-131",
+    "shortName": "Journey Competition Arbitration",
+    "responsibility": "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared exclusion group, and apply what happens to everyone who does not - GLB-01 through GLB-10 made executable.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Added in the competition-arbitration repair round to close the round's own confirmed architectural P0 - no runtime primitive anywhere enforced journey-declared competition/exclusionGroup/precedence, though 7 structured groups (22 member journeys, re-derived from current source, corrected from the prior round's undercount of 3) declare it. This mechanism's atomic claim step reuses CMS-201's own at-most-one-canonical-outcome pattern (compare-and-set on a composite identity, a losing concurrent evaluator resolves to the existing owner rather than duplicating), its precedence step implements GLB-02 literally (explicit policy only, no invented tie-break, genuine ties escalate to DEC-181 - the same escalation target CMS-203/CMS-210 already use for undefined-policy cases), and its loser-handling/re-evaluation/stale-work steps implement GLB-05/06/07/10 directly rather than restating them as a second, disconnected policy. Rated READY_WITH_MAPPING rather than READY because - exactly as with every event-triggered mechanism in the corpus - a company still has to wire its own eligibility-evaluation layer to fire this mechanism's trigger event, and each competing journey's own consequential actions still have to consult current ownership before firing (see gaps).",
+    "inputContract": [
+      {
+        "field": "at least two journey instances, each independently eligible under its own canonical eligibility rules, declaring the same exclusionGroup and the same CompetitionScope",
+        "required": true,
+        "provenance": "each contender's own canonical eligibility evaluation and its own declared competition (top-level) or contact.competition (vNext communicating) field"
+      },
+      {
+        "field": "the same concrete scope_instance_id, not merely the same scope type",
+        "required": true,
+        "provenance": "read directly off each contender's own entity - GLB-01's own key, never a second mechanism-specific identifier"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "ownership-transfer",
+        "suppression-result"
+      ],
+      "distinguishableOutcomes": [
+        "x.no-contest (eligibility resolved itself before a winner had to be chosen)",
+        "h.escalate (genuine tie, no policy-resolvable precedence)",
+        "a.claim/a.suppress-losers (one winner established, every loser's own declared onLoss applied)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state",
+        "transfers-ownership",
+        "suppresses-queued-work"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.claim is atomic create-if-absent on (exclusion_group, scope_instance_id) - a losing concurrent evaluator resolves to the already-established owner rather than creating a second one, the identical invariant CMS-201's own repair established for obligation creation. a.load-contenders, a.suppress-losers and a.reevaluate all carry idempotencyKey scoped to the same composite identity.",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "compare-and-set",
+      "raceAddressed": "two or more workers evaluating the same (exclusion_group, scope_instance_id) simultaneously, each proposing a different winner - exactly the shape of race CMS-201's own fix closed, one level up, for ownership of a contested scope rather than an obligation"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "every contender's current eligibility, re-read at a.load-contenders rather than trusted from the trigger",
+        "the winning contender's own current state and eligibility, re-read at every w.ownership release/check-in before a.reevaluate re-runs arbitration"
+      ]
+    },
+    "unknownOutcome": {
+      "handled": false,
+      "vocabulary": "not applicable - no external provider boundary; the one genuinely uncertain path (a policy-unresolvable tie) is handled by explicit escalation to DEC-181, not by an unknown-outcome classification"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": true,
+      "note": "The one mechanism, among the corpus's 25, whose entire responsibility is this. Added in the competition-arbitration repair round after confirming no existing mechanism could own it without becoming a god-object (OPS-125 compares claims to the SAME operation; OPS-123/OPS-128 transfer WORKER ownership of a job, not JOURNEY ownership of a business scope) and no non-canonical owner could be named with evidence.",
+      "contract": {
+        "ownerMechanismId": "OPS-131",
+        "scopeKey": [
+          "exclusion_group",
+          "scope_instance_id"
+        ],
+        "inputSource": "canonical competition metadata read directly off each contender (top-level competition or vNext contact.competition, plus preemptedBy where declared) - never copied into a separate runtime-specific configuration",
+        "decisionSemantics": "GLB-02: explicit declared policy precedence only; where policy leaves two or more contenders at equal standing and neither of GLB-02's two named discriminators (an authoritative fresh event over a stale inferred state, an active valid ownership over a merely-eligible contender) applies, escalate to DEC-181 rather than inventing a local tie-break",
+        "atomicityPrimitive": "compare-and-set",
+        "freshnessRequirement": "re-read every contender's current eligibility before choosing a winner, and re-read the winner's own current state before treating a prior claim as still valid - never arbitrate on a stale, previously-observed eligibility snapshot",
+        "outputStates": [
+          "no-contest",
+          "escalated",
+          "won",
+          "lost-suppressed",
+          "lost-paused",
+          "lost-superseded",
+          "lost-exit"
+        ],
+        "observabilityFields": [
+          "exclusion_group",
+          "scope_instance_id",
+          "contenders_considered",
+          "precedence_rule_applied",
+          "winner",
+          "losers_and_onLoss_applied",
+          "escalated_to_DEC-181",
+          "re-evaluation_trigger"
+        ]
+      }
+    },
+    "handoffs": [
+      {
+        "node": "h.escalate",
+        "target": "DEC-181",
+        "requiredContext": [
+          "the exclusion_group and scope_instance_id in contest",
+          "every remaining contender, its own declared precedence text, and why none discriminates the others"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-131's own graph, via competition_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "After re-reading current eligibility, do at least two contenders remain?; Does declared policy precedence separate the remaining contenders into exactly one highest-ranked contender?",
+      "sideEffectAttempted": "competition_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [],
+    "consumersNote": "0 handoff consumers by design - an event-triggered entry point, the same shape as CMS-201/CON-34/CON-35/OPS-121/OPS-128. 22 canonical journeys across 7 exclusion groups (account-restriction-authority: ACC-78, IDN-90; purchase-intent: ACQ-04, ACQ-07, ACQ-08; commerce-recovery: ACQ-11, ACQ-12, ACQ-13, RET-31, SCH-282; lifecycle-stage: ACT-12, ACT-20; retention-outreach: ACT-18, FBK-46, RET-24, RET-28, RET-30, RET-32; outbound-ask: FBK-41, FBK-42; relationship-continuity: SUB-163, SUB-167) declare the competition metadata this mechanism arbitrates, re-derived directly from current source rather than assumed from the prior round's undercount of 3 groups / 7 members - the prior count missed every contact.competition declaration (a vNext communicating journey's own nested form of the same field), catching only the plainer top-level competition field.",
+    "testScenarios": [
+      {
+        "kind": "simultaneous-eligibility",
+        "given": "ACC-78 (business-reason suspension) and IDN-90 (suspected compromise) both become eligible on the same account",
+        "expect": "c.precedence resolves deterministically to IDN-90 (its own declared precedence: highest in the group) without escalation; ACC-78 is suppressed via a.suppress-losers applying its own declared onLoss (\"paused\")"
+      },
+      {
+        "kind": "concurrent-workers",
+        "given": "two workers each evaluate the same (exclusion_group=account-restriction-authority, scope_instance_id=<account>) at the same instant, one proposing IDN-90 and one proposing ACC-78 as the winner",
+        "expect": "a.claim's own atomicity resolves both evaluations to the same single owner (IDN-90) - the losing worker's own claim attempt returns the already-established owner rather than creating a second, conflicting ownership record"
+      },
+      {
+        "kind": "duplicate-arbitration",
+        "given": "the same contender set for one (exclusion_group, scope_instance_id) is re-submitted for arbitration after already being resolved",
+        "expect": "a.claim's idempotencyKey resolves it to the same existing owner and the same outcome, not a re-decision"
+      },
+      {
+        "kind": "stronger-contender-later",
+        "given": "ACQ-07 (lowest precedence in purchase-intent) already owns a product scope instance when ACQ-08 (highest - a reached commercial destination) becomes eligible on the same instance",
+        "expect": "a fresh trigger re-arbitrates the same scope_instance_id; c.precedence now resolves to ACQ-08; a.suppress-losers applies ACQ-07's own declared onLoss (\"exit\") and invalidates whatever ACQ-07 still had queued"
+      },
+      {
+        "kind": "winner-resolves-reentry",
+        "given": "SUB-167 (cancellation in motion) wins relationship-continuity ownership over SUB-163 (renewal decision), then SUB-167 itself resolves (the cancellation completes or is withdrawn)",
+        "expect": "w.ownership's onEvent fires a.reevaluate, which re-runs arbitration from SUB-163's CURRENT eligibility (GLB-06) rather than resuming SUB-163 from the standing it had when it lost (GLB-10) - if SUB-163 is no longer eligible for an unrelated reason, it does not silently resume"
+      },
+      {
+        "kind": "stale-queued-action",
+        "given": "RET-24 already had a retention message queued when RET-28 (declared cancellation intent, higher precedence) becomes eligible and wins the same account scope instance",
+        "expect": "a.suppress-losers invalidates RET-24's queued message before it executes (GLB-07) - RET-24 does not send merely because the message was queued before RET-24 lost ownership"
+      },
+      {
+        "kind": "different-scope-isolation",
+        "given": "ACQ-11/ACQ-12 compete on person P1's commerce-recovery scope while the identical journey pair also runs on an unrelated person P2",
+        "expect": "GLB-01/GLB-08: P1's contest and P2's contest are evaluated independently on their own scope_instance_id - winning ownership on P1 has no effect on P2's own arbitration"
+      },
+      {
+        "kind": "equal-precedence",
+        "given": "FBK-41 (satisfaction ask) and FBK-42 (advocacy ask) both become eligible for the same person at the same moment",
+        "expect": "not a genuine tie: each journey's own declared precedence text names the other by id and states the outcome directly (FBK-42 wins, FBK-41 is suppressed and free to re-open at its next moment) - c.precedence resolves without escalation, since GLB-02's own policy is fully explicit here even though it reads unusually for a pairwise rule"
+      },
+      {
+        "kind": "genuine-tie-escalation",
+        "given": "a hypothetical future exclusion group whose declared precedence leaves two contenders at literally equal standing with neither GLB-02 discriminator applicable",
+        "expect": "h.escalate hands off to DEC-181 rather than inventing a local tie-break (arrival order, alphabetical id, or any other unstated rule) - the round's own DO-NOT instruction against using worker/arrival order as precedence"
+      }
+    ],
+    "gaps": [
+      {
+        "priority": "P2",
+        "area": "consumer-coverage",
+        "finding": "This mechanism's own contract is complete, but none of the 22 current competition-group member journeys structurally hand off into it (by design - it is event-triggered, like every other zero-handoff-consumer mechanism in the corpus) or explicitly revalidate current ownership from it before executing a consequential action. A company adopting this mechanism must wire two integration points: (1) its own eligibility-evaluation layer must fire competing_journeys_became_simultaneously_eligible whenever two members of a declared exclusionGroup become eligible on the same scope instance, and (2) each competing journey's own consequential actions must consult this mechanism's current-owner record before firing, mirroring the freshness-before-execution pattern the runtime-mechanism round's own Validator I already checks for the 25 mechanisms themselves. Neither gap is a defect in this mechanism's own contract; both are mapping work no canonical specification can perform on a company's behalf."
+      },
+      {
+        "priority": "P2",
+        "area": "freshness",
+        "finding": "w.ownership's own timeout is conditional: a bounded check-in interval applies only where the winning contender's governing policy states a maximum plausible ownership duration; where none is stated, staleness detection depends entirely on the winner's own release event firing reliably. This is consistent with the corpus's general reliance on authoritative events elsewhere (not a mechanism-specific weakness), but is worth naming explicitly since this mechanism's entire purpose is preventing exactly the kind of stale-ownership race a lost release event would reopen."
+      }
+    ]
+  },
+  {
     "id": "CMS-207",
     "shortName": "Delivery Outcome Reconciliation",
     "responsibility": "Derive real delivery state from what the channel reports, correlated to the exact attempt and ordered correctly against what is already known.",
@@ -2067,6 +2246,10 @@
       {
         "id": "FIN-135",
         "kind": "handoff"
+      },
+      {
+        "id": "OPS-131",
+        "kind": "prose-reference"
       }
     ],
     "consumersNote": "1 handoff consumer: FIN-135 (now declaring logical_operation_key explicitly)",
@@ -2410,7 +2593,12 @@
       "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
       "currentOwner": "transfers via its own handoff nodes; see handoffs"
     },
-    "consumers": [],
+    "consumers": [
+      {
+        "id": "OPS-131",
+        "kind": "prose-reference"
+      }
+    ],
     "consumersNote": "0 handoff consumers - triggered by infrastructure heartbeat loss, appropriately not journey-initiated",
     "testScenarios": [
       {

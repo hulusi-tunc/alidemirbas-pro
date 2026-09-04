@@ -35,6 +35,14 @@
  * and narrowed to `conflictArbitration` — see below) — a mechanism's own instance identity is
  * "the request/attempt it is currently executing," not a durable customer-facing entity, so the
  * two earlier schemas' entity-instance model does not transfer.
+ *
+ * COUNT NOTE (competition-arbitration repair round): the corpus's original audit under this
+ * schema covered 24 mechanisms and found `conflictArbitration.enforcesJourneyCompetition: false`
+ * on every one — a confirmed architectural gap, not a per-mechanism defect. That round added a
+ * 25th mechanism (`OPS-131`, `surface.ts`'s `COMPETITION_ARBITRATION_MECHANISM_ID`) to own this
+ * responsibility, rather than forcing it onto one of the 24 or leaving it unowned. Every "24" in
+ * the prose below is a historical statement about that first audit, left as written; the current
+ * corpus is 25 and only `OPS-131`'s own contract sets `conflictArbitration.contract`.
  */
 
 export type SideEffectClass =
@@ -189,11 +197,44 @@ export interface HandoffContractRef {
 
 export interface ConflictArbitrationRef {
   /** Whether this mechanism enforces journey-declared conflict/exclusivity metadata
-      (`exclusionGroup`, `precedence`, `competition`) deterministically at runtime. False for all
-      24 as audited — recorded per-mechanism rather than only once, so the gap is visible on every
-      mechanism it could plausibly belong to, not buried in a single cross-cutting note. */
+      (`exclusionGroup`, `precedence`, `competition`) deterministically at runtime. False for
+      every mechanism except the one that owns this responsibility — recorded per-mechanism
+      rather than only once, so the fact is visible on every mechanism it could plausibly belong
+      to, not buried in a single cross-cutting note. */
   enforcesJourneyCompetition: boolean;
   note?: string;
+  /** Present only where `enforcesJourneyCompetition` is true. The smallest structural model of
+      how the owning mechanism actually does it — added in the competition-arbitration repair
+      round specifically so this responsibility is never left as descriptive prose only (the
+      audit round's own finding about every other mechanism's `idempotencyKey`, generalized to
+      the one mechanism whose entire job is this). Reuses `ConcurrencyPrimitive` rather than
+      inventing a second atomicity vocabulary. */
+  contract?: {
+    /** The mechanism id that owns this responsibility — self-referential on that mechanism's own
+        contract, and the same id every other mechanism's `note` should point to if it mentions
+        conflict arbitration at all. */
+    ownerMechanismId: string;
+    /** The identity two contenders must share before they are actually competing (GLB-01) —
+        e.g. ["exclusion_group", "scope_instance_id"], not merely the exclusion group name. */
+    scopeKey: readonly string[];
+    /** Where the arbitration's own input comes from — canonical competition metadata read
+        directly, never a second, runtime-specific copy of the same policy (Part 5's own
+        requirement: the runtime consumes canonical metadata rather than duplicating it). */
+    inputSource: string;
+    /** How a winner is chosen among current contenders — quoted or closely paraphrased from the
+        mechanism's own prose, not invented for this field. */
+    decisionSemantics: string;
+    atomicityPrimitive: ConcurrencyPrimitive;
+    /** What must be re-read before consequential execution proceeds — the same freshness
+        vocabulary the rest of this schema already uses, not a second framework. */
+    freshnessRequirement: string;
+    /** The caller-visible results arbitration can return — e.g. ["no-contest", "escalated",
+        "won", "lost-suppressed", "lost-paused", "lost-superseded", "lost-exit"]. */
+    outputStates: readonly string[];
+    /** The minimum fields a production operator needs to explain a contested decision after the
+        fact — which contenders existed, which rule decided, who won, why losers lost. */
+    observabilityFields: readonly string[];
+  };
 }
 
 export interface ObservabilityModel {

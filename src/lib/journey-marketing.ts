@@ -35,11 +35,11 @@ const kindCounts = (() => {
 })();
 
 export const JOURNEY_SCALE = {
-  /** 283 */
+  /** 284 */
   journeys: JOURNEYS.length,
   /** 26 */
   categories: CATEGORIES.length,
-  /** 3,664 */
+  /** 3,674 */
   nodes: ALL_NODES.length,
   /** 7 - trigger, action, condition, wait, outcome, exit, handoff */
   nodeKinds: kindCounts.size,

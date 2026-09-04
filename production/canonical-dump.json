@@ -171,7 +171,7 @@
             }
           ],
           "next": "c.eligible",
-          "idempotencyKey": "account_id + person_id + a.reconcile"
+          "idempotencyKey": "anonymous_profile_id + a.reconcile"
         },
         {
           "id": "c.eligible",
@@ -198,7 +198,8 @@
           "carries": [
             "the reconciled intent history, including the pre-identity portion",
             "which signals crossed the threshold and when",
-            "the identity resolution method, so a later dispute can be traced"
+            "the identity resolution method, so a later dispute can be traced",
+            "a fresh lead_id, minted at this handoff from the reconciled profile's own account/person identity, since no lead concept exists prior to this point"
           ]
         },
         {
@@ -336,7 +337,7 @@
             }
           ],
           "next": "c.ready",
-          "idempotencyKey": "account_id + lead_id + a.record"
+          "idempotencyKey": "lead_id + a.record"
         },
         {
           "id": "c.ready",
@@ -1078,7 +1079,7 @@
             }
           ],
           "next": "c.state",
-          "idempotencyKey": "account_id + lead_id + a.read"
+          "idempotencyKey": "lead_id + a.read"
         },
         {
           "id": "c.state",
@@ -1192,7 +1193,7 @@
             }
           ],
           "next": "w.recycle",
-          "idempotencyKey": "account_id + lead_id + a.mark-recycle"
+          "idempotencyKey": "lead_id + a.mark-recycle"
         },
         {
           "id": "w.recycle",
@@ -1227,7 +1228,7 @@
             }
           ],
           "next": "x.recycled",
-          "idempotencyKey": "account_id + lead_id + a.requalify"
+          "idempotencyKey": "lead_id + a.requalify"
         },
         {
           "id": "x.recycled",
@@ -1430,7 +1431,7 @@
             }
           ],
           "next": "c.eligible",
-          "idempotencyKey": "account_id + person_id + a.evaluate"
+          "idempotencyKey": "entity_ref + rule_id + a.evaluate"
         },
         {
           "id": "c.eligible",
@@ -1492,7 +1493,7 @@
             }
           ],
           "next": "h.reconcile",
-          "idempotencyKey": "account_id + person_id + a.reconcile"
+          "idempotencyKey": "entity_ref + rule_id + a.reconcile"
         },
         {
           "id": "h.reconcile",
@@ -1524,7 +1525,7 @@
             }
           ],
           "next": "x.ineligible",
-          "idempotencyKey": "account_id + person_id + a.block"
+          "idempotencyKey": "entity_ref + rule_id + a.block"
         },
         {
           "id": "x.ineligible",
@@ -1960,7 +1961,7 @@
             }
           ],
           "next": "a.identify",
-          "idempotencyKey": "contact_point_id + account_id + a.scope"
+          "idempotencyKey": "person_id + destination_entity_id + a.scope"
         },
         {
           "id": "a.identify",
@@ -1979,7 +1980,7 @@
             }
           ],
           "next": "h.next",
-          "idempotencyKey": "contact_point_id + account_id + a.suppress"
+          "idempotencyKey": "person_id + destination_entity_id + a.suppress"
         },
         {
           "id": "h.next",
@@ -1997,8 +1998,8 @@
           ],
           "contract": {
             "requiredFields": [
-              "contact_point_id",
-              "account_id",
+              "person_id",
+              "destination_entity_id",
               "handed_at",
               "reason"
             ]
@@ -2485,7 +2486,7 @@
             }
           ],
           "next": "c.reason",
-          "idempotencyKey": "account_id + lead_id + a.capture"
+          "idempotencyKey": "lead_id + decline_id + a.capture"
         },
         {
           "id": "c.reason",
@@ -7290,11 +7291,19 @@
           "carries": [
             "which event activated the account",
             "what was left unfinished, since activation is not mastery and adoption may still need it",
-            "any operational requirement spun off separately"
+            "any operational requirement spun off separately",
+            "the use_case_id the activating event implies, minted at this handoff since no use-case concept exists prior to activation"
           ],
           "suppresses": [
             "every remaining onboarding action for this instance, queued or scheduled"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "account_id",
+              "person_id",
+              "use_case_id"
+            ]
+          }
         }
       ],
       "guardrails": [
@@ -9149,8 +9158,15 @@
         {
           "id": "a.inspect",
           "kind": "action",
-          "does": "Look for evidence around the absence: repeated failures, an unresolved blocker, falling value realisation, negative feedback, narrowing depth or breadth, any exploration of cancellation",
-          "next": "c.corroborated"
+          "does": "Look for evidence around the absence: repeated failures, an unresolved blocker, falling value realisation, negative feedback, narrowing depth or breadth, any exploration of cancellation. Record the miss itself, corroborated or not, so a later miss on the same use case has something to accumulate against - absence is evidence only in aggregate, and an aggregate needs a record to add to",
+          "writes": [
+            {
+              "field": "corroborating_evidence",
+              "mode": "append"
+            }
+          ],
+          "next": "c.corroborated",
+          "idempotencyKey": "account_id + use_case_id + a.inspect"
         },
         {
           "id": "c.corroborated",
@@ -9322,7 +9338,7 @@
             }
           ],
           "next": "c.cause",
-          "idempotencyKey": "subscription_id + account_id + a.decompose"
+          "idempotencyKey": "account_id + relationship_id + a.decompose"
         },
         {
           "id": "c.cause",
@@ -9405,7 +9421,7 @@
           ],
           "contract": {
             "requiredFields": [
-              "subscription_id",
+              "relationship_id",
               "account_id",
               "handed_at",
               "reason"
@@ -9433,7 +9449,7 @@
           ],
           "contract": {
             "requiredFields": [
-              "subscription_id",
+              "relationship_id",
               "account_id",
               "handed_at",
               "reason"
@@ -9451,7 +9467,7 @@
           ],
           "contract": {
             "requiredFields": [
-              "subscription_id",
+              "relationship_id",
               "account_id",
               "handed_at",
               "reason"
@@ -9471,7 +9487,7 @@
           "kind": "action",
           "does": "Open a bounded diagnostic: observe, and where appropriate ask. No incentive is attached, because an incentive offered before the cause is known teaches us nothing about the cause",
           "next": "w.diagnostic",
-          "idempotencyKey": "subscription_id + account_id + a.diagnostic"
+          "idempotencyKey": "account_id + relationship_id + a.diagnostic"
         },
         {
           "id": "w.diagnostic",
@@ -9855,7 +9871,7 @@
           ],
           "contract": {
             "requiredFields": [
-              "subscription_id",
+              "relationship_id",
               "account_id",
               "handed_at",
               "reason"
@@ -11098,7 +11114,7 @@
             }
           ],
           "next": "a.termination-state",
-          "idempotencyKey": "subscription_id + relationship_id + a.invalidate"
+          "idempotencyKey": "relationship_id + a.invalidate"
         },
         {
           "id": "a.termination-state",
@@ -11111,7 +11127,7 @@
             }
           ],
           "next": "c.access",
-          "idempotencyKey": "subscription_id + relationship_id + a.termination-state"
+          "idempotencyKey": "relationship_id + a.termination-state"
         },
         {
           "id": "c.access",
@@ -11141,7 +11157,7 @@
             }
           ],
           "next": "c.obligations",
-          "idempotencyKey": "subscription_id + relationship_id + a.wind-down"
+          "idempotencyKey": "relationship_id + a.wind-down"
         },
         {
           "id": "c.obligations",
@@ -11171,7 +11187,6 @@
           ],
           "contract": {
             "requiredFields": [
-              "subscription_id",
               "relationship_id",
               "handed_at",
               "reason"
@@ -11528,7 +11543,7 @@
           ],
           "contract": {
             "requiredFields": [
-              "subscription_id",
+              "relationship_id",
               "account_id",
               "handed_at",
               "reason"
@@ -12971,7 +12986,7 @@
             }
           ],
           "next": "c.valid",
-          "idempotencyKey": "consent_record_id + person_id + a.capture"
+          "idempotencyKey": "person_id + purpose_channel_scope_key + a.capture"
         },
         {
           "id": "c.valid",
@@ -13006,7 +13021,7 @@
             }
           ],
           "next": "c.existing",
-          "idempotencyKey": "consent_record_id + person_id + a.narrow"
+          "idempotencyKey": "person_id + purpose_channel_scope_key + a.narrow"
         },
         {
           "id": "x.rejected",
@@ -13044,7 +13059,7 @@
             }
           ],
           "next": "x.active",
-          "idempotencyKey": "consent_record_id + person_id + a.reconcile"
+          "idempotencyKey": "person_id + purpose_channel_scope_key + a.reconcile"
         },
         {
           "id": "a.activate",
@@ -13057,7 +13072,7 @@
             }
           ],
           "next": "x.active",
-          "idempotencyKey": "consent_record_id + person_id + a.activate"
+          "idempotencyKey": "person_id + purpose_channel_scope_key + a.activate"
         },
         {
           "id": "x.active",
@@ -13285,7 +13300,9 @@
             "declared_preferences",
             "suppressed_sends"
           ],
-          "optional": []
+          "optional": [
+            "adapted_sends"
+          ]
         }
       },
       "measurement": {
@@ -13394,7 +13411,14 @@
           "id": "a.adapt",
           "kind": "action",
           "does": "Adapt the pending actions to the new preference before execution rather than after - adapting afterwards is called an apology",
-          "next": "x.recalculated"
+          "writes": [
+            {
+              "field": "adapted_sends",
+              "mode": "append"
+            }
+          ],
+          "next": "x.recalculated",
+          "idempotencyKey": "person_id + a.adapt"
         },
         {
           "id": "x.recalculated",
@@ -13423,7 +13447,11 @@
       "purpose": "Recalculate how often optional communication may go out, without letting that quietly reach the messages someone has to receive.",
       "entity": {
         "scope": "person plus the communication classes the frequency preference actually governs",
-        "note": "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose."
+        "note": "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose. This mechanism is a pure event-driven entry point - it is reached whenever frequency_preference_changed fires from wherever a person declares a cadence change (a preference center, a support-assisted change, an API), the same shallow entry-point shape as CMS-201/CON-35/OPS-121, not something another canonical journey hands off into.",
+        "instanceKey": [
+          "person_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -13481,7 +13509,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.recalculate"
+          "next": "a.recalculate",
+          "idempotencyKey": "person_id + a.include"
         },
         {
           "id": "a.exclude",
@@ -13528,7 +13557,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.applied"
+          "next": "x.applied",
+          "idempotencyKey": "person_id + a.trim"
         },
         {
           "id": "x.applied",
@@ -13556,7 +13586,12 @@
       "purpose": "Stop affected communication the moment permission changes, and let the distributed systems catch up afterwards.",
       "entity": {
         "scope": "person plus the permission record that changed, at its purpose, channel and scope",
-        "note": "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure."
+        "note": "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure. change_version is a counter maintained per (person, purpose, channel, scope) combination, so it disambiguates successive changes on the same permission without colliding across different ones; change_origin names the system the change came from. Both are what a.propagate's own guardrail means by \"origin and version\" - carried explicitly, not left as an unnamed concept.",
+        "instanceKey": [
+          "person_id",
+          "change_version"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -13581,14 +13616,15 @@
         {
           "id": "a.record",
           "kind": "action",
-          "does": "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment",
+          "does": "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment. Assigns change_version for this transition and records change_origin, the system it came from",
           "writes": [
             {
               "field": "permission_log",
               "mode": "append"
             }
           ],
-          "next": "c.direction"
+          "next": "c.direction",
+          "idempotencyKey": "person_id + change_version + a.record"
         },
         {
           "id": "c.direction",
@@ -13617,12 +13653,13 @@
               "mode": "append"
             }
           ],
-          "next": "a.propagate"
+          "next": "a.propagate",
+          "idempotencyKey": "person_id + change_version + a.enforce"
         },
         {
           "id": "a.propagate",
           "kind": "action",
-          "does": "Propagate the new state to the dependent systems, carrying origin and version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange",
+          "does": "Propagate the new state to the dependent systems, carrying change_origin and change_version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange - a dependent system applies a propagation only if its incoming change_version is newer than what it already holds for this (person_id, purpose, channel, scope), which is what makes redelivery and reordering both safe",
           "next": "w.converge"
         },
         {
@@ -13662,10 +13699,17 @@
           "to": "CON-40",
           "on": "systems failing to converge on the new permission state",
           "carries": [
-            "the intended state with its version and origin",
+            "the intended state with change_version and change_origin",
+            "disputed_permission_ref, derived from this change's own (purpose, channel, scope), which CON-40's own conflict instance is keyed on",
             "which systems disagree and what each of them holds",
             "the fact that local enforcement is already applied, so the conflict is about consistency rather than about whether to send"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "person_id",
+              "disputed_permission_ref"
+            ]
+          }
         },
         {
           "id": "x.consistent",
@@ -13694,7 +13738,11 @@
       "purpose": "Track whether a channel can reach someone, as a state entirely separate from whether it may, and keep each destination's route health separately so future sending routes around what is broken.",
       "entity": {
         "scope": "person plus the specific contact point - this address, this number, this device token",
-        "note": "Contactability belongs to the contact point, not the person and not the channel class. One dead device token does not make push unreachable, and there is deliberately no person-level reachable flag - one would erase every route the failing one is not."
+        "note": "Contactability belongs to the contact point, not the person and not the channel class. One dead device token does not make push unreachable, and there is deliberately no person-level reachable flag - one would erase every route the failing one is not.",
+        "instanceKey": [
+          "contact_point_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -13730,7 +13778,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.state"
+          "next": "c.state",
+          "idempotencyKey": "contact_point_id + a.state"
         },
         {
           "id": "c.state",
@@ -13764,7 +13813,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.pending"
+          "next": "c.pending",
+          "idempotencyKey": "contact_point_id + a.add"
         },
         {
           "id": "a.resume",
@@ -13776,7 +13826,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.pending"
+          "next": "c.pending",
+          "idempotencyKey": "contact_point_id + a.resume"
         },
         {
           "id": "c.pending",
@@ -13801,9 +13852,15 @@
           "to": "CMS-202",
           "on": "pending communication affected by a change in this destination's health",
           "carries": [
+            "each affected obligation's own obligation_id - this fans out to CMS-202 once per obligation, not once for the batch",
             "the affected obligations and the destination whose state changed",
             "the explicit instruction to re-resolve destinations rather than to resend - nothing was delivered to the failing route"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "x.resumed",
@@ -13822,7 +13879,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.pending-blocked"
+          "next": "c.pending-blocked",
+          "idempotencyKey": "contact_point_id + a.suppress"
         },
         {
           "id": "c.pending-blocked",
@@ -14157,7 +14215,12 @@
       "purpose": "Reduce optional communication pressure for a while, without touching permission and without covering more than it needs to.",
       "entity": {
         "scope": "person or account plus the communication context the cooldown was created for",
-        "note": "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find."
+        "note": "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find. cooldown_context is established at a.create itself, so a.create's own idempotency is scoped coarser (person_id alone) than the actions that follow it.",
+        "instanceKey": [
+          "person_id",
+          "cooldown_context"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.cooldown",
       "nodes": [
@@ -14176,14 +14239,15 @@
         {
           "id": "a.create",
           "kind": "action",
-          "does": "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early",
+          "does": "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early. Establishes cooldown_context itself",
           "writes": [
             {
               "field": "cooldown_log",
               "mode": "append"
             }
           ],
-          "next": "c.scope"
+          "next": "c.scope",
+          "idempotencyKey": "person_id + a.create"
         },
         {
           "id": "c.scope",
@@ -14212,7 +14276,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.cooldown"
+          "next": "w.cooldown",
+          "idempotencyKey": "person_id + cooldown_context + a.policy-scope"
         },
         {
           "id": "w.cooldown",
@@ -14226,7 +14291,8 @@
             "reason": "the ordinary end of a cooldown is that it expires, so the timeout is the normal path rather than the exception"
           },
           "onTimeout": "a.reevaluate",
-          "windowExtendsOnEngagement": false
+          "windowExtendsOnEngagement": false,
+          "recheck": "current eligibility for the governed classes, re-read from authoritative state before re-evaluating - not the state as it stood when the cooldown began"
         },
         {
           "id": "c.basis",
@@ -14251,9 +14317,16 @@
           "to": "CON-38",
           "on": "a cooldown outgrown by its own cause",
           "carries": [
+            "person_id and suppression_scope (the cooldown's own communication context, carried forward as CON-38's own scope), which CON-38's own instance is keyed on",
             "the cooldown's reason and scope, and what changed",
             "the fact that this needs a stated reason and release condition rather than an expiry"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "person_id",
+              "suppression_scope"
+            ]
+          }
         },
         {
           "id": "a.reevaluate",
@@ -14265,7 +14338,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.released"
+          "next": "x.released",
+          "idempotencyKey": "person_id + cooldown_context + a.reevaluate"
         },
         {
           "id": "x.released",
@@ -14294,7 +14368,12 @@
       "purpose": "Hold optional communication closed while two systems disagree about permission, and reconcile on evidence rather than on whichever value allows more.",
       "entity": {
         "scope": "person plus the specific permission type, channel and purpose that disagrees",
-        "note": "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure."
+        "note": "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure. disputed_permission_ref stands for the (permission_type, channel, purpose) combination a.scope resolves - one conflict instance per disputed combination, distinct from CON-35's own change_version (a conflict is about which value is right, not about a single ordered change).",
+        "instanceKey": [
+          "person_id",
+          "disputed_permission_ref"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -14329,7 +14408,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.collect"
+          "next": "a.collect",
+          "idempotencyKey": "person_id + disputed_permission_ref + a.failsafe"
         },
         {
           "id": "a.collect",
@@ -14341,7 +14421,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.scope"
+          "next": "a.scope",
+          "idempotencyKey": "person_id + disputed_permission_ref + a.collect"
         },
         {
           "id": "a.scope",
@@ -14353,7 +14434,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.resolvable"
+          "next": "c.resolvable",
+          "idempotencyKey": "person_id + disputed_permission_ref + a.scope"
         },
         {
           "id": "c.resolvable",
@@ -14382,7 +14464,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.reconcile"
+          "next": "w.reconcile",
+          "idempotencyKey": "person_id + disputed_permission_ref + a.enter"
         },
         {
           "id": "w.reconcile",
@@ -14412,19 +14495,20 @@
         {
           "id": "a.apply",
           "kind": "action",
-          "does": "Apply the established state and propagate the correction with origin and version, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
+          "does": "Apply the established state and propagate the correction with change_origin and a fresh change_version for the resolution, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
           "writes": [
             {
               "field": "permission_log",
               "mode": "append"
             }
           ],
-          "next": "a.verify"
+          "next": "a.verify",
+          "idempotencyKey": "person_id + disputed_permission_ref + a.apply"
         },
         {
           "id": "a.verify",
           "kind": "action",
-          "does": "Verify convergence across the systems that are required to agree, using idempotent versioned writes so verification cannot itself become another round of the exchange",
+          "does": "Verify convergence across the systems that are required to agree, using change_version-checked writes so verification cannot itself become another round of the exchange - a system's own report is only accepted at the resolution's change_version, never inferred from a bare acknowledgement",
           "next": "c.converged"
         },
         {
@@ -14454,7 +14538,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.resolved"
+          "next": "x.resolved",
+          "idempotencyKey": "person_id + disputed_permission_ref + a.release"
         },
         {
           "id": "x.resolved",
@@ -22514,7 +22599,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.grace"
+          "next": "w.grace",
+          "idempotencyKey": "entity_id + grace_period_id + a.record"
         },
         {
           "id": "w.grace",
@@ -22570,7 +22656,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.recovered"
+          "next": "x.recovered",
+          "idempotencyKey": "entity_id + grace_period_id + a.restore"
         },
         {
           "id": "x.recovered",
@@ -24889,7 +24976,7 @@
             }
           ],
           "next": "c.existing",
-          "idempotencyKey": "account_id + person_id + a.evaluate"
+          "idempotencyKey": "account_id + entitlement_key + a.evaluate"
         },
         {
           "id": "c.existing",
@@ -24919,7 +25006,7 @@
             }
           ],
           "next": "x.reconciled",
-          "idempotencyKey": "account_id + person_id + a.reconcile"
+          "idempotencyKey": "account_id + entitlement_key + a.reconcile"
         },
         {
           "id": "x.reconciled",
@@ -24978,7 +25065,7 @@
             }
           ],
           "next": "h.provision",
-          "idempotencyKey": "account_id + person_id + a.grant"
+          "idempotencyKey": "account_id + entitlement_key + a.grant"
         },
         {
           "id": "h.provision",
@@ -25963,6 +26050,12 @@
           "because": "Grace continues a right whose validity has ended. Suspension restricts a right that is still valid. One is continuity after an ending; the other is a hold before one."
         }
       ],
+      "competition": {
+        "scope": "account",
+        "exclusionGroup": "account-restriction-authority",
+        "precedence": "lower than a suspected-compromise investigation (IDN-90) on the same account - an active security incident is the more urgent, safety-critical question, and a business-reason suspension defers to it rather than resolving independently while it is open",
+        "onLoss": "paused"
+      },
       "objective": "Restrict defined capabilities for a reason, in the smallest scope that addresses it, while keeping restoration genuinely possible.",
       "eligibility": [
         "a decision to suspend for a stated reason: a payment state, a security review, a policy review, a temporary operational restriction, or an administrative hold",
@@ -26065,7 +26158,7 @@
             }
           ],
           "next": "c.partial",
-          "idempotencyKey": "account_id + person_id + a.scope"
+          "idempotencyKey": "account_id + capability_scope + a.scope"
         },
         {
           "id": "c.partial",
@@ -26095,7 +26188,7 @@
             }
           ],
           "next": "w.suspension",
-          "idempotencyKey": "account_id + person_id + a.preserve"
+          "idempotencyKey": "account_id + capability_scope + a.preserve"
         },
         {
           "id": "a.full",
@@ -26108,7 +26201,7 @@
             }
           ],
           "next": "w.suspension",
-          "idempotencyKey": "account_id + person_id + a.full"
+          "idempotencyKey": "account_id + capability_scope + a.full"
         },
         {
           "id": "w.suspension",
@@ -26183,7 +26276,7 @@
             }
           ],
           "next": "x.extended",
-          "idempotencyKey": "account_id + person_id + a.extend"
+          "idempotencyKey": "account_id + capability_scope + a.extend"
         },
         {
           "id": "x.extended",
@@ -26200,8 +26293,15 @@
           "on": "a suspension ending without a terminal decision",
           "carries": [
             "which capabilities were blocked and why",
-            "the explicit instruction that restoration revalidates rather than replays - the previous capability set is history, not a target"
-          ]
+            "the explicit instruction that restoration revalidates rather than replays - the previous capability set is history, not a target",
+            "a restoration_case_id minted at this handoff, deterministically derived from account_id + capability_scope + this suspension's own review outcome, so ACC-79 can construct its own instance without inventing one"
+          ],
+          "contract": {
+            "requiredFields": [
+              "account_id",
+              "restoration_case_id"
+            ]
+          }
         },
         {
           "id": "h.terminate",
@@ -26243,7 +26343,7 @@
       "purpose": "Rebuild access from what is currently valid, rather than replaying the capability set someone used to have.",
       "entity": {
         "scope": "the person or account plus each capability being considered for restoration",
-        "note": "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities.",
+        "note": "Each capability is judged on its own current requirements. Restoration is not one decision but as many as there are capabilities. restoration_case_id is minted by whichever journey initiates eligibility for restoration - a suspension ending, a balance reconciling, a security incident clearing - deterministically from that journey's own instance identity, and carried explicitly in its handoff's contract.requiredFields rather than assumed.",
         "instanceKey": [
           "account_id",
           "restoration_case_id"
@@ -26356,7 +26456,7 @@
             }
           ],
           "next": "c.requirements",
-          "idempotencyKey": "account_id + person_id + a.reevaluate"
+          "idempotencyKey": "account_id + restoration_case_id + a.reevaluate"
         },
         {
           "id": "c.requirements",
@@ -26391,7 +26491,7 @@
             }
           ],
           "next": "x.restored",
-          "idempotencyKey": "account_id + person_id + a.restore-full"
+          "idempotencyKey": "account_id + restoration_case_id + a.restore-full"
         },
         {
           "id": "a.restore-subset",
@@ -26404,7 +26504,7 @@
             }
           ],
           "next": "x.partial",
-          "idempotencyKey": "account_id + person_id + a.restore-subset"
+          "idempotencyKey": "account_id + restoration_case_id + a.restore-subset"
         },
         {
           "id": "x.restored",
@@ -29532,7 +29632,7 @@
             }
           ],
           "next": "c.incident",
-          "idempotencyKey": "issue_id + account_id + a.basis"
+          "idempotencyKey": "recovery_case_id + a.basis"
         },
         {
           "id": "c.incident",
@@ -29558,8 +29658,14 @@
           "on": "a recovery request arriving during an open security incident",
           "carries": [
             "the recovery request and what the requester has offered",
-            "the fact that recovery is coordinated by the incident rather than run alongside it - a parallel recovery is exactly the path an attacker would take"
-          ]
+            "the fact that recovery is coordinated by the incident rather than run alongside it - a parallel recovery is exactly the path an attacker would take",
+            "the incident_id of the account's already-open IDN-90 instance, resolved via account_id - this handoff joins that existing incident rather than opening a new one"
+          ],
+          "contract": {
+            "requiredFields": [
+              "incident_id"
+            ]
+          }
         },
         {
           "id": "a.evidence",
@@ -29572,7 +29678,7 @@
             }
           ],
           "next": "w.proof",
-          "idempotencyKey": "issue_id + account_id + a.evidence"
+          "idempotencyKey": "recovery_case_id + a.evidence"
         },
         {
           "id": "w.proof",
@@ -29637,7 +29743,7 @@
             }
           ],
           "next": "a.replace",
-          "idempotencyKey": "issue_id + account_id + a.invalidate"
+          "idempotencyKey": "recovery_case_id + a.invalidate"
         },
         {
           "id": "a.replace",
@@ -29650,7 +29756,7 @@
             }
           ],
           "next": "a.verify",
-          "idempotencyKey": "issue_id + account_id + a.replace"
+          "idempotencyKey": "recovery_case_id + a.replace"
         },
         {
           "id": "a.verify",
@@ -29663,7 +29769,7 @@
             }
           ],
           "next": "x.recovered",
-          "idempotencyKey": "issue_id + account_id + a.verify"
+          "idempotencyKey": "recovery_case_id + a.verify"
         },
         {
           "id": "x.recovered",
@@ -29785,6 +29891,8 @@
             "requested_value",
             "verification_policy",
             "dependents",
+            "change_origin",
+            "change_version",
             "identity_change_log"
           ],
           "optional": []
@@ -29853,7 +29961,7 @@
             }
           ],
           "next": "c.verification",
-          "idempotencyKey": "account_id + person_id + a.sensitivity"
+          "idempotencyKey": "account_id + attribute_id + a.sensitivity"
         },
         {
           "id": "c.verification",
@@ -29961,12 +30069,12 @@
             }
           ],
           "next": "a.propagate",
-          "idempotencyKey": "account_id + person_id + a.update"
+          "idempotencyKey": "account_id + attribute_id + a.update"
         },
         {
           "id": "a.propagate",
           "kind": "action",
-          "does": "Propagate to dependent systems carrying origin and version, so a stale update arriving late cannot restore the previous value",
+          "does": "Propagate to dependent systems carrying change_origin and change_version, so a stale update arriving late cannot restore the previous value",
           "writes": [
             {
               "field": "identity_change_log",
@@ -29974,7 +30082,7 @@
             }
           ],
           "next": "c.dependents",
-          "idempotencyKey": "account_id + person_id + a.propagate"
+          "idempotencyKey": "account_id + attribute_id + a.propagate"
         },
         {
           "id": "c.dependents",
@@ -30004,7 +30112,7 @@
             }
           ],
           "next": "x.reconciled",
-          "idempotencyKey": "account_id + person_id + a.reconcile"
+          "idempotencyKey": "account_id + attribute_id + a.reconcile"
         },
         {
           "id": "x.reconciled",
@@ -30054,6 +30162,12 @@
           "because": "Suspension restricts for a stated business reason and expects to be resolved by that reason going away. This restricts on incomplete evidence about an adversary, which is why it opens an investigation rather than a review."
         }
       ],
+      "competition": {
+        "scope": "account",
+        "exclusionGroup": "account-restriction-authority",
+        "precedence": "highest in the group - a suspected compromise is the more urgent, safety-critical question, and a concurrent business-reason suspension (ACC-78) on the same account pauses rather than resolving independently while this investigation is open",
+        "onLoss": "paused"
+      },
       "objective": "Limit the damage a possible compromise could do while the question is still open, and reach a conclusion that can go either way.",
       "eligibility": [
         "a material signal: a credential-theft indication, an unauthorised sensitive change, a credible report from the owner, a high-confidence detection, or a suspicious session combined with a consequential action",
@@ -30271,8 +30385,15 @@
           "on": "a confirmed compromise moving to secure restoration",
           "carries": [
             "what was revoked and what was corrected",
-            "the explicit instruction that access is rebuilt from current valid state - a snapshot taken before the incident would restore exactly the credentials the incident was about"
-          ]
+            "the explicit instruction that access is rebuilt from current valid state - a snapshot taken before the incident would restore exactly the credentials the incident was about",
+            "a restoration_case_id minted at this handoff, deterministically derived from incident_id and the confirmed-compromise outcome, so ACC-79 can construct its own instance without inventing one"
+          ],
+          "contract": {
+            "requiredFields": [
+              "account_id",
+              "restoration_case_id"
+            ]
+          }
         },
         {
           "id": "a.cleared",
@@ -30294,8 +30415,15 @@
           "on": "a cleared incident whose restrictions should be lifted",
           "carries": [
             "which capabilities were restricted and for how long",
-            "the instruction to revalidate rather than replay - the previous capability set is history even when nothing was actually wrong"
-          ]
+            "the instruction to revalidate rather than replay - the previous capability set is history even when nothing was actually wrong",
+            "a restoration_case_id minted at this handoff, deterministically derived from incident_id and the cleared outcome, so ACC-79 can construct its own instance without inventing one"
+          ],
+          "contract": {
+            "requiredFields": [
+              "account_id",
+              "restoration_case_id"
+            ]
+          }
         },
         {
           "id": "c.inconclusive",
@@ -32067,7 +32195,7 @@
             }
           ],
           "next": "c.pending",
-          "idempotencyKey": "account_id + relationship_id + a.delta"
+          "idempotencyKey": "account_id + member_id + role_id + a.delta"
         },
         {
           "id": "c.pending",
@@ -32134,7 +32262,7 @@
             }
           ],
           "next": "x.applied",
-          "idempotencyKey": "account_id + relationship_id + a.apply"
+          "idempotencyKey": "account_id + member_id + role_id + a.apply"
         },
         {
           "id": "x.applied",
@@ -32964,7 +33092,7 @@
             }
           ],
           "next": "c.replacement",
-          "idempotencyKey": "relationship_id + a.state"
+          "idempotencyKey": "entity_ref + relationship_type + a.state"
         },
         {
           "id": "c.replacement",
@@ -33026,7 +33154,7 @@
             }
           ],
           "next": "w.restore",
-          "idempotencyKey": "relationship_id + a.hold"
+          "idempotencyKey": "entity_ref + relationship_type + a.hold"
         },
         {
           "id": "w.restore",
@@ -33060,7 +33188,7 @@
             }
           ],
           "next": "a.revalidate",
-          "idempotencyKey": "relationship_id + a.reassign"
+          "idempotencyKey": "entity_ref + relationship_type + a.reassign"
         },
         {
           "id": "a.revalidate",
@@ -33073,7 +33201,7 @@
             }
           ],
           "next": "x.resumed",
-          "idempotencyKey": "relationship_id + a.revalidate"
+          "idempotencyKey": "entity_ref + relationship_type + a.revalidate"
         },
         {
           "id": "x.resumed",
@@ -34531,7 +34659,7 @@
             }
           ],
           "next": "a.inventory",
-          "idempotencyKey": "person_id + a.define"
+          "idempotencyKey": "role_id + handover_id + a.define"
         },
         {
           "id": "a.inventory",
@@ -34544,7 +34672,7 @@
             }
           ],
           "next": "c.eligible",
-          "idempotencyKey": "person_id + a.inventory"
+          "idempotencyKey": "role_id + handover_id + a.inventory"
         },
         {
           "id": "c.eligible",
@@ -34584,7 +34712,7 @@
             }
           ],
           "next": "w.effective",
-          "idempotencyKey": "person_id + a.prepare"
+          "idempotencyKey": "role_id + handover_id + a.prepare"
         },
         {
           "id": "w.effective",
@@ -34628,7 +34756,7 @@
             }
           ],
           "next": "c.still-valid",
-          "idempotencyKey": "person_id + a.revalidate"
+          "idempotencyKey": "role_id + handover_id + a.revalidate"
         },
         {
           "id": "c.still-valid",
@@ -34668,7 +34796,7 @@
             }
           ],
           "next": "a.invalidate",
-          "idempotencyKey": "person_id + a.activate"
+          "idempotencyKey": "role_id + handover_id + a.activate"
         },
         {
           "id": "a.invalidate",
@@ -34681,7 +34809,7 @@
             }
           ],
           "next": "x.handed-over",
-          "idempotencyKey": "person_id + a.invalidate"
+          "idempotencyKey": "role_id + handover_id + a.invalidate"
         },
         {
           "id": "x.handed-over",
@@ -35308,7 +35436,7 @@
             }
           ],
           "next": "c.coupled",
-          "idempotencyKey": "account_id + a.inventory"
+          "idempotencyKey": "account_id + closure_id + a.inventory"
         },
         {
           "id": "c.coupled",
@@ -35338,7 +35466,7 @@
             }
           ],
           "next": "w.outcomes",
-          "idempotencyKey": "account_id + a.verify-termination"
+          "idempotencyKey": "account_id + closure_id + a.verify-termination"
         },
         {
           "id": "a.separate",
@@ -35351,7 +35479,7 @@
             }
           ],
           "next": "w.outcomes",
-          "idempotencyKey": "account_id + a.separate"
+          "idempotencyKey": "account_id + closure_id + a.separate"
         },
         {
           "id": "w.outcomes",
@@ -35402,7 +35530,7 @@
             }
           ],
           "next": "x.finalized",
-          "idempotencyKey": "account_id + a.record-final"
+          "idempotencyKey": "account_id + closure_id + a.record-final"
         },
         {
           "id": "a.record-unresolved",
@@ -35415,7 +35543,7 @@
             }
           ],
           "next": "h.escalate",
-          "idempotencyKey": "account_id + a.record-unresolved"
+          "idempotencyKey": "account_id + closure_id + a.record-unresolved"
         },
         {
           "id": "c.policy",
@@ -35445,7 +35573,7 @@
             }
           ],
           "next": "x.finalized",
-          "idempotencyKey": "account_id + a.record-remaining"
+          "idempotencyKey": "account_id + closure_id + a.record-remaining"
         },
         {
           "id": "h.escalate",
@@ -35586,7 +35714,7 @@
             }
           ],
           "next": "a.guard",
-          "idempotencyKey": "obligation_id + account_id + a.suppress"
+          "idempotencyKey": "account_id + a.suppress"
         },
         {
           "id": "a.guard",
@@ -35599,7 +35727,7 @@
             }
           ],
           "next": "c.remaining",
-          "idempotencyKey": "obligation_id + account_id + a.guard"
+          "idempotencyKey": "account_id + a.guard"
         },
         {
           "id": "c.remaining",
@@ -35629,7 +35757,7 @@
             }
           ],
           "next": "w.winddown",
-          "idempotencyKey": "obligation_id + account_id + a.scope"
+          "idempotencyKey": "account_id + a.scope"
         },
         {
           "id": "w.winddown",
@@ -39153,7 +39281,12 @@
       "purpose": "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
       "entity": {
         "scope": "the individual work item, keyed by its own idempotency and correlation identifiers",
-        "note": "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed."
+        "note": "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed. logical_operation_key is the caller-supplied identity of the business operation this work item represents - accepting work twice under the same key resolves to the one existing work record, never a second one; work_id is this mechanism's own record identity, minted at acceptance and distinct from logical_operation_key the same way CMS-206's attempt_id is distinct from message_id (this domain's own version of the same invocation-identity-versus-record-identity distinction). correlation_id, also persisted at acceptance, is a separate concern from either - it exists purely to trace one logical operation across the mechanisms it passes through (OPS-122 through OPS-130), not to gate any write.",
+        "instanceKey": [
+          "work_id",
+          "logical_operation_key"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -39182,14 +39315,15 @@
         {
           "id": "a.persist",
           "kind": "action",
-          "does": "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it",
+          "does": "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it. Acceptance is itself idempotent on logical_operation_key: a second t.accepted for the same key returns the existing work_id rather than minting a new one",
           "writes": [
             {
               "field": "work_log",
               "mode": "append"
             }
           ],
-          "next": "c.immediate"
+          "next": "c.immediate",
+          "idempotencyKey": "logical_operation_key + a.persist"
         },
         {
           "id": "c.immediate",
@@ -39218,7 +39352,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.start"
+          "next": "w.start",
+          "idempotencyKey": "work_id + a.queued"
         },
         {
           "id": "w.start",
@@ -39241,9 +39376,14 @@
           "to": "OPS-122",
           "on": "work exceeding its queue SLA without starting",
           "carries": [
-            "the work class, the item's age and its deadline",
+            "workload_class, the item's age and its deadline",
             "the fact that the item has not failed - it has not been started"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "workload_class"
+            ]
+          }
         },
         {
           "id": "c.started",
@@ -39272,14 +39412,15 @@
         {
           "id": "a.processing",
           "kind": "action",
-          "does": "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
+          "does": "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started, minting attempt_number fresh for this specific execution try. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
           "writes": [
             {
               "field": "work_log",
               "mode": "append"
             }
           ],
-          "next": "w.execution"
+          "next": "w.execution",
+          "idempotencyKey": "work_id + attempt_number + a.processing"
         },
         {
           "id": "w.execution",
@@ -39393,7 +39534,11 @@
       "purpose": "Respond to a queue that cannot keep up, measured by how old the unfinished work is rather than by how much of it there is.",
       "entity": {
         "scope": "the queue or workload class that is lagging, assessed per class",
-        "note": "Different work classes carry different SLAs. A single queue-wide verdict either over-reacts for the tolerant classes or under-reacts for the urgent ones."
+        "note": "Different work classes carry different SLAs. A single queue-wide verdict either over-reacts for the tolerant classes or under-reacts for the urgent ones.",
+        "instanceKey": [
+          "workload_class"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -39429,7 +39574,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.burst"
+          "next": "c.burst",
+          "idempotencyKey": "workload_class + a.measure"
         },
         {
           "id": "c.burst",
@@ -39465,7 +39611,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.sla"
+          "next": "c.sla",
+          "idempotencyKey": "workload_class + a.lagging"
         },
         {
           "id": "c.sla",
@@ -39494,7 +39641,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.escalate"
+          "next": "h.escalate",
+          "idempotencyKey": "workload_class + a.urgent"
         },
         {
           "id": "a.response",
@@ -39506,7 +39654,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.recovery"
+          "next": "w.recovery",
+          "idempotencyKey": "workload_class + a.response"
         },
         {
           "id": "w.recovery",
@@ -39580,7 +39729,11 @@
       "purpose": "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
       "entity": {
         "scope": "the individual in-flight work item and the worker that holds it",
-        "note": "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it."
+        "note": "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it. This is the same lease concept OPS-128 names explicitly for worker failure, applied here to a work item whose owner is still nominally alive but has stopped progressing: a.reclaim only transfers ownership once the current lease is confirmed expired or explicitly released, never on the strength of the stall signal alone.",
+        "instanceKey": [
+          "work_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.threshold",
       "nodes": [
@@ -39609,7 +39762,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.progressing"
+          "next": "c.progressing",
+          "idempotencyKey": "work_id + a.inspect"
         },
         {
           "id": "c.progressing",
@@ -39645,7 +39799,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.side-effects"
+          "next": "c.side-effects",
+          "idempotencyKey": "work_id + a.stalled"
         },
         {
           "id": "c.side-effects",
@@ -39697,14 +39852,15 @@
         {
           "id": "a.reclaim",
           "kind": "action",
-          "does": "Reclaim and restart according to the execution semantics, coordinating ownership so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
+          "does": "Reclaim and restart according to the execution semantics, transferring the work item's lease so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
           "writes": [
             {
               "field": "work_log",
               "mode": "append"
             }
           ],
-          "next": "x.recovered"
+          "next": "x.recovered",
+          "idempotencyKey": "work_id + a.reclaim"
         },
         {
           "id": "x.recovered",
@@ -39743,7 +39899,12 @@
       "purpose": "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
       "entity": {
         "scope": "the work item together with its durable attempt history",
-        "note": "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself."
+        "note": "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself. Two different identities are in play here, deliberately not merged into one: logical_operation_key (carried unchanged from OPS-121, the same value on every retry) is what a.attempt sends downstream so a receiver that already processed one physical try can absorb a repeat under it - the side-effect idempotency identity. attempt_number is a separate, incrementing counter scoped to this mechanism's own bookkeeping only (backoff calculation, diagnosability) and is never itself sent downstream as a dedup key - encoding it into the downstream key would turn every retry into a fresh, undeduped operation, exactly the failure this design avoids.",
+        "instanceKey": [
+          "work_id",
+          "logical_operation_key"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -39778,7 +39939,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.safe"
+          "next": "c.safe",
+          "idempotencyKey": "work_id + attempt_number + a.record"
         },
         {
           "id": "c.safe",
@@ -39825,7 +39987,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.retry"
+          "next": "w.retry",
+          "idempotencyKey": "work_id + attempt_number + a.backoff"
         },
         {
           "id": "w.retry",
@@ -39858,7 +40021,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.required"
+          "next": "c.required",
+          "idempotencyKey": "work_id + attempt_number + a.revalidate"
         },
         {
           "id": "c.required",
@@ -39887,14 +40051,20 @@
         {
           "id": "a.attempt",
           "kind": "action",
-          "does": "Execute the retry idempotently, under the same idempotency key, so that a downstream that did receive the first attempt can absorb this one",
+          "does": "Execute the retry idempotently, under logical_operation_key - the same value on every physical try - so that a downstream that did receive an earlier attempt can absorb this one rather than double-processing it. attempt_number still advances for this mechanism's own bookkeeping; it is never itself part of what the downstream dedupes on",
           "writes": [
             {
               "field": "work_log",
               "mode": "append"
             }
           ],
-          "next": "c.result"
+          "next": "c.result",
+          "idempotencyKey": "logical_operation_key + a.attempt",
+          "attemptBudget": {
+            "key": "retryable_failure_recovery.attempt_budget",
+            "rule": "Fixed once when the work item's retry history opens, durable across worker restarts; never renewed by revalidation, by backoff completing, or by delegation from another mechanism.",
+            "required": true
+          }
         },
         {
           "id": "c.result",
@@ -39958,7 +40128,11 @@
       "purpose": "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
       "entity": {
         "scope": "the logical business operation, and the work instances claiming to be it",
-        "note": "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for."
+        "note": "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for. logical_operation_key is the same field OPS-121/OPS-124 carry - deduplication here compares against it directly rather than against a second, independently-invented identity.",
+        "instanceKey": [
+          "logical_operation_key"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.duplicate",
       "nodes": [
@@ -39980,14 +40154,15 @@
         {
           "id": "a.compare",
           "kind": "action",
-          "does": "Compare the stable identifiers: the idempotency key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
+          "does": "Compare the stable identifiers: logical_operation_key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
           "writes": [
             {
               "field": "dedup_log",
               "mode": "append"
             }
           ],
-          "next": "c.same"
+          "next": "c.same",
+          "idempotencyKey": "logical_operation_key + a.compare"
         },
         {
           "id": "c.same",
@@ -40045,7 +40220,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.suppressed"
+          "next": "x.suppressed",
+          "idempotencyKey": "logical_operation_key + a.reuse"
         },
         {
           "id": "x.suppressed",
@@ -40064,7 +40240,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.attached"
+          "next": "x.attached",
+          "idempotencyKey": "logical_operation_key + a.attach"
         },
         {
           "id": "x.attached",
@@ -40102,7 +40279,11 @@
       "purpose": "Recover the part of a composite operation that failed, without re-running the part that worked.",
       "entity": {
         "scope": "the composite job and each child operation individually",
-        "note": "Children are classified individually and the parent state is recomputed from them. A single verdict across the batch either replays successes or abandons recoverable failures."
+        "note": "Children are classified individually and the parent state is recomputed from them. A single verdict across the batch either replays successes or abandons recoverable failures.",
+        "instanceKey": [
+          "composite_job_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.mixed",
       "nodes": [
@@ -40128,7 +40309,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.policy"
+          "next": "c.policy",
+          "idempotencyKey": "composite_job_id + a.classify"
         },
         {
           "id": "c.policy",
@@ -40191,8 +40373,15 @@
           "on": "failed children that can be retried independently",
           "carries": [
             "only the failed child scope",
+            "each failed child's own work_id and logical_operation_key, established when it was individually accepted as work - a composite job's failure does not invent new identity for its children",
             "the explicit boundary that the completed children are not part of this retry"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "work_id",
+              "logical_operation_key"
+            ]
+          }
         },
         {
           "id": "h.compensate",
@@ -40223,7 +40412,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.recomputed"
+          "next": "x.recomputed",
+          "idempotencyKey": "composite_job_id + a.recompute"
         },
         {
           "id": "x.recomputed",
@@ -40252,7 +40442,11 @@
       "purpose": "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
       "entity": {
         "scope": "the dead-lettered item, linked to the original work it came from",
-        "note": "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure."
+        "note": "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure. replay_id (minted at a.correct) is a fresh identity for the new attempt, carrying original_work_id forward as its own link back - the same parent/child attempt-chain shape CMS-208's minted attempt_ids use, applied here at the dead-letter granularity.",
+        "instanceKey": [
+          "work_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -40284,7 +40478,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.uncertain"
+          "next": "c.uncertain",
+          "idempotencyKey": "work_id + a.preserve"
         },
         {
           "id": "c.uncertain",
@@ -40346,14 +40541,15 @@
         {
           "id": "a.correct",
           "kind": "action",
-          "does": "Correct the authoritative problem, then create a controlled replay linked to the original work. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
+          "does": "Correct the authoritative problem, then mint replay_id and create a controlled replay linked to the original work via original_work_id. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
           "writes": [
             {
               "field": "dead_letter_log",
               "mode": "append"
             }
           ],
-          "next": "x.replayed"
+          "next": "x.replayed",
+          "idempotencyKey": "work_id + a.correct"
         },
         {
           "id": "x.replayed",
@@ -40372,7 +40568,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.obsolete"
+          "next": "x.obsolete",
+          "idempotencyKey": "work_id + a.close"
         },
         {
           "id": "x.obsolete",
@@ -40435,7 +40632,12 @@
       "purpose": "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
       "entity": {
         "scope": "the failed worker and each in-flight work item it owned",
-        "note": "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies."
+        "note": "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies. lease_id identifies the current lease on work_id; c.lease's own branch is what makes waiting out an unexpired lease the default over reclaiming on suspicion, and c.confirmed's completion check runs before either resume path is even considered - the order these three checks run in is itself the safety property, not just their individual correctness.",
+        "instanceKey": [
+          "work_id",
+          "lease_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.worker-down",
       "nodes": [
@@ -40464,7 +40666,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.lease"
+          "next": "c.lease",
+          "idempotencyKey": "work_id + lease_id + a.identify"
         },
         {
           "id": "c.lease",
@@ -40553,26 +40756,28 @@
         {
           "id": "a.checkpoint",
           "kind": "action",
-          "does": "Resume from the checkpoint under new ownership, so the completed portion is not repeated",
+          "does": "Resume from the checkpoint under new ownership, minting a fresh lease_id for the new owner, so the completed portion is not repeated",
           "writes": [
             {
               "field": "work_log",
               "mode": "append"
             }
           ],
-          "next": "x.resumed"
+          "next": "x.resumed",
+          "idempotencyKey": "work_id + a.checkpoint"
         },
         {
           "id": "a.restart",
           "kind": "action",
-          "does": "Reclaim and restart idempotently, with ownership coordinated so no second worker can take it concurrently",
+          "does": "Reclaim and restart idempotently, minting a fresh lease_id so no second worker can take it concurrently",
           "writes": [
             {
               "field": "work_log",
               "mode": "append"
             }
           ],
-          "next": "x.resumed"
+          "next": "x.resumed",
+          "idempotencyKey": "work_id + a.restart"
         },
         {
           "id": "x.resumed",
@@ -40614,7 +40819,11 @@
       "purpose": "Work through an accumulated backlog deliberately, discarding what has gone stale and pacing what has not.",
       "entity": {
         "scope": "the accumulated backlog, inventoried by workload class",
-        "note": "Arrival order is not the drain order. New urgent work should not wait behind old obsolete work simply because the old work arrived first."
+        "note": "Arrival order is not the drain order. New urgent work should not wait behind old obsolete work simply because the old work arrived first.",
+        "instanceKey": [
+          "workload_class"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -40649,7 +40858,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.relevant"
+          "next": "c.relevant",
+          "idempotencyKey": "workload_class + a.inventory"
         },
         {
           "id": "c.relevant",
@@ -40678,7 +40888,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.strategy"
+          "next": "a.strategy",
+          "idempotencyKey": "workload_class + a.cancel"
         },
         {
           "id": "a.strategy",
@@ -40690,7 +40901,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.drain"
+          "next": "a.drain",
+          "idempotencyKey": "workload_class + a.strategy"
         },
         {
           "id": "a.drain",
@@ -40702,7 +40914,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.monitor"
+          "next": "w.monitor",
+          "idempotencyKey": "workload_class + a.drain"
         },
         {
           "id": "w.monitor",
@@ -40728,7 +40941,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.floor"
+          "next": "c.floor",
+          "idempotencyKey": "workload_class + a.throttle"
         },
         {
           "id": "c.floor",
@@ -40784,7 +40998,11 @@
       "purpose": "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",
       "entity": {
         "scope": "the completed technical job and the business entity it was meant to change",
-        "note": "Verification is idempotent, so checking twice costs nothing and proves the same thing. That is what makes it safe to run on every completion."
+        "note": "Verification is idempotent, so checking twice costs nothing and proves the same thing. That is what makes it safe to run on every completion.",
+        "instanceKey": [
+          "work_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.technical",
       "nodes": [
@@ -40830,7 +41048,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.complete"
+          "next": "x.complete",
+          "idempotencyKey": "work_id + a.finalize"
         },
         {
           "id": "x.complete",
@@ -40842,14 +41061,15 @@
         {
           "id": "a.verify",
           "kind": "action",
-          "does": "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent, so running it on every completion costs nothing and proves the same thing each time",
+          "does": "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent by construction (re-checking recomputes the same conclusion from current state), and its own idempotencyKey is a consistent structural marker rather than the thing making repetition safe",
           "writes": [
             {
               "field": "work_log",
               "mode": "append"
             }
           ],
-          "next": "c.confirmed"
+          "next": "c.confirmed",
+          "idempotencyKey": "work_id + a.verify"
         },
         {
           "id": "c.confirmed",
@@ -40883,7 +41103,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.business-complete"
+          "next": "x.business-complete",
+          "idempotencyKey": "work_id + a.business-complete"
         },
         {
           "id": "x.business-complete",
@@ -40921,6 +41142,190 @@
         "An outcome still pending asynchronously stays pending - completion is not claimed early."
       ],
       "reusableRule": "Technical processing is complete only at the infrastructure layer; business completion requires confirmation of the state the work was intended to create."
+    },
+    {
+      "id": "OPS-131",
+      "slug": "journey-competition-arbitration",
+      "category": "processing",
+      "goal": "routing-assignment",
+      "channels": [],
+      "name": "Two or more journeys eligible on one exclusion scope → arbitrate → establish one owner",
+      "shortName": "Journey Competition Arbitration",
+      "purpose": "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared exclusion group, and apply what happens to everyone who does not - GLB-01 through GLB-10 made executable rather than left as policy nobody runs.",
+      "entity": {
+        "scope": "the exclusion group and the specific scope instance being contested, and the journey instances currently eligible for it",
+        "note": "scope_instance_id is not a new canonical concept - it is whatever identifier the contending journeys' own declared CompetitionScope already names for one instance (an account id for scope \"account\", a product id for \"product\", a subscription id for \"subscription\", a person id for \"person\", a communication-purpose id for \"communication-purpose\"), read directly off each contender's own entity rather than duplicated into a second, mechanism-specific identifier. GLB-01's own key is exactly this pair: two journeys sharing only the exclusion group name are not yet competing; sharing the group and the same scope_instance_id, they are. GLB-08 is this key's mirror at the other end - a contest resolved on one instance constrains only that instance. This mechanism reads a contender's own declared precedence and onLoss text directly; it does not copy either into a separate runtime-specific configuration, so the two can never drift apart.",
+        "instanceKey": [
+          "exclusion_group",
+          "scope_instance_id"
+        ],
+        "concurrency": "one-active-per-key"
+      },
+      "distinctFrom": [
+        {
+          "journey": "OPS-125",
+          "because": "OPS-125 resolves multiple claims to the SAME logical operation - the identity is one business action retried or duplicated, and its own instance key (logical_operation_key) never varies between claimants. This mechanism resolves a contest between DIFFERENT journeys, each with its own identity, each independently and legitimately eligible under its own canonical rules, over one shared scope instance under a declared exclusionGroup. Deduplication asks whether two claims are the same thing said twice; this mechanism asks which of two genuinely different things gets to happen."
+        },
+        {
+          "journey": "OPS-128",
+          "because": "OPS-128 transfers a work item's execution ownership between workers when one becomes unavailable - an infrastructure-layer concern with no business precedence involved and no losing side, only a successor. This mechanism establishes which journey owns a contested business scope: the contenders are canonical journeys, not workers, and the winner is chosen by declared business precedence (GLB-02), not by which worker's heartbeat survived."
+        }
+      ],
+      "entry": "t.contended",
+      "nodes": [
+        {
+          "id": "t.contended",
+          "kind": "trigger",
+          "event": "competing_journeys_became_simultaneously_eligible",
+          "evidence": {
+            "requires": [
+              "at least two journey instances, each independently eligible under its own canonical eligibility rules",
+              "each declaring the same exclusionGroup - as a top-level competition field or as contact.competition on a vNext communicating journey - and the same CompetitionScope",
+              "the same concrete scope_instance_id, not merely the same scope type (GLB-01)"
+            ],
+            "insufficientAlone": [
+              "two journeys sharing an exclusionGroup name on two different scope instances - GLB-01 is explicit that the scope instance, not the scope type, is the key, and unrelated instances run in parallel",
+              "one journey being eligible while no other member of its declared exclusionGroup currently is - a contest needs another side (competition_group_of_one)"
+            ],
+            "source": "authoritative"
+          },
+          "next": "a.load-contenders"
+        },
+        {
+          "id": "a.load-contenders",
+          "kind": "action",
+          "does": "Load every journey instance currently declared eligible for this (exclusion_group, scope_instance_id) pair, re-reading each one's own current eligibility from authoritative state rather than trusting whatever was true at the moment this trigger fired - eligibility can have changed in the time it took to reach this action, and a contender that has already exited is not a real contender",
+          "writes": [
+            {
+              "field": "competition_log",
+              "mode": "append"
+            }
+          ],
+          "next": "c.still-contested",
+          "idempotencyKey": "exclusion_group + scope_instance_id + a.load-contenders"
+        },
+        {
+          "id": "c.still-contested",
+          "kind": "condition",
+          "asks": "After re-reading current eligibility, do at least two contenders remain?",
+          "branches": [
+            {
+              "label": "Fewer than two remain",
+              "when": "eligibility changed since the trigger and at most one contender is still genuinely eligible for this scope instance",
+              "to": "x.no-contest"
+            },
+            {
+              "label": "Two or more remain",
+              "when": "at least two independently-eligible contenders still declare the same exclusion_group and scope_instance_id",
+              "to": "c.precedence"
+            }
+          ]
+        },
+        {
+          "id": "x.no-contest",
+          "kind": "exit",
+          "state": "no arbitration required - the contest resolved itself before a winner had to be chosen, because eligibility changed out from under it",
+          "terminal": false,
+          "reEntry": "a fresh trigger with its own freshly re-read contenders is a new arbitration, not a continuation of this one"
+        },
+        {
+          "id": "c.precedence",
+          "kind": "condition",
+          "asks": "Does declared policy precedence separate the remaining contenders into exactly one highest-ranked contender?",
+          "branches": [
+            {
+              "label": "Strict order exists",
+              "when": "each remaining contender's own declared precedence text - or one of the two discriminators GLB-02 permits beyond stated policy, an authoritative fresh event over a stale inferred state, or an active valid ownership over a merely-eligible contender - yields exactly one highest-ranked contender",
+              "to": "a.claim"
+            },
+            {
+              "label": "Genuine tie",
+              "when": "declared policy leaves two or more remaining contenders at equal standing and neither GLB-02 discriminator applies",
+              "to": "h.escalate"
+            }
+          ]
+        },
+        {
+          "id": "h.escalate",
+          "kind": "handoff",
+          "to": "DEC-181",
+          "on": "a competition whose remaining contenders have no policy-resolvable precedence between them",
+          "carries": [
+            "the exclusion_group and scope_instance_id in contest",
+            "every remaining contender, its own declared precedence text, and why none discriminates the others"
+          ],
+          "contract": {
+            "requiredFields": [
+              "exclusion_group",
+              "scope_instance_id"
+            ]
+          }
+        },
+        {
+          "id": "a.claim",
+          "kind": "action",
+          "does": "Atomically claim ownership of (exclusion_group, scope_instance_id) for the highest-ranked contender: if no owner is currently established, establish this one; if a concurrent evaluation already established an owner for the same identity between c.precedence's read and this action, return that existing owner rather than establishing a second one. This is the same at-most-one-canonical-outcome guarantee CMS-201's own obligation creation uses, applied to ownership of a contested scope instead of to an obligation - exactly one claim ever succeeds for one identity, and the loser of the race receives the authoritative winner rather than an error",
+          "writes": [
+            {
+              "field": "competition_log",
+              "mode": "append"
+            }
+          ],
+          "next": "a.suppress-losers",
+          "idempotencyKey": "exclusion_group + scope_instance_id + a.claim"
+        },
+        {
+          "id": "a.suppress-losers",
+          "kind": "action",
+          "does": "Apply every non-winning contender's own declared onLoss - suppressed, paused, superseded or exit, never invented or defaulted - and invalidate whatever that contender already had queued for execution before it can fire: a losing contender's queued message or action does not get to run merely because it was queued before it lost (GLB-07)",
+          "writes": [
+            {
+              "field": "competition_log",
+              "mode": "append"
+            }
+          ],
+          "next": "w.ownership",
+          "idempotencyKey": "exclusion_group + scope_instance_id + a.suppress-losers"
+        },
+        {
+          "id": "w.ownership",
+          "kind": "wait",
+          "until": [
+            "the winning contender resolves, expires, fails, or otherwise becomes ineligible for this scope instance"
+          ],
+          "onEvent": "a.reevaluate",
+          "timeout": {
+            "after": "a bounded check-in interval, where the winning contender's own governing policy states a maximum plausible ownership duration; otherwise no timeout-driven check is owed beyond the release event itself",
+            "reason": "an owner that never explicitly reports release is not assumed to hold the scope forever on the strength of one earlier claim - a bounded check-in re-confirms current, authoritative ownership rather than resting on a record of having won once"
+          },
+          "onTimeout": "a.reevaluate",
+          "recheck": "the winning contender's own current eligibility and state, and whether any contender - including one this mechanism previously suppressed - is now independently eligible for the same (exclusion_group, scope_instance_id)",
+          "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "a.reevaluate",
+          "kind": "action",
+          "does": "Re-run arbitration for (exclusion_group, scope_instance_id) from current authoritative state rather than from the standing anyone held when they last won or lost (GLB-06). A previously-suppressed contender is never simply resumed from where it stopped (GLB-10) - it re-enters exactly as a new contender would, evaluated against current eligibility, intent, entity state, permission, cooldown and destination completion, the same list GLB-06 itself names",
+          "writes": [
+            {
+              "field": "competition_log",
+              "mode": "append"
+            }
+          ],
+          "next": "c.still-contested",
+          "idempotencyKey": "exclusion_group + scope_instance_id + a.reevaluate"
+        }
+      ],
+      "guardrails": [
+        "Two journeys sharing an exclusionGroup name are not in competition unless they also share the same scope instance (GLB-01).",
+        "The winner is never selected by arrival order, worker scheduling, or which evaluation happened to run first - only by declared policy precedence, or by one of the two discriminators GLB-02 names explicitly.",
+        "Concurrent evaluation of the same (exclusion_group, scope_instance_id) yields at most one canonical owner - a losing concurrent claim resolves to the already-established owner rather than erroring or duplicating.",
+        "A losing contender's own onLoss value decides what happens to it - suppressed, paused, superseded and exit are different outcomes for different reasons, and collapsing them loses that difference (GLB-05).",
+        "A contest resolved on one scope instance constrains only that instance - winning ownership of one account, product or subscription never suppresses a journey about a different one (GLB-08).",
+        "Suppression ending is not the losing journey resuming from where it stopped - re-entry is recomputed from current state (GLB-10).",
+        "Work already queued by a contender that has since lost ownership is invalidated before it executes, not merely marked lost after the fact (GLB-07)."
+      ],
+      "reusableRule": "GLB-01 through GLB-10 - the corpus's own declared rules for journey competition and ownership resolution - made executable: load current contenders, apply declared precedence deterministically, establish exactly one winner atomically, apply each loser's own declared consequence, and re-evaluate from current state whenever the winner releases the scope, rather than leaving these ten rules as policy no runtime component actually runs."
     },
     {
       "id": "FIN-131",
@@ -42351,9 +42756,15 @@
           "to": "OPS-125",
           "on": "a second attempt arriving while the first is unresolved",
           "carries": [
+            "logical_operation_key - this payment's own stable attempt identifier, the same value on both the first and second attempt - which is what OPS-125 compares against, not either attempt's own payment-provider reference",
             "both attempts, their identifiers and the unresolved state of the first",
             "the duplicate-charge risk, which is what makes correlation mandatory here rather than optimisation"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "logical_operation_key"
+            ]
+          }
         },
         {
           "id": "c.bounded",
@@ -42623,8 +43034,16 @@
           "on": "an obligation whose payment removes the reason a capability was restricted",
           "carries": [
             "the obligation and the restriction it caused",
-            "the instruction to revalidate rather than replay - paying this does not restore capabilities that were suspended for their own separate reasons"
-          ]
+            "the instruction to revalidate rather than replay - paying this does not restore capabilities that were suspended for their own separate reasons",
+            "the obligation's own account_id (resolved from the obligation record's payer/account, per its own entity scope), and a restoration_case_id minted at this handoff from obligation_id and the restriction it caused, so ACC-79 can construct its own instance without inventing either"
+          ],
+          "contract": {
+            "requiredFields": [
+              "account_id",
+              "obligation_id",
+              "restoration_case_id"
+            ]
+          }
         },
         {
           "id": "x.satisfied",
@@ -43722,7 +44141,9 @@
             "dependencies",
             "fulfillment_log"
           ],
-          "optional": []
+          "optional": [
+            "obligation_id"
+          ]
         }
       },
       "measurement": {
@@ -43786,7 +44207,7 @@
             }
           ],
           "next": "a.validate",
-          "idempotencyKey": "order_id + obligation_id + a.capture"
+          "idempotencyKey": "request_id + a.capture"
         },
         {
           "id": "a.validate",
@@ -43822,7 +44243,7 @@
             }
           ],
           "next": "x.rejected",
-          "idempotencyKey": "order_id + obligation_id + a.reject"
+          "idempotencyKey": "request_id + a.reject"
         },
         {
           "id": "x.rejected",
@@ -43860,7 +44281,7 @@
             }
           ],
           "next": "w.dependency",
-          "idempotencyKey": "order_id + obligation_id + a.hold"
+          "idempotencyKey": "request_id + a.hold"
         },
         {
           "id": "w.dependency",
@@ -43902,7 +44323,7 @@
             }
           ],
           "next": "h.availability",
-          "idempotencyKey": "order_id + obligation_id + a.accept"
+          "idempotencyKey": "request_id + a.accept"
         },
         {
           "id": "h.availability",
@@ -44047,7 +44468,7 @@
             }
           ],
           "next": "c.availability",
-          "idempotencyKey": "obligation_id + person_id + a.evaluate"
+          "idempotencyKey": "obligation_id + a.evaluate"
         },
         {
           "id": "c.availability",
@@ -44104,7 +44525,7 @@
             }
           ],
           "next": "w.capacity",
-          "idempotencyKey": "obligation_id + person_id + a.backorder"
+          "idempotencyKey": "obligation_id + a.backorder"
         },
         {
           "id": "w.capacity",
@@ -44155,7 +44576,7 @@
             }
           ],
           "next": "h.unavailable",
-          "idempotencyKey": "obligation_id + person_id + a.unavailable"
+          "idempotencyKey": "obligation_id + a.unavailable"
         },
         {
           "id": "h.unavailable",
@@ -44308,7 +44729,7 @@
             }
           ],
           "next": "c.confirmed",
-          "idempotencyKey": "order_id + obligation_id + a.reserve"
+          "idempotencyKey": "allocation_id + a.reserve"
         },
         {
           "id": "c.confirmed",
@@ -44365,7 +44786,7 @@
             }
           ],
           "next": "w.allocation",
-          "idempotencyKey": "order_id + obligation_id + a.temporary"
+          "idempotencyKey": "allocation_id + a.temporary"
         },
         {
           "id": "a.allocated",
@@ -44378,7 +44799,7 @@
             }
           ],
           "next": "w.allocation",
-          "idempotencyKey": "order_id + obligation_id + a.allocated"
+          "idempotencyKey": "allocation_id + a.allocated"
         },
         {
           "id": "w.allocation",
@@ -44445,7 +44866,7 @@
             }
           ],
           "next": "x.released",
-          "idempotencyKey": "order_id + obligation_id + a.release"
+          "idempotencyKey": "allocation_id + a.release"
         },
         {
           "id": "x.released",
@@ -44466,7 +44887,7 @@
             }
           ],
           "next": "x.expired",
-          "idempotencyKey": "order_id + obligation_id + a.expire"
+          "idempotencyKey": "allocation_id + a.expire"
         },
         {
           "id": "x.expired",
@@ -44483,8 +44904,14 @@
           "on": "a reserved resource becoming unavailable before it was consumed",
           "carries": [
             "the obligation, the lost resource and what it was going to serve",
-            "the rest of the allocation, which is unaffected and still held"
-          ]
+            "the rest of the allocation, which is unaffected and still held",
+            "a fresh exception_id minted at this handoff, deterministically derived from allocation_id and the lost resource, so FUL-145 can construct its own instance"
+          ],
+          "contract": {
+            "requiredFields": [
+              "exception_id"
+            ]
+          }
         }
       ],
       "guardrails": [
@@ -44619,7 +45046,7 @@
             }
           ],
           "next": "w.execution",
-          "idempotencyKey": "order_id + obligation_id + a.in-fulfillment"
+          "idempotencyKey": "obligation_id + a.in-fulfillment"
         },
         {
           "id": "w.execution",
@@ -44691,7 +45118,7 @@
             }
           ],
           "next": "c.dispatch",
-          "idempotencyKey": "order_id + obligation_id + a.fulfilled"
+          "idempotencyKey": "obligation_id + a.fulfilled"
         },
         {
           "id": "c.dispatch",
@@ -44717,8 +45144,14 @@
           "on": "a prepared item or service passing to a delivery executor",
           "carries": [
             "the obligation, the recipient and the destination",
-            "the explicit fact that dispatch transfers execution and not the obligation - it stays ours and stays unresolved"
-          ]
+            "the explicit fact that dispatch transfers execution and not the obligation - it stays ours and stays unresolved",
+            "a fresh dispatch_id minted at this handoff, deterministically derived from obligation_id and the executor it was handed to, so FUL-147 can construct its own instance"
+          ],
+          "contract": {
+            "requiredFields": [
+              "dispatch_id"
+            ]
+          }
         },
         {
           "id": "h.confirm",
@@ -44727,8 +45160,15 @@
           "on": "fulfillment whose completion is itself the delivery",
           "carries": [
             "the obligation and the scope satisfied",
-            "the evidence that it reached the recipient"
-          ]
+            "the evidence that it reached the recipient",
+            "a fresh delivery_id minted at this handoff, deterministically derived from obligation_id and the confirmed-delivery evidence, so FUL-149 can construct its own instance"
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id",
+              "delivery_id"
+            ]
+          }
         },
         {
           "id": "a.partial",
@@ -44741,7 +45181,7 @@
             }
           ],
           "next": "x.partial",
-          "idempotencyKey": "order_id + obligation_id + a.partial"
+          "idempotencyKey": "obligation_id + a.partial"
         },
         {
           "id": "x.partial",
@@ -44758,8 +45198,14 @@
           "on": "a material exception during execution",
           "carries": [
             "the exception and the scope it affects",
-            "the scope already completed, which the exception does not touch"
-          ]
+            "the scope already completed, which the exception does not touch",
+            "a fresh exception_id minted at this handoff, deterministically derived from obligation_id and the exception's own scope, so FUL-145 can construct its own instance"
+          ],
+          "contract": {
+            "requiredFields": [
+              "exception_id"
+            ]
+          }
         },
         {
           "id": "a.failed",
@@ -44772,7 +45218,7 @@
             }
           ],
           "next": "h.remedy",
-          "idempotencyKey": "order_id + obligation_id + a.failed"
+          "idempotencyKey": "obligation_id + a.failed"
         },
         {
           "id": "h.remedy",
@@ -45717,7 +46163,7 @@
             }
           ],
           "next": "w.delivery",
-          "idempotencyKey": "order_id + obligation_id + a.persist"
+          "idempotencyKey": "dispatch_id + a.persist"
         },
         {
           "id": "w.delivery",
@@ -45779,7 +46225,7 @@
             }
           ],
           "next": "h.reconcile",
-          "idempotencyKey": "order_id + obligation_id + a.unknown"
+          "idempotencyKey": "dispatch_id + a.unknown"
         },
         {
           "id": "h.reconcile",
@@ -45795,7 +46241,7 @@
           ],
           "contract": {
             "requiredFields": [
-              "order_id",
+              "dispatch_id",
               "obligation_id",
               "handed_at",
               "reason"
@@ -45809,8 +46255,15 @@
           "on": "an authoritative delivery confirmation",
           "carries": [
             "the proof of delivery and when it was recorded",
-            "the obligation, which delivery may or may not finish depending on whether acceptance applies"
-          ]
+            "the obligation, which delivery may or may not finish depending on whether acceptance applies",
+            "a fresh delivery_id minted at this handoff, deterministically derived from dispatch_id and the delivery confirmation, so FUL-149 can construct its own instance"
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id",
+              "delivery_id"
+            ]
+          }
         },
         {
           "id": "h.failed",
@@ -46429,7 +46882,7 @@
             }
           ],
           "next": "c.acceptance",
-          "idempotencyKey": "order_id + person_id + a.record"
+          "idempotencyKey": "obligation_id + delivery_id + a.record"
         },
         {
           "id": "c.acceptance",
@@ -46534,8 +46987,15 @@
           "on": "an issue raised within a valid post-delivery window",
           "carries": [
             "the delivery record and its proof",
-            "what the recipient says is wrong, in their words"
-          ]
+            "what the recipient says is wrong, in their words",
+            "a fresh issue_id minted at this handoff, deterministically derived from obligation_id + delivery_id and the raised issue, so REM-151 can construct its own instance"
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id",
+              "issue_id"
+            ]
+          }
         },
         {
           "id": "a.finalize",
@@ -46548,7 +47008,7 @@
             }
           ],
           "next": "x.finalized",
-          "idempotencyKey": "order_id + person_id + a.finalize"
+          "idempotencyKey": "obligation_id + delivery_id + a.finalize"
         },
         {
           "id": "x.finalized",
@@ -49223,7 +49683,7 @@
             }
           ],
           "next": "a.preserve",
-          "idempotencyKey": "order_id + obligation_id + a.define"
+          "idempotencyKey": "correction_id + a.define"
         },
         {
           "id": "a.preserve",
@@ -49236,7 +49696,7 @@
             }
           ],
           "next": "a.execute",
-          "idempotencyKey": "order_id + obligation_id + a.preserve"
+          "idempotencyKey": "correction_id + a.preserve"
         },
         {
           "id": "a.execute",
@@ -49249,7 +49709,7 @@
             }
           ],
           "next": "w.correction",
-          "idempotencyKey": "order_id + obligation_id + a.execute"
+          "idempotencyKey": "correction_id + a.execute"
         },
         {
           "id": "w.correction",
@@ -49307,7 +49767,7 @@
             }
           ],
           "next": "h.verify",
-          "idempotencyKey": "order_id + obligation_id + a.partial"
+          "idempotencyKey": "correction_id + a.partial"
         },
         {
           "id": "h.verify",
@@ -50470,7 +50930,7 @@
             }
           ],
           "next": "c.effective",
-          "idempotencyKey": "subscription_id + relationship_id + a.create"
+          "idempotencyKey": "relationship_id + a.create"
         },
         {
           "id": "c.effective",
@@ -50500,7 +50960,7 @@
             }
           ],
           "next": "h.scheduled",
-          "idempotencyKey": "subscription_id + relationship_id + a.pending-date"
+          "idempotencyKey": "relationship_id + a.pending-date"
         },
         {
           "id": "h.scheduled",
@@ -50517,7 +50977,7 @@
           "kind": "action",
           "does": "Determine the activation requirements that actually govern this relationship - payment, verification, contract execution, a provisioning prerequisite, a regulatory condition. Which of them apply is a property of this agreement rather than a universal list, and assuming payment is the only one activates contracts that were never signed",
           "next": "c.satisfied",
-          "idempotencyKey": "subscription_id + relationship_id + a.requirements"
+          "idempotencyKey": "relationship_id + a.requirements"
         },
         {
           "id": "c.satisfied",
@@ -50547,7 +51007,7 @@
             }
           ],
           "next": "w.requirement",
-          "idempotencyKey": "subscription_id + relationship_id + a.pending-req"
+          "idempotencyKey": "relationship_id + a.pending-req"
         },
         {
           "id": "w.requirement",
@@ -50599,7 +51059,7 @@
             }
           ],
           "next": "x.never-active",
-          "idempotencyKey": "subscription_id + relationship_id + a.abandon"
+          "idempotencyKey": "relationship_id + a.abandon"
         },
         {
           "id": "x.never-active",
@@ -50620,7 +51080,7 @@
             }
           ],
           "next": "h.entitlement",
-          "idempotencyKey": "subscription_id + relationship_id + a.activate"
+          "idempotencyKey": "relationship_id + a.activate"
         },
         {
           "id": "h.entitlement",
@@ -51898,7 +52358,7 @@
             }
           ],
           "next": "c.policy",
-          "idempotencyKey": "renewal_cycle_id + grace state"
+          "idempotencyKey": "subscription_id + renewal_cycle_id + a.recovery"
         },
         {
           "id": "c.policy",
@@ -51937,7 +52397,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.restrict"
+          "next": "c.restrict",
+          "idempotencyKey": "subscription_id + renewal_cycle_id + a.state"
         },
         {
           "id": "c.restrict",
@@ -51967,7 +52428,7 @@
             }
           ],
           "next": "w.recovery",
-          "idempotencyKey": "renewal_cycle_id + restriction scope"
+          "idempotencyKey": "subscription_id + renewal_cycle_id + a.restrict"
         },
         {
           "id": "w.recovery",
@@ -52024,7 +52485,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.remaining"
+          "next": "c.remaining",
+          "idempotencyKey": "subscription_id + renewal_cycle_id + a.alternate"
         },
         {
           "id": "c.remaining",
@@ -52063,7 +52525,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.end"
+          "next": "h.end",
+          "idempotencyKey": "subscription_id + renewal_cycle_id + a.lapse"
         },
         {
           "id": "h.end",
@@ -54235,7 +54698,7 @@
             }
           ],
           "next": "w.hold",
-          "idempotencyKey": "person_id + a.create"
+          "idempotencyKey": "hold_id + a.create"
         },
         {
           "id": "w.hold",
@@ -54311,7 +54774,7 @@
             }
           ],
           "next": "x.expired",
-          "idempotencyKey": "person_id + a.expire"
+          "idempotencyKey": "hold_id + a.expire"
         },
         {
           "id": "a.release",
@@ -54324,7 +54787,7 @@
             }
           ],
           "next": "x.released",
-          "idempotencyKey": "person_id + a.release"
+          "idempotencyKey": "hold_id + a.release"
         },
         {
           "id": "a.consume",
@@ -54337,7 +54800,7 @@
             }
           ],
           "next": "x.consumed",
-          "idempotencyKey": "person_id + a.consume"
+          "idempotencyKey": "hold_id + a.consume"
         },
         {
           "id": "x.consumed",
@@ -54493,7 +54956,7 @@
             }
           ],
           "next": "c.duplicate",
-          "idempotencyKey": "booking_id + a.capture"
+          "idempotencyKey": "reservation_request_id + a.capture"
         },
         {
           "id": "c.duplicate",
@@ -54554,7 +55017,7 @@
             }
           ],
           "next": "h.alternative",
-          "idempotencyKey": "booking_id + a.reject"
+          "idempotencyKey": "reservation_request_id + a.reject"
         },
         {
           "id": "h.alternative",
@@ -54605,7 +55068,7 @@
             }
           ],
           "next": "w.pending",
-          "idempotencyKey": "booking_id + a.pending"
+          "idempotencyKey": "reservation_request_id + a.pending"
         },
         {
           "id": "w.pending",
@@ -54657,7 +55120,7 @@
             }
           ],
           "next": "x.lapsed",
-          "idempotencyKey": "booking_id + a.lapse"
+          "idempotencyKey": "reservation_request_id + a.lapse"
         },
         {
           "id": "x.lapsed",
@@ -54678,7 +55141,7 @@
             }
           ],
           "next": "h.prepare",
-          "idempotencyKey": "booking_id + a.confirm"
+          "idempotencyKey": "reservation_request_id + a.confirm"
         },
         {
           "id": "h.prepare",
@@ -54687,8 +55150,14 @@
           "on": "a confirmed reservation with time still to run before it",
           "carries": [
             "the commitment, its time and the parties",
-            "the explicit fact that the time is now fixed and preparation runs alongside it rather than deciding it"
-          ]
+            "the explicit fact that the time is now fixed and preparation runs alongside it rather than deciding it",
+            "a fresh booking_id minted at a.confirm, deterministically derived from reservation_request_id, so SCH-174 can construct its own instance"
+          ],
+          "contract": {
+            "requiredFields": [
+              "booking_id"
+            ]
+          }
         }
       ],
       "guardrails": [
@@ -54825,7 +55294,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.existing"
+          "next": "c.existing",
+          "idempotencyKey": "booking_id + a.determine"
         },
         {
           "id": "c.existing",
@@ -54860,7 +55330,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.prepare"
+          "next": "w.prepare",
+          "idempotencyKey": "booking_id + a.initiate"
         },
         {
           "id": "w.prepare",
@@ -54937,7 +55408,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.escalate"
+          "next": "h.escalate",
+          "idempotencyKey": "booking_id + a.at-risk"
         },
         {
           "id": "h.escalate",
@@ -54959,7 +55431,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.upcoming"
+          "next": "x.upcoming",
+          "idempotencyKey": "booking_id + a.ready"
         },
         {
           "id": "x.upcoming",
@@ -55097,7 +55570,7 @@
             }
           ],
           "next": "a.search",
-          "idempotencyKey": "booking_id + a.preserve"
+          "idempotencyKey": "booking_id + reschedule_request_id + a.preserve"
         },
         {
           "id": "a.search",
@@ -55133,7 +55606,7 @@
             }
           ],
           "next": "x.original-stands",
-          "idempotencyKey": "booking_id + a.no-replacement"
+          "idempotencyKey": "booking_id + reschedule_request_id + a.no-replacement"
         },
         {
           "id": "x.original-stands",
@@ -55177,7 +55650,7 @@
             }
           ],
           "next": "a.release-old",
-          "idempotencyKey": "booking_id + a.transfer"
+          "idempotencyKey": "booking_id + reschedule_request_id + a.transfer"
         },
         {
           "id": "a.release-old",
@@ -55190,7 +55663,7 @@
             }
           ],
           "next": "a.reconcile",
-          "idempotencyKey": "booking_id + a.release-old"
+          "idempotencyKey": "booking_id + reschedule_request_id + a.release-old"
         },
         {
           "id": "a.reconcile",
@@ -55207,7 +55680,7 @@
             }
           ],
           "next": "c.prep",
-          "idempotencyKey": "booking_id + a.reconcile"
+          "idempotencyKey": "booking_id + reschedule_request_id + a.reconcile"
         },
         {
           "id": "c.prep",
@@ -55714,7 +56187,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.suppressed"
+          "next": "x.suppressed",
+          "idempotencyKey": "booking_id + occurrence_id + a.suppress"
         },
         {
           "id": "x.suppressed",
@@ -55778,7 +56252,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.escalate"
+          "next": "h.escalate",
+          "idempotencyKey": "booking_id + occurrence_id + a.blocked"
         },
         {
           "id": "h.escalate",
@@ -55800,7 +56275,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.arrival"
+          "next": "w.arrival",
+          "idempotencyKey": "booking_id + occurrence_id + a.ready"
         },
         {
           "id": "w.arrival",
@@ -64712,7 +65188,12 @@
       "purpose": "Decide whether anyone is actually owed a message about what happened, before any message exists.",
       "entity": {
         "scope": "the business event, the recipient it concerns, and the communication obligation it may create",
-        "note": "The obligation is a separate entity from the event. It carries its own purpose, its own required outcome and its own relevance window."
+        "note": "The obligation is a separate entity from the event. It carries its own purpose, its own required outcome and its own relevance window. recipient_id + obligation_subject is the obligation's own logical identity, established the moment eligibility is confirmed (c.required) - not invented for this note. a.create is the atomic authority for that identity: c.existing is a fast-path read that lets an obviously-duplicate event fold in without ever reaching a.create, but the actual at-most-one guarantee belongs to a.create itself, which resolves to the canonical obligation for (recipient_id, obligation_subject) whether that means creating it or discovering that a concurrent caller already did - two concurrent callers for the same identity settle on one obligation between them, never two.",
+        "instanceKey": [
+          "recipient_id",
+          "obligation_subject"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -64748,7 +65229,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.required"
+          "next": "c.required",
+          "idempotencyKey": "recipient_id + a.evaluate"
         },
         {
           "id": "c.required",
@@ -64777,7 +65259,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.none"
+          "next": "x.none",
+          "idempotencyKey": "recipient_id + a.suppress"
         },
         {
           "id": "x.none",
@@ -64789,7 +65272,7 @@
         {
           "id": "c.existing",
           "kind": "condition",
-          "asks": "Is an equivalent communication already outstanding for this recipient?",
+          "asks": "Is an equivalent communication already outstanding for this recipient, as far as a non-atomic read can tell?",
           "branches": [
             {
               "label": "One exists and can absorb this",
@@ -64797,8 +65280,8 @@
               "to": "a.reuse"
             },
             {
-              "label": "None, or it cannot be merged",
-              "when": "nothing outstanding covers it, or the two are genuinely different messages",
+              "label": "None visible yet, or it cannot be merged",
+              "when": "nothing outstanding covers it by this read, or the two are genuinely different messages - a.create is the authority that actually settles the identity, this branch only decides whether it is worth trying",
               "to": "a.create"
             }
           ]
@@ -64813,7 +65296,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.reused"
+          "next": "x.reused",
+          "idempotencyKey": "recipient_id + obligation_subject + a.reuse"
         },
         {
           "id": "x.reused",
@@ -64825,14 +65309,15 @@
         {
           "id": "a.create",
           "kind": "action",
-          "does": "Create the communication obligation with its purpose, its recipient, the outcome it requires and the window in which it stays relevant. The obligation is a separate entity from the event - communication rules describe what happened and never redefine it",
+          "does": "Atomically create-if-absent the communication obligation keyed on (recipient_id, obligation_subject): if no obligation exists for that identity, create one with its purpose, its recipient, the outcome it requires and the window in which it stays relevant, minting obligation_id deterministically from (recipient_id, obligation_subject) so the same identity always resolves to the same obligation_id; if a concurrent caller already created one for the same identity between c.existing's read and this action, return that existing obligation - same obligation_id - instead of minting a second one. The obligation is a separate entity from the event - communication rules describe what happened and never redefine it. This is the mechanism's own at-most-one guarantee; c.existing's earlier read is an optimization, not a substitute for it",
           "writes": [
             {
               "field": "communication_log",
               "mode": "append"
             }
           ],
-          "next": "h.recipient"
+          "next": "h.recipient",
+          "idempotencyKey": "recipient_id + obligation_subject + a.create"
         },
         {
           "id": "h.recipient",
@@ -64840,15 +65325,22 @@
           "to": "CMS-202",
           "on": "a communication obligation created",
           "carries": [
+            "obligation_id, minted deterministically at a.create, which every downstream mechanism in this pipeline keys on",
             "the obligation, its purpose, its urgency and the outcome it requires",
             "the explicit fact that no recipient has been resolved and no channel has been chosen"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         }
       ],
       "guardrails": [
         "An event occurring is not a message being required.",
         "Communication rules never redefine business truth.",
         "Duplicate events do not create duplicate communication obligations.",
+        "Concurrent creation for the same (recipient_id, obligation_subject) yields at most one canonical obligation - a.create is atomic on that identity, and a losing concurrent caller resolves to the existing obligation rather than erroring or duplicating.",
         "A repeated attempt at the same obligation is bounded by the distinct approaches actually available to it. When those are exhausted, sustained non-engagement is a permission question rather than a reason for one more send.",
         "Delivery and engagement patterns may suggest different diagnostic hypotheses about why an attempt did not land - the envelope, the message, or the friction after it. They are hypotheses rather than facts: the rule they support is not to repeat the same intervention blindly, and communication telemetry is never treated as causal proof of any of them."
       ],
@@ -64865,7 +65357,11 @@
       "purpose": "Establish who is actually owed this, and where they can currently be reached.",
       "entity": {
         "scope": "the communication obligation and the recipient with their candidate destinations",
-        "note": "Two resolutions, in order: who, then where. A destination found without establishing who it belongs to sends a private matter to whoever is on file."
+        "note": "Two resolutions, in order: who, then where. A destination found without establishing who it belongs to sends a private matter to whoever is on file.",
+        "instanceKey": [
+          "obligation_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.created",
       "nodes": [
@@ -64891,7 +65387,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.resolvable"
+          "next": "c.resolvable",
+          "idempotencyKey": "obligation_id + a.identity"
         },
         {
           "id": "c.resolvable",
@@ -64920,7 +65417,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.unresolved"
+          "next": "x.unresolved",
+          "idempotencyKey": "obligation_id + a.unresolved"
         },
         {
           "id": "x.unresolved",
@@ -64956,7 +65454,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.destinations"
+          "next": "a.destinations",
+          "idempotencyKey": "obligation_id + a.role"
         },
         {
           "id": "a.person",
@@ -64974,7 +65473,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.available"
+          "next": "c.available",
+          "idempotencyKey": "obligation_id + a.destinations"
         },
         {
           "id": "c.available",
@@ -65003,7 +65503,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.no-route"
+          "next": "x.no-route",
+          "idempotencyKey": "obligation_id + a.no-route"
         },
         {
           "id": "x.no-route",
@@ -65039,7 +65540,8 @@
               "mode": "append"
             }
           ],
-          "next": "w.authorization"
+          "next": "w.authorization",
+          "idempotencyKey": "obligation_id + a.hold"
         },
         {
           "id": "w.authorization",
@@ -65054,7 +65556,8 @@
             "reason": "a message held past its own relevance is worse than one never sent - it arrives about something that has already resolved"
           },
           "onTimeout": "a.no-route",
-          "windowExtendsOnEngagement": false
+          "windowExtendsOnEngagement": false,
+          "recheck": "the obligation's own relevance window and whether it still stands, before recording CONTACT_ROUTE_UNAVAILABLE"
         },
         {
           "id": "c.auth",
@@ -65083,7 +65586,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.permission"
+          "next": "h.permission",
+          "idempotencyKey": "obligation_id + a.ready"
         },
         {
           "id": "h.permission",
@@ -65116,7 +65620,11 @@
       "purpose": "Decide whether a working destination may carry this particular message, given what it is for.",
       "entity": {
         "scope": "the obligation, the recipient's destinations, and the purpose being evaluated against them",
-        "note": "This reads permission state and never writes it. Whether somebody has consented is owned elsewhere; whether this purpose may use this channel is decided here."
+        "note": "This reads permission state and never writes it. Whether somebody has consented is owned elsewhere; whether this purpose may use this channel is decided here.",
+        "instanceKey": [
+          "obligation_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -65148,7 +65656,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.evaluate"
+          "next": "a.evaluate",
+          "idempotencyKey": "obligation_id + a.purpose"
         },
         {
           "id": "a.evaluate",
@@ -65215,7 +65724,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.alternate"
+          "next": "c.alternate",
+          "idempotencyKey": "obligation_id + a.alternate"
         },
         {
           "id": "c.alternate",
@@ -65244,7 +65754,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.route"
+          "next": "h.route",
+          "idempotencyKey": "obligation_id + a.candidates"
         },
         {
           "id": "h.route",
@@ -65252,9 +65763,15 @@
           "to": "CMS-204",
           "on": "at least one channel permitted for this purpose",
           "carries": [
+            "obligation_id, carried from CMS-201 through CMS-202 and this mechanism unchanged",
             "the permitted channels and the rule permitting each",
             "the purpose and urgency, which decide how many of them are actually needed"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "a.undeliverable",
@@ -65266,7 +65783,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.escalate"
+          "next": "c.escalate",
+          "idempotencyKey": "obligation_id + a.undeliverable"
         },
         {
           "id": "c.escalate",
@@ -65291,9 +65809,15 @@
           "to": "CMS-210",
           "on": "a mandatory communication with no permitted route",
           "carries": [
+            "obligation_id",
             "the purpose, the routes evaluated and the rule that closed each one",
             "the explicit fact that this is policy rather than failure, so no retry will resolve it"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "x.undeliverable",
@@ -65323,7 +65847,11 @@
       "purpose": "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
       "entity": {
         "scope": "the obligation and the permitted channels available to it",
-        "note": "A fallback is a route held in reserve rather than a second send. Multi-channel delivery is a decision somebody makes, never a side effect of several channels being available."
+        "note": "A fallback is a route held in reserve rather than a second send. Multi-channel delivery is a decision somebody makes, never a side effect of several channels being available. a.prepare mints message_id deterministically from obligation_id, so a redelivered t.permitted for the same obligation reuses it rather than minting a second prepared instance - the identity CMS-206 later persists an attempt against.",
+        "instanceKey": [
+          "obligation_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.permitted",
       "nodes": [
@@ -65355,7 +65883,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.multi"
+          "next": "c.multi",
+          "idempotencyKey": "obligation_id + a.select"
         },
         {
           "id": "c.multi",
@@ -65384,7 +65913,8 @@
               "mode": "append"
             }
           ],
-          "next": "a.prepare"
+          "next": "a.prepare",
+          "idempotencyKey": "obligation_id + a.coordinate"
         },
         {
           "id": "a.single",
@@ -65396,19 +65926,21 @@
               "mode": "append"
             }
           ],
-          "next": "a.prepare"
+          "next": "a.prepare",
+          "idempotencyKey": "obligation_id + a.single"
         },
         {
           "id": "a.prepare",
           "kind": "action",
-          "does": "Prepare the channel-compatible message instance, referencing the business facts rather than restating them independently. Channel selection never alters the facts - a truncated message says less than the full one, and it must not say something different",
+          "does": "Prepare the channel-compatible message instance, referencing the business facts rather than restating them independently, and mint message_id deterministically from obligation_id - re-invoking preparation for the same obligation (a redelivered trigger, a retried call) resolves to the same message_id rather than a second prepared instance. Channel selection never alters the facts - a truncated message says less than the full one, and it must not say something different",
           "writes": [
             {
               "field": "communication_log",
               "mode": "append"
             }
           ],
-          "next": "h.send-ready"
+          "next": "h.send-ready",
+          "idempotencyKey": "obligation_id + a.prepare"
         },
         {
           "id": "h.send-ready",
@@ -65417,8 +65949,15 @@
           "on": "a prepared message instance on a selected route",
           "carries": [
             "the message, its route, and the business state it was built from",
+            "message_id, minted deterministically from obligation_id at a.prepare, so CMS-206 can later persist an attempt against a stable identity rather than inventing one",
             "the explicit fact that it has not been revalidated - what it claims was true when it was written"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id",
+              "message_id"
+            ]
+          }
         }
       ],
       "guardrails": [
@@ -65442,7 +65981,11 @@
       "purpose": "Check the message is still true immediately before it goes, and stop it if it is not.",
       "entity": {
         "scope": "the prepared message instance and the business entity it describes",
-        "note": "The message is a claim about the world made at the moment it was written. This is the only point at which that claim is checked against the world as it now is."
+        "note": "The message is a claim about the world made at the moment it was written. This is the only point at which that claim is checked against the world as it now is.",
+        "instanceKey": [
+          "message_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.ready",
       "nodes": [
@@ -65500,7 +66043,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.suppressed"
+          "next": "x.suppressed",
+          "idempotencyKey": "message_id + a.suppress"
         },
         {
           "id": "x.suppressed",
@@ -65515,9 +66059,15 @@
           "to": "CMS-202",
           "on": "a message whose recipient or destination stopped being valid before send",
           "carries": [
+            "obligation_id",
             "the obligation, still unmet, and what changed about the routing",
             "the explicit fact that nothing was sent, so no duplicate arises from re-resolving"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "c.content",
@@ -65546,19 +66096,21 @@
               "mode": "append"
             }
           ],
-          "next": "a.send"
+          "next": "a.send",
+          "idempotencyKey": "message_id + a.regenerate"
         },
         {
           "id": "a.send",
           "kind": "action",
-          "does": "Record the message as validated at send time, with what was checked and against what version. Historical sent messages are never mutated afterwards - what was sent is what was sent, and rewriting it removes the evidence that a wrong thing went out",
+          "does": "Record the message as validated at send time, with what was checked and against what version, and mint attempt_id for the submission this hands off to. This mechanism runs at most once per message_id - CMS-208's own recovery loop retries independently downstream rather than looping back through this mechanism - so a.send is idempotent on message_id: a redelivered t.ready reuses the attempt_id already minted rather than minting a second one and risking a duplicate provider submission. Historical sent messages are never mutated afterwards - what was sent is what was sent, and rewriting it removes the evidence that a wrong thing went out",
           "writes": [
             {
               "field": "communication_log",
               "mode": "append"
             }
           ],
-          "next": "h.attempt"
+          "next": "h.attempt",
+          "idempotencyKey": "message_id + a.send"
         },
         {
           "id": "h.attempt",
@@ -65567,8 +66119,15 @@
           "on": "a message validated immediately before delivery",
           "carries": [
             "the message, its content version and the state it was validated against",
+            "message_id (carried from CMS-204) and the fresh attempt_id minted at a.send, so CMS-206 persists an attempt against an identity established before submission rather than one it invents itself",
             "the route selected and the fallback held in reserve"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "message_id",
+              "attempt_id"
+            ]
+          }
         }
       ],
       "guardrails": [
@@ -65590,7 +66149,12 @@
       "purpose": "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
       "entity": {
         "scope": "the individual delivery attempt, with its provider reference",
-        "note": "One attempt per submission. Outcomes arriving later correlate to a specific attempt, which is why the attempt is written before its outcome is known."
+        "note": "One attempt per submission. Outcomes arriving later correlate to a specific attempt, which is why the attempt is written before its outcome is known. attempt_id is caller-supplied - minted by CMS-205's a.send before this mechanism ever runs, per attempt, never by this mechanism itself - specifically so a redelivered t.submitted for the same attempt_id can be told apart from a genuinely new attempt for the same message_id (a retry, minting its own fresh attempt_id upstream).",
+        "instanceKey": [
+          "message_id",
+          "attempt_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
@@ -65606,7 +66170,7 @@
           "event": "message_submitted_to_provider",
           "evidence": {
             "requires": [
-              "a validated message submitted to a delivery mechanism or provider"
+              "a validated message submitted to a delivery mechanism or provider, carrying a message_id and an attempt_id already minted by the caller"
             ],
             "source": "authoritative"
           },
@@ -65615,14 +66179,15 @@
         {
           "id": "a.persist",
           "kind": "action",
-          "does": "Persist the message id, the attempt id, the channel, the provider and its reference, the submission time and the content version reference. The attempt is written before its outcome is known, so an outcome arriving hours later has something to attach to",
+          "does": "Persist the message id, the attempt id, the destination_id it was submitted to, the channel, the provider and its reference, the submission time and the content version reference. The attempt is written before its outcome is known, so an outcome arriving hours later has something to attach to. Both message_id and attempt_id arrive already minted - a redelivered call for the same (message_id, attempt_id) persists once, not twice - and destination_id is read off the submission itself, one attempt always targeting exactly one destination even on a coordinated multi-channel obligation",
           "writes": [
             {
               "field": "delivery_log",
               "mode": "append"
             }
           ],
-          "next": "w.acceptance"
+          "next": "w.acceptance",
+          "idempotencyKey": "message_id + attempt_id + a.persist"
         },
         {
           "id": "w.acceptance",
@@ -65666,7 +66231,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.pending"
+          "next": "x.pending",
+          "idempotencyKey": "message_id + attempt_id + a.accepted"
         },
         {
           "id": "x.pending",
@@ -65685,7 +66251,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.recover"
+          "next": "h.recover",
+          "idempotencyKey": "message_id + attempt_id + a.failed"
         },
         {
           "id": "h.recover",
@@ -65693,9 +66260,16 @@
           "to": "CMS-208",
           "on": "a submission the provider refused, or an unknown outcome where duplicates are harmless",
           "carries": [
+            "message_id and destination_id, both established at a.persist, which is what CMS-208's own recovery instance is keyed on",
             "the attempt, the channel and what the provider actually said",
             "the fallback held in reserve and the obligation's remaining relevance window"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "message_id",
+              "destination_id"
+            ]
+          }
         },
         {
           "id": "a.unknown",
@@ -65711,7 +66285,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.duplicates"
+          "next": "c.duplicates",
+          "idempotencyKey": "message_id + attempt_id + a.unknown"
         },
         {
           "id": "c.duplicates",
@@ -65762,7 +66337,11 @@
       "purpose": "Derive the real delivery state from what the channel reports, attached to the exact attempt it concerns.",
       "entity": {
         "scope": "the delivery attempt and the outcomes reported against it",
-        "note": "Outcomes arrive out of order, twice, and late. Each is processed against the attempt it names and against what is already recorded."
+        "note": "Outcomes arrive out of order, twice, and late. Each is processed against the attempt it names and against what is already recorded. attempt_id is a correlation key, not a durable-entity key the way instanceKey means elsewhere - concurrency: one-active-per-key here means events for one attempt are processed sequentially against each other, not that only one outcome may ever arrive.",
+        "instanceKey": [
+          "attempt_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.status",
       "nodes": [
@@ -65788,7 +66367,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.correlated"
+          "next": "c.correlated",
+          "idempotencyKey": "raw_status_reference + a.correlate"
         },
         {
           "id": "c.correlated",
@@ -65856,7 +66436,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.late"
+          "next": "x.late",
+          "idempotencyKey": "attempt_id + raw_status_reference + a.late"
         },
         {
           "id": "x.late",
@@ -65897,7 +66478,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.obligation"
+          "next": "h.obligation",
+          "idempotencyKey": "attempt_id + a.delivered"
         },
         {
           "id": "h.obligation",
@@ -65905,9 +66487,15 @@
           "to": "CMS-210",
           "on": "a confirmed delivery",
           "carries": [
+            "obligation_id, read off the attempt record this delivery correlated to",
             "which attempt delivered, on which channel and when",
             "the explicit fact that delivered is not read, so an obligation requiring comprehension is not met by this"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "a.failed",
@@ -65919,7 +66507,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.recover"
+          "next": "h.recover",
+          "idempotencyKey": "attempt_id + a.failed"
         },
         {
           "id": "h.recover",
@@ -65927,9 +66516,16 @@
           "to": "CMS-208",
           "on": "an authoritative delivery failure",
           "carries": [
+            "message_id and destination_id, read off the attempt record this outcome correlated to",
             "the failure as the channel reported it, unclassified",
             "the attempt, the channel and the obligation's remaining relevance"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "message_id",
+              "destination_id"
+            ]
+          }
         },
         {
           "id": "a.unknown",
@@ -65941,7 +66537,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.reconcile"
+          "next": "h.reconcile",
+          "idempotencyKey": "attempt_id + a.unknown"
         }
       ],
       "guardrails": [
@@ -65970,12 +66567,17 @@
       "purpose": "Respond to the failure that actually happened, without spreading it wider than the destination it belongs to.",
       "entity": {
         "scope": "the failed delivery, its channel and the destination it was aimed at",
-        "note": "The failure belongs to a destination on a channel. It says nothing about the recipient's other destinations, and recording it against the person loses them."
+        "note": "The failure belongs to a destination on a channel. It says nothing about the recipient's other destinations, and recording it against the person loses them. message_id + destination_id is the recovery instance's own identity - one durable retry budget per (message, destination), fixed at the first failure and spent across however many physical attempts a.retry makes against it. Each physical attempt still mints its own fresh attempt_id (the same convention CMS-205/CMS-206 use), so the budget and the per-attempt identity are two different things scoped at two different granularities, not one field doing both jobs.",
+        "instanceKey": [
+          "message_id",
+          "destination_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
           "journey": "OPS-124",
-          "because": "OPS-124 is the generic retryable-failure and backoff mechanism. This decides what a communication failure means - whether the address is dead, whether another channel may carry this purpose, and whether the message is even still worth delivering. It uses that retry machinery rather than being it."
+          "because": "This mechanism owns its own complete channel-aware retry loop end to end - classification, relevance, budget, fallback - and does not invoke OPS-124's generic engine for it, because the classification a communication failure needs (TEMPORARY / PROVIDER_FAILURE / RATE_LIMITED / PERMANENT / INVALID_DESTINATION / CHANNEL_RESTRICTED) is channel-specific domain knowledge OPS-124 deliberately has no reason to carry. Where a communication-triggering action is separately wrapped in OPS-121's own generic asynchronous-work tracking (the enqueue/dispatch step itself, not the channel delivery), that tracking's own possible OPS-124 delegation is a distinct, outer concern from this mechanism's inner channel-recovery loop - the two do not share a budget and are not the same retry."
         }
       ],
       "entry": "t.failed",
@@ -66005,7 +66607,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.relevant"
+          "next": "c.relevant",
+          "idempotencyKey": "message_id + destination_id + a.classify"
         },
         {
           "id": "c.relevant",
@@ -66038,7 +66641,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.abandoned"
+          "next": "x.abandoned",
+          "idempotencyKey": "message_id + destination_id + a.suppress-recovery"
         },
         {
           "id": "x.abandoned",
@@ -66084,12 +66688,13 @@
               "mode": "append"
             }
           ],
-          "next": "c.budget"
+          "next": "c.budget",
+          "idempotencyKey": "message_id + destination_id + a.cautious"
         },
         {
           "id": "a.retry",
           "kind": "action",
-          "does": "Retry on the same channel through the canonical retry mechanism, with backoff, against a budget fixed at the first failure. The budget is set once and does not renew - that is the difference between a retry policy and a loop, and a schedule with no end looks like a working system from inside and like harassment from the recipient's inbox",
+          "does": "Retry on the same channel, with backoff, minting a fresh attempt_id for this physical attempt and spending one unit of the budget fixed at the first failure against (message_id, destination_id). The budget is set once and does not renew - that is the difference between a retry policy and a loop, and a schedule with no end looks like a working system from inside and like harassment from the recipient's inbox",
           "writes": [
             {
               "field": "delivery_log",
@@ -66097,7 +66702,13 @@
             }
           ],
           "next": "c.budget",
-          "execution": "communication"
+          "execution": "communication",
+          "idempotencyKey": "message_id + destination_id + a.retry",
+          "attemptBudget": {
+            "key": "delivery_recovery.retry_budget",
+            "rule": "Fixed once at the first failure for this (message_id, destination_id); does not renew on worker restart, on backoff completion, or on delegation between mechanisms.",
+            "required": true
+          }
         },
         {
           "id": "c.budget",
@@ -66138,7 +66749,8 @@
               "mode": "append"
             }
           ],
-          "next": "h.contactability"
+          "next": "h.contactability",
+          "idempotencyKey": "message_id + destination_id + a.permanent"
         },
         {
           "id": "h.contactability",
@@ -66146,10 +66758,16 @@
           "to": "CON-36",
           "on": "a failure that is a property of the contact point rather than of the attempt",
           "carries": [
+            "destination_id, which is contact_point_id under this mechanism's own attempt-scoped name - the same durable contact point CON-36 tracks by its permanent record identity",
             "the failure class, the destination, the channel and the provider's response",
             "the explicit scope: this destination only, with the recipient's other routes unaffected",
             "the explicit fact that this is a deliverability problem and not an opt-out - it says nothing about permission on this channel or any other"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "contact_point_id"
+            ]
+          }
         },
         {
           "id": "c.fallback",
@@ -66174,10 +66792,16 @@
           "to": "CMS-203",
           "on": "a failed channel with an alternate destination available",
           "carries": [
+            "obligation_id, read off the message_id this recovery instance is keyed on",
             "the obligation, its purpose and the channel that has now failed",
             "the explicit requirement that the fallback passes the purpose and permission check on its own terms - a fallback that skips it delivers a message down a route the recipient declined, and the failure becomes the excuse for it",
             "the fact that a permitted alternative allows the move and does not require it - the sending journey still decides whether the message warrants changing channel"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         },
         {
           "id": "h.obligation",
@@ -66185,9 +66809,15 @@
           "to": "CMS-210",
           "on": "a failure with no remaining channel to try",
           "carries": [
+            "obligation_id, read off the message_id this recovery instance is keyed on",
             "every route attempted and how each failed",
             "the explicit fact that this is exhaustion of routes rather than proof the recipient is unreachable in general"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "obligation_id"
+            ]
+          }
         }
       ],
       "guardrails": [
@@ -66213,7 +66843,11 @@
       "purpose": "Close the obligation against what it actually required, and escalate the ones that could not be met.",
       "entity": {
         "scope": "the communication obligation and every delivery made against it",
-        "note": "The obligation defines its own required outcome. Some are met by a documented attempt and some only by confirmed delivery, and which applies is not this journey's to decide."
+        "note": "The obligation defines its own required outcome. Some are met by a documented attempt and some only by confirmed delivery, and which applies is not this journey's to decide.",
+        "instanceKey": [
+          "obligation_id"
+        ],
+        "concurrency": "one-active-per-key"
       },
       "entry": "t.outcome",
       "nodes": [
@@ -66256,7 +66890,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.superseded"
+          "next": "x.superseded",
+          "idempotencyKey": "obligation_id + a.superseded"
         },
         {
           "id": "x.superseded",
@@ -66341,7 +66976,8 @@
               "mode": "append"
             }
           ],
-          "next": "x.completed"
+          "next": "x.completed",
+          "idempotencyKey": "obligation_id + a.complete"
         },
         {
           "id": "x.completed",
@@ -66384,7 +67020,8 @@
               "mode": "append"
             }
           ],
-          "next": "c.critical"
+          "next": "c.critical",
+          "idempotencyKey": "obligation_id + a.unreachable"
         },
         {
           "id": "c.critical",
@@ -67198,9 +67835,16 @@
           "to": "CMS-208",
           "on": "a failed document distribution",
           "carries": [
+            "message_id (this distribution's own message identity) and destination_id (the recipient destination this attempt targeted), which CMS-208's own recovery instance is keyed on",
             "the failure as the channel reported it, and the exact version that was being sent",
             "the explicit requirement that any fallback route carries the same version - a recovery that sends a different one is worse than the original failure"
-          ]
+          ],
+          "contract": {
+            "requiredFields": [
+              "message_id",
+              "destination_id"
+            ]
+          }
         }
       ],
       "guardrails": [

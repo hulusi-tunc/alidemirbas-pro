@@ -25,7 +25,17 @@ export const MECHANISM_IDS: readonly string[] = [
   "CMS-201", "CMS-202", "CMS-203", "CMS-204", "CMS-205", "CMS-206", "CMS-207", "CMS-208", "CMS-210",
   "CON-34", "CON-35", "CON-36", "CON-39", "CON-40",
   "OPS-121", "OPS-122", "OPS-123", "OPS-124", "OPS-125", "OPS-126", "OPS-127", "OPS-128", "OPS-129", "OPS-130",
+  "OPS-131",
 ];
+
+/** The one Runtime Mechanism, among MECHANISM_IDS, whose own job is arbitrating
+    journey-declared `competition`/`exclusionGroup`/`precedence` (GLB-01..GLB-10)
+    deterministically at runtime. Added in the competition-arbitration repair round,
+    after confirming no existing mechanism could own this without becoming a
+    god-object and no non-canonical owner could be named with evidence. Exported by
+    id, not inferred, so a validator or a research script never has to guess which
+    of the 25 is the arbiter. */
+export const COMPETITION_ARBITRATION_MECHANISM_ID = "OPS-131";
 
 export const CUSTOMER_CATEGORIES: readonly CategoryId[] = [
   "acquisition", "activation", "retention", "consent", "feedback", "subscription", "scheduling",

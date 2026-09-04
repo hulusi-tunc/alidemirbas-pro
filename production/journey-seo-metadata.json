@@ -3738,6 +3738,26 @@
     "reviewReason": null
   },
   {
+    "id": "OPS-131",
+    "slug": "journey-competition-arbitration",
+    "seoTitle": "Journey Competition Arbitration Lifecycle Journey Example",
+    "seoDescription": "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared...",
+    "titleCharacterCount": 57,
+    "descriptionCharacterCount": 148,
+    "primaryIntent": "customer journey examples",
+    "secondaryIntent": "journey competition arbitration journey",
+    "canonicalPath": "/lab/journeys/journey-competition-arbitration",
+    "index": true,
+    "follow": true,
+    "sitemap": true,
+    "sourceBasis": [
+      "name",
+      "purpose"
+    ],
+    "needsSeoReview": true,
+    "reviewReason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+  },
+  {
     "id": "OWN-51",
     "slug": "work-routing-to-responsibility",
     "seoTitle": "New Work Routing to Responsibility Scope Journey Map",

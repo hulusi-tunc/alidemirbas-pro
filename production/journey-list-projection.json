@@ -2131,6 +2131,18 @@
     ]
   },
   {
+    "id": "OPS-131",
+    "slug": "journey-competition-arbitration",
+    "title": "Two or more journeys eligible on one exclusion scope → arbitrate → establish one owner",
+    "category": "processing",
+    "categoryTitle": "Processing, queues, async work & operational reliability",
+    "triggerLabel": "Competing journeys became simultaneously eligible",
+    "searchableAliases": [
+      "OPS-131",
+      "journey-competition-arbitration"
+    ]
+  },
+  {
     "id": "OWN-51",
     "slug": "work-routing-to-responsibility",
     "title": "Work created → routing → assignment",

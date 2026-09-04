@@ -6,7 +6,20 @@ asking "why did the engine do what it did, and can I trust its next retry." This
 the 13 questions `RUNTIME-MECHANISMS-AUDIT.md`'s Part 20 names against each mechanism's own data
 model and reports what is answerable today versus what a company's own mapping must still supply.
 
-## POST-REPAIR UPDATE
+## POST-REPAIR UPDATE (round 2 — competition arbitration observability)
+
+**Question 13 ("who owns it now") gains its first cross-journey answer.** Every mechanism in this
+document's original table answers ownership only within its own single graph — `OPS-131`'s own
+contract (`conflictArbitration.contract.observabilityFields` in `runtime-mechanism-contracts.json`)
+is the corpus's first observability model that spans multiple, independently-eligible journeys: it
+names `exclusion_group`, `scope_instance_id`, `contenders_considered`, `precedence_rule_applied`,
+`winner`, `losers_and_onLoss_applied`, `escalated_to_DEC-181`, and `re-evaluation_trigger` as the
+minimum a production operator needs to explain a contested decision after the fact — which
+contenders existed, which rule decided, who won, why each loser lost, whether it escalated. This is
+new content this document's original 13 questions did not anticipate (they were scoped to one
+mechanism's own single-journey lifecycle), not a revision of an existing answer.
+
+## POST-REPAIR UPDATE (round 1)
 
 **Question 7 ("what idempotency/attempt key was used"), this document's weakest answer, is now
 substantially strengthened.** All 24 mechanisms declare `entity.instanceKey`, and every writing
