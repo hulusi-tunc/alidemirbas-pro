@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProductHeading, ProductMetricStrip, ProductSection } from "@/components/ui/ProductPage";
+import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
@@ -88,12 +88,6 @@ const T = {
     whyEyebrow: "Project",
     whyTitle: "A calculator should answer the question, then get out of the way.",
     whyBody: "I built Numerspace as a fast, bilingual collection of practical calculators. Open a tool, enter what you know and get the result - without creating an account or sending your calculation inputs to a server.",
-    whyStats: [
-      { value: "97", label: "Calculators" },
-      { value: "13", label: "Categories" },
-      { value: "2", label: "Languages" },
-      { value: "0", label: "Accounts required" },
-    ],
 
     catEyebrow: "Categories",
     catTitle: "97 calculators across 13 categories.",
@@ -130,12 +124,6 @@ const T = {
     whyEyebrow: "Proje",
     whyTitle: "Bir hesaplayıcı soruyu yanıtlamalı, sonra yoldan çekilmeli.",
     whyBody: "Numerspace'i hızlı, iki dilli, pratik hesaplayıcılardan oluşan bir koleksiyon olarak kurdum. Bir aracı açın, bildiğinizi girin ve sonucu alın - hesap oluşturmadan ya da hesaplama girdilerinizi bir sunucuya göndermeden.",
-    whyStats: [
-      { value: "97", label: "Hesaplayıcı" },
-      { value: "13", label: "Kategori" },
-      { value: "2", label: "Dil" },
-      { value: "0", label: "Gereken hesap" },
-    ],
 
     catEyebrow: "Kategoriler",
     catTitle: "13 kategoride 97 hesaplayıcı.",
@@ -272,13 +260,14 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
    left-aligned heading is the visible signal of that before a reader has
    parsed a single word. */
 function WhySection({ t }: { t: (typeof T)[Lang] }) {
+  // No stat strip here - the 97/13/2/0 numbers already carry the next
+  // section's own headline ("97 calculators across 13 categories"), so a
+  // second, larger rendering of the same four numbers right above it was
+  // pure repetition. This section is copy only.
   return (
     <ProductSection tone="paper" space="band">
       <PortraitContainer>
         <ProductHeading eyebrow={t.whyEyebrow} title={t.whyTitle} body={t.whyBody} />
-        <Reveal delay={100} className="mt-10">
-          <ProductMetricStrip items={t.whyStats} />
-        </Reveal>
       </PortraitContainer>
     </ProductSection>
   );
