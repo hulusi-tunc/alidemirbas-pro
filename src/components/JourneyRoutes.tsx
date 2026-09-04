@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import JourneyDetailBody from "@/components/JourneyDetailBody";
 import JourneyDetailHeader from "@/components/JourneyDetailHeader";
+import QuoteAbandonmentVisualBody from "@/components/QuoteAbandonmentVisualBody";
 import JourneyModal from "@/components/JourneyModal";
 import LabShell from "@/components/LabShell";
 import { resolveDetailSlug } from "@/lib/canonical-view";
@@ -33,6 +34,14 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/lab/journeys" : "/
    75% while still leaving the widest journeys the horizontal pan they have
    always needed. Individual prose blocks re-narrow themselves inside it. */
 const PAGE_MEASURE = "max-w-[1180px]";
+
+/** PILOT (2026-09): the one preset piloting the visually-led body -
+    QuoteAbandonmentVisualBody - instead of the standard JourneyDetailBody.
+    A single exact-slug check here, not a route split or a template flag: it
+    is the one place both page shapes (full page and modal) already share,
+    so a preset id added here changes exactly that preset's two pages and
+    nothing else. See QuoteAbandonmentVisualBody.tsx's own comment. */
+const VISUAL_PILOT_PRESET_SLUGS: ReadonlySet<string> = new Set(["quote-abandonment"]);
 
 export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const resolved = resolveDetailSlug(slug);
@@ -108,7 +117,11 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
             <JourneyDetailHeader detail={detail} lang={lang} t={t} />
           </div>
           <div className="mt-9">
-            <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
+            {preset && VISUAL_PILOT_PRESET_SLUGS.has(preset.slug) ? (
+              <QuoteAbandonmentVisualBody detail={detail} basePath={basePath} lang={lang} t={t} />
+            ) : (
+              <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
+            )}
           </div>
         </div>
       </div>
@@ -120,7 +133,7 @@ export function JourneyModalPage({ lang, slug }: { lang: Lang; slug: string }) {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) notFound();
 
-  const { detail, merged } = resolved;
+  const { detail, merged, preset } = resolved;
   const t = copy[lang].lab.page;
   const basePath = basePathFor(lang);
 
@@ -144,7 +157,11 @@ export function JourneyModalPage({ lang, slug }: { lang: Lang; slug: string }) {
             />
           </div>
           <div className="mt-8">
-            <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
+            {preset && VISUAL_PILOT_PRESET_SLUGS.has(preset.slug) ? (
+              <QuoteAbandonmentVisualBody detail={detail} basePath={basePath} lang={lang} t={t} />
+            ) : (
+              <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
+            )}
           </div>
         </div>
       </div>
