@@ -4072,6 +4072,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "discovery": {
       "aliases": [
         "win-back",
+        "win back",
         "winback campaign",
         "lapsed customer reactivation",
         "churned customer recovery",

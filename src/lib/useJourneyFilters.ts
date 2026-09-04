@@ -71,7 +71,7 @@ export function useJourneyFilters(
   const haystack = useMemo(
     () =>
       allRows.map((j) =>
-        [j.id, j.shortName ?? "", j.name, j.purpose, j.category, j.categoryTitle, GOAL_LABEL[j.goal][lang]]
+        [j.id, j.shortName ?? "", j.name, j.purpose, j.category, j.categoryTitle, GOAL_LABEL[j.goal][lang], ...j.aliases]
           .join(" ")
           .toLocaleLowerCase(lang),
       ),

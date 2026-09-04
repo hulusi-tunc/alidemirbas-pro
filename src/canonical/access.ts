@@ -1943,7 +1943,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: ["email", "in-app"],
     name: "Access restricted or ending → stated route back → restored or ends",
-    shortName: "Access Recovery",
+    shortName: "Access Restriction Notice",
     purpose:
       "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
     entity: {
