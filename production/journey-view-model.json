@@ -1966,6 +1966,22 @@
           "terminal": false
         },
         {
+          "id": "a.check-authority",
+          "kind": "action",
+          "headline": "Re-read current account-restriction-authority standing before releasing this suspension: is a higher-precedence contender on the same exclusionGroup and account (a suspected-compromise investigation, IDN-90) still open? This suspension's own declared precedence is lower than IDN-90's and its onLoss is paused - resolving independently while IDN-90 remains open would restore capabilities the more urgent, safety-critical question is still restricting, exactly the mid-investigation access-restoration risk onLoss: paused exists to prevent",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.authority-clear",
+          "kind": "condition",
+          "headline": "Is this account clear of a higher-precedence account-restriction-authority contender?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.extend",
           "kind": "action",
           "headline": "Record the extension as its own suspension instance with a new review point, so the number of times someone has been suspended without a decision stays countable rather than hidden inside one long record",
@@ -2065,7 +2081,7 @@
         },
         {
           "from": "c.outcome",
-          "to": "h.restore",
+          "to": "a.check-authority",
           "family": "branch",
           "label": "Reason resolved",
           "when": "what justified the suspension has been dealt with"
@@ -2086,7 +2102,7 @@
         },
         {
           "from": "c.review",
-          "to": "h.restore",
+          "to": "a.check-authority",
           "family": "branch",
           "label": "Lift it",
           "when": "the reason has lapsed even though nothing formally resolved it"
@@ -2097,6 +2113,27 @@
           "family": "branch",
           "label": "Nobody decided",
           "when": "the review point arrived with no decision made at all"
+        },
+        {
+          "from": "a.check-authority",
+          "to": "c.authority-clear",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.authority-clear",
+          "to": "h.restore",
+          "family": "branch",
+          "label": "Clear",
+          "when": "no IDN-90 instance (or any higher-precedence member of this exclusionGroup) is currently open for this account"
+        },
+        {
+          "from": "c.authority-clear",
+          "to": "a.extend",
+          "family": "backward",
+          "label": "Still contested",
+          "when": "a higher-precedence contender is still open for this account - this suspension's own reason may have lapsed, but the account itself is not yet clear to release"
         },
         {
           "from": "a.extend",
@@ -2134,7 +2171,9 @@
         "h.terminate",
         "h.escalate"
       ],
-      "backwardEdgeIds": [],
+      "backwardEdgeIds": [
+        15
+      ],
       "branchEdgeIds": [
         2,
         3,
@@ -2142,12 +2181,14 @@
         9,
         10,
         11,
-        12
+        12,
+        14,
+        15
       ],
       "handoffEdgeIds": [
-        14,
-        15,
-        16
+        17,
+        18,
+        19
       ],
       "externalEdgeIds": []
     },
@@ -2185,7 +2226,8 @@
         "Suspended is not terminated. Suspension is designed to be reversible and its record says so.",
         "The suspension uses the smallest scope that addresses its reason.",
         "Restoration does not blindly return every previous capability - it hands to a journey whose job is revalidating first.",
-        "A suspension without a review point is a termination nobody authorised."
+        "A suspension without a review point is a termination nobody authorised.",
+        "This suspension's own resolution never releases access while a higher-precedence account-restriction-authority contender is still open on the same account - declaring onLoss: paused in the competition field is not self-enforcing, so a.check-authority re-reads that contender's live state immediately before h.restore rather than trusting the competition metadata alone."
       ],
       "reusableRule": "Suspension temporarily restricts defined capabilities while preserving the possibility of restoration after current eligibility and authority are revalidated.",
       "entityScope": "the account or person plus the specific capability scope being restricted",
@@ -2193,7 +2235,7 @@
     },
     "derived": {
       "hasBranches": true,
-      "hasBackwardEdges": false,
+      "hasBackwardEdges": true,
       "hasTrueCycle": false,
       "hasExternalHandoff": false,
       "hasCrossJourneyHandoff": true,
@@ -2203,23 +2245,24 @@
       "hasMultipleExits": false,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 13,
-      "edgeCount": 17,
-      "branchNodeCount": 3,
-      "backwardEdgeCount": 0,
+      "nodeCount": 15,
+      "edgeCount": 20,
+      "branchNodeCount": 4,
+      "backwardEdgeCount": 1,
       "handoffCount": 3,
       "exitCount": 1,
-      "maxDepth": 7,
+      "maxDepth": 8,
       "maxFanIn": 2,
       "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
+        "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
         "competition"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 47
+      "complexityTier": "complex",
+      "complexityScore": 57
     }
   },
   {
@@ -12094,7 +12137,7 @@
         {
           "id": "a.reread",
           "kind": "action",
-          "headline": "Re-read the authoritative state the message describes. Between preparation and send the appointment may have been cancelled, the payment may have succeeded and the approval may have been reversed - and each of those turns a helpful message into a damaging one",
+          "headline": "Re-read the authoritative state the message describes. Between preparation and send the appointment may have been cancelled, the payment may have succeeded and the approval may have been reversed - and each of those turns a helpful message into a damaging one. Where the message's own originating journey declares a competition exclusionGroup and scope (GLB-01), this re-read includes OPS-131's current established owner for that (exclusion_group, scope_instance_id) - the send path's own step 3, \"journey competition and precedence\", is enforced here rather than left as a stage no concrete node ever performs, since this is the one point every message from every competition member passes through immediately before delivery regardless of which journey produced it",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -12184,14 +12227,14 @@
           "to": "c.content",
           "family": "branch",
           "label": "Still valid",
-          "when": "the reason for the message and its subject both still stand"
+          "when": "the reason for the message and its subject both still stand, and - where the originating journey declares a competition field - that journey is still OPS-131's current established owner for its (exclusion_group, scope_instance_id)"
         },
         {
           "from": "c.valid",
           "to": "a.suppress",
           "family": "branch",
           "label": "Superseded or resolved",
-          "when": "the event the message is about has been undone, cancelled or resolved"
+          "when": "the event the message is about has been undone, cancelled or resolved, OR the originating journey has lost current ownership of its declared competition scope since this message was queued - a losing contender's queued message does not get to run merely because it was queued before it lost (GLB-07)"
         },
         {
           "from": "c.valid",
@@ -12290,9 +12333,10 @@
         "A queued message is not a permanently valid message.",
         "A reminder for a cancelled appointment does not send.",
         "A resolved payment failure does not send as unresolved.",
-        "Historical sent messages are never mutated."
+        "Historical sent messages are never mutated.",
+        "A message from a journey that has since lost its declared competition scope to another contender does not send merely because it was queued while it still held it (GLB-07) - this is checked here, generically, for every competition-bound message in the corpus, rather than duplicated into each competing journey's own graph."
       ],
-      "reusableRule": "Messages should be revalidated immediately before delivery whenever delayed execution could make their content or purpose stale.",
+      "reusableRule": "Messages should be revalidated immediately before delivery whenever delayed execution could make their content or purpose stale - including, where the originating journey is a declared competition member, whether it still holds current ownership of its contested scope.",
       "entityScope": "the prepared message instance and the business entity it describes",
       "entityNote": "The message is a claim about the world made at the moment it was written. This is the only point at which that claim is checked against the world as it now is."
     },
@@ -54159,10 +54203,18 @@
           "terminal": false
         },
         {
-          "id": "x.reconciliation",
-          "kind": "exit",
-          "headline": "RECONCILIATION_REQUIRED; technical success without the business state it implies",
-          "detail": "the job's SUCCESS does not close the user's or the business's obligation when the state it was supposed to produce is not there - this exit exists so that gap is visible rather than reported as done",
+          "id": "a.reconcile",
+          "kind": "action",
+          "headline": "Record RECONCILIATION_REQUIRED: technical success without the business state it implies. The job's SUCCESS does not close the user's or the business's obligation when the state it was supposed to produce is not there - this is recorded so the gap is visible rather than reported as done, once per work_id (a redelivered technical-completion report or a repeated timeout on the same work_id resolves to the same reconciliation record rather than opening a second one)",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.escalate",
+          "kind": "handoff",
+          "headline": "Decision request → validate → route, reject or hold",
+          "detail": "technical success without the business state it was supposed to produce, needing an authorized decision on how to resolve the gap",
           "isEntry": false,
           "terminal": false
         }
@@ -54212,7 +54264,7 @@
         },
         {
           "from": "c.confirmed",
-          "to": "x.reconciliation",
+          "to": "a.reconcile",
           "family": "branch",
           "label": "Missing or conflicting",
           "when": "the job reported success and the state it was supposed to produce is not there"
@@ -54240,17 +54292,31 @@
         },
         {
           "from": "w.pending",
-          "to": "x.reconciliation",
+          "to": "a.reconcile",
           "family": "backward",
           "label": "on timeout",
           "when": "a state that has not appeared within its window is a discrepancy rather than a delay, and it needs reconciling rather than more patience"
+        },
+        {
+          "from": "a.reconcile",
+          "to": "h.escalate",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "h.escalate",
+          "to": "DEC-181",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "technical success without the business state it was supposed to produce, needing an authorized decision on how to resolve the gap"
         }
       ],
       "startNode": "t.technical",
       "terminalNodes": [
         "x.complete",
         "x.business-complete",
-        "x.reconciliation"
+        "h.escalate"
       ],
       "backwardEdgeIds": [
         9,
@@ -54263,11 +54329,18 @@
         6,
         7
       ],
-      "handoffEdgeIds": [],
+      "handoffEdgeIds": [
+        12
+      ],
       "externalEdgeIds": []
     },
     "relationships": {
-      "handoffs": [],
+      "handoffs": [
+        {
+          "to": "DEC-181",
+          "isExternal": false
+        }
+      ],
       "distinctFrom": [],
       "competition": null,
       "preemptedBy": []
@@ -54277,7 +54350,8 @@
         "No exception thrown is not business success.",
         "A job reporting SUCCESS does not close a user or business obligation when the required state was not produced.",
         "Verification is idempotent.",
-        "An outcome still pending asynchronously stays pending - completion is not claimed early."
+        "An outcome still pending asynchronously stays pending - completion is not claimed early.",
+        "RECONCILIATION_REQUIRED is not a dead end: a.reconcile hands the gap to DEC-181 for an authorized decision, the same generic decision-request sink roughly thirty other Runtime Mechanisms and Operational Workflows already use for exactly this shape of case - a mechanical outcome (technical success, business state missing) that this mechanism cannot itself resolve, because deciding whether to confirm, remediate or write off is a business judgment this infrastructure-layer mechanism has no authority to make on its own. DEC-181's own resolution path (h.execute -> external:operational-resolution, carrying which canonical lifecycle owns the action) is the same path every other referred decision already resolves through - no special return loop was added here, since inventing one for this one caller would be inconsistent with how the other ~30 already work, and a remediation applied through that path produces its own new technical job, verified through this same mechanism on its own work_id."
       ],
       "reusableRule": "Technical processing is complete only at the infrastructure layer; business completion requires confirmation of the state the work was intended to create.",
       "entityScope": "the completed technical job and the business entity it was meant to change",
@@ -54288,30 +54362,31 @@
       "hasBackwardEdges": true,
       "hasTrueCycle": false,
       "hasExternalHandoff": false,
-      "hasCrossJourneyHandoff": false,
+      "hasCrossJourneyHandoff": true,
       "hasWait": true,
       "hasReEntryException": false,
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 10,
-      "edgeCount": 11,
+      "nodeCount": 11,
+      "edgeCount": 13,
       "branchNodeCount": 2,
       "backwardEdgeCount": 2,
-      "handoffCount": 0,
-      "exitCount": 3,
+      "handoffCount": 1,
+      "exitCount": 2,
       "maxDepth": 5,
       "maxFanIn": 2,
       "maxFanOut": 3,
-      "primaryStructure": "self-contained",
+      "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
         "wait-timeout",
+        "cross-journey-handoff",
         "multi-exit"
       ],
       "complexityTier": "simple",
-      "complexityScore": 37
+      "complexityScore": 40
     }
   },
   {
@@ -64932,6 +65007,14 @@
           "terminal": false
         },
         {
+          "id": "c.priority-clear",
+          "kind": "condition",
+          "headline": "Does a higher-precedence retention-outreach contender already claim this account?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.owner-task",
           "kind": "action",
           "headline": "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
@@ -64966,8 +65049,8 @@
         {
           "id": "x.monitor",
           "kind": "exit",
-          "headline": "risk recorded, nothing proportionate to do",
-          "detail": "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not",
+          "headline": "risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
+          "detail": "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not; where the reason was a higher-precedence contender's active claim, that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
           "isEntry": false,
           "terminal": false
         }
@@ -65031,7 +65114,7 @@
         },
         {
           "from": "c.human",
-          "to": "a.owner-task",
+          "to": "c.priority-clear",
           "family": "branch",
           "label": "Justified",
           "when": "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention"
@@ -65042,6 +65125,20 @@
           "family": "branch",
           "label": "Not justified",
           "when": "the evidence is real but thin, and putting a person on it would be a larger intervention than the signal supports"
+        },
+        {
+          "from": "c.priority-clear",
+          "to": "a.owner-task",
+          "family": "branch",
+          "label": "Clear",
+          "when": "no open issue under human ownership (FBK-46) currently claims this account - this journey's own declared precedence is below that, above generic retention intervention"
+        },
+        {
+          "from": "c.priority-clear",
+          "to": "x.monitor",
+          "family": "branch",
+          "label": "Contended",
+          "when": "an open issue under human ownership already claims this account - raising a second, competing owner-task would contradict the person already working it rather than corroborate their evidence"
         },
         {
           "from": "a.owner-task",
@@ -65095,16 +65192,18 @@
         6,
         8,
         9,
-        12,
-        13
+        10,
+        11,
+        14,
+        15
       ],
       "handoffEdgeIds": [
         3,
         7,
-        14
+        16
       ],
       "externalEdgeIds": [
-        11
+        13
       ]
     },
     "relationships": {
@@ -65135,7 +65234,9 @@
         "A single weak signal never constitutes churn risk. Corroboration between independent signals is what the threshold is measuring.",
         "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
         "A risk score is not the outcome. It orders attention; it does not decide anything.",
-        "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one."
+        "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
+        "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim immediately before a.owner-task rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
+        "h.intervention mints a retention_episode_id at handoff rather than reusing risk_episode_id, since this journey's own episode is a churn-risk evaluation and RET-30's decline memory is scoped to a retention episode - a genuinely different, narrower concept that does not exist here until this specific intervention is chosen."
       ],
       "reusableRule": "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
       "entityScope": "customer, account or subscription relationship",
@@ -65153,14 +65254,14 @@
       "hasMultipleExits": false,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 12,
-      "edgeCount": 15,
-      "branchNodeCount": 4,
+      "nodeCount": 13,
+      "edgeCount": 17,
+      "branchNodeCount": 5,
       "backwardEdgeCount": 0,
       "handoffCount": 4,
       "exitCount": 1,
-      "maxDepth": 6,
-      "maxFanIn": 1,
+      "maxDepth": 7,
+      "maxFanIn": 2,
       "maxFanOut": 2,
       "primaryStructure": "mixed-termination",
       "behaviors": [
@@ -65169,7 +65270,7 @@
         "competition"
       ],
       "complexityTier": "medium",
-      "complexityScore": 46
+      "complexityScore": 52
     }
   },
   {
@@ -80809,6 +80910,14 @@
           "terminal": false
         },
         {
+          "id": "x.superseded",
+          "kind": "exit",
+          "headline": "renewal decision suppressed; a cancellation in motion on the relationship takes precedence",
+          "detail": "the cancellation's own resolution decides what happens next - if it is withdrawn, the renewal cycle re-opens fresh rather than resuming a decision made under a since-lifted cancellation",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.review",
           "kind": "action",
           "headline": "Record RENEWAL_REVIEW with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
@@ -80987,17 +81096,24 @@
         },
         {
           "from": "c.decision",
+          "to": "x.superseded",
+          "family": "branch",
+          "label": "Cancellation in motion",
+          "when": "the cycle re-read shows a cancellation now in motion on the relationship - this journey's own declared precedence is below an active cancellation, and resolving a renewal decision independently while one is in motion would contradict it"
+        },
+        {
+          "from": "c.decision",
           "to": "a.decided",
           "family": "backward",
           "label": "Renew",
-          "when": "the decision, or the terms' default, is to continue"
+          "when": "the decision, or the terms' default, is to continue, and no cancellation is in motion"
         },
         {
           "from": "c.decision",
           "to": "a.non-renew",
           "family": "branch",
           "label": "Do not renew",
-          "when": "the decision, or the terms' default, is to let the term end"
+          "when": "the decision, or the terms' default, is to let the term end, and no cancellation is in motion"
         },
         {
           "from": "a.review",
@@ -81059,6 +81175,7 @@
       "startNode": "t.window",
       "terminalNodes": [
         "h.undefined",
+        "x.superseded",
         "h.escalate",
         "h.execute",
         "h.scheduled-end"
@@ -81067,7 +81184,7 @@
         12,
         14,
         16,
-        17
+        18
       ],
       "branchEdgeIds": [
         2,
@@ -81080,13 +81197,14 @@
         11,
         12,
         17,
-        18
+        18,
+        19
       ],
       "handoffEdgeIds": [
         4,
-        22,
-        24,
-        26
+        23,
+        25,
+        27
       ],
       "externalEdgeIds": []
     },
@@ -81124,7 +81242,8 @@
         "A renewal communication is not a renewal decision.",
         "Renewal notice periods and renewing terms are never invented.",
         "A relationship under renewal review stays active on its current term.",
-        "A relationship with a cancellation already in motion, or with an active risk state, is not sent a routine renewal message. The lifecycle that already owns the person takes precedence, and a renewal reminder arriving during a cancellation reads as a system that is not paying attention."
+        "A relationship with a cancellation already in motion, or with an active risk state, is not sent a routine renewal message. The lifecycle that already owns the person takes precedence, and a renewal reminder arriving during a cancellation reads as a system that is not paying attention.",
+        "A cancellation that starts in motion after the decision request was already sent is not resolved as a renewal or a non-renewal - w.decision's and w.review's own recheck surface it, and c.decision's own branch defers to it (x.superseded) rather than letting a stale wait resolve to a decision the relationship no longer stands behind."
       ],
       "reusableRule": "Renewal is a new term decision governed by the current relationship state and applicable renewal rules.",
       "entityScope": "the continuing relationship and the renewal cycle currently open on it",
@@ -81142,16 +81261,16 @@
       "hasMultipleExits": false,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 19,
-      "edgeCount": 27,
+      "nodeCount": 20,
+      "edgeCount": 28,
       "branchNodeCount": 5,
       "backwardEdgeCount": 4,
       "handoffCount": 4,
-      "exitCount": 0,
+      "exitCount": 1,
       "maxDepth": 10,
       "maxFanIn": 3,
       "maxFanOut": 3,
-      "primaryStructure": "router",
+      "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
         "wait-timeout",
@@ -81159,7 +81278,7 @@
         "competition"
       ],
       "complexityTier": "extreme",
-      "complexityScore": 78
+      "complexityScore": 81
     }
   },
   {
@@ -81227,6 +81346,22 @@
           "id": "c.resolved",
           "kind": "condition",
           "headline": "How did the dependencies resolve?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.terms-current",
+          "kind": "condition",
+          "headline": "Do the governing terms carried from the decision still match what currently governs this relationship?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.reconcile-terms",
+          "kind": "action",
+          "headline": "Re-derive the new term's actual dates, pricing and scope from the relationship's current governing terms rather than the snapshot carried at SUB-163's own decision - the decision to renew is not re-litigated here, only what it renews on. This is the same current-state-over-stale-snapshot discipline CTL-233/CTL-232 and FIN-135 already apply at their own execution points",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -81372,7 +81507,7 @@
         },
         {
           "from": "c.resolved",
-          "to": "a.new-term",
+          "to": "c.terms-current",
           "family": "branch",
           "label": "All satisfied",
           "when": "every authoritative requirement for the new term is met"
@@ -81383,6 +81518,27 @@
           "family": "branch",
           "label": "Something failed",
           "when": "a dependency failed authoritatively"
+        },
+        {
+          "from": "c.terms-current",
+          "to": "a.new-term",
+          "family": "branch",
+          "label": "Unchanged",
+          "when": "the dates, pricing and terms carried at a.decided's handoff still match the relationship's current governing terms - the ordinary case, since w.dependencies' own window is bounded"
+        },
+        {
+          "from": "c.terms-current",
+          "to": "a.reconcile-terms",
+          "family": "branch",
+          "label": "Materially changed",
+          "when": "a policy or pricing change landed on the relationship between SUB-163's decision and this point - the decision to renew still stands, but what it renews on does not"
+        },
+        {
+          "from": "a.reconcile-terms",
+          "to": "a.new-term",
+          "family": "backward",
+          "label": null,
+          "when": null
         },
         {
           "from": "c.blocker",
@@ -81491,8 +81647,9 @@
         "h.non-renewal"
       ],
       "backwardEdgeIds": [
-        14,
-        15
+        11,
+        17,
+        18
       ],
       "branchEdgeIds": [
         2,
@@ -81501,14 +81658,16 @@
         8,
         9,
         10,
-        11,
-        18,
-        19
+        12,
+        13,
+        14,
+        21,
+        22
       ],
       "handoffEdgeIds": [
-        12,
-        20,
-        22
+        15,
+        23,
+        25
       ],
       "externalEdgeIds": []
     },
@@ -81541,7 +81700,8 @@
         "A renewal scheduled is not a renewal completed.",
         "A payment attempt is not renewal completion.",
         "The previous term is never overwritten with the new term's dates.",
-        "A redelivered authorization for the same renewal_cycle_id raises at most one financial obligation and creates at most one new term - never a duplicate of either."
+        "A redelivered authorization for the same renewal_cycle_id raises at most one financial obligation and creates at most one new term - never a duplicate of either.",
+        "The new term is never created from a stale terms snapshot once w.dependencies' own bounded window has elapsed - c.terms-current re-checks against the relationship's current governing terms immediately before a.new-term, and a.reconcile-terms re-derives dates, pricing and scope from that current state rather than what SUB-163 carried at decision time. The decision to renew itself is never re-litigated here, only what it renews on."
       ],
       "reusableRule": "A renewal becomes effective only after the requirements for the new term have actually been satisfied.",
       "entityScope": "the renewal operation and the new term it would create",
@@ -81559,14 +81719,14 @@
       "hasMultipleExits": false,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 17,
-      "edgeCount": 23,
-      "branchNodeCount": 4,
-      "backwardEdgeCount": 2,
+      "nodeCount": 19,
+      "edgeCount": 26,
+      "branchNodeCount": 5,
+      "backwardEdgeCount": 3,
       "handoffCount": 3,
       "exitCount": 1,
-      "maxDepth": 9,
-      "maxFanIn": 2,
+      "maxDepth": 10,
+      "maxFanIn": 3,
       "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
@@ -81574,8 +81734,8 @@
         "wait-timeout",
         "cross-journey-handoff"
       ],
-      "complexityTier": "complex",
-      "complexityScore": 65
+      "complexityTier": "extreme",
+      "complexityScore": 75
     }
   },
   {
@@ -87765,7 +87925,8 @@
       "trigger": "Merge explicitly authorized",
       "triggerEvidenceClass": "authoritative",
       "requires": [
-        "an explicit merge authorization following a duplicate assessment, naming the sources, the target, and the authorized identity-consolidation role that authorised it"
+        "an explicit merge authorization following a duplicate assessment, naming the sources, the target, and the authorized identity-consolidation role that authorised it",
+        "or an existing merge_operation_id whose TRM-102 conflict has just been resolved, carrying the resolution and clearance to resume - this is the same operation resuming, not a fresh authorization"
       ],
       "insufficientAlone": [
         "a duplicate detection, which produces a candidate rather than a decision",
@@ -87781,6 +87942,14 @@
           "headline": "Merge explicitly authorized",
           "detail": null,
           "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.origin",
+          "kind": "condition",
+          "headline": "Is this a fresh merge authorization, or the same operation resuming after TRM-102 resolved a conflict?",
+          "detail": null,
+          "isEntry": false,
           "terminal": false
         },
         {
@@ -87891,10 +88060,24 @@
       "edges": [
         {
           "from": "t.authorized",
-          "to": "a.operation",
+          "to": "c.origin",
           "family": "forward",
           "label": null,
           "when": null
+        },
+        {
+          "from": "c.origin",
+          "to": "a.operation",
+          "family": "branch",
+          "label": "Fresh authorization",
+          "when": "no merge_operation_id exists yet for this trigger"
+        },
+        {
+          "from": "c.origin",
+          "to": "a.consolidate",
+          "family": "branch",
+          "label": "Resuming after conflict resolution",
+          "when": "merge_operation_id already exists and TRM-102 has just handed back a resolved (or partially reconciled) conflict, cleared to complete"
         },
         {
           "from": "a.operation",
@@ -87948,7 +88131,7 @@
         {
           "from": "c.conflicts",
           "to": "a.consolidate",
-          "family": "branch",
+          "family": "backward",
           "label": "No conflicts",
           "when": "every state type reconciles without contradiction"
         },
@@ -88009,21 +88192,24 @@
         "x.merged"
       ],
       "backwardEdgeIds": [
-        5,
-        15
+        7,
+        10,
+        17
       ],
       "branchEdgeIds": [
-        3,
-        4,
+        1,
+        2,
         5,
         6,
         7,
         8,
-        14,
-        15
+        9,
+        10,
+        16,
+        17
       ],
       "handoffEdgeIds": [
-        9
+        11
       ],
       "externalEdgeIds": []
     },
@@ -88048,7 +88234,8 @@
         "A merge never duplicates a financial obligation.",
         "An opt-out never disappears because another profile was opted in.",
         "Provenance is preserved - the consolidated record can say where each part of it came from.",
-        "An irreversible merge requires stronger evidence and authority than a reversible one."
+        "An irreversible merge requires stronger evidence and authority than a reversible one.",
+        "A merge sent to TRM-102 for conflict resolution resumes consolidation on this same merge_operation_id once TRM-102 hands it back resolved - c.origin distinguishes that resumption from a fresh authorization at the same trigger, so a held or partially-reconciled merge does not become a permanent dead end."
       ],
       "reusableRule": "Entity merge consolidates representations only after dependent state has been reconciled according to the authority rules of each state type.",
       "entityScope": "the source entities, the canonical target, and the merge operation itself as an auditable record",
@@ -88066,13 +88253,13 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 14,
-      "edgeCount": 16,
-      "branchNodeCount": 4,
-      "backwardEdgeCount": 2,
+      "nodeCount": 15,
+      "edgeCount": 18,
+      "branchNodeCount": 5,
+      "backwardEdgeCount": 3,
       "handoffCount": 1,
       "exitCount": 2,
-      "maxDepth": 10,
+      "maxDepth": 7,
       "maxFanIn": 2,
       "maxFanOut": 2,
       "primaryStructure": "mixed-termination",
@@ -88082,7 +88269,7 @@
         "multi-exit"
       ],
       "complexityTier": "complex",
-      "complexityScore": 55
+      "complexityScore": 59
     }
   },
   {
@@ -88201,10 +88388,10 @@
           "terminal": false
         },
         {
-          "id": "x.resolved",
-          "kind": "exit",
-          "headline": "RESOLVED; the merge may complete",
-          "detail": "a further conflict in the same merge opens its own instance",
+          "id": "h.resume",
+          "kind": "handoff",
+          "headline": "Identity or entity merge → reconcile → consolidate → verify",
+          "detail": "a merge conflict resolved, with the merge operation cleared to complete",
           "isEntry": false,
           "terminal": false
         },
@@ -88341,7 +88528,7 @@
         },
         {
           "from": "c.outcome",
-          "to": "x.resolved",
+          "to": "h.resume",
           "family": "branch",
           "label": "Resolved",
           "when": "an authority determined the answer and the merge may complete"
@@ -88361,6 +88548,13 @@
           "when": "the independent portions consolidated and the conflicted state stays separate"
         },
         {
+          "from": "h.resume",
+          "to": "TRM-101",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "a merge conflict resolved, with the merge operation cleared to complete"
+        },
+        {
           "from": "a.abort",
           "to": "x.aborted",
           "family": "forward",
@@ -88371,7 +88565,7 @@
       "startNode": "t.conflict",
       "terminalNodes": [
         "h.escalate",
-        "x.resolved",
+        "h.resume",
         "x.aborted",
         "x.partial"
       ],
@@ -88391,7 +88585,8 @@
         17
       ],
       "handoffEdgeIds": [
-        14
+        14,
+        18
       ],
       "externalEdgeIds": []
     },
@@ -88399,6 +88594,10 @@
       "handoffs": [
         {
           "to": "OWN-55",
+          "isExternal": false
+        },
+        {
+          "to": "TRM-101",
           "isExternal": false
         }
       ],
@@ -88411,7 +88610,8 @@
         "A conflict is never resolved merely to make the merge succeed.",
         "The most permissive consent or access state is never chosen by default.",
         "An ambiguous identity conflict stops the entire merge rather than part of it.",
-        "What could not be unwound after an abort is recorded rather than assumed away."
+        "What could not be unwound after an abort is recorded rather than assumed away.",
+        "A resolved conflict hands back to TRM-101 (h.resume) rather than ending as a record nothing ever acts on - RESOLVED means the merge may complete, and completing it is TRM-101's own job to resume, not this journey's to claim."
       ],
       "reusableRule": "Merge conflicts should fail safe whenever consolidation would require inventing authority that the system does not possess.",
       "entityScope": "the merge operation and the specific state in conflict",
@@ -88430,11 +88630,11 @@
       "hasPreemption": false,
       "hasCompetition": false,
       "nodeCount": 16,
-      "edgeCount": 19,
+      "edgeCount": 20,
       "branchNodeCount": 4,
       "backwardEdgeCount": 2,
-      "handoffCount": 1,
-      "exitCount": 3,
+      "handoffCount": 2,
+      "exitCount": 2,
       "maxDepth": 9,
       "maxFanIn": 2,
       "maxFanOut": 3,
@@ -88446,7 +88646,7 @@
         "multi-exit"
       ],
       "complexityTier": "complex",
-      "complexityScore": 60
+      "complexityScore": 61
     }
   },
   {

@@ -896,7 +896,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.reread",
         kind: "action",
-        does: "Re-read the authoritative state the message describes. Between preparation and send the appointment may have been cancelled, the payment may have succeeded and the approval may have been reversed - and each of those turns a helpful message into a damaging one",
+        does: "Re-read the authoritative state the message describes. Between preparation and send the appointment may have been cancelled, the payment may have succeeded and the approval may have been reversed - and each of those turns a helpful message into a damaging one. Where the message's own originating journey declares a competition exclusionGroup and scope (GLB-01), this re-read includes OPS-131's current established owner for that (exclusion_group, scope_instance_id) - the send path's own step 3, \"journey competition and precedence\", is enforced here rather than left as a stage no concrete node ever performs, since this is the one point every message from every competition member passes through immediately before delivery regardless of which journey produced it",
         next: "c.valid",
       },
       {
@@ -906,12 +906,12 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         branches: [
           {
             label: "Still valid",
-            when: "the reason for the message and its subject both still stand",
+            when: "the reason for the message and its subject both still stand, and - where the originating journey declares a competition field - that journey is still OPS-131's current established owner for its (exclusion_group, scope_instance_id)",
             to: "c.content",
           },
           {
             label: "Superseded or resolved",
-            when: "the event the message is about has been undone, cancelled or resolved",
+            when: "the event the message is about has been undone, cancelled or resolved, OR the originating journey has lost current ownership of its declared competition scope since this message was queued - a losing contender's queued message does not get to run merely because it was queued before it lost (GLB-07)",
             to: "a.suppress",
           },
           {
@@ -1003,9 +1003,10 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       "A reminder for a cancelled appointment does not send.",
       "A resolved payment failure does not send as unresolved.",
       "Historical sent messages are never mutated.",
+      "A message from a journey that has since lost its declared competition scope to another contender does not send merely because it was queued while it still held it (GLB-07) - this is checked here, generically, for every competition-bound message in the corpus, rather than duplicated into each competing journey's own graph.",
     ],
     reusableRule:
-      "Messages should be revalidated immediately before delivery whenever delayed execution could make their content or purpose stale.",
+      "Messages should be revalidated immediately before delivery whenever delayed execution could make their content or purpose stale - including, where the originating journey is a declared competition member, whether it still holds current ownership of its contested scope.",
   },
 
   /* ------------------------------------------------------------ CMS-206 */

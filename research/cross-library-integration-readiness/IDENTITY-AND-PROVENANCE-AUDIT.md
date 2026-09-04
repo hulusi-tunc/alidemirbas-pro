@@ -1,5 +1,62 @@
 # Identity and Provenance Audit — cross-library handoff audit
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+**`IDN-01` is FIXED.** The original finding below — `RET-24 h.intervention -> RET-30`:
+episode-identity discontinuity, no self-mint fallback (P1) — is closed this round. Per
+`FIXES-APPLIED.md`'s "`RET-24` -> `RET-30`" section: `RET-24`'s `h.intervention` handoff now mints
+`retention_episode_id` at the handoff itself, deterministically derived from `account_id +
+risk_episode_id` — the same deterministic-derivation pattern this document already cited
+positively for `IDN-90 h.recover`/`h.lift -> ACC-79`'s `restoration_case_id` (derived from
+`incident_id` + outcome, "the most explicit derivation formula found anywhere in the graph," per
+the original text below). `contract.requiredFields: ["account_id", "retention_episode_id"]` was
+added to the handoff. The underlying dual-concept split this finding correctly identified — a risk
+episode (`RET-24`'s own instance identity) is genuinely not a retention episode (`RET-30`'s) — was
+not collapsed or renamed away; the fix mints the retention-episode identity at the point where it
+first becomes meaningful, which is what the finding itself proposed as one of the two viable
+fixes ("teaching `RET-24` to carry (or `RET-30` to derive) a retention-episode identity"). Zero new
+nodes — text and contract only, matching `INTEGRATION-CANONICAL-CHANGES.md`'s account of this fix.
+`RET-24 h.intervention -> RET-30` should now be read as row #52 in
+`EDGE-COMPATIBILITY-MATRIX.md`'s full table, reclassified there from semantic mismatch to
+compatible with mapping — see that document's own POST-REPAIR UPDATE for the parallel edge-level
+writeup.
+
+**`IDN-02` through `IDN-04` are unchanged — not addressed this round.** The `SCH-176/177/178/179/280
+-> SCH-180` cross-sender correlation gap (`IDN-02`), the `ACQ-04 -> ACQ-08` `person_id` mapping
+note (`IDN-03`), and the `ACQ-07`/`ACQ-09`/`ACT-20 -> ACQ-03` vocabulary divergence (`IDN-04`) are
+not among this round's 3 confirmed P0s or their adjacent P1 repairs (`ACC-78`/`IDN-90`,
+`ACT-18`/`FBK-46`/`RET-24`/`RET-28`/`RET-30`/`RET-32`, `OPS-130`) and were not touched. They remain
+open exactly as originally described below.
+
+**`IDN-05` and `IDN-06` remain open — explicitly not in scope this round.** These are the two
+pre-existing, prior-round findings this document already flagged as "re-confirmed unchanged"
+(`DEC-187 h.undefined -> DEC-189` dropping the case's original deadline; `DOC-212 h.issue ->
+DOC-213` not carrying "authority to issue"). `FIXES-APPLIED.md`'s own "Identity / authority
+provenance" section reviewed both of these by name this round (alongside `SCH-176.../280 ->
+SCH-180`'s duplicate/correlation gap, `TRM-104 -> REL-100`'s zero provenance, and `RSK-200 ->
+ACC-79`'s provenance-not-threaded gap) and explicitly declined to repair any of them: "**None
+repaired this round** — each is a pre-existing, already-catalogued finding from a prior closed
+round, none is adjacent to this round's 3 P0 repairs (different domains, different root causes),
+and repairing them would not be 'mechanically provable... adjacent to the P0 repair' per the
+governing brief's own bar for which P1s to take on." `IDN-05` and `IDN-06` are not fixed and should
+not be read as fixed by anything in this update — they are the same open findings the original text
+below describes, carried forward unchanged.
+
+**Updated totals.** The original Findings summary line below reads "P1: 4 (IDN-01, IDN-02, IDN-05,
+IDN-06 — the latter two pre-existing and unchanged, not newly introduced by this round's
+repairs)." With `IDN-01` now fixed, this round's totals are: **P1: 3 open (`IDN-02`, `IDN-05`,
+`IDN-06`) + 1 fixed (`IDN-01`)** — `IDN-05`/`IDN-06` pre-existing and unchanged as before, `IDN-02`
+untouched, `IDN-01` newly closed this round. P2 totals (`IDN-03`, `IDN-04` real; `IDN-08`, `IDN-09`,
+`IDN-10` positive) are unchanged. P0 remains 0.
+
+No other finding, row, or method note in this document changed. The rest of this document —
+including the full write-up of `IDN-01` through `IDN-10`, the method note, and the Findings
+summary table — reflects the audit as originally run and is preserved unchanged below; read
+`IDN-01`'s entry as historical (the discontinuity it describes is what was fixed) rather than as a
+currently-open gap.
+
+---
+
 Covers instance identity continuity, entity granularity, attempt identity, authority provenance and
 evidence provenance across the 522 handoff edges in `relationship-graph.json`, grounded in
 `entity`/`entry`/node text read from `production/canonical-dump.json` for every edge discussed

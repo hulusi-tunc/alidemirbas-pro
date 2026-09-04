@@ -496,6 +496,102 @@ for (const j of all) {
   }
 }
 
+/* Cross-Library Integration repair round: byId, for the two checks below and
+   for anything else that needs to look up a journey by its own id rather
+   than scan `all` repeatedly. */
+const byId = new Map(all.map((j) => [j.id, j]));
+
+/* competition_member_unenforced (+ the competing_member_no_live_state_check
+   candidate from VALIDATOR-OPPORTUNITIES.md, merged into this one rather
+   than built as a second validator detecting the same root issue, per that
+   document's own instruction): a declared competition member's consequential
+   `execution: "human"` action - the shape not generically covered by
+   CMS-205's own send-path revalidation, added this round for every
+   `execution: "communication"` action corpus-wide - has no node anywhere in
+   its own graph whose text shows a live re-check of current competition/
+   ownership state before that action fires. `execution: "communication"`
+   actions are deliberately not flagged here: re-litigating CMS-205's own
+   architectural fix one journey at a time would be exactly the caller-side
+   duplication the repair round's own brief said not to do.
+
+   WARN, not ERROR: recognising a real structural check from a node's own
+   `does`/`asks`/branch `when` text is judgment, not mechanical certainty -
+   several genuinely protected members phrase their check differently from
+   each other (`ACC-78`'s "currently open", `ACQ-04`'s "already reached the
+   destination"), and a future member may phrase it differently again without
+   being unprotected. The two confirmed-unsafe instances this round found
+   (`account-restriction-authority`, `retention-outreach`) were repaired
+   directly in source, not left for this validator to catch after the fact -
+   this validator exists to catch regressions and new competition members
+   that skip the pattern going forward. */
+const ENFORCEMENT_MARKERS = [
+  /\b(current(ly)?|live|still)\b[^.]{0,80}\b(own|claim|contend|precedence|open|holds?)\b/i,
+  /\balready (reached|resolved|won|claimed|decided)\b/i,
+  /\bre-?(read|check)\b[^.]{0,80}\b(current|live)\b/i,
+  /\bnow\b[^.]{0,60}\b(in motion|open|active|claims?)\b/i,
+  /\bOPS-131\b/,
+];
+// Opening the tracked instance or recording a bare no-action/decline outcome is
+// bookkeeping, not itself the consequential external effect a stale-loser race
+// could fire - excluded by id so the check targets the actual send/release/apply
+// action, not every write-bearing node on the path to it.
+const NON_CONSEQUENTIAL_ACTION_ID = /^a\.(record|open)\b/i;
+for (const [g, members] of Object.entries(groups)) {
+  for (const m of members) {
+    const j = byId.get(m.id);
+    if (!j) continue;
+    if (!j.nodes.some((n) => n.kind === "wait")) continue; // no async gap for ownership to go stale across
+    // Consequential = writes durable state and is not itself an execution:"communication"
+    // action (those are covered generically by CMS-205's own re-check, added this round).
+    const consequential = j.nodes.filter(
+      (n) => n.kind === "action" && n.execution !== "communication" && (n.writes ?? []).length > 0 && !NON_CONSEQUENTIAL_ACTION_ID.test(n.id),
+    );
+    if (!consequential.length) continue;
+    const hasMarker = j.nodes.some((n) => {
+      const text = [n.does, n.asks, ...(n.branches ?? []).map((b) => b.when)].filter(Boolean).join(" ");
+      return ENFORCEMENT_MARKERS.some((re) => re.test(text));
+    });
+    if (!hasMarker) {
+      warn("competition_member_unenforced", m.id, `declares competition group "${g}" and has a consequential action reachable after a wait (${consequential.map((n) => n.id).join(", ")}), but no node re-checks current competition/ownership state before it fires`);
+    }
+  }
+}
+
+/* runtime_arbiter_result_unconsumed: a Runtime Mechanism exit whose own
+   `reEntry` text explicitly states a propagation intent (the outcome is
+   supposed to be visible to, or acted on by, something else) has zero
+   outbound handoffs anywhere in the same journey. This is a narrower,
+   intent-scoped sibling of `workflow_result_unconsumed` (Operational
+   Workflow round): that one flags a fully isolated workflow; this one
+   flags a specific declared-important outcome with no consumer even when
+   the mechanism as a whole has other traffic (in-degree, other exits) -
+   exactly the shape `OPS-130`'s pre-repair `RECONCILIATION_REQUIRED` had
+   (in-degree 2, zero outbound handoffs anywhere in the journey).
+
+   ERROR: unlike the WARN-tier checks above, a Runtime Mechanism whose own
+   text says an outcome must reach something else and structurally cannot
+   is the exact "business result lost across layers" shape the governing
+   brief rates P0 - this is not a judgment call the way recognising an
+   enforcement check's phrasing is. Deliberately narrow to avoid flagging a
+   legitimate synchronous return value: only exits whose own text uses an
+   explicit propagation-intent phrase are considered, and only where the
+   whole journey has no outbound handoff at all (a journey with any
+   outbound handoff is presumed to have a real route for its results, even
+   if not from this exact exit - refining that distinction further is a
+   possible future tightening, not required to make this check safe today). */
+const PROPAGATION_INTENT = /\bso (that|it)\b[^.]{0,120}\b(visible|acted on|resolved|reaches|notice)\b/i;
+for (const j of all) {
+  if (!mechanismIds.has(j.id)) continue;
+  const hasOutboundHandoff = j.nodes.some((n) => n.kind === "handoff");
+  if (hasOutboundHandoff) continue;
+  for (const n of j.nodes) {
+    if (n.kind !== "exit" || !n.reEntry) continue;
+    if (PROPAGATION_INTENT.test(n.reEntry)) {
+      err("runtime_arbiter_result_unconsumed", j.id, `exit "${n.id}" states a propagation intent in its own reEntry text ("${n.reEntry.slice(0, 100)}...") but this journey has zero outbound handoffs anywhere - the outcome cannot structurally reach whatever it says needs to see it`);
+    }
+  }
+}
+
 /* Warnings on a vNext journey are not free: each one is either fixed or
    reviewed by a person and recorded in production/vnext-warning-reviews.json
    with a note. The summary counts the unreviewed ones; the migration is not

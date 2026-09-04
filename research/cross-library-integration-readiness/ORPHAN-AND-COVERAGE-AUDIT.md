@@ -1,5 +1,40 @@
 # Orphan and coverage audit
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+Checked against `research/cross-library-integration-readiness/FIXES-APPLIED.md` (the repair
+register for this round) and the regenerated `relationship-graph.json` (now 550 edges / 284 items
+/ 3690 nodes, up from 548 / 284 / 3682). This round's 3 P0 repairs
+(`account-restriction-authority`: `ACC-78`/`IDN-90`; `retention-outreach`: `ACT-18`/`FBK-46`/
+`RET-24`/`RET-28`/`RET-30`/`RET-32`; `OPS-130`→`DEC-181`) and its adjacent P1 repairs (`RET-24`→
+`RET-30`, `SUB-163`→`SUB-164`, `TRM-101`→`TRM-102`) touch none of `OPS-130`, `DEC-181`, `TRM-101`,
+`TRM-102`, `RET-24`, `SUB-163`, `SUB-164`, `ACC-78` in a way that reaches either confirmed orphan —
+neither orphan is a member of either P0's competition group, and neither is one of the named items
+above.
+
+**`REL-99` and `INT-120` remain the corpus's only 2 true orphan candidates, unchanged.** No new
+evidence from this round's repairs bears on either. FIXES-APPLIED.md itself confirms this
+directly: "the 2 confirmed orphans (`REL-99`, `INT-120`) are unchanged in identity," and neither
+id appears anywhere else in that document.
+
+The corpus-wide edge count moved from 548 to 550 — 2 new handoffs this round: `TRM-102 h.resume →
+TRM-101` and `OPS-130 h.escalate → DEC-181`. Checked `relationship-graph.json` directly: of these 2
+new edges, **zero** have `sourceId` or `targetId` equal to `REL-99` or `INT-120` — neither new edge
+touches either orphan's own graph or reaches a consumer of theirs.
+
+One correction worth recording precisely, so this update does not overstate the result: a
+corpus-wide scan of `relationship-graph.json` for *any* edge (not just this round's 2 new ones)
+naming `REL-99` or `INT-120` as `sourceId` or `targetId` finds **2**, not 0 — but both are the same
+pre-existing outbound handoffs this document's own original body already names in the "Orphan
+candidates carried forward from prior rounds" section above: `REL-99:h.review→DEC-181` and
+`INT-120:h.escalate→OWN-55`. Orphan status here has always meant zero *inbound* handoff (and no
+competition membership, and no nameable emitter), not zero edges outright — both items are event
+sinks with real outbound handoffs, that no other item hands off *into*. Neither of those 2
+pre-existing edges is new this round, and neither of this round's 2 new edges is among them. The
+finding stands as originally stated: 2 true orphan candidates, unchanged.
+
+---
+
 Governing brief Part 23 (plus the Part 25 duplicate-responsibility appendix and the Part 33
 customer-silence appendix). Audit only.
 

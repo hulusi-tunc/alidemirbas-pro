@@ -1723,6 +1723,27 @@
    "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
    "reviewedBy": "operational-workflow gap-closure round",
    "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "competition_member_unenforced",
+   "note": "a.downgrade and a.suppress act only on this journey's own queued follow-up (reclassifying its own intent, suppressing its own future send) - they are not a consequential external effect a stale-loser race could produce, so there is nothing for a live-ownership check to protect. Confirmed by direct source read during the cross-library integration repair round's own competition-adoption audit: ACQ-07/ACQ-08 have no execution: \"communication\" action of their own.",
+   "reviewedBy": "cross-library integration repair round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "competition_member_unenforced",
+   "note": "a.rearm only records the change and re-arms this journey's own first wait timer from the new last-activity time, bounded - it is not a consequential external effect (the actual send, a.touch1/a.touch2, is execution: \"communication\" and is already covered by CMS-205's generic re-check).",
+   "reviewedBy": "cross-library integration repair round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "IDN-90",
+   "code": "competition_member_unenforced",
+   "note": "IDN-90 is account-restriction-authority's own highest-precedence member (\"a suspected compromise is the more urgent, safety-critical question\") - it never defers to ACC-78, the group's only other member, so it structurally has nothing to check before acting. The actual P0 this group had (ACC-78 not checking IDN-90's live state before releasing a restriction) was fixed directly in ACC-78's own graph (a.check-authority/c.authority-clear) this round; see FIXES-APPLIED.md.",
+   "reviewedBy": "cross-library integration repair round",
+   "reviewedAt": "2026-09-04"
   }
  ]
 }

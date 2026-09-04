@@ -1415,7 +1415,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Reason resolved",
             when: "what justified the suspension has been dealt with",
-            to: "h.restore",
+            to: "a.check-authority",
           },
           {
             label: "Terminal decision",
@@ -1437,12 +1437,36 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Lift it",
             when: "the reason has lapsed even though nothing formally resolved it",
-            to: "h.restore",
+            to: "a.check-authority",
           },
           {
             label: "Nobody decided",
             when: "the review point arrived with no decision made at all",
             to: "h.escalate",
+          },
+        ],
+      },
+      {
+        id: "a.check-authority",
+        kind: "action",
+        does: "Re-read current account-restriction-authority standing before releasing this suspension: is a higher-precedence contender on the same exclusionGroup and account (a suspected-compromise investigation, IDN-90) still open? This suspension's own declared precedence is lower than IDN-90's and its onLoss is paused - resolving independently while IDN-90 remains open would restore capabilities the more urgent, safety-critical question is still restricting, exactly the mid-investigation access-restoration risk onLoss: paused exists to prevent",
+        next: "c.authority-clear",
+        idempotencyKey: "account_id + capability_scope + a.check-authority",
+      },
+      {
+        id: "c.authority-clear",
+        kind: "condition",
+        asks: "Is this account clear of a higher-precedence account-restriction-authority contender?",
+        branches: [
+          {
+            label: "Clear",
+            when: "no IDN-90 instance (or any higher-precedence member of this exclusionGroup) is currently open for this account",
+            to: "h.restore",
+          },
+          {
+            label: "Still contested",
+            when: "a higher-precedence contender is still open for this account - this suspension's own reason may have lapsed, but the account itself is not yet clear to release",
+            to: "a.extend",
           },
         ],
       },
@@ -1497,6 +1521,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
       "The suspension uses the smallest scope that addresses its reason.",
       "Restoration does not blindly return every previous capability - it hands to a journey whose job is revalidating first.",
       "A suspension without a review point is a termination nobody authorised.",
+      "This suspension's own resolution never releases access while a higher-precedence account-restriction-authority contender is still open on the same account - declaring onLoss: paused in the competition field is not self-enforcing, so a.check-authority re-reads that contender's live state immediately before h.restore rather than trusting the competition metadata alone.",
     ],
     reusableRule:
       "Suspension temporarily restricts defined capabilities while preserving the possibility of restoration after current eligibility and authority are revalidated.",

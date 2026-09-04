@@ -210,8 +210,8 @@
     "id": "RET-24",
     "reason": "Longest trigger evidence text (requires items, 319 chars combined).",
     "category": "retention",
-    "nodeCount": 12,
-    "edgeCount": 15,
+    "nodeCount": 13,
+    "edgeCount": 17,
     "primaryStructure": "mixed-termination",
     "behaviors": [
       "cross-journey-handoff",

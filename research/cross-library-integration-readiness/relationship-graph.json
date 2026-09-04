@@ -1593,9 +1593,13 @@
     "on": "a proportionate automated retention intervention being delivered",
     "context": [
       "the evidence it was chosen against",
-      "the risk state at the time it was sent"
+      "the risk state at the time it was sent",
+      "a retention_episode_id minted at this handoff, deterministically derived from account_id + risk_episode_id, since this journey's own episode concept (a churn-risk evaluation) is not itself a retention episode - RET-30 remembers a decline against this identity the same way it does for RET-28's own cancellation-episode-scoped handoff"
     ],
-    "contractRequiredFields": [],
+    "contractRequiredFields": [
+      "account_id",
+      "retention_episode_id"
+    ],
     "suppresses": null,
     "targetExists": true,
     "isMergedTarget": false,
@@ -4674,6 +4678,30 @@
     "ownershipTransfer": null
   },
   {
+    "sourceId": "TRM-102",
+    "sourceNodeId": "h.resume",
+    "sourceSurface": "operational",
+    "sourceSurfaceCoarse": "Operational",
+    "edgeType": "handoff",
+    "targetId": "TRM-101",
+    "targetSurface": "operational",
+    "targetSurfaceCoarse": "operational",
+    "targetEntry": "t.authorized",
+    "on": "a merge conflict resolved, with the merge operation cleared to complete",
+    "context": [
+      "merge_operation_id, the resolution and its basis, and which state was affected",
+      "the explicit fact that this conflict is settled - TRM-101 resumes consolidation from its own current point rather than re-authorizing the merge from scratch"
+    ],
+    "contractRequiredFields": [
+      "merge_operation_id"
+    ],
+    "suppresses": null,
+    "targetExists": true,
+    "isMergedTarget": false,
+    "isExternal": false,
+    "ownershipTransfer": null
+  },
+  {
     "sourceId": "TRM-103",
     "sourceNodeId": "h.reconcile",
     "sourceSurface": "operational",
@@ -5876,6 +5904,32 @@
       "the fact that capacity has recovered and is still not sufficient, which is a capacity decision rather than an incident"
     ],
     "contractRequiredFields": [],
+    "suppresses": null,
+    "targetExists": true,
+    "isMergedTarget": false,
+    "isExternal": false,
+    "ownershipTransfer": null
+  },
+  {
+    "sourceId": "OPS-130",
+    "sourceNodeId": "h.escalate",
+    "sourceSurface": "mechanism",
+    "sourceSurfaceCoarse": "Runtime",
+    "edgeType": "handoff",
+    "targetId": "DEC-181",
+    "targetSurface": "operational",
+    "targetSurfaceCoarse": "operational",
+    "targetEntry": "t.required",
+    "on": "technical success without the business state it was supposed to produce, needing an authorized decision on how to resolve the gap",
+    "context": [
+      "work_id, logical_operation_key and correlation_id (carried from OPS-121 through this mechanism), so the case can be traced back to the originating technical operation",
+      "the business entity the work was meant to change, what was expected, and what verification actually found",
+      "the technical result (SUCCESS) and the evidence gathered at a.verify - a provider response, a downstream acknowledgement or its absence, whatever verification actually checked",
+      "the explicit fact that this needs an authorized decision - confirm the state is actually present and verification was premature or wrong, authorize remediation, or formally accept the loss - not a re-run of verification, which has already run and is idempotent"
+    ],
+    "contractRequiredFields": [
+      "work_id"
+    ],
     "suppresses": null,
     "targetExists": true,
     "isMergedTarget": false,

@@ -10835,6 +10835,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "competition"
@@ -19741,6 +19742,7 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
+      "cross-journey-handoff",
       "multi-exit"
     ],
     "language": "en+tr",
@@ -19749,7 +19751,11 @@
     "searchAliases": [],
     "boost": {},
     "journeyRelationRefs": {
-      "handoffs": [],
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
       "distinctFrom": []
     }
   },
@@ -25625,6 +25631,9 @@
       "handoffs": [
         {
           "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:TRM-101"
         }
       ],
       "distinctFrom": []

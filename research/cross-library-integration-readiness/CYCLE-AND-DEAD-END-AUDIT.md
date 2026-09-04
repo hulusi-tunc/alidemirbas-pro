@@ -1,5 +1,94 @@
 # Cycle and dead-end audit
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+This round closed the one confirmed dead end this document's original Section 2 called out as a
+structural gap (not the soft `DEC-189:x.no-authority` call-out, which stands as originally
+described — that one remains a deliberate, by-design informational note, not a defect): `TRM-102`'s
+`x.resolved` exit stated "RESOLVED; the merge may complete" but had no outbound handoff, so
+`TRM-101`'s merge operation, once handed to `TRM-102` for conflict resolution, had no way to
+actually resume. Per `FIXES-APPLIED.md`'s "`TRM-101` -> `TRM-102`" section and
+`INTEGRATION-CANONICAL-CHANGES.md`'s topology write-up, the fix routes `TRM-102`'s `c.outcome`'s
+"Resolved" branch to a new `h.resume` handoff back into `TRM-101` (in place of the removed
+`x.resolved` exit), and broadens `TRM-101`'s own `t.authorized` trigger evidence to accept a second
+origin shape via a new `c.origin` condition — "Fresh authorization" -> `a.operation` (existing) vs.
+"Resuming after conflict resolution" -> `a.consolidate` (existing, reused).
+
+Closing that dead end this way creates exactly one new cycle. A direct re-run of Tarjan's SCC
+algorithm against the current `relationship-graph.json` (524 handoff edges, up from 522) confirms:
+**17 real SCCs (size > 1), 16 unchanged plus one new — `[TRM-101, TRM-102]`.** Every SCC listed in
+Section 1 below is present, unchanged in membership, at its original size; the new one is added
+here as SCC #17.
+
+### SCC 17 — TRM-101 ↔ TRM-102 (merge / merge-conflict resolution) — **SAFE, evidence-gated re-entry, same pattern as the other 16**
+
+**Members:** `TRM-101` (Entity Merge), `TRM-102` (Merge Conflict Resolution).
+
+**Entry into the cycle:** `TRM-101 h.conflict -> TRM-102` (a merge conflict discovered during
+consolidation), or, on a later pass, `TRM-101`'s own `c.verified` condition finding "Failed" ->
+back into `TRM-102` for a fresh round of conflict resolution when post-verification finds a new
+issue.
+
+**Exit from the cycle:** `TRM-102`'s own `a.abort -> x.aborted` or `x.partial` (the conflict is not
+resolved and the merge does not proceed, or proceeds only partially); or, following a successful
+resume, `TRM-101`'s own `c.verified` finding "Passed" -> `x.merged` (the merge completes).
+
+**Bounding condition:** re-entry into `TRM-101` — via the new `c.origin` condition's "Resuming
+after conflict resolution" branch — requires an actual `TRM-102` conflict-resolution event carrying
+a real, recorded basis: `c.rule`'s "Rule exists"/`a.conflict-state`'s "No rule" outcomes, or
+`c.outcome`'s "Resolved" branch specifically (the one that now emits `h.resume`). There is no bare
+timer or unconditioned loop anywhere in this pair — every pass through the cycle consumes a genuine
+new fact (the conflict actually being resolved, with a stated basis), exactly the same evidence-
+gated re-entry shape already found safe in every one of the other 16 SCCs in this document (compare
+SCC 8's `IDN-86`/`ACC-75`, which re-decides from scratch on each pass, or SCC 9's `ACC-76`/`ACC-77`,
+where each pass mints a genuinely new artifact rather than repeating).
+
+**Side effects:** `TRM-101`'s own consolidation actions (`a.consolidate`, `a.repoint`, `a.invalidate`)
+only fire once the operation has resumed with a genuinely resolved conflict in hand — nothing in
+this pair re-executes a consolidation step on a bare re-entry with no new resolution attached.
+
+**No unmerge feature was invented to make this fix work.** Per `FIXES-APPLIED.md`: `TRM-101`'s
+`x.merged` exit's own `reEntry` text ("a further duplicate candidate involving this entity is
+assessed on its own evidence") already correctly implies a wrong merge is corrected via a fresh
+assessment elsewhere, not a structural unmerge capability — this remains a documented, legitimate
+gap (see `FIXES-APPLIED.md`'s "Remaining P1/P2": "`TRM-101`'s absent unmerge capability
+(documented, not invented)"), unrelated to and unaffected by this cycle's own safety.
+
+**Verdict: SAFE.** Same evidence-gated re-entry pattern as the other 16 SCCs already found safe in
+this document; this is a 2-node analogue of SCC 8 (`IDN-86`/`ACC-75`) in shape — a tight,
+synchronous conflict/resolution cycle, not a runaway.
+
+### This round's other fix (`OPS-130` → `DEC-181`) created no new cycle
+
+Verified directly, not inferred: the current `relationship-graph.json` was re-run through the same
+Tarjan pass used above, and `OPS-130`'s new `h.escalate -> DEC-181` edge does not enlarge SCC 1
+(the 23-member DEC/OWN/REM/FIN hub cluster) or create any new one involving `OPS-130`, `OPS-121`, or
+`OPS-124`. Confirmed by direct source read as well: a grep of `src/canonical/decision.ts`'s full
+`DEC-181`/`182`/`183`/`184`/`185`/`186`/`187`/`188`/`189`/`190` chain for any handoff `to:
+"OPS-130"`, `to: "OPS-121"`, or `to: "OPS-124"` returns zero matches — every `to:` target in that
+chain resolves to another `DEC-18x` node, `FBK-47`, `OWN-55`, `REM-157`, an internal
+action/condition node, or an `external:*` exit. `DEC-181`'s own resolution path (`a.decide` ->
+`c.outcome` -> `h.approved`/`h.partial`/`h.rejected` -> ... -> `DEC-185`'s own `h.execute` ->
+`external:operational-resolution`) is, per `FIXES-APPLIED.md`'s own "Result loop" note, the same
+already-working path every one of `DEC-181`'s ~30 other referrers already resolves through — no
+special-case callback into `OPS-130` was added, and none was needed for the cycle question either:
+this cluster's fan-in/fan-out ratio and internal structure (Section 1, SCC 1 below) are unchanged
+from the original audit.
+
+**Updated language:** every place in this document (Section 1's header, the Findings summary table,
+and the closing paragraph after it) that says "16 SCC verdicts, all SAFE" or "No P0 (unbounded,
+side-effecting cycle) found anywhere in the 16 SCCs" should now read **17 SCC verdicts, all SAFE**
+/ **"...anywhere in the 17 SCCs"** — SCC 17 (`TRM-101`/`TRM-102`) added above, with the same SAFE
+verdict and no P0 anywhere. The Findings summary table's rows #17 ("Dead-end: structural") and #18
+("Dead-end: `DEC-189:x.no-authority`") below are renumbered #18/#19 conceptually once SCC 17 is
+inserted before them, though the original table text is left as originally written below for
+fidelity to what was audited at the time.
+
+No other finding in this document changed. Section 1's 16 original SCC write-ups, the dead-end
+detection in Section 2, and the Findings summary table are preserved unchanged below.
+
+---
+
 Governing brief Parts 21–22. Audit only — nothing under `src/`, `production/`, `scripts/`,
 `seo/`, `search/` or site UI was touched.
 

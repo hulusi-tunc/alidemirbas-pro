@@ -1155,16 +1155,30 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "What is the outcome for the next term?",
         branches: [
           {
+            label: "Cancellation in motion",
+            when: "the cycle re-read shows a cancellation now in motion on the relationship - this journey's own declared precedence is below an active cancellation, and resolving a renewal decision independently while one is in motion would contradict it",
+            to: "x.superseded",
+          },
+          {
             label: "Renew",
-            when: "the decision, or the terms' default, is to continue",
+            when: "the decision, or the terms' default, is to continue, and no cancellation is in motion",
             to: "a.decided",
           },
           {
             label: "Do not renew",
-            when: "the decision, or the terms' default, is to let the term end",
+            when: "the decision, or the terms' default, is to let the term end, and no cancellation is in motion",
             to: "a.non-renew",
           },
         ],
+      },
+      {
+        id: "x.superseded",
+        kind: "exit",
+        state: "renewal decision suppressed; a cancellation in motion on the relationship takes precedence",
+        terminal: false,
+        reEntry:
+          "the cancellation's own resolution decides what happens next - if it is withdrawn, the renewal cycle re-opens fresh rather than resuming a decision made under a since-lifted cancellation",
+        class: "suppression",
       },
       {
         id: "a.review",
@@ -1199,7 +1213,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
-        recheck: "the review re-read: concluded with an authorised decision, or still open",
+        recheck: "the review re-read: concluded with an authorised decision, still open, or a cancellation now in motion on the relationship",
       },
       {
         id: "h.escalate",
@@ -1252,6 +1266,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "Renewal notice periods and renewing terms are never invented.",
       "A relationship under renewal review stays active on its current term.",
       "A relationship with a cancellation already in motion, or with an active risk state, is not sent a routine renewal message. The lifecycle that already owns the person takes precedence, and a renewal reminder arriving during a cancellation reads as a system that is not paying attention.",
+      "A cancellation that starts in motion after the decision request was already sent is not resolved as a renewal or a non-renewal - w.decision's and w.review's own recheck surface it, and c.decision's own branch defers to it (x.superseded) rather than letting a stale wait resolve to a decision the relationship no longer stands behind.",
     ],
     reusableRule:
       "Renewal is a new term decision governed by the current relationship state and applicable renewal rules.",
@@ -1350,7 +1365,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "All satisfied",
             when: "every authoritative requirement for the new term is met",
-            to: "a.new-term",
+            to: "c.terms-current",
           },
           {
             label: "Something failed",
@@ -1358,6 +1373,31 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "c.blocker",
           },
         ],
+      },
+      {
+        id: "c.terms-current",
+        kind: "condition",
+        asks: "Do the governing terms carried from the decision still match what currently governs this relationship?",
+        branches: [
+          {
+            label: "Unchanged",
+            when: "the dates, pricing and terms carried at a.decided's handoff still match the relationship's current governing terms - the ordinary case, since w.dependencies' own window is bounded",
+            to: "a.new-term",
+          },
+          {
+            label: "Materially changed",
+            when: "a policy or pricing change landed on the relationship between SUB-163's decision and this point - the decision to renew still stands, but what it renews on does not",
+            to: "a.reconcile-terms",
+          },
+        ],
+      },
+      {
+        id: "a.reconcile-terms",
+        kind: "action",
+        does: "Re-derive the new term's actual dates, pricing and scope from the relationship's current governing terms rather than the snapshot carried at SUB-163's own decision - the decision to renew is not re-litigated here, only what it renews on. This is the same current-state-over-stale-snapshot discipline CTL-233/CTL-232 and FIN-135 already apply at their own execution points",
+        writes: [{ field: "renewal_log", mode: "append" }],
+        next: "a.new-term",
+        idempotencyKey: "renewal_cycle_id + a.reconcile-terms",
       },
       {
         id: "c.blocker",
@@ -1484,6 +1524,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "A payment attempt is not renewal completion.",
       "The previous term is never overwritten with the new term's dates.",
       "A redelivered authorization for the same renewal_cycle_id raises at most one financial obligation and creates at most one new term - never a duplicate of either.",
+      "The new term is never created from a stale terms snapshot once w.dependencies' own bounded window has elapsed - c.terms-current re-checks against the relationship's current governing terms immediately before a.new-term, and a.reconcile-terms re-derives dates, pricing and scope from that current state rather than what SUB-163 carried at decision time. The decision to renew itself is never re-litigated here, only what it renews on.",
     ],
     reusableRule:
       "A renewal becomes effective only after the requirements for the new term have actually been satisfied.",

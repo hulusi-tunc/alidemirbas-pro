@@ -1,5 +1,31 @@
 # Cross-Library Integration Audit — Idempotency and Retry
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+Finding #2 below (`SUB-164`'s `a.new-term` binding to `SUB-163`-decided terms with no revalidation
+— marked "(graded in TIME doc)" in the original Findings summary) is **FIXED** this round: `SUB-164`
+gained a new `c.terms-current` condition and `a.reconcile-terms` action that revalidate against
+current governing terms before proceeding, closing the exact gap this finding describes. See
+`TIME-AND-VERSION-INTEGRATION.md`'s own POST-REPAIR UPDATE for the full writeup and node ids — not
+repeated here since that document is where this finding was graded and counted.
+
+**Updated totals.** The original totals line ("P0 = 0, P1 = 1, P2 = 2") becomes **P0 = 0, P1 = 0 new
++ 1 unchanged, P2 = 2 unchanged**. Finding #1 (`DEC-181`'s ~30-sender fan-in relying on
+`c.duplicate`'s business-level prose match rather than its own structural `instanceKey`/
+`concurrency`, which can never fire since `request_id` is freshly minted per entry) is **not**
+addressed this round and remains genuinely open, unchanged — it was never confirmed as an active
+bug in the original pass ("not confirmed broken... undocumented at the structural level"), and nothing
+in this round's 3 P0s or their adjacent P1 repairs (`ACC-78`/`IDN-90`, the retention-outreach group,
+`OPS-130`/`DEC-181`) touched `DEC-181`'s own duplicate-detection mechanism — `OPS-130`'s new
+`h.escalate -> DEC-181` edge is simply one more well-formed sender into the existing `c.duplicate`
+check, not a change to how that check works. Findings #3 (`FUL-147`/`FUL-148`'s prose-only shared
+retry budget) and #4 (`DOC-215`'s `attemptBudget` vocabulary mismatch) are also unchanged.
+
+No other finding in this document changed. The rest of this document — the full Part 29, 30, 34 and
+11 write-ups, and findings #1, #3, #4 — is preserved unchanged below.
+
+---
+
 Scope: all 284 canonical items in `src/canonical/*.ts` (via `production/canonical-dump.json`,
 the direct structured export of that source) and all 548 edges in
 `relationship-graph.json`. Governing brief Parts 11, 29, 30, 34. AUDIT ONLY — nothing under

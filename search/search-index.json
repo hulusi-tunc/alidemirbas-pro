@@ -14943,6 +14943,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "competition"
@@ -26094,7 +26095,7 @@
     "external": false,
     "title": "OPS-130 Technical completion → verify business outcome → finalize or reconcile",
     "summary": "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",
-    "searchText": "Technical completion → verify business outcome → finalize or reconcile. Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.. Technical processing reported success. Processing, queues, async work & operational reliability. complete; technical success was the business fact. BUSINESS_COMPLETED; the intended state exists and was checked. RECONCILIATION_REQUIRED; technical success without the business state it implies",
+    "searchText": "Technical completion → verify business outcome → finalize or reconcile. Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.. Technical processing reported success. Processing, queues, async work & operational reliability. Hands off to DEC-181. complete; technical success was the business fact. BUSINESS_COMPLETED; the intended state exists and was checked",
     "keywords": [
       "OPS-130"
     ],
@@ -26117,6 +26118,7 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
+      "cross-journey-handoff",
       "multi-exit"
     ],
     "language": "en+tr",
@@ -26138,7 +26140,11 @@
       ]
     },
     "journeyRelationRefs": {
-      "handoffs": [],
+      "handoffs": [
+        {
+          "targetId": "journey:DEC-181"
+        }
+      ],
       "distinctFrom": []
     }
   },
@@ -28574,7 +28580,7 @@
     "external": false,
     "title": "RET-24 Churn risk escalation → evidence → intervention priority",
     "summary": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
-    "searchText": "Churn risk escalation → evidence → intervention priority. Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.. Also known as churn risk escalation, churn risk, at-risk account escalation, customer success alert, churn prevention (risk). several independent risk signals crossing a threshold on one account. deciding between a person, an automated intervention, or watching. Churn risk threshold crossed. Engagement, health, retention & churn prevention. Hands off to RET-28, RET-23, external:human-in-the-loop-lifecycle, RET-30. risk recorded, nothing proportionate to do",
+    "searchText": "Churn risk escalation → evidence → intervention priority. Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.. Also known as churn risk escalation, churn risk, at-risk account escalation, customer success alert, churn prevention (risk). several independent risk signals crossing a threshold on one account. deciding between a person, an automated intervention, or watching. Churn risk threshold crossed. Engagement, health, retention & churn prevention. Hands off to RET-28, RET-23, external:human-in-the-loop-lifecycle, RET-30. risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
     "keywords": [
       "RET-24",
       "churn risk escalation",
@@ -31810,7 +31816,7 @@
     "external": false,
     "title": "SUB-163 Renewal window → eligibility → renew, non-renew or review",
     "summary": "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
-    "searchText": "Renewal window → eligibility → renew, non-renew or review. Reach a decision about the next term, as a decision - separate from anything that makes the next term real.. Also known as renewal reminder, renewal notice, auto-renewal notice, contract renewal, subscription renewal reminder, term-end reminder. an annual contract approaching its notice deadline. an auto-renewing subscription whose terms require advance notice. a renewal that needs an explicit decision from an account holder. Renewal decision window opens. Subscriptions, contracts, renewals & continuing relationships. Hands off to DEC-181, OWN-55, SUB-164, SUB-168",
+    "searchText": "Renewal window → eligibility → renew, non-renew or review. Reach a decision about the next term, as a decision - separate from anything that makes the next term real.. Also known as renewal reminder, renewal notice, auto-renewal notice, contract renewal, subscription renewal reminder, term-end reminder. an annual contract approaching its notice deadline. an auto-renewing subscription whose terms require advance notice. a renewal that needs an explicit decision from an account holder. Renewal decision window opens. Subscriptions, contracts, renewals & continuing relationships. Hands off to DEC-181, OWN-55, SUB-164, SUB-168. renewal decision suppressed; a cancellation in motion on the relationship takes precedence",
     "keywords": [
       "SUB-163",
       "renewal reminder",
@@ -33436,7 +33442,7 @@
     "external": false,
     "title": "TRM-102 Merge conflict → safe state → resolve → continue or abort",
     "summary": "Fail safe wherever consolidating would require inventing an authority the system does not have.",
-    "searchText": "Merge conflict → safe state → resolve → continue or abort. Fail safe wherever consolidating would require inventing an authority the system does not have.. Critical merge conflict detected. Entity merge, account closure, data lifecycle & terminal states. Hands off to OWN-55. RESOLVED; the merge may complete. ABORTED; sources remain separate. PARTIALLY_RECONCILED; conflicted state left separate and marked",
+    "searchText": "Merge conflict → safe state → resolve → continue or abort. Fail safe wherever consolidating would require inventing an authority the system does not have.. Critical merge conflict detected. Entity merge, account closure, data lifecycle & terminal states. Hands off to OWN-55, TRM-101. ABORTED; sources remain separate. PARTIALLY_RECONCILED; conflicted state left separate and marked",
     "keywords": [
       "TRM-102"
     ],
@@ -33484,6 +33490,9 @@
       "handoffs": [
         {
           "targetId": "journey:OWN-55"
+        },
+        {
+          "targetId": "journey:TRM-101"
         }
       ],
       "distinctFrom": []

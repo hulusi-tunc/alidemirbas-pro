@@ -189,6 +189,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "an explicit merge authorization following a duplicate assessment, naming the sources, the target, and the authorized identity-consolidation role that authorised it",
+            "or an existing merge_operation_id whose TRM-102 conflict has just been resolved, carrying the resolution and clearance to resume - this is the same operation resuming, not a fresh authorization",
           ],
           insufficientAlone: [
             "a duplicate detection, which produces a candidate rather than a decision",
@@ -197,7 +198,24 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "authoritative",
         },
-        next: "a.operation",
+        next: "c.origin",
+      },
+      {
+        id: "c.origin",
+        kind: "condition",
+        asks: "Is this a fresh merge authorization, or the same operation resuming after TRM-102 resolved a conflict?",
+        branches: [
+          {
+            label: "Fresh authorization",
+            when: "no merge_operation_id exists yet for this trigger",
+            to: "a.operation",
+          },
+          {
+            label: "Resuming after conflict resolution",
+            when: "merge_operation_id already exists and TRM-102 has just handed back a resolved (or partially reconciled) conflict, cleared to complete",
+            to: "a.consolidate",
+          },
+        ],
       },
       {
         id: "a.operation",
@@ -343,6 +361,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
       "An opt-out never disappears because another profile was opted in.",
       "Provenance is preserved - the consolidated record can say where each part of it came from.",
       "An irreversible merge requires stronger evidence and authority than a reversible one.",
+      "A merge sent to TRM-102 for conflict resolution resumes consolidation on this same merge_operation_id once TRM-102 hands it back resolved - c.origin distinguishes that resumption from a fresh authorization at the same trigger, so a held or partially-reconciled merge does not become a permanent dead end.",
     ],
     reusableRule:
       "Entity merge consolidates representations only after dependent state has been reconciled according to the authority rules of each state type.",
@@ -494,7 +513,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Resolved",
             when: "an authority determined the answer and the merge may complete",
-            to: "x.resolved",
+            to: "h.resume",
           },
           {
             label: "Aborted",
@@ -509,11 +528,15 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "x.resolved",
-        kind: "exit",
-        state: "RESOLVED; the merge may complete",
-        terminal: false,
-        reEntry: "a further conflict in the same merge opens its own instance",
+        id: "h.resume",
+        kind: "handoff",
+        to: "TRM-101",
+        on: "a merge conflict resolved, with the merge operation cleared to complete",
+        carries: [
+          "merge_operation_id, the resolution and its basis, and which state was affected",
+          "the explicit fact that this conflict is settled - TRM-101 resumes consolidation from its own current point rather than re-authorizing the merge from scratch",
+        ],
+        contract: { requiredFields: ["merge_operation_id"] },
       },
       {
         id: "a.abort",
@@ -544,6 +567,7 @@ export const TERMINAL_JOURNEYS: readonly CanonicalJourney[] = [
       "The most permissive consent or access state is never chosen by default.",
       "An ambiguous identity conflict stops the entire merge rather than part of it.",
       "What could not be unwound after an abort is recorded rather than assumed away.",
+      "A resolved conflict hands back to TRM-101 (h.resume) rather than ending as a record nothing ever acts on - RESOLVED means the merge may complete, and completing it is TRM-101's own job to resume, not this journey's to claim.",
     ],
     reusableRule:
       "Merge conflicts should fail safe whenever consolidation would require inventing authority that the system does not possess.",

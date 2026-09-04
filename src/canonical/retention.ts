@@ -1120,12 +1120,29 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Justified",
             when: "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention",
-            to: "a.owner-task",
+            to: "c.priority-clear",
           },
           {
             label: "Not justified",
             when: "the evidence is real but thin, and putting a person on it would be a larger intervention than the signal supports",
             to: "c.automated",
+          },
+        ],
+      },
+      {
+        id: "c.priority-clear",
+        kind: "condition",
+        asks: "Does a higher-precedence retention-outreach contender already claim this account?",
+        branches: [
+          {
+            label: "Clear",
+            when: "no open issue under human ownership (FBK-46) currently claims this account - this journey's own declared precedence is below that, above generic retention intervention",
+            to: "a.owner-task",
+          },
+          {
+            label: "Contended",
+            when: "an open issue under human ownership already claims this account - raising a second, competing owner-task would contradict the person already working it rather than corroborate their evidence",
+            to: "x.monitor",
           },
         ],
       },
@@ -1181,15 +1198,20 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "handoff",
         to: "RET-30",
         on: "a proportionate automated retention intervention being delivered",
-        carries: ["the evidence it was chosen against", "the risk state at the time it was sent"],
+        carries: [
+          "the evidence it was chosen against",
+          "the risk state at the time it was sent",
+          "a retention_episode_id minted at this handoff, deterministically derived from account_id + risk_episode_id, since this journey's own episode concept (a churn-risk evaluation) is not itself a retention episode - RET-30 remembers a decline against this identity the same way it does for RET-28's own cancellation-episode-scoped handoff",
+        ],
+        contract: { requiredFields: ["account_id", "retention_episode_id"] },
       },
       {
         id: "x.monitor",
         kind: "exit",
-        state: "risk recorded, nothing proportionate to do",
+        state: "risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
         terminal: false,
         reEntry:
-          "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not",
+          "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not; where the reason was a higher-precedence contender's active claim, that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
         class: "no-action",
       },
     ],
@@ -1198,6 +1220,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
       "A risk score is not the outcome. It orders attention; it does not decide anything.",
       "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
+      "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim immediately before a.owner-task rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
+      "h.intervention mints a retention_episode_id at handoff rather than reusing risk_episode_id, since this journey's own episode is a churn-risk evaluation and RET-30's decline memory is scoped to a retention episode - a genuinely different, narrower concept that does not exist here until this specific intervention is chosen.",
     ],
     reusableRule:
       "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",

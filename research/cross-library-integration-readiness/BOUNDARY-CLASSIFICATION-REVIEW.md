@@ -1,5 +1,39 @@
 # Boundary classification review
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+Checked against `research/cross-library-integration-readiness/FIXES-APPLIED.md` (the repair
+register for this round) and the regenerated `relationship-graph.json` (now 550 edges, up from
+548). None of the 7 previously-flagged boundary candidates (`REL-95`, `REL-96`, `RSK-191`,
+`RSK-198`, `IDN-86`, `ACC-75`, `ACC-76`) is named anywhere in FIXES-APPLIED.md — confirmed by a
+direct text search of that document, which mentions none of the 7 ids. None of the 3 P0 repairs
+(`account-restriction-authority`: `ACC-78`/`IDN-90`; `retention-outreach`: `ACT-18`/`FBK-46`/
+`RET-24`/`RET-28`/`RET-30`/`RET-32`; `OPS-130`→`DEC-181`) or the adjacent P1 repairs (`RET-24`→
+`RET-30`, `SUB-163`→`SUB-164`, `TRM-101`→`TRM-102`) touches any of the 7 candidates' own journeys,
+and none of those repaired items is an immediate sender or receiver of any of the 7 — the repaired
+items and the 7 candidates sit in disjoint parts of the graph (identity/access precedence,
+retention messaging, OPS-130/DEC-181/TRM-101/TRM-102 merge-and-reconciliation plumbing, versus the
+7 candidates' own operational-structure, risk, identity-step-up and credential-lifecycle domains).
+
+Direct check of `relationship-graph.json`'s 2 new edges this round (`TRM-102 h.resume → TRM-101`,
+`OPS-130 h.escalate → DEC-181`): neither edge's `sourceId` nor `targetId` matches any of the 7
+candidates. Confirmed.
+
+`RSK-198`'s specific weakening point is reconfirmed accurate: it was flagged in the original
+boundary review as weakened "since its one real caller, RSK-197, is itself an Operational
+Workflow." Neither `RSK-197` nor `RSK-198` appears anywhere in FIXES-APPLIED.md, and neither is a
+member of any competition group or repair touched this round — the `RSK-197:h.apply→RSK-198`
+edge and `RSK-198`'s zero-outbound terminal-sink shape are exactly as the prior audit round left
+them.
+
+**All 7 candidates remain at their prior audit-round confidence levels, unchanged: `REL-95`
+medium, `REL-96` medium, `RSK-191` medium, `RSK-198` medium-low, `IDN-86` medium-high, `ACC-75`
+medium-high, `ACC-76` very low. No reclassification.** This round's repairs made no evidentiary
+contribution to this file's conclusions in either direction — the "no reclassification" conclusion
+below stands exactly as it was reached before this round began.
+
+---
+
 Governing brief Part 26. Reassessment only — **nothing reclassified this round**, per the brief's
 explicit instruction and consistent with the discipline the prior Operational Workflow round
 itself applied. For each of the 7 previously-flagged candidates: current surface, suspected

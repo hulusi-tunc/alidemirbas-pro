@@ -257,11 +257,17 @@ check(29, "production manifest covers all 284", manifest.length === 284);
 // DAT-228 (+3: a.reconcile-preserved, c.reconciled, h.decide-conflict), DEC-181 (+2:
 // a.return-to-referrer, x.returned), CTL-232 (+2: a.revalidate, c.revalidated), INC-258 (+1:
 // a.no-mitigations). See research/operational-workflow-production-readiness/CANONICAL-CHANGES.md.
+// Baseline moved again from 3682 to 3690 nodes in the cross-library integration repair round
+// (2026-09-04): net +8 across 6 journeys — ACC-78 (+2: a.check-authority, c.authority-clear),
+// RET-24 (+1: c.priority-clear), SUB-163 (+1: x.superseded), SUB-164 (+2: c.terms-current,
+// a.reconcile-terms), TRM-101/TRM-102 (+1 net: c.origin added, x.resolved removed and replaced
+// by h.resume), OPS-130 (+1 net: x.reconciliation removed and replaced by a.reconcile + h.escalate).
+// See research/cross-library-integration-readiness/INTEGRATION-CANONICAL-CHANGES.md.
 check(
   30,
-  "canonical source mutation = 0 (284 journeys / 3682 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (284 journeys / 3690 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 284 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3682 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3690 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

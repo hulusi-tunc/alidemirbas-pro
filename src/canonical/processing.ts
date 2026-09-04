@@ -1761,7 +1761,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Missing or conflicting",
             when: "the job reported success and the state it was supposed to produce is not there",
-            to: "x.reconciliation",
+            to: "a.reconcile",
           },
           {
             label: "Still pending asynchronously",
@@ -1795,16 +1795,29 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
           reason:
             "a state that has not appeared within its window is a discrepancy rather than a delay, and it needs reconciling rather than more patience",
         },
-        onTimeout: "x.reconciliation",
+        onTimeout: "a.reconcile",
         windowExtendsOnEngagement: false,
       },
       {
-        id: "x.reconciliation",
-        kind: "exit",
-        state: "RECONCILIATION_REQUIRED; technical success without the business state it implies",
-        terminal: false,
-        reEntry:
-          "the job's SUCCESS does not close the user's or the business's obligation when the state it was supposed to produce is not there - this exit exists so that gap is visible rather than reported as done",
+        id: "a.reconcile",
+        kind: "action",
+        does: "Record RECONCILIATION_REQUIRED: technical success without the business state it implies. The job's SUCCESS does not close the user's or the business's obligation when the state it was supposed to produce is not there - this is recorded so the gap is visible rather than reported as done, once per work_id (a redelivered technical-completion report or a repeated timeout on the same work_id resolves to the same reconciliation record rather than opening a second one)",
+        writes: [{ field: "work_log", mode: "append" }],
+        next: "h.escalate",
+        idempotencyKey: "work_id + a.reconcile",
+      },
+      {
+        id: "h.escalate",
+        kind: "handoff",
+        to: "DEC-181",
+        on: "technical success without the business state it was supposed to produce, needing an authorized decision on how to resolve the gap",
+        carries: [
+          "work_id, logical_operation_key and correlation_id (carried from OPS-121 through this mechanism), so the case can be traced back to the originating technical operation",
+          "the business entity the work was meant to change, what was expected, and what verification actually found",
+          "the technical result (SUCCESS) and the evidence gathered at a.verify - a provider response, a downstream acknowledgement or its absence, whatever verification actually checked",
+          "the explicit fact that this needs an authorized decision - confirm the state is actually present and verification was premature or wrong, authorize remediation, or formally accept the loss - not a re-run of verification, which has already run and is idempotent",
+        ],
+        contract: { requiredFields: ["work_id"] },
       },
     ],
     guardrails: [
@@ -1812,6 +1825,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "A job reporting SUCCESS does not close a user or business obligation when the required state was not produced.",
       "Verification is idempotent.",
       "An outcome still pending asynchronously stays pending - completion is not claimed early.",
+      "RECONCILIATION_REQUIRED is not a dead end: a.reconcile hands the gap to DEC-181 for an authorized decision, the same generic decision-request sink roughly thirty other Runtime Mechanisms and Operational Workflows already use for exactly this shape of case - a mechanical outcome (technical success, business state missing) that this mechanism cannot itself resolve, because deciding whether to confirm, remediate or write off is a business judgment this infrastructure-layer mechanism has no authority to make on its own. DEC-181's own resolution path (h.execute -> external:operational-resolution, carrying which canonical lifecycle owns the action) is the same path every other referred decision already resolves through - no special return loop was added here, since inventing one for this one caller would be inconsistent with how the other ~30 already work, and a remediation applied through that path produces its own new technical job, verified through this same mechanism on its own work_id.",
     ],
     reusableRule:
       "Technical processing is complete only at the infrastructure layer; business completion requires confirmation of the state the work was intended to create.",

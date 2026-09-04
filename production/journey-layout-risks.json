@@ -3,7 +3,7 @@
     {
       "risk": "high-branch-count",
       "description": "A condition node's arm count varies 2 to 6+; a layout that assumes 2-3 arms per fork will overflow.",
-      "affectedCount": 82,
+      "affectedCount": 83,
       "threshold": ">=4 branch nodes in one journey",
       "worst": [
         [
@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 151,
+      "affectedCount": 152,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -167,7 +167,7 @@
     {
       "risk": "node-convergence (fan-in)",
       "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
-      "affectedCount": 55,
+      "affectedCount": 56,
       "threshold": ">=3 incoming edges to one node",
       "worst": [
         [

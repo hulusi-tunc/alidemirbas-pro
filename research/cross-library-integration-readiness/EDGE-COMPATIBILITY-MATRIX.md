@@ -1,5 +1,69 @@
 # Edge Compatibility Matrix — cross-library handoff audit
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+This round's repairs (see `FIXES-APPLIED.md`, `INTEGRATION-CANONICAL-CHANGES.md`) touch this
+document in two places: one reclassification of an existing finding, and two new handoff edges
+added to the graph the original 522-edge scope predates.
+
+**`RET-24 h.intervention -> RET-30` reclassified: semantic mismatch -> compatible with mapping.**
+The original write-up below (under "The one semantic mismatch") found that `RET-24`'s automated-
+intervention handoff carried no episode identifier and `RET-30` had no self-mint fallback for
+`retention_episode_id`. Fixed this round: `RET-24`'s `h.intervention` now mints
+`retention_episode_id` at the handoff itself, deterministically derived from `account_id +
+risk_episode_id` — the same derivation pattern already cited positively elsewhere in this document
+for `IDN-90 h.recover`/`h.lift -> ACC-79`'s `restoration_case_id` (derived from `incident_id` +
+outcome). `contract.requiredFields: ["account_id", "retention_episode_id"]` was added to the
+handoff. This is now the same shape as the other "compatible with mapping" entries below — the
+receiver's identity component is supplied by explicit derivation at the handoff, not by carrying a
+concept the sender's own domain never had — so it moves from "semantic mismatch" into that group
+rather than staying a standalone defect. The row for edge #52 (`RET-24 (h.intervention) | RET-30 |
+Cust-Human -> Cust-Comm`) in the full summary table below should now read **compatible with
+mapping**, not semantic mismatch; `EDGE-01` in the Findings summary is FIXED, not open.
+
+**Updated Verdicts line:** the original totals ("512 compatible, 9 compatible with mapping, 1
+semantic mismatch, 0 contract mismatch," `522` edges classified) become **512 compatible, 10
+compatible with mapping, 0 semantic mismatch, 0 contract mismatch**, `522` edges classified — the
+scope of this document is unchanged (the 522 handoff edges that existed at audit time); the count
+of genuinely mismatched edges among them drops from 1 to 0.
+
+**Two new handoff edges, outside this document's original 522-edge scope.** This round's other
+fixes added two edges to `relationship-graph.json` that did not exist when this document was
+written: `TRM-102 h.resume -> TRM-101` and `OPS-130 h.escalate -> DEC-181`. The graph now totals
+524 handoff edges (522 + 2), 550 edges overall (unchanged 22 competition + 4 preemption). Neither
+edge was in scope for the original pass below, so both are classified here for the first time:
+
+- **`TRM-102 h.resume -> TRM-101`** (Operational -> Operational). This was a genuine dead end before
+  this round (`TRM-102`'s `x.resolved` had no outbound handoff — see `CYCLE-AND-DEAD-END-AUDIT.md`'s
+  POST-REPAIR UPDATE) and is now a real edge: `TRM-101`'s own `t.authorized` trigger evidence was
+  broadened this round specifically to accept this second origin shape ("an existing
+  `merge_operation_id` whose `TRM-102` conflict has just been resolved"), and the handoff carries
+  `merge_operation_id`, the resolution and its basis — exactly what the new `c.origin` condition on
+  `TRM-101`'s entry needs to route "Resuming after conflict resolution" to `a.consolidate` rather
+  than re-authorizing from scratch. Compatible by construction — the receiver's entry contract was
+  built this round specifically to accept this sender.
+- **`OPS-130 h.escalate -> DEC-181`** (Runtime -> Operational). `DEC-181`'s own entry evidence
+  ("an action or state that cannot proceed without an authorized judgment being made about it") is
+  already the generic, referrer-shape-agnostic trigger this document's own hub write-up for
+  `DEC-181` (below, "checked in full") found admits human, automated, and cross-workflow senders on
+  equal terms — the same finding that already covers `OPS-131`'s existing `h.escalate -> DEC-181`
+  edge. `OPS-130`'s new `h.escalate` carries `work_id`, `logical_operation_key` and `correlation_id`
+  (carried through from `OPS-121`), the business entity, the technical result and the verification
+  evidence, with `contract.requiredFields: ["work_id"]` — a well-formed package matching the pattern
+  this document's `DEC-181` write-up already verified for `OPS-131`, `DAT-222`, `RSK-191`, `DOC-212`,
+  `INT-115`, `TIM-67`, `CTL-231`, `SUB-163`, `FIN-137` and `REM-152`. Compatible.
+
+Both new edges are handoff edges from an Operational-internal or Runtime->Operational sender into a
+receiver whose entry contract already generically accepts referrals of that shape — neither
+required, and neither received, a special-cased branch.
+
+No other edge, row, or finding in this document changed. The rest of this document — including the
+full 522-row summary table, the method section, the hub write-ups, and every other finding
+(`EDGE-02` through `EDGE-08`) — reflects the audit as originally run and is preserved unchanged
+below.
+
+---
+
 Scope: all **522 handoff edges** in `relationship-graph.json` (the 22 competition and 4 preemption
 edges are out of scope here — they are conflict-resolution relationships, not identity/entry/
 ownership handoffs, and are already covered by `research/journey-production-readiness/

@@ -1,5 +1,54 @@
 # Cross-Library Integration Audit — Time and Version Continuity
 
+## POST-REPAIR UPDATE (2026-09-04)
+
+**Finding #2 (`SUB-163 -> SUB-164`, P1) is FIXED.** The original finding below — renewal execution
+binds to terms decided earlier at `SUB-163`, with no revalidation branch and no explicit statement
+that binding (rather than revalidating) was the intended choice — is closed this round. Per
+`FIXES-APPLIED.md`'s "`SUB-163` -> `SUB-164`" section, the fix is two parts, both inside `SUB-164`,
+neither adding a cross-journey edge or a new cycle:
+
+- `SUB-164`'s `c.resolved`'s "All satisfied" branch now routes through a new **`c.terms-current`**
+  condition instead of straight to `a.new-term`: "Unchanged" -> `a.new-term` (existing, reused);
+  "Materially changed" -> new **`a.reconcile-terms`**, which re-derives the term's dates, pricing
+  and scope from the relationship's *current* governing terms before proceeding to `a.new-term`.
+  This is the explicit revalidation branch the original finding below observed was missing — the
+  same shape as the sibling patterns this document already cites as doing it right (`RLT-243`'s
+  `c.preempt`/`a.superseded`, `DOC-215`'s `document_version_superseded` branch).
+- A related companion fix in `SUB-163` itself (not part of this finding's own binding question, but
+  closed in the same repair): `c.decision` gains a "Cancellation in motion" branch, routing to a
+  new `x.superseded` exit, and the sibling `w.review`'s `recheck` text was broadened to match
+  `w.decision`'s — closing a `relationship-continuity` competition-awareness gap that sat next to
+  this one.
+
+Per `FIXES-APPLIED.md`: "The decision to renew itself is never re-litigated — only what it renews
+on is re-checked." The fix deliberately stayed self-contained within `SUB-164` rather than adding a
+return handoff to `SUB-163`, per that document's own reasoning: `SUB-163`'s own trigger evidence is
+narrowly scoped to "a renewal decision window has opened," which a mid-execution terms change does
+not match, so routing back to `SUB-163` would have introduced its own receiver-entry-compatibility
+risk instead of closing this one.
+
+**Updated Findings summary and totals.** Finding #2's row below should now read **FIXED** — new
+node ids: `c.terms-current` (condition), `a.reconcile-terms` (action), both in `SUB-164`; the
+companion `SUB-163` fix adds `x.superseded` (exit). The original totals line ("P0 = 0, P1 = 2, P2 =
+1") becomes **P0 = 0, P1 = 1, P2 = 1** — finding #2 is closed; finding #3 (the corpus-wide
+"re-evaluate-at-execution / cancel-and-regenerate choice is chosen by construction rather than
+declared as a field" pattern) is **not** addressed this round and remains open exactly as
+originally described, since it is a documentation-convention finding spanning the whole corpus, not
+a single adjacent-P1 repair the governing brief's bar for this round covers. The P2 (finding #1,
+clock-ownership choice at SLA-escalation handoffs never stated as a corpus-wide rule) is also
+unchanged.
+
+**Cross-reference:** the same underlying issue is finding #2 in
+`IDEMPOTENCY-AND-RETRY-INTEGRATION.md` (that document explicitly marks it "(graded in TIME doc)" to
+avoid double-counting) — see that document's own shorter POST-REPAIR UPDATE note, which points back
+here rather than repeating this writeup.
+
+No other finding in this document changed. The rest of this document — the full Part 28 and Part 31
+write-ups, and findings #1 and #3 — is preserved unchanged below.
+
+---
+
 Scope: all 284 canonical items in `src/canonical/*.ts` (via `production/canonical-dump.json`)
 and all 548 edges in `relationship-graph.json`. Governing brief Parts 28, 31. AUDIT ONLY —
 nothing under `src/`, `production/`, `scripts/`, `seo/`, `search/` was changed. No duration,
