@@ -2,7 +2,20 @@
 
 /* ==========================================================================
    Altor — Design tokens
-   Premium B2B, white-first, editorial. Primary: Altor Blue #154CE4.
+   Premium B2B, white-first, editorial. Primary: warm terracotta #E05D38.
+
+   REBRAND (2026-09-04): the brand anchor moved from Altor Blue (#154CE4) to
+   this terracotta, by explicit request, after this exact color was reviewed
+   and picked outside the site's own material (a shadcn-style theme export).
+   That is normally the thing this system's own methodology warns against —
+   a palette adopted for its own sake rather than derived from the project —
+   recorded here as a deliberate, named exception rather than silently
+   folded into "the design language," per this project's own protocol for
+   exceptions (see `about`/`/calculators`' recorded cream-palette exception,
+   same pattern). The primary ramp below was regenerated from this anchor
+   the same way the blue ramp was: OKLCH, hue held constant across every
+   step. `blue-*` stays as a NAME (below) so the ~50 call sites written
+   against it keep compiling; it no longer means blue.
 
    This layer was reworked to carry the reference design system's vocabulary
    (see the port note in AGENTS/PR): the neutral ramp, the primary ramp stops
@@ -17,22 +30,25 @@
 
 @theme {
   /* --- Typography ------------------------------------------------------- */
-  /* Sans only. `--font-serif` (Newsreader) was removed with the serif: the
-     reference is sans-only, and every pull quote is now re-set in the sans at
-     a larger size with tighter tracking rather than dropped to body copy. */
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  /* CLAMPED, not deleted. Tailwind ships its own `--font-serif`, so simply
-     removing ours does not remove the `font-serif` utility — it falls back to
-     the framework's Georgia stack, and a serif returns the first time anyone
-     types the class. Pointing it at the sans is the same guardrail the radius
-     ceiling below uses: the utility still compiles, it just cannot produce a
-     serif. */
-  --font-serif: var(--font-sans);
+  /* REBRAND (2026-09-04): Geist -> Outfit. Same role (one sans, weight/size
+     does the work), new family, loaded in both root layouts. */
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  /* No longer clamped to the sans. The guardrail that pointed this at
+     `--font-sans` (so the `font-serif` utility compiled but could never
+     produce an actual serif) is lifted as part of the same rebrand that
+     picked this palette: Merriweather is now a real, loaded family behind
+     the utility. Nothing in `src/` currently applies `font-serif` — see
+     AbTestPlaybookPage.tsx's own comment for why that page re-sets its pull
+     quotes in the sans instead — so this is available, not yet in use
+     anywhere; a future page reaching for `font-serif` now gets Merriweather,
+     not Tailwind's Georgia fallback and not the sans. */
+  --font-serif: var(--font-merriweather), Georgia, "Times New Roman", serif;
 
-  /* Mono. Loaded in both root layouts; `font-mono` call sites (the hero spec
-     plate, the Lab index numbers, the detail pages' meta rails) resolved to
-     the OS default before this was defined. */
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  /* Mono. REBRAND (2026-09-04): Geist Mono -> Fira Code, same role — the
+     hero spec plate, the Lab index numbers, the detail pages' meta rails,
+     the mono-rail eyebrow (`.altor-eyebrow`) all read through this one
+     variable. Loaded in both root layouts. */
+  --font-mono: var(--font-fira-code), ui-monospace, SFMono-Regular, monospace;
 
   /* --- Neutral ramp (reference) ----------------------------------------
      TRUE grey — chroma exactly zero at every step, so there is no undertone to
@@ -82,31 +98,49 @@
      near-identical tones sitting next to each other. */
   --color-paper-soft: #f7f8fb;
 
-  /* --- Primary ramp (reference) -----------------------------------------
-     Generated in OKLCH from the brand anchor #154CE4, hue held at 264° across
-     every step, chroma peaking at 600 and easing off toward both ends so the
-     light tints stay in gamut and the darks stay readable. Do not hand-tune a
-     step — regenerate the ramp.
+  /* --- Primary ramp -------------------------------------------------------
+     REBRAND (2026-09-04): regenerated in OKLCH from the new brand anchor
+     #E05D38 (a warm terracotta), hue held at ~36.4° across every step —
+     same method the retired blue ramp used, not a hand-picked substitution.
+     `600` is pinned exactly to the anchor (`primary-600 IS the brand`, as
+     before); lightness eases toward white above it and toward near-black
+     below it along the SAME two-segment curve shape the blue ramp used
+     (each step's position relative to its own 50/600/950 anchors, re-applied
+     here), and chroma scales off the anchor's own chroma by the blue ramp's
+     step-to-step ratios. Verified in-gamut at every step — nothing here is
+     browser-clamped. Do not hand-tune a step — regenerate the ramp.
 
-     This REPLACES the previous hand-picked blue ramp (anchor #164CE4). The two
-     anchors differ by one unit of red; the intermediate stops did not agree,
-     which is what made a `blue-700` hover read slightly off-hue from its
-     `blue-600` rest state. `--color-blue-*` below is now an alias of this
-     ramp, so every existing `bg-blue-600` / `text-blue-700` call site moves to
-     the reference blue with no edit. */
-  --color-primary-50: #f3f7ff;
-  --color-primary-100: #e4edff;
-  --color-primary-200: #c9dbff;
-  --color-primary-300: #a4c2ff;
-  --color-primary-400: #6c9aff;
-  --color-primary-500: #3b72f7;
-  --color-primary-600: #154ce4; /* primary-600 IS the brand */
-  --color-primary-700: #0a37b7;
-  --color-primary-800: #082a8c;
-  --color-primary-900: #051e63;
-  --color-primary-950: #03113f; /* deepest ground — hero, not a UI surface */
+     ACCESSIBILITY NOTE, load-bearing: unlike the old blue-600 (6.6:1 white
+     text), white-on-orange-600 measures only ~3.6:1 — it clears WCAG's 3:1
+     non-text/large-text floor (buttons, the focus ring, badges) but not the
+     4.5:1 body-text floor. That's why `--color-ink-brand` below points at
+     `700`, not `600`, unlike the old ramp where both were the same step —
+     600 stays reserved for fills and accents where the label is white and
+     bold/large, never for a link's own text color.
 
-  /* --- Altor Blue — ALIASES of the primary ramp above -------------------- */
+     This REPLACES the hand-picked blue ramp (anchor #154CE4, itself already
+     one revision past an even earlier #164CE4 anchor). `--color-blue-*`
+     below stays an alias of this ramp so every existing `bg-blue-600` /
+     `text-blue-700` call site keeps compiling — it now resolves to the
+     terracotta, not blue; see the file header note. */
+  --color-primary-50: #fcf5f3;
+  --color-primary-100: #fcece7;
+  --color-primary-200: #fcdbd1;
+  --color-primary-300: #fbc3b3;
+  --color-primary-400: #f89d84;
+  --color-primary-500: #ef7a5a;
+  --color-primary-600: #e05d38; /* primary-600 IS the brand */
+  --color-primary-700: #ac3f1f;
+  --color-primary-800: #7f2c13;
+  --color-primary-900: #551a09;
+  --color-primary-950: #2f0801; /* deepest ground — hero, not a UI surface */
+
+  /* --- "Altor Blue" — ALIASES of the primary ramp above ------------------
+     NAME ONLY, as of the 2026-09-04 rebrand — these tokens (and every
+     `bg-blue-*`/`text-blue-*` call site) now render the terracotta primary
+     ramp above, not blue. Not renamed because ~50 existing routes are
+     written against `blue-*` and a rename would be a mechanical, blast-radius
+     edit across the whole codebase for zero behavioral gain. */
   --color-blue-50: var(--color-primary-50);
   --color-blue-100: var(--color-primary-100);
   --color-blue-200: var(--color-primary-200);
@@ -186,8 +220,11 @@
   --color-ink-subtle: var(--color-ink-500);
   --color-ink-disabled: var(--color-ink-300);
   --color-ink-inverse: #ffffff;
-  --color-ink-brand: var(--color-primary-600); /* links, text accents */
-  --color-ink-brand-hover: var(--color-primary-700);
+  /* 700, not 600 — see the primary ramp's accessibility note above. A link
+     set in primary-600 measures ~3.6:1 on paper and fails the 4.5:1 body-text
+     floor; primary-700 clears it at 6.0:1. */
+  --color-ink-brand: var(--color-primary-700); /* links, text accents */
+  --color-ink-brand-hover: var(--color-primary-800);
 
   /* Interactive — the full state set the buttons consume. */
   --color-primary: var(--color-primary-600);
@@ -279,7 +316,9 @@
     0 1px 2px rgb(10 16 32 / 0.04), 0 12px 28px -16px rgb(10 16 32 / 0.16);
   --shadow-lift:
     0 2px 4px rgb(10 16 32 / 0.04), 0 24px 48px -24px rgb(10 16 32 / 0.22);
-  --shadow-blue: 0 18px 40px -20px rgb(21 76 228 / 0.55);
+  /* Renamed from --shadow-blue in the 2026-09-04 rebrand (terracotta, not
+     blue, now) — safe rename, zero call sites at the time of the move. */
+  --shadow-brand: 0 18px 40px -20px rgb(224 93 56 / 0.55);
   /* Reference names, for the ported card tones. `sm` is the resting card
      shadow, `lg` the lifted one — aliases of the two above. */
   --shadow-sm: var(--shadow-card);
@@ -491,9 +530,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* Never let the browser fake a weight we didn't ship — with the serif gone
-       there is only one family left, and a synthesised oblique would be the
-       browser reinventing the italic the design just removed. */
+    /* Never let the browser fake a weight we didn't ship — a synthesised
+       oblique or bold would be the browser reinventing a cut none of the
+       three loaded families (Outfit, Merriweather, Fira Code) actually
+       ships at that weight. */
     font-synthesis-weight: none;
   }
 

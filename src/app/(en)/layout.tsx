@@ -1,21 +1,32 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Fira_Code, Merriweather } from "next/font/google";
 import "../globals.css";
 import { JsonLd } from "@/components/JsonLd";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
 
-const geist = Geist({
-  variable: "--font-geist",
+/* REBRAND (2026-09-04): Geist -> Outfit/Fira Code/Merriweather, alongside the
+   blue -> terracotta primary ramp in globals.css. See that file's header
+   comment for why. */
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin", "latin-ext"],
 });
 
 /* The mono rail the detail pages and the home page's spec plate already use
    was resolving to whatever monospace the OS happened to ship - `--font-mono`
-   was referenced but never defined. This is the same family's mono cut, so a
-   label set in it does not read as a second typeface. */
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+   was referenced but never defined. Fira Code is the loaded mono cut now. */
+const firaCode = Fira_Code({
+  variable: "--font-fira-code",
   subsets: ["latin", "latin-ext"],
+});
+
+/* Not applied by any component today (see globals.css's `--font-serif`
+   note) - loaded so the `font-serif` utility is correct the moment
+   something reaches for it, rather than silently falling back. */
+const merriweather = Merriweather({
+  variable: "--font-merriweather",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -52,13 +63,16 @@ export default function EnRootLayout({
 }>) {
   return (
     /* THE FONT VARIABLE BELONGS ON <html>, NOT ON <body>. globals.css declares
-       `--font-sans: var(--font-geist), …` inside `@theme`, which Tailwind emits
-       on `:root` — i.e. on <html>. A var() that resolves to nothing makes the
-       whole declaration invalid at computed-value time, so with `--font-geist`
-       defined one level down on <body>, `--font-sans` computed to empty
-       everywhere, every `font-sans` utility fell back to the browser's default
-       sans, and Geist was never requested at all. */
-    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
+       `--font-sans: var(--font-outfit), …` inside `@theme`, which Tailwind
+       emits on `:root` — i.e. on <html>. A var() that resolves to nothing
+       makes the whole declaration invalid at computed-value time, so with
+       `--font-outfit` defined one level down on <body>, `--font-sans` would
+       compute to empty everywhere and every `font-sans` utility would fall
+       back to the browser's default sans. */
+    <html
+      lang="en"
+      className={`${outfit.variable} ${firaCode.variable} ${merriweather.variable}`}
+    >
       <body className="bg-paper font-sans text-ink-900 antialiased">
         <JsonLd />
         {children}
