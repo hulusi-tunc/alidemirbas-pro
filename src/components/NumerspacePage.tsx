@@ -333,7 +333,11 @@ function CategoriesSection({ t, lang, siteHref }: { t: (typeof T)[Lang]; lang: L
    not a struck-through claim about what doesn't happen. */
 function PrivacySection({ t }: { t: (typeof T)[Lang] }) {
   return (
-    <ProductSection tone="paper" space="md">
+    // soft, not paper: keeps the paper/soft rhythm varied now that Faq
+    // (right after this one) needs to be paper for its own cards to read -
+    // the flow panel below is a bordered bg-paper card either way, the
+    // same "card on a tinted ground" pattern Categories already uses.
+    <ProductSection tone="soft" space="md">
       <PortraitContainer>
         <ProductHeading eyebrow={t.privacyEyebrow} title={t.privacyTitle} body={t.privacySub} align="center" />
         <Reveal delay={100} className="mx-auto mt-10 max-w-xl overflow-hidden rounded-card border border-line bg-paper">
@@ -374,7 +378,12 @@ function PrivacySection({ t }: { t: (typeof T)[Lang] }) {
 function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   if (!c.faq || c.faq.length === 0) return null;
   return (
-    <ProductSection tone="soft" space="lg">
+    // paper, not soft: FaqAccordion's own items are already bg-paper-soft
+    // filled cards (see that file's own comment) - on a soft-toned section
+    // they sit on the exact same colour as their own fill and disappear
+    // into it. CalculatorDetailTemplate.tsx hit the same thing and fixed
+    // it the same way - white ground, so the cards read as cards.
+    <ProductSection tone="paper" space="lg">
       <PortraitContainer className="max-w-2xl">
         <ProductHeading eyebrow={t.faqEyebrow} title={c.faqTitle ?? "FAQ"} />
         <Reveal delay={80} className="mt-10">
