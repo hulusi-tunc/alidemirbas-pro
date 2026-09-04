@@ -76,27 +76,27 @@ const T = {
     faq: [
       {
         id: "free",
-        q: "Is it really free, and is there an account?",
-        a: "All the calculators are free, and there is no registration system at all - no subscription, no credit card, no email address. Every tool runs for a guest visitor, so nothing is locked behind signing up.",
+        q: "Is Numerspace free?",
+        a: "Yes. All 97 calculators are free to use, with no subscription, no credit card and no account required - every tool works for a guest visitor.",
       },
       {
         id: "privacy",
-        q: "Is what I type stored anywhere?",
-        a: "No. The large majority of the calculators run client-side, which means the arithmetic happens in your own browser. A salary, a weight, a birth date, a loan amount - none of it is transmitted to or stored on a server, and it is erased the moment you close the tab.",
+        q: "Does Numerspace store my inputs?",
+        a: "No. The large majority of the calculators run client-side: the arithmetic happens in your own browser and is never transmitted to or stored on a server. A salary, a weight, a birth date, a loan amount - none of it survives past closing the tab.",
+      },
+      {
+        id: "formulas",
+        q: "Where do the formulas come from?",
+        a: "Established formulas and official sources - Mifflin-St Jeor, Devine and Hamwi for the health calculators, and official regional rules (SGK, GİB) for the ones tied to tax and labour regulation. They're a strong reference, not professional advice - check with someone qualified for a legal, financial or medical decision.",
       },
       {
         id: "languages",
-        q: "Which languages does it support?",
-        a: "Turkish and English, switched from the toggle in the top-right corner. It is not a partial translation: the sitemap lists 97 calculator pages in each language, and the interface and results are localised along with the tools.",
-      },
-      {
-        id: "accuracy",
-        q: "How reliable are the results?",
-        a: "The tools are built on recognised formulas - Mifflin-St Jeor, Devine and Hamwi among the health ones - and on official regional sources for the tools that depend on regulation, such as tax and labour rules. They are a strong reference rather than professional advice: for a legal, financial or medical decision, check with someone qualified before acting.",
+        q: "Does every calculator support Turkish and English?",
+        a: "Yes. The sitemap lists 97 calculator pages in each language - the interface, the inputs and the results are all localised together, tool for tool.",
       },
       {
         id: "requests",
-        q: "Can I ask for a calculator that isn't there?",
+        q: "Can I suggest a calculator?",
         a: "Yes - the contact page takes suggestions, and requests are reviewed and added to the roadmap. The same page is where an incorrect formula or an out-of-date regulation should be reported.",
       },
     ],
@@ -130,27 +130,27 @@ const T = {
     faq: [
       {
         id: "free",
-        q: "Gerçekten ücretsiz mi, üyelik var mı?",
-        a: "Hesaplayıcıların tamamı ücretsiz ve kayıt sistemi hiç yok - abonelik, kredi kartı ya da e-posta kaydı gerekmiyor. Her araç misafir kullanıcıyla çalışıyor, yani hiçbiri üyelik arkasında değil.",
+        q: "Numerspace ücretsiz mi?",
+        a: "Evet. 97 hesaplayıcının tamamı ücretsiz - abonelik yok, kredi kartı yok, hesap gerekmiyor. Her araç misafir kullanıcıyla çalışıyor.",
       },
       {
         id: "privacy",
-        q: "Girdiğim bilgiler bir yerde saklanıyor mu?",
-        a: "Hayır. Hesaplamaların büyük çoğunluğu doğrudan tarayıcınızda çalışıyor. Maaş, kilo, doğum tarihi, kredi tutarı - hiçbiri sunucuya gönderilmiyor ya da saklanmıyor; sayfayı kapattığınız anda siliniyor.",
+        q: "Numerspace girdiğim bilgileri saklıyor mu?",
+        a: "Hayır. Hesaplamaların büyük çoğunluğu doğrudan tarayıcınızda çalışıyor: hesaplama tarayıcınızda yapılıyor ve sunucuya hiç gönderilmiyor. Maaş, kilo, doğum tarihi, kredi tutarı - hiçbiri sekmeyi kapattıktan sonra kalmıyor.",
+      },
+      {
+        id: "formulas",
+        q: "Formüller nereden geliyor?",
+        a: "Kabul görmüş formüller ve resmi kaynaklardan - sağlık hesaplayıcılarında Mifflin-St Jeor, Devine ve Hamwi; vergi ve iş mevzuatına bağlı araçlarda resmi kaynaklar (SGK, GİB). Bunlar güçlü bir referans, uzman görüşü değil - yasal, finansal ya da tıbbi bir kararda önce bir uzmana danışın.",
       },
       {
         id: "languages",
-        q: "Hangi dilleri destekliyor?",
-        a: "Türkçe ve İngilizce; sağ üst köşedeki düğmeyle geçiliyor. Kısmi bir çeviri değil: sitemap her iki dilde de 97 hesaplayıcı sayfası listeliyor, arayüz ve sonuçlar da araçlarla birlikte yerelleştirilmiş.",
-      },
-      {
-        id: "accuracy",
-        q: "Sonuçlar ne kadar güvenilir?",
-        a: "Araçlar kabul görmüş formüllere - sağlık tarafında Mifflin-St Jeor, Devine, Hamwi - ve mevzuata bağlı araçlarda resmî kaynaklara (SGK, GİB, TÜFE) dayanıyor. Sonuçlar güçlü bir referans; uzman görüşü değil. Yasal, finansal ya da tıbbi bir kararda adımı atmadan önce bir uzmana danışın.",
+        q: "Her hesaplayıcı Türkçe ve İngilizce destekliyor mu?",
+        a: "Evet. Sitemap her iki dilde de 97 hesaplayıcı sayfası listeliyor - arayüz, girdiler ve sonuçlar araç araç birlikte yerelleştirilmiş.",
       },
       {
         id: "requests",
-        q: "Sitede olmayan bir hesaplayıcı isteyebilir miyim?",
+        q: "Bir hesaplayıcı önerebilir miyim?",
         a: "Evet - iletişim sayfası önerileri alıyor, talepler değerlendirilip yol haritasına ekleniyor. Hatalı bir formülü ya da eskimiş bir mevzuatı da aynı sayfadan bildirebilirsiniz.",
       },
     ],
@@ -169,7 +169,7 @@ export function getNumerspaceContent(lang: Lang): SkillProductContent | null {
   const related = getAllSkillProjects(lang)
     .filter((p) => p.slug !== SLUG)
     .slice(0, 4)
-    .map((p) => ({ href: p.links[0].href, name: p.name, desc: withJourneyCount(p.desc) }));
+    .map((p) => ({ href: p.links[0].href, slug: p.slug, name: p.name, desc: withJourneyCount(p.desc), proof: withJourneyCount(p.proof) }));
 
   /* The site link, in the language the reader is already in - the /en and
      /tr entry points are the site's own, confirmed by following its root

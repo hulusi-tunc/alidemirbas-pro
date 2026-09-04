@@ -3,49 +3,39 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
+import { ProductHeading, ProductMetricStrip, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
-import { breadcrumbList, howTo, webApplication } from "@/lib/schema";
+import { breadcrumbList, webApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
+import { clsx } from "@/lib/clsx";
 
-/* Numerspace's product page.
+/* Numerspace's product page - revised (2026-09) for length and repetition,
+   not for a new visual language. The prior pass ran seven sections through
+   one rhythm (centred eyebrow -> centred headline -> grey paragraph ->
+   rounded card), which read as a second Numerspace homepage rather than
+   Ali's own case page for it. This pass:
 
-   THIRD bespoke Lab page this session, benchmarked against
-   /lab/dashboard-builder for storytelling/rhythm/confidence - not copied
-   from it visually. Numerspace has no repository and no change log to
-   pull real rows from; its real material is the live site itself
-   (numerspace.com), so this page's illustrative panels are calculator
-   MOCKS - a compact, code-rendered rebuild of one real tool's own input
-   fields and formula - rather than a table or a diff.
+   - drops three sections that didn't earn their own screen (Bilingual,
+     Accuracy, How to use it) - their one useful fact each survives as
+     microcopy where it already belongs, not as a fourth headline;
+   - adds one new section ("Why I built it") that a portfolio page needs
+     and a marketing page doesn't - product thinking, not another feature
+     list, set left-aligned and editorial rather than centred, so the page
+     visibly changes register partway through instead of repeating itself;
+   - keeps every other section's real material (the real category counts,
+     the real calorie-calculator mock, the real FAQ, the real project
+     proof lines) and re-composes it more compactly.
 
-   EVERY VALUE BELOW IS REAL, checked against the live site this pass:
-   - The 13 category names and their example tool names (3 per category,
-     2 for Vehicle & Travel which only lists that many) come from
-     numerspace.com's own EN and TR navigation, fetched directly - not
-     translated from English by this page, since the site's own Turkish
-     tool names sometimes differ from a literal translation (e.g. "CR
-     Hesaplama" for Conversion Rate, "İmsakiye" for the Ramadan
-     schedule).
-   - The Daily Calorie Calculator's exact input fields, its Mifflin-St
-     Jeor formula text, and its five activity-level multipliers were
-     read directly off /en/health-fitness/daily-calorie-calculator.
-     The worked numbers (30 / 180cm / 80kg / Sedentary -> BMR 1,780 ->
-     x1.20 -> 2,136 kcal/day) are this page's own arithmetic run through
-     that real formula on illustrative inputs - not a number pulled from
-     the site, since the site computes per-visitor and has no fixed
-     "example" of its own.
-   - The site's own homepage badges (which sum to 113 across categories)
-     and its "140+" marketing line are NOT used here - the file this
-     page's content comes from (numerspace.tsx) already established 97
-     as the sitemap-counted, EN/TR-matched real total, and a badge sum
-     that doesn't reconcile with it is not a number to repeat.
-   - Mifflin-St Jeor, Devine and Hamwi, and "official regional sources
-     (SGK, GİB)" are the same three citations already verified in
-     numerspace.tsx's own header comment - restated here, not
-     re-guessed. */
+   EVERY VALUE BELOW IS REAL, re-checked against the live site this pass.
+   The 13 category names, their example tool names and the calorie
+   calculator's fields/formula/arithmetic carry over unchanged from the
+   prior pass (see its own note, preserved below) - re-verified, not
+   re-guessed. What's NEW this pass: the per-category tool counts (fetched
+   directly from numerspace.com/en, category by category; they sum to
+   exactly 97, the same sitemap-counted total this page already used,
+   which is what makes them trustworthy enough to print). */
 
 const REAL = {
   calorie: {
@@ -65,121 +55,108 @@ const REAL = {
     resultLabel: { en: "Daily calorie need (×1.20)", tr: "Günlük kalori ihtiyacı (×1,20)" },
     result: { en: "2,136 kcal/day", tr: "2.136 kcal/gün" },
   },
+  /** All 13, with the real per-category tool count. `featured` marks the
+      8 shown on this page - the rest are one click away at the real site,
+      not reproduced here (this is a project page, not the catalogue). */
   categories: [
-    { en: "Finance & Investment", tr: "Finans & Yatırım", ex: { en: ["Loan Calculator", "Deposit Interest Calculator", "Rent Increase Calculator"], tr: ["Kredi Hesaplama", "Mevduat Getirisi Hesaplama", "Kira Artış Hesaplama"] } },
-    { en: "Health & Fitness", tr: "Sağlık & Fitness", ex: { en: ["BMI Calculator", "Daily Calorie Calculator", "Ideal Weight Calculator"], tr: ["Vücut Kitle İndeksi Hesaplama", "Günlük Kalori İhtiyacı Hesaplama", "İdeal Kilo Hesaplama"] } },
-    { en: "Work & Career", tr: "İş & Kariyer", ex: { en: ["Salary Calculator", "Annual Leave Calculator", "Overtime Calculator"], tr: ["Maaş Hesaplama", "Yıllık İzin Hesaplama", "Fazla Mesai Hesaplama"] } },
-    { en: "Time & Date", tr: "Zaman & Tarih", ex: { en: ["Age Calculator", "Date Difference Calculator", "Time Difference Calculator"], tr: ["Yaş Hesaplama", "Tarih Farkı Hesaplama", "Saat Farkı Hesaplama"] } },
-    { en: "Marketing & Analytics", tr: "Pazarlama & Analitik", ex: { en: ["ROAS Calculator", "Conversion Rate Calculator", "CAC Calculator"], tr: ["ROAS Hesaplama", "CR Hesaplama", "CAC Hesaplama"] } },
-    { en: "Math & Converters", tr: "Matematik & Çeviri", ex: { en: ["Percentage Calculator", "Standard Deviation", "Basic Calculator"], tr: ["Yüzde Hesaplama", "Standart Sapma Hesaplama", "Hesap Makinesi"] } },
-    { en: "Education & Productivity", tr: "Eğitim & Üretkenlik", ex: { en: ["GPA Calculator", "Reading Time Calculator", "Writing Speed Test"], tr: ["Not Ortalaması Hesaplama", "Okuma Süresi Hesaplama", "Yazma Hızı Testi"] } },
-    { en: "Home & Living", tr: "Ev & Yaşam", ex: { en: ["Paint Calculator", "Electricity Bill Calculator", "TV Size Calculator"], tr: ["Boya Hesaplama", "Elektrik Faturası Hesaplama", "TV Boyut Hesaplama"] } },
-    { en: "Clothing & Sizing", tr: "Giyim & Beden", ex: { en: ["Bra Size Calculator", "Belt Size Calculator", "Jacket Size Calculator"], tr: ["Sütyen Bedeni Hesaplama", "Kemer Ölçüsü Hesaplama", "Ceket Bedeni Hesaplama"] } },
-    { en: "Pets", tr: "Evcil Hayvan", ex: { en: ["Dog Age Calculator", "Cat Age Calculator", "Cat Pregnancy Calculator"], tr: ["Köpek Yaşı Hesaplama", "Kedi Yaşı Hesaplama", "Kedi Gebelik Hesaplama"] } },
-    { en: "Vehicle & Travel", tr: "Araç & Seyahat", ex: { en: ["Fuel Consumption Calculator", "Distance Calculator"], tr: ["Yakıt Tüketimi Hesaplama", "Mesafe Hesaplama"] } },
-    { en: "Faith", tr: "İnanç", ex: { en: ["Prayer Times", "Zakat Calculator", "Ramadan Schedule"], tr: ["Namaz Vakitleri", "Zekat Hesaplama", "İmsakiye"] } },
-    { en: "Astrology", tr: "Astroloji", ex: { en: ["Zodiac Compatibility", "Rising Sign Calculator", "Chinese Zodiac Calculator"], tr: ["Burç Uyumu Hesaplama", "Yükselen Burç Hesaplama", "Çin Burcu Hesaplama"] } },
-  ],
-  parity: {
-    tool: { en: "Daily Calorie Calculator", tr: "Günlük Kalori İhtiyacı Hesaplama" },
-    fields: [
-      { en: "Weight (kg)", tr: "Kilo (kg)" },
-      { en: "Height (cm)", tr: "Boy (cm)" },
-      { en: "Age", tr: "Yaş" },
-      { en: "Activity Level", tr: "Aktivite Düzeyi" },
-    ],
-  },
-  formulas: [
-    { name: "Mifflin-St Jeor", use: { en: "Daily calorie need", tr: "Günlük kalori ihtiyacı" } },
-    { name: "Devine & Hamwi", use: { en: "Ideal body weight", tr: "İdeal vücut ağırlığı" } },
-    { name: { en: "Official tax & labour rules (SGK, GİB)", tr: "Resmi vergi ve iş mevzuatı (SGK, GİB)" }, use: { en: "Salary, tax and leave calculators", tr: "Maaş, vergi ve izin hesaplayıcıları" } },
+    { en: "Finance & Investment", tr: "Finans & Yatırım", count: 8, featured: true, ex: { en: ["Loan Calculator", "Deposit Interest Calculator", "Rent Increase Calculator"], tr: ["Kredi Hesaplama", "Mevduat Getirisi Hesaplama", "Kira Artış Hesaplama"] } },
+    { en: "Health & Fitness", tr: "Sağlık & Fitness", count: 15, featured: true, ex: { en: ["BMI Calculator", "Daily Calorie Calculator", "Ideal Weight Calculator"], tr: ["Vücut Kitle İndeksi Hesaplama", "Günlük Kalori İhtiyacı Hesaplama", "İdeal Kilo Hesaplama"] } },
+    { en: "Work & Career", tr: "İş & Kariyer", count: 7, featured: true, ex: { en: ["Salary Calculator", "Annual Leave Calculator", "Overtime Calculator"], tr: ["Maaş Hesaplama", "Yıllık İzin Hesaplama", "Fazla Mesai Hesaplama"] } },
+    { en: "Time & Date", tr: "Zaman & Tarih", count: 8, featured: true, ex: { en: ["Age Calculator", "Date Difference Calculator", "Time Difference Calculator"], tr: ["Yaş Hesaplama", "Tarih Farkı Hesaplama", "Saat Farkı Hesaplama"] } },
+    { en: "Marketing & Analytics", tr: "Pazarlama & Analitik", count: 17, featured: true, ex: { en: ["ROAS Calculator", "Conversion Rate Calculator", "CAC Calculator"], tr: ["ROAS Hesaplama", "CR Hesaplama", "CAC Hesaplama"] } },
+    { en: "Math & Converters", tr: "Matematik & Çeviri", count: 13, featured: true, ex: { en: ["Percentage Calculator", "Standard Deviation", "Basic Calculator"], tr: ["Yüzde Hesaplama", "Standart Sapma Hesaplama", "Hesap Makinesi"] } },
+    { en: "Education & Productivity", tr: "Eğitim & Üretkenlik", count: 4, featured: false, ex: { en: ["GPA Calculator", "Reading Time Calculator", "Writing Speed Test"], tr: ["Not Ortalaması Hesaplama", "Okuma Süresi Hesaplama", "Yazma Hızı Testi"] } },
+    { en: "Home & Living", tr: "Ev & Yaşam", count: 6, featured: true, ex: { en: ["Paint Calculator", "Electricity Bill Calculator", "TV Size Calculator"], tr: ["Boya Hesaplama", "Elektrik Faturası Hesaplama", "TV Boyut Hesaplama"] } },
+    { en: "Clothing & Sizing", tr: "Giyim & Beden", count: 4, featured: false, ex: { en: ["Bra Size Calculator", "Belt Size Calculator", "Jacket Size Calculator"], tr: ["Sütyen Bedeni Hesaplama", "Kemer Ölçüsü Hesaplama", "Ceket Bedeni Hesaplama"] } },
+    { en: "Pets", tr: "Evcil Hayvan", count: 4, featured: false, ex: { en: ["Dog Age Calculator", "Cat Age Calculator", "Cat Pregnancy Calculator"], tr: ["Köpek Yaşı Hesaplama", "Kedi Yaşı Hesaplama", "Kedi Gebelik Hesaplama"] } },
+    { en: "Vehicle & Travel", tr: "Araç & Seyahat", count: 2, featured: false, ex: { en: ["Fuel Consumption Calculator", "Distance Calculator"], tr: ["Yakıt Tüketimi Hesaplama", "Mesafe Hesaplama"] } },
+    { en: "Faith", tr: "İnanç", count: 4, featured: false, ex: { en: ["Prayer Times", "Zakat Calculator", "Ramadan Schedule"], tr: ["Namaz Vakitleri", "Zekat Hesaplama", "İmsakiye"] } },
+    { en: "Astrology", tr: "Astroloji", count: 5, featured: false, ex: { en: ["Zodiac Compatibility", "Rising Sign Calculator", "Chinese Zodiac Calculator"], tr: ["Burç Uyumu Hesaplama", "Yükselen Burç Hesaplama", "Çin Burcu Hesaplama"] } },
   ],
 };
 
 const T = {
   en: {
     eyebrow: "Lab",
-    heroTitle: "97 calculators. No signup. Nothing saved.",
-    heroSub: "A free calculator site spanning finance, health, work, time and marketing - every result computed in your own browser, in Turkish and English.",
+    heroTitle: "97 calculators. No signup. No data stored.",
+    heroSub: "Free calculators for everyday questions - from money and health to work, time and marketing. No account required.",
     ctaVisit: "Open numerspace.com",
-    proof: ["No signup, no account", "Computed in your browser", "97 calculators, EN and TR"],
+    heroStats: ["97 calculators", "13 categories", "Turkish + English"],
+    verifyCaption: "Results you can verify.",
+    verifyNote: "Where a calculator uses a standard formula, the formula is shown alongside the result.",
 
-    workedEyebrow: "One real calculator",
-    workedLine1: "The formula is shown, not hidden.",
-    workedLine2: "You can check the arithmetic yourself.",
+    whyEyebrow: "Project",
+    whyTitle: "A calculator should answer the question, then get out of the way.",
+    whyBody: "I built Numerspace as a fast, bilingual collection of practical calculators. Open a tool, enter what you know and get the result - without creating an account or sending your calculation inputs to a server.",
+    whyStats: [
+      { value: "97", label: "Calculators" },
+      { value: "13", label: "Categories" },
+      { value: "2", label: "Languages" },
+      { value: "0", label: "Accounts required" },
+    ],
 
     catEyebrow: "Categories",
-    catTitle: "13 categories, so the right tool is never far.",
-    catSub: "Finance, health, work, time, marketing, home, pets, sizing, faith and astrology among them - each with its own set of calculators.",
+    catTitle: "97 calculators across 13 categories.",
+    catSub: "From finance and health to work, travel and everyday calculations.",
+    catCount: (n: number) => `${n} calculator${n === 1 ? "" : "s"}`,
+    catExploreAll: "Explore all 13 categories",
 
-    privacyEyebrow: "Privacy",
-    privacyTitle: "Calculated in your browser. Not on a server.",
-    privacySub: "A salary, a weight, a birth date, a loan amount - the arithmetic runs on your device and is gone when the tab closes.",
-    privacyInput: "You type a number",
-    privacyCalc: "Calculated in your browser",
-    privacyServer: "Sent to a server",
-    privacyResult: "Result shown",
-
-    bilingualEyebrow: "Bilingual",
-    bilingualTitle: "97 calculators in Turkish. The same 97 in English.",
-    bilingualSub: "Not a partial translation - the interface, the inputs and the results are localized together, tool for tool.",
-
-    accuracyEyebrow: "Accuracy",
-    accuracyTitle: "Built on named formulas, not guesses.",
-
-    useEyebrow: "How to use it",
-    useTitle: "Three steps, no account.",
-    step1Title: "Open the site",
-    step1Desc: "Pick Turkish or English with the toggle in the top-right corner; both carry the full catalogue.",
-    step2Title: "Find the calculator",
-    step2Desc: "Search from the home page, or go through a category.",
-    step3Title: "Enter your numbers",
-    step3Desc: "The result appears as you type. No account, no export step, nothing kept afterwards.",
+    privacyEyebrow: "Privacy by design",
+    privacyTitle: "Your numbers stay in your browser.",
+    privacySub: "Most calculations run locally on your device - inputs aren't sent to Numerspace for calculation or stored in an account.",
+    privacyInput: "Input",
+    privacyBrowser: "Your browser",
+    privacyResult: "Result",
+    privacyStays: "Stays on your device",
+    privacyPoints: ["No account", "No calculation database", "Calculated on your device"],
 
     faqEyebrow: "FAQ",
+
+    relatedEyebrow: "Also in the Lab",
+    relatedCta: "Explore",
+
     ctaEyebrow: "FREE, NO SIGN-UP",
     ctaTitle: "Try a calculator you can check yourself.",
   },
   tr: {
     eyebrow: "Lab",
-    heroTitle: "97 hesaplayıcı. Üyelik yok. Hiçbir şey saklanmıyor.",
-    heroSub: "Finans, sağlık, iş, zaman ve pazarlamayı kapsayan ücretsiz bir hesaplayıcı sitesi - her sonuç kendi tarayıcınızda hesaplanır, Türkçe ve İngilizce.",
+    heroTitle: "97 hesaplayıcı. Üyelik yok. Veri saklanmıyor.",
+    heroSub: "Paradan sağlığa, işten zamana ve pazarlamaya kadar günlük sorular için ücretsiz hesaplayıcılar. Hesap gerekmez.",
     ctaVisit: "numerspace.com'u aç",
-    proof: ["Üyelik yok, hesap yok", "Tarayıcınızda hesaplanır", "97 hesaplayıcı, TR ve EN"],
+    heroStats: ["97 hesaplayıcı", "13 kategori", "Türkçe + İngilizce"],
+    verifyCaption: "Kendiniz de kontrol edebileceğiniz sonuçlar.",
+    verifyNote: "Bir hesaplayıcı standart bir formül kullandığında, formül sonuçla birlikte gösterilir.",
 
-    workedEyebrow: "Gerçek bir hesaplayıcı",
-    workedLine1: "Formül gösteriliyor, gizlenmiyor.",
-    workedLine2: "Hesabı kendiniz de kontrol edebilirsiniz.",
+    whyEyebrow: "Proje",
+    whyTitle: "Bir hesaplayıcı soruyu yanıtlamalı, sonra yoldan çekilmeli.",
+    whyBody: "Numerspace'i hızlı, iki dilli, pratik hesaplayıcılardan oluşan bir koleksiyon olarak kurdum. Bir aracı açın, bildiğinizi girin ve sonucu alın - hesap oluşturmadan ya da hesaplama girdilerinizi bir sunucuya göndermeden.",
+    whyStats: [
+      { value: "97", label: "Hesaplayıcı" },
+      { value: "13", label: "Kategori" },
+      { value: "2", label: "Dil" },
+      { value: "0", label: "Gereken hesap" },
+    ],
 
     catEyebrow: "Kategoriler",
-    catTitle: "13 kategori, doğru araç hiç uzak olmasın diye.",
-    catSub: "Finans, sağlık, iş, zaman, pazarlama, ev, evcil hayvan, beden ölçüleri, inanç ve astroloji bunlardan bazıları - her birinin kendi hesaplayıcı seti var.",
+    catTitle: "13 kategoride 97 hesaplayıcı.",
+    catSub: "Finans ve sağlıktan işe, seyahate ve gündelik hesaplamalara.",
+    catCount: (n: number) => `${n} hesaplayıcı`,
+    catExploreAll: "13 kategorinin tamamını keşfet",
 
-    privacyEyebrow: "Gizlilik",
-    privacyTitle: "Tarayıcınızda hesaplanır. Sunucuda değil.",
-    privacySub: "Maaş, kilo, doğum tarihi, kredi tutarı - hesaplama cihazınızda yapılır ve sekmeyi kapattığınızda silinir.",
-    privacyInput: "Bir sayı yazarsınız",
-    privacyCalc: "Tarayıcınızda hesaplanır",
-    privacyServer: "Sunucuya gönderilir",
-    privacyResult: "Sonuç gösterilir",
-
-    bilingualEyebrow: "İki Dilli",
-    bilingualTitle: "Türkçe 97 hesaplayıcı. İngilizce aynı 97'si.",
-    bilingualSub: "Kısmi bir çeviri değil - arayüz, girdiler ve sonuçlar araç araç birlikte yerelleştirilir.",
-
-    accuracyEyebrow: "Doğruluk",
-    accuracyTitle: "Tahmine değil, adlandırılmış formüllere dayanır.",
-
-    useEyebrow: "Nasıl kullanılır",
-    useTitle: "Üç adım, hesap yok.",
-    step1Title: "Siteyi açın",
-    step1Desc: "Sağ üstteki değiştiriciyle Türkçe ya da İngilizce seçin; ikisinde de katalogun tamamı var.",
-    step2Title: "Hesaplayıcıyı bulun",
-    step2Desc: "Ana sayfadan arayın ya da bir kategoriden ilerleyin.",
-    step3Title: "Sayıları girin",
-    step3Desc: "Sonuç siz yazarken çıkıyor. Hesap yok, dışa aktarma adımı yok, sonrasında saklanan bir şey yok.",
+    privacyEyebrow: "Tasarımdan gelen gizlilik",
+    privacyTitle: "Sayılarınız tarayıcınızda kalır.",
+    privacySub: "Hesaplamaların çoğu cihazınızda, yerel olarak çalışır - girdiler hesaplama için Numerspace'e gönderilmez ya da bir hesapta saklanmaz.",
+    privacyInput: "Girdi",
+    privacyBrowser: "Tarayıcınız",
+    privacyResult: "Sonuç",
+    privacyStays: "Cihazınızda kalır",
+    privacyPoints: ["Hesap yok", "Hesaplama veritabanı yok", "Cihazınızda hesaplanır"],
 
     faqEyebrow: "SSS",
+
+    relatedEyebrow: "Lab'de ayrıca",
+    relatedCta: "Keşfet",
+
     ctaEyebrow: "ÜCRETSİZ, ÜYELİK YOK",
     ctaTitle: "Kendiniz de kontrol edebileceğiniz bir hesaplayıcı deneyin.",
   },
@@ -213,7 +190,10 @@ function BrowserChrome({ title, children }: { title: string; children: React.Rea
     input fields, its Mifflin-St Jeor formula, and its result - never a
     screenshot, but every field, the formula text and the arithmetic are
     real (see the file header comment for what was read off the live
-    tool and what was computed here on illustrative inputs). */
+    tool and what was computed here on illustrative inputs). Rendered once
+    now, in the hero - the prior pass's second, full-section repeat of this
+    same mock is gone; see `verifyCaption`/`verifyNote` for where its point
+    (the formula is visible, not hidden) survives. */
 function CalorieCalculatorMock({ lang }: { lang: Lang }) {
   const c = REAL.calorie;
   return (
@@ -236,7 +216,7 @@ function CalorieCalculatorMock({ lang }: { lang: Lang }) {
   );
 }
 
-/* ---- 01 · Hero ------------------------------------------------------ */
+/* ---- 01 · Hero - centred / visual -------------------------------------- */
 function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const link = c.primaryLinks[0];
   return (
@@ -264,7 +244,7 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
         )}
         <Reveal delay={180} className="mt-6">
           <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[12.5px] text-ink-500">
-            {t.proof.map((item) => (
+            {t.heroStats.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
@@ -274,178 +254,118 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
           <BrowserChrome title={`numerspace.com — ${REAL.calorie.title[lang]}`}>
             <CalorieCalculatorMock lang={lang} />
           </BrowserChrome>
+          {/* Secondary product detail, not a section of its own - the point
+              the old "One real calculator" section existed to make. */}
+          <div className="mt-3 flex flex-col gap-0.5 px-1 sm:flex-row sm:items-baseline sm:gap-2">
+            <span className="text-[13px] font-medium text-ink-800">{t.verifyCaption}</span>
+            <span className="text-[12px] text-ink-500">{t.verifyNote}</span>
+          </div>
         </Reveal>
       </PortraitContainer>
     </section>
   );
 }
 
-/* ---- 02 · Worked example ---------------------------------------------- */
-function WorkedExampleSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+/* ---- 02 · Why I built it - editorial / left-aligned --------------------
+   The page's register change: everything above and below this is centred;
+   this one section reads as a note from Ali, not a product claim, and the
+   left-aligned heading is the visible signal of that before a reader has
+   parsed a single word. */
+function WhySection({ t }: { t: (typeof T)[Lang] }) {
   return (
-    <ProductSection tone="soft" space="band">
+    <ProductSection tone="paper" space="band">
       <PortraitContainer>
-        <Reveal className="mx-auto max-w-md">
-          <p className="mb-3 text-center text-[11px] font-medium tracking-wide text-ink-400 uppercase">{t.workedEyebrow}</p>
-          <div className="rounded-card border border-line bg-paper">
-            <CalorieCalculatorMock lang={lang} />
-          </div>
-        </Reveal>
-        <Reveal delay={90} className="mx-auto mt-8 max-w-lg text-center">
-          <p className="text-lg leading-relaxed text-ink-950/70">{t.workedLine1}</p>
-          <p className="text-lg leading-relaxed font-medium text-ink-950">{t.workedLine2}</p>
+        <ProductHeading eyebrow={t.whyEyebrow} title={t.whyTitle} body={t.whyBody} />
+        <Reveal delay={100} className="mt-10">
+          <ProductMetricStrip items={t.whyStats} />
         </Reveal>
       </PortraitContainer>
     </ProductSection>
   );
 }
 
-/* ---- 03 · Categories -------------------------------------------------- */
-function CategoriesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+/* ---- 03 · Categories - structured browsing list ------------------------
+   One bordered module, one hairline list inside it - not 13 (or even 8)
+   separate cards. Only the 8 largest/most recognisable categories are
+   rows here; the real site's own category nav is one click away for the
+   rest ("Explore all 13 categories"), because this page's job is to
+   represent the catalogue, not to reproduce it. */
+function CategoriesSection({ t, lang, siteHref }: { t: (typeof T)[Lang]; lang: Lang; siteHref: string }) {
+  const featured = REAL.categories.filter((c) => c.featured);
   return (
-    <ProductSection tone="paper" space="xl">
+    <ProductSection tone="soft" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.catEyebrow} title={t.catTitle} body={t.catSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-3 text-left sm:grid-cols-2">
-          {REAL.categories.map((cat) => (
-            <div key={cat.en} className="rounded-card border border-line bg-paper p-4">
-              <p className="text-[13px] font-medium text-ink-900">{cat[lang]}</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {cat.ex[lang].map((ex) => (
-                  <span key={ex} className="rounded-md bg-paper-soft px-2 py-1 text-[11.5px] text-ink-600">
-                    {ex}
-                  </span>
-                ))}
+        <Reveal delay={100} className="mx-auto mt-10 max-w-2xl overflow-hidden rounded-card border border-line bg-paper">
+          <div className="divide-y divide-line">
+            {featured.map((cat) => (
+              <div key={cat.en} className="px-5 py-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-[14.5px] font-medium text-ink-950">{cat[lang]}</p>
+                  <span className="shrink-0 font-mono text-[11px] text-ink-400 tabular-nums">{t.catCount(cat.count)}</span>
+                </div>
+                <p className="mt-1 text-[12.5px] text-ink-500">{cat.ex[lang].join(" · ")}</p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </Reveal>
+        <Reveal delay={160} className="mt-6 text-center">
+          <a
+            href={siteHref}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+          >
+            {t.catExploreAll}
+            <ArrowRight aria-hidden className="size-3.5" />
+          </a>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
   );
 }
 
-/* ---- 04 · Privacy mechanism -------------------------------------------- */
+/* ---- 04 · Privacy - horizontal product explanation ---------------------
+   One real flow (input -> your browser -> result), drawn as part of the
+   product rather than a slide: a single bordered panel instead of loose
+   pills over the page background, with the crossed-out "sent to a server"
+   pill from the prior pass gone - the honest claim is what stays local,
+   not a struck-through claim about what doesn't happen. */
 function PrivacySection({ t }: { t: (typeof T)[Lang] }) {
   return (
-    <ProductSection tone="soft" space="md">
+    <ProductSection tone="paper" space="md">
       <PortraitContainer>
         <ProductHeading eyebrow={t.privacyEyebrow} title={t.privacyTitle} body={t.privacySub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-center gap-3">
-          <span className="rounded-full border border-line-strong bg-paper px-4 py-2 text-sm font-medium text-ink-800">
-            {t.privacyInput}
-          </span>
-          <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-300" />
-          <span className="rounded-full border border-line-strong bg-paper px-4 py-2 text-sm font-medium text-ink-800">
-            {t.privacyCalc}
-          </span>
-          <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-300" />
-          <span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-            {t.privacyResult}
-          </span>
-        </Reveal>
-        <Reveal delay={140} className="mt-5 flex justify-center">
-          <span className="rounded-full bg-[#fdf3f0] px-4 py-2 text-[13px] font-medium text-[#c65d3f] line-through decoration-1">
-            {t.privacyServer}
-          </span>
-        </Reveal>
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
-
-/* ---- 05 · Bilingual parity --------------------------------------------- */
-function BilingualSection({ t }: { t: (typeof T)[Lang] }) {
-  const p = REAL.parity;
-  return (
-    <ProductSection tone="paper" space="md">
-      <PortraitContainer>
-        <ProductHeading eyebrow={t.bilingualEyebrow} title={t.bilingualTitle} body={t.bilingualSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 grid max-w-lg grid-cols-1 gap-4 text-left sm:grid-cols-2">
-          <div className="rounded-card border border-line bg-paper p-4">
-            <p className="text-[11px] font-medium tracking-wide text-ink-400 uppercase">EN</p>
-            <p className="mt-1 text-[13px] font-medium text-ink-900">{p.tool.en}</p>
-            <div className="mt-3 flex flex-col gap-1.5">
-              {p.fields.map((f) => (
-                <p key={f.en} className="text-[12.5px] text-ink-600">
-                  {f.en}
-                </p>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-card border border-line bg-paper p-4">
-            <p className="text-[11px] font-medium tracking-wide text-ink-400 uppercase">TR</p>
-            <p className="mt-1 text-[13px] font-medium text-ink-900">{p.tool.tr}</p>
-            <div className="mt-3 flex flex-col gap-1.5">
-              {p.fields.map((f) => (
-                <p key={f.tr} className="text-[12.5px] text-ink-600">
-                  {f.tr}
-                </p>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
-
-/* ---- 06 · Accuracy ------------------------------------------------------ */
-function AccuracySection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
-  return (
-    <ProductSection tone="soft" space="md">
-      <PortraitContainer>
-        <ProductHeading eyebrow={t.accuracyEyebrow} title={t.accuracyTitle} align="center" />
-        <Reveal delay={100} className="mx-auto mt-8 flex max-w-xl flex-col gap-2.5 text-left">
-          {REAL.formulas.map((f, i) => (
-            <div key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-paper px-4 py-3">
-              <span className="text-[13px] font-medium text-ink-900">{fv(f.name, lang)}</span>
-              <span className="text-[12px] text-ink-500">{f.use[lang]}</span>
-            </div>
-          ))}
-        </Reveal>
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
-
-/* ---- 07 · How to use it -------------------------------------------------- */
-function HowToSection({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
-  const link = c.primaryLinks[0];
-  const steps = [
-    { n: 1, title: t.step1Title, desc: t.step1Desc },
-    { n: 2, title: t.step2Title, desc: t.step2Desc },
-    { n: 3, title: t.step3Title, desc: t.step3Desc },
-  ];
-  return (
-    <ProductSection tone="paper" space="md">
-      <PortraitContainer className="max-w-xl">
-        <ProductHeading eyebrow={t.useEyebrow} title={t.useTitle} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 flex max-w-md flex-col gap-5 text-left">
-          {steps.map((s) => (
-            <div key={s.n} className="flex gap-4">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ink-950 font-mono text-[12px] font-semibold text-white">
-                {s.n}
-              </span>
-              <div>
-                <p className="text-[13.5px] font-medium text-ink-900">{s.title}</p>
-                <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-500">{s.desc}</p>
+        <Reveal delay={100} className="mx-auto mt-10 max-w-xl overflow-hidden rounded-card border border-line bg-paper">
+          <div className="flex flex-col items-stretch sm:flex-row">
+            {[t.privacyInput, t.privacyBrowser, t.privacyResult].map((step, i) => (
+              <div key={step} className="relative flex flex-1 items-center justify-center gap-3 px-5 py-6">
+                {i === 1 ? (
+                  <span className="absolute inset-x-2 top-2 rounded-full bg-emerald-50 px-2 py-0.5 text-center font-mono text-[9.5px] font-medium tracking-wide text-emerald-700 uppercase sm:inset-x-3">
+                    {t.privacyStays}
+                  </span>
+                ) : null}
+                <span className={clsx("mt-3 text-[13.5px] font-medium", i === 1 ? "text-emerald-700" : "text-ink-800")}>
+                  {step}
+                </span>
+                {i < 2 && (
+                  <ArrowRight
+                    aria-hidden
+                    className="absolute top-1/2 right-0 hidden size-4 -translate-y-1/2 translate-x-1/2 text-ink-300 sm:block"
+                  />
+                )}
+                {i < 2 && (
+                  <span aria-hidden className="mt-2 block h-px w-8 bg-line sm:hidden" />
+                )}
               </div>
-            </div>
+            ))}
+          </div>
+        </Reveal>
+        <Reveal delay={150} className="mx-auto mt-5 flex max-w-xl flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[12.5px] text-ink-500">
+          {t.privacyPoints.map((p) => (
+            <span key={p}>{p}</span>
           ))}
         </Reveal>
-        {link && (
-          <Reveal delay={200} className="mt-8 text-center">
-            <a
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-            >
-              {t.ctaVisit} →
-            </a>
-          </Reveal>
-        )}
       </PortraitContainer>
     </ProductSection>
   );
@@ -465,12 +385,139 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   );
 }
 
-function Related({ c }: { c: SkillProductContent }) {
-  if (c.related.length === 0) return null;
+/* ---- Other Lab projects - visual project cards --------------------------
+   Deliberately NOT RelatedGrid (the plain bordered-link row used
+   elsewhere): the brief for this pass asks the four other Lab projects to
+   read as distinct from the category rows above, each with a small,
+   restrained visual keyed to what that project actually is - not a fifth
+   repeat of "bordered rectangle, name, one line of grey text". All four
+   get the same size and treatment; nothing here is a featured card. */
+function JourneyArtifact() {
+  return (
+    <div aria-hidden className="flex flex-col items-center gap-1.5 py-1">
+      <span className="rounded-md bg-ink-950 px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wide text-white uppercase">
+        Trigger
+      </span>
+      <span className="h-3 w-px bg-line-strong" />
+      <span className="rounded-md border border-primary-300 bg-primary-50/60 px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wide text-primary-700 uppercase">
+        Condition
+      </span>
+      <span className="h-3 w-px bg-line-strong" />
+      <span className="rounded-md border border-line-strong bg-paper px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wide text-ink-600 uppercase">
+        Handoff
+      </span>
+    </div>
+  );
+}
+
+function LibraryArtifact() {
+  // A fanned stack, not a single card with a shadow - the back two layers
+  // use a visibly duller fill so "one of many" reads even at this size,
+  // and each is offset far enough (rotation + x/y) to actually show an
+  // edge past the front card rather than hide fully behind it.
+  const layers = [
+    { rotate: -9, x: -10, y: 3, bg: "bg-paper-soft", border: "border-line" },
+    { rotate: 6, x: 8, y: 5, bg: "bg-paper-soft", border: "border-line" },
+    { rotate: 0, x: 0, y: 0, bg: "bg-paper", border: "border-line-strong" },
+  ];
+  return (
+    <div aria-hidden className="relative flex h-[92px] w-full items-center justify-center">
+      {layers.map((l, i) => (
+        <div
+          key={i}
+          className={clsx("absolute h-14 w-24 rounded-md border shadow-[0_6px_14px_-8px_rgb(10_16_32/0.25)]", l.bg, l.border)}
+          style={{ transform: `translate(${l.x}px, ${l.y}px) rotate(${l.rotate}deg)`, zIndex: i }}
+        >
+          <div className="mx-2 mt-2 h-1.5 w-10 rounded-full bg-primary-200" />
+          <div className="mx-2 mt-1.5 h-1 w-14 rounded-full bg-line-strong" />
+          <div className="mx-2 mt-1 h-1 w-8 rounded-full bg-line-strong" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ExperimentArtifact() {
+  return (
+    <div aria-hidden className="flex flex-col items-center gap-2 py-1">
+      <span className="font-mono text-[9px] font-medium tracking-wide text-ink-400 uppercase">Hypothesis</span>
+      <div className="flex items-center gap-2">
+        <span className="grid size-8 place-items-center rounded-md border border-line-strong bg-paper font-mono text-[11px] font-semibold text-ink-700">
+          A
+        </span>
+        <span className="text-[10px] text-ink-300">vs</span>
+        <span className="grid size-8 place-items-center rounded-md border border-primary-300 bg-primary-50/60 font-mono text-[11px] font-semibold text-primary-700">
+          B
+        </span>
+      </div>
+      <span className="rounded-full bg-paper-soft px-2 py-0.5 font-mono text-[9px] text-ink-500">guardrail set</span>
+    </div>
+  );
+}
+
+function DashboardArtifact() {
+  return (
+    <div aria-hidden className="flex flex-col items-center gap-2 py-1">
+      <div className="flex h-10 items-end gap-1.5">
+        <span className="h-4 w-2.5 rounded-sm bg-line-strong" />
+        <span className="h-7 w-2.5 rounded-sm bg-primary-300" />
+        <span className="h-5 w-2.5 rounded-sm bg-line-strong" />
+        <span className="h-10 w-2.5 rounded-sm bg-primary-500" />
+        <span className="h-6 w-2.5 rounded-sm bg-line-strong" />
+      </div>
+      <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-mono text-[9px] font-medium text-emerald-700 uppercase">
+        Validated
+      </span>
+    </div>
+  );
+}
+
+const ARTIFACT_BY_SLUG: Record<string, () => React.ReactElement> = {
+  "claude-lifecycle": JourneyArtifact,
+  "lifecycle-card-archive": LibraryArtifact,
+  "ab-test-playbook": ExperimentArtifact,
+  "dashboard-builder": DashboardArtifact,
+};
+
+function OtherProjects({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
+  const items = c.related;
+  if (items.length === 0) return null;
   return (
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
-        <RelatedGrid title={c.relatedTitle} items={c.related} />
+        <ProductHeading eyebrow={t.relatedEyebrow} title={c.relatedTitle} align="center" />
+        <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
+          {items.map((item, i) => {
+            const Artifact = (item.slug && ARTIFACT_BY_SLUG[item.slug]) || null;
+            return (
+              <Reveal key={item.href} delay={i * 70}>
+                <a
+                  href={item.href}
+                  className="group flex h-full flex-col rounded-card border border-line bg-paper p-5 transition-colors hover:border-neutral-400 hover:bg-paper-soft"
+                >
+                  {Artifact ? (
+                    <div className="flex items-center justify-center rounded-lg bg-paper-soft py-3">
+                      <Artifact />
+                    </div>
+                  ) : null}
+                  <p className="mt-4 text-[15px] font-medium tracking-tight text-ink-950">{item.name}</p>
+                  {item.desc ? <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-ink-500">{item.desc}</p> : null}
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    {item.proof ? (
+                      <span className="font-mono text-[11px] text-ink-400 tabular-nums">{item.proof}</span>
+                    ) : (
+                      <span />
+                    )}
+                    <span className="flex items-center gap-1 text-[12.5px] font-medium text-ink-700 transition-colors group-hover:text-ink-950">
+                      {t.relatedCta}
+                      <ArrowRight aria-hidden className="size-3.5" />
+                    </span>
+                  </div>
+                </a>
+              </Reveal>
+            );
+          })}
+        </div>
       </PortraitContainer>
     </ProductSection>
   );
@@ -509,6 +556,7 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? `/tr/lab/${content.slug}` : `/lab/${content.slug}`;
   const path = lang === "en" ? `/lab/${content.slug}` : `/tr/lab/${content.slug}`;
+  const siteHref = content.primaryLinks[0]?.href ?? "https://www.numerspace.com";
 
   const jsonLd: object[] = [
     breadcrumbList([
@@ -517,23 +565,17 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
       { name: content.title, url: path },
     ]),
   ];
-  const appUrl = content.primaryLinks[0]?.href;
-  if (content.appSchema && appUrl) {
+  // No HowTo entry this pass: the page no longer walks a visible 1-2-3
+  // "how to use it" sequence (see this file's header comment), and a
+  // HowTo result should describe steps a visitor can actually see on the
+  // page, not steps that used to be here.
+  if (content.appSchema && siteHref) {
     jsonLd.push(
       webApplication({
         name: content.title,
         description: content.sub,
-        url: appUrl,
+        url: siteHref,
         applicationCategory: content.appSchema.applicationCategory,
-      }),
-    );
-  }
-  if (content.installSteps.length > 0) {
-    jsonLd.push(
-      howTo({
-        name: content.installTitle,
-        description: content.whatItDoes.body,
-        steps: content.installSteps.map((s) => ({ name: s.title, text: s.desc ?? s.title })),
       }),
     );
   }
@@ -544,14 +586,11 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
       <main>
         <Hero c={content} t={t} lang={lang} />
-        <WorkedExampleSection t={t} lang={lang} />
-        <CategoriesSection t={t} lang={lang} />
+        <WhySection t={t} />
+        <CategoriesSection t={t} lang={lang} siteHref={siteHref} />
         <PrivacySection t={t} />
-        <BilingualSection t={t} />
-        <AccuracySection t={t} lang={lang} />
-        <HowToSection c={content} t={t} />
         <Faq c={content} t={t} />
-        <Related c={content} />
+        <OtherProjects c={content} t={t} />
         <PageCta c={content} t={t} />
       </main>
       <SiteFooter t={copyT} lang={lang} />

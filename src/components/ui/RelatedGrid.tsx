@@ -1,6 +1,16 @@
 import Link from "next/link";
 
-export type RelatedItem = { href: string; name: string; desc?: string };
+export type RelatedItem = {
+  href: string;
+  name: string;
+  desc?: string;
+  /** Optional extras a bespoke page's own related-items rendering may use
+      instead of this grid (e.g. NumerspacePage's per-project artifact
+      cards) - RelatedGrid itself ignores them, so adding them here never
+      changes how any existing "related" list renders. */
+  slug?: string;
+  proof?: string;
+};
 
 /** Reusable "related items" row (Product Page building block #3) - same
     card language as CalculatorIndexPage's own category links
