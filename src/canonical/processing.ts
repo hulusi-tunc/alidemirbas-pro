@@ -163,7 +163,9 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
     entity: {
       scope: "the individual work item, keyed by its own idempotency and correlation identifiers",
-      note: "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed.",
+      note: "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed. logical_operation_key is the caller-supplied identity of the business operation this work item represents - accepting work twice under the same key resolves to the one existing work record, never a second one; work_id is this mechanism's own record identity, minted at acceptance and distinct from logical_operation_key the same way CMS-206's attempt_id is distinct from message_id (this domain's own version of the same invocation-identity-versus-record-identity distinction). correlation_id, also persisted at acceptance, is a separate concern from either - it exists purely to trace one logical operation across the mechanisms it passes through (OPS-122 through OPS-130), not to gate any write.",
+      instanceKey: ["work_id", "logical_operation_key"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -191,9 +193,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.persist",
         kind: "action",
-        does: "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it",
+        does: "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it. Acceptance is itself idempotent on logical_operation_key: a second t.accepted for the same key returns the existing work_id rather than minting a new one",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.immediate",
+        idempotencyKey: "logical_operation_key + a.persist",
       },
       {
         id: "c.immediate",
@@ -210,6 +213,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record QUEUED. Queued is a healthy state and not a failure - work waiting its turn is the normal condition of an asynchronous system",
         writes: [{ field: "work_log", mode: "append" }],
         next: "w.start",
+        idempotencyKey: "work_id + a.queued",
       },
       {
         id: "w.start",
@@ -230,9 +234,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         to: "OPS-122",
         on: "work exceeding its queue SLA without starting",
         carries: [
-          "the work class, the item's age and its deadline",
+          "workload_class, the item's age and its deadline",
           "the fact that the item has not failed - it has not been started",
         ],
+        contract: { requiredFields: ["workload_class"] },
       },
       {
         id: "c.started",
@@ -257,9 +262,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.processing",
         kind: "action",
-        does: "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
+        does: "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started, minting attempt_number fresh for this specific execution try. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
         writes: [{ field: "work_log", mode: "append" }],
         next: "w.execution",
+        idempotencyKey: "work_id + attempt_number + a.processing",
       },
       {
         id: "w.execution",
@@ -371,6 +377,8 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the queue or workload class that is lagging, assessed per class",
       note: "Different work classes carry different SLAs. A single queue-wide verdict either over-reacts for the tolerant classes or under-reacts for the urgent ones.",
+      instanceKey: ["workload_class"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -401,6 +409,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Measure depth, the age of the oldest unfinished item, throughput, arrival rate, which workload classes are affected and what SLA exposure that creates. Age is the signal that matters - a deep queue draining fast is healthy, and a shallow one that has not moved in an hour is not",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "c.burst",
+        idempotencyKey: "workload_class + a.measure",
       },
       {
         id: "c.burst",
@@ -433,6 +442,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record LAGGING for the affected workload classes, scoped to them rather than to the whole queue",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "c.sla",
+        idempotencyKey: "workload_class + a.lagging",
       },
       {
         id: "c.sla",
@@ -457,6 +467,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the operational response and degrade or escalate the affected capability. An external commitment at risk is what makes this urgent rather than merely untidy, and it is the difference between an engineering task and an incident",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "h.escalate",
+        idempotencyKey: "workload_class + a.urgent",
       },
       {
         id: "a.response",
@@ -464,6 +475,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the defined operational response - capacity scaling, priority adjustment, delaying non-critical classes, rate control. Work is never silently dropped to make the metric look healthy, because that converts a visible backlog into an invisible loss",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "w.recovery",
+        idempotencyKey: "workload_class + a.response",
       },
       {
         id: "w.recovery",
@@ -539,7 +551,9 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
     entity: {
       scope: "the individual in-flight work item and the worker that holds it",
-      note: "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it.",
+      note: "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it. This is the same lease concept OPS-128 names explicitly for worker failure, applied here to a work item whose owner is still nominally alive but has stopped progressing: a.reclaim only transfers ownership once the current lease is confirmed expired or explicitly released, never on the strength of the stall signal alone.",
+      instanceKey: ["work_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.threshold",
     nodes: [
@@ -564,6 +578,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inspect the last recorded progress, who owns it, whether the lease or lock is still live, whether it is blocked on an external dependency, the attempt state, and which side effects have already been produced. The last of those decides everything that follows",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.progressing",
+        idempotencyKey: "work_id + a.inspect",
       },
       {
         id: "c.progressing",
@@ -596,6 +611,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record STALLED against this attempt, with what the inspection found",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.side-effects",
+        idempotencyKey: "work_id + a.stalled",
       },
       {
         id: "c.side-effects",
@@ -645,9 +661,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.reclaim",
         kind: "action",
-        does: "Reclaim and restart according to the execution semantics, coordinating ownership so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
+        does: "Reclaim and restart according to the execution semantics, transferring the work item's lease so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.recovered",
+        idempotencyKey: "work_id + a.reclaim",
       },
       {
         id: "x.recovered",
@@ -690,7 +707,9 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
     entity: {
       scope: "the work item together with its durable attempt history",
-      note: "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself.",
+      note: "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself. Two different identities are in play here, deliberately not merged into one: logical_operation_key (carried unchanged from OPS-121, the same value on every retry) is what a.attempt sends downstream so a receiver that already processed one physical try can absorb a repeat under it - the side-effect idempotency identity. attempt_number is a separate, incrementing counter scoped to this mechanism's own bookkeeping only (backoff calculation, diagnosability) and is never itself sent downstream as a dedup key - encoding it into the downstream key would turn every retry into a fresh, undeduped operation, exactly the failure this design avoids.",
+      instanceKey: ["work_id", "logical_operation_key"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -720,6 +739,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the failure class, the attempt number, when it last failed, how certain we are about side effects, and retry eligibility. The attempt count is durable and does not reset because a worker restarted - a counter held in process memory is a retry budget that renews itself every deploy",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.safe",
+        idempotencyKey: "work_id + attempt_number + a.record",
       },
       {
         id: "c.safe",
@@ -760,6 +780,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Calculate the policy-defined backoff for this attempt number",
         writes: [{ field: "work_log", mode: "append" }],
         next: "w.retry",
+        idempotencyKey: "work_id + attempt_number + a.backoff",
       },
       {
         id: "w.retry",
@@ -787,6 +808,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Revalidate the work and its target entity against current state before attempting anything. Time passed during the backoff, and a retry that executes an instruction written against a state that has since moved is worse than not retrying at all",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.required",
+        idempotencyKey: "work_id + attempt_number + a.revalidate",
       },
       {
         id: "c.required",
@@ -812,9 +834,15 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.attempt",
         kind: "action",
-        does: "Execute the retry idempotently, under the same idempotency key, so that a downstream that did receive the first attempt can absorb this one",
+        does: "Execute the retry idempotently, under logical_operation_key - the same value on every physical try - so that a downstream that did receive an earlier attempt can absorb this one rather than double-processing it. attempt_number still advances for this mechanism's own bookkeeping; it is never itself part of what the downstream dedupes on",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.result",
+        idempotencyKey: "logical_operation_key + a.attempt",
+        attemptBudget: {
+          key: "retryable_failure_recovery.attempt_budget",
+          rule: "Fixed once when the work item's retry history opens, durable across worker restarts; never renewed by revalidation, by backoff completing, or by delegation from another mechanism.",
+          required: true,
+        },
       },
       {
         id: "c.result",
@@ -875,7 +903,9 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
     entity: {
       scope: "the logical business operation, and the work instances claiming to be it",
-      note: "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for.",
+      note: "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for. logical_operation_key is the same field OPS-121/OPS-124 carry - deduplication here compares against it directly rather than against a second, independently-invented identity.",
+      instanceKey: ["logical_operation_key"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.duplicate",
     nodes: [
@@ -897,9 +927,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.compare",
         kind: "action",
-        does: "Compare the stable identifiers: the idempotency key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
+        does: "Compare the stable identifiers: logical_operation_key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
         writes: [{ field: "dedup_log", mode: "append" }],
         next: "c.same",
+        idempotencyKey: "logical_operation_key + a.compare",
       },
       {
         id: "c.same",
@@ -954,6 +985,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reuse the existing result where it remains valid, and suppress the duplicate execution rather than running it and discarding the output",
         writes: [{ field: "dedup_log", mode: "append" }],
         next: "x.suppressed",
+        idempotencyKey: "logical_operation_key + a.reuse",
       },
       {
         id: "x.suppressed",
@@ -968,6 +1000,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Attach to the in-flight execution and wait for its outcome rather than starting a second one, where the architecture permits it. Where it does not, the duplicate is suppressed instead",
         writes: [{ field: "dedup_log", mode: "append" }],
         next: "x.attached",
+        idempotencyKey: "logical_operation_key + a.attach",
       },
       {
         id: "x.attached",
@@ -1010,6 +1043,8 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the composite job and each child operation individually",
       note: "Children are classified individually and the parent state is recomputed from them. A single verdict across the batch either replays successes or abandons recoverable failures.",
+      instanceKey: ["composite_job_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.mixed",
     nodes: [
@@ -1029,6 +1064,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify each child as COMPLETED, FAILED_RETRYABLE, FAILED_TERMINAL, PENDING or UNKNOWN, and record PARTIALLY_COMPLETED for the parent. Successful children are never replayed - in a batch with side effects, re-running the successes is a larger incident than the original failure",
         writes: [{ field: "composite_work_log", mode: "append" }],
         next: "c.policy",
+        idempotencyKey: "composite_job_id + a.classify",
       },
       {
         id: "c.policy",
@@ -1091,8 +1127,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         on: "failed children that can be retried independently",
         carries: [
           "only the failed child scope",
+          "each failed child's own work_id and logical_operation_key, established when it was individually accepted as work - a composite job's failure does not invent new identity for its children",
           "the explicit boundary that the completed children are not part of this retry",
         ],
+        contract: { requiredFields: ["work_id", "logical_operation_key"] },
       },
       {
         id: "h.compensate",
@@ -1117,6 +1155,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Recalculate the parent state from the authoritative child outcomes using the aggregation policy, rather than from the events that reported them. Partial completion is not total failure, and the parent's state has to be able to say which of the two it is",
         writes: [{ field: "composite_work_log", mode: "append" }],
         next: "x.recomputed",
+        idempotencyKey: "composite_job_id + a.recompute",
       },
       {
         id: "x.recomputed",
@@ -1149,7 +1188,9 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
     entity: {
       scope: "the dead-lettered item, linked to the original work it came from",
-      note: "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure.",
+      note: "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure. replay_id (minted at a.correct) is a fresh identity for the new attempt, carrying original_work_id forward as its own link back - the same parent/child attempt-chain shape CMS-208's minted attempt_ids use, applied here at the dead-letter granularity.",
+      instanceKey: ["work_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1178,6 +1219,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve the original payload or a reference to it, the target entity, the full attempt history, the failure reasons, the last known side-effect state, and the created and dead-lettered timestamps. Dead-lettered is not deleted - it is work automation could not finish, and someone now owns it",
         writes: [{ field: "dead_letter_log", mode: "append" }],
         next: "c.uncertain",
+        idempotencyKey: "work_id + a.preserve",
       },
       {
         id: "c.uncertain",
@@ -1237,9 +1279,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.correct",
         kind: "action",
-        does: "Correct the authoritative problem, then create a controlled replay linked to the original work. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
+        does: "Correct the authoritative problem, then mint replay_id and create a controlled replay linked to the original work via original_work_id. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
         writes: [{ field: "dead_letter_log", mode: "append" }],
         next: "x.replayed",
+        idempotencyKey: "work_id + a.correct",
       },
       {
         id: "x.replayed",
@@ -1254,6 +1297,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the item as obsolete with the reason recorded. Closing with a reason and abandoning silently produce the same queue depth and entirely different accountability",
         writes: [{ field: "dead_letter_log", mode: "append" }],
         next: "x.obsolete",
+        idempotencyKey: "work_id + a.close",
       },
       {
         id: "x.obsolete",
@@ -1319,7 +1363,9 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
     entity: {
       scope: "the failed worker and each in-flight work item it owned",
-      note: "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies.",
+      note: "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies. lease_id identifies the current lease on work_id; c.lease's own branch is what makes waiting out an unexpired lease the default over reclaiming on suspicion, and c.confirmed's completion check runs before either resume path is even considered - the order these three checks run in is itself the safety property, not just their individual correctness.",
+      instanceKey: ["work_id", "lease_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.worker-down",
     nodes: [
@@ -1342,6 +1388,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify the affected work using the lease, the heartbeat, the execution record, any checkpoint and the ownership metadata",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.lease",
+        idempotencyKey: "work_id + lease_id + a.identify",
       },
       {
         id: "c.lease",
@@ -1431,16 +1478,18 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.checkpoint",
         kind: "action",
-        does: "Resume from the checkpoint under new ownership, so the completed portion is not repeated",
+        does: "Resume from the checkpoint under new ownership, minting a fresh lease_id for the new owner, so the completed portion is not repeated",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.resumed",
+        idempotencyKey: "work_id + a.checkpoint",
       },
       {
         id: "a.restart",
         kind: "action",
-        does: "Reclaim and restart idempotently, with ownership coordinated so no second worker can take it concurrently",
+        does: "Reclaim and restart idempotently, minting a fresh lease_id so no second worker can take it concurrently",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.resumed",
+        idempotencyKey: "work_id + a.restart",
       },
       {
         id: "x.resumed",
@@ -1485,6 +1534,8 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the accumulated backlog, inventoried by workload class",
       note: "Arrival order is not the drain order. New urgent work should not wait behind old obsolete work simply because the old work arrived first.",
+      instanceKey: ["workload_class"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1514,6 +1565,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inventory the backlog by age, priority, business validity, deadline, dependency and customer impact. The inventory is what turns the drain into a decision rather than a flush",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "c.relevant",
+        idempotencyKey: "workload_class + a.inventory",
       },
       {
         id: "c.relevant",
@@ -1538,6 +1590,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Cancel or suppress the stale work with its reason recorded. A customer-facing action that was right when it was queued may be wrong now, and delivering it because it was once queued is the specific failure this step prevents",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "a.strategy",
+        idempotencyKey: "workload_class + a.cancel",
       },
       {
         id: "a.strategy",
@@ -1545,6 +1598,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the drain strategy - priority-based, rate-limited, dependency-aware, oldest-valid-first, or whatever the policy defines. New high-priority work does not necessarily wait behind older obsolete backlog, and a strict arrival order would make it",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "a.drain",
+        idempotencyKey: "workload_class + a.strategy",
       },
       {
         id: "a.drain",
@@ -1552,6 +1606,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Drain gradually, within downstream capacity, preserving each item's original deadline and business context",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "w.monitor",
+        idempotencyKey: "workload_class + a.drain",
       },
       {
         id: "w.monitor",
@@ -1574,6 +1629,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reduce the drain rate. A recovery that takes the system down again is not a recovery, and the second outage looks like a new fault rather than our own doing",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "c.floor",
+        idempotencyKey: "workload_class + a.throttle",
       },
       {
         id: "c.floor",
@@ -1634,6 +1690,8 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the completed technical job and the business entity it was meant to change",
       note: "Verification is idempotent, so checking twice costs nothing and proves the same thing. That is what makes it safe to run on every completion.",
+      instanceKey: ["work_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.technical",
     nodes: [
@@ -1673,6 +1731,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Finalize the work as complete, recording that technical completion was authoritative for this work type",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.complete",
+        idempotencyKey: "work_id + a.finalize",
       },
       {
         id: "x.complete",
@@ -1684,9 +1743,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.verify",
         kind: "action",
-        does: "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent, so running it on every completion costs nothing and proves the same thing each time",
+        does: "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent by construction (re-checking recomputes the same conclusion from current state), and its own idempotencyKey is a consistent structural marker rather than the thing making repetition safe",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.confirmed",
+        idempotencyKey: "work_id + a.verify",
       },
       {
         id: "c.confirmed",
@@ -1716,6 +1776,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record BUSINESS_COMPLETED, which is the state that closes the obligation the work existed to serve",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.business-complete",
+        idempotencyKey: "work_id + a.business-complete",
       },
       {
         id: "x.business-complete",

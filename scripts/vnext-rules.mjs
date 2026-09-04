@@ -79,6 +79,13 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
     // See src/canonical/surface.ts's SurfaceAssignment comment for why this is not called
     // `communicating` - that name meant two different things in two different places.
     const orchestrated = isCustomer && (surf.sends || surf.routesToHuman);
+    // Runtime Mechanism gap-closure round: the 24 mechanisms are not vNext-migrated (none
+    // declares `measurement`), so `vnext` is false for all of them and `sev` alone would leave
+    // every mechanism-scoped rule below at warn regardless of how the corpus actually stands.
+    // isMechanism is checked directly against MECHANISM_IDS instead, the same way isCustomer is
+    // checked directly against the customer-surface rule, rather than waiting on a vNext
+    // migration this round does not attempt.
+    const isMechanism = surf.surface === "mechanism";
 
     // ---- triggers and registry
     const trig = byId[j.entry];
@@ -159,7 +166,8 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
       }
     }
 
-    // ---- Validator C: state-write idempotency (silent-lifecycle-state gap-closure round)
+    // ---- Validator C: state-write idempotency (silent-lifecycle-state gap-closure round;
+    // severity widened to the 24 Runtime Mechanisms in the runtime-mechanism gap-closure round)
     // A state-changing action - one that appends to a history/log field, the replay-unsafe write
     // shape this whole corpus uses for durable state (see CLAUDE.md's canonical-journey section:
     // `writes` with `mode: "append"`) - must declare an idempotencyKey, or a retried/redelivered
@@ -170,17 +178,21 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
     // heuristic (`tx_no_idempotency`, unchanged above) - it is a structural check against the
     // node's own `writes` array, not a guess from the `does` text, so it has effectively no false-
     // positive risk: an append with no key is never intentional in this corpus. Found and fixed
-    // three cases this round (SCH-174, SCH-177, TIM-65 - every writing action on all three had no
-    // idempotencyKey at all). Severity is scoped to this round's own corpus - the 64 silent
-    // lifecycle states (`isCustomer && !orchestrated`) - not the full customer surface: re-running
-    // this check corpus-wide also found the same defect shape in a handful of the 68 message-
-    // sending journeys (ACQ-11/12/13, RET-26/28/31/32, FBK-43/46, FIN-134, SUB-163, DOC-215), which
-    // is real, newly-discovered debt but out of this round's scope to fix (see this round's brief:
-    // "do NOT work on the 68 message-sending journeys again") - so it stays a warning there,
-    // reviewed in production/vnext-warning-reviews.json, for a future round in that domain.
+    // three cases in the silent-lifecycle-state round (SCH-174, SCH-177, TIM-65) and every
+    // remaining instance across all 24 Runtime Mechanisms in the runtime-mechanism round (see
+    // research/runtime-mechanism-production-readiness/FIXES-APPLIED.md) - re-running this rule
+    // after that round found 0 violations left among the 24, which is what makes raising them to
+    // error safe rather than merely aspirational. Severity is scoped to the silent lifecycle
+    // states (`isCustomer && !orchestrated`) and, independently, to the 24 Runtime Mechanisms
+    // (`isMechanism`) - not the full customer or operational surface: re-running this check
+    // corpus-wide also found the same defect shape in a handful of the 68 message-sending
+    // journeys (ACQ-11/12/13, RET-26/28/31/32, FBK-43/46, FIN-134, SUB-163, DOC-215) and in the
+    // 124 Operational Workflows, which is real, newly-discovered debt but out of either round's
+    // scope to fix - so it stays a warning there, reviewed in production/vnext-warning-reviews.json,
+    // for a future round in each of those domains.
     {
       const silentInScope = isCustomer && !orchestrated;
-      const stateSev = (code, msg) => (silentInScope && vnext ? err : warn)(code, j.id, msg);
+      const stateSev = (code, msg) => ((silentInScope && vnext) || isMechanism ? err : warn)(code, j.id, msg);
       for (const n of j.nodes) {
         if (n.kind !== "action" || n.idempotencyKey) continue;
         if ((n.writes ?? []).some((w) => w.mode === "append")) {
@@ -209,6 +221,66 @@ export function checkVnext({ all, registry, surfaceFile, mechanismIds, customerC
           const missing = key.filter((k) => !parts.has(k));
           if (missing.length) warn("composite_instance_key_component_missing", j.id, `action "${n.id}" idempotencyKey "${n.idempotencyKey}" omits [${missing.join(", ")}] from entity.instanceKey [${key.join(", ")}] - confirm this narrower scope is intentional`);
         }
+      }
+    }
+
+    // ---- Validator H: attempt identity provenance (runtime-mechanism gap-closure round,
+    // mechanism-scoped, warn-only by design)
+    // Where a Runtime Mechanism's own idempotencyKey references a token that looks like an
+    // attempt-shaped identity (attempt_id, attempt_number, lease_id, replay_id - anything matching
+    // /attempt|lease|replay/i), its provenance - caller-supplied before this mechanism runs,
+    // self-minted on entry, or correlated to a prior attempt - has to be stated somewhere a human
+    // can find it, per this round's own "attempt key fields must exist before the attempted side
+    // effect" requirement (see research/runtime-mechanism-production-readiness/FIXES-APPLIED.md).
+    // This is a textual heuristic in the same spirit as Validator A's field-provenance check, not a
+    // structural guarantee: it looks for provenance language (before/mint/caller/self-minted/
+    // correlat/durable/fresh) in the journey's own entity.note, which is exactly where this round's
+    // fixes documented it (see CMS-206, OPS-121, OPS-124, OPS-128's own entity.note text). A
+    // mechanism that names an attempt-shaped field without that language nearby is a genuine
+    // prompt to check, not a proven defect - kept at warn for that reason, mechanism-scoped only so
+    // it never touches the customer-facing corpus this round did not re-audit.
+    if (isMechanism) {
+      const attemptFieldRe = /\b(attempt|lease|replay)\b/i;
+      const provenanceRe = /\b(before|mint|caller|self-minted|correlat|durable|fresh)/i;
+      const note = j.entity?.note ?? "";
+      for (const n of j.nodes) {
+        if (n.kind !== "action" || !n.idempotencyKey) continue;
+        const attemptTokens = n.idempotencyKey.split("+").map((s) => s.trim()).filter((t) => attemptFieldRe.test(t));
+        if (attemptTokens.length && !provenanceRe.test(note)) {
+          warn("attempt_identity_unprovenanced", j.id, `action "${n.id}" idempotencyKey "${n.idempotencyKey}" references an attempt-shaped identity (${attemptTokens.join(", ")}) but entity.note says nothing about where it comes from or when it is established relative to the side effect`);
+        }
+      }
+    }
+
+    // ---- Validator I: freshness before consequential execution (runtime-mechanism gap-closure
+    // round, mechanism-scoped, warn-only by design)
+    // A wait whose onTimeout reaches a writes-bearing action or a handoff without an intervening
+    // recheck is the same defect the silent-lifecycle-state round's Validator E already checks for
+    // the customer-facing corpus - but that validator's literal recheck-field-presence check does
+    // not transfer here unmodified: several Runtime Mechanisms (CMS-205, OPS-124, OPS-129) already
+    // satisfy the underlying house rule through a dedicated revalidation action rather than a
+    // `recheck` string, and flagging all of them would misreport already-correct behaviour as a
+    // gap. This adapted version accepts either: `recheck` is set, or the wait's own timeout target
+    // (or, one hop further, a condition's own branch targets) is itself a revalidation-shaped
+    // action - its own id or `does` text matching /revalidat|re-read|reread|recheck|reevaluat/i.
+    if (isMechanism) {
+      const revalidateRe = /revalidat|re-read|reread|recheck|reevaluat/i;
+      const isRevalidating = (id) => {
+        const n = byId[id];
+        if (!n) return false;
+        if (revalidateRe.test(n.id)) return true;
+        if (n.kind === "action" && revalidateRe.test(n.does ?? "")) return true;
+        return false;
+      };
+      for (const w of waits) {
+        if (!w.onTimeout) continue;
+        if (typeof w.recheck === "string" && w.recheck.trim()) continue;
+        const target = byId[w.onTimeout];
+        const mutates = target && (target.kind === "handoff" || (target.kind === "action" && (target.writes ?? []).length));
+        if (!mutates) continue;
+        const nearby = [w.onTimeout, ...successors(target)];
+        if (nearby.some(isRevalidating)) continue;
+        warn("freshness_before_execution", j.id, `wait "${w.id}" times out into "${w.onTimeout}", which mutates state or hands off ownership, with no recheck and no nearby revalidation action found within two hops`);
       }
     }
 

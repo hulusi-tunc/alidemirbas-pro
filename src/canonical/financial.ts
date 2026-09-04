@@ -1476,9 +1476,11 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         to: "OPS-125",
         on: "a second attempt arriving while the first is unresolved",
         carries: [
+          "logical_operation_key - this payment's own stable attempt identifier, the same value on both the first and second attempt - which is what OPS-125 compares against, not either attempt's own payment-provider reference",
           "both attempts, their identifiers and the unresolved state of the first",
           "the duplicate-charge risk, which is what makes correlation mandatory here rather than optimisation",
         ],
+        contract: { requiredFields: ["logical_operation_key"] },
       },
       {
         id: "c.bounded",

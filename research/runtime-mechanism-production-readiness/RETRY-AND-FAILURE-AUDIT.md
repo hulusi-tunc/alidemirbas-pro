@@ -4,7 +4,28 @@ What happens after a failure is classified: retryable, terminal, unknown, timeou
 late callback, attempt budgets, and the double-retry-ownership risk this round's brief names
 explicitly. Companion to `SIDE-EFFECT-AND-IDEMPOTENCY-AUDIT.md`.
 
-## The retry contract, corpus-wide
+## POST-REPAIR UPDATE
+
+**The CMS-208/OPS-124 retry-ownership ambiguity below is resolved: CMS-208 owns its own complete
+channel-aware retry loop end-to-end and does not delegate to OPS-124.** `CMS-208`'s own
+`distinctFrom` is corrected to state this explicitly (reading 1 in the section below is now the
+settled architecture, not an open question), reasoned from the graph's own already-self-contained
+shape and from channel-specific failure classification being domain knowledge OPS-124 deliberately
+does not carry (Option B of the three architectures the repair brief offered — the smallest change
+consistent with existing corpus semantics). `a.retry` now declares a formal `attemptBudget`
+(`required: true`, no invented number) scoped to `(message_id, destination_id)` — one durable
+budget, not two. `OPS-124`'s own `a.attempt` now separately declares its own `attemptBudget`
+scoped to `(work_id, logical_operation_key)` for the generic-work case it actually owns; the two
+budgets are for genuinely different operations, not a shared one split in two.
+
+Both mechanisms' attempt budgets are now structural (`ActionNode.attemptBudget`), not prose-only —
+see `SIDE-EFFECT-AND-IDEMPOTENCY-AUDIT.md`'s post-repair update. The unknown-outcome table below
+(8 of 8 correct) is unchanged by this round: the logic was already correct, only the identity
+fields it depends on were formalized. **The rest of this document is the original audit-round
+text, kept for reference — where it frames CMS-208/OPS-124 as an unresolved question, that
+question is now answered as described above.**
+
+## The retry contract, corpus-wide (audit-round record)
 
 Five mechanisms own an actual retry loop or a retry-adjacent budget: `CMS-208`, `OPS-121` (via its
 own `h.retry` handoff, though the loop itself lives downstream), `OPS-124` (the generic engine),

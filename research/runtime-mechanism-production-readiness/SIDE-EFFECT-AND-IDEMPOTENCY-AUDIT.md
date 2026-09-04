@@ -5,7 +5,34 @@ duplicate what it did. Companion to `RETRY-AND-FAILURE-AUDIT.md` (which covers w
 failure is classified) and `RUNTIME-MECHANISMS-AUDIT.md`'s per-mechanism `IDEMPOTENCY / ATTEMPT
 IDENTITY` sections (the underlying data this document summarizes).
 
-## The corpus-wide fact this document exists to explain
+## POST-REPAIR UPDATE
+
+**The corpus-wide gap this document originally reported is closed.** All 24 mechanisms now declare
+`entity.instanceKey`/`entity.concurrency`, and every writing action across the 24 declares
+`idempotencyKey` (`CMS-208`'s and `OPS-124`'s retry actions additionally declare `attemptBudget`).
+The three-identity distinction the repair brief required (invocation / side-effect idempotency /
+attempt) is realized concretely per mechanism, using the existing `ActionNode.idempotencyKey`/
+`attemptBudget` schema primitives — no parallel framework was invented. The 8 mechanisms this
+document's table names as prose-only are now structural:
+
+| Mechanism | What it names | Structural field now |
+|---|---|---|
+| OPS-121 | "the idempotency and correlation keys" | `entity.instanceKey: [work_id, logical_operation_key]`; `idempotencyKey` on every writing action |
+| OPS-124 | "the same idempotency key" | `entity.instanceKey: [work_id, logical_operation_key]`; `a.attempt.idempotencyKey = "logical_operation_key + a.attempt"`; `attemptBudget` declared |
+| OPS-125 | "the idempotency key, the business operation identity" | `entity.instanceKey: [logical_operation_key]`; same field OPS-121/OPS-124 mint and carry |
+| CMS-206 | "the message id, the attempt id" | `entity.instanceKey: [message_id, attempt_id]`, both caller-supplied per `entity.note`'s explicit provenance statement |
+| CON-35 | "origin and version" | `entity.instanceKey: [person_id, change_version]`; `change_origin`/`change_version` are declared `idempotencyKey` fields |
+| CON-40 | "origin and version," "idempotent versioned writes" | `entity.instanceKey: [person_id, disputed_permission_ref]`; `a.apply`/`a.verify` both key on `change_version` |
+| OPS-127 | attempt linked to original | `entity.instanceKey: [work_id]`; `a.correct` mints `replay_id`, linked via `original_work_id` |
+| OPS-128 | lease, checkpoint | `entity.instanceKey: [work_id, lease_id]`; `a.checkpoint`/`a.restart` both mint a fresh `lease_id` |
+
+Full before/after per mechanism is in `FIXES-APPLIED.md`'s "Idempotency" and "Attempt identity"
+subsections. Zero canonical graph topology changed — every fix above is `entity`/`ActionNode`
+metadata or a `does`-text correction. **The rest of this document is the original audit-round
+text, kept for reference; where it says a field is undeclared, that finding has been fixed as
+described above.**
+
+## The corpus-wide fact this document exists to explain (audit-round record)
 
 Zero of the 24 mechanisms declare `idempotencyKey` or `attemptBudget` on any action — both fields
 already exist on `ActionNode` in `src/canonical/types.ts` and are used pervasively across the

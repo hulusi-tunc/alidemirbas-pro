@@ -4,7 +4,33 @@ Duplicate workers, simultaneous journeys, stale queued work, race conditions, co
 ownership races, version changes, and causal ordering, across the 24. Companion to
 `RETRY-AND-FAILURE-AUDIT.md` and `RUNTIME-MECHANISMS-AUDIT.md`'s Part 14 finding.
 
-## Concurrency primitives named or needed, by mechanism
+## POST-REPAIR UPDATE
+
+**The one confirmed race (CMS-201) is fixed.** `a.create` is now atomic create-if-absent on
+`(recipient_id, obligation_subject)` — `entity.instanceKey: [recipient_id, obligation_subject]`,
+`entity.concurrency: "one-active-per-key"`, `idempotencyKey: "recipient_id + obligation_subject +
+a.create"`. `c.existing`'s prior read is now documented explicitly in `entity.note` as a
+non-authoritative fast path, not the safety mechanism — a losing concurrent caller resolves to the
+existing obligation rather than duplicating it. Zero topology change: the fix is entity/action
+metadata plus a `does`-text correction on the existing `a.create` node, not a new or rewired node.
+Full before/race/after is in `FIXES-APPLIED.md`'s CMS-201 section.
+
+**OPS-123's vocabulary is now aligned with OPS-128's lease concept**, per this section's own prior
+recommendation: `entity.note` states directly that OPS-123's coordination is the same lease OPS-128
+uses, applied to a work item whose owner is still nominally alive; `a.reclaim`'s own text now says
+"transferring the work item's lease" rather than the earlier generic "coordinating ownership."
+
+**Conflict/exclusivity arbitration (the section below) is now conclusively investigated, not left
+ambiguous.** The answer is Outcome C from the repair brief's own three-way test: no runtime
+primitive exists anywhere in this repository (all 24 mechanisms, the remaining 259 journeys, and
+the site's own rendering layer were checked directly). This is now reported as a **P0 architectural
+blocker**, not an open question between "defect" and "scope boundary" — see
+`COMPETITION-ARBITRATION-ARCHITECTURE.md` for the full investigation and required contract if one
+is built. It is deliberately not resolved by adding a mechanism this round, per the brief's
+explicit instruction reserving that decision. **The rest of this document is the original
+audit-round text, kept for reference.**
+
+## Concurrency primitives named or needed, by mechanism (audit-round record)
 
 | Primitive | Count | Mechanisms |
 |---|---|---|

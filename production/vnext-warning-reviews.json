@@ -1651,6 +1651,22 @@
    "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
    "reviewedBy": "silent-lifecycle-state gap-closure round",
    "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-261",
+   "code": "handoff_identifier_unprovenanced",
+   "match": "handoff \"h.unreachable\"",
+   "note": "Surfaced by the Runtime Mechanism gap-closure round giving CON-36 a real entity.instanceKey (contact_point_id) for the first time. Not a defect this round's fix introduced: ACC-261's h.unreachable fires once every permitted route has been exhausted, not against one specific contact point, so it structurally cannot carry a single contact_point_id - each individual destination's own UNDELIVERABLE transition already reaches CON-36 separately via its own t.contactability trigger. This handoff is escalation/context for a person-level exhaustion finding, which CON-36's own design deliberately has no single-identity entry point for (see CON-36's own guardrail: no person-level reachable flag). Left as a documented, reviewed gap rather than forcing an invented contact_point_id onto a handoff that does not have one; resolving it properly would mean either CON-36 gaining an aggregate/person-scoped view or ACC-261 iterating per destination, both out of this round's scope (do not invent data, do not add canonical topology to satisfy a validator).",
+   "reviewedBy": "runtime-mechanism gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FUL-276",
+   "code": "handoff_identifier_unprovenanced",
+   "match": "handoff \"h.unreachable\"",
+   "note": "Same finding and same reasoning as ACC-261's h.unreachable, above - an independent instance of the identical shape (all permitted routes exhausted, no single contact_point_id to carry) into the same target.",
+   "reviewedBy": "runtime-mechanism gap-closure round",
+   "reviewedAt": "2026-09-04"
   }
  ]
 }

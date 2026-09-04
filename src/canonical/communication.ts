@@ -189,7 +189,9 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Decide whether anyone is actually owed a message about what happened, before any message exists.",
     entity: {
       scope: "the business event, the recipient it concerns, and the communication obligation it may create",
-      note: "The obligation is a separate entity from the event. It carries its own purpose, its own required outcome and its own relevance window.",
+      note: "The obligation is a separate entity from the event. It carries its own purpose, its own required outcome and its own relevance window. recipient_id + obligation_subject is the obligation's own logical identity, established the moment eligibility is confirmed (c.required) - not invented for this note. a.create is the atomic authority for that identity: c.existing is a fast-path read that lets an obviously-duplicate event fold in without ever reaching a.create, but the actual at-most-one guarantee belongs to a.create itself, which resolves to the canonical obligation for (recipient_id, obligation_subject) whether that means creating it or discovering that a concurrent caller already did - two concurrent callers for the same identity settle on one obligation between them, never two.",
+      instanceKey: ["recipient_id", "obligation_subject"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -220,6 +222,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the event type, the recipient, whether a communication requirement actually exists for it, the purpose, the urgency, the entity's current state, any equivalent communication already outstanding, and the applicable communication rules",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.required",
+        idempotencyKey: "recipient_id + a.evaluate",
       },
       {
         id: "c.required",
@@ -244,6 +247,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record that no obligation was created, and why. Every event generating a message is how people learn to ignore all of them, and then the one that mattered arrives in a stream nobody opens",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "x.none",
+        idempotencyKey: "recipient_id + a.suppress",
       },
       {
         id: "x.none",
@@ -256,7 +260,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.existing",
         kind: "condition",
-        asks: "Is an equivalent communication already outstanding for this recipient?",
+        asks: "Is an equivalent communication already outstanding for this recipient, as far as a non-atomic read can tell?",
         branches: [
           {
             label: "One exists and can absorb this",
@@ -264,8 +268,8 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "a.reuse",
           },
           {
-            label: "None, or it cannot be merged",
-            when: "nothing outstanding covers it, or the two are genuinely different messages",
+            label: "None visible yet, or it cannot be merged",
+            when: "nothing outstanding covers it by this read, or the two are genuinely different messages - a.create is the authority that actually settles the identity, this branch only decides whether it is worth trying",
             to: "a.create",
           },
         ],
@@ -276,6 +280,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the existing obligation rather than creating a second. A duplicate event producing a duplicate message means the recipient is told twice about one thing, and the second telling makes them doubt the first",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "x.reused",
+        idempotencyKey: "recipient_id + obligation_subject + a.reuse",
       },
       {
         id: "x.reused",
@@ -288,9 +293,10 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.create",
         kind: "action",
-        does: "Create the communication obligation with its purpose, its recipient, the outcome it requires and the window in which it stays relevant. The obligation is a separate entity from the event - communication rules describe what happened and never redefine it",
+        does: "Atomically create-if-absent the communication obligation keyed on (recipient_id, obligation_subject): if no obligation exists for that identity, create one with its purpose, its recipient, the outcome it requires and the window in which it stays relevant, minting obligation_id deterministically from (recipient_id, obligation_subject) so the same identity always resolves to the same obligation_id; if a concurrent caller already created one for the same identity between c.existing's read and this action, return that existing obligation - same obligation_id - instead of minting a second one. The obligation is a separate entity from the event - communication rules describe what happened and never redefine it. This is the mechanism's own at-most-one guarantee; c.existing's earlier read is an optimization, not a substitute for it",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "h.recipient",
+        idempotencyKey: "recipient_id + obligation_subject + a.create",
       },
       {
         id: "h.recipient",
@@ -298,15 +304,18 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-202",
         on: "a communication obligation created",
         carries: [
+          "obligation_id, minted deterministically at a.create, which every downstream mechanism in this pipeline keys on",
           "the obligation, its purpose, its urgency and the outcome it requires",
           "the explicit fact that no recipient has been resolved and no channel has been chosen",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
     ],
     guardrails: [
       "An event occurring is not a message being required.",
       "Communication rules never redefine business truth.",
       "Duplicate events do not create duplicate communication obligations.",
+      "Concurrent creation for the same (recipient_id, obligation_subject) yields at most one canonical obligation - a.create is atomic on that identity, and a losing concurrent caller resolves to the existing obligation rather than erroring or duplicating.",
       "A repeated attempt at the same obligation is bounded by the distinct approaches actually available to it. When those are exhausted, sustained non-engagement is a permission question rather than a reason for one more send.",
       "Delivery and engagement patterns may suggest different diagnostic hypotheses about why an attempt did not land - the envelope, the message, or the friction after it. They are hypotheses rather than facts: the rule they support is not to repeat the same intervention blindly, and communication telemetry is never treated as causal proof of any of them."
     ],
@@ -328,6 +337,8 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the communication obligation and the recipient with their candidate destinations",
       note: "Two resolutions, in order: who, then where. A destination found without establishing who it belongs to sends a private matter to whoever is on file.",
+      instanceKey: ["obligation_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.created",
     nodes: [
@@ -347,6 +358,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the authoritative recipient identity. The account owner is not always the intended recipient - a workspace notice may be owed to an administrator, a policy notice to a legal contact, and a security alert to the person whose credential it concerns rather than to whoever pays the bill",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.resolvable",
+        idempotencyKey: "obligation_id + a.identity",
       },
       {
         id: "c.resolvable",
@@ -371,6 +383,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RECIPIENT_UNRESOLVED and send nothing. Falling back to whoever is on the account because nobody else could be found delivers a private matter to the wrong person, and that cannot be undone by a correction",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "x.unresolved",
+        idempotencyKey: "obligation_id + a.unresolved",
       },
       {
         id: "x.unresolved",
@@ -403,6 +416,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the current holder of the role rather than whoever held it when the record was written. A notice sent to last year's administrator is a notice nobody received, and on a shared or team entity that is the normal case rather than the edge one",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.destinations",
+        idempotencyKey: "obligation_id + a.role",
       },
       {
         id: "a.person",
@@ -416,6 +430,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Resolve the currently valid destination candidates - email, phone, device, in-app account, workspace or any other supported destination. Currently valid means the destination's own health, not merely its presence: an address in the record that has been hard-bouncing for six months is not a route",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.available",
+        idempotencyKey: "obligation_id + a.destinations",
       },
       {
         id: "c.available",
@@ -440,6 +455,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record CONTACT_ROUTE_UNAVAILABLE for this recipient. This is a routing fact rather than a statement that the recipient is unreachable in general, and it is scoped to what was actually tried",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "x.no-route",
+        idempotencyKey: "obligation_id + a.no-route",
       },
       {
         id: "x.no-route",
@@ -472,6 +488,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record HOLD naming what is required, and raise the verification through the mechanism that owns it. A notice containing something sensitive is not sent to an unverified destination merely because the destination exists",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "w.authorization",
+        idempotencyKey: "obligation_id + a.hold",
       },
       {
         id: "w.authorization",
@@ -488,6 +505,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "a.no-route",
         windowExtendsOnEngagement: false,
+        recheck: "the obligation's own relevance window and whether it still stands, before recording CONTACT_ROUTE_UNAVAILABLE",
       },
       {
         id: "c.auth",
@@ -512,6 +530,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record READY_FOR_CHANNEL_SELECTION with the resolved recipient and the destinations that are currently valid for them",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "h.permission",
+        idempotencyKey: "obligation_id + a.ready",
       },
       {
         id: "h.permission",
@@ -549,6 +568,8 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the obligation, the recipient's destinations, and the purpose being evaluated against them",
       note: "This reads permission state and never writes it. Whether somebody has consented is owned elsewhere; whether this purpose may use this channel is decided here.",
+      instanceKey: ["obligation_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -575,6 +596,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the communication's purpose - transactional, security, service, a mandatory notice, operational, marketing, or another defined purpose. The purpose decides which permission rules apply, and misclassifying it is what suppresses a security alert under a marketing preference",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.evaluate",
+        idempotencyKey: "obligation_id + a.purpose",
       },
       {
         id: "a.evaluate",
@@ -637,6 +659,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Evaluate the alternate routes the mandatory-delivery rules actually permit. Mandatory does not mean any channel will do - it means the rules define which ones survive a preference, and those are the only ones",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.alternate",
+        idempotencyKey: "obligation_id + a.alternate",
       },
       {
         id: "c.alternate",
@@ -661,6 +684,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the channels permitted for this purpose, each with the rule that permits it. Recording the rule is what makes the send defensible and the suppression explainable",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "h.route",
+        idempotencyKey: "obligation_id + a.candidates",
       },
       {
         id: "h.route",
@@ -668,9 +692,11 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-204",
         on: "at least one channel permitted for this purpose",
         carries: [
+          "obligation_id, carried from CMS-201 through CMS-202 and this mechanism unchanged",
           "the permitted channels and the rule permitting each",
           "the purpose and urgency, which decide how many of them are actually needed",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
       {
         id: "a.undeliverable",
@@ -678,6 +704,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record UNDELIVERABLE_BY_POLICY with the purpose and the rule that closed each route. This is a policy outcome rather than a delivery failure, and recording it as a failure sends it into a retry loop against a rule that will not change",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.escalate",
+        idempotencyKey: "obligation_id + a.undeliverable",
       },
       {
         id: "c.escalate",
@@ -702,9 +729,11 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-210",
         on: "a mandatory communication with no permitted route",
         carries: [
+          "obligation_id",
           "the purpose, the routes evaluated and the rule that closed each one",
           "the explicit fact that this is policy rather than failure, so no retry will resolve it",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
       {
         id: "x.undeliverable",
@@ -739,7 +768,9 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Pick the smallest set of channels that actually satisfies the obligation, and build the message for them.",
     entity: {
       scope: "the obligation and the permitted channels available to it",
-      note: "A fallback is a route held in reserve rather than a second send. Multi-channel delivery is a decision somebody makes, never a side effect of several channels being available.",
+      note: "A fallback is a route held in reserve rather than a second send. Multi-channel delivery is a decision somebody makes, never a side effect of several channels being available. a.prepare mints message_id deterministically from obligation_id, so a redelivered t.permitted for the same obligation reuses it rather than minting a second prepared instance - the identity CMS-206 later persists an attempt against.",
+      instanceKey: ["obligation_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.permitted",
     nodes: [
@@ -765,6 +796,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Select the primary route - the smallest valid set capable of satisfying the obligation. Sending on every available channel is not thoroughness; it is one event arriving four times, and the recipient reads the repetition as a fault in the system",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.multi",
+        idempotencyKey: "obligation_id + a.select",
       },
       {
         id: "c.multi",
@@ -789,6 +821,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create explicitly coordinated deliveries, each aware of the others, so the obligation closes once rather than once per channel. Uncoordinated parallel sends produce an obligation that closes three times and a recipient who is told three times",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.prepare",
+        idempotencyKey: "obligation_id + a.coordinate",
       },
       {
         id: "a.single",
@@ -796,13 +829,15 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the single primary route and the fallback that would be tried if it fails. The fallback is held in reserve - it is a route for later rather than a second message now",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.prepare",
+        idempotencyKey: "obligation_id + a.single",
       },
       {
         id: "a.prepare",
         kind: "action",
-        does: "Prepare the channel-compatible message instance, referencing the business facts rather than restating them independently. Channel selection never alters the facts - a truncated message says less than the full one, and it must not say something different",
+        does: "Prepare the channel-compatible message instance, referencing the business facts rather than restating them independently, and mint message_id deterministically from obligation_id - re-invoking preparation for the same obligation (a redelivered trigger, a retried call) resolves to the same message_id rather than a second prepared instance. Channel selection never alters the facts - a truncated message says less than the full one, and it must not say something different",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "h.send-ready",
+        idempotencyKey: "obligation_id + a.prepare",
       },
       {
         id: "h.send-ready",
@@ -811,8 +846,10 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         on: "a prepared message instance on a selected route",
         carries: [
           "the message, its route, and the business state it was built from",
+          "message_id, minted deterministically from obligation_id at a.prepare, so CMS-206 can later persist an attempt against a stable identity rather than inventing one",
           "the explicit fact that it has not been revalidated - what it claims was true when it was written",
         ],
+        contract: { requiredFields: ["obligation_id", "message_id"] },
       },
     ],
     guardrails: [
@@ -841,6 +878,8 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the prepared message instance and the business entity it describes",
       note: "The message is a claim about the world made at the moment it was written. This is the only point at which that claim is checked against the world as it now is.",
+      instanceKey: ["message_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.ready",
     nodes: [
@@ -891,6 +930,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.suppressed",
+        idempotencyKey: "message_id + a.suppress",
       },
       {
         id: "x.suppressed",
@@ -906,9 +946,11 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-202",
         on: "a message whose recipient or destination stopped being valid before send",
         carries: [
+          "obligation_id",
           "the obligation, still unmet, and what changed about the routing",
           "the explicit fact that nothing was sent, so no duplicate arises from re-resolving",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
       {
         id: "c.content",
@@ -933,13 +975,15 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Regenerate the content from current data before sending. Sending a stale amount, date or status is worse than sending nothing, because the recipient acts on it and then has to be told it was wrong",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "a.send",
+        idempotencyKey: "message_id + a.regenerate",
       },
       {
         id: "a.send",
         kind: "action",
-        does: "Record the message as validated at send time, with what was checked and against what version. Historical sent messages are never mutated afterwards - what was sent is what was sent, and rewriting it removes the evidence that a wrong thing went out",
+        does: "Record the message as validated at send time, with what was checked and against what version, and mint attempt_id for the submission this hands off to. This mechanism runs at most once per message_id - CMS-208's own recovery loop retries independently downstream rather than looping back through this mechanism - so a.send is idempotent on message_id: a redelivered t.ready reuses the attempt_id already minted rather than minting a second one and risking a duplicate provider submission. Historical sent messages are never mutated afterwards - what was sent is what was sent, and rewriting it removes the evidence that a wrong thing went out",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "h.attempt",
+        idempotencyKey: "message_id + a.send",
       },
       {
         id: "h.attempt",
@@ -948,8 +992,10 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         on: "a message validated immediately before delivery",
         carries: [
           "the message, its content version and the state it was validated against",
+          "message_id (carried from CMS-204) and the fresh attempt_id minted at a.send, so CMS-206 persists an attempt against an identity established before submission rather than one it invents itself",
           "the route selected and the fallback held in reserve",
         ],
+        contract: { requiredFields: ["message_id", "attempt_id"] },
       },
     ],
     guardrails: [
@@ -975,7 +1021,9 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Record what happened when the message was handed to a provider, which is not what happened to the recipient.",
     entity: {
       scope: "the individual delivery attempt, with its provider reference",
-      note: "One attempt per submission. Outcomes arriving later correlate to a specific attempt, which is why the attempt is written before its outcome is known.",
+      note: "One attempt per submission. Outcomes arriving later correlate to a specific attempt, which is why the attempt is written before its outcome is known. attempt_id is caller-supplied - minted by CMS-205's a.send before this mechanism ever runs, per attempt, never by this mechanism itself - specifically so a redelivered t.submitted for the same attempt_id can be told apart from a genuinely new attempt for the same message_id (a retry, minting its own fresh attempt_id upstream).",
+      instanceKey: ["message_id", "attempt_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -991,7 +1039,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "trigger",
         event: "message_submitted_to_provider",
         evidence: {
-          requires: ["a validated message submitted to a delivery mechanism or provider"],
+          requires: ["a validated message submitted to a delivery mechanism or provider, carrying a message_id and an attempt_id already minted by the caller"],
           source: "authoritative",
         },
         next: "a.persist",
@@ -999,9 +1047,10 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.persist",
         kind: "action",
-        does: "Persist the message id, the attempt id, the channel, the provider and its reference, the submission time and the content version reference. The attempt is written before its outcome is known, so an outcome arriving hours later has something to attach to",
+        does: "Persist the message id, the attempt id, the destination_id it was submitted to, the channel, the provider and its reference, the submission time and the content version reference. The attempt is written before its outcome is known, so an outcome arriving hours later has something to attach to. Both message_id and attempt_id arrive already minted - a redelivered call for the same (message_id, attempt_id) persists once, not twice - and destination_id is read off the submission itself, one attempt always targeting exactly one destination even on a coordinated multi-channel obligation",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "w.acceptance",
+        idempotencyKey: "message_id + attempt_id + a.persist",
       },
       {
         id: "w.acceptance",
@@ -1042,6 +1091,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record SENT and DELIVERY_PENDING. The provider taking the message is a fact about the provider's queue - it can be accepted, held, bounced and discarded without anything reaching anybody",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "x.pending",
+        idempotencyKey: "message_id + attempt_id + a.accepted",
       },
       {
         id: "x.pending",
@@ -1057,6 +1107,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERY_FAILED with exactly what the provider reported, unclassified. The classification belongs to the recovery journey, which needs the raw reason rather than a summary of it",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.recover",
+        idempotencyKey: "message_id + attempt_id + a.failed",
       },
       {
         id: "h.recover",
@@ -1064,9 +1115,11 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-208",
         on: "a submission the provider refused, or an unknown outcome where duplicates are harmless",
         carries: [
+          "message_id and destination_id, both established at a.persist, which is what CMS-208's own recovery instance is keyed on",
           "the attempt, the channel and what the provider actually said",
           "the fallback held in reserve and the obligation's remaining relevance window",
         ],
+        contract: { requiredFields: ["message_id", "destination_id"] },
       },
       {
         id: "a.unknown",
@@ -1077,6 +1130,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "c.duplicates",
+        idempotencyKey: "message_id + attempt_id + a.unknown",
       },
       {
         id: "c.duplicates",
@@ -1129,7 +1183,9 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Derive the real delivery state from what the channel reports, attached to the exact attempt it concerns.",
     entity: {
       scope: "the delivery attempt and the outcomes reported against it",
-      note: "Outcomes arrive out of order, twice, and late. Each is processed against the attempt it names and against what is already recorded.",
+      note: "Outcomes arrive out of order, twice, and late. Each is processed against the attempt it names and against what is already recorded. attempt_id is a correlation key, not a durable-entity key the way instanceKey means elsewhere - concurrency: one-active-per-key here means events for one attempt are processed sequentially against each other, not that only one outcome may ever arrive.",
+      instanceKey: ["attempt_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.status",
     nodes: [
@@ -1149,6 +1205,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Correlate the outcome to the exact delivery attempt it concerns. A status with no attempt to attach to is a status about nothing, and attaching it to the wrong attempt marks a different message delivered",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.correlated",
+        idempotencyKey: "raw_status_reference + a.correlate",
       },
       {
         id: "c.correlated",
@@ -1213,6 +1270,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the late event without overwriting stronger evidence. A bounce arriving after a confirmed delivery does not undo the delivery - unless the channel's semantics explicitly say it does, in which case they say so and the rule is applied rather than assumed",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "x.late",
+        idempotencyKey: "attempt_id + raw_status_reference + a.late",
       },
       {
         id: "x.late",
@@ -1250,6 +1308,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERED against this attempt. Delivered is not read, and read is not understood - a delivery receipt says the message reached a destination and nothing about anybody having seen it, let alone acted on it",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.obligation",
+        idempotencyKey: "attempt_id + a.delivered",
       },
       {
         id: "h.obligation",
@@ -1257,9 +1316,11 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-210",
         on: "a confirmed delivery",
         carries: [
+          "obligation_id, read off the attempt record this delivery correlated to",
           "which attempt delivered, on which channel and when",
           "the explicit fact that delivered is not read, so an obligation requiring comprehension is not met by this",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
       {
         id: "a.failed",
@@ -1267,6 +1328,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERY_FAILED with the reason exactly as the channel reported it. The reason is what the recovery journey classifies on, and summarising it here loses the distinction between a full mailbox and a dead address",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.recover",
+        idempotencyKey: "attempt_id + a.failed",
       },
       {
         id: "h.recover",
@@ -1274,9 +1336,11 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-208",
         on: "an authoritative delivery failure",
         carries: [
+          "message_id and destination_id, read off the attempt record this outcome correlated to",
           "the failure as the channel reported it, unclassified",
           "the attempt, the channel and the obligation's remaining relevance",
         ],
+        contract: { requiredFields: ["message_id", "destination_id"] },
       },
       {
         id: "a.unknown",
@@ -1284,6 +1348,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record DELIVERY_UNKNOWN. Neither delivered nor failed is a real state, and resolving it to whichever is more convenient produces either a closed obligation nobody met or a duplicate nobody needed",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.reconcile",
+        idempotencyKey: "attempt_id + a.unknown",
       },
     ],
     guardrails: [
@@ -1310,13 +1375,15 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Respond to the failure that actually happened, without spreading it wider than the destination it belongs to.",
     entity: {
       scope: "the failed delivery, its channel and the destination it was aimed at",
-      note: "The failure belongs to a destination on a channel. It says nothing about the recipient's other destinations, and recording it against the person loses them.",
+      note: "The failure belongs to a destination on a channel. It says nothing about the recipient's other destinations, and recording it against the person loses them. message_id + destination_id is the recovery instance's own identity - one durable retry budget per (message, destination), fixed at the first failure and spent across however many physical attempts a.retry makes against it. Each physical attempt still mints its own fresh attempt_id (the same convention CMS-205/CMS-206 use), so the budget and the per-attempt identity are two different things scoped at two different granularities, not one field doing both jobs.",
+      instanceKey: ["message_id", "destination_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
         journey: "OPS-124",
         because:
-          "OPS-124 is the generic retryable-failure and backoff mechanism. This decides what a communication failure means - whether the address is dead, whether another channel may carry this purpose, and whether the message is even still worth delivering. It uses that retry machinery rather than being it.",
+          "This mechanism owns its own complete channel-aware retry loop end to end - classification, relevance, budget, fallback - and does not invoke OPS-124's generic engine for it, because the classification a communication failure needs (TEMPORARY / PROVIDER_FAILURE / RATE_LIMITED / PERMANENT / INVALID_DESTINATION / CHANNEL_RESTRICTED) is channel-specific domain knowledge OPS-124 deliberately has no reason to carry. Where a communication-triggering action is separately wrapped in OPS-121's own generic asynchronous-work tracking (the enqueue/dispatch step itself, not the channel delivery), that tracking's own possible OPS-124 delegation is a distinct, outer concern from this mechanism's inner channel-recovery loop - the two do not share a budget and are not the same retry.",
       },
     ],
     entry: "t.failed",
@@ -1340,6 +1407,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the failure by what the channel actually reported, into an explicit class - TEMPORARY, PROVIDER_FAILURE, RATE_LIMITED, PERMANENT, INVALID_DESTINATION, CHANNEL_RESTRICTED or UNKNOWN. The class decides everything downstream, which is why it is established before anything is retried, and treating them all as transient produces a retry loop against an address that will never exist",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.relevant",
+        idempotencyKey: "message_id + destination_id + a.classify",
       },
       {
         id: "c.relevant",
@@ -1367,6 +1435,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.abandoned",
+        idempotencyKey: "message_id + destination_id + a.suppress-recovery",
       },
       {
         id: "x.abandoned",
@@ -1409,14 +1478,21 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Treat an unclassifiable failure as temporary but on a smaller budget, and record that the class was unknown. Guessing permanent discards a destination that may work; guessing temporary on the full budget is how an unknown failure becomes an unbounded retry",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.budget",
+        idempotencyKey: "message_id + destination_id + a.cautious",
       },
       {
         id: "a.retry",
         kind: "action",
-        does: "Retry on the same channel through the canonical retry mechanism, with backoff, against a budget fixed at the first failure. The budget is set once and does not renew - that is the difference between a retry policy and a loop, and a schedule with no end looks like a working system from inside and like harassment from the recipient's inbox",
+        does: "Retry on the same channel, with backoff, minting a fresh attempt_id for this physical attempt and spending one unit of the budget fixed at the first failure against (message_id, destination_id). The budget is set once and does not renew - that is the difference between a retry policy and a loop, and a schedule with no end looks like a working system from inside and like harassment from the recipient's inbox",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "c.budget",
         execution: "communication",
+        idempotencyKey: "message_id + destination_id + a.retry",
+        attemptBudget: {
+          key: "delivery_recovery.retry_budget",
+          rule: "Fixed once at the first failure for this (message_id, destination_id); does not renew on worker restart, on backoff completion, or on delegation between mechanisms.",
+          required: true,
+        },
       },
       {
         id: "c.budget",
@@ -1454,6 +1530,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Stop futile retries against this destination and raise the contactability evidence. One invalid address invalidates that address and nothing else - the recipient's phone, device and in-app account are untouched by an email that bounced",
         writes: [{ field: "delivery_log", mode: "append" }],
         next: "h.contactability",
+        idempotencyKey: "message_id + destination_id + a.permanent",
       },
       {
         id: "h.contactability",
@@ -1461,10 +1538,12 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CON-36",
         on: "a failure that is a property of the contact point rather than of the attempt",
         carries: [
+          "destination_id, which is contact_point_id under this mechanism's own attempt-scoped name - the same durable contact point CON-36 tracks by its permanent record identity",
           "the failure class, the destination, the channel and the provider's response",
           "the explicit scope: this destination only, with the recipient's other routes unaffected",
           "the explicit fact that this is a deliverability problem and not an opt-out - it says nothing about permission on this channel or any other",
         ],
+        contract: { requiredFields: ["contact_point_id"] },
       },
       {
         id: "c.fallback",
@@ -1489,10 +1568,12 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-203",
         on: "a failed channel with an alternate destination available",
         carries: [
+          "obligation_id, read off the message_id this recovery instance is keyed on",
           "the obligation, its purpose and the channel that has now failed",
           "the explicit requirement that the fallback passes the purpose and permission check on its own terms - a fallback that skips it delivers a message down a route the recipient declined, and the failure becomes the excuse for it",
           "the fact that a permitted alternative allows the move and does not require it - the sending journey still decides whether the message warrants changing channel",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
       {
         id: "h.obligation",
@@ -1500,9 +1581,11 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-210",
         on: "a failure with no remaining channel to try",
         carries: [
+          "obligation_id, read off the message_id this recovery instance is keyed on",
           "every route attempted and how each failed",
           "the explicit fact that this is exhaustion of routes rather than proof the recipient is unreachable in general",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
     ],
     guardrails: [
@@ -1533,6 +1616,8 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "the communication obligation and every delivery made against it",
       note: "The obligation defines its own required outcome. Some are met by a documented attempt and some only by confirmed delivery, and which applies is not this journey's to decide.",
+      instanceKey: ["obligation_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.outcome",
     nodes: [
@@ -1569,6 +1654,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close as SUPERSEDED or SUPPRESSED, recording that the obligation ended because its reason did rather than because it was met. The two look identical in a completion count and mean opposite things",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "x.superseded",
+        idempotencyKey: "obligation_id + a.superseded",
       },
       {
         id: "x.superseded",
@@ -1650,6 +1736,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record COMMUNICATION_COMPLETED against the requirement it actually satisfied, naming which one. Unread is not undelivered, and an obligation met by delivery is met whether or not anybody opened it",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "x.completed",
+        idempotencyKey: "obligation_id + a.complete",
       },
       {
         id: "x.completed",
@@ -1690,6 +1777,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record UNREACHABLE_FOR_PURPOSE. This is scoped to the purpose - every route permitted for this kind of message failed, and the same recipient may be perfectly reachable for something else",
         writes: [{ field: "communication_log", mode: "append" }],
         next: "c.critical",
+        idempotencyKey: "obligation_id + a.unreachable",
       },
       {
         id: "c.critical",

@@ -701,7 +701,9 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Recalculate how often optional communication may go out, without letting that quietly reach the messages someone has to receive.",
     entity: {
       scope: "person plus the communication classes the frequency preference actually governs",
-      note: "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose.",
+      note: "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose. This mechanism is a pure event-driven entry point - it is reached whenever frequency_preference_changed fires from wherever a person declares a cadence change (a preference center, a support-assisted change, an API), the same shallow entry-point shape as CMS-201/CON-35/OPS-121, not something another canonical journey hands off into.",
+      instanceKey: ["person_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -754,6 +756,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Include the required classes the policy names, and only those, recording which policy authorised it",
         writes: [{ field: "cadence_policy_applied", mode: "append" }],
         next: "a.recalculate",
+        idempotencyKey: "person_id + a.include",
       },
       {
         id: "a.exclude",
@@ -791,6 +794,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress or reschedule the optional communication that now exceeds the cadence, choosing between the two by whether the message keeps its meaning later",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "x.applied",
+        idempotencyKey: "person_id + a.trim",
       },
       {
         id: "x.applied",
@@ -822,7 +826,9 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Stop affected communication the moment permission changes, and let the distributed systems catch up afterwards.",
     entity: {
       scope: "person plus the permission record that changed, at its purpose, channel and scope",
-      note: "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure.",
+      note: "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure. change_version is a counter maintained per (person, purpose, channel, scope) combination, so it disambiguates successive changes on the same permission without colliding across different ones; change_origin names the system the change came from. Both are what a.propagate's own guardrail means by \"origin and version\" - carried explicitly, not left as an unnamed concept.",
+      instanceKey: ["person_id", "change_version"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -848,9 +854,10 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.record",
         kind: "action",
-        does: "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment",
+        does: "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment. Assigns change_version for this transition and records change_origin, the system it came from",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "c.direction",
+        idempotencyKey: "person_id + change_version + a.record",
       },
       {
         id: "c.direction",
@@ -875,11 +882,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress the affected outbound communication now, including everything queued, without waiting for any downstream system to acknowledge anything. The asymmetry is deliberate: a grant applied late costs a message that could have been sent, a withdrawal applied late costs one that should not have been",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.propagate",
+        idempotencyKey: "person_id + change_version + a.enforce",
       },
       {
         id: "a.propagate",
         kind: "action",
-        does: "Propagate the new state to the dependent systems, carrying origin and version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange",
+        does: "Propagate the new state to the dependent systems, carrying change_origin and change_version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange - a dependent system applies a propagation only if its incoming change_version is newer than what it already holds for this (person_id, purpose, channel, scope), which is what makes redelivery and reordering both safe",
         next: "w.converge",
       },
       {
@@ -918,10 +926,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CON-40",
         on: "systems failing to converge on the new permission state",
         carries: [
-          "the intended state with its version and origin",
+          "the intended state with change_version and change_origin",
+          "disputed_permission_ref, derived from this change's own (purpose, channel, scope), which CON-40's own conflict instance is keyed on",
           "which systems disagree and what each of them holds",
           "the fact that local enforcement is already applied, so the conflict is about consistency rather than about whether to send",
         ],
+        contract: { requiredFields: ["person_id", "disputed_permission_ref"] },
       },
       {
         id: "x.consistent",
@@ -955,6 +965,8 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     entity: {
       scope: "person plus the specific contact point - this address, this number, this device token",
       note: "Contactability belongs to the contact point, not the person and not the channel class. One dead device token does not make push unreachable, and there is deliberately no person-level reachable flag - one would erase every route the failing one is not.",
+      instanceKey: ["contact_point_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -987,6 +999,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the contactability state to CONTACTABLE, TEMPORARILY_UNAVAILABLE, UNDELIVERABLE, INVALID or RESTORED, leaving permission untouched - a channel that cannot reach someone has expressed no opinion about whether it may",
         writes: [{ field: "contactability_log", mode: "append" }],
         next: "c.state",
+        idempotencyKey: "contact_point_id + a.state",
       },
       {
         id: "c.state",
@@ -1016,6 +1029,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Make the new destination available for future eligible communication. Available is not consented - a verified address is a route, and whether it may carry a given purpose is a separate question decided separately",
         writes: [{ field: "contactability_log", mode: "append" }],
         next: "c.pending",
+        idempotencyKey: "contact_point_id + a.add",
       },
       {
         id: "a.resume",
@@ -1023,6 +1037,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Allow future eligible communication on this contact point again, recorded from the current evidence rather than by clearing the history of why it was suppressed. The prior failures stay readable, because a route that keeps breaking and being restored is worth being able to see. What was missed while it was unreachable is not replayed - the queue described a state that has since moved",
         writes: [{ field: "contactability_log", mode: "append" }],
         next: "c.pending",
+        idempotencyKey: "contact_point_id + a.resume",
       },
       {
         id: "c.pending",
@@ -1047,9 +1062,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-202",
         on: "pending communication affected by a change in this destination's health",
         carries: [
+          "each affected obligation's own obligation_id - this fans out to CMS-202 once per obligation, not once for the batch",
           "the affected obligations and the destination whose state changed",
           "the explicit instruction to re-resolve destinations rather than to resend - nothing was delivered to the failing route",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
       {
         id: "x.resumed",
@@ -1064,6 +1081,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress future attempts on this contact point according to the failure class - a temporary failure and a permanently invalid destination are not held the same way and must not be recorded as though they were. Historical delivery records are untouched: a message delivered to this address last year was delivered, and rewriting that to match today's state destroys the record of what the person was actually told",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "c.pending-blocked",
+        idempotencyKey: "contact_point_id + a.suppress",
       },
       {
         id: "c.pending-blocked",
@@ -1399,7 +1417,9 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Reduce optional communication pressure for a while, without touching permission and without covering more than it needs to.",
     entity: {
       scope: "person or account plus the communication context the cooldown was created for",
-      note: "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find.",
+      note: "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find. cooldown_context is established at a.create itself, so a.create's own idempotency is scoped coarser (person_id alone) than the actions that follow it.",
+      instanceKey: ["person_id", "cooldown_context"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.cooldown",
     nodes: [
@@ -1418,9 +1438,10 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.create",
         kind: "action",
-        does: "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early",
+        does: "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early. Establishes cooldown_context itself",
         writes: [{ field: "cooldown_log", mode: "append" }],
         next: "c.scope",
+        idempotencyKey: "person_id + a.create",
       },
       {
         id: "c.scope",
@@ -1445,6 +1466,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Extend the cooldown only to the required communication the policy names, recording which policy did it - so the extension is attributable rather than inherited",
         writes: [{ field: "cooldown_log", mode: "append" }],
         next: "w.cooldown",
+        idempotencyKey: "person_id + cooldown_context + a.policy-scope",
       },
       {
         id: "w.cooldown",
@@ -1458,6 +1480,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "a.reevaluate",
         windowExtendsOnEngagement: false,
+        recheck: "current eligibility for the governed classes, re-read from authoritative state before re-evaluating - not the state as it stood when the cooldown began",
       },
       {
         id: "c.basis",
@@ -1482,9 +1505,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CON-38",
         on: "a cooldown outgrown by its own cause",
         carries: [
+          "person_id and suppression_scope (the cooldown's own communication context, carried forward as CON-38's own scope), which CON-38's own instance is keyed on",
           "the cooldown's reason and scope, and what changed",
           "the fact that this needs a stated reason and release condition rather than an expiry",
         ],
+        contract: { requiredFields: ["person_id", "suppression_scope"] },
       },
       {
         id: "a.reevaluate",
@@ -1492,6 +1517,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Re-evaluate what is eligible now and act on that. Anything queued when the cooldown began is discarded rather than released - a cooldown that ends by flushing a backlog has achieved nothing except a delay",
         writes: [{ field: "cooldown_log", mode: "append" }],
         next: "x.released",
+        idempotencyKey: "person_id + cooldown_context + a.reevaluate",
       },
       {
         id: "x.released",
@@ -1524,7 +1550,9 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Hold optional communication closed while two systems disagree about permission, and reconcile on evidence rather than on whichever value allows more.",
     entity: {
       scope: "person plus the specific permission type, channel and purpose that disagrees",
-      note: "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure.",
+      note: "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure. disputed_permission_ref stands for the (permission_type, channel, purpose) combination a.scope resolves - one conflict instance per disputed combination, distinct from CON-35's own change_version (a conflict is about which value is right, not about a single ordered change).",
+      instanceKey: ["person_id", "disputed_permission_ref"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1556,6 +1584,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress the affected optional outbound communication immediately, before anything is collected or decided. This runs first on purpose: investigating while still sending resolves the uncertainty in favour of sending, which is the one outcome the journey exists to prevent",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.collect",
+        idempotencyKey: "person_id + disputed_permission_ref + a.failsafe",
       },
       {
         id: "a.collect",
@@ -1563,6 +1592,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Collect from each participating system its state, source, timestamp, version and the provenance of the change. A timestamp alone is not authority - clocks disagree, and write order is not the order things were decided",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "a.scope",
+        idempotencyKey: "person_id + disputed_permission_ref + a.collect",
       },
       {
         id: "a.scope",
@@ -1570,6 +1600,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine exactly which purpose, channel and scope combination is in dispute. Everything outside it is not in conflict and is not suppressed",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "c.resolvable",
+        idempotencyKey: "person_id + disputed_permission_ref + a.scope",
       },
       {
         id: "c.resolvable",
@@ -1594,6 +1625,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PERMISSION_CONFLICT and leave the fail-safe suppression in force. Being unresolved is a state worth naming rather than a gap between two states",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "w.reconcile",
+        idempotencyKey: "person_id + disputed_permission_ref + a.enter",
       },
       {
         id: "w.reconcile",
@@ -1621,14 +1653,15 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.apply",
         kind: "action",
-        does: "Apply the established state and propagate the correction with origin and version, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
+        does: "Apply the established state and propagate the correction with change_origin and a fresh change_version for the resolution, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "a.verify",
+        idempotencyKey: "person_id + disputed_permission_ref + a.apply",
       },
       {
         id: "a.verify",
         kind: "action",
-        does: "Verify convergence across the systems that are required to agree, using idempotent versioned writes so verification cannot itself become another round of the exchange",
+        does: "Verify convergence across the systems that are required to agree, using change_version-checked writes so verification cannot itself become another round of the exchange - a system's own report is only accepted at the resolution's change_version, never inferred from a bare acknowledgement",
         next: "c.converged",
       },
       {
@@ -1654,6 +1687,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the conflict state and re-evaluate what is eligible now. Communication withheld during the conflict is not replayed, whichever way the conflict resolved",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "x.resolved",
+        idempotencyKey: "person_id + disputed_permission_ref + a.release",
       },
       {
         id: "x.resolved",

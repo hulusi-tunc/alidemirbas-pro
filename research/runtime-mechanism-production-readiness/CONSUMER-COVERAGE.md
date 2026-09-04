@@ -4,7 +4,34 @@ For each of the 24: known consumers, consumer surface, representative caller ids
 possible duplicate mechanism or a missing runtime primitive shows up in its reference graph.
 Nothing in this document was deleted or changed — audit only, per the round's brief.
 
-## Method and its limits, stated up front
+## POST-REPAIR UPDATE
+
+**CON-34 and OPS-126, this document's two "worth flagging directly" zero-consumer cases, are now
+investigated and classified, not left open.**
+
+- **CON-34**: concluded a legitimate event-driven entry point, the same shape as CMS-201/CON-35/
+  OPS-121/OPS-128 — `entity.note` now documents this explicitly. Its isolation (zero handoff
+  consumers *and* zero outbound handoffs) is architecturally different from a simple entry point,
+  as this document originally noted, but the conclusion after investigation is that a legitimate
+  external trigger (`frequency_preference_changed`) is a sufficient real-world consumer model for a
+  mechanism whose own job (prospective cadence recalculation) has no reason to hand off anywhere —
+  it is a terminal step, not a pipeline stage. Not orphaned; still carries a P2 consumer-coverage
+  note in its own contract, since no confirmed real emitter is traceable in the current corpus.
+- **OPS-126**: concluded unconsumed-but-valid. The design (never replay successful children, honest
+  escalation on undefined aggregation policy) is sound and would correctly serve composite/batch/
+  fan-out work; no confirmed real consumer exists in the current 283-journey corpus, and `DAT-225`'s
+  own reference remains an explicit decline to use it. Not deleted, not reclassified as duplicate or
+  obsolete — no evidence supports either label, per the repair brief's explicit instruction not to
+  delete without evidence. Downgraded from "the strongest zero-real-demand candidate" (open
+  question) to a settled classification, still carried as a P2 in its own contract.
+
+**The possible-duplicate-mechanism finding (CMS-208/OPS-124) is resolved** — see the post-repair
+update in `RETRY-AND-FAILURE-AUDIT.md`. **The missing-runtime-primitive finding (conflict
+arbitration) is conclusively confirmed, not merely flagged** — see
+`COMPETITION-ARBITRATION-ARCHITECTURE.md`. **The rest of this document is the original audit-round
+text, kept for reference.**
+
+## Method and its limits, stated up front (audit-round record)
 
 Two consumer signals were checked: **structural handoffs** (a `handoff` node elsewhere in the
 283-journey corpus whose `to` field names this mechanism — a real, traceable dependency) and

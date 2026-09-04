@@ -859,9 +859,11 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-208",
         on: "a failed document distribution",
         carries: [
+          "message_id (this distribution's own message identity) and destination_id (the recipient destination this attempt targeted), which CMS-208's own recovery instance is keyed on",
           "the failure as the channel reported it, and the exact version that was being sent",
           "the explicit requirement that any fallback route carries the same version - a recovery that sends a different one is worse than the original failure",
         ],
+        contract: { requiredFields: ["message_id", "destination_id"] },
       },
     ],
     guardrails: [

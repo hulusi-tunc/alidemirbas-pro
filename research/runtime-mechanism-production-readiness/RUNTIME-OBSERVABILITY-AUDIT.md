@@ -6,7 +6,27 @@ asking "why did the engine do what it did, and can I trust its next retry." This
 the 13 questions `RUNTIME-MECHANISMS-AUDIT.md`'s Part 20 names against each mechanism's own data
 model and reports what is answerable today versus what a company's own mapping must still supply.
 
-## The 13 questions, answered corpus-wide
+## POST-REPAIR UPDATE
+
+**Question 7 ("what idempotency/attempt key was used"), this document's weakest answer, is now
+substantially strengthened.** All 24 mechanisms declare `entity.instanceKey`, and every writing
+action declares `idempotencyKey` — an operator's log can now name the actual field a company's
+schema should persist per mechanism, rather than only the concept. `CMS-208`'s and `OPS-124`'s
+attempt budgets (question 10, "was it retried") are now declared `attemptBudget` `Config`s rather
+than asserted-only prose, so "how much budget remains" is at least declarable per mechanism, though
+still not a structurally required per-log-entry field — recommendation 4 below is not fully closed,
+only unblocked. Question 4 (origin/version) is improved for `CON-35`/`CON-40` specifically, whose
+`change_origin`/`change_version` fields are now declared rather than prose-only — recommendation 3
+below is closed for those two mechanisms.
+
+Recommendations 1 and 3 (below) are effectively implemented via the repair round's `idempotencyKey`
+additions. Recommendations 2 and 4 (structured `supersededBy`/`retriedFrom` pointers; a per-attempt
+budget-remaining field distinct from the budget's own existence) remain open — this round scoped
+its schema changes to what the repair brief's own Parts 2–9 required, not to every observability
+recommendation this document made; they were judged non-blocking enhancements, not production-
+safety gaps. **The rest of this document is the original audit-round text, kept for reference.**
+
+## The 13 questions, answered corpus-wide (audit-round record)
 
 1. **What mechanism ran?** Answerable everywhere — every mechanism writes to its own named log
    field (`work_log`, `delivery_log`, `communication_log`, `dead_letter_log`, `backlog_log`,

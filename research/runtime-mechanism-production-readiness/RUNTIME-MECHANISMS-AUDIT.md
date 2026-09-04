@@ -1,242 +1,236 @@
-# Runtime Mechanisms — production readiness audit
+# Runtime Mechanisms — production readiness audit (post-repair)
 
 Scope: can a real company's journey engine execute each of these 24 mechanisms deterministically,
 repeatably, and safely under production load - retries, duplicate events, concurrent journeys,
 stale state, partial failure, and downstream outage - without creating contradictory lifecycle
 state or duplicate side effects? This is the third production-readiness round on the canonical
-corpus, after the communicating-journey round and the silent-lifecycle-state round, and the first
-whose question is execution correctness rather than customer-state correctness. **This round is
-audit only.** Nothing in `src/`, `production/`, `search/`, or `seo/` is touched.
+corpus, after the communicating-journey round and the silent-lifecycle-state round. **This
+document reflects the round's repair pass, not only its initial audit.** The initial audit (READY
+4 / READY_WITH_MAPPING 13 / NEEDS_CONTRACT_WORK 6 / NEEDS_RUNTIME_CHANGE 1, P0 1 / P1 6 / P2 12)
+found one genuine concurrency defect (`CMS-201`), a corpus-wide pattern of idempotency/attempt-
+identity named in prose but never declared structurally, an ownership ambiguity between `CMS-208`
+and `OPS-124`, and one confirmed architectural absence — no runtime primitive anywhere enforces
+journey-declared `competition`/`exclusionGroup`/`precedence`. This repair round fixed the first
+three directly in `src/canonical/*.ts` and 2 new validators in `scripts/vnext-rules.mjs`, and
+resolved the fourth by investigation rather than by inventing a mechanism to close it — see
+`COMPETITION-ARBITRATION-ARCHITECTURE.md`. Full before/after detail is in `FIXES-APPLIED.md`.
 
-## Corpus confirmation — 24, derived from current source
+## Corpus confirmation — 24, re-derived from current (post-repair) source
 
 `src/canonical/surface.ts`'s `MECHANISM_IDS` — the same list `surfaceOf()` itself checks first,
 before any other surface rule, and the same list `production/surface-assignment.json` and the
-site both read — names exactly 24 ids: `CMS-201` through `CMS-208` plus `CMS-210` (9, skipping
-`CMS-209`, which does not exist in the corpus), `CON-34`, `CON-35`, `CON-36`, `CON-39`, `CON-40`
-(5), and `OPS-121` through `OPS-130` (10). All 24 were located and read in full from
-`src/canonical/communication.ts` (the 9 CMS mechanisms), `src/canonical/consent.ts` (the 5 CON
-mechanisms, interleaved with — and structurally distinct from — the CON-3x Silent Lifecycle
-States CON-31/32/33/38 the prior round already audited), and `src/canonical/processing.ts` (all
-10 OPS mechanisms, alone in that file).
+site both read — still names exactly 24 ids: `CMS-201` through `CMS-208` plus `CMS-210` (9,
+skipping `CMS-209`, which does not exist in the corpus), `CON-34`, `CON-35`, `CON-36`, `CON-39`,
+`CON-40` (5), and `OPS-121` through `OPS-130` (10). Re-dumped from post-repair source; every one
+of the 24's own node count is identical to the pre-repair audit dump (confirmed node-by-node) —
+**this repair round changed zero canonical graph topology.** Every fix is a metadata addition
+(`entity.instanceKey`, `entity.concurrency`, `ActionNode.idempotencyKey`, `ActionNode.
+attemptBudget`) or a prose correction (`distinctFrom`, `does`, handoff `carries`/`contract`), never
+a new/removed/rewired node.
 
-**Leakage check, all zero:** none of the 24 route to a human channel (`sales`/`task` — 0 of 24);
-exactly one (`CMS-208`) declares a message channel (all five: `email`/`push`/`sms`/`in-app`/
-`whatsapp`), which is correct rather than leakage — `surfaceOf()` checks `MECHANISM_IDS` before
-the `sends` rule, and CMS-208 is literally the delivery-recovery mechanism whose own job is
-resubmitting through a channel, so declaring every channel it can resubmit through is the right
-shape, not an escape from the mechanism surface. None of the 24 appear in the 68 message-sending
-or 3 human-routing Customer Journey lists, none in the 64 Silent Lifecycle State list (re-checked
-against the prior round's own dump), and none in the 124 Operational Workflow domain files.
-Cross-checked against `283 canonical journeys` total (`validate:canonical`'s own summary line):
-68 + 3 + 64 + 24 + 124 = 283, exact.
+**Leakage check, all zero, unchanged:** none of the 24 route to a human channel; exactly one
+(`CMS-208`) declares message channels, correctly (its own job is resubmission); none appear in the
+68 message-sending or 3 human-routing Customer Journey lists, none in the 64 Silent Lifecycle
+State list, none in the 124 Operational Workflow domain files. `68 + 3 + 64 + 24 + 124 = 283`,
+exact, unchanged.
 
-**One structural difference worth stating up front, because it shapes this entire audit's method:
-none of the 24 declare `entity.instanceKey`, `entity.concurrency`, `implementation.attributes`, or
-`measurement` (the vNext migration marker).** All 24 use the shorter, pre-vNext `entity: { scope,
-note }` shape the corpus's earliest-authored journeys use. This means `scripts/vnext-rules.mjs`'s
-`vnext` flag is `false` for every one of the 24, so every existing validator that checks
-idempotency, handoffs, or conflict declarations treats all 24 as warning-only background noise —
-confirmed directly: re-running `validate:canonical` shows 688 corpus-wide `state_write_without_
-idempotency` warnings, a large share of which are these 24's own 90-plus writing actions, none of
-them elevated to an error anywhere. **The two customer-facing rounds' entire method — check an
-action's `idempotencyKey` string against the journey's own declared `instanceKey` — literally does
-not apply here, because none of the 24 declare either field.** This is not itself scored as a
-finding (the brief explicitly separates the customer-state layer's questions from this one's), but
-every "is this idempotent" judgment below had to be made by reading the mechanism's own prose
-reasoning about retries and duplicates, not by checking a field against a schema.
+**Idempotency/attempt-identity is now structural, not prose-only.** All 24 now declare `entity.
+instanceKey` and `entity.concurrency: "one-active-per-key"`, and every writing `ActionNode` across
+the 24 declares an `idempotencyKey` scoped to that identity (or to a documented coarser identity
+where the fine-grained one is not yet resolved at that point in the pipeline — e.g. `CMS-206`'s
+`a.correlate` keys on `raw_status_reference` before `attempt_id` is confirmed). Eight mechanisms
+that named idempotency/attempt-identity only in prose in the audit round — `OPS-121`, `OPS-124`,
+`CMS-206`, `CON-35`, `CON-40`, `OPS-125`, `OPS-127`, `OPS-128` — now carry it as a declared field,
+with the three-identity distinction (invocation / side-effect idempotency / attempt) documented
+explicitly in `entity.note` wherever it applies. None of the 24 carry `measurement` (the vNext
+migration marker) or `implementation.attributes` — this is still the pre-vNext `entity: { scope,
+note }` shape, deliberately: this round's brief scoped repair to idempotency/concurrency/retry-
+ownership/conflict-arbitration, not to a vNext migration, which remains out of scope.
 
 ## Architecture findings
 
-### Readiness distribution
+### Readiness distribution (post-repair)
 
-| Verdict | Count | % |
+| Verdict | Count | % | Audit-round count |
+|---|---|---|---|
+| READY | 4 | 17% | 4 |
+| READY_WITH_MAPPING | 20 | 83% | 13 |
+| NEEDS_CONTRACT_WORK | 0 | 0% | 6 |
+| NEEDS_RUNTIME_CHANGE | 0 | 0% | 1 |
+
+The same 4 mechanisms remain genuinely `READY` — `CMS-203`, `CMS-205`, `CMS-207`, `OPS-122` — each
+side-effect-free-or-idempotent-by-construction with nothing a company mapping needs to supply
+beyond wiring it in. Every mechanism the audit round marked `NEEDS_CONTRACT_WORK` (`CMS-204`,
+`CMS-208`, `CON-34`, `OPS-121`, `OPS-124`, `OPS-126`) now carries the structural field it was
+missing and is `READY_WITH_MAPPING`. The one `NEEDS_RUNTIME_CHANGE` (`CMS-201`) is fixed and is
+also `READY_WITH_MAPPING` — see finding 1 below and `FIXES-APPLIED.md`'s `CMS-201` section for the
+full before/race/after.
+
+### Priority counts (post-repair, per-mechanism gaps only)
+
+| Priority | Count | Audit-round count |
 |---|---|---|
-| READY | 4 | 17% |
-| READY_WITH_MAPPING | 13 | 54% |
-| NEEDS_CONTRACT_WORK | 6 | 25% |
-| NEEDS_RUNTIME_CHANGE | 1 | 4% |
-
-Four mechanisms reach the corpus's first `READY` verdicts across all three production-readiness
-rounds — `CMS-203` (Channel Eligibility Resolution), `CMS-205` (Send Eligibility Check), `CMS-207`
-(Delivery Outcome Reconciliation), and `OPS-122` (Queue Lag Management) — genuinely READY, not
-READY_WITH_MAPPING, because each is a side-effect-free-or-idempotent-by-construction decision/
-measurement mechanism whose own graph already resolves every question this round asks, with
-nothing left for a company mapping to supply beyond wiring it in.
-
-### Priority counts
-
-| Priority | Count |
-|---|---|
-| P0 | 1 |
-| P1 | 6 |
-| P2 | 12 |
-| **Total findings** | **19** |
+| P0 | 0 | 1 |
+| P1 | 0 | 6 |
+| P2 | 5 | 12 |
+| **Total findings** | **5** | **19** |
 
 (Generated directly from `runtime-mechanism-contracts.json`'s `gaps` arrays — see
 `READINESS-MATRIX.md`'s own totals line, produced by the same script, which will not drift from
-this document.) One P0, not the double-digit count the customer-facing rounds found — not because
-this corpus is safer in some general sense, but because most of its 24 mechanisms are read-decide-
-recompute pipelines with low intrinsic duplication risk (17 of 24 need no concurrency primitive
-at all), and where genuine side effects exist (submission to a provider, worker ownership
-transfer), the mechanisms in question — `CMS-206`, `CMS-207`, `OPS-124`, `OPS-128` — already
-reason about duplicate-safety correctly in prose, even without a structural field to check it
-against. The one P0 (`CMS-201`) is exactly the case where that prose reasoning is genuinely
-absent, on the one mechanism whose entire stated purpose is preventing the failure mode it turns
-out not to prevent.
+this document.) **This table intentionally excludes the conflict-arbitration finding.** Per this
+round's own brief ("do not create a false clean bill of health merely to reach P0=0"), that finding
+is real, is P0-severity, and is reported prominently below and in `FIXES-APPLIED.md` and
+`COMPETITION-ARBITRATION-ARCHITECTURE.md` — it is simply not attached to any single mechanism's own
+`gaps` array, because it belongs to none of the 24 individually: it is the corpus's collective
+absence of a 25th primitive to arbitrate ownership, not a defect in one of the 24 that exist.
+**Reading "P0 = 0" above as "nothing left to do" would be exactly the false clean bill of health
+the brief warns against — see the architectural finding immediately below.**
 
-### Top 15 findings
+The remaining 5 P2s are honest, low-risk, non-blocking findings left open rather than mechanically
+closed: `CMS-201`'s and `CON-34`'s consumer-coverage notes (event-driven entry points with no
+handoff-traceable emitter — a classification, not a defect), `CMS-206`'s late-callback edge case,
+`CON-36`'s still-undeclared repair-attempt budget (no single action node to attach it to), and
+`OPS-126`'s consumer-coverage reclassification (investigated this round, concluded unconsumed-but-
+valid rather than orphaned).
 
-1. **Every one of the 24 mechanisms lacks a structural idempotency/attempt-identity field, and 8
-   of them name the concept explicitly in prose without ever declaring it** — `OPS-121`'s
-   `a.persist` literally records "the idempotency and correlation keys" by that exact name;
-   `OPS-124`'s `a.attempt` executes "under the same idempotency key"; `OPS-125` compares "the
-   idempotency key" as its primary deduplication input; `CMS-206` mints and persists an
-   `attempt_id` specifically so a later outcome has something to correlate against; `CON-35` and
-   `CON-40` both propagate "origin and version" to prevent an out-of-order echo from reverting
-   state. The concept is fully worked out, corpus-wide, in every case except one (`CMS-201`) — the
-   field it should live in (`idempotencyKey`/`attemptBudget` on `ActionNode`) already exists in
-   the schema and is simply never used across all 24.
-2. **The one P0: `CMS-201`'s own stated purpose is the one thing its graph does not structurally
-   prevent.** CMS-R1/R2 exist specifically to stop duplicate business events from creating
-   duplicate communication obligations, and `c.existing`'s dedup check is a prose evaluation with
-   no described atomic guard against `a.create` — a genuine check-then-act race under concurrent
-   delivery of the same event, which a real message-queue at-least-once delivery guarantee makes
-   a live scenario, not a theoretical one.
-3. **No runtime primitive among the 24 enforces journey-declared `competition`/`exclusionGroup`/
-   `precedence`.** Zero of 24 reference any of those three field names. The customer-facing corpus
-   declares 7 competition groups (confirmed via `validate:canonical`'s own summary line) that some
-   mechanism has to arbitrate deterministically at runtime, and none of the 24 claims that job —
-   this is an absence finding, not a broken-mechanism finding, and per this round's own
-   instruction it is not resolved by inventing a 25th mechanism inside this audit.
-4. **Where duplicate/unknown-outcome handling exists, it is uniformly correct — 8 of 8.** Every
-   mechanism that names an `UNKNOWN`/`DELIVERY_UNKNOWN`/`RECONCILIATION_REQUIRED`-shaped outcome
-   (`CMS-206`, `CMS-207`, `OPS-121`, `OPS-123`, `OPS-124`, `OPS-127`, `OPS-128`, `OPS-130`) routes
-   it to explicit reconciliation before any retry, never to a blind resend. This is the strongest,
-   most consistent guardrail in the entire round.
-5. **`CMS-207` (Delivery Outcome Reconciliation) is the single best-designed idempotent-consumer
-   pattern found across all three production-readiness rounds** — an explicit `c.idempotent`
-   condition classifying every inbound event as new/duplicate/late-and-weaker *before* any write,
-   a first-class no-op exit for the duplicate case, and an explicit non-overwrite-of-stronger-
-   evidence rule for late events. This is what "solved" looks like for the exact defect class the
-   two earlier rounds spent entire repair passes fixing at the field level.
-6. **`OPS-128` (Worker Failure Recovery) is the single most concrete concurrency primitive in the
-   round** — an explicit lease with wait-out-the-lease-before-reclaiming semantics, correctly
-   ordering "is completion already confirmed" ahead of any restart decision. Every other
-   mechanism's vaguer "coordinate ownership" language (`OPS-123`) should converge on this
-   vocabulary rather than reinventing it.
-7. **`CMS-208`'s own `distinctFrom` claims it delegates retry execution to `OPS-124` ("uses that
-   retry machinery rather than being it"); its graph shows a fully self-contained retry loop
-   (`a.retry` → `c.budget` → `x.retrying`) with no handoff into `OPS-124` anywhere.** Read
-   literally, the graph is internally consistent and safe (one owner: CMS-208 itself); the risk is
-   an implementer trusting the prose and routing communication-channel retries through both,
-   producing exactly the "caller retries AND mechanism retries without shared attempt identity"
-   anti-pattern this round's brief names by name.
-8. **Freshness/revalidation is genuinely strong: 12 of 24 mechanisms explicitly re-check
-   authoritative current state before a consequential action**, and — notably — several of them
-   are not conventions applied elsewhere but dedicated pipeline stages built for exactly this:
-   `CMS-205` exists solely to revalidate a message immediately before send; `OPS-124`'s
-   `a.revalidate` exists solely to revalidate a retry target before re-attempting; `OPS-129`'s
-   `c.relevant` exists solely to revalidate a drained backlog item before releasing it. This is the
-   silent-state round's "revalidate from now" house rule, implemented here as first-class
-   architecture rather than a convention needing a validator to enforce.
-9. **The retry contract, where it exists, is unusually mature**: durable budget that does not
-   reset on worker restart (`OPS-124`, explicit), revalidation before every retry, side-effect-
-   uncertainty gated before any repeat, and bounded-not-unbounded budgets throughout, all stated
-   without inventing a single numeric retry count or backoff duration — every timing value is
-   correctly deferred to "policy" or "the class's own SLA," honoring the DO-NOT list.
-10. **`OPS-121` (Asynchronous Work Processing) is the domain's structural hub** (0 handoff
-    consumers, 5 outbound handoffs — to `OPS-122`, `OPS-123`, `OPS-124`, `OPS-127`, `OPS-130`) and
-    is also the single most consequential instance of finding 1: it is the very first action of
-    the very first mechanism the whole OPS domain builds on, and it names "the idempotency and
-    correlation keys" without ever specifying them.
-11. **`OPS-126` (Partial Processing Recovery) has no confirmed real consumer in the current
-    283-journey corpus** — the design (never replay successful children, honest escalation when no
-    aggregation policy exists) is sound, but its one cross-reference (`DAT-225`) is a `distinctFrom`
-    explicitly declining to use it, not an invocation. This may be infrastructure built ahead of
-    demonstrated need rather than a defect — see `CONSUMER-COVERAGE.md`.
-12. **`CON-34` (Frequency Recalculation) is the one mechanism in the round fully isolated from the
-    rest of the canonical corpus by structural reference** — zero inbound handoffs, zero outbound
-    handoffs, reachable only via its own named trigger event with no traceable emitter.
-13. **The technical-completion-is-not-business-completion distinction (`OPS-130`) is the corpus's
-    cleanest single architectural decision in this round** — named once, built as its own dedicated
-    mechanism rather than folded into every producer, and explicitly idempotent by construction
-    ("checking twice costs nothing and proves the same thing each time").
-14. **Failure-taxonomy vocabulary is domain-appropriate, not accidentally duplicated**: `CMS-208`'s
-    channel-specific classes (`TEMPORARY`/`PROVIDER_FAILURE`/`RATE_LIMITED`/`PERMANENT`/
-    `INVALID_DESTINATION`/`CHANNEL_RESTRICTED`) and `OPS-121`/`OPS-124`/`OPS-126`'s generic
-    infrastructure classes (`FAILED_RETRYABLE`/`FAILED_TERMINAL`/`UNKNOWN`/`PENDING`) genuinely
-    answer different questions at different layers — this is Part 21's own stated exception
-    ("unless domain meaning genuinely differs"), correctly applied, not an unreconciled duplication.
-15. **Observability inside the mechanism layer is structurally weaker than either customer-facing
-    layer's**, for a specific, corpus-wide reason: none of the 24 declare `implementation.
-    attributes`, so there is no declared list of what a company's own mapping must persist to
-    answer "what attempt/idempotency key was used" in production — every mechanism's own append-
-    only log (`work_log`, `delivery_log`, `communication_log`, `dead_letter_log`, ...) names the
-    right *concept* to persist, but not the field shape a company's schema must actually have.
+### Top findings (post-repair)
 
-### Recurring failure patterns worth naming once, not per-mechanism
+1. **The architectural finding this round exists to conclusively resolve: no runtime primitive
+   anywhere in this repository enforces journey-declared `competition`/`exclusionGroup`/
+   `precedence`, confirmed by inspecting all 24 mechanisms, the remaining 259 journeys, and the
+   site's own `src/lib/canonical-view.ts`/`practitioner-view.ts` rendering layer.** All three
+   confirmed competition groups (`purchase-intent`, `relationship-continuity`,
+   `account-restriction-authority`) describe scenarios where both sides can become eligible
+   independently and simultaneously — this is not a theoretical gap. Classified as a **P0
+   architectural blocker**, reported at the architecture level rather than folded into any single
+   mechanism's gaps, and deliberately **not resolved by adding a 25th mechanism this round** — see
+   `COMPETITION-ARBITRATION-ARCHITECTURE.md` for the full investigation, the candidate ownership
+   analysis (leaning toward a mechanism parallel to `OPS-125`'s own precedent, without asserting
+   it), and the required runtime contract if one is built.
+2. **`CMS-201`'s check-then-act race is fixed.** `a.create` is now atomic create-if-absent on
+   `(recipient_id, obligation_subject)`; a losing concurrent caller resolves to the existing
+   obligation rather than creating a duplicate. `c.existing`'s prior read is now documented
+   explicitly as a non-authoritative fast path, not the safety mechanism. Zero topology change —
+   the fix is entity/action metadata plus a does-text correction on the existing node.
+3. **Idempotency/attempt-identity is now structural corpus-wide, closing the single largest
+   systemic gap the audit found.** All 24 mechanisms declare `entity.instanceKey` +
+   `entity.concurrency`; every writing action declares `idempotencyKey`. The three-identity model
+   (invocation / side-effect idempotency / attempt) is worked out concretely per mechanism:
+   `logical_operation_key` (stable across retries, sent downstream) vs. `work_id`/`attempt_number`
+   (internal bookkeeping, never sent downstream) in `OPS-121`/`OPS-124`; `message_id` (stable per
+   obligation) vs. `attempt_id` (fresh per physical send, caller-minted before submission) in the
+   `CMS-204→205→206` chain; `lease_id` (fresh per ownership transfer) in `OPS-128`; `replay_id`/
+   `original_work_id` (parent-child attempt chain) in `OPS-127`.
+4. **`CMS-208`/`OPS-124` retry-ownership ambiguity is resolved: `CMS-208` owns its own complete
+   channel-aware retry loop end-to-end and does not delegate to `OPS-124`.** `CMS-208`'s own
+   `distinctFrom` is corrected to state this explicitly, reasoned from the graph's own already-
+   self-contained shape (`a.retry` → `c.budget` → `x.retrying`, no handoff into `OPS-124`) and from
+   channel-specific failure classification being domain knowledge `OPS-124` deliberately does not
+   carry. `a.retry` now declares a formal `attemptBudget` (`required: true`, no invented number)
+   scoped to `(message_id, destination_id)` — a single durable budget, not two.
+5. **Where duplicate/unknown-outcome handling exists, it remains uniformly correct — 8 of 8 —
+   and is now backed by structural attempt-identity fields rather than prose alone.** Every
+   mechanism naming an `UNKNOWN`/`DELIVERY_UNKNOWN`/`RECONCILIATION_REQUIRED`-shaped outcome
+   (`CMS-206`, `CMS-207`, `OPS-121`, `OPS-123`, `OPS-124`, `OPS-127`, `OPS-128`, `OPS-130`) still
+   routes it to explicit reconciliation before any retry — this round changed nothing about that
+   logic, only formalized the identity fields it depends on.
+6. **`CMS-207` remains the single best-designed idempotent-consumer pattern found across all three
+   production-readiness rounds**, now with its own `idempotencyKey`s (scoped to `attempt_id`, or
+   `raw_status_reference` pre-correlation) as a second, structural layer over the `c.idempotent`
+   condition logic that already made it correct.
+7. **`OPS-128`'s lease vocabulary is now the corpus's converged concurrency-primitive language.**
+   `OPS-123`'s vaguer "coordinate ownership" phrasing is corrected to name the same lease concept
+   explicitly (`entity.note` states it directly: this is the same lease OPS-128 uses, applied to a
+   work item whose owner is still nominally alive), rather than leaving two levels of precision for
+   the same underlying requirement.
+8. **Freshness/revalidation strength (12 of 24) is preserved unchanged — this round added no new
+   validator that would force revalidation onto mechanisms whose graph semantics don't need it**,
+   per the brief's own explicit caution against a noisy freshness validator. The new
+   `freshness_before_execution` validator (mechanism-scoped, warn-only) instead surfaced 7
+   escalation-shaped handoffs with no explicit recheck — judged legitimate, low-risk findings left
+   for human review rather than mechanically resolved (see `VALIDATOR-COVERAGE.md`).
+9. **Two new mechanism-scoped validators close two of the eight validator opportunities the audit
+   round identified**: `attempt_identity_unprovenanced` (warn) catches an attempt-shaped
+   `idempotencyKey` with no documented provenance in `entity.note`; `freshness_before_execution`
+   (warn) catches a wait that times out directly into a mutating handoff/action with no recheck and
+   no nearby revalidation. A third, pre-existing validator (`state_write_without_idempotency`) had
+   its severity widened from warn-only to error-on-mechanisms, confirmed safe only after the repair
+   pass closed every one of the corpus-wide instances it would otherwise flag. Full detail,
+   including why the other five candidates were deliberately left unimplemented, is in
+   `VALIDATOR-COVERAGE.md`.
+10. **`CON-34` and `OPS-126` are investigated and classified, not left as open questions.** `CON-34`
+    is documented in its own `entity.note` as a legitimate event-driven entry point, the same shape
+    as `CMS-201`/`CON-35`/`OPS-121`/`OPS-128` — not orphaned. `OPS-126` is classified
+    unconsumed-but-valid: sound design, no confirmed real consumer in the current 283-journey
+    corpus, its one cross-reference (`DAT-225`) explicitly declines to use it — not deleted, not
+    flagged duplicate or obsolete, since no evidence supports either label. See
+    `CONSUMER-COVERAGE.md`.
+11. **`OPS-130`'s technical-completion-is-not-business-completion distinction remains the corpus's
+    cleanest single architectural decision**, unchanged and re-confirmed this round as a principle
+    worth searching the other 23 for — no second instance of the same confusion was found.
+12. **3 P2s remain deliberately open, not force-closed**: `CMS-206`'s late-callback-after-timeout
+    edge case (presumably handled by `CMS-207`'s own late-event classification, but not shown
+    explicitly within `CMS-206`'s own graph); `CON-36`'s bounded-repair-attempt guardrail, which has
+    no single action node to attach a formal `attemptBudget` to; `OPS-126`'s consumer-coverage
+    status, now a settled classification rather than an open question, but still worth surfacing
+    since the corpus contains no journey shaped to consume it today.
+13. **Zero canonical graph topology changed anywhere in this repair round.** Every one of the 24
+    mechanisms' node counts is identical before and after, confirmed by re-running the same
+    text-eval dump used for the original audit. Every fix is `entity.instanceKey`/`entity.
+    concurrency`/`ActionNode.idempotencyKey`/`ActionNode.attemptBudget` metadata, or a `does`/
+    `distinctFrom`/handoff `carries`+`contract` prose correction — never a new, removed, or
+    rewired node.
 
-- **"The idempotency key" as an assumed-but-uncontracted primitive.** Eight separate mechanisms
-  across all three domains (CMS, CON, OPS) refer to an idempotency/attempt/correlation key or an
-  origin+version pair as though it is a settled, existing concept in the system, and not one of
-  them defines its shape, its provenance, or where a caller gets one. This reads less like 24
-  independent oversights and more like a single undocumented assumption the entire mechanism layer
-  was authored against — worth writing down explicitly as a house convention (see
-  `SIDE-EFFECT-AND-IDEMPOTENCY-AUDIT.md`) rather than fixed 8 times independently in a repair round.
-- **"Coordinate ownership" without naming the primitive.** `OPS-123` says two workers must not
-  concurrently recover the same job; `CMS-201`'s dedup implicitly needs the same discipline;
-  neither names a lease, lock, or compare-and-set the way `OPS-128` does concretely. Worth
-  converging vocabulary on OPS-128's lease pattern rather than three different levels of precision
-  for the same underlying requirement.
-- **Prose claims of delegation that the graph does not show.** `CMS-208` → `OPS-124` is the one
-  confirmed instance; worth a one-time corpus-wide grep for other `distinctFrom` text using "uses
-  X's machinery rather than being it"-shaped language, to confirm it is not systemic (see
-  `CONSUMER-COVERAGE.md`).
-- **Zero conflict-arbitration coverage is a single finding wearing 24 mechanism-shaped hats, not
-  24 findings.** Recorded once at the architecture level (finding 3 above); every mechanism's own
-  `conflictArbitration.enforcesJourneyCompetition: false` is the same fact restated 24 times, not
-  24 independent gaps, and is not counted as a per-mechanism P1/P2 for that reason — only as a
-  cross-cutting architectural finding.
+### Recurring patterns, resolved or reclassified this round
+
+- **"The idempotency key" as an assumed-but-uncontracted primitive** — the audit round's single
+  largest systemic finding — is now resolved corpus-wide, not fixed 8 times independently but
+  converged on the existing `ActionNode.idempotencyKey`/`attemptBudget` schema primitives, exactly
+  as the brief required (no parallel framework invented).
+- **"Coordinate ownership" without naming the primitive** — resolved: `OPS-123` now names the same
+  lease concept `OPS-128` already used concretely, rather than three levels of precision for one
+  requirement.
+- **Prose claims of delegation that the graph does not show** — the one confirmed instance
+  (`CMS-208` → `OPS-124`) is resolved by correcting the prose to match the graph's own already-
+  correct shape. A corpus-wide grep for the same `distinctFrom` pattern elsewhere found no second
+  instance.
+- **Zero conflict-arbitration coverage remains a single finding wearing 24 mechanism-shaped hats,
+  now confirmed by direct investigation rather than by absence-of-reference alone** — see finding 1
+  above and `COMPETITION-ARBITRATION-ARCHITECTURE.md`. This is the one finding this round did not
+  and should not resolve by a code change, because doing so requires a product-architecture
+  decision (candidate ownership) reserved for a dedicated decision, per the brief's own instruction.
 
 ### Architecture assessment
 
-The 24 mechanisms read as a genuinely mature execution-infrastructure design — considerably more
-mature, in fact, than the customer-facing layers were before their own repair rounds. The
-CMS-201→210 pipeline is close to a textbook implementation of the exact distinctions this round's
-brief asks every mechanism to make (prepared/validated/submitted/accepted/delivered/read, kept
-apart with zero collapsing found anywhere); the OPS-121→130 domain is a comparably careful model
-of accepted-vs-completed, retryable-vs-terminal-vs-unknown, and worker-death-vs-work-failure. The
-weaknesses this round found cluster tightly: one real concurrency gap (`CMS-201`), one real
-caller/callee ambiguity (`CMS-208`/`OPS-124`), one confirmed architectural absence (conflict
-arbitration), and a single systemic documentation gap (the assumed-but-uncontracted idempotency
-key) that shows up as a P1 or P2 on roughly a third of the corpus without ever being a different
-defect each time. **None of the 24 requires a canonical graph change to close what this round
-found** except `CMS-201`, whose fix — an atomic check-and-create — is itself an implementation
-detail of `a.create`, not a new node or a rewired edge; whether that counts as "the graph itself"
-or "how a.create is safely implemented" is exactly the judgment call `NEEDS_RUNTIME_CHANGE` exists
-to flag rather than pre-decide.
+The 24 mechanisms remain a genuinely mature execution-infrastructure design — this round's repair
+did not change that assessment, only closed the gap between what the mechanisms already reasoned
+about correctly in prose and what a schema-checkable field could confirm. The one real concurrency
+defect (`CMS-201`) is fixed at the metadata level with zero topology change. The one real
+caller/callee ambiguity (`CMS-208`/`OPS-124`) is resolved by correcting prose to match an
+already-correct graph. The one confirmed architectural absence (conflict arbitration) is
+investigated conclusively and reported honestly rather than either silently ignored or papered over
+with an unauthorized new mechanism. **Every mechanism this round could safely bring to
+READY_WITH_MAPPING or better, it did; the one finding that cannot be closed by this round's own
+mandate — because closing it requires a product decision, not a repair — is the one still open,
+and is reported as such, prominently, rather than folded into a clean P0=0 headline.**
 
-### Consumer coverage, summarized
+### Consumer coverage, summarized (post-repair)
 
-Eight of the 24 mechanisms show zero handoff-traceable consumers. Six of those eight are correctly
-so — `CMS-201`, `CMS-207`, `CON-35`, `CON-39`, `OPS-121`, `OPS-128` are event-triggered entry
-points (an authoritative business/permission/worker-health event, not a journey handoff), which is
-the expected shape for reusable infrastructure rather than a gap. Two are genuinely worth
-flagging: `CON-34` has zero consumers *and* zero outbound handoffs (the only fully isolated
-mechanism in the round), and `OPS-126` has zero confirmed consumers with its one cross-reference
-explicitly declining to use it. Full detail, including every mechanism's representative
-consumer ids, is in `CONSUMER-COVERAGE.md`.
+Eight of the 24 mechanisms show zero handoff-traceable consumers, unchanged from the audit round.
+Six of those eight remain correctly so — event-triggered entry points, the expected shape for
+reusable infrastructure. `CON-34` is now documented explicitly as the same shape, not an anomaly.
+`OPS-126` is now a settled classification (unconsumed-but-valid) rather than an open question. Full
+detail, including every mechanism's representative consumer ids, is in `CONSUMER-COVERAGE.md`.
 
 
 ## All 24 mechanisms, individually
 
 ## CMS-201 — Communication Obligation Creation
 
-READINESS: NEEDS_RUNTIME_CHANGE
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The suppress/reuse/create split and CMS-R2's discipline are sound, but the graph itself, taken literally, has no way to handle duplicate execution: c.existing is evaluated and a.create commits with no described atomic guard between them, on the one mechanism the corpus explicitly built to prevent duplicate obligations (CMS-R1/R2, its own stated purpose). This is not a missing downstream contract - it is the check-then-act sequence itself, as authored, that is unsafe under concurrent delivery of the same authoritative_business_event.
+The suppress/reuse/create split and CMS-R2's discipline are sound; a.create is now atomically create-if-absent on (recipient_id, obligation_subject) with a declared idempotencyKey and instanceKey - a concurrent duplicate-event race resolves to one canonical obligation, never two. The one remaining P0 this round found is closed.
 
 RESPONSIBILITY:
 Decide whether a business event actually creates a communication obligation, and deduplicate against an already-outstanding one for the same recipient.
@@ -252,11 +246,11 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-undeclared - two concurrent authoritative_business_event deliveries for the same recipient/subject both evaluate c.existing before either commits a.create, and nothing described stops both from creating separate obligations
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.create is atomically create-if-absent on (recipient_id, obligation_subject); a losing concurrent caller resolves to the existing obligation rather than duplicating it - c.existing's own read is a fast-path optimization, not the safety mechanism
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
-Primitive: compare-and-set — not addressed - the audit surfaces this as the mechanism's own genuine gap, not a scenario it already reasons about
+Primitive: compare-and-set — two concurrent deliveries of the same authoritative_business_event both reaching a.create for the same (recipient_id, obligation_subject) - now resolved by making a.create itself atomic on that identity
 
 FRESHNESS / REVALIDATION:
 Does not revalidate before execution (low or no consequential-action risk in this mechanism's own scope, or not applicable).
@@ -272,22 +266,21 @@ Transfers ownership on: h.recipient → CMS-202
 
 OBSERVABILITY:
 What ran: CMS-201's own graph, via communication_log
-Decision basis: Does a communication requirement exist for this event and this recipient?; Is an equivalent communication already outstanding for this recipient?
+Decision basis: Does a communication requirement exist for this event and this recipient?; Is an equivalent communication already outstanding for this recipient, as far as a non-atomic read can tell?
 Side effect attempted: communication_log
 Attempt identity: not recorded
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-entry point of the CMS pipeline; triggered by authoritative_business_event, presumably emitted by any of the 68 message-sending journeys' own execution:"communication" actions, but no canonical journey structurally hands off into CMS-201
+entry point of the CMS pipeline; triggered by authoritative_business_event, presumably emitted by any of the 68 message-sending journeys' own execution:"communication" actions, but no canonical journey structurally hands off into CMS-201 - a legitimate event-driven entry-point shape, the same as CON-35/OPS-121/OPS-128
 
 TEST CASES:
-- concurrent-invocation: given two authoritative_business_event deliveries for the same recipient and subject arrive within milliseconds of each other — expect exactly one communication obligation exists afterward, not two - UNVERIFIED, see gaps
-- duplicate-invocation: given the same business event is redelivered (at-least-once queue semantics) — expect c.existing folds it into the prior obligation via a.reuse
+- concurrent-invocation: given two authoritative_business_event deliveries for the same recipient and subject arrive within milliseconds of each other — expect exactly one communication obligation exists afterward - a.create's own atomicity on (recipient_id, obligation_subject) resolves the race, not c.existing's earlier read
+- duplicate-invocation: given the same business event is redelivered (at-least-once queue semantics) — expect c.existing folds it into the prior obligation via a.reuse, or - if the race window was hit - a.create itself resolves to the same existing obligation
 
 GAPS:
-- P0 [concurrency] The obligation entity created by a.create has no declared identity (no idempotencyKey/attemptBudget, no instanceKey-equivalent). c.existing's dedup check ("is an equivalent communication already outstanding") is evaluated before a.create commits, so two concurrent deliveries of the same authoritative_business_event can both pass c.existing and both create a separate obligation - each of which then independently flows through CMS-202 through CMS-206 and can result in the recipient receiving the same message twice. A compare-and-set or a keyed insert on (recipient, subject, purpose) is needed at a.create and is not described anywhere in the graph.
-- P2 [consumer-coverage] No canonical journey structurally hands off into CMS-201; it is reached only via its own named trigger event, which is not itself emitted by any of the 68 message-sending journeys' own nodes in a traceable way.
+- P2 [consumer-coverage] No canonical journey structurally hands off into CMS-201; it is reached only via its own named trigger event, which is not itself emitted by any of the 68 message-sending journeys' own nodes in a traceable way - documented as a legitimate event-driven entry point, not treated as a defect.
 
 ---
 
@@ -296,7 +289,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-Clean two-step who-then-where resolution with an explicit role-vs-named-party distinction and a real verification wait/timeout; every action is a pure resolve-and-record with no irreversible side effect, so retry risk is low even without a declared idempotencyKey.
+Clean two-step who-then-where resolution with an explicit role-vs-named-party distinction and a real verification wait/timeout. Every writing action now carries a declared idempotencyKey scoped to obligation_id, formalizing what was already low-risk by construction.
 
 RESPONSIBILITY:
 Resolve who an obligation is actually owed to and which of their destinations currently work, before permission is evaluated.
@@ -312,8 +305,8 @@ SIDE EFFECTS:
 Classes: reads-only, decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-each action recomputes from current data (identity/role/destination resolution); re-running is naturally safe since nothing here mutates business state, only the mechanism's own routing log
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+every writing action (a.identity, a.unresolved, a.role, a.destinations, a.no-route, a.hold, a.ready) now declares idempotencyKey scoped to obligation_id
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -322,7 +315,7 @@ FRESHNESS / REVALIDATION:
 Revalidates before consequential execution. Checks: destination currently valid (not merely present in the record); role's current holder, not who held it when the record was written
 
 TIMEOUT / CANCELLATION:
-- w.authorization: onTimeout → a.no-route
+- w.authorization: onTimeout → a.no-route (recheck: the obligation's own relevance window and whether it still stands, before recording CONTACT_ROUTE_UNAVAILABLE)
 
 CONFLICT ARBITRATION:
 Enforces journey-declared competition/exclusionGroup/precedence: no
@@ -345,7 +338,7 @@ TEST CASES:
 - stale-state: given a destination that was valid when the obligation was created has since hard-bounced — expect a.destinations excludes it; the obligation routes around it or reaches x.no-route if none remain
 
 GAPS:
-- P2 [idempotency] w.authorization's onTimeout path (a.no-route) and the verification wait itself have no declared attempt/idempotency field, though the low side-effect risk of this mechanism makes this a documentation gap rather than a correctness one.
+none found
 
 ---
 
@@ -354,7 +347,7 @@ GAPS:
 READINESS: READY
 
 WHY:
-One of the two READY verdicts in this round: a pure read-and-evaluate decision mechanism with an explicit, well-enforced write/read boundary against CON-35 (own distinctFrom names it precisely), no side effects beyond its own routing log, and an honest escalation to DEC-181 rather than inventing a permission rule when none is defined.
+A pure read-and-evaluate decision mechanism with an explicit, well-enforced write/read boundary against CON-35, no side effects beyond its own routing log, and an honest escalation to DEC-181 rather than inventing a permission rule when none is defined. Every writing action now carries a declared idempotencyKey for completeness, though the mechanism's own low risk was never in question.
 
 RESPONSIBILITY:
 Decide whether a working destination may carry this specific message, given its purpose - reading permission state, never writing it.
@@ -371,8 +364,8 @@ SIDE EFFECTS:
 Classes: reads-only, decides-only
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-pure evaluation against current permission state; re-running produces the same answer given the same state, no durable mutation to duplicate
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+pure evaluation against current permission state; every writing action (a.purpose, a.alternate, a.candidates, a.undeliverable) now declares idempotencyKey scoped to obligation_id
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -410,10 +403,10 @@ none found
 
 ## CMS-204 — Channel Routing
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The smallest-valid-set selection discipline and the explicit non-duplication guardrails are sound, but a.prepare mints the prepared message instance with no declared identity - the identity CMS-206's attempt tracking later depends on is never explicitly established here.
+The smallest-valid-set selection discipline and the explicit non-duplication guardrails are sound; a.prepare now mints message_id deterministically from obligation_id, declared as the entity's own instanceKey, closing the identity gap CMS-206's attempt tracking depends on.
 
 RESPONSIBILITY:
 Pick the smallest channel set that satisfies the obligation and prepare the message instance for it.
@@ -427,11 +420,10 @@ Distinguishable outcomes: h.send-ready (prepared message on a selected route)
 
 SIDE EFFECTS:
 Classes: decides-only, writes-internal-state
-Naming vs. semantic truth: a.prepare "builds" the message but explicitly has not validated it - the node's own text is careful about this, but a caller relying on the node name alone could mistake preparation for something send-ready in the stronger sense CMS-205 alone actually guarantees
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-undeclared - a.prepare's own message-instance identity is never named, so whether re-invoking channel selection after a lost response reuses or duplicates the prepared instance is unaddressed
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.prepare mints message_id deterministically from obligation_id and declares idempotencyKey scoped to it - a redelivered t.permitted for the same obligation reuses message_id rather than minting a second prepared instance
+Attempt identity: message_id (provenance: self-minted-on-entry). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -452,7 +444,7 @@ OBSERVABILITY:
 What ran: CMS-204's own graph, via communication_log
 Decision basis: Does the obligation genuinely require more than one channel?
 Side effect attempted: communication_log
-Attempt identity: not recorded
+Attempt identity: message_id (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
@@ -460,10 +452,10 @@ CONSUMERS:
 1 handoff consumer: CMS-203
 
 TEST CASES:
-- duplicate-invocation: given channel selection is re-invoked for the same obligation after a lost response — expect UNVERIFIED whether a second prepared message instance is created - see gaps
+- duplicate-invocation: given channel selection is re-invoked for the same obligation after a lost response — expect a.prepare's own idempotencyKey (obligation_id) resolves to the same message_id rather than minting a second prepared instance
 
 GAPS:
-- P1 [idempotency] a.prepare creates "a channel-compatible message instance" with no declared identity for it. CMS-206 later persists "the message id, the attempt id" as though the message id already exists by then, but nothing in CMS-204 (or CMS-205) shows where a message id is minted or whether re-preparing after a retry reuses it.
+none found
 
 ---
 
@@ -472,7 +464,7 @@ GAPS:
 READINESS: READY
 
 WHY:
-The single cleanest implementation of the corpus-wide revalidate-from-now house rule in this entire audit round - a dedicated mechanism whose only job is exactly what the silent-state round had to formalize as a convention (WaitNode.recheck) elsewhere. Explicit stale-content regeneration, explicit stale-destination reroute, explicit never-mutate-history guardrail.
+The single cleanest implementation of the corpus-wide revalidate-from-now house rule in this entire audit round. a.send now explicitly mints attempt_id (the identity CMS-206 persists), is idempotent on message_id since this mechanism runs at most once per message (CMS-208's own recovery loop retries independently downstream rather than looping back through here), and every writing action carries a declared idempotencyKey.
 
 RESPONSIBILITY:
 Re-check the message is still true immediately before it is submitted, and stop or regenerate it if the world has moved.
@@ -488,8 +480,8 @@ SIDE EFFECTS:
 Classes: reads-only, decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.reread + a.regenerate recompute from current authoritative state on every invocation, which is naturally idempotent in effect even though no idempotencyKey is declared; the downstream CMS-206 attempt-correlation step is the actual duplicate-submission guard
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.send is idempotent on message_id - this mechanism runs at most once per message, so a redelivered trigger reuses the attempt_id already minted rather than minting a second one and risking a duplicate provider submission
+Attempt identity: attempt_id (provenance: self-minted-on-entry). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -510,7 +502,7 @@ OBSERVABILITY:
 What ran: CMS-205's own graph, via communication_log
 Decision basis: Is the communication still valid?; Does the content depend on data that has changed since preparation?
 Side effect attempted: communication_log, suppressed_sends
-Attempt identity: not recorded
+Attempt identity: attempt_id (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Retried/suppressed/superseded: suppressed_sends log
 Current owner: transfers via its own handoff nodes; see handoffs
@@ -531,13 +523,13 @@ none found
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The strongest attempt-identity design in the round: attempt_id and message_id are explicitly persisted before the outcome is known specifically so a later-arriving outcome has something to correlate against, and the unknown-outcome path (timeout -> a.unknown -> c.duplicates -> h.reconcile) is exactly the corpus-wide UNKNOWN handling this round's brief asks every mechanism to have. The gap is purely structural: this attempt identity is never declared as an idempotencyKey field.
+The strongest attempt-identity design in the round, now fully structural: entity.instanceKey is (message_id, attempt_id), both caller-supplied before submission per entity.note's own explicit provenance statement, and a.persist's idempotencyKey is exactly that composite key. The unknown-outcome path (timeout -> a.unknown -> c.duplicates -> h.reconcile) remains exemplary.
 
 RESPONSIBILITY:
 Record the handover to a provider - accepted, refused, or unknown - as a fact about the provider's queue, distinct from delivery.
 
 INPUT CONTRACT:
-- validated message submitted to a delivery mechanism or provider (required) — provenance: CMS-205's h.attempt handoff
+- validated message submitted to a delivery mechanism or provider, carrying a message_id and an attempt_id already minted by the caller (required) — provenance: CMS-205's h.attempt handoff
 
 OUTPUT CONTRACT:
 Classes: execution-attempt, provider-status
@@ -547,8 +539,8 @@ SIDE EFFECTS:
 Classes: submits-to-provider, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-attempt_id is minted and persisted before the provider outcome is known; a later-arriving acceptance/refusal correlates against it. An unknown timeout does not trigger a blind resend - it branches on whether a duplicate would matter (c.duplicates)
-Attempt identity: message id, attempt id (provenance: self-minted-on-entry). Structurally declared as a field: no.
+attempt_id is caller-supplied, minted by CMS-205's a.send before this mechanism ever runs - a.persist's idempotencyKey (message_id + attempt_id) means a redelivered t.submitted for the same already-minted attempt persists once, not twice
+Attempt identity: message_id, attempt_id (provenance: caller-supplied). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -575,7 +567,7 @@ OBSERVABILITY:
 What ran: CMS-206's own graph, via delivery_log
 Decision basis: What did the provider do with it?; Would a duplicate matter for this communication?
 Side effect attempted: delivery_log, suppressed_sends
-Attempt identity: message id, attempt id (named in prose, not a declared field)
+Attempt identity: message_id, attempt_id (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Retried/suppressed/superseded: suppressed_sends log
 Current owner: transfers via its own handoff nodes; see handoffs
@@ -585,11 +577,10 @@ CONSUMERS:
 
 TEST CASES:
 - unknown-outcome: given the submission connection drops before the provider accepts or refuses, and the message carries a payment link — expect a.unknown -> c.duplicates -> h.reconcile; no resend until the true state is established
-- late-callback: given a provider acceptance arrives after the submission timeout already fired a.unknown — expect UNVERIFIED - the graph shows w.acceptance's onEvent path (c.outcome) and onTimeout path (a.unknown) as mutually exclusive branches with no described reconciliation if both eventually fire; see CMS-207 for the mechanism that does handle this for delivery outcomes specifically
+- duplicate-invocation: given t.submitted is redelivered for the same (message_id, attempt_id) — expect a.persist's own idempotencyKey resolves it to a single persisted attempt record
 
 GAPS:
-- P2 [idempotency] attempt_id/message_id are named explicitly in prose as the correlation identity but are never declared as an idempotencyKey field or listed as required inputs elsewhere in the pipeline - the systemic gap named in SIDE-EFFECT-AND-IDEMPOTENCY-AUDIT.md, present here in its clearest form since the concept is otherwise fully worked out.
-- P2 [unknown-outcome] A late provider acceptance/refusal arriving after w.acceptance's own timeout already routed to a.unknown is not explicitly addressed within CMS-206 itself - it presumably lands on CMS-207 (which does handle late/duplicate outcomes correctly), but CMS-206's own graph does not show that path.
+- P2 [unknown-outcome] A late provider acceptance/refusal arriving after w.acceptance's own timeout already routed to a.unknown is not explicitly addressed within CMS-206 itself - it presumably lands on CMS-207 (which does handle late/duplicate outcomes correctly via c.idempotent), but CMS-206's own graph does not show that path explicitly.
 
 ---
 
@@ -598,7 +589,7 @@ GAPS:
 READINESS: READY
 
 WHY:
-The best-designed idempotent-consumer pattern in the entire round: an explicit c.idempotent condition classifying every inbound outcome as new/duplicate/late-and-weaker before acting on it, x.duplicate-event as a first-class no-op exit, and a.late's explicit non-overwrite-of-stronger-evidence rule. This is what the corpus-wide idempotency gap looks like when fully solved at the mechanism level.
+The best-designed idempotent-consumer pattern in the entire round: an explicit c.idempotent condition classifying every inbound outcome as new/duplicate/late-and-weaker before acting on it, x.duplicate-event as a first-class no-op exit, and a.late's explicit non-overwrite-of-stronger-evidence rule. Every writing action now also carries a formal idempotencyKey scoped to attempt_id (or the raw provider reference, for the pre-correlation step), matching what the mechanism's own condition logic already enforced correctly.
 
 RESPONSIBILITY:
 Derive real delivery state from what the channel reports, correlated to the exact attempt and ordered correctly against what is already known.
@@ -614,8 +605,8 @@ SIDE EFFECTS:
 Classes: writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-explicit: c.idempotent classifies every inbound event as new-and-current / already-processed / late-and-weaker before any write; repeated webhook delivery is a named, handled case ("channels repeat webhooks, and repeating the state change with them double-counts every delivery")
-Attempt identity: the attempt it correlates to (provenance: correlated-to-prior-attempt). Structurally declared as a field: no.
+explicit: c.idempotent classifies every inbound event as new-and-current / already-processed / late-and-weaker before any write; repeated webhook delivery is a named, handled case. Every writing action's own idempotencyKey (attempt_id-scoped, or raw_status_reference-scoped for a.correlate specifically, since attempt_id is not yet confirmed at that point) is a second, structural layer of the same protection
+Attempt identity: attempt_id (provenance: correlated-to-prior-attempt). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -642,7 +633,7 @@ OBSERVABILITY:
 What ran: CMS-207's own graph, via delivery_log
 Decision basis: Did it correlate to a known attempt?; Is this outcome new, repeated, or older than what is already recorded?; What does the channel report?
 Side effect attempted: delivery_log
-Attempt identity: the attempt it correlates to (named in prose, not a declared field)
+Attempt identity: attempt_id (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
@@ -660,10 +651,10 @@ none found
 
 ## CMS-208 — Message Delivery Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The failure-class taxonomy and destination-scoping discipline are exemplary, but this mechanism's own distinctFrom text claims it "uses OPS-124's retry machinery rather than being it" while its graph implements a fully self-contained retry loop (a.retry/c.budget/x.retrying) with no handoff to OPS-124 anywhere - a real caller/callee ambiguity about which mechanism owns the retry budget for a communication-channel failure.
+The failure-class taxonomy and destination-scoping discipline are exemplary. The retry-ownership ambiguity this round found is resolved: distinctFrom now states explicitly that this mechanism owns its own complete channel-aware retry loop end to end and does not invoke OPS-124, because channel failure classification is domain knowledge OPS-124 deliberately has no reason to carry. a.retry now carries a declared attemptBudget (required: true, no invented number) scoped to (message_id, destination_id).
 
 RESPONSIBILITY:
 Classify a delivery failure by its real cause and respond with the smallest correct action - retry, fallback, or stop - scoped to the destination, never the person.
@@ -679,8 +670,8 @@ SIDE EFFECTS:
 Classes: decides-only, submits-to-provider, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-"the retry budget is fixed at the first failure and does not renew" is stated as a rule, but no field declares where that budget lives or under what identity it is tracked
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+"the retry budget is fixed at the first failure and does not renew" is now a declared attemptBudget Config (required: true), scoped to (message_id, destination_id); every writing action carries idempotencyKey on the same composite key
+Attempt identity: message_id, destination_id (provenance: caller-supplied). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -689,7 +680,7 @@ FRESHNESS / REVALIDATION:
 Revalidates before consequential execution. Checks: whether the communication is still relevant before recovering (c.relevant)
 
 RETRY / FAILURE SEMANTICS:
-Owns its own retry loop: yes (delegates to OPS-124 (per this mechanism's own distinctFrom text, not shown structurally)). Failure classes: retryable, non-retryable, unknown. Budget durable across restarts: undeclared. Revalidates before retry: yes.
+Owns its own retry loop: yes. Failure classes: retryable, non-retryable, unknown. Budget durable across restarts: yes. Revalidates before retry: yes.
 
 TIMEOUT / CANCELLATION:
 no wait node in this mechanism
@@ -704,20 +695,20 @@ OBSERVABILITY:
 What ran: CMS-208's own graph, via delivery_log
 Decision basis: Is the communication still relevant?; What does the failure class call for?; Does retry budget remain?; Is an alternate channel available?
 Side effect attempted: delivery_log, suppressed_sends
-Attempt identity: not recorded
+Attempt identity: message_id, destination_id (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Retried/suppressed/superseded: suppressed_sends log
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-3 handoff consumers: CMS-206, CMS-207, DOC-214
+3 handoff consumers: CMS-206, CMS-207, DOC-214 (DOC-214's own h.recover contract now declares message_id + destination_id explicitly)
 
 TEST CASES:
-- dependency-retryable-failure: given a TEMPORARY or RATE_LIMITED failure with retry budget remaining — expect a.retry, then c.budget re-evaluates
-- partial-failure: given the same underlying communication also has an active OPS-124 retry instance for a non-communication side effect it triggered — expect UNVERIFIED whether the two retry budgets (CMS-208's own, and OPS-124's) are coordinated or independent - see gaps
+- dependency-retryable-failure: given a TEMPORARY or RATE_LIMITED failure with retry budget remaining — expect a.retry mints a fresh attempt for this physical try, spends one unit of the (message_id, destination_id)-scoped budget, then c.budget re-evaluates
+- partial-failure: given the same underlying communication also has an active OPS-124 retry instance for a non-communication side effect it triggered — expect the two budgets are independent by design - this mechanism's own distinctFrom now states explicitly it does not delegate to OPS-124
 
 GAPS:
-- P1 [caller-callee-contract] distinctFrom OPS-124 states this mechanism "uses that retry machinery rather than being it," but the graph shows a.retry -> c.budget -> x.retrying as a fully self-contained loop with its own budget check and no handoff into OPS-124. Either the prose is describing an implementation detail invisible at the graph level (in which case it should say so), or this is a genuine duplicated retry-budget implementation - Part 23's exact double-ownership anti-pattern ("caller retries AND mechanism retries... without shared attempt identity").
+none found
 
 ---
 
@@ -726,7 +717,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The completion-semantics discipline is exemplary (attempt vs. delivery is never guessed, DEC-181 escalation when undefined), and the superseded-vs-unmet distinction is exactly the kind of output-class completeness the audit brief asks every mechanism for. Minor gap: no declared identity for re-invocation safety on a.complete/a.unreachable.
+The completion-semantics discipline is exemplary (attempt vs. delivery is never guessed, DEC-181 escalation when undefined), and the superseded-vs-unmet distinction is exactly the kind of output-class completeness this round asks every mechanism for. Every writing action now carries a declared idempotencyKey scoped to obligation_id.
 
 RESPONSIBILITY:
 Close a communication obligation against the completion standard it actually requires - attempt or confirmed delivery - and escalate what could never be met.
@@ -742,8 +733,8 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-undeclared - a.complete/a.unreachable are terminal-writing actions with no idempotencyKey; re-evaluating a closure decision twice for the same obligation is not explicitly guarded, though the condition-driven recomputation shape makes accidental double-closure unlikely rather than structurally prevented
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.superseded, a.complete, a.unreachable all carry idempotencyKey scoped to obligation_id
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -769,22 +760,22 @@ Dependency response: recorded per-attempt where the mechanism crosses a provider
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-3 handoff consumers: CMS-203 (escalated undeliverable), CMS-207 (confirmed delivery), CMS-208 (exhausted routes)
+3 handoff consumers: CMS-203 (escalated undeliverable), CMS-207 (confirmed delivery), CMS-208 (exhausted routes) - all three now declare obligation_id in their own contract.requiredFields
 
 TEST CASES:
 - happy-path: given delivery is confirmed and the obligation requires confirmed delivery — expect a.complete -> x.completed
 
 GAPS:
-- P2 [idempotency] No declared identity guards against re-processing the same obligation-closure decision twice; low risk given the condition-recomputation shape, but undocumented.
+none found
 
 ---
 
 ## CON-34 — Frequency Recalculation
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The default-optional-only scoping and the never-retroactive guardrail are sound, but this is the one mechanism in the round with zero structural connection to the rest of the corpus in either direction - no handoff targets it and it makes no handoffs of its own, and its own idempotency story for a.trim's suppression write is undeclared.
+The default-optional-only scoping and the never-retroactive guardrail are sound. a.include and a.trim now carry declared idempotencyKeys scoped to person_id. The isolation this round's audit flagged is resolved by classification, not by a code change: entity.note now documents explicitly that this is a legitimate event-driven entry point, the same shape as CMS-201/CON-35/OPS-121/OPS-128, not an orphan.
 
 RESPONSIBILITY:
 Recalculate optional-communication cadence when a frequency preference changes, prospectively only.
@@ -800,8 +791,8 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state, suppresses-queued-work
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.recalculate writes with mode:"set" (naturally idempotent); a.trim appends to suppressed_sends with no idempotencyKey - a retried trim after a lost response could double-record the same suppression event, though the suppression effect itself (not sending) is idempotent in outcome even if the log duplicates
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.recalculate writes with mode:"set" (naturally idempotent); a.include and a.trim now carry idempotencyKey scoped to person_id
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -826,14 +817,13 @@ Attempt identity: not recorded
 Retried/suppressed/superseded: suppressed_sends log
 
 CONSUMERS:
-0 handoff consumers and 0 outbound handoffs - the only mechanism in the round fully isolated from the rest of the canonical corpus by structural reference
+0 handoff consumers and 0 outbound handoffs - classified this round as a legitimate event-driven entry point (frequency_preference_changed, a declared first-party act), the same shape as the other zero-handoff-consumer mechanisms, not an orphan; documented explicitly in entity.note
 
 TEST CASES:
 - happy-path: given a person reduces marketing frequency from weekly to monthly — expect future cadence recalculated; already-delivered messages untouched
 
 GAPS:
-- P1 [consumer-coverage] No canonical journey hands off into CON-34 and CON-34 hands off to nothing - it is the only mechanism in the round with zero structural connections in either direction. Its trigger event (frequency_preference_changed) is registered but not traceably emitted by any of the 283 journeys' own nodes.
-- P2 [idempotency] a.trim's suppressed_sends write has no idempotencyKey.
+- P2 [consumer-coverage] Still no traceable structural consumer of any kind (handoff or otherwise) - this round's investigation concluded the mechanism is a legitimate event-driven entry point rather than an orphan, but that conclusion rests on the trigger event's own registered meaning, not on a confirmed real emitter in the current 283-journey corpus.
 
 ---
 
@@ -842,7 +832,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The enforce-first-propagate-after asymmetry is exactly the right design ("a grant applied late costs a message that could have been sent, a withdrawal applied late costs one that should not have been"), and origin/version-based propagation with an explicit CON-40 conflict escalation path is a genuine, well-reasoned optimistic-convergence pattern. Gap is purely structural: origin/version is never a declared field.
+The enforce-first-propagate-after asymmetry is exactly the right design, and origin/version-based propagation with an explicit CON-40 conflict escalation path is a genuine, well-reasoned optimistic-convergence pattern. change_origin and change_version (matching IDN-89's own naming convention from the silent-lifecycle-state round) are now declared instanceKey/idempotencyKey fields rather than prose-only.
 
 RESPONSIBILITY:
 Stop affected communication the moment permission changes, and propagate the change to dependent systems asynchronously.
@@ -858,17 +848,17 @@ SIDE EFFECTS:
 Classes: writes-internal-state, suppresses-queued-work
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.propagate "carries origin and version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange" - explicit ordering/idempotency reasoning, entirely in prose
-Attempt identity: origin, version (provenance: undeclared). Structurally declared as a field: no.
+a.record assigns change_version and change_origin explicitly; a.propagate carries both so a dependent system only applies a propagation newer than what it already holds - now a declared instanceKey (person_id, change_version), not prose alone
+Attempt identity: change_version, change_origin (provenance: self-minted-on-entry). Structurally declared as a field: yes.
 
 CONCURRENCY:
-Primitive: optimistic-version-check — an out-of-order echo or a redelivered propagation event, explicitly guarded against by origin+version comparison
+Primitive: optimistic-version-check — an out-of-order echo or a redelivered propagation event, explicitly guarded against by change_origin+change_version comparison
 
 FRESHNESS / REVALIDATION:
 Does not revalidate before execution (low or no consequential-action risk in this mechanism's own scope, or not applicable).
 
 ORDERING:
-Required: yes — origin and version, so a redelivered or out-of-order propagation event is discarded rather than reapplied
+Required: yes — change_origin and change_version, so a redelivered or out-of-order propagation event is discarded rather than reapplied
 
 TIMEOUT / CANCELLATION:
 - w.converge: onTimeout → h.conflict
@@ -883,18 +873,18 @@ OBSERVABILITY:
 What ran: CON-35's own graph, via permission_log
 Decision basis: Does this reduce permission or extend it?; Do the dependent systems now agree?
 Side effect attempted: permission_log, suppressed_sends
-Attempt identity: origin, version (named in prose, not a declared field)
+Attempt identity: change_version, change_origin (named in prose, not a declared field)
 Retried/suppressed/superseded: suppressed_sends log
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-0 handoff consumers - triggered by authoritative_permission_change, an authoritative system event, appropriately not journey-initiated. Hands off to CON-40 on convergence failure.
+0 handoff consumers - triggered by authoritative_permission_change, an authoritative system event, appropriately not journey-initiated. Hands off to CON-40 on convergence failure, now carrying disputed_permission_ref explicitly.
 
 TEST CASES:
-- late-callback: given a propagation confirmation for an older version arrives after a newer one already converged — expect discarded by version comparison rather than reverting the newer state - per guardrail, UNVERIFIED against a declared field, see gaps
+- late-callback: given a propagation confirmation for an older change_version arrives after a newer one already converged — expect discarded by version comparison rather than reverting the newer state
 
 GAPS:
-- P2 [idempotency] origin and version are named explicitly as the mechanism that prevents an out-of-order echo from reverting state, but neither is a declared field anywhere in this mechanism or its consumers.
+none found
 
 ---
 
@@ -903,7 +893,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The per-destination (not per-person, not per-channel) granularity is the single most important correctness property this mechanism has and it holds it without exception; contactability/permission separation is airtight. Bounded repair-cycle attempts are named in the guardrails but not structurally declared as an attemptBudget.
+The per-destination (not per-person, not per-channel) granularity is the single most important correctness property this mechanism has and it holds it without exception; contactability/permission separation is airtight. entity.instanceKey (contact_point_id) is now declared and every writing action carries a matching idempotencyKey.
 
 RESPONSIBILITY:
 Track whether a specific destination can technically be reached, entirely separate from whether it may be used - per-destination, never per-person.
@@ -919,8 +909,8 @@ SIDE EFFECTS:
 Classes: writes-internal-state, suppresses-queued-work
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.state/a.add/a.resume/a.suppress all append with no idempotencyKey; a repeated identical contactability signal (a provider re-reporting the same bounce) would append a duplicate log entry, though the resulting routing state itself is naturally recomputed and thus eventually consistent
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.state/a.add/a.resume/a.suppress all now carry idempotencyKey scoped to contact_point_id
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -949,13 +939,13 @@ Retried/suppressed/superseded: suppressed_sends log
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-3 handoff consumers: ACC-261, FUL-276 (both outside this round's 24, referencing CON-36 as authoritative contactability), CMS-208 (permanent-destination evidence)
+3 handoff consumers: ACC-261, FUL-276 (both outside this round's 24, referencing CON-36 as authoritative contactability - their own h.unreachable handoffs remain a documented, reviewed exception since they report all-routes-exhausted rather than a single contact_point_id), CMS-208 (permanent-destination evidence, now declaring contact_point_id explicitly)
 
 TEST CASES:
 - happy-path: given an email address hard-bounces — expect a.suppress records UNDELIVERABLE for that destination only; other destinations on the same person are untouched
 
 GAPS:
-- P2 [idempotency] "Repair attempts are bounded per cycle" is a stated guardrail with no attemptBudget Config declared anywhere to enforce it structurally.
+- P2 [idempotency] "Repair attempts are bounded per cycle" is a stated guardrail with no attemptBudget Config declared - unlike CMS-208/OPS-124, this mechanism has no single dedicated repair-retry action node to attach the budget to, so this remains a documented, unresolved gap rather than a fix.
 
 ---
 
@@ -964,7 +954,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-Correctly bounded (expiry is the ordinary path, not an exception), correctly scoped (does not cover every channel by default), and the discard-not-replay guardrail on release matches CON-38's identical rule exactly. Low side-effect risk overall.
+Correctly bounded (expiry is the ordinary path, not an exception), correctly scoped (does not cover every channel by default), and the discard-not-replay guardrail on release matches CON-38's identical rule exactly. entity.instanceKey (person_id, cooldown_context) is now declared, every writing action carries idempotencyKey, and w.cooldown now carries an explicit recheck.
 
 RESPONSIBILITY:
 Hold optional communication for a bounded window without touching permission, scoped to only what the reason justifies.
@@ -980,17 +970,17 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.create/a.policy-scope/a.reevaluate append with no idempotencyKey; low risk since a cooldown is scoped and the worst case of a duplicate trigger is a redundant cooldown record rather than a contradictory one
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.create (coarser, person_id-scoped, since it establishes cooldown_context itself), a.policy-scope and a.reevaluate (both cooldown_context-scoped) now all carry idempotencyKey
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
 
 FRESHNESS / REVALIDATION:
-Revalidates before consequential execution. Checks: current eligibility recalculated at release, backlog discarded rather than replayed
+Revalidates before consequential execution. Checks: current eligibility recalculated at release (w.cooldown's own recheck), backlog discarded rather than replayed
 
 TIMEOUT / CANCELLATION:
-- w.cooldown: onTimeout → a.reevaluate
+- w.cooldown: onTimeout → a.reevaluate (recheck: current eligibility for the governed classes, re-read from authoritative state before re-evaluating - not the state as it stood when the cooldown began)
 
 CONFLICT ARBITRATION:
 Enforces journey-declared competition/exclusionGroup/precedence: no
@@ -1006,7 +996,7 @@ Attempt identity: not recorded
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-0 handoff consumers - triggered by cooldown_triggering_event, presumably emitted by business logic elsewhere, not traceable via handoff. Hands off to CON-38 when a cooldown's reason hardens.
+0 handoff consumers - triggered by cooldown_triggering_event, presumably emitted by business logic elsewhere, not traceable via handoff. Hands off to CON-38 when a cooldown's reason hardens, now declaring person_id + suppression_scope explicitly.
 
 TEST CASES:
 - happy-path: given the cooldown period elapses with no basis change — expect a.reevaluate recalculates current eligibility; backlog discarded
@@ -1021,7 +1011,7 @@ none found
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The best-designed conflict-resolution mechanism in the round: fail-safe-first ordering ("investigating while still sending resolves the uncertainty in favour of sending, which is the one outcome the journey exists to prevent"), origin/version-based reconciliation, and explicit idempotent-verification language. The permissive-value-is-never-evidence guardrail is exactly right. Gap is the same systemic field-declaration one as CON-35.
+The best-designed conflict-resolution mechanism in the round: fail-safe-first ordering, change_origin/change_version-based reconciliation, and explicit change-version-checked verification writes. entity.instanceKey (person_id, disputed_permission_ref) is now declared and every writing action carries a matching idempotencyKey.
 
 RESPONSIBILITY:
 Hold optional communication closed while distributed systems disagree about permission, and reconcile on evidence rather than on whichever value is more permissive.
@@ -1037,8 +1027,8 @@ SIDE EFFECTS:
 Classes: writes-internal-state, suppresses-queued-work
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.apply "propagates the correction with origin and version, so a redelivered or out-of-order echo is discarded"; a.verify explicitly "uses idempotent versioned writes so verification cannot itself become another round of the exchange" - the clearest statement of idempotent-by-design verification in the round, entirely in prose
-Attempt identity: origin, version (provenance: undeclared). Structurally declared as a field: no.
+a.failsafe, a.collect, a.scope, a.enter, a.apply, a.release all carry idempotencyKey scoped to (person_id, disputed_permission_ref); a.apply propagates a fresh change_version for the resolution; a.verify checks convergence against that same version
+Attempt identity: change_origin, change_version (provenance: self-minted-on-entry). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: optimistic-version-check — two systems each correcting the other in a synchronisation loop, explicitly named and guarded against
@@ -1047,7 +1037,7 @@ FRESHNESS / REVALIDATION:
 Does not revalidate before execution (low or no consequential-action risk in this mechanism's own scope, or not applicable).
 
 ORDERING:
-Required: yes — provenance and version identify which record reflects the actual decision; a system timestamp alone is explicitly rejected as authority
+Required: yes — provenance and change_version identify which record reflects the actual decision; a system timestamp alone is explicitly rejected as authority
 
 TIMEOUT / CANCELLATION:
 - w.reconcile: onTimeout → h.manual
@@ -1062,27 +1052,27 @@ OBSERVABILITY:
 What ran: CON-40's own graph, via suppressed_sends
 Decision basis: Is a safe authoritative state immediately determinable from the evidence?; Do all required systems now hold the resolved state?
 Side effect attempted: suppressed_sends, permission_conflict_log, permission_log
-Attempt identity: origin, version (named in prose, not a declared field)
+Attempt identity: change_origin, change_version (named in prose, not a declared field)
 Retried/suppressed/superseded: suppressed_sends log
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-1 handoff consumer: CON-35 (on convergence failure)
+1 handoff consumer: CON-35 (on convergence failure, now carrying disputed_permission_ref explicitly)
 
 TEST CASES:
 - partial-failure: given reconciliation applies a corrected state but one required system does not converge — expect c.converged routes back to h.manual rather than declaring success
 
 GAPS:
-- P2 [idempotency] origin/version, load-bearing for the entire reconciliation's correctness, are never declared fields - same systemic gap as CON-35.
+none found
 
 ---
 
 ## OPS-121 — Asynchronous Work Processing
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The foundational mechanism of the entire OPS domain, and the accepted-is-not-completed discipline it establishes is exactly right - but it is also the single most consequential instance of the round's central gap: a.persist explicitly names "the idempotency and correlation keys" as something it persists, on the very first action of the very first mechanism everything else in the domain builds on, and that field is never declared.
+The foundational mechanism of the entire OPS domain; the accepted-is-not-completed discipline is exactly right, and the round's most consequential idempotency gap is now closed here: entity.instanceKey is (work_id, logical_operation_key), with the two identities' distinct roles documented explicitly in entity.note (logical_operation_key is the caller-supplied dedup identity; work_id is this mechanism's own record identity, minted at acceptance). Every writing action carries a matching idempotencyKey.
 
 RESPONSIBILITY:
 Give asynchronous work explicit accepted/queued/processing/terminal states so infrastructure acknowledgement is never mistaken for business completion.
@@ -1098,11 +1088,11 @@ SIDE EFFECTS:
 Classes: writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-"the idempotency and correlation keys" are explicitly named as persisted at a.persist, before anything else happens - the concept is fully present, the field is not
-Attempt identity: work id, idempotency key (named, undeclared), correlation key (named, undeclared) (provenance: caller-supplied). Structurally declared as a field: no.
+a.persist is idempotent on logical_operation_key - a second acceptance call for the same key returns the existing work_id rather than minting a new one. a.queued and a.processing (which also mints attempt_number for its own bookkeeping) are scoped to work_id, the narrower identity that already exists by that point
+Attempt identity: logical_operation_key, work_id, attempt_number (provenance: caller-supplied). Structurally declared as a field: yes.
 
 CONCURRENCY:
-Primitive: none-required
+Primitive: compare-and-set — two acceptance calls for the same logical_operation_key racing to mint work_id
 
 FRESHNESS / REVALIDATION:
 Does not revalidate before execution (low or no consequential-action risk in this mechanism's own scope, or not applicable).
@@ -1124,18 +1114,18 @@ OBSERVABILITY:
 What ran: OPS-121's own graph, via work_log
 Decision basis: Is capacity available to start now?; Which happened?; What outcome did the work report?
 Side effect attempted: work_log
-Attempt identity: work id, idempotency key (named, undeclared), correlation key (named, undeclared) (named in prose, not a declared field)
+Attempt identity: logical_operation_key, work_id, attempt_number (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-0 handoff consumers within the canonical corpus - the root of the async-processing tree, entered by any asynchronous business action; 5 outbound handoffs (OPS-122, OPS-123, OPS-124, OPS-127, OPS-130) make it the domain's clear hub
+0 handoff consumers within the canonical corpus - the root of the async-processing tree, entered by any asynchronous business action; 5 outbound handoffs (OPS-122, OPS-123, OPS-124, OPS-127, OPS-130) make it the domain's clear hub, now all declaring workload_class/work_id/logical_operation_key explicitly where the target requires it
 
 TEST CASES:
-- duplicate-invocation: given the same business action is accepted as work twice (a redelivered request) — expect UNVERIFIED - the idempotency key referenced in a.persist's own text is exactly what should prevent this, but no field or mechanism enforces it
+- duplicate-invocation: given the same business action is accepted as work twice (a redelivered request) under the same logical_operation_key — expect a.persist's own idempotencyKey resolves both calls to the same work_id
 
 GAPS:
-- P1 [idempotency] a.persist explicitly states it records "the idempotency and correlation keys," naming the concept by its exact schema-field name (idempotencyKey exists on ActionNode and is unused here), without ever declaring what those keys actually are for this mechanism or where they come from. This is the single clearest instance of the round's systemic gap, on the mechanism every other OPS journey depends on.
+none found
 
 ---
 
@@ -1144,7 +1134,7 @@ GAPS:
 READINESS: READY
 
 WHY:
-An aggregate measurement-and-response mechanism, not a per-item transactional one, which genuinely lowers its own idempotency/concurrency risk relative to the rest of the domain - re-measuring queue health twice produces the same class of decision, not a duplicated side effect. Age-not-depth as the severity signal and the never-silently-drop-work guardrail are both exactly right.
+An aggregate measurement-and-response mechanism, not a per-item transactional one, which genuinely lowers its own idempotency/concurrency risk relative to the rest of the domain. entity.instanceKey (workload_class) is now declared and every writing action carries a matching idempotencyKey, formalizing what was already low-risk by construction.
 
 RESPONSIBILITY:
 Measure whether a queue can keep up, by the age of its oldest unfinished item rather than its depth, and respond per workload class.
@@ -1160,8 +1150,8 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a measurement-and-response loop; re-evaluating the same threshold crossing twice recomputes the same class of response rather than duplicating an irreversible effect
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.measure, a.lagging, a.urgent, a.response all carry idempotencyKey scoped to workload_class
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -1187,7 +1177,7 @@ Dependency response: recorded per-attempt where the mechanism crosses a provider
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-1 handoff consumer: OPS-121 (queue SLA exceeded). Hands off to OPS-129 (drain) and OWN-55 (escalate).
+1 handoff consumer: OPS-121 (queue SLA exceeded, now declaring workload_class explicitly). Hands off to OPS-129 (drain) and OWN-55 (escalate).
 
 TEST CASES:
 - happy-path: given a burst that current throughput will absorb within SLA — expect x.observe; no operational response applied, avoiding alert fatigue
@@ -1202,7 +1192,7 @@ none found
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The long-running-is-not-stalled distinction and the side-effect-uncertainty gate before any reclaim are both exactly right, and "two workers must not concurrently recover the same exclusive job" is stated as an explicit guardrail. The one gap: the coordination primitive itself ("coordinating ownership") is never named as concretely as OPS-128's own lease concept.
+The long-running-is-not-stalled distinction and the side-effect-uncertainty gate before any reclaim are both exactly right. The vocabulary gap this round found (vaguer than OPS-128's own lease language) is closed: entity.note now explicitly names this as the same lease concept OPS-128 uses, applied to a work item whose owner is still nominally alive; a.reclaim's own text now says "transferring the work item's lease" rather than the earlier generic "coordinating ownership."
 
 RESPONSIBILITY:
 Distinguish work that is merely slow from work that has actually stopped, and recover only where side effects are known.
@@ -1218,11 +1208,11 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state, transfers-ownership
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.reclaim is explicit about coordination ("the coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones") but names no concrete primitive for it, unlike OPS-128's lease
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.inspect, a.stalled, and a.reclaim all carry idempotencyKey scoped to work_id
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
-Primitive: lock — two workers concurrently recovering the same exclusive job - named explicitly as a guardrail, not structurally mechanized
+Primitive: lease — two workers concurrently recovering the same exclusive job - now named explicitly as the same lease concept OPS-128 uses
 
 FRESHNESS / REVALIDATION:
 Does not revalidate before execution (low or no consequential-action risk in this mechanism's own scope, or not applicable).
@@ -1251,25 +1241,25 @@ CONSUMERS:
 1 handoff consumer: OPS-121
 
 TEST CASES:
-- concurrent-invocation: given two recovery attempts fire for the same stalled job near-simultaneously — expect UNVERIFIED which coordination mechanism actually prevents both from reclaiming - see gaps
+- concurrent-invocation: given two recovery attempts fire for the same stalled job near-simultaneously — expect the lease transfer in a.reclaim is the coordination point - now named consistently with OPS-128's own concept
 
 GAPS:
-- P2 [concurrency] "Coordinating ownership" during reclaim is stated as a guardrail but never named as a concrete primitive (a lease, a lock, a compare-and-set) the way OPS-128 names its lease explicitly - worth harmonizing vocabulary across the two mechanisms.
+none found
 
 ---
 
 ## OPS-124 — Retry Management
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The most complete retry contract in the corpus - durable budget across worker restarts, revalidation before every retry, side-effect-uncertainty gate before repeating, idempotent re-attempt "under the same idempotency key." Every one of Part 10's requirements is met in substance. The gap is that the durable budget and the idempotency key it retries under are both named only in prose, on the mechanism the whole retry story depends on.
+The most complete retry contract in the corpus, now fully structural: entity.instanceKey (work_id, logical_operation_key) with the two identities' roles documented precisely (logical_operation_key is what a.attempt sends downstream unchanged across every retry, so a receiver that got attempt 1 can absorb attempt 2; attempt_number is this mechanism's own local bookkeeping, never sent downstream). a.attempt carries a declared attemptBudget (required: true). The caller/callee ambiguity with CMS-208 is resolved via CMS-208's own corrected distinctFrom.
 
 RESPONSIBILITY:
 Repeat a transient failure within a durable, bounded budget, only where repeating is safe and the work is still wanted.
 
 INPUT CONTRACT:
-- a failure classified as transient by an explicit classification (required) — provenance: OPS-121's h.retry, OPS-126's h.retry, or CMS-208 (per its own claimed delegation)
+- a failure classified as transient by an explicit classification (required) — provenance: OPS-121's h.retry, OPS-126's h.retry (now declaring work_id + logical_operation_key explicitly)
 
 OUTPUT CONTRACT:
 Classes: retry-schedule, execution-attempt
@@ -1279,8 +1269,8 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state, submits-to-provider
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-"Execute the retry idempotently, under the same idempotency key, so that a downstream that did receive the first attempt can absorb this one" - the clearest single sentence describing correct idempotent-retry semantics anywhere in the corpus, entirely in prose
-Attempt identity: attempt count (durable, work-scoped, not worker-scoped), the idempotency key (named, undeclared) (provenance: caller-supplied). Structurally declared as a field: no.
+a.attempt executes under logical_operation_key - the same value on every physical try - so a downstream that received an earlier attempt can absorb this one; attempt_number still advances for this mechanism's own bookkeeping but is never itself part of the downstream dedup key
+Attempt identity: logical_operation_key, work_id, attempt_number (provenance: caller-supplied). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -1307,20 +1297,19 @@ OBSERVABILITY:
 What ran: OPS-124's own graph, via work_log
 Decision basis: Is retrying actually safe?; Is the work still required?; What did the retry produce?
 Side effect attempted: work_log
-Attempt identity: attempt count (durable, work-scoped, not worker-scoped), the idempotency key (named, undeclared) (named in prose, not a declared field)
+Attempt identity: logical_operation_key, work_id, attempt_number (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-2 handoff consumers: OPS-121, OPS-126. CMS-208 claims delegation to this mechanism in prose without a structural handoff - see CMS-208's own gaps.
+2 handoff consumers: OPS-121, OPS-126 (now declaring work_id + logical_operation_key explicitly). CMS-208's own distinctFrom now explicitly states it does NOT delegate to this mechanism, resolving the prior round's caller/callee ambiguity.
 
 TEST CASES:
-- dependency-retryable-failure: given a transient failure with budget remaining and the work still required at revalidation — expect a.attempt executes idempotently under the same key
+- dependency-retryable-failure: given a transient failure with budget remaining and the work still required at revalidation — expect a.attempt executes idempotently under logical_operation_key
 - stale-state: given the target entity moved during backoff and the work is no longer required — expect x.stale; the retry is cancelled with a reason rather than executed
 
 GAPS:
-- P1 [idempotency] "The same idempotency key" the retry executes under is never declared as a field on this mechanism - the second most consequential instance of the round's systemic gap, since every mechanism in the corpus that retries (CMS-208, OPS-121, OPS-126, OPS-127, OPS-128) either delegates here or reimplements the identical unstated concept.
-- P2 [caller-callee-contract] CMS-208's distinctFrom claims delegation to this mechanism for retry execution, but no handoff node here or in CMS-208 shows that relationship structurally.
+none found
 
 ---
 
@@ -1329,13 +1318,13 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The identity-is-the-business-operation-not-the-payload distinction (OPS-R7) is the correct answer to the single most common deduplication mistake, stated and enforced explicitly (x.independent is a first-class exit for "same payload, different operation"). a.attach's honest architecture-dependent branch ("where the architecture permits it - where it does not, the duplicate is suppressed instead") is good practice, not a gap.
+The identity-is-the-business-operation-not-the-payload distinction (OPS-R7) is the correct answer to the single most common deduplication mistake. entity.instanceKey (logical_operation_key) is now declared, matching OPS-121/OPS-124's own field exactly, and every writing action carries a matching idempotencyKey.
 
 RESPONSIBILITY:
 Stop the same logical business operation from running twice, without collapsing two legitimate repeats of the same payload into one.
 
 INPUT CONTRACT:
-- two or more work instances that may represent the same logical business operation (required) — provenance: FIN-135's own handoff, or any duplicate-detection trigger
+- two or more work instances that may represent the same logical business operation (required) — provenance: FIN-135's own handoff (now declaring logical_operation_key explicitly), or any duplicate-detection trigger
 
 OUTPUT CONTRACT:
 Classes: decision, normalized-state
@@ -1345,8 +1334,8 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state, suppresses-queued-work
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.compare reads "the idempotency key, the business operation identity, the target entity, the relevant version" as its comparison inputs - again the concept is named explicitly without ever being declared as a field this mechanism itself owns or defines the format of
-Attempt identity: the idempotency key (named, undeclared) (provenance: caller-supplied). Structurally declared as a field: no.
+a.compare, a.reuse, a.attach all carry idempotencyKey scoped to logical_operation_key - the same field OPS-121/OPS-124 mint and carry, not a second independently-invented identity
+Attempt identity: logical_operation_key (provenance: caller-supplied). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: instance-affinity — an in-flight canonical execution vs. a newly arriving duplicate - a.attach's join-in-progress pattern
@@ -1367,28 +1356,28 @@ OBSERVABILITY:
 What ran: OPS-125's own graph, via dedup_log
 Decision basis: Is this the same logical operation?; What state is the canonical execution in?
 Side effect attempted: dedup_log
-Attempt identity: the idempotency key (named, undeclared) (named in prose, not a declared field)
+Attempt identity: logical_operation_key (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-1 handoff consumer: FIN-135
+1 handoff consumer: FIN-135 (now declaring logical_operation_key explicitly)
 
 TEST CASES:
 - duplicate-invocation: given the canonical execution completed and its result is still valid — expect a.reuse suppresses the duplicate and reuses the result
 - concurrent-invocation: given the canonical execution is still running when the duplicate arrives — expect a.attach joins it rather than starting a second execution, where the architecture permits
 
 GAPS:
-- P2 [idempotency] the idempotency key this mechanism compares against is never defined here or anywhere upstream - same systemic gap, present on the mechanism whose entire job is comparing it.
+none found
 
 ---
 
 ## OPS-126 — Partial Processing Recovery
 
-READINESS: NEEDS_CONTRACT_WORK
+READINESS: READY_WITH_MAPPING
 
 WHY:
-The design itself is sound (never replay successful children, honest escalation when no aggregation policy is defined, explicit compensation-only-when-transaction-semantics-require-it), but this round's corpus scan found no confirmed real consumer - the one cross-reference (DAT-225) is a distinctFrom explicitly declining to use it, not an invocation.
+The design itself is sound (never replay successful children, honest escalation when no aggregation policy is defined, explicit compensation-only-when-transaction-semantics-require-it). entity.instanceKey (composite_job_id) is now declared and every writing action carries a matching idempotencyKey; the h.retry handoff into OPS-124 now declares each failed child's own work_id + logical_operation_key explicitly. This round's consumer-coverage investigation concludes: unconsumed-but-valid, not orphaned or duplicate.
 
 RESPONSIBILITY:
 Recover the failed part of a composite/batch operation without re-running the part that already succeeded.
@@ -1404,8 +1393,8 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.classify/a.recompute are read-then-recompute actions with no idempotencyKey; low intrinsic risk since the parent state is always recomputed from authoritative child outcomes rather than incrementally applied
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.classify and a.recompute both carry idempotencyKey scoped to composite_job_id; the parent state is always recomputed from authoritative child outcomes rather than incrementally applied
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -1431,13 +1420,13 @@ Dependency response: recorded per-attempt where the mechanism crosses a provider
 Current owner: transfers via its own handoff nodes; see handoffs
 
 CONSUMERS:
-0 handoff consumers; DAT-225's only reference to it is a distinctFrom explaining why DAT-225 does not use it - the strongest zero-real-demand candidate in the round
+0 handoff consumers; DAT-225's only reference to it is a distinctFrom explaining why DAT-225 does not use it. This round's investigation (Part 24) classifies this mechanism as unconsumed-but-valid: the design is sound and would correctly serve real composite/batch/fan-out work, but no confirmed consumer exists in the current 283-journey corpus. Not deleted, not flagged as duplicate or obsolete - no evidence supports either label.
 
 TEST CASES:
-- partial-failure: given a batch operation with some children succeeded and some failed retryably — expect a.classify marks each individually; h.retry carries only the failed scope
+- partial-failure: given a batch operation with some children succeeded and some failed retryably — expect a.classify marks each individually; h.retry carries only the failed scope, with each child's own work_id + logical_operation_key
 
 GAPS:
-- P1 [consumer-coverage] No canonical journey in the current 283-journey corpus is confirmed to produce composite/fan-out/batch work this mechanism would receive - its one cross-reference (DAT-225) explicitly declines to use it via distinctFrom. The design may be entirely sound for a shape of work the corpus does not yet contain, which is different from a defect; see CONSUMER-COVERAGE.md.
+- P2 [consumer-coverage] No canonical journey in the current 283-journey corpus is confirmed to produce composite/fan-out/batch work this mechanism would receive. This round's investigation concludes 'unconsumed-but-valid' rather than 'orphaned' or 'candidate-deprecated' - the design is sound for a shape of work the corpus does not yet contain, which is different from a defect. Downgraded from P1 (open question) to P2 (documented, non-blocking conclusion) now that the classification is settled.
 
 ---
 
@@ -1446,7 +1435,7 @@ GAPS:
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The review-horizon escalation prevents the dead-letter queue from becoming invisible storage, the replay-preserves-audit-chain rule is explicit, and the side-effect-uncertainty gate before any replay is consistent with the rest of the domain. No P0/P1 found.
+The review-horizon escalation prevents the dead-letter queue from becoming invisible storage, the replay-preserves-audit-chain rule is explicit, and the side-effect-uncertainty gate before any replay is consistent with the rest of the domain. entity.instanceKey (work_id) is now declared and every writing action carries a matching idempotencyKey; a.correct now explicitly mints replay_id linked via original_work_id.
 
 RESPONSIBILITY:
 Turn work automation could not finish into an explicit, owned remediation obligation rather than an invisible queue.
@@ -1462,8 +1451,8 @@ SIDE EFFECTS:
 Classes: writes-internal-state, creates-task-or-obligation
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.correct creates "a controlled replay linked to the original work... a new attempt with its own record" - an explicit, correct parent-child attempt-chain pattern, though the identity linking mechanism is never declared as a field
-Attempt identity: none named (provenance: correlated-to-prior-attempt). Structurally declared as a field: no.
+a.preserve, a.correct, a.close all carry idempotencyKey scoped to work_id; a.correct's own replay_id (linked via original_work_id) is the corpus's clearest parent-child attempt-chain pattern, now named as fields rather than left as pure prose
+Attempt identity: replay_id, original_work_id (provenance: self-minted-on-entry). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -1487,7 +1476,7 @@ OBSERVABILITY:
 What ran: OPS-127's own graph, via dead_letter_log
 Decision basis: Is the side-effect state uncertain?; What would resolve this?
 Side effect attempted: dead_letter_log
-Attempt identity: not recorded
+Attempt identity: replay_id, original_work_id (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
@@ -1495,7 +1484,7 @@ CONSUMERS:
 2 handoff consumers: OPS-121, OPS-124
 
 TEST CASES:
-- happy-path: given the authoritative problem is diagnosable and fixable — expect a.correct replays under a new attempt linked to the original, audit chain intact
+- happy-path: given the authoritative problem is diagnosable and fixable — expect a.correct replays under a new replay_id linked to the original via original_work_id, audit chain intact
 
 GAPS:
 none found
@@ -1507,7 +1496,7 @@ none found
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The single most concrete concurrency primitive in the entire round: an explicit lease with a wait-out-the-lease-before-reclaiming semantics, correctly distinguishing worker death from work failure, and gating any restart behind a confirmed-not-completed check. Genuinely exemplary; the corpus's clearest model for the other mechanisms' vaguer 'coordinate ownership' language to converge on.
+The single most concrete concurrency primitive in the entire round: an explicit lease with a wait-out-the-lease-before-reclaiming semantics, correctly distinguishing worker death from work failure, and gating any restart behind a confirmed-not-completed check. entity.instanceKey (work_id, lease_id) is now declared, formalizing the lease concept the mechanism's own prose already named precisely.
 
 RESPONSIBILITY:
 Transfer execution responsibility off a failed worker without assuming the work itself failed, and without letting two workers hold the same job.
@@ -1523,8 +1512,8 @@ SIDE EFFECTS:
 Classes: decides-only, transfers-ownership
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.checkpoint/a.restart both explicit about not repeating completed work; c.confirmed gates on "an authoritative completion exists" before ever considering a restart, which is the correct order (check completion, then check lease, then resume)
-Attempt identity: lease, checkpoint (provenance: self-minted-on-entry). Structurally declared as a field: no.
+a.identify, a.checkpoint, a.restart all carry idempotencyKey; a.checkpoint/a.restart both mint a fresh lease_id for the new owner; c.confirmed gates on "an authoritative completion exists" before ever considering a restart, which is the correct order (check completion, then check lease, then resume)
+Attempt identity: lease_id (provenance: self-minted-on-entry). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: lease — two workers holding the same job - explicitly, concretely handled via wait-out-the-lease before reclaiming
@@ -1548,7 +1537,7 @@ OBSERVABILITY:
 What ran: OPS-128's own graph, via work_log
 Decision basis: Could the previous lease still be live?; Is the work's completion already confirmed?; How can execution be resumed?
 Side effect attempted: work_log
-Attempt identity: lease, checkpoint (named in prose, not a declared field)
+Attempt identity: lease_id (named in prose, not a declared field)
 Dependency response: recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)
 Current owner: transfers via its own handoff nodes; see handoffs
 
@@ -1568,7 +1557,7 @@ none found
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The stale-work-is-cancelled-not-delivered rule and the priority-not-arrival-order drain strategy are both exactly the corpus's own OPS-R12/R13/R14 rules made concrete, and the throttle-to-a-floor-then-escalate loop correctly avoids a recovery that causes a second outage. No P0/P1 found.
+The stale-work-is-cancelled-not-delivered rule and the priority-not-arrival-order drain strategy are both exactly the corpus's own OPS-R12/R13/R14 rules made concrete. entity.instanceKey (workload_class) is now declared and every writing action carries a matching idempotencyKey.
 
 RESPONSIBILITY:
 Deliberately drain an accumulated backlog - discarding what has gone stale, pacing what has not, never flushing everything at once.
@@ -1584,8 +1573,8 @@ SIDE EFFECTS:
 Classes: decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-a.cancel/a.strategy/a.drain/a.throttle all append with no idempotencyKey; re-inventorying the same backlog recomputes the drain plan rather than duplicating an executed action, keeping intrinsic risk low
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+a.inventory, a.cancel, a.strategy, a.drain, a.throttle all carry idempotencyKey scoped to workload_class
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required
@@ -1626,7 +1615,7 @@ none found
 READINESS: READY_WITH_MAPPING
 
 WHY:
-The technical-completion-is-not-business-completion distinction, stated once and applied as its own dedicated mechanism rather than folded into every producer, is the corpus's cleanest single architectural decision in the round - a.verify is explicitly, correctly idempotent by design ("checking twice costs nothing and proves the same thing"). No P0/P1 found.
+The technical-completion-is-not-business-completion distinction, stated once and applied as its own dedicated mechanism rather than folded into every producer, is the corpus's cleanest single architectural decision in the round. entity.instanceKey (work_id) is now declared and every writing action carries a matching idempotencyKey - a.verify's own idempotency was already true by construction; the key is now a consistent structural marker of that fact rather than the thing making it safe.
 
 RESPONSIBILITY:
 Check that the business state a job existed to create actually exists, wherever the job's own technical success is not proof of it.
@@ -1642,8 +1631,8 @@ SIDE EFFECTS:
 Classes: reads-only, decides-only, writes-internal-state
 
 IDEMPOTENCY / ATTEMPT IDENTITY:
-explicitly idempotent by design - "verification is idempotent, so checking twice costs nothing and proves the same thing each time" - the strongest, most direct statement of idempotency-by-construction in the entire round
-Attempt identity: none named (provenance: undeclared). Structurally declared as a field: no.
+explicitly idempotent by design - "verification is idempotent, so checking twice costs nothing and proves the same thing each time" - now backed by a declared idempotencyKey on a.finalize, a.verify and a.business-complete, scoped to work_id
+Attempt identity: none named (provenance: undeclared). Structurally declared as a field: yes.
 
 CONCURRENCY:
 Primitive: none-required

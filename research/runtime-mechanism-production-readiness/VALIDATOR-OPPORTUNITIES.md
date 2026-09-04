@@ -5,7 +5,44 @@ this is audit only, per the brief; a repair round decides which of these to buil
 order. Mirrors the format of the communication round's own `VALIDATOR-COVERAGE.md` "considered and
 not built" section, since these are proposals, not shipped code.
 
-## Prerequisite, stated before any of the eight below: these 24 are not vNext-migrated
+## POST-REPAIR UPDATE
+
+**Two of the eight candidates below are now implemented; the prerequisite is now satisfied.**
+`scripts/vnext-rules.mjs` now defines `isMechanism = surf.surface === "mechanism"` directly against
+`MECHANISM_IDS` (exactly the prerequisite this document names — not inferred from `vnext`, which
+stays `false` for all 24 since they remain pre-vNext by design) and uses it in three places:
+
+- **Validator C (`state_write_without_idempotency`)**, pre-existing, had its severity widened from
+  warn-only to error-on-mechanisms (`isMechanism` now included in its `stateSev` error condition),
+  confirmed safe only after every one of the corpus-wide instances across the 24 was closed by this
+  round's repair — this is effectively candidate **1** (side-effect-without-idempotency) from the
+  table below, implemented by extending an existing validator rather than writing a new one, since
+  the existing rule's shape (write action lacking `idempotencyKey`) already matched what candidate 1
+  proposed.
+- **New Validator H (`attempt_identity_unprovenanced`)**, mechanism-scoped, warn-only — implements
+  candidate **8** (attempt identity provenance): flags an attempt-shaped `idempotencyKey` (matching
+  `/\b(attempt|lease|replay)\b/i` on its component tokens) whose `entity.note` says nothing about
+  where the identity comes from or when it is established relative to the side effect. A regex bug
+  in the first draft (unparenthesized alternation let "release" false-match "lease") was caught and
+  fixed before this validator's result was trusted.
+- **New Validator I (`freshness_before_execution`)**, mechanism-scoped, warn-only — implements
+  candidate **4** (freshness before consequential action), but *not* by literal reuse of the
+  silent-state round's Validator E, exactly per this document's own caution: it additionally accepts
+  a nearby revalidation-shaped node/action (matched by name or `does` text) as satisfying the rule,
+  not only a literal `recheck` field, avoiding the "24/24 false positive" risk this document warned
+  about. Surfaced 7 legitimate, low-risk findings on escalation-shaped handoffs, left for human
+  review rather than mechanically resolved.
+
+Candidates **2, 3, 5, 6, 7** were deliberately left unimplemented this round, consistent with this
+document's own framing of them as regression guards for behavior already correct rather than open
+gaps, and per the repair brief's explicit instruction not to implement all eight just because
+listed — implementing five validators with zero current findings would add maintenance surface
+without closing any gap this round confirmed. Full detail (severity, scope, false-positive
+reasoning, production command) for the two implemented validators plus the widened one is in
+`VALIDATOR-COVERAGE.md`. **The rest of this document is the original audit-round text, kept for
+reference — it was written as "none implemented this round" during the audit; two are now built.**
+
+## Prerequisite, stated before any of the eight below: these 24 are not vNext-migrated (audit-round record)
 
 None of the existing corpus-wide validators in `scripts/vnext-rules.mjs` meaningfully gate the 24
 today — every one of them reads `j.measurement` to decide error-vs-warning severity, and none of
