@@ -17,7 +17,7 @@ export type ButtonSize = "sm" | "md" | "lg";
  * One button. Seven variants, three sizes — the API is unchanged; the geometry
  * and the interaction are the reference's.
  *
- * THE SHAPE. A squared corner (`rounded-sm`, the token's 8px "controls" step -
+ * THE SHAPE. A squared corner (`rounded-md`, the token's 8px "controls" step -
  * see globals.css § Radii), 56px tall at `md` and `lg`, label in 16px Medium.
  * Nothing here is raised, glowing or scaled - the softness is in the corner,
  * not in a shadow. `sm` survives at 40px as the compact tier for table rows
@@ -97,25 +97,30 @@ export type ButtonSize = "sm" | "md" | "lg";
  * reference.
  */
 
-/* THE BUTTON IS SQUARED AGAIN (2026-09-04, by explicit request: match the
-   corner geometry of a reference button, shape only - no colour or
-   typography change). It spent 2026-08-30 through today as a pill
-   (`rounded-full`, `--radius-pill`); before that it was the system's one
-   deliberately SQUARE component, `rounded-none`, edges landing on the
-   editorial grid's rules so a pair of CTAs read as one segmented bar. This
-   is a third position, not a revert to either: `rounded-sm` is this ramp's
-   own "controls" step (globals.css § Radii - "Controls and small surfaces:
-   inputs, selects, skill chips, small tiles", 8px) rather than 0 or 9999px,
-   so a button now carries the same corner as an input or a select instead
-   of opting out of the numbered scale entirely. `focus-visible:rounded-sm`
-   keeps the focus ring tracing the same shape, and the pixel-dissolve
-   canvas is clipped by the control's own `overflow: hidden`, so it follows
-   the corner for free regardless of which shape this becomes next. */
+/* THE BUTTON IS SQUARED (2026-09-04, by explicit request: match the corner
+   geometry of a reference button, shape only - no colour or typography
+   change). It spent 2026-08-30 through today as a pill (`rounded-full`,
+   `--radius-pill`); before that it was the system's one deliberately
+   SQUARE component, `rounded-none`, edges landing on the editorial grid's
+   rules so a pair of CTAs read as one segmented bar. This is a third
+   position, not a revert to either: this ramp's "controls" step - the same
+   one inputs and selects use - rather than 0 or 9999px, so a button
+   carries the same corner as an input or a select instead of opting out of
+   the numbered scale entirely.
+
+   READS `rounded-md`, NOT `rounded-sm` (2026-09-04, brand guideline
+   adoption, same day): the guideline that moved this component's colors
+   also renumbered the radius scale itself, and its "controls = 8px" spec
+   now lands on `--radius-md`, not `--radius-sm` (6px) - see globals.css
+   § Radii for the full renumbering. `focus-visible:rounded-md` keeps the
+   focus ring tracing the same shape, and the pixel-dissolve canvas is
+   clipped by the control's own `overflow: hidden`, so it follows the
+   corner for free regardless of which shape this becomes next. */
 const base =
-  "btn-fill relative inline-flex items-center justify-center gap-2 rounded-sm font-medium " +
+  "btn-fill relative inline-flex items-center justify-center gap-2 rounded-md font-medium " +
   "tracking-[-0.01em] whitespace-nowrap select-none " +
   "transition-[background-color,color] duration-[var(--duration-base)] ease-[var(--ease-in-out-quad)] " +
-  "focus-visible:rounded-sm " +
+  "focus-visible:rounded-md " +
   "disabled:pointer-events-none disabled:opacity-45 aria-disabled:pointer-events-none aria-disabled:opacity-45";
 
 const variants: Record<ButtonVariant, string> = {
