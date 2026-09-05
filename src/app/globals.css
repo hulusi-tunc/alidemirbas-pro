@@ -2,7 +2,7 @@
 
 /* ==========================================================================
    Altor — Design tokens
-   Brand: warm blue #2F6BFF on a warm-stone neutral. Manrope + JetBrains Mono.
+   Brand: warm blue #2F6BFF on a warm-stone neutral. Inter, one family.
 
    BRAND GUIDELINE ADOPTION (2026-09-04, same day as, and superseding, the
    terracotta rebrand above it in git history). By explicit request: "bu
@@ -48,25 +48,45 @@
 
 @theme {
   /* --- Typography ------------------------------------------------------- */
-  /* BRAND GUIDELINE (2026-09-04): Outfit -> Manrope, per the guideline's
-     "Font: Manrope (sans) + JetBrains Mono (mono)" - a two-family system.
-     Same role (one sans, weight/size does the work), loaded in both root
-     layouts. */
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  /* RE-CLAMPED to the sans. The guideline is explicitly two families, not
-     three, and specifies no serif at all - Merriweather (loaded for exactly
-     one same-day rebrand and never actually applied by any component, per
-     that rebrand's own note) is dropped from both root layouts along with
-     this. The `font-serif` utility still compiles; it now falls back to
-     the sans again, same guardrail this token carried before either
-     rebrand touched it. */
+  /* ONE FAMILY: INTER (2026-09-05, by explicit request). Supersedes the
+     2026-09-04 brand guideline's two-family "Manrope (sans) + JetBrains Mono
+     (mono)" spec, and Outfit/Fira Code/Merriweather before that. Every one of
+     the three font tokens below now resolves to the same load.
+
+     "Inter Display" is not a separate Google family - it is the top of Inter
+     v4's optical-size axis (`opsz` 14-32), requested in both root layouts via
+     `axes: ["opsz"]`. `font-optical-sizing` stays at its `auto` default, so
+     the browser picks the instance from each element's used font-size: hero
+     type gets the Display drawing, body copy stays on the Text drawing. That
+     is the axis working as designed - see either layout.tsx for why pinning
+     opsz 32 globally was rejected. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* RE-CLAMPED to the sans, and now trivially so - there is only one family.
+     The `font-serif` utility still compiles and still cannot produce a serif,
+     the same guardrail this token has carried through three type systems. */
   --font-serif: var(--font-sans);
 
-  /* Mono. BRAND GUIDELINE (2026-09-04): Fira Code -> JetBrains Mono, same
-     role - the hero spec plate, the Lab index numbers, the detail pages'
-     meta rails, the mono-rail eyebrow (`.altor-eyebrow`) all read through
-     this one variable. Loaded in both root layouts. */
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  /* MONO IS NO LONGER MONOSPACED - a deliberate, requested consequence of
+     going to one family, not an oversight. `font-mono` is still the right
+     class at every call site: it marks the *role* (the hero spec plate, the
+     Lab index numbers, the detail pages' meta rails, code blocks, install
+     commands), so when a monospaced cut is wanted back, restoring it is one
+     line here and nothing else moves.
+
+     WHAT CARRIES THE LOAD INSTEAD. Inter's proportional digits would let
+     numeric columns and tickers jitter, so the two places that actually
+     depended on the fixed advance width are pinned explicitly:
+       - `tabular-nums` is applied to `font-mono` in the base layer below,
+         via Inter's own `tnum` feature - so every meta rail, table figure
+         and count keeps its column.
+       - `pre`/`code` keep a real monospace stack (`--font-code`), because a
+         terminal block and an install command are read as a character grid;
+         proportional text there is a legibility regression, not a style. */
+  --font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* The one place a genuine fixed-advance cut survives is `--font-code`,
+     declared OUTSIDE this block - see the non-utility token block below for
+     why it cannot live here. */
 
   /* --- Neutral ramp: "stone" ---------------------------------------------
      BRAND GUIDELINE (2026-09-04): true grey -> warm stone, per the
@@ -466,6 +486,17 @@
    live here rather than in @theme — Tailwind has no `--duration-*` namespace,
    so declaring them there generates no utilities at all. */
 :root {
+  /* The one genuine fixed-advance cut left in the system, after the
+     2026-09-05 move to a single Inter family collapsed `--font-mono` onto a
+     proportional face. Applied BY ELEMENT in the base layer (`pre`, `code`,
+     `kbd`, `samp`), never as a utility: `--font-*` inside `@theme` would make
+     Tailwind emit a `font-code` class, and a class is exactly how a
+     monospaced face would leak back out across the UI one call site at a
+     time. A terminal block and an install command are read as a character
+     grid; that is a legibility requirement, not a style choice, so it is the
+     one carve-out. No webfont - the OS cut is correct here and free. */
+  --font-code: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
   /* BRAND GUIDELINE (2026-09-04): fast/base/slow updated to the guideline's
      own three durations ("`--ease-out` 250ms giriş, `--ease-in` 120ms
      çıkış" plus its 600ms overshoot-spring value). This LIFTS the previous
@@ -573,11 +604,28 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     /* Never let the browser fake a weight we didn't ship — a synthesised
-       oblique or bold would be the browser reinventing a cut neither
-       loaded family (Manrope, JetBrains Mono) actually ships at that
-       weight. */
+       oblique or bold would be the browser reinventing a cut Inter's own
+       variable `wght` axis already covers. */
     font-synthesis-weight: none;
   }
+
+  /* --- What the retired monospace was actually doing --------------------
+     Two jobs, and going to one proportional family only breaks one of them
+     by default. Both are restored here rather than at ~200 call sites. */
+
+  /* JOB 1 · COLUMNS. Every meta rail, count, date and table figure on this
+     site carries `font-mono` and relied on its fixed advance width to line
+     digits up. Inter's default figures are proportional, so a column of them
+     would jitter row to row. Inter ships `tnum`, so the guarantee is kept -
+     at the role, not per call site. `font-variant-numeric` is inherited, so
+     one rule covers nested spans too. Call sites that already write
+     `tabular-nums` are simply agreeing with this. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* JOB 2 lives OUTSIDE this layer - see the end of this file for the code
+     grid and for why `@layer base` cannot hold it. */
 
   h1,
   h2,
@@ -1579,4 +1627,31 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+}
+
+/* --- THE CODE GRID · deliberately unlayered ------------------------------
+   A shell transcript, an install command and a code sample are read as
+   aligned columns of characters. Proportional type there is a legibility
+   regression, not a restyle, so these four elements keep a real
+   fixed-advance cut even though the 2026-09-05 single-family move made
+   `--font-mono` proportional everywhere else.
+
+   NOT IN `@layer base`, and that is the whole point. Every one of these
+   blocks is also tagged `font-mono` at its call site (CodeBlock, the Lab
+   pages' install tabs, the terminal enclaves), and a Tailwind utility lives
+   in a LATER layer than base - so layer order decides the winner before
+   specificity is even consulted and a base-layer `pre { }` loses to
+   `.font-mono` every time, at any specificity. Unlayered rules sort after
+   all layered ones, which is the documented escape hatch for exactly this:
+   a small, element-scoped override that has to outrank a utility.
+
+   Kept to four element selectors on purpose. There is no `font-code`
+   utility class (see `--font-code`'s own note), so this cannot spread back
+   across the UI one call site at a time. */
+pre,
+code,
+kbd,
+samp {
+  font-family: var(--font-code);
+  font-variant-numeric: tabular-nums;
 }

@@ -30,7 +30,9 @@ import { clsx } from "@/lib/clsx";
    bake in this site's own ink/primary/blue tokens. SiteHeader/SiteFooter
    untouched.
 
-   FONTS: the reference already specifies Manrope + JetBrains Mono - this
+   FONTS: at build time the reference already specified Manrope + JetBrains
+   Mono, then this site's own two families (it moved to a single Inter
+   family on 2026-09-05, and this page followed via the tokens) - this
    site's own two families - so nothing changes here; no substitution was
    even needed, unlike Numerspace's reference (Hanken Grotesk + Inter).
 
@@ -785,7 +787,9 @@ function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; 
         <Reveal delay={140} className="mt-6 flex items-center justify-between gap-3 rounded-lg bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
           <div className="flex min-w-0 items-center gap-2">
             <CheckCircle2 aria-hidden className="size-4 shrink-0 text-emerald-600" />
-            <span className="truncate font-mono text-[12px] font-medium text-zinc-900">{t.selfTestCommand}</span>
+            {/* `code`, not `span` - see DashboardBuilderPage's note: the character
+                grid now comes from the element, not from `font-mono`. */}
+            <code className="truncate text-[12px] font-medium text-zinc-900">{t.selfTestCommand}</code>
           </div>
           <span className="shrink-0 font-mono text-[12px] font-bold text-emerald-700">{t.selfTestNote}</span>
         </Reveal>
