@@ -1,47 +1,70 @@
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, CircleAlert, Plus, Terminal } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
-import { CodeTabs } from "@/components/ui/CodeTabs";
-import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import { RelatedGrid } from "@/components/ui/RelatedGrid";
+import { TerminalCodeTabs } from "@/components/ui/TerminalCodeTabs";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
+import { clsx } from "@/lib/clsx";
 
-/* Marketing Dashboard Builder's product page.
+/* Marketing Dashboard Builder's product page - RESKINNED (2026-09-05) to a
+   supplied external reference ("Deterministic Engine": high-contrast
+   editorial paper, obsidian ink, hairline outlines instead of shadows, and
+   deep dark surfaces reserved for technical enclaves - CLI blocks and the
+   worked refusal report), by explicit request, the third page in this
+   session to take a supplied Stitch reference.
 
-   Built the same way as ChangeHistoryExplorerPage.tsx: cloned
-   ali-demirbas/dashboard-builder and read README.md,
-   skills/dashboard-builder/references/comparability-rules.md,
-   data-quality-gate.md, kpi-framework.md and analysis-playbook.md in
-   full, then built the page's sections around the mechanisms those
-   files actually describe - a comparability engine, a metric registry,
-   a data-quality gate, an insight-candidate engine, and an 11-template
-   dashboard/presentation output - rather than the generic "what it
-   does / how it works" template dashboard-builder.tsx used to feed
-   SkillProductPage with.
+   A DECLARED, PAGE-SCOPED EXCEPTION, same protocol as Numerspace's and the
+   Change History page's reskins - not a global token change. The
+   reference's semantic palette maps exactly onto Tailwind's stock scale
+   (emerald-500 IS #10b981, amber-500 IS #f59e0b, red-500 IS #ef4444,
+   slate-500 IS #64748b, and each -50 surface matches too), so those are
+   stock utilities; only the named ink (#0d0f12), slate text (#57606a),
+   hairlines (#e2e4e8 / #cbd0d6) and the dark enclave (#090a0c / #121417 /
+   #2d333b) are literal values. `ProductSection`/`ProductHeading`/
+   `FaqAccordion`/`RelatedGrid` are not reused here for the same reason as
+   the other two reskins: they carry this site's own ink/primary/blue
+   tokens. SiteHeader/SiteFooter untouched.
 
-   EVERY EXAMPLE BELOW IS REAL:
-   - The "$2.9M vs ~$1.0M Total Revenue" example (Hero) is
-     comparability-rules.md §2.1's own worked case, described there as
-     "the single most common real-world instance of this whole
-     hard-block category."
-   - The "rank Meta and LinkedIn by ROAS" refusal (Comparability Engine
-     section) is comparability-rules.md §4's own worked example,
-     verbatim, translated for the TR page.
-   - The four comparability states, the EXACT/INFERRED/AMBIGUOUS mapping
-     levels, the BLOCKER/WARNING/INFO severities, the 8-question insight
-     gate and its CRITICAL/HIGH/MEDIUM/LOW/SUPPRESS scale, and the
-     11-template table are each condensed from their own reference file,
-     not invented for this page.
-   - The three install commands are README's own "Install" section.
-   - "17 tests passing" was verified this session by running
-     `python3 -m unittest discover -s tests -v` inside the cloned repo
-     (Ran 17 tests ... OK), not copied from the README badge unchecked. */
+   FONTS: no substitution needed - this reference already specifies Manrope
+   + JetBrains Mono, this site's own two families.
+
+   DATA: `REAL` is carried over from the prior pass completely unchanged.
+   Every value in it was verified against the cloned repository then (the
+   comparability worked examples, the four states, the mapping levels, the
+   quality severities, the 8-question gate, the 11 templates, the three
+   install commands, and "17 tests passing" from an actual local run).
+
+   FIVE THINGS FROM THE REFERENCE ARE DELIBERATELY NOT ADOPTED, each an
+   unverifiable claim rather than a style choice:
+
+   - "INCIDENT AUDIT #409" on the worked-refusal panel - an invented case
+     id. Dropped; the panel keeps its real header only.
+   - Per-source attribution annotations in the hero split ("Meta Ads
+     (Attributed 7d/1d)", "Google Ads (Attributed 30d)"). The revenue
+     example in comparability-rules.md §2.1 records source and amount, not
+     each source's window; the 7d/1d figure belongs to a DIFFERENT worked
+     example (the Meta vs LinkedIn one, further down this page). Sources
+     render with the names the data actually carries.
+   - Per-template "Requires: blended spend, net revenue, CAC, payback"
+     lines and per-card "Tier 1: Blended" labels. `REAL.templates` records
+     each template's letter, name and the question it answers - not its
+     data requirements, and not which of the two tiers it belongs to. The
+     two-tier fact stays where it is already verified: in the section's
+     own subheading.
+   - "100% Deterministic" as an invariant-status badge on the reconciled
+     panel - a claim with no source. The panel states the actual figure
+     and its system of record instead.
+   - "Zero real account data retained" - the verified proof line is "No
+     real account data in the repo", which is a statement about the
+     repository, not about runtime retention. Kept as written.
+
+   The +$1.9M overcount the hero panel names IS shown, because it is
+   arithmetic on two verified figures (2.9 naive − 1.0 actual) and is
+   computed here rather than hardcoded. */
 
 const REAL = {
   pipeline: [
@@ -223,48 +246,66 @@ const REAL = {
 
 const T = {
   en: {
-    eyebrow: "Lab / Data Analysis",
+    eyebrow: "Claude Code skill · Marketing & growth analytics",
     heroTitle: "The hardest part of a dashboard isn't the arithmetic. It's knowing which numbers you're allowed to compare.",
     heroSub:
       "A Claude Code skill for marketing and growth data. Most of its work happens before any chart is drawn - classifying which numbers are safe to place side by side, and refusing the ones that aren't.",
+    ctaInstall: "Install via plugin CLI",
+    ctaRepo: "View repository",
     proof: ["17 tests passing", "11 dashboard templates", "No real account data in the repo"],
 
+    inspectorTitle: "dashboard-builder — comparability check",
+    inspectorBadge: "Attribution conflict intercepted",
+    naivePanelLabel: "Naive dashboard calculation",
+    naivePanelStatus: "Invalid summation",
+    naivePanelNote: "Independent platform reports summed directly, without resolving what each one is counting.",
+    naiveTotalLabel: 'Reported "Total Revenue"',
+    overcountLabel: "Overcount",
+    naiveFootnote: "The platform-of-record only ever collected $1.0M.",
+    auditPanelLabel: "Comparability engine",
+    auditPanelStatus: "System of record enforced",
+    auditPanelNote: "Ad-platform figures are claims about the same transactions, not additional revenue. Reconciled to the platform of record.",
+    actualTotalLabel: "Actual total (Shopify, system of record)",
+    auditFootnote: "Reported as one figure with its source named, not as a sum of four.",
+
+    pipelineEyebrow: "Deterministic architecture",
+    pipelineTitle: "The unified ingestion pipeline",
     pipelineNote:
       "Every stage runs once, on the same data - the dashboard and the presentation are two renderings of one analysis, never two separate passes that can quietly disagree with each other.",
 
-    compEyebrow: "Comparability Engine",
+    compEyebrow: "Comparability engine",
     compTitle: "Every number is classified before it's shown.",
     compSub: "Four states, not a binary blocked/fine flag.",
-    compWorkedLabel: "The reporting template when a rule fires - a real worked example",
+    verifiedExample: "Verified example",
+    compWorkedLabel: "The reporting template when a rule fires — a real worked example",
     refusalNotComparable: "Not comparable",
     refusalAsked: "What was asked",
     refusalWhy: "Why it fails",
     refusalCanSay: "What I can say",
     refusalFix: "To make it comparable",
-    revenueLabel: "Revenue by source",
-    naiveSumLabel: 'Naive "Total Revenue"',
-    trueTotalLabel: "Actual total (Shopify, system of record)",
 
-    gateEyebrow: "Before any number is trusted",
+    gateEyebrow: "Pre-flight verification",
     gateTitle: "Every metric is tagged. Every dataset is gated.",
     gateSub: "Two checks run before analysis starts: how confident the metric mapping is, and how severe any data-quality issue is.",
     registryLabel: "Metric mapping confidence",
     qualityLabel: "Data quality severity",
 
-    insightEyebrow: "Insight Candidate Engine",
+    insightEyebrow: "Insight candidate engine",
     insightTitle: "An 8-question gate decides what's worth showing.",
     insightSub: "Not a numeric score - a rule-based gate. Failing the first three suppresses a finding outright.",
-    ifNoLabel: "If no:",
+    questionLabel: "Question",
+    ifNoLabel: "If no",
+    labelsHeading: "How a surviving finding is labelled",
     suppressQuote: '"SUPPRESS is the point of this engine, not a side effect."',
 
-    templatesEyebrow: "Dashboards & Presentations",
+    templatesEyebrow: "Dashboards & presentations",
     templatesTitle: "11 templates. Only the ones your data actually supports.",
     templatesSub: "Two tiers - a blended, multi-domain dataset or one specific data shape. The same analysis renders as either a dashboard or a presentation.",
-    templatesFilterNote: "Selection runs three filters in order: data shape → business question → available evidence - never a manually-declared vertical.",
+    templatesFilterNote: "Never a manually-declared vertical",
+    templatesFilterFull: "Selection runs three filters in order: data shape → business question → available evidence.",
 
     installEyebrow: "Install",
-    installTitle: "Install",
-    installSub: "Three ways in, all from the repository's own README.",
+    installTitle: "Three ways in, all from the repository's own README.",
     tabMarketplace: "Marketplace",
     tabLocal: "Local plugin",
     tabSkillsCli: "Skills CLI",
@@ -272,52 +313,75 @@ const T = {
     viewRepo: "Read the repository",
 
     faqEyebrow: "FAQ",
-    ctaEyebrow: "OPEN SOURCE",
+    faqTitle: "Frequently asked questions",
+
+    relatedEyebrow: "Engineering portfolio",
+    relatedCta: "Inspect",
+
+    ctaEyebrow: "Open source",
     ctaTitle: "Read what your own marketing data is actually telling you.",
   },
   tr: {
-    eyebrow: "Lab / Veri Analizi",
+    eyebrow: "Claude Code skill'i · Pazarlama ve büyüme analitiği",
     heroTitle: "Bir dashboard'un en zor kısmı aritmetik değil. Hangi sayıları karşılaştırmaya hakkınız olduğunu bilmek.",
     heroSub:
       "Pazarlama ve büyüme verisi için bir Claude Code skill'i. İşinin çoğu herhangi bir grafik çizilmeden önce olur - hangi sayıların yan yana konulmasının güvenli olduğunu sınıflandırmak, olmayanları reddetmek.",
+    ctaInstall: "Plugin CLI ile kur",
+    ctaRepo: "Repoyu görüntüle",
     proof: ["17 test geçiyor", "11 dashboard şablonu", "Repoda gerçek hesap verisi yok"],
 
+    inspectorTitle: "dashboard-builder — karşılaştırılabilirlik kontrolü",
+    inspectorBadge: "Attribution çakışması yakalandı",
+    naivePanelLabel: "Saf dashboard hesaplaması",
+    naivePanelStatus: "Geçersiz toplama",
+    naivePanelNote: "Bağımsız platform raporları, her birinin neyi saydığı çözülmeden doğrudan toplanmış.",
+    naiveTotalLabel: 'Raporlanan "Toplam Gelir"',
+    overcountLabel: "Fazla sayım",
+    naiveFootnote: "Sistem kaydı olan platform yalnızca 1,0 milyon dolar tahsil etti.",
+    auditPanelLabel: "Karşılaştırılabilirlik motoru",
+    auditPanelStatus: "Sistem kaydı esas alındı",
+    auditPanelNote: "Reklam platformu rakamları aynı işlemlere dair iddialardır, ek gelir değil. Sistem kaydına göre uzlaştırıldı.",
+    actualTotalLabel: "Gerçek toplam (Shopify, sistem kaydı)",
+    auditFootnote: "Dördün toplamı olarak değil, kaynağı belirtilmiş tek bir rakam olarak raporlanır.",
+
+    pipelineEyebrow: "Deterministik mimari",
+    pipelineTitle: "Birleşik alım hattı",
     pipelineNote:
       "Her aşama aynı veri üzerinde bir kez çalışır - dashboard ve sunum, birbirinden habersiz kalabilecek iki ayrı geçiş değil, tek bir analizin iki farklı render'ıdır.",
 
-    compEyebrow: "Comparability Engine",
+    compEyebrow: "Karşılaştırılabilirlik motoru",
     compTitle: "Her sayı gösterilmeden önce sınıflandırılır.",
     compSub: "İkili engellendi/uygun bayrağı değil, dört durum.",
-    compWorkedLabel: "Bir kural tetiklendiğinde kullanılan raporlama şablonu - gerçek bir örnek",
+    verifiedExample: "Doğrulanmış örnek",
+    compWorkedLabel: "Bir kural tetiklendiğinde kullanılan raporlama şablonu — gerçek bir örnek",
     refusalNotComparable: "Karşılaştırılamaz",
     refusalAsked: "Ne soruldu",
     refusalWhy: "Neden başarısız",
     refusalCanSay: "Söyleyebileceğim",
     refusalFix: "Karşılaştırılabilir yapmak için",
-    revenueLabel: "Kaynağa göre gelir",
-    naiveSumLabel: 'Saf "Toplam Gelir"',
-    trueTotalLabel: "Gerçek toplam (Shopify, sistem kaydı)",
 
-    gateEyebrow: "Bir sayıya güvenilmeden önce",
+    gateEyebrow: "Ön kontrol",
     gateTitle: "Her metrik etiketlenir. Her veri seti kapıdan geçer.",
     gateSub: "Analiz başlamadan önce iki kontrol çalışır: metrik eşlemesinin ne kadar güvenilir olduğu ve veri kalitesi sorununun ne kadar ciddi olduğu.",
     registryLabel: "Metrik eşleme güveni",
     qualityLabel: "Veri kalitesi ciddiyeti",
 
-    insightEyebrow: "İçgörü Aday Motoru",
+    insightEyebrow: "İçgörü aday motoru",
     insightTitle: "8 soruluk bir kapı neyin gösterilmeye değer olduğuna karar verir.",
     insightSub: "Sayısal bir skor değil - kural tabanlı bir kapı. İlk üçünü geçemeyen bir bulgu doğrudan bastırılır.",
-    ifNoLabel: "Hayırsa:",
+    questionLabel: "Soru",
+    ifNoLabel: "Hayırsa",
+    labelsHeading: "Geçen bir bulgu nasıl etiketlenir",
     suppressQuote: '"SUPPRESS bu motorun yan etkisi değil, amacıdır."',
 
-    templatesEyebrow: "Dashboard'lar ve Sunumlar",
+    templatesEyebrow: "Dashboard'lar ve sunumlar",
     templatesTitle: "11 şablon. Sadece verinizin gerçekten desteklediği olanlar.",
     templatesSub: "İki katman - karma, çok alanlı bir veri seti ya da tek bir spesifik veri şekli. Aynı analiz ister dashboard ister sunum olarak render edilir.",
-    templatesFilterNote: "Seçim sırasıyla üç filtreden geçer: veri şekli → iş sorusu → mevcut kanıt - asla elle beyan edilmiş bir vertical değil.",
+    templatesFilterNote: "Asla elle beyan edilmiş bir vertical değil",
+    templatesFilterFull: "Seçim sırasıyla üç filtreden geçer: veri şekli → iş sorusu → mevcut kanıt.",
 
     installEyebrow: "Kurulum",
-    installTitle: "Kurulum",
-    installSub: "Reponun kendi README'sinden üç kurulum yolu.",
+    installTitle: "Reponun kendi README'sinden üç kurulum yolu.",
     tabMarketplace: "Marketplace",
     tabLocal: "Yerel eklenti",
     tabSkillsCli: "Skills CLI",
@@ -325,7 +389,12 @@ const T = {
     viewRepo: "Repoyu okuyun",
 
     faqEyebrow: "SSS",
-    ctaEyebrow: "AÇIK KAYNAK",
+    faqTitle: "Sıkça sorulan sorular",
+
+    relatedEyebrow: "Mühendislik portföyü",
+    relatedCta: "İncele",
+
+    ctaEyebrow: "Açık kaynak",
     ctaTitle: "Kendi pazarlama verinizin gerçekte ne söylediğini okuyun.",
   },
 } as const;
@@ -335,357 +404,429 @@ const LOCAL_CMD = `git clone https://github.com/ali-demirbas/dashboard-builder.g
 const SKILLS_CLI_CMD = `npx skills add ali-demirbas/dashboard-builder --all`;
 const TEST_CMD = `python3 -m unittest discover -s tests -v`;
 
-const TONE: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-700",
-  sky: "bg-sky-50 text-sky-700",
-  amber: "bg-amber-50 text-amber-700",
-  // Reuses the exact terracotta pair ChangeHistoryExplorerPage already
-  // established for a negative/old value, so NOT_COMPARABLE and BLOCKER
-  // read as this site's own existing "this is the bad one" color, not a
-  // new one introduced just for this page.
-  rose: "bg-[#fdf3f0] text-[#c65d3f]",
-  neutral: "bg-paper-soft text-ink-500",
-  ink: "bg-ink-900 text-white",
+/** The reference's semantic scale: strictly functional, never decorative.
+    Each tone is one chip style plus the dot that precedes it. */
+const TONE: Record<string, { chip: string; dot: string }> = {
+  emerald: { chip: "border-emerald-200 bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
+  sky: { chip: "border-slate-200 bg-slate-100 text-slate-600", dot: "bg-slate-500" },
+  amber: { chip: "border-amber-200 bg-amber-50 text-amber-700", dot: "bg-amber-500" },
+  rose: { chip: "border-red-200 bg-red-50 text-red-700", dot: "bg-red-500" },
+  /* The quietest tone deliberately reads quieter than `sky`: INFO and LOW
+     sit in the same lists as NORMALIZABLE and MEDIUM, and two filled greys
+     side by side carry no hierarchy. Hollow plate, hollow dot. */
+  neutral: { chip: "border-zinc-200 bg-white text-zinc-500", dot: "border border-zinc-400 bg-transparent" },
+  ink: { chip: "border-[#2d333b] bg-[#0d0f12] text-white", dot: "bg-white" },
 };
 
-/* ---- Shared bits -------------------------------------------------- */
+/* ---- Shared editorial primitives, scoped to this page ------------------ */
 
-/** Same purely-decorative macOS-style chrome ChangeHistoryExplorerPage
-    uses - not shared as a component yet, so redefined locally here, same
-    as that file does. */
-function BrowserChrome({ title, children }: { title: string; children: React.ReactNode }) {
+function Kicker({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_0_0_1px_rgb(0_0_0/0.06),0_24px_48px_-16px_rgb(10_16_32/0.18)]">
-      <div className="flex items-center gap-3 border-b border-line bg-paper-soft px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span aria-hidden className="size-2.5 rounded-full bg-[#ff5f57]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#febc2e]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#28c840]" />
-        </div>
-        <div className="flex-1 truncate rounded-md bg-paper px-3 py-1 text-center font-mono text-[11px] text-ink-400">
-          {title}
-        </div>
-      </div>
+    <span className={clsx("font-mono text-[11px] font-semibold tracking-[0.05em] uppercase", className ?? "text-[#57606a]")}>
       {children}
+    </span>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  sub,
+  align = "center",
+}: {
+  eyebrow: string;
+  title: string;
+  sub?: string;
+  align?: "center" | "start";
+}) {
+  return (
+    <div className={clsx("max-w-2xl", align === "center" ? "mx-auto text-center" : "")}>
+      <Kicker>{eyebrow}</Kicker>
+      <h2 className="mt-2 text-[1.75rem] leading-[1.2] font-semibold tracking-[-0.02em] text-[#0d0f12] sm:text-[2.375rem] sm:leading-[1.2] sm:tracking-[-0.025em]">
+        {title}
+      </h2>
+      {sub && <p className="mt-3 text-[17px] leading-relaxed text-[#57606a]">{sub}</p>}
     </div>
   );
 }
 
 function StateChip({ tone, label }: { tone: string; label: string }) {
+  const s = TONE[tone] ?? TONE.neutral;
   return (
-    <span className={`inline-flex items-center rounded px-2 py-0.5 text-[11px] font-semibold tracking-wide ${TONE[tone]}`}>
+    <span className={clsx("inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-[11px] font-semibold tracking-[0.05em]", s.chip)}>
+      <span aria-hidden className={clsx("size-1.5 rounded-full", s.dot)} />
       {label}
     </span>
   );
 }
 
-function ComparabilityTable({ lang }: { lang: Lang }) {
+/** A state / level card: the chip, the rule it stands for, and the
+    reference file's own worked example beneath it. */
+function StateCard({ tone, id, rule, example, exampleLabel }: { tone: string; id: string; rule: string; example: string; exampleLabel: string }) {
   return (
-    <div className="divide-y divide-line overflow-hidden rounded-card border border-line bg-paper">
-      {REAL.comparabilityStates.map((s) => (
-        <div key={s.id} className="flex flex-col gap-2 p-5 text-left sm:flex-row sm:items-start sm:gap-6">
-          <div className="shrink-0 sm:w-40">
-            <StateChip tone={s.tone} label={s.id} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[13.5px] leading-relaxed text-ink-700">{s[lang]}</p>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-400 italic">{s.example[lang]}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RefusalCard({
-  t,
-  rule,
-  asked,
-  why,
-  canSay,
-  fix,
-}: {
-  t: (typeof T)[Lang];
-  rule: string;
-  asked: string;
-  why: string;
-  canSay: string;
-  fix: string;
-}) {
-  return (
-    <div className="rounded-card border border-[#f0d9d0] bg-[#fdf6f3] p-5">
-      <p className="flex items-center gap-2 text-[13px] font-semibold text-[#c65d3f]">
-        <span aria-hidden>⚠️</span> {t.refusalNotComparable} — {rule}
-      </p>
-      <dl className="mt-3.5 flex flex-col gap-2.5 text-[13px] leading-relaxed">
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalAsked}</dt>
-          <dd className="text-ink-600">{asked}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalWhy}</dt>
-          <dd className="text-ink-600">{why}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalCanSay}</dt>
-          <dd className="text-ink-600">{canSay}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalFix}</dt>
-          <dd className="text-ink-600">{fix}</dd>
-        </div>
-      </dl>
-    </div>
-  );
-}
-
-function RevenueBarsCard({ t }: { t: (typeof T)[Lang] }) {
-  const { parts, naiveSum, trueTotal } = REAL.revenueExample;
-  const max = Math.max(...parts.map((p) => p.value), naiveSum);
-  return (
-    <div className="p-5">
-      <p className="text-[11px] font-medium tracking-wide text-ink-400 uppercase">{t.revenueLabel}</p>
-      <div className="mt-3 flex flex-col gap-2">
-        {parts.map((p) => (
-          <div key={p.source} className="flex items-center gap-3">
-            <span className="w-[70px] shrink-0 text-[12px] text-ink-600">{p.source}</span>
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-paper-soft">
-              <div className="h-full rounded-full bg-primary-400" style={{ width: `${(p.value / max) * 100}%` }} />
-            </div>
-            <span className="w-12 shrink-0 text-right font-mono text-[12px] text-ink-700">${p.value.toFixed(1)}M</span>
-          </div>
-        ))}
+    <div className="flex flex-col justify-between border-[#e2e4e8] bg-white p-5 transition-colors hover:bg-[#f9f9f9]">
+      <div>
+        <StateChip tone={tone} label={id} />
+        <p className="mt-3.5 text-[15px] leading-snug font-semibold text-[#0d0f12]">{rule}</p>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3 rounded-md bg-[#fdf3f0] px-3.5 py-2.5">
-        <span className="text-[12.5px] font-medium text-[#c65d3f]">{t.naiveSumLabel}</span>
-        <span className="shrink-0 font-mono text-sm font-semibold text-[#c65d3f] line-through decoration-1">
-          ${naiveSum.toFixed(1)}M
-        </span>
-      </div>
-      <div className="mt-2 flex items-center justify-between gap-3 rounded-md bg-emerald-50 px-3.5 py-2.5">
-        <span className="text-[12.5px] font-medium text-emerald-700">{t.trueTotalLabel}</span>
-        <span className="shrink-0 font-mono text-sm font-semibold text-emerald-700">~${trueTotal.toFixed(1)}M</span>
+      <div className="mt-4 rounded bg-[#f1f5f9] p-3">
+        <span className="block font-mono text-[10px] font-semibold tracking-[0.05em] text-slate-500 uppercase">{exampleLabel}</span>
+        <p className="mt-1 font-mono text-[11.5px] leading-relaxed text-[#57606a]">{example}</p>
       </div>
     </div>
   );
 }
 
-/* ---- 01 · Hero ------------------------------------------------------ */
-function Hero({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
+/* ---- 01 · Hero + the comparability inspector --------------------------- */
+function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
+  const { parts, naiveSum, trueTotal } = REAL.revenueExample;
+  const overcount = naiveSum - trueTotal; // 2.9 - 1.0, computed from the two verified figures
+  const money = (v: number) => (lang === "en" ? `$${v.toFixed(1)}M` : `${v.toFixed(1).replace(".", ",")} milyon $`);
   return (
-    <section className="relative isolate overflow-hidden bg-paper pt-16 pb-24 md:pt-20 md:pb-32">
-      <PortraitContainer className="text-center">
-        <Reveal>
-          <p className="altor-eyebrow mb-5 text-ink-400">{t.eyebrow}</p>
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.heroTitle}</h1>
-        </Reveal>
-        <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.heroSub}</p>
-        </Reveal>
-        {repo && (
-          <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
-            <a
-              href={repo.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors hover:bg-primary-600"
-            >
-              {repo.label}
-              <ArrowUpRight aria-hidden className="size-4" />
-            </a>
+    <section className="bg-white px-5 pt-14 pb-16 sm:px-8 md:pt-20 md:pb-24 lg:px-12">
+      <PortraitContainer>
+        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+          <Reveal className="inline-flex items-center gap-2 rounded-full bg-[#eeeeee] px-3 py-1">
+            <span aria-hidden className="size-2 rounded-full bg-emerald-500" />
+            <Kicker className="text-[#0d0f12]">{t.eyebrow}</Kicker>
           </Reveal>
-        )}
-        <Reveal delay={180} className="mt-6">
-          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[12.5px] text-ink-500">
-            {t.proof.map((item) => (
-              <li key={item} className="flex items-center gap-1.5">
-                <Check aria-hidden className="size-3 shrink-0 text-primary-600" />
+          <Reveal delay={60} className="mt-6">
+            <h1 className="text-[2.25rem] leading-[1.15] font-semibold tracking-[-0.025em] text-[#0d0f12] sm:text-[3.5rem] sm:leading-[1.1] sm:tracking-[-0.035em]">
+              {t.heroTitle}
+            </h1>
+          </Reveal>
+          <Reveal delay={100} className="mt-6">
+            <p className="max-w-2xl text-[19px] leading-relaxed text-[#57606a]">{t.heroSub}</p>
+          </Reveal>
+          <Reveal delay={140} className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href="#install"
+              className="inline-flex items-center gap-2 rounded bg-[#0d0f12] px-6 py-3 text-[15px] font-medium text-white transition-colors hover:bg-[#1e2227]"
+            >
+              <Terminal aria-hidden className="size-4" />
+              {t.ctaInstall}
+            </a>
+            {repo && (
+              <a
+                href={repo.href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded bg-[#f3f3f3] px-6 py-3 text-[15px] font-medium text-[#0d0f12] transition-colors hover:bg-[#e8e8e8]"
+              >
+                {t.ctaRepo}
+                <ArrowUpRight aria-hidden className="size-4" />
+              </a>
+            )}
+          </Reveal>
+          <Reveal delay={180} className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+            {t.proof.map((item, i) => (
+              <span key={item} className="inline-flex items-center gap-1.5 rounded bg-[#f3f3f3] px-2.5 py-1 font-mono text-[11px] text-[#57606a]">
+                {i === 0 ? (
+                  <span aria-hidden className="size-1.5 rounded-full bg-emerald-500" />
+                ) : (
+                  <Check aria-hidden className="size-3 text-slate-400" />
+                )}
                 {item}
-              </li>
+              </span>
             ))}
-          </ul>
-        </Reveal>
+          </Reveal>
+        </div>
 
-        <Reveal delay={220} className="mx-auto mt-14 max-w-md text-left">
-          <BrowserChrome title="dashboard-builder — comparability check">
-            <RevenueBarsCard t={t} />
-          </BrowserChrome>
+        {/* The worked comparability case, as a split inspector: what a naive
+            dashboard would report against what the engine reconciles to.
+            Both figures and all four sources are comparability-rules.md
+            §2.1's own; the overcount is computed from them. */}
+        <Reveal delay={220} className="mx-auto mt-14 max-w-4xl">
+          <div className="overflow-hidden rounded-xl border border-[#e2e4e8] bg-white shadow-[0_4px_16px_-2px_rgba(13,15,18,0.08)]">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e2e4e8] bg-[#f3f3f3] px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <span aria-hidden className="size-2.5 rounded-full bg-red-400" />
+                <span aria-hidden className="size-2.5 rounded-full bg-amber-400" />
+                <span aria-hidden className="size-2.5 rounded-full bg-emerald-400" />
+                <span className="ml-1.5 font-mono text-[12px] font-medium text-[#0d0f12]">{t.inspectorTitle}</span>
+              </div>
+              <span className="rounded bg-red-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold tracking-[0.05em] text-red-600 uppercase">
+                {t.inspectorBadge}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              {/* Left: the naive sum */}
+              <div className="flex flex-col justify-between border-b border-[#e2e4e8] p-6 lg:border-r lg:border-b-0">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <Kicker>{t.naivePanelLabel}</Kicker>
+                    <span className="shrink-0 rounded bg-red-50 px-2 py-0.5 font-mono text-[10.5px] font-medium text-red-600">{t.naivePanelStatus}</span>
+                  </div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-[#57606a]">{t.naivePanelNote}</p>
+                  <div className="mt-4 flex flex-col gap-2">
+                    {parts.map((p) => (
+                      <div key={p.source} className="flex items-center justify-between rounded bg-[#f3f3f3] px-3 py-2">
+                        <span className="flex items-center gap-2 text-[13px] font-medium text-[#0d0f12]">
+                          <span aria-hidden className="size-1.5 rounded-full bg-slate-400" />
+                          {p.source}
+                        </span>
+                        <span className="font-mono text-[13px] font-semibold text-[#0d0f12] tabular-nums">{money(p.value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-5 -mx-6 -mb-6 bg-red-50/60 p-6">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div>
+                      <span className="text-[13px] font-medium text-red-700 line-through decoration-1">{t.naiveTotalLabel}</span>
+                      <div className="font-mono text-2xl font-bold text-red-700 tabular-nums">{money(naiveSum)}</div>
+                    </div>
+                    <div className="text-right">
+                      <Kicker className="text-red-700">{t.overcountLabel}</Kicker>
+                      <div className="font-mono text-[13px] font-semibold text-red-700 tabular-nums">+{money(overcount)}</div>
+                    </div>
+                  </div>
+                  <p className="mt-2 flex items-start gap-1.5 font-mono text-[11.5px] leading-relaxed text-red-700">
+                    <CircleAlert aria-hidden className="mt-px size-3.5 shrink-0" />
+                    {t.naiveFootnote}
+                  </p>
+                </div>
+              </div>
+              {/* Right: the reconciled figure */}
+              <div className="flex flex-col justify-between bg-[#f9f9f9] p-6">
+                {/* Fills rather than floats: the left column is four source
+                    rows tall, and a short card here left a hollow gap. */}
+                <div className="flex flex-1 flex-col">
+                  <div className="flex items-center justify-between gap-2">
+                    <Kicker className="text-emerald-700">{t.auditPanelLabel}</Kicker>
+                    <span className="shrink-0 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10.5px] font-medium text-emerald-700">
+                      {t.auditPanelStatus}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-[#57606a]">{t.auditPanelNote}</p>
+                  <div className="mt-4 flex-1 rounded bg-white p-3">
+                    <StateChip tone="rose" label="NOT_COMPARABLE" />
+                    <p className="mt-2 font-mono text-[11.5px] leading-relaxed text-[#57606a]">
+                      {REAL.comparabilityStates[3].example[lang]}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 -mx-6 -mb-6 bg-emerald-50/70 p-6">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div>
+                      <span className="text-[13px] font-medium text-[#0d0f12]">{t.actualTotalLabel}</span>
+                      <div className="font-mono text-2xl font-bold text-[#0d0f12] tabular-nums">~{money(trueTotal)}</div>
+                    </div>
+                  </div>
+                  <p className="mt-2 flex items-start gap-1.5 font-mono text-[11.5px] leading-relaxed text-emerald-700">
+                    <Check aria-hidden className="mt-px size-3.5 shrink-0" />
+                    {t.auditFootnote}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </Reveal>
       </PortraitContainer>
     </section>
   );
 }
 
-/* ---- 02 · Pipeline band ---------------------------------------------- */
+/* ---- 02 · The pipeline ------------------------------------------------- */
 function PipelineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   return (
-    <ProductSection tone="soft" space="band">
+    <section className="border-y border-[#e2e4e8] bg-[#f9f9f9] px-5 py-16 sm:px-8 md:py-24 lg:px-12">
       <PortraitContainer>
-        <Reveal className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-2.5">
-          {REAL.pipeline.map((step) => (
-            <div key={step.en} className="flex items-center gap-2.5">
-              <span className="rounded-full border border-line-strong bg-paper px-3.5 py-1.5 text-[12.5px] font-medium text-ink-700">
-                {step[lang]}
+        <SectionHeading eyebrow={t.pipelineEyebrow} title={t.pipelineTitle} sub={t.pipelineNote} />
+        <Reveal delay={100} className="mt-10 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          {REAL.pipeline.map((step, i) => (
+            <div key={step.en} className="rounded border border-[#e2e4e8] bg-white p-4">
+              <span className="font-mono text-[11px] font-semibold text-slate-400 tabular-nums">
+                {String(i + 1).padStart(2, "0")}
               </span>
-              <ArrowRight aria-hidden className="size-3.5 shrink-0 text-ink-300" />
+              <p className="mt-1.5 text-[13.5px] leading-snug font-semibold text-[#0d0f12]">{step[lang]}</p>
             </div>
           ))}
-          <div className="flex flex-wrap items-center gap-2">
-            {REAL.pipelineOutputs.map((o) => (
-              <span
-                key={o.en}
-                className="rounded-full border border-primary-200 bg-primary-50 px-3.5 py-1.5 text-[12.5px] font-medium text-primary-700"
-              >
-                {o[lang]}
-              </span>
-            ))}
-          </div>
         </Reveal>
-        <Reveal delay={80} className="mx-auto mt-4 max-w-xl text-center">
-          <p className="text-[12.5px] text-ink-500">{t.pipelineNote}</p>
+        <Reveal delay={140} className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <span className="font-mono text-[11px] text-slate-400">→</span>
+          {REAL.pipelineOutputs.map((o) => (
+            <span key={o.en} className="rounded bg-[#0d0f12] px-3.5 py-1.5 font-mono text-[12px] font-medium text-white">
+              {o[lang]}
+            </span>
+          ))}
         </Reveal>
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
-/* ---- 03 · Comparability Engine ---------------------------------------- */
+/* ---- 03 · Comparability engine ----------------------------------------- */
 function ComparabilityEngineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
-  const ex = REAL.refusalExample;
+  const r = REAL.refusalExample;
   return (
-    <ProductSection tone="paper" space="xl">
+    <section className="bg-white px-5 py-16 sm:px-8 md:py-24 lg:px-12">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.compEyebrow} title={t.compTitle} body={t.compSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 max-w-3xl">
-          <ComparabilityTable lang={lang} />
+        <SectionHeading eyebrow={t.compEyebrow} title={t.compTitle} sub={t.compSub} />
+        <Reveal delay={100} className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[#e2e4e8] bg-[#e2e4e8] sm:grid-cols-2 lg:grid-cols-4">
+          {REAL.comparabilityStates.map((s) => (
+            <StateCard key={s.id} tone={s.tone} id={s.id} rule={s[lang]} example={s.example[lang]} exampleLabel={t.verifiedExample} />
+          ))}
         </Reveal>
-        <Reveal delay={140} className="mx-auto mt-10 max-w-2xl text-left">
-          <p className="mb-3 text-[12px] font-medium tracking-wide text-ink-400 uppercase">{t.compWorkedLabel}</p>
-          <RefusalCard
-            t={t}
-            rule={ex.rule[lang]}
-            asked={ex.asked[lang]}
-            why={ex.why[lang]}
-            canSay={ex.canSay[lang]}
-            fix={ex.fix[lang]}
-          />
+
+        {/* The refusal report, in the dark "technical enclave" the
+            reference reserves for tool output. */}
+        <Reveal delay={140} className="mt-8 overflow-hidden rounded-xl border border-[#2d333b] bg-[#090a0c]">
+          <div className="flex flex-wrap items-center gap-2 border-b border-[#2d333b] bg-[#121417] px-5 py-3">
+            <CircleAlert aria-hidden className="size-4 shrink-0 text-amber-400" />
+            <span className="font-mono text-[11.5px] font-medium tracking-[0.05em] text-white uppercase">{t.compWorkedLabel}</span>
+          </div>
+          <div className="p-5 sm:p-6">
+            <p className="flex flex-wrap items-center gap-2 font-mono text-[13px] font-semibold text-amber-400">
+              Δ {t.refusalNotComparable.toUpperCase()} — {r.rule[lang].toUpperCase()}
+            </p>
+            <dl className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+              {[
+                { label: t.refusalAsked, value: r.asked[lang], tone: "text-white" },
+                { label: t.refusalWhy, value: r.why[lang], tone: "text-white" },
+                { label: t.refusalCanSay, value: r.canSay[lang], tone: "text-white" },
+                { label: t.refusalFix, value: r.fix[lang], tone: "text-emerald-400" },
+              ].map((row) => (
+                <div key={row.label} className="rounded bg-[#121417] p-4">
+                  <dt className="font-mono text-[10px] font-semibold tracking-[0.05em] text-slate-500 uppercase">{row.label}</dt>
+                  <dd className={clsx("mt-1.5 font-mono text-[12.5px] leading-relaxed", row.tone)}>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </Reveal>
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
-/* ---- 04 · Metric registry + Quality gate ------------------------------ */
+/* ---- 04 · Registry + quality gate -------------------------------------- */
 function RegistryAndGateSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const panels = [
+    { label: t.registryLabel, rows: REAL.registryLevels },
+    { label: t.qualityLabel, rows: REAL.qualityLevels },
+  ];
   return (
-    <ProductSection tone="soft" space="lg">
+    <section className="border-y border-[#e2e4e8] bg-[#f9f9f9] px-5 py-16 sm:px-8 md:py-24 lg:px-12">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.gateEyebrow} title={t.gateTitle} body={t.gateSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-6 text-left md:grid-cols-2">
-          <div className="rounded-card border border-line bg-paper p-5">
-            <p className="text-[13px] font-medium text-ink-950">{t.registryLabel}</p>
-            <div className="mt-4 flex flex-col gap-3.5">
-              {REAL.registryLevels.map((l) => (
-                <div key={l.id}>
-                  <StateChip tone={l.tone} label={l.id} />
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-600">{l[lang]}</p>
-                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-ink-400 italic">{l.example[lang]}</p>
-                </div>
-              ))}
+        <SectionHeading eyebrow={t.gateEyebrow} title={t.gateTitle} sub={t.gateSub} />
+        <Reveal delay={100} className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+          {panels.map((panel) => (
+            <div key={panel.label} className="overflow-hidden rounded-lg border border-[#e2e4e8] bg-white">
+              <div className="border-b border-[#e2e4e8] bg-[#f9f9f9] px-5 py-3">
+                <Kicker>{panel.label}</Kicker>
+              </div>
+              <div className="divide-y divide-[#e2e4e8]">
+                {panel.rows.map((row) => (
+                  <div key={row.id} className="p-5">
+                    <StateChip tone={row.tone} label={row.id} />
+                    <p className="mt-2.5 text-[14px] leading-snug font-medium text-[#0d0f12]">{row[lang]}</p>
+                    <p className="mt-1.5 font-mono text-[11.5px] leading-relaxed text-[#57606a]">{row.example[lang]}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="rounded-card border border-line bg-paper p-5">
-            <p className="text-[13px] font-medium text-ink-950">{t.qualityLabel}</p>
-            <div className="mt-4 flex flex-col gap-3.5">
-              {REAL.qualityLevels.map((l) => (
-                <div key={l.id}>
-                  <StateChip tone={l.tone} label={l.id} />
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-600">{l[lang]}</p>
-                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-ink-400 italic">{l.example[lang]}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </Reveal>
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
-/* ---- 05 · Insight Candidate Engine ------------------------------------- */
+/* ---- 05 · Insight candidate engine ------------------------------------- */
 function InsightEngineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   return (
-    <ProductSection tone="paper" space="lg">
+    <section className="bg-white px-5 py-16 sm:px-8 md:py-24 lg:px-12">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.insightEyebrow} title={t.insightTitle} body={t.insightSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 max-w-2xl text-left">
-          <div className="flex flex-col divide-y divide-line rounded-card border border-line bg-paper">
-            {REAL.insightQuestions.map((q) => (
-              <div key={q.n} className="flex items-start gap-3 p-4">
-                <span className="mt-0.5 shrink-0 font-mono text-[11px] text-ink-400">{String(q.n).padStart(2, "0")}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-ink-900">{q[lang]}</p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-ink-500">
-                    {t.ifNoLabel} {q.ifNo[lang]}
-                  </p>
-                </div>
+        <SectionHeading eyebrow={t.insightEyebrow} title={t.insightTitle} sub={t.insightSub} />
+        <Reveal delay={100} className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-lg border border-[#e2e4e8]">
+          {REAL.insightQuestions.map((q, i) => (
+            <div
+              key={q.n}
+              className={clsx(
+                "flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:gap-5",
+                i % 2 === 1 ? "bg-[#f9f9f9]" : "bg-white",
+                i > 0 && "border-t border-[#e2e4e8]",
+              )}
+            >
+              <span className="shrink-0 font-mono text-[11px] font-semibold text-slate-400 tabular-nums">
+                Q{q.n}
+              </span>
+              <p className="flex-1 text-[15px] font-semibold text-[#0d0f12]">{q[lang]}</p>
+              {/* A fixed column, not max-width: the consequences are what
+                  the reader scans down, so they have to start on one axis. */}
+              <div className="flex shrink-0 items-baseline gap-2 sm:w-[52%]">
+                <span className="font-mono text-[10px] font-semibold tracking-[0.05em] whitespace-nowrap text-slate-400 uppercase">
+                  {t.ifNoLabel}
+                </span>
+                <span className="font-mono text-[11.5px] leading-relaxed text-[#57606a]">{q.ifNo[lang]}</span>
+              </div>
+            </div>
+          ))}
+        </Reveal>
+
+        <Reveal delay={140} className="mx-auto mt-8 max-w-3xl">
+          <Kicker>{t.labelsHeading}</Kicker>
+          <div className="mt-3 flex flex-col gap-2">
+            {REAL.insightLabels.map((l) => (
+              <div key={l.id} className="flex flex-col gap-2 rounded border border-[#e2e4e8] bg-white p-3.5 sm:flex-row sm:items-center sm:gap-4">
+                <span className="shrink-0 sm:w-28">
+                  <StateChip tone={l.tone} label={l.id} />
+                </span>
+                <p className="text-[13px] leading-relaxed text-[#57606a]">{l[lang]}</p>
               </div>
             ))}
           </div>
         </Reveal>
-        <Reveal delay={140} className="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-2.5 text-left sm:grid-cols-2">
-          {REAL.insightLabels.map((l) => (
-            <div key={l.id} className="rounded-lg border border-line bg-paper p-3.5">
-              <StateChip tone={l.tone} label={l.id} />
-              <p className="mt-1.5 text-[12px] leading-relaxed text-ink-600">{l[lang]}</p>
-            </div>
-          ))}
-        </Reveal>
-        <Reveal delay={180} className="mx-auto mt-8 max-w-2xl border-l-2 border-primary-600 py-1 pl-5 text-left">
-          <p className="text-[13px] leading-relaxed text-ink-600 italic">{t.suppressQuote}</p>
+
+        <Reveal delay={180} className="mx-auto mt-8 max-w-3xl border-l-2 border-[#0d0f12] py-1 pl-5">
+          <p className="text-[15px] leading-relaxed font-medium text-[#0d0f12]">{t.suppressQuote}</p>
         </Reveal>
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
-/* ---- 06 · Dashboards & Presentations ----------------------------------- */
+/* ---- 06 · Dashboards & presentations ----------------------------------- */
 function TemplatesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   return (
-    <ProductSection tone="soft" space="lg">
+    <section className="border-y border-[#e2e4e8] bg-[#f9f9f9] px-5 py-16 sm:px-8 md:py-24 lg:px-12">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.templatesEyebrow} title={t.templatesTitle} body={t.templatesSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-2.5 text-left sm:grid-cols-2">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <SectionHeading eyebrow={t.templatesEyebrow} title={t.templatesTitle} sub={t.templatesSub} align="start" />
+          <span className="shrink-0 rounded bg-[#e8e8e8] px-3 py-1.5 font-mono text-[11.5px] text-[#0d0f12]">
+            {t.templatesFilterNote}
+          </span>
+        </div>
+        <Reveal delay={100} className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {REAL.templates.map((tpl) => (
-            <div key={tpl.id} className="flex items-start gap-3 rounded-lg border border-line bg-paper p-3.5">
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-ink-950 font-mono text-[11px] font-semibold text-white">
+            <div key={tpl.id} className="rounded-lg border border-[#e2e4e8] bg-white p-5 transition-shadow hover:shadow-[0_4px_16px_-2px_rgba(13,15,18,0.08)]">
+              <span className="flex size-6 items-center justify-center rounded-full bg-[#0d0f12] font-mono text-[11px] font-bold text-white">
                 {tpl.id}
               </span>
-              <div className="min-w-0">
-                <p className="text-[13px] font-medium text-ink-900">{tpl[lang]}</p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-ink-500">{tpl.q[lang]}</p>
-              </div>
+              <h3 className="mt-3 text-[15px] font-semibold text-[#0d0f12]">{tpl[lang]}</h3>
+              <p className="mt-1 text-[13.5px] leading-relaxed text-[#57606a]">“{tpl.q[lang]}”</p>
             </div>
           ))}
         </Reveal>
-        <Reveal delay={140} className="mx-auto mt-6 max-w-2xl text-center">
-          <p className="text-[12.5px] text-ink-500">{t.templatesFilterNote}</p>
+        <Reveal delay={140} className="mt-6">
+          <p className="font-mono text-[11.5px] text-slate-500">{t.templatesFilterFull}</p>
         </Reveal>
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
-/* ---- 07 · Install -------------------------------------------------------- */
+/* ---- 07 · Install ------------------------------------------------------- */
 function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
   return (
-    <ProductSection tone="paper" space="lg">
-      <PortraitContainer className="max-w-2xl">
-        <ProductHeading eyebrow={t.installEyebrow} title={t.installTitle} body={t.installSub} align="center" />
+    <section id="install" className="scroll-mt-24 bg-white px-5 py-16 sm:px-8 md:py-24 lg:px-12">
+      <PortraitContainer className="max-w-[768px]">
+        <SectionHeading eyebrow={t.installEyebrow} title={t.installTitle} />
         <Reveal delay={100} className="mt-10">
-          <CodeTabs
+          <TerminalCodeTabs
             tabs={[
               { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD },
               { id: "local", label: t.tabLocal, code: LOCAL_CMD },
@@ -695,11 +836,12 @@ function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; 
             copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
           />
         </Reveal>
-        <Reveal delay={140} className="mt-6 flex flex-wrap items-center gap-2 text-[12.5px] text-ink-500">
-          <span className="rounded-md border border-line bg-paper px-2.5 py-1 font-mono text-[11.5px] text-ink-700">
-            {TEST_CMD}
+        <Reveal delay={140} className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#e2e4e8] bg-[#f9f9f9] p-4">
+          <span className="font-mono text-[11.5px] text-[#0d0f12]">{TEST_CMD}</span>
+          <span className="flex items-center gap-1.5 font-mono text-[11.5px] font-semibold text-emerald-700">
+            <Check aria-hidden className="size-3.5" />
+            {t.testNote}
           </span>
-          <span>{t.testNote}</span>
         </Reveal>
         {repo && (
           <Reveal delay={180} className="mt-6">
@@ -707,63 +849,106 @@ function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; 
               href={repo.href}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0d0f12] underline decoration-[#cbd0d6] underline-offset-4 transition-colors hover:decoration-[#0d0f12]"
             >
               {t.viewRepo} →
             </a>
           </Reveal>
         )}
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
+/* ---- 08 · FAQ - hairline accordion, not the shared FaqAccordion ---------
+   Same accessible <details>/<summary> pattern; the shared component's
+   open/hover states are this site's blue/ink tokens, which would fight
+   this page's palette. Content is untouched `content.faq`. */
 function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   if (!c.faq || c.faq.length === 0) return null;
   return (
-    <ProductSection tone="soft" space="lg">
-      <PortraitContainer className="max-w-2xl">
-        <ProductHeading eyebrow={t.faqEyebrow} title={c.faqTitle ?? "FAQ"} />
-        <Reveal delay={80} className="mt-10">
-          <FaqAccordion items={c.faq} />
+    <section className="border-y border-[#e2e4e8] bg-[#f9f9f9] px-5 py-16 sm:px-8 md:py-24 lg:px-12">
+      <PortraitContainer className="max-w-[768px]">
+        <SectionHeading eyebrow={t.faqEyebrow} title={c.faqTitle ?? t.faqTitle} />
+        <Reveal delay={80} className="mt-8 border-t border-[#e2e4e8]">
+          {c.faq.map((item) => (
+            <details key={item.id} className="group border-b border-[#e2e4e8] py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 marker:content-none">
+                <span className="text-[15px] font-medium text-[#0d0f12]">{item.q}</span>
+                <span aria-hidden className="shrink-0 text-slate-400 transition-transform duration-200 group-open:rotate-45">
+                  <Plus className="size-4" />
+                </span>
+              </summary>
+              <p className="mt-2.5 text-[14px] leading-relaxed text-[#57606a]">{item.a}</p>
+            </details>
+          ))}
         </Reveal>
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
-function Related({ c }: { c: SkillProductContent }) {
-  if (c.related.length === 0) return null;
+/* ---- 09 · Other Lab projects -------------------------------------------- */
+function Related({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
+  const items = c.related;
+  if (items.length === 0) return null;
   return (
-    <ProductSection tone="paper" space="lg">
+    <section className="bg-white px-5 py-16 sm:px-8 md:py-24 lg:px-12">
       <PortraitContainer>
-        <RelatedGrid title={c.relatedTitle} items={c.related} />
+        <SectionHeading eyebrow={t.relatedEyebrow} title={c.relatedTitle} />
+        <div className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((item, i) => (
+            <Reveal key={item.href} delay={i * 60}>
+              <a
+                href={item.href}
+                className="group flex h-full flex-col justify-between rounded-lg border border-[#e2e4e8] bg-white p-5 transition-shadow hover:shadow-[0_4px_16px_-2px_rgba(13,15,18,0.08)]"
+              >
+                <div>
+                  <p className="text-[15px] font-semibold text-[#0d0f12]">{item.name}</p>
+                  {item.desc ? <p className="mt-2 text-[13px] leading-relaxed text-[#57606a]">{item.desc}</p> : null}
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  {item.proof ? (
+                    <span className="font-mono text-[11px] text-slate-400 tabular-nums">{item.proof}</span>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400 transition-colors group-hover:text-[#0d0f12]">
+                    {t.relatedCta}
+                    <ArrowRight aria-hidden className="size-3" />
+                  </span>
+                </div>
+              </a>
+            </Reveal>
+          ))}
+        </div>
       </PortraitContainer>
-    </ProductSection>
+    </section>
   );
 }
 
+/* ---- 10 · Closing ------------------------------------------------------- */
 function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
   return (
-    <section className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <PortraitContainer className="text-center">
-        <Reveal>
-          <p className="altor-eyebrow mb-5 text-white/45">{t.ctaEyebrow}</p>
-          <h2 className="mx-auto max-w-2xl text-h2-fluid font-medium text-white">{t.ctaTitle}</h2>
-        </Reveal>
+    <section className="bg-[#090a0c] px-5 py-20 text-center sm:px-8 md:py-24 lg:px-12">
+      <PortraitContainer className="max-w-[768px]">
+        <Kicker className="text-slate-500">{t.ctaEyebrow}</Kicker>
+        <h2 className="mx-auto mt-3 max-w-2xl text-[1.75rem] leading-[1.2] font-semibold tracking-[-0.025em] text-white sm:text-[2.375rem]">
+          {t.ctaTitle}
+        </h2>
         {repo && (
-          <Reveal delay={90} className="mt-9 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex justify-center">
             <a
               href={repo.href}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-medium text-ink-950 transition-colors hover:bg-primary-50"
+              className="inline-flex items-center gap-2 rounded bg-white px-6 py-3 text-[15px] font-semibold text-[#0d0f12] transition-colors hover:bg-[#e8e8e8]"
             >
-              {repo.label}
-              <ArrowRight aria-hidden className="size-4" />
+              {t.ctaRepo}
+              <ArrowUpRight aria-hidden className="size-4" />
             </a>
-          </Reveal>
+          </div>
         )}
       </PortraitContainer>
     </section>
@@ -814,8 +999,8 @@ export default function DashboardBuilderPage({ lang, content }: { lang: Lang; co
     <>
       <JsonLdScript data={jsonLd} />
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
-      <main>
-        <Hero c={content} t={t} />
+      <main className="font-sans">
+        <Hero c={content} t={t} lang={lang} />
         <PipelineSection t={t} lang={lang} />
         <ComparabilityEngineSection t={t} lang={lang} />
         <RegistryAndGateSection t={t} lang={lang} />
@@ -823,7 +1008,7 @@ export default function DashboardBuilderPage({ lang, content }: { lang: Lang; co
         <TemplatesSection t={t} lang={lang} />
         <Install c={content} t={t} lang={lang} />
         <Faq c={content} t={t} />
-        <Related c={content} />
+        <Related c={content} t={t} />
         <PageCta c={content} t={t} />
       </main>
       <SiteFooter t={copyT} lang={lang} />
