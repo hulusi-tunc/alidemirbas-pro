@@ -108,7 +108,18 @@ for (const r of abTests) {
 }
 
 /* ==================================================================== JOURNEYS */
-const journeys = rj("production/journey-view-model.json");
+/* PUBLIC CORPUS ONLY (2026-09-05). The Operational Workflows surface was
+   removed from the public site and archived (archive/operational-workflows/),
+   so its 124 journeys must not be search documents: a hit would link to a
+   route that 404s. The filter reads production/surface-assignment.json, the
+   validator-written projection of the SAME rule src/lib/public-corpus.ts
+   applies at build time (src/canonical/surface.ts), so the index and the
+   site cannot disagree about what is public. Merged-id aliases whose
+   survivor is archived fall out on their own below (`if (!survivor)`). */
+const surfaceAssignment = rj("production/surface-assignment.json");
+const ARCHIVED_SURFACE = "operational";
+const publicJourneyIds = new Set(surfaceAssignment.journeys.filter((r) => r.surface !== ARCHIVED_SURFACE).map((r) => r.id));
+const journeys = rj("production/journey-view-model.json").filter((j) => publicJourneyIds.has(j.identity.id));
 /* vNext discovery lives on the canonical dump (aliases, use cases, presets)
    and is the practitioner's vocabulary: "cart abandonment", "dunning",
    "OTP". It is indexed alongside the journey's own words so a search by the
@@ -614,6 +625,7 @@ writeFileSync(path.join(ROOT, "search/search-manifest.json"), JSON.stringify({
   sourceVersion: {
     abTestRecordCount: abTests.length,
     journeyRecordCount: journeys.length,
+    archivedJourneyRecordCount: surfaceAssignment.journeys.length - journeys.length, // Operational surface, archived 2026-09-05 - not indexed
     mergedJourneyCount: mergedContract.records.length,
     presetFoldedCount,
     liveCalculatorCount: liveCalcSlugs.length,

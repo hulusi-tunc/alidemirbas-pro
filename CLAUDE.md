@@ -45,6 +45,9 @@ node production/calculators/test-calculators.mjs
 - `node search/search-validator.mjs` fails checks 30 and 31, and `node search/run-query-fixtures.mjs`
   fails 9 fixtures. All of them expect calculator documents (MDE, CTOR, cart-abandonment, ...) that
   left the live catalog when it went from 43 to 19; the index is rebuilt from the 19 live files.
+  (Four fixtures — `CTL-239`, `CTL-240`, `RET-25`, `risk signal correlation` — are `expectedAbsent`
+  assertions since the Operational Workflows archive: the archived journey must NOT surface. They
+  pass; they are not among the 9.)
 - `production/build_seo_metadata.py` needs the A/B canon from another repository; it falls back to
   `src/data/ab-tests.json` for ids.
 
@@ -133,6 +136,22 @@ are forced `noindex` with a canonical pointing at the survivor, and are excluded
 sitemap. `src/lib/journey-marketing.ts` hard-references 6 journey ids and **throws at module
 load** if any is removed.
 
+**The public site projects THREE of the four surfaces (since 2026-09-05).** The Operational
+Workflows surface (`/lab/operational-workflows`, 124 journeys) was removed from the public
+website and archived under `archive/operational-workflows/` — read its README before touching
+anything surface-related. The canonical graph is UNCHANGED (284 journeys; `validate:canonical`
+still reports `operational 124`) because 67 public journeys hand off into operational ones and
+the validator requires every handoff target to exist. The archive is enforced at the publishing
+boundary by one predicate, `src/lib/public-corpus.ts` (`isPublicJourney` = surface is not
+`operational`): `JOURNEY_ROWS`, `CANONICAL_COUNT` (now the PUBLIC count, 160), `CATEGORY_COUNT`
+(23), `ALL_DETAIL_SLUGS`, `MERGED_REDIRECTS` (5 of 8 — the 3 whose survivor is archived are not
+public routes), the sitemap, and every cross-journey `href` the detail pages build all read it.
+A handoff into an archived journey renders as the target's name in text, never a link.
+`search/build-search-index.mjs` applies the same rule through `production/surface-assignment.json`.
+`surfaceKeyOf` throws if an operational row ever reaches a public listing. `archive/` is excluded
+from `tsconfig.json` and ESLint (same treatment as `reference/`) so its verbatim route snapshots
+stay byte-for-byte.
+
 The `/lab/journeys` routes use a parallel `@modal` slot with an intercepting `(.)[slug]` route:
 a client-side navigation from the list overlays a modal, while a hard load of the same URL falls
 through to the full page (`@modal/default.tsx` returns `null`). Both shapes are built from the
@@ -182,9 +201,14 @@ working directory**; the six `search/search-index*.json` / `search-facets` / `se
 validators write.
 
 Hand-authored: everything in `src/`, every contract JSON in `seo/` and `search/`, and the
-validators themselves. Several validators and the search index generator **hardcode corpus
+validators themselves. `archive/` is preserved-but-retired repository content (currently the
+Operational Workflows corpus): a verbatim export plus the removed route shells, taxonomy and copy,
+with a README explaining structure and restoration. Nothing in the build imports from it. Several validators and the search index generator **hardcode corpus
 counts** (`211` ab-tests, `284` journeys, `3674` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
-adding a record fails them until those constants are updated in lockstep. `build-search-index.mjs`
+adding a record fails them until those constants are updated in lockstep. Those `284`/`8` are the
+CANONICAL corpus and stay correct after the Operational Workflows archive; the PUBLIC corpus is
+160 journeys / 5 public merged redirects / 23 categories and is never hardcoded — it is derived in
+`src/lib/public-corpus.ts` and `src/lib/canonical-view.ts`. `build-search-index.mjs`
 also duplicates the goal taxonomy from `src/lib/journey-taxonomy.ts` by hand — plain Node cannot
 resolve the `@/` alias, and the copy must be kept in sync manually.
 

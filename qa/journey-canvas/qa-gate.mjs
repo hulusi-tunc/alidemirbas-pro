@@ -9,46 +9,56 @@ const JOURNEYS = [
   // Original 4-journey stress test - the permanent reference set.
   { id: "ACQ-01", slug: "anonymous-intent-to-qualified-entry" },
   { id: "RET-27", slug: "recovery-observation-buffer" },
-  { id: "REL-97", slug: "duplicate-assessment" },
   { id: "SCH-178", slug: "service-attendance" },
   // 10-journey coverage batch - see JourneyDetailBody.tsx's own comment for
   // why each was selected.
   { id: "SUB-166", slug: "terms-change" },
-  { id: "OWN-54", slug: "ownership-change-obligation-transfer" },
   { id: "FBK-43", slug: "feedback-routing-and-loop-closure" },
-  { id: "DOC-216", slug: "document-effectiveness" },
-  { id: "CTL-231", slug: "ownership-assignment" },
   { id: "OPS-121", slug: "async-work-lifecycle" },
-  { id: "DEC-183", slug: "decision-review" },
   { id: "TIM-61", slug: "deadline-tracking" },
-  { id: "RSK-194", slug: "policy-violation" },
   { id: "ACT-15", slug: "first-value-milestone" },
   // 25-journey population/distribution coverage batch - see
   // JourneyDetailBody.tsx's own comment for the selection method.
-  { id: "TIM-68", slug: "reversal-window" },
   { id: "CMS-203", slug: "communication-permission" },
-  { id: "INC-255", slug: "root-cause-investigation" },
-  { id: "REM-160", slug: "post-remedy-recurrence" },
-  { id: "TRM-110", slug: "data-deletion-execution" },
-  { id: "OWN-56", slug: "approval-request-review" },
   { id: "SCH-172", slug: "slot-hold" },
-  { id: "DEC-189", slug: "decision-escalation" },
-  { id: "FIN-140", slug: "financial-reconciliation" },
-  { id: "REL-99", slug: "entity-split" },
   { id: "RET-30", slug: "retention-intervention-outcome" },
-  { id: "INT-119", slug: "synchronization-conflict" },
   { id: "FUL-150", slug: "fulfillment-cancellation" },
   { id: "SUB-167", slug: "cancellation-request" },
-  { id: "DAT-227", slug: "migration-execution" },
   { id: "DOC-214", slug: "document-distribution" },
   { id: "IDN-89", slug: "identity-attribute-change" },
-  { id: "CTL-234", slug: "ownership-cutover" },
-  { id: "RLT-241", slug: "change-eligibility" },
   { id: "ACT-17", slug: "early-adoption-to-stable-use" },
   { id: "OPS-126", slug: "partial-processing-recovery" },
   { id: "ACQ-08", slug: "destination-reached-acquisition-suppression" },
   { id: "CON-32", slug: "preference-capture" },
   { id: "FBK-48", slug: "declared-context-recalculation" },
+];
+
+/* ARCHIVED (2026-09-05): these fixture entries are on the Operational
+   surface, which was removed from the public site - their /lab/journeys/
+   routes no longer exist (see archive/operational-workflows/README.md), so
+   hitting them here would only measure a 404. They are kept as data, not
+   deleted: the renderer still handles them through the env-gated
+   /qa-canvas-sweep/<id> route (ENABLE_QA_CANVAS_SWEEP=1), which reads the
+   whole canonical graph, and full-sweep-255.mjs still covers them there. */
+export const ARCHIVED_JOURNEYS = [
+  { id: "REL-97", slug: "duplicate-assessment" },
+  { id: "OWN-54", slug: "ownership-change-obligation-transfer" },
+  { id: "DOC-216", slug: "document-effectiveness" },
+  { id: "CTL-231", slug: "ownership-assignment" },
+  { id: "DEC-183", slug: "decision-review" },
+  { id: "RSK-194", slug: "policy-violation" },
+  { id: "TIM-68", slug: "reversal-window" },
+  { id: "INC-255", slug: "root-cause-investigation" },
+  { id: "REM-160", slug: "post-remedy-recurrence" },
+  { id: "TRM-110", slug: "data-deletion-execution" },
+  { id: "OWN-56", slug: "approval-request-review" },
+  { id: "DEC-189", slug: "decision-escalation" },
+  { id: "FIN-140", slug: "financial-reconciliation" },
+  { id: "REL-99", slug: "entity-split" },
+  { id: "INT-119", slug: "synchronization-conflict" },
+  { id: "DAT-227", slug: "migration-execution" },
+  { id: "CTL-234", slug: "ownership-cutover" },
+  { id: "RLT-241", slug: "change-eligibility" },
   { id: "ACC-73", slug: "entitlement-scope-change" },
 ];
 

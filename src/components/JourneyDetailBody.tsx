@@ -65,8 +65,16 @@ import type { copy, Lang } from "@/lib/content";
 
    Together these 39 are the permanent visual regression fixture the QA
    harness runs after every renderer change, distinct from (and much
-   cheaper than) the full 255-journey sweep. All 255 journeys render through
-   the same JourneyCanvas regardless of membership here. */
+   cheaper than) the full-library sweep. Every journey renders through the
+   same JourneyCanvas regardless of membership here.
+
+   2026-09-05: 19 of the 39 are on the Operational surface, which was
+   removed from the public site and archived (archive/operational-workflows/).
+   Their /lab/journeys/ routes no longer exist, so qa-gate.mjs lists them
+   under ARCHIVED_JOURNEYS and reaches them only through the env-gated
+   /qa-canvas-sweep/<id> route. The ids stay in this Set on purpose - it
+   records which journeys the fixture was built from, and the renderer
+   still has to handle every one of them. */
 export const JOURNEY_CANVAS_REGRESSION_FIXTURE: ReadonlySet<string> = new Set([
   // Tier 1 - extreme/topology stress coverage
   "ACQ-01",

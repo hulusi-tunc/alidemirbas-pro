@@ -19,6 +19,10 @@ for (const f of fixtures) {
   let ok;
   if (f.expectedEntity) {
     ok = topIds[0] === f.expectedEntity || topIds.slice(0, 3).includes(f.expectedEntity);
+  } else if (f.expectedAbsent) {
+    // Archived corpus guard (2026-09-05): the named document must NOT be in
+    // the results at all - a hit would link to a route that no longer exists.
+    ok = !topIds.includes(f.expectedAbsent);
   } else if (f.expectedTopSet) {
     if (f.expectedTopSet.includes("type-diversity-check")) {
       const types = new Set(r.results.map((x) => x.type));

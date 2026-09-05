@@ -10,10 +10,12 @@ import { ALL_AB_TEST_SLUGS } from "@/lib/ab-test-view";
 // site won't carry that section at all.
 const routes = [
   "", "/about", "/lab", "/lab/journeys",
-  // The library's four product surfaces (canonical-view.ts's SURFACE_ROWS).
-  // Deliberately NOT under /lab/journeys/: that segment is owned by journey
-  // slugs and their modal interceptor - see LabPage.tsx. They are ordinary
-  // /lab pages and take the default priority.
+  // The library's three PUBLIC product surfaces (canonical-view.ts's
+  // SURFACE_PATH). Deliberately NOT under /lab/journeys/: that segment is
+  // owned by journey slugs and their modal interceptor - see LabPage.tsx.
+  // They are ordinary /lab pages and take the default priority. The fourth,
+  // /lab/operational-workflows, was archived 2026-09-05 and is absent here
+  // because it is absent from SURFACE_PATH - archive/operational-workflows/.
   ...Object.values(SURFACE_PATH),
   "/lab/ab-testing", "/lab/dashboard-builder", "/stack", "/contact", "/blog",
   // The Journey Builder product page. /lab/journeys above is the LIBRARY;
@@ -36,9 +38,11 @@ const routes = [
   // complete pages (AbTestRoutes.tsx) that were never in this list at all.
   "/lab/ab-testing/library",
   ...ALL_AB_TEST_SLUGS.map((slug) => `/lab/ab-testing/library/${slug}`),
-  // Every canonical journey is its own page now. The 5 retired ids that
-  // resolve into a survivor are deliberately absent: they are noindex, and a
-  // sitemap entry would ask for exactly the indexing they decline.
+  // Every PUBLIC canonical journey is its own page (JOURNEY_ROWS is already
+  // the public corpus - src/lib/public-corpus.ts; the 124 archived
+  // operational journeys are not routes and are not listed). The retired ids
+  // that resolve into a survivor are deliberately absent: they are noindex,
+  // and a sitemap entry would ask for exactly the indexing they decline.
   ...JOURNEY_ROWS.map((j) => `/lab/journeys/${j.slug}`),
   // Presets are their own pages: a parent journey with the preset applied.
   ...PRESET_ROWS.map((p) => `/lab/journeys/${p.slug}`),
