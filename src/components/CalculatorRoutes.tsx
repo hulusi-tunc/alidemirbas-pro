@@ -49,12 +49,12 @@ const HERO = {
   en: {
     eyebrow: "Free Marketing & Growth Calculators",
     title: "Calculate what drives growth.",
-    sub: "Free calculators for growth, acquisition, retention, experimentation and unit economics. From ROAS and CAC to conversion rates and A/B testing - calculate the metrics that matter, with no signup or tracking.",
+    sub: "Free calculators for acquisition, retention, experimentation and unit economics: ROAS, CAC, conversion rates, A/B significance and more. No signup, no tracking.",
   },
   tr: {
     eyebrow: "Ücretsiz Pazarlama & Growth Hesaplayıcıları",
     title: "Büyümeyi etkileyen metrikleri hesaplayın.",
-    sub: "Growth, acquisition, retention, A/B testleri ve birim ekonomisi için ücretsiz hesaplama araçları. ROAS ve CAC'den dönüşüm oranlarına kadar ihtiyaç duyduğunuz metrikleri üyelik gerektirmeden kolayca hesaplayın.",
+    sub: "Reklam, edinim, elde tutma, deney ve birim ekonomisi için ücretsiz hesaplama araçları: ROAS, CAC, dönüşüm oranı, A/B testi ve daha fazlası. Üyelik yok, takip yok.",
   },
 };
 

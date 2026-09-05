@@ -5,7 +5,7 @@ import { LIBRARY_COUNT, withLibraryCount } from "@/lib/canonical-view";
    is six places to forget when a journey is added - and it was already wrong
    once (the strings said 72 after the archive had grown past it). The number
    now comes from the canonical registry itself, and the copy carries
-   `{count}`, `{categories}` and `{rules}` tokens filled in at render.
+   `{count}` and `{categories}` tokens filled in at render.
 
    Both callers are server components, so this never reaches the client
    bundle - the counts are baked into the static HTML at build time. */

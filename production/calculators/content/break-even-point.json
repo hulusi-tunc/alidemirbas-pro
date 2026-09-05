@@ -2,15 +2,15 @@
   "calculatorId": "CALC-BREAK-EVEN-POINT",
   "slug": "break-even-point",
   "contentDepth": "standard",
-  "intro": "Break-even point is the sales volume where total revenue exactly covers total costs — no profit, no loss. Enter fixed costs, price and variable cost per unit to get the units, plus the CAC ceiling and ROAS floor that follow from the same margin.",
+  "intro": "Break-even point is the sales volume where total revenue exactly covers total costs: no profit, no loss. Enter fixed costs, price and variable cost per unit to get the units, plus the CAC ceiling and ROAS floor that follow from the same margin.",
   "page": {
-    "tagline": "See the volume where revenue exactly covers costs — and the CAC and ROAS limits that implies.",
+    "tagline": "See the volume where revenue exactly covers costs, and the CAC and ROAS limits that implies.",
     "meaning": [
       "Break-even point is the volume at which revenue and costs are equal under the price and cost you entered. Nothing more: selling exactly that many units nets zero profit.",
       "The other two outputs come from the same contribution margin. The CAC ceiling is the most you can spend acquiring one unit's sale before that sale contributes nothing toward fixed costs; the ROAS floor is the multiplier that spend would have to return. Both are unit-level figures, not the whole-business threshold the unit count is.",
       "Price and cost move it predictably. Widening the contribution margin lowers the volume needed; narrowing it raises it; fixed costs move it in direct proportion."
     ],
-    "takeaway": "Break-even is a floor to clear, not a target to hit — and the maths knows nothing about whether you can sell that many.",
+    "takeaway": "Break-even is a floor to clear, not a target to hit. The maths knows nothing about whether you can sell that many.",
     "whenToUse": "When setting a price, sizing fixed commitments, or deciding how much acquisition spend a unit can carry. The CAC ceiling in particular is the honest limit to check a proposed budget against.",
     "misleads": "The formula contains no demand data, so a plausible-looking number can be entirely unachievable in your market. It also assumes the price and variable cost hold at every volume, which discounting and tiered supply costs both break.",
     "workedExample": "fixed costs ÷ (price − variable cost) → $50,000 ÷ ($100 − $40) = 834 units"
@@ -20,7 +20,7 @@
       "id": "formula",
       "type": "formula",
       "heading": "How break-even units, CAC ceiling and ROAS floor are calculated",
-      "body": "Contribution margin per unit is price per unit minus variable cost per unit. Break-even units is fixed costs divided by that contribution margin — [the same fixed-costs-over-contribution-margin formula standard break-even analysis uses](https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/) — the volume where total contribution exactly covers fixed costs. The same contribution margin per unit also sets a unit-level CAC ceiling: the acquisition cost at which a single sale's contribution margin is fully consumed, before that sale contributes anything toward fixed costs. Break-even ROAS is price per unit divided by that CAC ceiling — a contribution-margin ROAS floor, the ad-spend efficiency needed to stay under that ceiling, before fixed costs and other operating expenses are considered. All three come from one input set, but they answer different questions, not three views of the same number."
+      "body": "Contribution margin per unit is price per unit minus variable cost per unit. Break-even units is fixed costs divided by that contribution margin, [the same fixed-costs-over-contribution-margin formula standard break-even analysis uses](https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/): the volume where total contribution exactly covers fixed costs. The same contribution margin per unit also sets a unit-level CAC ceiling: the acquisition cost at which a single sale's contribution margin is fully consumed, before that sale contributes anything toward fixed costs. Break-even ROAS is price per unit divided by that CAC ceiling: a contribution-margin ROAS floor, the ad-spend efficiency needed to stay under that ceiling, before fixed costs and other operating expenses are considered. All three come from one input set, but they answer different questions, not three views of the same number."
     },
     {
       "id": "worked-example",
@@ -44,25 +44,25 @@
         "label": "Break-Even Units",
         "value": "834"
       },
-      "body": "Contribution margin per unit is $100 − $40 = $60. Fixed costs of $50,000 ÷ $60 works out to 833.3, rounded up to 834 units — you can't sell a fraction of a unit, and 833 units alone would fall just short of covering the $50,000. That same $60 is also this business's unit-level CAC ceiling: spend more than $60 acquiring a single customer and that sale's contribution margin can't even cover the acquisition cost, let alone contribute anything toward the $50,000 in fixed costs. $100 ÷ $60 gives a contribution-margin ROAS floor of 1.67x — the ad-spend efficiency needed before fixed costs and other expenses are even considered, not an overall-business break-even ROAS."
+      "body": "Contribution margin per unit is $100 − $40 = $60. Fixed costs of $50,000 ÷ $60 works out to 833.3, rounded up to 834 units; you can't sell a fraction of a unit, and 833 units alone would fall just short of covering the $50,000. That same $60 is also this business's unit-level CAC ceiling: spend more than $60 acquiring a single customer and that sale's contribution margin can't even cover the acquisition cost, let alone contribute anything toward the $50,000 in fixed costs. $100 ÷ $60 gives a contribution-margin ROAS floor of 1.67x, the ad-spend efficiency needed before fixed costs and other expenses are even considered, not an overall-business break-even ROAS."
     },
     {
       "id": "what-break-even-tells-you",
       "type": "interpretation",
       "heading": "What break-even point actually tells you",
-      "body": "Break-even point tells you the exact volume where revenue and costs are equal, under the price and cost assumptions entered — nothing more. It isn't a profit target: selling exactly 834 units nets zero profit, not a goal to celebrate. It isn't a demand forecast: the formula has no idea whether 834 units is achievable in your market, only what would need to happen if it is. And it isn't a cash-flow guarantee: it assumes fixed and variable costs behave exactly as entered and says nothing about the timing of when revenue actually arrives versus when costs get paid. Treat it as a reference threshold to plan against, not a prediction of what will happen."
+      "body": "Break-even point tells you the exact volume where revenue and costs are equal, under the price and cost assumptions entered, and nothing more. It isn't a profit target: selling exactly 834 units nets zero profit, not a goal to celebrate. It isn't a demand forecast: the formula has no idea whether 834 units is achievable in your market, only what would need to happen if it is. And it isn't a cash-flow guarantee: it assumes fixed and variable costs behave exactly as entered and says nothing about the timing of when revenue actually arrives versus when costs get paid. Treat it as a reference threshold to plan against, not a prediction of what will happen."
     },
     {
       "id": "not-a-roas-calculator",
       "type": "comparison-note",
       "heading": "This isn't a Break-Even ROAS calculator",
-      "body": "Break-even ROAS is one of three outputs here, derived from the same fixed-cost and margin inputs as break-even units — it isn't a separate tool, and this page isn't primarily about it. It also isn't the same question the [ROAS Calculator](/calculators/roas) answers: that page measures actual return from real revenue and spend after a campaign ran, while the break-even ROAS here is a contribution-margin floor derived purely from your price and cost structure, before fixed costs and other operating expenses are considered. A campaign posting an actual ROAS above this floor is covering its per-sale acquisition cost at the contribution-margin level; one posting below it is spending more per sale than that sale's margin can support — neither reading says anything on its own about whether the business as a whole has covered its fixed costs."
+      "body": "Break-even ROAS is one of three outputs here, derived from the same fixed-cost and margin inputs as break-even units; it isn't a separate tool, and this page isn't primarily about it. It also isn't the same question the [ROAS Calculator](/calculators/roas) answers: that page measures actual return from real revenue and spend after a campaign ran, while the break-even ROAS here is a contribution-margin floor derived purely from your price and cost structure, before fixed costs and other operating expenses are considered. A campaign posting an actual ROAS above this floor is covering its per-sale acquisition cost at the contribution-margin level; one posting below it is spending more per sale than that sale's margin can support. Neither reading says anything on its own about whether the business as a whole has covered its fixed costs."
     },
     {
       "id": "sensitivity",
       "type": "interpretation",
       "heading": "How price and cost changes move the break-even point",
-      "body": "Raising price per unit while costs hold steady widens the contribution margin, so fewer units are needed — at $120 instead of $100 (same $40 variable cost, $50,000 fixed), break-even drops from 834 to 625 units. Raising variable cost per unit narrows the margin and pushes break-even up — at $50 instead of $40, it rises to 1,000 units. Fixed costs move break-even in direct proportion: $10,000 more in fixed costs at the original $60 margin adds roughly 167 more units needed. If variable cost per unit ever reaches or exceeds price, contribution margin per unit is zero or negative and no break-even point exists at all — more volume only adds more loss, since each unit sold doesn't even cover its own variable cost, let alone contribute toward fixed costs."
+      "body": "Raising price per unit while costs hold steady widens the contribution margin, so fewer units are needed: at $120 instead of $100 (same $40 variable cost, $50,000 fixed), break-even drops from 834 to 625 units. Raising variable cost per unit narrows the margin and pushes break-even up: at $50 instead of $40, it rises to 1,000 units. Fixed costs move break-even in direct proportion: $10,000 more in fixed costs at the original $60 margin adds roughly 167 more units needed. If variable cost per unit ever reaches or exceeds price, contribution margin per unit is zero or negative and no break-even point exists at all. More volume only adds more loss, since each unit sold doesn't even cover its own variable cost, let alone contribute toward fixed costs."
     },
     {
       "id": "common-mistakes",
@@ -70,10 +70,10 @@
       "heading": "Common mistakes",
       "items": [
         "Confusing contribution margin with gross margin. Contribution margin subtracts only variable costs from price; gross margin subtracts cost of goods sold, which often includes fixed manufacturing overhead that contribution margin deliberately excludes. Using one where the other belongs changes the break-even math.",
-        "Treating break-even units as a sales target or a sign of profitability. It's the point where profit is exactly zero — a floor to clear, not a goal that indicates the business is doing well once reached.",
+        "Treating break-even units as a sales target or a sign of profitability. It's the point where profit is exactly zero: a floor to clear, not a goal that indicates the business is doing well once reached.",
         "Assuming break-even volume is achievable just because the math produces a number. The formula has no demand data in it; whether 834 units is realistic depends entirely on the market, not on this calculation.",
-        "Not recognizing the zero/negative contribution margin case. If variable cost per unit is at or above price per unit, there's no break-even point — every additional unit sold loses money rather than moving toward covering fixed costs, and no volume of sales fixes that without changing price or cost first.",
-        "Treating the break-even CAC and break-even ROAS outputs as the same overall-business break-even threshold that break-even units describes. They're a unit-level CAC ceiling and a contribution-margin ROAS floor — what one sale's margin can absorb before fixed costs and other operating expenses are even considered, not a statement that the whole business breaks even at that acquisition cost or return."
+        "Not recognizing the zero/negative contribution margin case. If variable cost per unit is at or above price per unit, there's no break-even point; every additional unit sold loses money rather than moving toward covering fixed costs, and no volume of sales fixes that without changing price or cost first.",
+        "Treating the break-even CAC and break-even ROAS outputs as the same overall-business break-even threshold that break-even units describes. They're a unit-level CAC ceiling and a contribution-margin ROAS floor: what one sale's margin can absorb before fixed costs and other operating expenses are even considered, not a statement that the whole business breaks even at that acquisition cost or return."
       ]
     }
   ],
@@ -81,7 +81,7 @@
     {
       "slug": "gross-margin",
       "name": "Gross Margin Calculator",
-      "desc": "A different, broader cost base than contribution margin — the two are easy to conflate but subtract different things from revenue."
+      "desc": "A different, broader cost base than contribution margin; the two are easy to conflate but subtract different things from revenue."
     },
     {
       "slug": "roas",
@@ -103,22 +103,22 @@
     {
       "id": "how-to-calculate-break-even-point",
       "q": "How do you calculate the break-even point?",
-      "a": "First find contribution margin per unit: price per unit minus variable cost per unit. Then divide fixed costs by that contribution margin: Break-Even Units = Fixed Costs ÷ Contribution Margin per Unit. At $50,000 in fixed costs, a $100 price and a $40 variable cost, contribution margin is $60 and break-even is 50,000 ÷ 60 ≈ 833.3, rounded up to 834 units, since a fraction of a unit doesn't actually cover the shortfall. That same $60 contribution margin per unit also sets a unit-level CAC ceiling, and price divided by that CAC ceiling gives a contribution-margin ROAS floor — both computed from the same three inputs, but neither one is the overall-business break-even threshold that break-even units describes."
+      "a": "First find contribution margin per unit: price per unit minus variable cost per unit. Then divide fixed costs by that contribution margin: Break-Even Units = Fixed Costs ÷ Contribution Margin per Unit. At $50,000 in fixed costs, a $100 price and a $40 variable cost, contribution margin is $60 and break-even is 50,000 ÷ 60 ≈ 833.3, rounded up to 834 units, since a fraction of a unit doesn't actually cover the shortfall. That same $60 contribution margin per unit also sets a unit-level CAC ceiling, and price divided by that CAC ceiling gives a contribution-margin ROAS floor, both computed from the same three inputs, but neither one is the overall-business break-even threshold that break-even units describes."
     },
     {
       "id": "contribution-vs-gross-margin",
       "q": "What's the difference between contribution margin and gross margin?",
-      "a": "Contribution margin subtracts only variable costs from price or revenue — costs that scale directly with units sold, like materials or per-unit shipping. Gross margin subtracts cost of goods sold, a broader bucket that can include fixed manufacturing costs like factory overhead or equipment depreciation, expenses that don't change with volume the way variable costs do. Because of that difference, contribution margin per unit is often a different (typically higher) number than gross margin on the same product. Break-even analysis specifically needs contribution margin, not gross margin, because the formula depends on isolating costs that actually change with each additional unit sold — using gross margin in its place would understate how much each unit really contributes toward fixed costs."
+      "a": "Contribution margin subtracts only variable costs from price or revenue: costs that scale directly with units sold, like materials or per-unit shipping. Gross margin subtracts cost of goods sold, a broader bucket that can include fixed manufacturing costs like factory overhead or equipment depreciation, expenses that don't change with volume the way variable costs do. Because of that difference, contribution margin per unit is often a different (typically higher) number than gross margin on the same product. Break-even analysis specifically needs contribution margin, not gross margin, because the formula depends on isolating costs that change with each additional unit sold; using gross margin in its place would understate how much each unit really contributes toward fixed costs."
     },
     {
       "id": "break-even-profitability",
       "q": "Does reaching break-even mean the business is profitable?",
-      "a": "No — break-even is defined as exactly zero profit and zero loss, the threshold a business needs to clear before any profit starts, not evidence that it has. Selling precisely the break-even quantity nets nothing; profit only begins on units sold beyond that point. Reaching break-even also says nothing about cash flow timing, since the formula assumes revenue and costs land as modeled rather than accounting for when customers actually pay or when bills come due, and nothing about whether the sales volume it requires is realistic in the market. It's a cost-structure threshold, not a statement that the business is healthy, growing, or generating real profit."
+      "a": "Break-even is defined as exactly zero profit and zero loss: the threshold a business needs to clear before any profit starts, not evidence that it has. Selling precisely the break-even quantity nets nothing; profit only begins on units sold beyond that point. Reaching break-even also says nothing about cash flow timing, since the formula assumes revenue and costs land as modeled rather than accounting for when customers actually pay or when bills come due, and nothing about whether the sales volume it requires is realistic in the market. It's a cost-structure threshold, not a statement that the business is healthy, growing, or generating real profit."
     },
     {
       "id": "variable-cost-exceeds-price",
       "q": "What happens if variable cost per unit is higher than the price?",
-      "a": "There's no break-even point in that case, and the calculator returns an undefined result rather than a number. Contribution margin per unit — price minus variable cost — would be zero or negative, meaning every unit sold either contributes nothing toward fixed costs or actively loses money before fixed costs are even considered. No sales volume fixes this on its own, since more units sold at a negative contribution margin only compounds the loss rather than approaching a break-even threshold. The only way to reach a valid break-even point from that starting position is to raise the price, lower the variable cost per unit, or both, until price exceeds variable cost."
+      "a": "There's no break-even point in that case, and the calculator returns an undefined result rather than a number. Contribution margin per unit (price minus variable cost) would be zero or negative, meaning every unit sold either contributes nothing toward fixed costs or actively loses money before fixed costs are even considered. No sales volume fixes this on its own, since more units sold at a negative contribution margin only compounds the loss rather than approaching a break-even threshold. The only way to reach a valid break-even point from that starting position is to raise the price, lower the variable cost per unit, or both, until price exceeds variable cost."
     }
   ],
   "seo": {

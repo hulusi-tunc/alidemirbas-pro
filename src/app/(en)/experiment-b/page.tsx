@@ -29,7 +29,7 @@ import { GOALS, GOAL_LABEL } from "@/lib/journey-taxonomy";
    canonical read models. Nothing is typed by hand. */
 
 const DEK = withLibraryCount(
-  "A library of {count} reusable lifecycle journeys across {categories} categories — each entry is a graph, not a sequence.",
+  "A library of {count} reusable lifecycle journeys across {categories} categories. Each entry is a graph, not a sequence.",
 );
 
 export const metadata: Metadata = {
@@ -96,7 +96,7 @@ function NodeKindGlyph({ kind }: { kind: NodeKind }) {
 const KIND_ROLE: Record<NodeKind, string> = {
   trigger: "starts the journey from a real signal",
   condition: "branches it",
-  wait: "holds it — resolves on event and on timeout",
+  wait: "holds it; resolves on event and on timeout",
   action: "does the work",
   handoff: "transfers the entity to another journey",
   outcome: "ends it with a result",
@@ -158,11 +158,11 @@ export default function ExperimentBPage() {
       <section className="altor-container border-t border-line pt-12 pb-16 sm:pb-20">
         <div className="mx-auto grid max-w-[1120px] gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:gap-20">
           <div>
-            <Kicker>What it is</Kicker>
+            <Kicker>Definition</Kicker>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">What it is</h2>
             <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-ink-500 sm:text-lg">
               Every journey in the library is an entity state machine: it describes how one
-              thing — a subscription, a consent record, an incident, a delivery — moves
+              thing (a subscription, a consent record, an incident, a delivery) moves
               through its lifecycle. The library is domain-neutral by construction, so the
               same journey serves an e-commerce order and an insurance claim without
               rewriting.
@@ -186,7 +186,7 @@ export default function ExperimentBPage() {
           </h2>
           <p className="mt-5 max-w-[62ch] text-base leading-relaxed text-ink-500 sm:text-lg">
             Seven node kinds are the entire vocabulary. A trigger starts the journey from a
-            real signal. A condition branches it. A wait holds it — and every wait resolves
+            real signal. A condition branches it. A wait holds it, and every wait resolves
             both ways, on event and on timeout. An action does the work. A handoff transfers
             the entity to another journey. An outcome ends it with a result; an exit ends it
             without one. Nothing else exists, which is what keeps {LIBRARY_COUNT} graphs
@@ -257,7 +257,7 @@ export default function ExperimentBPage() {
               ))}
             </div>
             <p className="altor-eyebrow mt-8 text-ink-400">
-              {fmt(LIBRARY_COUNT)} journeys across {fmt(LIBRARY_CATEGORY_COUNT)} categories — real
+              {fmt(LIBRARY_COUNT)} journeys across {fmt(LIBRARY_CATEGORY_COUNT)} categories. Real
               counts, largest first
             </p>
           </div>
@@ -278,7 +278,7 @@ export default function ExperimentBPage() {
               <strong className="font-semibold">Graphs, not sequences.</strong>{" "}
               <span className="text-ink-500">
                 A journey is where it forks, what each arm means, and what happens when a
-                wait runs out — not a numbered list of steps.
+                wait runs out, not a numbered list of steps.
               </span>
             </p>
           </li>
@@ -311,7 +311,7 @@ export default function ExperimentBPage() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <Kicker>The library</Kicker>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Explore it</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Browse the library</h2>
             <p className="mt-4 max-w-[46ch] text-base leading-relaxed text-ink-500 sm:text-lg">
               The full library is searchable and filterable by goal.
             </p>

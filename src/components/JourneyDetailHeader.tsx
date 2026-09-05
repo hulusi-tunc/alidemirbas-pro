@@ -93,7 +93,7 @@ export default function JourneyDetailHeader({
           against, and it is what the slug was derived from. Only rendered
           where a shortName actually replaced it as the title. */}
       {detail.preset ? (
-        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{t.practitioner.presetOf} {detail.id} {detail.shortName ?? detail.name} — {detail.name}</p>
+        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{t.practitioner.presetOf} {detail.id} {detail.shortName ?? detail.name}: {detail.name}</p>
       ) : detail.shortName ? (
         <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{detail.name}</p>
       ) : null}

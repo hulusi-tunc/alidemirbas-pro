@@ -25656,7 +25656,7 @@
     "external": false,
     "title": "Break-Even Point Calculator",
     "summary": "Calculate break-even units, break-even CAC and break-even ROAS from fixed costs, price and variable cost per unit.",
-    "searchText": "Break-Even Point Calculator. Calculate break-even units, break-even CAC and break-even ROAS from fixed costs, price and variable cost per unit.. Break-even point is the sales volume where total revenue exactly covers total costs — no profit, no loss. Enter fixed costs, price and variable cost per unit to get the units, plus the CAC ceiling and ROAS floor that follow from the same margin.. Units, CAC ceiling, and ROAS floor needed to cover fixed costs, from one shared margin input.. unit-economics",
+    "searchText": "Break-Even Point Calculator. Calculate break-even units, break-even CAC and break-even ROAS from fixed costs, price and variable cost per unit.. Break-even point is the sales volume where total revenue exactly covers total costs: no profit, no loss. Enter fixed costs, price and variable cost per unit to get the units, plus the CAC ceiling and ROAS floor that follow from the same margin.. Units, CAC ceiling, and ROAS floor needed to cover fixed costs, from one shared margin input.. unit-economics",
     "keywords": [
       "Break-Even Point",
       "break-even point formula",
@@ -25786,7 +25786,7 @@
     "external": false,
     "title": "Customer Acquisition Cost (CAC) Calculator",
     "summary": "Calculate customer acquisition cost from spend and new customers, and see how CAC differs from CPA.",
-    "searchText": "CAC Calculator. Calculate customer acquisition cost from spend and new customers, and see how CAC differs from CPA.. CAC (customer acquisition cost) is what it cost, on average, to turn spend into one new paying customer. Enter total acquisition spend and new customers acquired below to get your CAC, the average dollar cost per customer, not a rate or percentage.. Total acquisition spend divided by new customers acquired.. acquisition",
+    "searchText": "CAC Calculator. Calculate customer acquisition cost from spend and new customers, and see how CAC differs from CPA.. CAC (customer acquisition cost) is what it cost, on average, to turn spend into one new paying customer. Enter total acquisition spend and new customers acquired below to get your CAC: the average cost per customer, not a rate or percentage.. Total acquisition spend divided by new customers acquired.. acquisition",
     "keywords": [
       "CAC",
       "cac formula",
@@ -26050,7 +26050,7 @@
     "external": false,
     "title": "Email Performance Calculator",
     "summary": "Calculate open rate, click-to-open rate, delivery, bounce, unsubscribe, complaint, list growth and revenue per recipient from one set of campaign numbers.",
-    "searchText": "Email Performance Calculator. Calculate open rate, click-to-open rate, delivery, bounce, unsubscribe, complaint, list growth and revenue per recipient from one set of campaign numbers.. Eight campaign metrics from one set of send numbers. Enter what you have — sent, delivered, opens, clicks, bounces, unsubscribes, complaints, revenue — and each metric appears as soon as the two figures behind it are filled in. Nothing is required, and a metric you have no data for simply stays blank rather than showing a zero.. Eight email campaign metrics from one set of send numbers - deliverability, engagement, list health and revenue per email.. crm-email",
+    "searchText": "Email Performance Calculator. Calculate open rate, click-to-open rate, delivery, bounce, unsubscribe, complaint, list growth and revenue per recipient from one set of campaign numbers.. Eight campaign metrics from one set of send numbers. Enter what you have (sent, delivered, opens, clicks, bounces, unsubscribes, complaints, revenue) and each metric appears as soon as the two figures behind it are filled in. Nothing is required, and a metric you have no data for simply stays blank rather than showing a zero.. Eight email campaign metrics from one set of send numbers - deliverability, engagement, list health and revenue per email.. crm-email",
     "keywords": [
       "Email Performance",
       "email performance formula",
@@ -26377,7 +26377,7 @@
     "external": false,
     "title": "LTV Calculator",
     "summary": "Calculate customer lifetime value with three models - simple, margin-adjusted and mobile ARPDAU-based - and see which one fits your data.",
-    "searchText": "LTV Calculator. Calculate customer lifetime value with three models - simple, margin-adjusted and mobile ARPDAU-based - and see which one fits your data.. LTV (lifetime value) estimates how much revenue a customer is worth over the time they stay a customer. There isn't one formula for this — pick the model below that matches the data you actually have.. Simple/historic model: average order value times annual purchase frequency times customer lifespan in years. Two other legitimate models exist - see calculator-architecture.md.. unit-economics",
+    "searchText": "LTV Calculator. Calculate customer lifetime value with three models - simple, margin-adjusted and mobile ARPDAU-based - and see which one fits your data.. LTV (lifetime value) estimates how much revenue a customer is worth over the time they stay a customer. There isn't one formula for this; pick the model below that matches the data you have.. Simple/historic model: average order value times annual purchase frequency times customer lifespan in years. Two other legitimate models exist - see calculator-architecture.md.. unit-economics",
     "keywords": [
       "LTV",
       "ltv formula",

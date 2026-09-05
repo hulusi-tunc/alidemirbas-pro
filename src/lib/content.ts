@@ -35,11 +35,11 @@ export const copy = {
         rest: [
           {
             title: "Lifecycle and CRM programs",
-            body: "Customer journeys open on their practitioner view; the other three surfaces open on the graph. Every surface searches and filters by category and goal.",
+            body: "Onboarding, retention and winback programs across email, SMS, push and in-app, written as state machines: what starts a journey, where it branches, how long it waits, and which lifecycle owns the person next.",
           },
           {
             title: "Paid acquisition",
-            body: "Müşteri journey'leri uygulayıcı görünümüyle, diğer üç yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
+            body: "Mobile user acquisition read through the same measurement setup as everything else: Adjust MMP attribution, GA4 and GTM, so a channel's reported number and the number you can reconcile are the same number.",
           },
           {
             title: "Experimentation and CRO",
@@ -74,7 +74,7 @@ export const copy = {
       // template tokens (withLibraryCount fills them at render), not a
       // hardcoded "255" - same live-derivation discipline as its desc.
       // Link labels are standardized site-wide per the new CTA system:
-      // "Explore project" for the one internal route each project has (a
+      // "Open the project page" for the one internal route each project has (a
       // project with no internal page just skips it), "GitHub"/"Live
       // demo" for external secondaries, "Visit Numerspace" for the one
       // external-only product. `tags` is consumed ONLY by
@@ -91,7 +91,7 @@ export const copy = {
           tags: ["Lifecycle", "CRM", "Claude Code"],
           proof: "26 journey patterns",
           links: [
-            { label: "Explore project", href: "/lab/claude-lifecycle" },
+            { label: "Open the project page", href: "/lab/claude-lifecycle" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
             { label: "Live demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
           ],
@@ -99,10 +99,10 @@ export const copy = {
         {
           name: "Canonical Journey Library",
           slug: "lifecycle-card-archive",
-          desc: "A library of {count} reusable lifecycle journeys - from activation and retention to risk, consent, incidents and subscriptions.",
+          desc: "A library of {count} reusable lifecycle journeys covering activation, retention, risk, consent, incidents and subscriptions.",
           tags: ["Lifecycle", "Orchestration"],
           proof: "{count} journeys · {categories} categories",
-          links: [{ label: "Explore project", href: "/lab/journeys" }],
+          links: [{ label: "Open the project page", href: "/lab/journeys" }],
         },
         {
           name: "A/B Test Playbook",
@@ -111,18 +111,18 @@ export const copy = {
           tags: ["Experimentation", "CRO", "Claude Code"],
           proof: "211 scenarios",
           links: [
-            { label: "Explore project", href: "/lab/ab-testing" },
+            { label: "Open the project page", href: "/lab/ab-testing" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
         },
         {
           name: "Marketing Dashboard Builder",
           slug: "dashboard-builder",
-          desc: "Turns messy marketing exports into validated, comparable metrics and decision-ready dashboards.",
+          desc: "Turns messy marketing exports into validated, comparable metrics and the dashboards built on them.",
           tags: ["Analytics", "Data Quality", "Claude Code"],
           proof: "11 dashboard templates",
           links: [
-            { label: "Explore project", href: "/lab/dashboard-builder" },
+            { label: "Open the project page", href: "/lab/dashboard-builder" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
           ],
         },
@@ -133,14 +133,14 @@ export const copy = {
           tags: ["Google Ads", "Analytics", "Python"],
           proof: "Zero dependencies · 57 self-tests",
           links: [
-            { label: "Explore project", href: "/lab/google-ads-change-history-dashboard" },
+            { label: "Open the project page", href: "/lab/google-ads-change-history-dashboard" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
           ],
         },
         {
           name: "Numerspace",
           slug: "numerspace",
-          desc: "Free calculators for marketing, finance, health, career and everyday decisions - fast answers, no account or paywall.",
+          desc: "Free calculators for marketing, finance, health, career and everyday decisions. No account, no paywall.",
           tags: ["Web App", "Calculators"],
           // Was "75+ tools" - stale. numerspace.com's own sitemap lists 97
           // calculator pages per language across 13 tool-bearing categories
@@ -148,7 +148,7 @@ export const copy = {
           // "140+" marketing line.
           proof: "97 calculators · 13 categories",
           links: [
-            { label: "Explore project", href: "/lab/numerspace" },
+            { label: "Open the project page", href: "/lab/numerspace" },
             { label: "Visit Numerspace", href: "https://www.numerspace.com" },
           ],
         },
@@ -383,11 +383,11 @@ export const copy = {
       // the other; the two pages make different first impressions on
       // purpose.
       teaserLead:
-        "I build reliable measurement frameworks that help digital products grow sustainably. My work includes implementing GA4 and GTM tracking systems, optimizing Adjust MMP setups, and designing evidence-based CRO programs that turn user insights into measurable business growth. I approach marketing as an iterative process built on accurate data, structured experimentation, and continuous optimization.",
+        "I build measurement that digital products can grow on: GA4 and GTM tracking, Adjust MMP configuration, and CRO programs run as proper experiments. I treat marketing as iterative work on accurate data, one test at a time.",
       lead:
-        "With over eight years of experience in digital marketing and growth, I have worked on strategies designed to support the growth objectives of different products and business models.",
+        "Over eight years in digital marketing and growth, working on acquisition, CRM and measurement for products with very different business models.",
       body:
-        "My experience spans analytics, user acquisition, product, and growth strategy. I use data to evaluate digital marketing performance, understand user behavior, and identify opportunities for growth. Across campaign management, measurement, and optimization, I focus on keeping marketing initiatives aligned with business goals and delivering measurable outcomes.",
+        "The work spans analytics, user acquisition, product and growth strategy: reading campaign performance and user behavior from the data, finding where growth is available, and keeping campaigns, measurement and optimization tied to a business goal that can be checked.",
       experience: "Experience",
       timeline: [
         {
@@ -406,7 +406,7 @@ export const copy = {
           logo: "/logos/vodafone.svg",
           role: "Growth Marketing Lead",
           period: "Aug 2024 – Apr 2026",
-          desc: "Led growth marketing across digital channels, combining data-driven acquisition with lifecycle programs.",
+          desc: "Led growth marketing across digital channels: paid acquisition alongside lifecycle programs.",
         },
         {
           kind: "single",
@@ -432,7 +432,7 @@ export const copy = {
             {
               role: "Lifecycle Marketing Specialist (Growth)",
               period: "Sep 2021 – Jan 2023",
-              desc: "Built and ran lifecycle marketing programs for a leading online travel platform.",
+              desc: "Built and ran lifecycle marketing programs for the group's online travel platform.",
             },
           ],
         },
@@ -452,7 +452,7 @@ export const copy = {
           logo: "/logos/dogus-oto.svg",
           role: "Jr. Digital Marketing Specialist",
           period: "Sep 2019 – Aug 2020",
-          desc: "Digital marketing execution for one of Turkey's leading automotive dealer groups.",
+          desc: "Digital marketing execution for an automotive dealer group.",
         },
       ],
     },
@@ -464,15 +464,15 @@ export const copy = {
       sub: "Tools I use to design, build, measure and grow.",
       // Home page teaser only - the /stack page keeps its own title/sub above.
       homeTitle: "Tools I use",
-      homeIntro: "The tools I use to design experiments, build reliable measurement, analyze user behavior, and optimize growth.",
-      homeMore: "Explore my toolkit",
+      homeIntro: "The tools behind the experiments, the tracking, the analysis and the reporting.",
+      homeMore: "See the full stack",
     },
     contact: {
       metaTitle: "Contact - Ali Demirbaş",
       metaDesc: "Reach Ali Demirbaş by email or connect on LinkedIn.",
       eyebrow: "Contact",
       title: "Let's get in touch.",
-      sub: "Always happy to meet interesting people, exchange ideas, and have a good conversation about growth, products, or the work shared here.",
+      sub: "Happy to talk about growth, products, or anything on this site.",
       linkedinLabel: "Connect on LinkedIn",
       linkedinGo: "View profile",
       emailLabel: "Send an email",
@@ -480,8 +480,8 @@ export const copy = {
       emailPill: "E-Mail",
       reasonsTitle: "What brings you here",
       reasons: [
-        { title: "Just saying hello", desc: "Want to connect, introduce yourself, or simply say hi." },
-        { title: "An idea or conversation", desc: "Growth, lifecycle, experimentation, measurement - or something worth discussing." },
+        { title: "Just saying hello", desc: "Want to connect or introduce yourself." },
+        { title: "An idea or conversation", desc: "Growth, lifecycle, experimentation, measurement, or something else worth a conversation." },
         { title: "A question", desc: "About a calculator, journey pattern, open-source project, or anything else on this site." },
       ],
       scheduleTitle: "Schedule a call",
@@ -523,7 +523,7 @@ export const copy = {
       story1: {
         eyebrow: "Triggers",
         title: "It starts on evidence, or it doesn't start.",
-        body: "Most bad lifecycle automation is a journey that fired on one weak signal. Every trigger here names what it needs — and, separately, the lookalike signals that are not enough on their own.",
+        body: "Most bad lifecycle automation is a journey that fired on one weak signal. Every trigger here names what it needs and, separately, the lookalike signals that are not enough on their own.",
         caption: "Trigger evidence",
         requires: "Requires",
         insufficient: "Insufficient alone",
@@ -531,7 +531,7 @@ export const copy = {
       story2: {
         eyebrow: "Branching",
         title: "Every fork has both arms named.",
-        body: "A condition with one arm is a filter wearing a decision's clothes — it hides what happens to everyone who fails it. So a condition here carries at least two branches, each with the real rule that routes into it.",
+        body: "A condition with one arm is a filter wearing a decision's clothes: it hides what happens to everyone who fails it. So a condition here carries at least two branches, each with the real rule that routes into it.",
         caption: "A real fork",
         conditionsLabel: "conditions in the library",
         note: "Neither arm is a dead end: both route to a named node.",
@@ -555,8 +555,8 @@ export const copy = {
       },
       inspector: {
         eyebrow: "Zoom in",
-        title: "A handoff is not just an arrow.",
-        body: "When ownership moves to another lifecycle, something has to survive the boundary. A handoff names its destination, the condition it fires on, and exactly what it carries across — so the receiving journey starts informed rather than blank.",
+        title: "What a handoff carries across.",
+        body: "When ownership moves to another lifecycle, something has to survive the boundary. A handoff names its destination, the condition it fires on, and exactly what it carries across, so the receiving journey starts informed rather than blank.",
         to: "to",
         on: "on",
         carries: "carries",
@@ -565,18 +565,18 @@ export const copy = {
       library: {
         eyebrow: "The library",
         title: "{count} journeys. Built to be read.",
-        body: "Filed by category, each one a graph you can open and follow node by node. They are domain-neutral state machines, not sector templates — the distinction is what keeps two journeys from being the same journey twice.",
-        cta: "Explore the journey library",
+        body: "Filed by category, each one a graph you can open and follow node by node. They are domain-neutral state machines, not sector templates; the distinction is what keeps two journeys from being the same journey twice.",
+        cta: "Browse the journey library",
         nodes: "nodes",
         moreCategories: "more",
       },
       how: {
         eyebrow: "How it works",
         title: "Find it, read it, adapt it.",
-        body: "The library is the product. These are the three things you actually do with it.",
+        body: "The library is the product. Three things you do with it.",
         steps: [
           { title: "Find the journey", body: "Filter by category, lifecycle stage, goal or the kind of evidence a trigger runs on." },
-          { title: "Read the logic", body: "Follow the graph node by node — every branch, wait and handoff is written out, with the rule behind it." },
+          { title: "Read the logic", body: "Follow the graph node by node: every branch, wait and handoff is written out, with the rule behind it." },
           { title: "Adapt it", body: "Take the state machine into your own stack. The logic is the deliverable; message copy was never in scope." },
         ],
       },
@@ -587,7 +587,7 @@ export const copy = {
       },
       whyDifferent: {
         eyebrow: "Why claude-lifecycle",
-        title: "Why claude-lifecycle is different",
+        title: "Three decisions the engine makes before it writes a journey",
         feature1: {
           title: "Data quality is scored, not assumed",
           body: "A 0-100 Data Quality Score decides journey depth before a single journey is written: under 40 buys simple 3-5 step flows, 40-69 standard 4-7 step flows with one branch, 70+ unlocks branched 7-12 step behavioral journeys. The same portfolio never ships to a three-event startup and a mature e-commerce store.",
@@ -608,19 +608,19 @@ export const copy = {
       },
       faq: {
         eyebrow: "FAQ",
-        title: "Questions? Answers.",
+        title: "Frequently asked",
         items: [
           {
             q: "What is claude-lifecycle?",
-            a: "claude-lifecycle is an open-source lifecycle architecture library for structuring customer journeys as explicit states, branches, waits, handoffs and exits. It is designed to provide a stronger starting point for lifecycle planning instead of beginning every automation from a blank canvas.",
+            a: "An open-source library that structures customer journeys as explicit states, branches, waits, handoffs and exits, so lifecycle planning does not start from a blank canvas.",
           },
           {
             q: "Is claude-lifecycle a journey builder or a journey library?",
-            a: "It is primarily a structured journey library and architecture system. The journeys define lifecycle logic and reusable patterns that can then be adapted to the tools, channels and data model used by a specific product or business.",
+            a: "Primarily a library. The journeys define lifecycle logic and reusable patterns that you adapt to your own tools, channels and data model.",
           },
           {
             q: "What does a journey contain?",
-            a: "A journey can contain triggers, conditions, actions, waits, handoffs and exits. These states make entry logic, branching behavior, timing, transitions and terminal outcomes explicit rather than leaving important lifecycle behavior undefined.",
+            a: "Triggers, conditions, actions, waits, handoffs and exits. Together they make entry logic, branching, timing, transitions and terminal outcomes explicit.",
           },
           {
             q: "How many journeys are included?",
@@ -628,19 +628,19 @@ export const copy = {
           },
           {
             q: "Can I adapt the journeys to my own product?",
-            a: "Yes. The journeys are intended as reusable starting points rather than rigid implementations. Teams can adapt triggers, conditions, timing and downstream actions while preserving the underlying lifecycle logic.",
+            a: "They are starting points, not fixed implementations. Adapt triggers, conditions, timing and downstream actions; keep the lifecycle logic.",
           },
           {
             q: "What is a handoff?",
-            a: "A handoff explicitly transfers lifecycle state from one journey to another. Instead of treating workflows as isolated automations, handoffs make the relationship between journeys and the state being carried forward visible.",
+            a: "A handoff transfers lifecycle state from one journey to another and names what is carried forward, so the relationship between journeys is visible instead of implied.",
           },
           {
             q: "How does validation work?",
-            a: "Validation checks whether important structural rules are complete, including entry states, condition branches, bounded waits, handoffs and explicit exits. The goal is to identify incomplete lifecycle logic before implementation.",
+            a: "Validation checks the structural rules: entry states, condition branches, bounded waits, handoffs and explicit exits. It catches incomplete lifecycle logic before implementation.",
           },
           {
             q: "How do I use claude-lifecycle?",
-            a: "Open the GitHub repository, review the available journeys and use the project structure with Claude Code to explore, adapt and implement lifecycle patterns for your own product.",
+            a: "Open the GitHub repository, read the journeys, and use the project with Claude Code to adapt and implement the patterns for your own product.",
           },
         ],
       },
@@ -657,7 +657,7 @@ export const copy = {
       metaDesc: "211 real growth-test scenarios for Claude Code: what to test, which KPI to track, what not to do.",
       eyebrow: "Lab / A/B Testing",
       title: "An A/B test engine that won't let you skip the guardrail.",
-      sub: "ab-test-playbook is an open-source Claude Code plugin built from 211 real e-commerce, mobile app and SaaS growth-test scenarios. It helps you pick a proven test for where a user is in their journey, keeps new ones disciplined to one variable at a time, and runs the real statistics instead of eyeballing significance.",
+      sub: "ab-test-playbook is an open-source Claude Code plugin built from 211 real e-commerce, mobile app and SaaS growth-test scenarios. It helps you pick a scenario that fits where a user is in their journey, keeps new ones disciplined to one variable at a time, and runs the real statistics instead of eyeballing significance.",
       install: {
         title: "Install",
         options: [
@@ -766,7 +766,7 @@ export const copy = {
          the real dataset at build time (see ab-test-marketing.ts), not
          typed in here. */
       product: {
-        heroCtaLibrary: "Explore the library",
+        heroCtaLibrary: "Browse the library",
         heroProof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
         brief: {
           label: "Scenario brief",
@@ -790,7 +790,7 @@ export const copy = {
         story1: {
           eyebrow: "Coverage",
           title: "Start from the surface you're actually on.",
-          body: "The library isn't a flat list of tips. Every scenario is filed against the product surface it belongs to — a product page test and a checkout test fail in different ways — so you narrow by where the problem is before anyone argues about what to change.",
+          body: "The library isn't a flat list of tips. Every scenario is filed against the product surface it belongs to (a product page test and a checkout test fail in different ways), so you narrow by where the problem is before anyone argues about what to change.",
           caption: "Scenarios by surface",
         },
         story2: {
@@ -804,7 +804,7 @@ export const copy = {
         story3: {
           eyebrow: "Guardrails",
           title: "Every scenario ships with what must not break.",
-          body: "A guardrail is the metric that has to hold while the primary one improves — margin, refund rate, coupon usage, accessibility. They aren't optional here: no scenario in the library carries fewer than five.",
+          body: "A guardrail is the metric that has to hold while the primary one improves: margin, refund rate, coupon usage, accessibility. They aren't optional here: no scenario in the library carries fewer than five.",
           caption: "What not to do",
           ledgerNote: "guardrail rules across the library",
         },
@@ -812,13 +812,13 @@ export const copy = {
           eyebrow: "The library",
           title: "{count} experiments. One place to find the next one.",
           body: "Filed by category and surface, searchable, and readable without installing anything. Each entry carries the variable under test, the primary KPI and the guardrails.",
-          cta: "Explore all tests",
+          cta: "Browse all tests",
           filterLabel: "Browse by category",
         },
         how: {
           eyebrow: "How it works",
           title: "Find it, build it, read it.",
-          body: "Three steps — and the third is the one most tests get wrong.",
+          body: "Three steps. The third is the one most tests get wrong.",
           steps: [
             { title: "Find the opportunity", body: "Narrow by the surface you're working on, then pick from the scenarios already filed against it." },
             { title: "Design the experiment", body: "The scenario hands you the hypothesis, one primary KPI and the guardrails. Exactly one variable moves." },
@@ -832,7 +832,7 @@ export const copy = {
             uplift: "Relative uplift",
             pValue: "p-value",
             verdict: "Significant at 95%?",
-            verdictValue: "No — keep running",
+            verdictValue: "No, keep running",
             note: "A worked example from this site's own Significance calculator: a +16% lift that doesn't clear the bar.",
             calculators: "Run it on your own numbers",
             test: "two-proportion z-test",
@@ -845,7 +845,7 @@ export const copy = {
     },
     finalCta: {
       title: "Let's talk growth.",
-      body: "Whether it's a role, a project or a question about lifecycle marketing - my inbox is open.",
+      body: "A role, a project or a question about lifecycle marketing: my inbox is open.",
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "Connect on LinkedIn",
     },
@@ -855,7 +855,7 @@ export const copy = {
       title: "This page doesn't exist.",
       body: "The link may be outdated, or the page may have moved.",
       cta: "Back to home",
-      labLink: "Explore the Lab",
+      labLink: "Open the Lab",
     },
     footer: {
       left: "Ali Demirbaş, 2026",
@@ -867,7 +867,7 @@ export const copy = {
     },
   },
   tr: {
-    nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", calculators: "Hesaplayıcılar", calculatorsHref: "/tr/calculators", blog: "Blog", blogHref: "/tr/blog", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
+    nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", calculators: "Hesaplayıcılar", calculatorsHref: "/tr/calculators", blog: "Blog", blogHref: "/tr/blog", stack: "Stack", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
@@ -892,7 +892,7 @@ export const copy = {
         primary: {
           title: "Denetimden geçen ölçümleme",
           body:
-            "GA4 ve GTM event tasarımı, Adjust MMP yapılandırması, ve iki platform aynı hafta için iki farklı sayı söylediğinde başlayan mutabakat işi. Çıktı: ekibin sorgulayabildiği bir taksonomi, herkesin üzerinde anlaştığı tanımlar, ve sorulan soruya cevap veren dashboard'lar.",
+            "GA4 ve GTM event tasarımı, Adjust MMP yapılandırması ve iki platform aynı hafta için iki farklı sayı söylediğinde başlayan mutabakat işi. Çıktı: ekibin sorgulayabildiği bir taksonomi, herkesin üzerinde anlaştığı tanımlar ve sorulan soruya cevap veren dashboard'lar.",
         },
         rest: [
           {
@@ -905,7 +905,7 @@ export const copy = {
           },
           {
             title: "Deney ve CRO",
-            body: "Test başına tek değişken, önceden yazılmış durma kuralı, ve sonucu geçersiz kılacak şeyin not edilmesi.",
+            body: "Test başına tek değişken, önceden yazılmış durma kuralı ve sonucu geçersiz kılacak şeyin baştan not edilmesi.",
           },
         ],
       },
@@ -923,7 +923,7 @@ export const copy = {
       label: "Lab",
       title: "Yaptığım şeyler",
       intro: "Sürekli karşılaştığım problemler etrafında kurulmuş açık kaynak araçlar ve deneyler. Çoğunlukla growth, lifecycle ve analitik. Bazen başka bir şey.",
-      viewAll: "Arşivi keşfet",
+      viewAll: "Tüm projeleri gör",
       projects: [
         {
           name: "Lifecycle Pazarlama Journey Üretici",
@@ -932,7 +932,7 @@ export const copy = {
           tags: ["Lifecycle", "CRM", "Claude Code"],
           proof: "26 journey deseni",
           links: [
-            { label: "Projeyi keşfet", href: "/tr/lab/claude-lifecycle" },
+            { label: "Proje sayfasını aç", href: "/tr/lab/claude-lifecycle" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
             { label: "Canlı demo", href: "https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html" },
           ],
@@ -940,52 +940,52 @@ export const copy = {
         {
           name: "Canonical Journey Kütüphanesi",
           slug: "lifecycle-card-archive",
-          desc: "Aktivasyon ve elde tutmadan risk, onay, olay ve aboneliğe kadar {count} yeniden kullanılabilir lifecycle journey'den oluşan bir kütüphane.",
+          desc: "Aktivasyon ve elde tutmadan risk, onay, event ve aboneliğe kadar {count} yeniden kullanılabilir lifecycle journey.",
           tags: ["Lifecycle", "Orkestrasyon"],
           proof: "{count} journey · {categories} kategori",
-          links: [{ label: "Projeyi keşfet", href: "/tr/lab/journeys" }],
+          links: [{ label: "Proje sayfasını aç", href: "/tr/lab/journeys" }],
         },
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
-          desc: "Gerçek dünyadan 211 A/B test senaryosu - doğru çalıştırmak için gereken hipotez, birincil metrik, guardrail'ler ve istatistiksel kontrollerle birlikte.",
+          desc: "211 gerçek A/B test senaryosu. Her birinde hipotez, birincil metrik, guardrail'ler ve testi doğru çalıştırmak için gereken istatistiksel kontroller var.",
           tags: ["Deneysel Test", "CRO", "Claude Code"],
           proof: "211 senaryo",
           links: [
-            { label: "Projeyi keşfet", href: "/tr/lab/ab-testing" },
+            { label: "Proje sayfasını aç", href: "/tr/lab/ab-testing" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
           ],
         },
         {
           name: "Pazarlama Dashboard Üretici",
           slug: "dashboard-builder",
-          desc: "Dağınık pazarlama exportlarını doğrulanmış, karşılaştırılabilir metriklere ve karar-hazır dashboard'lara çevirir.",
+          desc: "Dağınık pazarlama export'larını doğrulanmış, karşılaştırılabilir metriklere ve doğrudan karar için okunabilen dashboard'lara çevirir.",
           tags: ["Analitik", "Veri Kalitesi", "Claude Code"],
           proof: "11 dashboard şablonu",
           links: [
-            { label: "Projeyi keşfet", href: "/tr/lab/dashboard-builder" },
+            { label: "Proje sayfasını aç", href: "/tr/lab/dashboard-builder" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
           ],
         },
         {
           name: "Google Ads Değişiklik Geçmişi Gezgini",
           slug: "google-ads-change-history-dashboard",
-          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - her değişikliğin arkasındaki tam kampanya, kategori, eski değer, yeni değer ve zaman damgası.",
+          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir. Her değişikliğin kampanyası, kategorisi, eski değeri, yeni değeri ve zaman damgası görünür.",
           tags: ["Google Ads", "Analitik", "Python"],
           proof: "Sıfır bağımlılık · 57 self-test",
           links: [
-            { label: "Projeyi keşfet", href: "/tr/lab/google-ads-change-history-dashboard" },
+            { label: "Proje sayfasını aç", href: "/tr/lab/google-ads-change-history-dashboard" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/google-ads-change-history-dashboard" },
           ],
         },
         {
           name: "Numerspace",
           slug: "numerspace",
-          desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar - hesap ya da ücret duvarı olmadan hızlı cevaplar.",
+          desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar. Hesap açmadan, ücret ödemeden.",
           tags: ["Web Uygulaması", "Hesaplayıcılar"],
           proof: "97 hesaplayıcı · 13 kategori",
           links: [
-            { label: "Projeyi keşfet", href: "/tr/lab/numerspace" },
+            { label: "Proje sayfasını aç", href: "/tr/lab/numerspace" },
             { label: "Numerspace'i ziyaret et", href: "https://www.numerspace.com" },
           ],
         },
@@ -996,10 +996,10 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce.",
         searchPlaceholder: "Journey ara...",
         goalLabel: "Goal",
-        allGoals: "Tüm hedefler",
+        allGoals: "Tüm goal'ler",
         removeFilterLabel: "{label} filtresini kaldır",
         clearAll: "Temizle",
         results: "journey",
@@ -1013,7 +1013,7 @@ export const copy = {
           whoEnters: "Kim girer",
           suppressedWhen: "Ne zaman bastırılır",
           orchestration: "Önerilen orkestrasyon",
-          onClassification: "sınıflandırma anında gönderilir - öncesinde bekleme yok",
+          onClassification: "sınıflandırma anında gönderilir, öncesinde bekleme yok",
           cancelOn: "iptal eden olaylar",
           recheck: "göndermeden önce yeniden okunur",
           checks: "kontroller",
@@ -1086,13 +1086,13 @@ export const copy = {
       journeysHub: {
         eyebrow: "Lab / Canonical Journey Kütüphanesi",
         title: "{count} lifecycle state machine. Her biri okunabilir bir graf.",
-        sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini, neyin durdurduğunu ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
+        sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini, neyin durdurduğunu ve kişinin sonra hangi lifecycle'a geçtiğini söyler. Hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce.",
         ctaCommunication: "Müşteri journey'leri",
         proof: ["Sektörden bağımsız", "Dizi değil, graf", "Mesaj metni yok"],
         split: {
           eyebrow: "Nereden başlamalı",
           title: "Tek giriş yolu, altında iki destekleyici yüzey.",
-          body: "Müşteri journey'leri bir kişiye ulaşır - temas planı, kanal rolleri, temas modeli. Her journey ayrıca iki destekleyici yüzeyi okur - dayandığı sessiz yaşam döngüsü durumları ve üzerinde çalıştığı çalışma zamanı mekanizmaları - journey'nin kendisinden açılır, ya da aşağıda kendi başlarına gezilebilir.",
+          body: "Müşteri journey'leri bir kişiye ulaşır: temas planı, kanal rolleri, temas modeli. Her journey ayrıca iki destekleyici yüzeyi okur. Dayandığı sessiz yaşam döngüsü durumları ve üzerinde çalıştığı çalışma zamanı mekanizmaları journey'nin içinden açılır, aşağıda kendi başlarına da gezilebilir.",
         },
         stories: {
           eyebrow: "Şemanın zorunlu kıldığı",
@@ -1101,7 +1101,7 @@ export const copy = {
         final: {
           eyebrow: "Okumaya başla",
           title: "Bir yüzey seç, bir journey aç.",
-          body: "Müşteri journey'leri uygulayıcı görünümüyle, iki destekleyici yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
+          body: "Müşteri journey'leri uygulayıcı görünümüyle, iki destekleyici yüzey grafla açılır. Her yüzeyde kategori ve goal'e göre arama ve filtre var.",
         },
       },
       journeysSplit: {
@@ -1111,37 +1111,37 @@ export const copy = {
           "runtime-mechanisms": "Çalışma zamanı mekanizmaları",
         },
         surfaceBlurbs: {
-          "customer-journeys": "Kendi eylemleri müşteriye ulaşan journey'ler - her biri bir temas planı, kanal rolleri, temas modeli ve ölçüm kararıyla; uygulayıcı kadansı uydurmadan hayata geçirebilir.",
+          "customer-journeys": "Eylemleri doğrudan müşteriye ulaşan journey'ler. Her birinde temas planı, kanal rolleri, temas modeli ve ölçüm kararı yazılı; uygulayıcı kadansı kendisi uydurmak zorunda kalmaz.",
           "lifecycle-states": "Sessiz müşteri yaşam döngüsü durumları: iletişim kuran journey'lerin dayandığı durum modelleri. Burada hiçbir şey gönderilmez; bunlar kampanya değil bağımlılıktır.",
-          "runtime-mechanisms": "Her journey'nin üzerinde çalıştığı makine - gönderim uygunluğu, ulaşılabilirlik, teslimat kurtarma, yeniden deneme, soğuma. Müşteri journey'si değil, sözleşme.",
+          "runtime-mechanisms": "Her journey'nin üzerinde çalıştığı makine: gönderim uygunluğu, ulaşılabilirlik, teslimat kurtarma, yeniden deneme, soğuma. Müşteri journey'si değil, sözleşme.",
         },
         surfaces: {
           "customer-journeys": {
             title: "Müşteri journey'leri",
-            intro: "{count} müşteri journey'si ve {presets} uygulayıcı ön ayarı - her biri bir müşteriye ulaşır, mesajla ya da işi bir kişiye yönlendirerek. Her journey uygulayıcı görünümüyle açılır - tetikleyici, kim girer, zamanlaması ve kanal rolleriyle temas planı, neyin durdurduğu, neyin yapılandırılacağı, neyin ölçüleceği - altta teknik mantık olarak graf. Zaten kullandığınız adlarla arayın.",
+            intro: "{count} müşteri journey'si ve {presets} uygulayıcı ön ayarı. Her biri bir müşteriye ulaşır, mesajla ya da işi bir kişiye yönlendirerek. Journey uygulayıcı görünümüyle açılır: tetikleyici, kim girer, zamanlaması ve kanal rolleriyle temas planı, neyin durdurduğu, neyin yapılandırılacağı, neyin ölçüleceği. Graf altta teknik mantık olarak durur. Zaten kullandığın adlarla ara.",
           },
           "lifecycle-states": {
             title: "Yaşam döngüsü durumları",
-            intro: "{count} sessiz müşteri yaşam döngüsü durumu. Hiçbir şey göndermezler: iletişim kuran bir journey'nin okuduğu, yeniden okuduğu ve devrettiği durumu tutarlar. Başlatılacak kampanyalar olarak değil, bağımlılıklar ve bağlı destek mantığı olarak gezin.",
+            intro: "{count} sessiz müşteri yaşam döngüsü durumu. Hiçbir şey göndermezler: iletişim kuran bir journey'nin okuduğu, yeniden okuduğu ve devrettiği durumu tutarlar. Bunları başlatılacak kampanya olarak değil, diğer journey'lerin dayandığı bağımlılıklar olarak oku.",
           },
           "runtime-mechanisms": {
             title: "Çalışma zamanı mekanizmaları",
-            intro: "{count} çalışma zamanı mekanizması - müşteri journey'lerinin gönderim uygunluğu, ulaşılabilirlik, teslimat hatası, yeniden deneme ve soğuma için dayandığı sözleşmeler. Journey olarak değil, destekleyici mimari olarak listelenir.",
+            intro: "{count} çalışma zamanı mekanizması: müşteri journey'lerinin gönderim uygunluğu, ulaşılabilirlik, teslimat hatası, yeniden deneme ve soğuma için dayandığı sözleşmeler. Journey olarak değil, destekleyici mimari olarak listelenir.",
           },
         },
         presetsTitle: "Ön ayarlar",
         presetsIntro: "Kanonik bir journey'nin adlandırılmış özelleşmeleri: aynı graf, aynı temaslar ve çıkışlar; yapılandırma değerleri, hedef ve sözcük dağarcığı tanınabilir bir kullanım durumu için ayarlanmış. Bir ön ayar, ebeveynini bu değerler uygulanmış olarak açar.",
         presetBadge: "Ön ayar",
         presetOf: "ön ayarı:",
-        referenceStrip: "Kütüphanenin bir parçası - bir journey'den açılır, genelde kendi başına gezilmez",
+        referenceStrip: "Kütüphanenin bir parçası. Bir journey'den açılır, genelde kendi başına gezilmez",
         silentBadge: "Sessiz durum",
         mechanismBadge: "Mekanizma",
         communicationLabel: "İletişim journey'leri",
         internalLabel: "Internal journey'ler",
-        hubIntro: "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı - her iki taraf da kendi sayfasında aranabilir ve filtrelenebilir, ve her kayıt bir dizi değil bir graf.",
+        hubIntro: "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı. İki taraf da kendi sayfasında aranıp filtrelenebilir; her kayıt dizi değil, graf.",
         browseAll: "{count} journey'in tamamına bak",
-        communicationBlurb: "Bir kişiye ulaşan journey'ler - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task).",
-        internalBlurb: "Tamamen sistemin içinde çözülen journey'ler. Mesaj yok, insana yönlendirme yok - kendi başına iletişimi olmayan state machine'ler.",
+        communicationBlurb: "Bir kişiye ulaşan journey'ler: mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task).",
+        internalBlurb: "Tamamen sistemin içinde çözülen journey'ler. Mesaj yok, insana yönlendirme yok. Kendi başına iletişimi olmayan state machine'ler.",
         showMore: "Daha fazla göster ({count})",
         showLess: "Daha az göster",
         // Turkish takes no plural after a numeral, so both entries are
@@ -1156,12 +1156,12 @@ export const copy = {
         communication: {
           title: "İletişim journey'leri",
           intro:
-            "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
+            "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor: mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce.",
         },
         internal: {
           title: "Internal journey'ler",
           intro:
-            "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor - mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
+            "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor. Mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce.",
         },
       },
     },
@@ -1173,11 +1173,11 @@ export const copy = {
       sub: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
       moreLink: "Hakkımda daha fazlası",
       teaserLead:
-        "Dijital ürünlerin sürdürülebilir şekilde büyümesine yardımcı olan güvenilir ölçümleme sistemleri kuruyorum. Çalışmalarım; GA4 ve GTM izleme sistemleri kurmayı, Adjust MMP kurulumlarını optimize etmeyi ve kullanıcı içgörülerini ölçülebilir iş büyümesine dönüştüren kanıta dayalı CRO programları tasarlamayı kapsıyor. Pazarlamaya; doğru veriye, yapılandırılmış deneylere ve sürekli optimizasyona dayanan yinelemeli bir süreç olarak yaklaşıyorum.",
+        "Dijital ürünler için güvenilir ölçümleme sistemleri kuruyorum. GA4 ve GTM izleme kurulumu, Adjust MMP yapılandırması ve kanıta dayalı CRO programları işimin ana gövdesi. Pazarlamayı doğru veri, yapılandırılmış deney ve düzenli optimizasyon üzerine kurulu yinelemeli bir süreç olarak görüyorum.",
       lead:
-        "Dijital pazarlama ve büyüme alanında sekiz yılı aşkın deneyimimle, farklı ürünlerin ve iş modellerinin büyüme hedeflerini destekleyecek stratejiler üzerinde çalıştım.",
+        "Sekiz yılı aşkın süredir dijital pazarlama ve growth alanında, farklı ürün ve iş modelleri için büyüme stratejileri üzerinde çalışıyorum.",
       body:
-        "Deneyimim analitik, kullanıcı kazanımı, ürün ve büyüme stratejisini kapsıyor. Dijital pazarlama performansını değerlendirmek, kullanıcı davranışını anlamak ve büyüme fırsatlarını belirlemek için veriyi kullanıyorum. Kampanya yönetimi, ölçümleme ve optimizasyon boyunca, pazarlama girişimlerini iş hedefleriyle uyumlu tutmaya ve ölçülebilir sonuçlar üretmeye odaklanıyorum.",
+        "Analitik, kullanıcı kazanımı, ürün ve büyüme stratejisi üzerinde çalıştım. Kampanya performansını değerlendirmek, kullanıcı davranışını okumak ve büyüme fırsatlarını bulmak için veriye bakıyorum. Kampanya yönetiminden ölçümleme ve optimizasyona kadar, pazarlama işini iş hedeflerine bağlı tutmaya odaklanıyorum.",
       experience: "Deneyim",
       timeline: [
         {
@@ -1187,7 +1187,7 @@ export const copy = {
           logo: "/logos/aksigorta.svg",
           role: "Mobil Uygulama Büyüme Lideri",
           period: "Nis 2026 – Günümüz",
-          desc: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyüme stratejisini yönetiyor, kullanıcı kazanımı ve etkileşimi yürütüyorum.",
+          desc: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyüme stratejisini, kullanıcı kazanımını ve etkileşimini yönetiyorum.",
         },
         {
           kind: "single",
@@ -1196,7 +1196,7 @@ export const copy = {
           logo: "/logos/vodafone.svg",
           role: "Büyüme Pazarlaması Lideri",
           period: "Ağu 2024 – Nis 2026",
-          desc: "Dijital kanallarda büyüme pazarlamasını yönettim; veriye dayalı kullanıcı kazanımını yaşam döngüsü programlarıyla birleştirdim.",
+          desc: "Dijital kanallarda büyüme pazarlamasını yönettim; veriye dayalı kullanıcı kazanımını lifecycle programlarıyla birleştirdim.",
         },
         {
           kind: "single",
@@ -1205,7 +1205,7 @@ export const copy = {
           logo: "/logos/getir.svg",
           role: "Büyüme – CRM Analitiği Uzmanı",
           period: "Eyl 2023 – Ağu 2024",
-          desc: "Hızlı ticaret için CRM analitiği ve büyüme girişimlerini yönettim; elde tutma ve yaşam boyu değeri optimize ettim.",
+          desc: "Hızlı ticaret için CRM analitiği ve growth çalışmalarını yönettim; odak elde tutma ve LTV'ydi.",
         },
         {
           kind: "group",
@@ -1217,12 +1217,12 @@ export const copy = {
             {
               role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
               period: "Oca 2023 – Ağu 2023",
-              desc: "Grubun seyahat markaları genelinde yaşam döngüsü ve CRM programlarını uçtan uca yürüttüm.",
+              desc: "Grubun seyahat markalarının tamamında lifecycle ve CRM programlarını yürüttüm.",
             },
             {
               role: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
               period: "Eyl 2021 – Oca 2023",
-              desc: "Önde gelen bir çevrimiçi seyahat platformu için yaşam döngüsü pazarlama programları kurdum ve yürüttüm.",
+              desc: "Önde gelen bir çevrimiçi seyahat platformu için lifecycle pazarlama programları kurdum ve yürüttüm.",
             },
           ],
         },
@@ -1247,21 +1247,21 @@ export const copy = {
       ],
     },
     stack: {
-      metaTitle: "Yığın - Ali Demirbaş",
-      metaDesc: "Her gün büyümeyi ölçmek, sorgulamak ve optimize etmek için kullandığım araçlar.",
-      eyebrow: "Yığın",
-      title: "Yığın",
-      sub: "Tasarlamak, üretmek, ölçmek ve büyümek için kullandığım araçlar.",
+      metaTitle: "Stack - Ali Demirbaş",
+      metaDesc: "Ölçümleme, analiz ve deney için her gün kullandığım araçlar.",
+      eyebrow: "Stack",
+      title: "Stack",
+      sub: "Tasarlamak, üretmek ve ölçmek için kullandığım araçlar.",
       homeTitle: "Kullandığım araçlar",
-      homeIntro: "Deney tasarlamak, güvenilir ölçümleme kurmak, kullanıcı davranışını analiz etmek ve büyümeyi optimize etmek için kullandığım araçlar.",
-      homeMore: "Araç setimi keşfet",
+      homeIntro: "Deney tasarlarken, ölçümleme kurarken ve kullanıcı davranışını analiz ederken kullandığım araçlar.",
+      homeMore: "Tüm araçları gör",
     },
     contact: {
       metaTitle: "İletişim - Ali Demirbaş",
       metaDesc: "Ali Demirbaş'a e-posta ile veya LinkedIn üzerinden ulaşın.",
       eyebrow: "İletişim",
       title: "Tanışalım.",
-      sub: "Yeni insanlarla tanışmayı, fikir alışverişinde bulunmayı ve büyüme, ürünler ya da burada paylaştığım çalışmalar üzerine sohbet etmeyi her zaman seviyorum.",
+      sub: "Growth, ürün ya da buradaki çalışmalar üzerine konuşmak istersen yaz. Yeni insanlarla tanışmaktan keyif alıyorum.",
       linkedinLabel: "LinkedIn'de bağlantı kur",
       linkedinGo: "Profili görüntüle",
       emailLabel: "E-posta gönder",
@@ -1274,7 +1274,7 @@ export const copy = {
         { title: "Bir soru", desc: "Bir hesaplama aracı, journey, açık kaynak proje veya bu sitedeki herhangi bir şey hakkında." },
       ],
       scheduleTitle: "Görüşme planla",
-      scheduleSub: "30 dakikalık bir tanışma görüşmesi ayarlayın.",
+      scheduleSub: "30 dakikalık bir tanışma görüşmesi ayarla.",
       formTitle: "Mesaj gönder",
       formName: "Ad Soyad",
       formEmail: "E-posta",
@@ -1287,9 +1287,9 @@ export const copy = {
     /* Bkz. EN tarafındaki not. */
     journeyBuilder: {
       metaTitle: "Lifecycle Marketing Journey Builder - Ali Demirbaş",
-      metaDesc: "Lifecycle journey'lerin durum makinesi olarak kanonik kütüphanesi: tetikleyiciler, dallanmalar, beklemeler, devirler ve çıkışlar - kampanya şablonu değil.",
+      metaDesc: "Lifecycle journey'lerin state machine olarak kanonik kütüphanesi: tetikleyiciler, dallanmalar, beklemeler, devirler ve çıkışlar. Kampanya şablonu değil.",
       eyebrow: "Lab / Journey Builder",
-      title: "Kampanya şablonu değil, durum makinesi olarak lifecycle journey'ler.",
+      title: "Kampanya şablonu değil, state machine olarak lifecycle journey'ler.",
       sub: "Buradaki her journey bir graf: onu ne başlatır ve bilinçli olarak ne başlatmaz, nerede çatallanır ve her kolun anlamı nedir, ne kadar bekler ve o süre dolduğunda ne olur, kişinin sahipliği sonra hangi lifecycle'a geçer.",
       ctaJourney: "Bu journey'i aç",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
@@ -1306,7 +1306,7 @@ export const copy = {
       story1: {
         eyebrow: "Tetikleyiciler",
         title: "Kanıtla başlar, yoksa başlamaz.",
-        body: "Kötü lifecycle otomasyonunun çoğu, tek bir zayıf sinyalle ateşlenmiş bir journey'dir. Buradaki her tetikleyici neye ihtiyaç duyduğunu adlandırır — ve ayrıca, tek başına yeterli olmayan benzer sinyalleri.",
+        body: "Kötü lifecycle otomasyonunun çoğu, tek bir zayıf sinyalle ateşlenmiş bir journey'dir. Buradaki her tetikleyici neye ihtiyaç duyduğunu adlandırır. Tek başına yeterli olmayan benzer sinyalleri de.",
         caption: "Tetikleyici kanıtı",
         requires: "Gerekenler",
         insufficient: "Tek başına yetersiz",
@@ -1314,7 +1314,7 @@ export const copy = {
       story2: {
         eyebrow: "Dallanma",
         title: "Her çatalın iki kolu da adlandırılmış.",
-        body: "Tek kollu bir koşul, karar kılığına girmiş bir filtredir — o koşulu geçemeyen herkese ne olduğunu gizler. Bu yüzden buradaki her koşul en az iki dal taşır, her biri kendisine yönlendiren gerçek kuralla birlikte.",
+        body: "Tek kollu bir koşul, karar kılığına girmiş bir filtredir. O koşulu geçemeyenlere ne olduğunu gizler. Bu yüzden buradaki her koşul en az iki dal taşır, her biri kendisine yönlendiren gerçek kuralla birlikte.",
         caption: "Gerçek bir çatal",
         conditionsLabel: "koşul kütüphanede",
         note: "Hiçbir kol çıkmaz sokak değil: ikisi de adlandırılmış bir düğüme gider.",
@@ -1338,8 +1338,8 @@ export const copy = {
       },
       inspector: {
         eyebrow: "Yakınlaş",
-        title: "Devir sadece bir ok değildir.",
-        body: "Sahiplik başka bir lifecycle'a geçtiğinde, bir şeyin bu sınırdan sağ çıkması gerekir. Bir devir; hedefini, hangi koşulda ateşlendiğini ve tam olarak neyi taşıdığını adlandırır — böylece devralan journey boş değil, bilgili başlar.",
+        title: "Devir, durumu da taşır.",
+        body: "Sahiplik başka bir lifecycle'a geçtiğinde, bir şeyin bu sınırdan sağ çıkması gerekir. Bir devir hedefini, hangi koşulda ateşlendiğini ve tam olarak neyi taşıdığını adlandırır. Böylece devralan journey boş değil, bilgili başlar.",
         to: "hedef",
         on: "koşul",
         carries: "taşıdığı",
@@ -1348,8 +1348,8 @@ export const copy = {
       library: {
         eyebrow: "Kütüphane",
         title: "{count} journey. Okunmak için kurulmuş.",
-        body: "Kategoriye göre dosyalanmış, her biri açıp düğüm düğüm takip edebileceğin bir graf. Sektör şablonu değil, alandan bağımsız durum makineleri — bu ayrım, iki journey'in aynı journey olmasını engelleyen şey.",
-        cta: "Journey kütüphanesini keşfet",
+        body: "Kategoriye göre dosyalanmış, her biri açıp düğüm düğüm takip edebileceğin bir graf. Sektör şablonu değil, alandan bağımsız state machine'ler. İki journey'in aynı journey olmasını engelleyen şey bu ayrım.",
+        cta: "Journey kütüphanesini aç",
         nodes: "düğüm",
         moreCategories: "kategori daha",
       },
@@ -1359,8 +1359,8 @@ export const copy = {
         body: "Ürün kütüphanenin kendisi. Onunla yaptığın üç şey bunlar.",
         steps: [
           { title: "Journey'i bul", body: "Kategoriye, lifecycle aşamasına, hedefe veya tetikleyicinin dayandığı kanıt türüne göre filtrele." },
-          { title: "Mantığı oku", body: "Grafı düğüm düğüm takip et — her dal, bekleme ve devir, arkasındaki kuralla birlikte yazılmış." },
-          { title: "Uyarla", body: "Durum makinesini kendi sistemine taşı. Teslim edilen şey mantık; mesaj metni hiçbir zaman kapsamda değildi." },
+          { title: "Mantığı oku", body: "Grafı düğüm düğüm takip et. Her dal, bekleme ve devir, arkasındaki kuralla birlikte yazılmış." },
+          { title: "Uyarla", body: "State machine'i kendi sistemine taşı. Teslim edilen şey mantık; mesaj metni hiçbir zaman kapsamda değildi." },
         ],
       },
       related: {
@@ -1377,7 +1377,7 @@ export const copy = {
         },
         feature2: {
           title: "Liste değil, portföy",
-          body: "Uygunluk, motorun dokümante edilmiş pattern kütüphanesindeki (terk edilmiş sepet, deneme dönüşümü, winback ve daha fazlası) her pattern için gerekli event imzasından hesaplanır - her biri kendi derinliğini ve kanallarını verinizin gerçekten desteklediği şeye göre ölçekler. Verinizin henüz desteklemediği şey kilitli bir özellik değil, hangi event'in onu açacağını söyleyen bir tracking plan olur.",
+          body: "Uygunluk, motorun dokümante edilmiş pattern kütüphanesindeki her pattern (terk edilmiş sepet, deneme dönüşümü, winback ve diğerleri) için gerekli event imzasından hesaplanır. Her pattern derinliğini ve kanallarını verinin gerçekten desteklediği kadar açar. Verinin henüz desteklemediği şey kilitli bir özellik değil, hangi event'in onu açacağını söyleyen bir tracking plan olur.",
         },
         feature3: {
           title: "Copy, mühendislik ürünüdür",
@@ -1387,23 +1387,23 @@ export const copy = {
       carousel: {
         eyebrow: "Pattern motoru",
         title: "Tek motor, her işletme için farklı bir portföy",
-        body: "26 dokümante edilmiş blueprint, sabit bir katalog değil, bilgi tabanıdır - her biri kendi derinliğini (3 ila 12 adım), dallanmasını ve kanallarını verinizin gerçekten desteklediği şeye göre ölçekler; bu yüzden hiçbir iki işletme aynı çıktıyı almaz. Aşağıda üçü, motorun kendi bilgi tabanında tanımlandığı haliyle açılıyor.",
+        body: "26 dokümante edilmiş blueprint sabit bir katalog değil, bilgi tabanı. Her biri derinliğini (3 ila 12 adım), dallanmasını ve kanallarını verinin desteklediği kadar açar; bu yüzden iki işletme aynı çıktıyı almaz. Üç örnek, motorun kendi bilgi tabanında tanımlandığı haliyle.",
       },
       faq: {
         eyebrow: "SSS",
-        title: "Sorular? Cevaplar.",
+        title: "Sık sorulanlar",
         items: [
           {
             q: "claude-lifecycle nedir?",
-            a: "claude-lifecycle, müşteri journey'lerini açık durumlar, dallar, beklemeler, devirler ve çıkışlar olarak yapılandırmak için açık kaynaklı bir lifecycle mimarisi kütüphanesidir. Her otomasyona boş bir sayfadan başlamak yerine, lifecycle planlaması için daha güçlü bir başlangıç noktası sağlamak üzere tasarlanmıştır.",
+            a: "claude-lifecycle, müşteri journey'lerini açık durumlar, dallar, beklemeler, devirler ve çıkışlar olarak yapılandıran açık kaynaklı bir lifecycle mimarisi kütüphanesi. Her otomasyona boş sayfadan başlamak yerine hazır bir yapıdan başlarsın.",
           },
           {
             q: "claude-lifecycle bir journey builder mı, yoksa bir journey kütüphanesi mi?",
-            a: "Öncelikle yapılandırılmış bir journey kütüphanesi ve mimari sistemidir. Journey'ler, belirli bir ürün ya da işin kullandığı araçlara, kanallara ve veri modeline uyarlanabilecek lifecycle mantığını ve yeniden kullanılabilir kalıpları tanımlar.",
+            a: "Öncelikle yapılandırılmış bir journey kütüphanesi. Journey'ler, bir ürünün araçlarına, kanallarına ve veri modeline uyarlanabilecek lifecycle mantığını tanımlar.",
           },
           {
             q: "Bir journey neler içerir?",
-            a: "Bir journey; tetikleyiciler, koşullar, aksiyonlar, beklemeler, devirler ve çıkışlar içerebilir. Bu durumlar; giriş mantığını, dallanma davranışını, zamanlamayı, geçişleri ve nihai sonuçları belirsiz bırakmak yerine açıkça tanımlar.",
+            a: "Tetikleyiciler, koşullar, aksiyonlar, beklemeler, devirler ve çıkışlar. Giriş mantığı, dallanma, zamanlama, geçişler ve son durumlar belirsiz bırakılmaz, yazılır.",
           },
           {
             q: "Kaç journey dahil?",
@@ -1411,25 +1411,25 @@ export const copy = {
           },
           {
             q: "Journey'leri kendi ürünüme uyarlayabilir miyim?",
-            a: "Evet. Journey'ler katı uygulamalar değil, yeniden kullanılabilir başlangıç noktaları olarak tasarlanmıştır. Ekipler, altta yatan lifecycle mantığını korurken tetikleyicileri, koşulları, zamanlamayı ve sonraki aksiyonları uyarlayabilir.",
+            a: "Journey'ler katı reçete değil, başlangıç noktası. Lifecycle mantığını koruyarak tetikleyicileri, koşulları, zamanlamayı ve sonraki aksiyonları değiştirebilirsin.",
           },
           {
             q: "Devir (handoff) nedir?",
-            a: "Bir devir, lifecycle durumunu bir journey'den diğerine açıkça aktarır. Workflow'ları izole otomasyonlar gibi ele almak yerine, devirler journey'ler arasındaki ilişkiyi ve taşınan durumu görünür kılar.",
+            a: "Bir devir, lifecycle durumunu bir journey'den diğerine açıkça aktarır. Journey'ler arasındaki ilişki ve taşınan durum böylece görünür olur; workflow'lar izole otomasyon gibi ele alınmaz.",
           },
           {
             q: "Doğrulama (validation) nasıl çalışır?",
-            a: "Doğrulama; giriş durumları, koşul dalları, sınırlı beklemeler, devirler ve açık çıkışlar dahil olmak üzere önemli yapısal kuralların tamamlanıp tamamlanmadığını kontrol eder. Amaç, uygulamadan önce eksik lifecycle mantığını tespit etmektir.",
+            a: "Doğrulama, giriş durumları, koşul dalları, sınırlı beklemeler, devirler ve açık çıkışlar gibi yapısal kuralların tamamlanıp tamamlanmadığını kontrol eder. Eksik lifecycle mantığı uygulamadan önce ortaya çıkar.",
           },
           {
             q: "claude-lifecycle'ı nasıl kullanırım?",
-            a: "GitHub deposunu aç, mevcut journey'leri incele ve kendi ürünün için lifecycle kalıplarını keşfetmek, uyarlamak ve uygulamak üzere Claude Code ile proje yapısını kullan.",
+            a: "GitHub deposunu aç, mevcut journey'leri incele ve Claude Code ile proje yapısını kullanarak kalıpları kendi ürününe uyarla.",
           },
         ],
       },
       pageCta: {
         eyebrow: "AÇIK KAYNAK · GITHUB",
-        title: "Lifecycle mantığını daha güçlü bir başlangıç noktasından kur.",
+        title: "Lifecycle mantığını boş sayfadan değil, hazır bir yapıdan kur.",
         primary: "GitHub'da görüntüle",
         secondary: "Canlı demoyu aç",
       },
@@ -1461,18 +1461,18 @@ export const copy = {
       framework: {
         title: "Her senaryo aynı üç kutu disiplinini izler",
         boxes: [
-          { title: "Test edilmesi gerekenler", desc: "Deneyin cevaplaması gereken somut sorular - \"butonu test et\" değil, sonucun çözmesi gereken her hipotez." },
+          { title: "Test edilmesi gerekenler", desc: "Deneyin cevaplaması gereken somut sorular. \"Butonu test et\" değil, sonucun çözmesi gereken her hipotez." },
           { title: "Takip edilecek KPI'lar", desc: "Kazananı belirleyen tek bir birincil metrik, artı iyileşirken bozulmaması gereken en az bir guardrail." },
-          { title: "Yapılmaması gerekenler", desc: "Testi sessizce geçersiz kılan hatalar - sonuçlar okunamaz hâle gelene kadar kimsenin fark etmediği türden." },
+          { title: "Yapılmaması gerekenler", desc: "Testi sessizce geçersiz kılan hatalar. Sonuçlar okunamaz hâle gelene kadar kimsenin fark etmediği türden." },
         ],
       },
       principlesTitle: "Eklentinin eğmediği beş kural",
       principles: [
-        { title: "Her zaman tek değişken", desc: "Her varyant çifti tam olarak bir şeyi değiştirir. Çok değişkenli bir test istenirse ayrı testlere bölünür - ısrar edilirse çıktı açıkça 'sonuç hangi değişiklikten geldi bilinemeyecek' der." },
+        { title: "Her zaman tek değişken", desc: "Her varyant çifti tam olarak bir şeyi değiştirir. Çok değişkenli bir test istenirse ayrı testlere bölünür. Israr edilirse çıktı açıkça 'sonuç hangi değişiklikten geldi bilinemeyecek' der." },
         { title: "Tek birincil metrik", desc: "Listedeki ilk KPI kazananı belirler. Beş metriği eşit önemde sunmak, tam olarak kaybeden bir testin kazanan ilan edilme yoludur." },
-        { title: "Guardrail'siz senaryo yok", desc: "Her senaryo, bozulmaması gereken en az bir metrikle gelir - marj, iade oranı, hız, destek talebi. Bir değişiklik erişilebilirliği etkileyebilecekse, o da bir guardrail adayıdır." },
-        { title: "Koruma bir büyüme kolu değildir", desc: "CAPTCHA, kimlik veya yaş doğrulama, iki adımlı giriş, yasal onay adımları - istense bile hiçbir zaman kaldırılacak sürtünme olarak önerilmez. Bunlar koruma içindir, dönüşüm için değil; eklenti bunu söyler ve senaryo üretmez." },
-        { title: "Güven söylenir, ima edilmez", desc: "Her öneri, arkasındaki kanıtın ne kadar güçlü olduğunu söyler - kullanıcının kendi verisi, arşiv emsali, sektör örüntüsü ya da sezgi. Zayıf kanıtlı bir fikir yine sunulabilir ama asla kesinmiş gibi giydirilmez." },
+        { title: "Guardrail'siz senaryo yok", desc: "Her senaryo, bozulmaması gereken en az bir metrikle gelir: marj, iade oranı, hız, destek talebi. Bir değişiklik erişilebilirliği etkileyebilecekse, o da bir guardrail adayıdır." },
+        { title: "Koruma bir büyüme kolu değildir", desc: "CAPTCHA, kimlik veya yaş doğrulama, iki adımlı giriş, yasal onay adımları: istense bile hiçbir zaman kaldırılacak sürtünme olarak önerilmez. Bunlar koruma içindir, dönüşüm için değil; eklenti bunu söyler ve senaryo üretmez." },
+        { title: "Güven söylenir, ima edilmez", desc: "Her öneri, arkasındaki kanıtın ne kadar güçlü olduğunu söyler: kullanıcının kendi verisi, arşiv emsali, sektör örüntüsü ya da sezgi. Zayıf kanıtlı bir fikir yine sunulabilir ama asla kesinmiş gibi giydirilmez." },
       ],
       exampleTitle: "Arşivden gerçek bir senaryo",
       example: {
@@ -1492,7 +1492,7 @@ export const copy = {
         kpiBox: {
           label: "Takip edilecek KPI'lar",
           items: [
-            "Ziyaretçi Başına Gelir (RPV) - birincil metrik",
+            "Ziyaretçi Başına Gelir (RPV, birincil metrik)",
             "Sipariş Tamamlama Oranı",
             "Kupon Kullanım Oranı (guardrail)",
             "Ödeme Adımı Terk Oranı",
@@ -1502,11 +1502,11 @@ export const copy = {
         dontBox: {
           label: "Yapılmaması gerekenler",
           items: [
-            "Kupon alanını tamamen kaldırmayın; kodu olan kullanıcı öfkelenir.",
-            "Geçersiz kod hatasını belirsiz bırakmayın.",
-            "Test sırasında aktif kampanya kurmayın veya kaldırmayın.",
-            "Kupon alanını fark edilmez hâle getirecek kadar gizlemeyin.",
-            "Aynı testte hem konumu hem metni değiştirmeyin.",
+            "Kupon alanını tamamen kaldırma; kodu olan kullanıcı öfkelenir.",
+            "Geçersiz kod hatasını belirsiz bırakma.",
+            "Test sırasında aktif kampanya kurma ya da kaldırma.",
+            "Kupon alanını fark edilmez hâle getirecek kadar gizleme.",
+            "Aynı testte hem konumu hem metni değiştirme.",
           ],
         },
       },
@@ -1515,19 +1515,19 @@ export const copy = {
       faq: [
         {
           q: "İlk olarak neyi A/B test etmeliyim?",
-          a: "Adayları içgüdüyle değil ICE (Etki × Güven × Kolaylık) ile sıralayın. Yüksek trafikli bir sayfada düşük efor gerektiren bir test, düşük trafikli bir sayfadaki iddialı bir testten daha iyidir.",
+          a: "Adayları içgüdüyle değil ICE (Etki × Güven × Kolaylık) ile sırala. Yüksek trafikli bir sayfada düşük efor gerektiren bir test, düşük trafikli bir sayfadaki iddialı bir testten daha iyidir.",
         },
         {
           q: "Bir A/B test için kaç ziyaretçiye ihtiyacım var?",
-          a: "Bu bir kestirme kural değil - gerçek baz dönüşüm oranınızdan ve önemsediğiniz minimum etki büyüklüğünden hesaplanır. Gerçek trafik verisi olmadan hiçbir süre veya örneklem vaadi verilmez.",
+          a: "Kestirme bir kural yok. Gerçek baz dönüşüm oranından ve önemsediğin minimum etki büyüklüğünden hesaplanır. Trafik verisi olmadan süre veya örneklem vaadi verilmez.",
         },
         {
           q: "Sonuçlara erken bakıp anlamlı göründüğünde durabilir miyim?",
-          a: "Hayır - bir testi tekrar tekrar kontrol edip anlamlı göründüğü an durmak, gerçek bir fark olmasa bile yanlış-pozitif oranını %5'in çok üzerine çıkarır. Örneklem büyüklüğünü veya süreyi baştan belirleyin, bir kez bakın. Tek istisna: bir guardrail metriğinin test ortasında gözle görülür şekilde bozulması.",
+          a: "Bir testi tekrar tekrar kontrol edip anlamlı göründüğü an durmak, gerçek bir fark olmasa bile yanlış pozitif oranını %5'in çok üzerine çıkarır. Örneklem büyüklüğünü veya süreyi baştan belirle, bir kez bak. Tek istisna: bir guardrail metriğinin test ortasında gözle görülür şekilde bozulması.",
         },
         {
           q: "Neden en az iki tam hafta test çalıştırmalıyım?",
-          a: "İstatistiksel güç gereksinimi değil - kapsama gereksinimi. Hafta içi/hafta sonu davranışı ve maaş günü etkilerinin veride temsil edilmesi gerekir, örneklem hedefine üç günde ulaşılsa bile.",
+          a: "İstatistiksel güç için değil, kapsama için. Hafta içi ve hafta sonu davranışı ve maaş günü etkilerinin veride temsil edilmesi gerekir, örneklem hedefine üç günde ulaşılsa bile.",
         },
         {
           q: "Bir sonucu geçersiz kılan yaygın A/B test hataları nelerdir?",
@@ -1535,7 +1535,7 @@ export const copy = {
         },
         {
           q: "Bu playbook her ürün için doğru araç mı?",
-          a: "Hayır, ve bunu açıkça söylüyor. B2C e-ticaret, tüketici mobil uygulamaları ve gerçek haftalık trafiği olan self-serve SaaS için uyar. Düşük trafikli kurumsal satış sayfaları, uzun satış döngüleri veya ağır regüle akışlar için daha az uyar - onlar için niteliksel yöntemlere işaret eder.",
+          a: "Playbook'un kendisi de öyle demiyor. B2C e-ticaret, tüketici mobil uygulamaları ve gerçek haftalık trafiği olan self-serve SaaS için uyar. Düşük trafikli kurumsal satış sayfaları, uzun satış döngüleri veya ağır regüle akışlar için daha az uyar; onlar için niteliksel yöntemlere işaret eder.",
         },
       ],
       repoLink: "GitHub'da görüntüle",
@@ -1544,7 +1544,7 @@ export const copy = {
          blok bu turun yeni ürün sayfası kurgusu için yazıldı. İçindeki her
          sayı gerçek veri setinden derleme anında türetiliyor. */
       product: {
-        heroCtaLibrary: "Kütüphaneyi keşfet",
+        heroCtaLibrary: "Senaryo kütüphanesini aç",
         heroProof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
         brief: {
           label: "Senaryo brifi",
@@ -1568,7 +1568,7 @@ export const copy = {
         story1: {
           eyebrow: "Kapsam",
           title: "Gerçekten üzerinde olduğun yüzeyden başla.",
-          body: "Kütüphane düz bir ipucu listesi değil. Her senaryo ait olduğu ürün yüzeyine göre dosyalanmış — bir ürün sayfası testiyle bir ödeme testi farklı biçimlerde bozulur — böylece neyin değişeceği tartışılmadan önce sorunun nerede olduğuna göre daraltıyorsun.",
+          body: "Kütüphane düz bir ipucu listesi değil. Her senaryo ait olduğu ürün yüzeyine göre dosyalanmış; bir ürün sayfası testiyle bir ödeme testi farklı biçimlerde bozulur. Böylece neyin değişeceği tartışılmadan önce sorunun nerede olduğuna göre daraltırsın.",
           caption: "Yüzeye göre senaryolar",
         },
         story2: {
@@ -1582,21 +1582,21 @@ export const copy = {
         story3: {
           eyebrow: "Guardrail'ler",
           title: "Her senaryo, bozulmaması gerekenle birlikte gelir.",
-          body: "Guardrail, birincil metrik iyileşirken yerinde kalması gereken metriktir — marj, iade oranı, kupon kullanımı, erişilebilirlik. Burada opsiyonel değiller: kütüphanedeki hiçbir senaryo beşten azıyla gelmiyor.",
+          body: "Guardrail, birincil metrik iyileşirken yerinde kalması gereken metriktir: marj, iade oranı, kupon kullanımı, erişilebilirlik. Burada opsiyonel değil; kütüphanedeki hiçbir senaryo beşten azıyla gelmiyor.",
           caption: "Yapılmaması gerekenler",
           ledgerNote: "kütüphane genelinde guardrail kuralı",
         },
         library: {
           eyebrow: "Kütüphane",
-          title: "{count} deney. Bir sonrakini bulacağın tek yer.",
+          title: "{count} deney. Bir sonrakini buradan seç.",
           body: "Kategoriye ve yüzeye göre dosyalanmış, aranabilir ve hiçbir şey kurmadan okunabilir. Her kayıt test edilen değişkeni, birincil KPI'ı ve guardrail'leri taşır.",
-          cta: "Testlerin tamamını keşfet",
+          cta: "Tüm senaryoları aç",
           filterLabel: "Kategoriye göre gez",
         },
         how: {
           eyebrow: "Nasıl çalışır",
           title: "Bul, kur, oku.",
-          body: "Üç adım — ve çoğu testin yanlış yaptığı adım üçüncüsü.",
+          body: "Üç adım. Çoğu test üçüncüsünde bozulur.",
           steps: [
             { title: "Fırsatı bul", body: "Üzerinde çalıştığın yüzeye göre daralt, sonra o yüzeye dosyalanmış senaryolardan seç." },
             { title: "Deneyi tasarla", body: "Senaryo sana hipotezi, tek bir birincil KPI'ı ve guardrail'leri verir. Tam olarak tek değişken hareket eder." },
@@ -1610,7 +1610,7 @@ export const copy = {
             uplift: "Göreli artış",
             pValue: "p-değeri",
             verdict: "%95'te anlamlı mı?",
-            verdictValue: "Hayır — devam et",
+            verdictValue: "Hayır, devam et",
             note: "Bu sitenin kendi Anlamlılık hesaplayıcısından işlenmiş bir örnek: eşiği geçemeyen %16'lık bir artış.",
             calculators: "Kendi sayılarınla çalıştır",
             test: "iki oranlı z-testi",
@@ -1623,7 +1623,7 @@ export const copy = {
     },
     finalCta: {
       title: "Büyümeyi konuşalım.",
-      body: "Bir rol, bir proje ya da lifecycle marketing üzerine bir soru - kutum açık.",
+      body: "Bir rol, bir proje ya da lifecycle marketing üzerine bir soru. Kutum açık.",
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "LinkedIn'de bağlan",
     },
@@ -1633,7 +1633,7 @@ export const copy = {
       title: "Bu sayfa bulunamadı.",
       body: "Bağlantı eski olabilir veya sayfa taşınmış olabilir.",
       cta: "Ana sayfaya dön",
-      labLink: "Lab'i keşfet",
+      labLink: "Lab'e git",
     },
     footer: {
       left: "Ali Demirbaş, 2026",

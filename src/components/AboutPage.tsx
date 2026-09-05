@@ -63,29 +63,29 @@ const JOBS: Record<Lang, TimelineJob[]> = {
       dates: "2026–Present",
       title: "Mobile App Growth Lead",
       company: "Aksigorta",
-      info: "Mobile app growth for one of Turkey's largest insurers — user acquisition, engagement, and an app-first growth strategy.",
-      bottom: "Owning the app growth roadmap end-to-end. And we're just getting started...",
+      info: "Mobile app growth for one of Turkey's largest insurers: user acquisition, engagement, and an app-first growth strategy.",
+      bottom: "Owning the whole app growth roadmap. Still early days.",
     },
     {
       dates: "2024–2026",
       title: "Growth Marketing Lead",
       company: "Vodafone",
       info: "Growth marketing across digital channels for one of the world's largest telecom brands.",
-      bottom: "Data-driven acquisition and lifecycle programs working as one growth engine.",
+      bottom: "Acquisition and lifecycle programs run together, not as separate tracks.",
     },
     {
       dates: "2023–2024",
       title: "Growth – CRM Analytics Executive",
       company: "Getir",
       info: "CRM analytics and growth initiatives for the pioneer of rapid commerce.",
-      bottom: "Retention and LTV, optimized at rapid-commerce speed.",
+      bottom: "Retention and LTV work, at rapid-commerce pace.",
     },
     {
       dates: "2021–2023",
       title: "Lifecycle Marketing",
       company: "Wingie Enuygun Group",
       info: "Lifecycle and CRM programs for a leading online travel platform.",
-      bottom: "Owned lifecycle and CRM end-to-end across the group's travel brands.",
+      bottom: "Ran lifecycle and CRM across the group's travel brands.",
       subs: [
         { dates: "2023", title: "Experienced Lifecycle Marketing Specialist (Growth)" },
         { dates: "2021–2023", title: "Lifecycle Marketing Specialist (Growth)" },
@@ -109,15 +109,15 @@ const JOBS: Record<Lang, TimelineJob[]> = {
       dates: "2026–Günümüz",
       title: "Mobil Uygulama Büyüme Lideri",
       company: "Aksigorta",
-      info: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyümesi — kullanıcı kazanımı, etkileşim ve app-first bir büyüme stratejisi.",
-      bottom: "Uçtan uca app growth roadmap'ini yönetiyorum. Ve daha yeni başlıyoruz...",
+      info: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyümesi: kullanıcı kazanımı, etkileşim ve app-first bir büyüme stratejisi.",
+      bottom: "App growth roadmap'inin tamamını yönetiyorum. Henüz yolun başındayız.",
     },
     {
       dates: "2024–2026",
       title: "Büyüme Pazarlaması Lideri",
       company: "Vodafone",
       info: "Dünyanın en büyük telekom markalarından biri için dijital kanallarda büyüme pazarlaması.",
-      bottom: "Veriye dayalı kullanıcı kazanımı ve lifecycle programları, tek bir growth motoru gibi çalışıyor.",
+      bottom: "Kullanıcı kazanımı ve lifecycle programlarını ayrı kollar olarak değil, birlikte yürüttüm.",
     },
     {
       dates: "2023–2024",
@@ -131,7 +131,7 @@ const JOBS: Record<Lang, TimelineJob[]> = {
       title: "Yaşam Döngüsü Pazarlama",
       company: "Wingie Enuygun Group",
       info: "Önde gelen bir çevrimiçi seyahat platformu için lifecycle ve CRM programları.",
-      bottom: "Grubun seyahat markaları genelinde lifecycle ve CRM'i uçtan uca yönettim.",
+      bottom: "Grubun seyahat markalarında lifecycle ve CRM'in tamamını yönettim.",
       subs: [
         { dates: "2023", title: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
         { dates: "2021–2023", title: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
@@ -155,17 +155,17 @@ const JOBS: Record<Lang, TimelineJob[]> = {
 const T = {
   en: {
     wordmark: "Ali Demirbaş",
-    heroText: "I work at the intersection of growth, lifecycle, and product — turning data into better customer experiences.",
+    heroText: "I work where growth, lifecycle, and product meet, turning data into better customer experiences.",
     introPrefix: "Currently, I lead mobile growth at ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
     introSuffix: ", focusing on acquisition, activation, engagement, and digital customer experiences.",
     outsideWork: "Outside my day-to-day work, I build practical tools, frameworks, and open-source projects around growth and lifecycle marketing.",
-    exploreLabel: "Explore my work",
+    exploreLabel: "Browse the Lab",
     exploreHref: "/lab",
     linkedinLabel: "Connect on LinkedIn",
     h2: "Over eight years bridging data and marketing into measurable growth.",
-    subLines: ["8+ years building.", "Growth, lifecycle, and analytics.", "From startups to enterprises."],
+    subLines: ["8+ years building.", "Growth, lifecycle, and analytics.", "Startups and large enterprises."],
     toggle: { simple: "Simple", detailed: "Detailed", at: "at", bottomLine: "Bottom Line", active: "Active" },
     footerEmailLabel: "Email",
     langLabel: "TR",
@@ -174,12 +174,12 @@ const T = {
     /* --- Redesign copy. Labels and section names only: every fact on
        this page still comes from `JOBS`, `copy[lang].lab.projects` or the
        lines above. --- */
-    heroEyebrow: "Profile and perspective",
+    heroEyebrow: "Profile",
     statYears: "8+",
-    statYearsLabel: "Years track record",
+    statYearsLabel: "Years in the field",
     statToolsLabel: "Open-source tools built",
     portraitRoleFallback: "Mobile App Growth Lead",
-    foundationsEyebrow: "Core foundations",
+    foundationsEyebrow: "Foundations",
     pillarLabels: ["01 · Duration", "02 · Discipline", "03 · Scale"],
     /* Card 2's list. Not free prose - each item is the discipline named
        in one of the role titles in the timeline below. */
@@ -188,32 +188,32 @@ const T = {
     companiesLabel: "Companies",
     present: "present",
     recordEyebrow: "Track record",
-    recordTitle: "Experience & milestones",
+    recordTitle: "Experience, by role",
     labEyebrow: "Engineering and tooling",
     labTitle: "Open-source systems and calculators",
-    labViewAll: "View the full lab suite",
+    labViewAll: "See everything in the Lab",
   },
   tr: {
     wordmark: "Ali Demirbaş",
-    heroText: "Growth, lifecycle ve ürünün kesişiminde çalışıyor, veriyi daha iyi müşteri deneyimlerine dönüştürüyorum.",
+    heroText: "Growth, lifecycle ve ürünün kesiştiği yerde çalışıyorum; veriyi daha iyi müşteri deneyimine çeviriyorum.",
     introPrefix: "Şu anda ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
-    introSuffix: "'da mobil büyüme çalışmalarına liderlik ediyor; kullanıcı kazanımı, aktivasyon, etkileşim ve dijital müşteri deneyimi üzerine çalışıyorum.",
+    introSuffix: "'da mobil büyümeyi yönetiyorum; odağım kullanıcı kazanımı, aktivasyon, etkileşim ve dijital müşteri deneyimi.",
     outsideWork: "Bunun yanında growth ve lifecycle marketing alanlarında araçlar, framework'ler ve açık kaynak projeler geliştiriyorum.",
-    exploreLabel: "Çalışmalarıma göz at",
+    exploreLabel: "Lab'e göz at",
     exploreHref: "/tr/lab",
     linkedinLabel: "LinkedIn'de bağlantı kur",
     h2: "Sekiz yılı aşkın süredir veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
-    subLines: ["8+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lardan kurumsala."],
+    subLines: ["8+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lar ve büyük kurumlar."],
     toggle: { simple: "Basit", detailed: "Detaylı", at: "@", bottomLine: "Özet", active: "Aktif" },
     footerEmailLabel: "E-posta",
     langLabel: "EN",
     langHref: "/about",
 
-    heroEyebrow: "Profil ve bakış açısı",
+    heroEyebrow: "Profil",
     statYears: "8+",
-    statYearsLabel: "Yıllık deneyim",
+    statYearsLabel: "Yıl deneyim",
     statToolsLabel: "Açık kaynak araç",
     portraitRoleFallback: "Mobil Uygulama Büyüme Lideri",
     foundationsEyebrow: "Temeller",
@@ -223,10 +223,10 @@ const T = {
     companiesLabel: "Şirket",
     present: "günümüz",
     recordEyebrow: "Kariyer",
-    recordTitle: "Deneyim ve dönüm noktaları",
+    recordTitle: "Deneyim, rol bazında",
     labEyebrow: "Mühendislik ve araçlar",
     labTitle: "Açık kaynak sistemler ve hesaplayıcılar",
-    labViewAll: "Tüm lab arşivine göz at",
+    labViewAll: "Lab'in tamamına göz at",
   },
 } as const;
 
@@ -384,7 +384,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                     <div className="mt-auto flex flex-col gap-2.5 pt-5">
                       {i === 0 && (
                         <>
-                          <MetaRow label={t.spanLabel} value={`${firstYear} — ${t.present}`} />
+                          <MetaRow label={t.spanLabel} value={`${firstYear}–${t.present}`} />
                           <MetaRow label={t.companiesLabel} value={String(companies.length)} />
                         </>
                       )}

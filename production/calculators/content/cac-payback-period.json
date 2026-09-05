@@ -8,7 +8,7 @@
     "meaning": [
       "Payback is a cash question rather than a value one. A shorter period means less cash tied up per customer before the acquisition starts paying for itself, which matters most to a business funding growth out of its own revenue.",
       "It is a different lens from LTV:CAC. A customer can have excellent lifetime economics on paper and still create real cash-flow pressure if the payback stretches far enough out.",
-      "Four things move it, and they are the four in the formula: a lower CAC, a higher ARPU, and a higher gross margin all shorten it — margin with outsized effect, because it applies to the whole revenue stream rather than to one month of it."
+      "Four things move it, and they are the four in the formula: a lower CAC, a higher ARPU, and a higher gross margin all shorten it, margin with outsized effect, because it applies to the whole revenue stream rather than to one month of it."
     ],
     "takeaway": "Good lifetime economics and a comfortable cash position are not the same thing.",
     "whenToUse": "When acquisition is funded from operating cash, when deciding how aggressively to scale spend, or when a healthy LTV:CAC still feels tighter in practice than the ratio suggests.",
@@ -44,7 +44,7 @@
         "label": "CAC Payback Period",
         "value": "8.0 months"
       },
-      "body": "8.0 months means it takes roughly eight months of this customer's gross-margin-adjusted revenue to earn back the $600 spent acquiring them. Applying the 75% gross margin changes the estimate from 6 months on a revenue-only basis to 8 months on a gross-margin-adjusted basis — this is a model-based estimate, not a guaranteed recovery timeline."
+      "body": "8.0 months means it takes roughly eight months of this customer's gross-margin-adjusted revenue to earn back the $600 spent acquiring them. Applying the 75% gross margin changes the estimate from 6 months on a revenue-only basis to 8 months on a gross-margin-adjusted basis. This is a model-based estimate, not a guaranteed recovery timeline."
     },
     {
       "id": "interpretation",
@@ -76,7 +76,7 @@
       "id": "what-moves-payback",
       "type": "interpretation",
       "heading": "What makes CAC payback shorter or longer?",
-      "body": "Four things move this number, and they're the same four the formula is built from. A lower [CAC](/calculators/cac) shortens payback directly — spending less to acquire the same customer means less to recover. Higher ARPU shortens it too, since more monthly revenue per customer covers the acquisition cost faster. Gross margin has an outsized effect because it applies to the whole revenue stream, not just the acquisition line — a five-point margin improvement stretches or compresses payback for every customer, not just new ones. Retention doesn't appear in the formula directly, but it changes how urgently a short payback period matters: a customer who churns before the acquisition cost is recovered represents a real loss, not just a slower return."
+      "body": "Four things move this number, and they're the same four the formula is built from. A lower [CAC](/calculators/cac) shortens payback directly: spending less to acquire the same customer means less to recover. Higher ARPU shortens it too, since more monthly revenue per customer covers the acquisition cost faster. Gross margin has an outsized effect because it applies to the whole revenue stream, not just the acquisition line. A five-point margin improvement stretches or compresses payback for every customer, not just new ones. Retention doesn't appear in the formula directly, but it changes how urgently a short payback period matters: a customer who churns before the acquisition cost is recovered represents a real loss, not just a slower return."
     },
     {
       "id": "payback-vs-cac",
@@ -89,7 +89,7 @@
       "type": "common-mistakes",
       "heading": "Common mistakes",
       "items": [
-        "Dividing CAC by raw ARPU without the margin adjustment — it understates the gross-margin-adjusted payback estimate by counting revenue that isn't actually available to offset acquisition cost.",
+        "Dividing CAC by raw ARPU without the margin adjustment, which understates the gross-margin-adjusted payback estimate by counting revenue that isn't actually available to offset acquisition cost.",
         "Using an ARPU figure from a different period or cohort than the CAC it's being compared against.",
         "Applying a company-wide blended margin to a specific product or segment whose actual margin is meaningfully different, which shifts payback in either direction.",
         "Treating a generic 'X months is good' benchmark as a target without checking whether it assumes the same margin structure and business model."
@@ -105,34 +105,34 @@
     {
       "slug": "ltv-cac-ratio",
       "name": "LTV:CAC Ratio Calculator",
-      "desc": "Answers whether the customer is worth more than they cost overall — a different question than how fast that cost is recovered."
+      "desc": "Answers whether the customer is worth more than they cost overall, a different question from how fast that cost is recovered."
     },
     {
       "slug": "ltv",
       "name": "LTV Calculator",
-      "desc": "The lifetime-value side of the same economics — useful alongside payback period, not a substitute for it."
+      "desc": "The lifetime-value side of the same economics; useful alongside payback period, not a substitute for it."
     }
   ],
   "faq": [
     {
       "id": "what-is-cac-payback",
       "q": "What is CAC payback period?",
-      "a": "CAC payback period is the number of months it takes a business to recover what it spent acquiring a customer, using that customer's margin-adjusted revenue rather than raw revenue. A payback period of 8 months means roughly eight months of that customer's gross-margin-adjusted revenue are needed to offset the acquisition cost. It's a cash-flow metric specifically — it doesn't ask whether the customer is ultimately worth acquiring, which is what LTV:CAC ratio measures, but how much time and cash the business has to carry before this particular acquisition cost stops being a net outflow. A shorter payback period generally means less strain on cash reserves, since acquisition spend gets recouped sooner rather than sitting outstanding for longer."
+      "a": "CAC payback period is the number of months it takes a business to recover what it spent acquiring a customer, using that customer's margin-adjusted revenue rather than raw revenue. A payback period of 8 months means roughly eight months of that customer's gross-margin-adjusted revenue are needed to offset the acquisition cost. It's a cash-flow metric. It doesn't ask whether the customer is ultimately worth acquiring, which is what LTV:CAC ratio measures, but how much time and cash the business has to carry before this particular acquisition cost stops being a net outflow. A shorter payback period generally means less strain on cash reserves, since acquisition spend gets recouped sooner rather than sitting outstanding for longer."
     },
     {
       "id": "how-to-calculate-cac-payback",
       "q": "How do you calculate CAC payback period?",
-      "a": "Divide CAC by monthly ARPU multiplied by gross margin: CAC Payback = CAC ÷ (Monthly ARPU × Gross Margin). A CAC of $600, monthly ARPU of $100, and 75% gross margin gives 600 ÷ (100 × 0.75) = 8.0 months. The margin adjustment is not optional — dividing CAC by ARPU alone, without multiplying by gross margin first, produces a shorter, understated number, because it assumes the business keeps 100% of every revenue dollar as profit available to offset the acquisition cost. All three inputs also need to describe the same customer cohort and a representative time period, or the resulting figure won't describe a real, comparable payback timeline."
+      "a": "Divide CAC by monthly ARPU multiplied by gross margin: CAC Payback = CAC ÷ (Monthly ARPU × Gross Margin). A CAC of $600, monthly ARPU of $100, and 75% gross margin gives 600 ÷ (100 × 0.75) = 8.0 months. The margin adjustment is not optional. Dividing CAC by ARPU alone, without multiplying by gross margin first, produces a shorter, understated number, because it assumes the business keeps 100% of every revenue dollar as profit available to offset the acquisition cost. All three inputs also need to describe the same customer cohort and a representative time period, or the resulting figure won't describe a real, comparable payback timeline."
     },
     {
       "id": "why-margin-matters-payback",
       "q": "Why does gross margin matter in CAC payback period?",
-      "a": "Because only the gross-margin-adjusted portion of revenue is actually available to offset an acquisition cost — the rest goes toward the cost of delivering the product or service itself. A customer paying $100 a month at 75% gross margin contributes $75 a month toward recovering acquisition cost, not the full $100, so using raw ARPU instead of margin-adjusted ARPU understates how long recovery actually takes. Skipping this adjustment is flagged directly in this calculator's own validation logic as the single most common error in this calculation, and it consistently biases the result in the same direction: toward a payback period that looks shorter, and therefore healthier, than it really is. Any CAC payback figure quoted without stating whether margin was applied should be treated as incomplete."
+      "a": "Only the gross-margin-adjusted portion of revenue is available to offset an acquisition cost; the rest goes toward the cost of delivering the product or service itself. A customer paying $100 a month at 75% gross margin contributes $75 a month toward recovering acquisition cost, not the full $100, so using raw ARPU instead of margin-adjusted ARPU understates how long recovery actually takes. Skipping this adjustment is the most common error in this calculation, and it always biases the result in the same direction: toward a payback period that looks shorter, and therefore healthier, than it really is. Any CAC payback figure quoted without stating whether margin was applied should be treated as incomplete."
     },
     {
       "id": "good-cac-payback",
       "q": "What is a good CAC payback period?",
-      "a": "There's no single good number — it depends on the business's margin structure, how the business is funded, and how much cash it can afford to have tied up in each new customer before that spend is recovered. A business funding growth from its own revenue needs a shorter payback period than one with a large reserve of outside capital to draw on, even if both have identical unit economics otherwise. Numbers commonly repeated as universal SaaS targets don't account for margin structure, funding situation, or industry, and comparing a figure computed without the margin adjustment against one computed with it isn't a fair comparison at all. The more reliable approach is tracking this business's own payback period over time and against its own funding runway."
+      "a": "There's no single good number. It depends on the business's margin structure, how the business is funded, and how much cash it can afford to have tied up in each new customer before that spend is recovered. A business funding growth from its own revenue needs a shorter payback period than one with a large reserve of outside capital to draw on, even if both have identical unit economics otherwise. Numbers commonly repeated as universal SaaS targets don't account for margin structure, funding situation, or industry, and comparing a figure computed without the margin adjustment against one computed with it isn't a fair comparison at all. The more reliable approach is tracking this business's own payback period over time and against its own funding runway."
     },
     {
       "id": "payback-vs-ltv-cac-faq",

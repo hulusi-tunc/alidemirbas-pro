@@ -20,7 +20,7 @@ import { GOALS, GOAL_LABEL } from "@/lib/journey-taxonomy";
    page is imported from the live library exports; nothing is typed in. */
 
 const DEK = withLibraryCount(
-  "A library of {count} reusable lifecycle journeys across {categories} categories — each entry is a graph, not a sequence.",
+  "A library of {count} reusable lifecycle journeys across {categories} categories. Each entry is a graph, not a sequence.",
 );
 
 export const metadata: Metadata = {
@@ -43,7 +43,7 @@ const KIND_COUNT = new Map<NodeKind, number>(NODE_KIND_COUNTS.map((k) => [k.kind
 const KIND_META: readonly { kind: NodeKind; label: string; role: string }[] = [
   { kind: "trigger", label: "Trigger", role: "Starts the journey from a real signal." },
   { kind: "condition", label: "Condition", role: "Branches it." },
-  { kind: "wait", label: "Wait", role: "Holds it — resolving both ways, on event and on timeout." },
+  { kind: "wait", label: "Wait", role: "Holds it, resolving both ways: on event and on timeout." },
   { kind: "action", label: "Action", role: "Does the work." },
   { kind: "handoff", label: "Handoff", role: "Transfers the entity to another journey." },
   { kind: "outcome", label: "Outcome", role: "Ends it with a result." },
@@ -106,7 +106,7 @@ export default function ExperimentAPage() {
               {HERO_JOURNEY.id}
             </span>
             <span className="text-sm text-ink-600">
-              {HERO_JOURNEY.name} — the library&apos;s largest graph, {HERO_JOURNEY.nodeCount}{" "}
+              {HERO_JOURNEY.name}: the library&apos;s largest graph, {HERO_JOURNEY.nodeCount}{" "}
               nodes, drawn from its real topology.
             </span>
           </figcaption>
@@ -118,8 +118,8 @@ export default function ExperimentAPage() {
         <div className="max-w-[760px]">
           <SectionHeading index="01" title="What it is" />
           <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-ink-600">
-            Every journey in the library is an entity state machine: it describes how one thing —
-            a subscription, a consent record, an incident, a delivery — moves through its
+            Every journey in the library is an entity state machine: it describes how one thing (a
+            subscription, a consent record, an incident, a delivery) moves through its
             lifecycle. The library is domain-neutral by construction, so the same journey serves
             an e-commerce order and an insurance claim without rewriting.
           </p>
@@ -132,7 +132,7 @@ export default function ExperimentAPage() {
           <SectionHeading index="02" title="The anatomy of a journey" />
           <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-ink-600">
             Seven node kinds are the entire vocabulary. A trigger starts the journey from a real
-            signal. A condition branches it. A wait holds it — and every wait resolves both ways,
+            signal. A condition branches it. A wait holds it, and every wait resolves both ways,
             on event and on timeout. An action does the work. A handoff transfers the entity to
             another journey. An outcome ends it with a result; an exit ends it without one.
             Nothing else exists, which is what keeps {LIBRARY_COUNT} graphs readable.
@@ -154,7 +154,7 @@ export default function ExperimentAPage() {
           {/* The count under each kind is its real total across the corpus. */}
           <li className="bg-paper-soft p-6">
             <p className="text-sm leading-relaxed text-ink-500">
-              <span className="font-mono text-ink-400">×n</span> — how many of each kind exist
+              <span className="font-mono text-ink-400">×n</span>: how many of each kind exist
               across all {nf.format(JOURNEY_SCALE.nodes)} nodes in the corpus.
             </p>
           </li>
@@ -203,7 +203,7 @@ export default function ExperimentAPage() {
             <p className="mt-4 text-base leading-relaxed text-ink-600">
               <strong className="font-semibold text-ink-900">Graphs, not sequences.</strong> A
               journey is where it forks, what each arm means, and what happens when a wait runs
-              out — not a numbered list of steps.
+              out, not a numbered list of steps.
             </p>
           </li>
           <li>
@@ -232,7 +232,7 @@ export default function ExperimentAPage() {
       <section className="bg-ink-950">
         <div className="altor-container py-20 md:py-28">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-400">06</p>
-          <h2 className="mt-3 text-h2-fluid font-semibold text-white">Explore it</h2>
+          <h2 className="mt-3 text-h2-fluid font-semibold text-white">Browse the library</h2>
           <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-300">
             The full library is searchable and filterable by goal.
           </p>

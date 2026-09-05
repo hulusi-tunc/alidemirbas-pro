@@ -8,7 +8,7 @@
     "meaning": [
       "The score compresses two things into one number, which is its use and its limit. It says whether growth and profitability together clear a bar; it cannot say which half is carrying the other, and two companies with the same score can be in completely different positions.",
       "Both inputs are already percentages of their own base, so the formula adds them as percentage points rather than compounding them.",
-      "A negative score is a valid result, not an error — a company both shrinking and unprofitable produces one."
+      "A negative score is a valid result, not an error; a company both shrinking and unprofitable produces one."
     ],
     "takeaway": "One number hiding two. A 40 built on growth is a different company from a 40 built on margin.",
     "whenToUse": "As a quick directional check on a subscription business at a stage where both halves are meaningful, and as a way to track the trade-off over time rather than to grade a single quarter.",
@@ -20,7 +20,7 @@
       "id": "formula",
       "type": "formula",
       "heading": "How the Rule of 40 Score is calculated",
-      "body": "Rule of 40 Score = Revenue Growth Rate + Profit Margin — [the same growth-rate-plus-profit-margin formula Bessemer Venture Partners uses](https://www.bvp.com/atlas/the-rule-of-x), the firm that popularized the metric. Both inputs already arrive as percentages and are added directly as percentage points, never multiplied or compounded together — 30% growth and 15% margin combine to a 45-point score, not a 4.5% one. \"Profit Margin\" isn't tied to one specific definition here — GAAP margin, EBITDA margin, and free-cash-flow margin are all used under this name across different reporting conventions, so use whichever one is tracked consistently, and don't compare scores computed with different margin definitions as if they were equivalent."
+      "body": "Rule of 40 Score = Revenue Growth Rate + Profit Margin, [the same growth-rate-plus-profit-margin formula Bessemer Venture Partners uses](https://www.bvp.com/atlas/the-rule-of-x), the firm that popularized the metric. Both inputs already arrive as percentages and are added directly as percentage points, never multiplied or compounded together: 30% growth and 15% margin combine to a 45-point score, not a 4.5% one. \"Profit Margin\" isn't tied to one specific definition here: GAAP margin, EBITDA margin, and free-cash-flow margin are all used under this name across different reporting conventions, so use whichever one is tracked consistently, and don't compare scores computed with different margin definitions as if they were equivalent."
     },
     {
       "id": "worked-example",
@@ -40,19 +40,19 @@
         "label": "Rule of 40 Score",
         "value": "45 pts"
       },
-      "body": "30 + 15 = 45 pts. Growth and profitability moved in opposite directions in isolation — 30% growth alone or 15% margin alone tell two separate stories — but added together they clear the named 40-point line this metric is built around."
+      "body": "30 + 15 = 45 pts. In isolation, 30% growth and 15% margin tell two separate stories, but added together they clear the named 40-point line this metric is built around."
     },
     {
       "id": "is-40-always-the-target",
       "type": "interpretation",
       "heading": "Is 40 always the right target?",
-      "body": "[Bessemer's own later writing on this metric calls equal weighting of growth and profitability \"flawed for businesses approaching or achieving\" cash-flow positivity](https://www.bvp.com/atlas/the-rule-of-x), and treats the Rule of 40 as \"less relevant\" for early-stage companies still burning cash, where the firm looks at burn multiple instead. The 40 in the name comes from the metric's own popularizer, not an outside claim — but that same source is explicit that a flat 40-point bar doesn't fit every company the same way. A young company trading heavily toward growth and an established one leaning toward profitability can both be running a defensible strategy at very different scores; the number is a starting conversation, not a single pass/fail line for every stage."
+      "body": "[Bessemer's own later writing on this metric calls equal weighting of growth and profitability \"flawed for businesses approaching or achieving\" cash-flow positivity](https://www.bvp.com/atlas/the-rule-of-x), and treats the Rule of 40 as \"less relevant\" for early-stage companies still burning cash, where the firm looks at burn multiple instead. The 40 in the name comes from the metric's own popularizer, not an outside claim, but that same source is explicit that a flat 40-point bar doesn't fit every company the same way. A young company trading heavily toward growth and an established one leaning toward profitability can both be running a defensible strategy at very different scores; the number is a starting conversation, not a single pass/fail line for every stage."
     },
     {
       "id": "rule-of-40-vs-quick-ratio",
       "type": "comparison-note",
       "heading": "Rule of 40 vs. SaaS Quick Ratio",
-      "body": "Both are single-number SaaS health checks, but they measure different things. Rule of 40 sums two percentages — growth rate and profit margin — asking whether a company is balancing top-line growth against bottom-line profitability. SaaS Quick Ratio divides new-plus-expansion MRR by lost MRR, asking a narrower question: is the revenue being added outpacing the revenue being lost, independent of profitability entirely. A company can score well on one and poorly on the other — a fast-growing, unprofitable business can post a strong Quick Ratio (growth outpacing churn) while still falling short on Rule of 40 if profit margin is deeply negative."
+      "body": "Both are single-number SaaS health checks, but they measure different things. Rule of 40 sums two percentages (growth rate and profit margin), asking whether a company is balancing top-line growth against bottom-line profitability. SaaS Quick Ratio divides new-plus-expansion MRR by lost MRR, asking a narrower question: is the revenue being added outpacing the revenue being lost, independent of profitability entirely. A company can score well on one and poorly on the other: a fast-growing, unprofitable business can post a strong Quick Ratio (growth outpacing churn) while still falling short on Rule of 40 if profit margin is deeply negative."
     },
     {
       "id": "common-mistakes",
@@ -61,7 +61,7 @@
       "items": [
         "Multiplying or compounding growth rate and profit margin instead of adding them as percentage points. Both inputs are already percentages of their own base; the formula adds them directly, it never multiplies one by the other.",
         "Treating 40 as a universal pass/fail line regardless of stage. Even the metric's own popularizer has since said equal weighting of growth and profitability doesn't fit every company stage the same way.",
-        "Reading a negative score as an error when both inputs are negative. A company that's both shrinking and unprofitable produces a valid, low Rule of 40 score — not an invalid calculation.",
+        "Reading a negative score as an error when both inputs are negative. A company that's both shrinking and unprofitable produces a valid, low Rule of 40 score, not an invalid calculation.",
         "Comparing Rule of 40 scores across companies using different definitions of growth or margin. ARR growth versus total revenue growth, or GAAP margin versus EBITDA or free-cash-flow margin, all change the score for reasons unrelated to actual performance."
       ]
     }
@@ -87,27 +87,27 @@
     {
       "id": "what-is-rule-of-40",
       "q": "What is the Rule of 40?",
-      "a": "The Rule of 40 is a SaaS health-check metric that adds a company's revenue growth rate and profit margin together into a single score, popularized by Bessemer Venture Partners as a way to check whether growth and profitability are in a reasonable balance. A company growing 30% a year with a 15% profit margin scores 45 points — clearing the 40-point line the metric is named for. The idea is that fast growth can justify thinner profitability, and strong profitability can justify slower growth, as long as the two together clear a reasonable combined bar. It doesn't say which of the two should be higher, only that their sum matters."
+      "a": "The Rule of 40 is a SaaS health-check metric that adds a company's revenue growth rate and profit margin together into a single score, popularized by Bessemer Venture Partners as a way to check whether growth and profitability are in a reasonable balance. A company growing 30% a year with a 15% profit margin scores 45 points, clearing the 40-point line the metric is named for. The idea is that fast growth can justify thinner profitability, and strong profitability can justify slower growth, as long as the two together clear a reasonable combined bar. It doesn't say which of the two should be higher, only that their sum matters."
     },
     {
       "id": "how-to-calculate-rule-of-40",
       "q": "How do you calculate the Rule of 40 Score?",
-      "a": "Add revenue growth rate and profit margin directly as percentage points: Rule of 40 Score = Revenue Growth Rate + Profit Margin. A company growing revenue 30% year-over-year with a 15% profit margin scores 30 + 15 = 45 points. Both inputs arrive as percentages already, and the formula adds them — it never multiplies or compounds one against the other, which would produce a very different and incorrect number. Either input can be negative: a shrinking company or an unprofitable one still produces a valid score, just a lower one, reflecting that side of the balance being negative rather than signaling a calculation error."
+      "a": "Add revenue growth rate and profit margin directly as percentage points: Rule of 40 Score = Revenue Growth Rate + Profit Margin. A company growing revenue 30% year-over-year with a 15% profit margin scores 30 + 15 = 45 points. Both inputs arrive as percentages already, and the formula adds them; it never multiplies or compounds one against the other, which would produce a very different and incorrect number. Either input can be negative: a shrinking company or an unprofitable one still produces a valid score, just a lower one, reflecting that side of the balance being negative rather than signaling a calculation error."
     },
     {
       "id": "is-40-always-target-faq",
       "q": "Is 40 always the right target to hit?",
-      "a": "Not necessarily for every company. The 40-point line comes directly from the metric's name and its origin at Bessemer Venture Partners, but that same firm has since written that treating growth and profitability as equally weighted doesn't fit every stage — it calls a flat Rule of 40 target \"less relevant\" for early-stage companies still burning cash, where a different metric like burn multiple applies instead, and notes equal weighting becomes questionable again for companies nearing cash-flow positivity. The 40-point bar is a useful, named reference point rather than a hard requirement that applies identically regardless of a company's size or growth stage."
+      "a": "Not for every company. The 40-point line comes directly from the metric's name and its origin at Bessemer Venture Partners, but that same firm has since written that treating growth and profitability as equally weighted doesn't fit every stage: it calls a flat Rule of 40 target \"less relevant\" for early-stage companies still burning cash, where a different metric like burn multiple applies instead, and notes equal weighting becomes questionable again for companies nearing cash-flow positivity. The 40-point bar is a useful, named reference point rather than a hard requirement that applies identically regardless of a company's size or growth stage."
     },
     {
       "id": "rule-of-40-negative",
       "q": "Can the Rule of 40 Score be negative?",
-      "a": "Yes. If revenue growth rate and profit margin are both negative — a company that's shrinking and also unprofitable — the two negative percentages add to a negative score. For example, −10% growth and −15% profit margin combine to a −25-point Rule of 40 score. That's a valid result, not an error: it reflects a company that's losing ground on both dimensions the metric measures, at once. A single negative input can still land a positive score, too — strong growth paired with a negative profit margin is common at early-stage companies, and can still clear 40 if growth is high enough. A negative or low score is a real signal worth acting on, but the calculation itself hasn't failed just because one or both inputs point the wrong direction."
+      "a": "If revenue growth rate and profit margin are both negative (a company that's shrinking and unprofitable), the two add to a negative score. For example, −10% growth and −15% profit margin combine to a −25-point Rule of 40 score. That's a valid result, not an error: it reflects a company that's losing ground on both dimensions the metric measures, at once. A single negative input can still land a positive score, too: strong growth paired with a negative profit margin is common at early-stage companies, and can still clear 40 if growth is high enough. A negative or low score is a real signal worth acting on, but the calculation itself hasn't failed just because one or both inputs point the wrong direction."
     },
     {
       "id": "rule-of-40-vs-quick-ratio-faq",
       "q": "How is Rule of 40 different from SaaS Quick Ratio?",
-      "a": "They check different things using different math. Rule of 40 adds two percentages — revenue growth rate and profit margin — asking whether growth and profitability together clear a combined bar. SaaS Quick Ratio divides new-plus-expansion MRR by lost MRR, asking only whether revenue being added is outpacing revenue being lost, with no profitability component at all. A fast-growing but unprofitable company could score well on Quick Ratio while falling short on Rule of 40, since Quick Ratio never sees the profit-margin side of the picture that Rule of 40 explicitly includes. The reverse can also happen: a company with slowing growth but strong margins can still post a healthy Rule of 40 score while its Quick Ratio looks weak, since Quick Ratio cares only about the growth-versus-churn balance, not profitability at all."
+      "a": "They check different things using different math. Rule of 40 adds two percentages (revenue growth rate and profit margin), asking whether growth and profitability together clear a combined bar. SaaS Quick Ratio divides new-plus-expansion MRR by lost MRR, asking only whether revenue being added is outpacing revenue being lost, with no profitability component at all. A fast-growing but unprofitable company could score well on Quick Ratio while falling short on Rule of 40, since Quick Ratio never sees the profit-margin side of the picture that Rule of 40 explicitly includes. The reverse can also happen: a company with slowing growth but strong margins can still post a healthy Rule of 40 score while its Quick Ratio looks weak, since Quick Ratio cares only about the growth-versus-churn balance, not profitability at all."
     }
   ],
   "seo": {
