@@ -2,6 +2,7 @@ import type {
   CanonicalJourney, Config, Label, Measurement, OrchestrationStrategy, PriorityClass, RuleStatement, SignalSource, ChannelRole, ChannelStrategy, Preset,
 } from "@/canonical/types";
 import { byId } from "@/canonical";
+import { isPublicJourneyId } from "@/lib/public-corpus";
 import { semanticEvent, eventText } from "@/canonical/events";
 import { configShort, configText, configValueText } from "@/canonical/config-text";
 
@@ -112,7 +113,7 @@ export function practitionerView(j: CanonicalJourney, preset: Preset | null = nu
   const events = [...eventIds].map((id) => { const e = semanticEvent(id); return { id, meaning: e?.meaning ?? id, source: e?.source ?? "authoritative" }; });
 
   const exits = j.nodes.filter((n) => n.kind === "exit").map((x) => ({ id: x.id, state: x.state, class: x.class ?? "unclassified", reEntry: x.reEntry }));
-  const handoffs = j.nodes.filter((n) => n.kind === "handoff").map((h) => { const t = h.to.startsWith("external:") ? null : byId(h.to); return { id: h.id, to: h.to, toName: t?.shortName ?? null, on: h.on, href: t ? t.slug : null }; });
+  const handoffs = j.nodes.filter((n) => n.kind === "handoff").map((h) => { const t = h.to.startsWith("external:") ? null : byId(h.to); return { id: h.id, to: h.to, toName: t?.shortName ?? null, on: h.on, href: t && isPublicJourneyId(t.id) ? t.slug : null }; });
 
   const supById = new Map((j.suppressions ?? []).map((s) => [s.id, s]));
   const collision = j.contact ? {

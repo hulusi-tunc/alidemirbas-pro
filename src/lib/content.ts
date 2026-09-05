@@ -271,12 +271,11 @@ export const copy = {
         title: "{count} lifecycle state machines. Every one a graph you can read.",
         sub: "Domain-neutral journeys across {categories} categories, held together by {rules} orchestration rules. Each one names what starts it, where it forks, how long it waits and which lifecycle owns the person next - and none of them carries message copy.",
         ctaCommunication: "Customer journeys",
-        ctaInternal: "Operations",
         proof: ["Domain-neutral", "Graphs, not sequences", "No message copy"],
         split: {
-          eyebrow: "Two ways in",
-          title: "Split by whether the work reaches a customer.",
-          body: "Customer journeys reach a person - a touch plan, channel roles, a contact model. Operations is the internal work that resolves a promise once it's made - approvals, access, incidents, payments, deployments. Every journey also reads two supporting surfaces, the silent lifecycle states and the runtime mechanisms underneath - open from the journey itself, or browse them on their own below.",
+          eyebrow: "Where to start",
+          title: "One way in, two supporting surfaces underneath.",
+          body: "Customer journeys reach a person - a touch plan, channel roles, a contact model. Every journey also reads two supporting surfaces, the silent lifecycle states and the runtime mechanisms underneath - open from the journey itself, or browse them on their own below.",
         },
         stories: {
           eyebrow: "What the schema enforces",
@@ -285,24 +284,24 @@ export const copy = {
         final: {
           eyebrow: "Start reading",
           title: "Pick a surface and open a journey.",
-          body: "Customer journeys open on their practitioner view; the other three surfaces open on the graph. Every surface searches and filters by category and goal.",
+          body: "Customer journeys open on their practitioner view; the two supporting surfaces open on the graph. Every surface searches and filters by category and goal.",
         },
       },
       journeysSplit: {
-        /* The four product surfaces. Labels are the practitioner's words;
-           the classification itself is read from each journey by
-           src/canonical/surface.ts, never kept here. */
+        /* The three PUBLIC product surfaces. Labels are the practitioner's
+           words; the classification itself is read from each journey by
+           src/canonical/surface.ts, never kept here. A fourth surface,
+           "operational-workflows", was archived 2026-09-05 - see
+           src/lib/public-corpus.ts and archive/operational-workflows/. */
         surfaceLabels: {
           "customer-journeys": "Customer journeys",
           "lifecycle-states": "Lifecycle states",
           "runtime-mechanisms": "Runtime mechanisms",
-          "operational-workflows": "Operations",
         },
         surfaceBlurbs: {
           "customer-journeys": "Journeys whose own actions reach a customer - each with a touch plan, channel roles, a contact model and a measurement decision a practitioner can implement without inventing the cadence.",
           "lifecycle-states": "Silent customer lifecycle states: the state models the communicating journeys depend on. Nothing here sends anything; these are dependencies, not campaigns.",
           "runtime-mechanisms": "The machinery every journey runs on - send eligibility, contactability, delivery recovery, retry, cooldown. Contracts, not customer journeys.",
-          "operational-workflows": "The internal work that resolves a promise once it's made: approvals and ownership, account and access changes, incident response, payment and document resolution, deployments. Not customer-facing - your operations team's own surface.",
         },
         surfaces: {
           "customer-journeys": {
@@ -317,20 +316,18 @@ export const copy = {
             title: "Runtime mechanisms",
             intro: "{count} runtime mechanisms - the contracts customer journeys rely on for send eligibility, contactability, delivery failure, retry and cooldown. Listed as supporting architecture, not as journeys.",
           },
-          "operational-workflows": {
-            title: "Operations",
-            intro: "{count} operational workflows - the internal work a business does to keep its promises: reviews and decisions, account and access changes, service and fulfillment, systems and reliability. Filter by type to browse by what kind of work it is.",
-          },
         },
         presetsTitle: "Presets",
         presetsIntro: "Named specialisations of a canonical journey: the same graph, the same touches and exits, with config values, a destination and vocabulary set for a recognisable use case. A preset opens its parent with those values applied.",
         presetBadge: "Preset",
         presetOf: "preset of",
         /* The hub's Split() section - heading over the two secondary
-           surfaces, presented smaller than Customer Journeys/Operations
-           because neither is a thing a practitioner browses to on its own
-           (see journeysSplit.surfaceBlurbs). Both stay fully live, linked
-           and searchable at their existing routes. */
+           surfaces, presented smaller than Customer Journeys because
+           neither is a thing a practitioner browses to on its own (see
+           journeysSplit.surfaceBlurbs). Both stay fully live, linked and
+           searchable at their existing routes. (The fourth surface,
+           Operations, was archived 2026-09-05 - archive/operational-
+           workflows/site-copy.json holds its strings verbatim.) */
         referenceStrip: "Also part of the library - opened from a journey, not usually browsed on their own",
         silentBadge: "Silent state",
         mechanismBadge: "Mechanism",
@@ -361,18 +358,6 @@ export const copy = {
         allCategories: "All categories",
         channelFilterLabel: "Channel",
         allChannels: "All channels",
-        /* Operations surface only (see lib/operational-work-type.ts) - a
-           coarser, practitioner-facing grouping of the same 18 categories
-           that surface carries, replacing Goal there (23 near-flat values,
-           tuned for customer journeys, not internal work). */
-        workTypeFilterLabel: "Type",
-        allWorkTypes: "All types",
-        workTypeLabels: {
-          "reviews-decisions": "Reviews & decisions",
-          "account-access": "Account & access",
-          "service-fulfillment": "Service & fulfillment",
-          "systems-reliability": "Systems & reliability",
-        },
         communication: {
           title: "Communication journeys",
           intro:
@@ -1102,12 +1087,11 @@ export const copy = {
         title: "{count} lifecycle state machine. Her biri okunabilir bir graf.",
         sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler ve bunları bir arada tutan {rules} orkestrasyon kuralı. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
         ctaCommunication: "Müşteri journey'leri",
-        ctaInternal: "Operasyon",
         proof: ["Sektörden bağımsız", "Dizi değil, graf", "Mesaj metni yok"],
         split: {
-          eyebrow: "İki giriş yolu",
-          title: "İşin bir müşteriye ulaşıp ulaşmadığına göre ayrılır.",
-          body: "Müşteri journey'leri bir kişiye ulaşır - temas planı, kanal rolleri, temas modeli. Operasyon, bir söz verildikten sonra onu yerine getiren iç iştir - onaylar, erişim, olaylar, ödemeler, dağıtımlar. Her journey ayrıca iki destekleyici yüzeyi okur - dayandığı sessiz yaşam döngüsü durumları ve üzerinde çalıştığı çalışma zamanı mekanizmaları - journey'nin kendisinden açılır, ya da aşağıda kendi başlarına gezilebilir.",
+          eyebrow: "Nereden başlamalı",
+          title: "Tek giriş yolu, altında iki destekleyici yüzey.",
+          body: "Müşteri journey'leri bir kişiye ulaşır - temas planı, kanal rolleri, temas modeli. Her journey ayrıca iki destekleyici yüzeyi okur - dayandığı sessiz yaşam döngüsü durumları ve üzerinde çalıştığı çalışma zamanı mekanizmaları - journey'nin kendisinden açılır, ya da aşağıda kendi başlarına gezilebilir.",
         },
         stories: {
           eyebrow: "Şemanın zorunlu kıldığı",
@@ -1116,7 +1100,7 @@ export const copy = {
         final: {
           eyebrow: "Okumaya başla",
           title: "Bir yüzey seç, bir journey aç.",
-          body: "Müşteri journey'leri uygulayıcı görünümüyle, diğer üç yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
+          body: "Müşteri journey'leri uygulayıcı görünümüyle, iki destekleyici yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
         },
       },
       journeysSplit: {
@@ -1124,13 +1108,11 @@ export const copy = {
           "customer-journeys": "Müşteri journey'leri",
           "lifecycle-states": "Yaşam döngüsü durumları",
           "runtime-mechanisms": "Çalışma zamanı mekanizmaları",
-          "operational-workflows": "Operasyon",
         },
         surfaceBlurbs: {
           "customer-journeys": "Kendi eylemleri müşteriye ulaşan journey'ler - her biri bir temas planı, kanal rolleri, temas modeli ve ölçüm kararıyla; uygulayıcı kadansı uydurmadan hayata geçirebilir.",
           "lifecycle-states": "Sessiz müşteri yaşam döngüsü durumları: iletişim kuran journey'lerin dayandığı durum modelleri. Burada hiçbir şey gönderilmez; bunlar kampanya değil bağımlılıktır.",
           "runtime-mechanisms": "Her journey'nin üzerinde çalıştığı makine - gönderim uygunluğu, ulaşılabilirlik, teslimat kurtarma, yeniden deneme, soğuma. Müşteri journey'si değil, sözleşme.",
-          "operational-workflows": "Bir söz verildikten sonra onu yerine getiren iç iş: onaylar ve sahiplik, hesap ve erişim değişiklikleri, olay müdahalesi, ödeme ve belge çözümü, dağıtımlar. Müşteriye dönük değil - operasyon ekibinizin kendi yüzeyi.",
         },
         surfaces: {
           "customer-journeys": {
@@ -1144,10 +1126,6 @@ export const copy = {
           "runtime-mechanisms": {
             title: "Çalışma zamanı mekanizmaları",
             intro: "{count} çalışma zamanı mekanizması - müşteri journey'lerinin gönderim uygunluğu, ulaşılabilirlik, teslimat hatası, yeniden deneme ve soğuma için dayandığı sözleşmeler. Journey olarak değil, destekleyici mimari olarak listelenir.",
-          },
-          "operational-workflows": {
-            title: "Operasyon",
-            intro: "{count} operasyonel iş akışı - bir işletmenin sözünü tutmak için yaptığı iç iş: inceleme ve kararlar, hesap ve erişim değişiklikleri, hizmet ve tamamlama, sistemler ve güvenilirlik. Ne tür bir iş olduğuna göre filtrelemek için türe bakın.",
           },
         },
         presetsTitle: "Ön ayarlar",
@@ -1174,14 +1152,6 @@ export const copy = {
         allCategories: "Tüm kategoriler",
         channelFilterLabel: "Kanal",
         allChannels: "Tüm kanallar",
-        workTypeFilterLabel: "Tür",
-        allWorkTypes: "Tüm türler",
-        workTypeLabels: {
-          "reviews-decisions": "İnceleme ve kararlar",
-          "account-access": "Hesap ve erişim",
-          "service-fulfillment": "Hizmet ve tamamlama",
-          "systems-reliability": "Sistemler ve güvenilirlik",
-        },
         communication: {
           title: "İletişim journey'leri",
           intro:

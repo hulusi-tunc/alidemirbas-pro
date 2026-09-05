@@ -282,6 +282,7 @@ for (const f of fixturesDoc.fixtures) {
   const topIds = r.results.map((x) => x.id);
   let ok;
   if (f.expectedEntity) ok = topIds[0] === f.expectedEntity || topIds.slice(0, 3).includes(f.expectedEntity);
+  else if (f.expectedAbsent) ok = !topIds.includes(f.expectedAbsent); // archived corpus guard - see run-query-fixtures.mjs
   else if (f.expectedTopSet) {
     ok = f.expectedTopSet.includes("type-diversity-check")
       ? (new Set(r.results.map((x) => x.type)).size >= 2 || r.results.length === 0)

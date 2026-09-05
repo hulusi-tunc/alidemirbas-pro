@@ -1,7 +1,6 @@
 import {
   CATEGORIES,
   GLOBAL_RULES,
-  JOURNEYS,
   MERGED_INTO,
   RULES,
   byId,
@@ -11,6 +10,7 @@ import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
 import { practitionerView, type PractitionerView } from "@/lib/practitioner-view";
 import { surfaceOf } from "@/canonical/surface";
+import { PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
 import type { Preset } from "@/canonical/types";
 import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId, SignalSource } from "@/canonical/types";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
@@ -31,8 +31,20 @@ import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview"
    take what they need as props and import nothing from here but types, which
    is what keeps 256 journeys and 3197 nodes out of the browser bundle. */
 
-export const CANONICAL_COUNT = JOURNEYS.length;
-export const CATEGORY_COUNT = CATEGORIES.length;
+/* PUBLIC, NOT CANONICAL (2026-09-05). Every count and list below that a page
+   renders reads PUBLIC_JOURNEYS - the canonical library minus the archived
+   Operational surface (see src/lib/public-corpus.ts). The whole graph is
+   still reached, deliberately, through `byId`/`resolveJourneyId` alone: a
+   customer journey's handoff node still names the archived journey it hands
+   to (as text, not a link), and a retired id still resolves to its survivor
+   before the public check is applied. A public page advertising the full
+   graph's size would be stating a number the site no longer shows, which is
+   exactly the kind of number this site does not put on a page. */
+export const CANONICAL_COUNT = PUBLIC_JOURNEYS.length;
+/** Categories with at least one PUBLIC journey. Three categories (control,
+    data, ownership) are wholly operational and therefore absent here. */
+const PUBLIC_CATEGORIES = CATEGORIES.filter((c) => c.journeys.some((j) => PUBLIC_JOURNEYS.includes(j)));
+export const CATEGORY_COUNT = PUBLIC_CATEGORIES.length;
 export const RULE_COUNT = RULES.length;
 export const GLOBAL_RULE_COUNT = GLOBAL_RULES.length;
 
@@ -50,12 +62,15 @@ const CATEGORY_TITLE = new Map<CategoryId, string>(CATEGORIES.map((c) => [c.id, 
     category's OWN `purpose` from src/canonical/index.ts, not a sentence
     written for the UI. Ordered as the canonical library orders them. */
 export type CategoryMeta = { id: CategoryId; title: string; purpose: string };
-export const CATEGORY_META: readonly CategoryMeta[] = CATEGORIES.map((c) => ({
+export const CATEGORY_META: readonly CategoryMeta[] = PUBLIC_CATEGORIES.map((c) => ({
   id: c.id,
   title: c.title,
   purpose: c.purpose,
 }));
-const BY_SLUG = new Map<string, CanonicalJourney>(JOURNEYS.map((j) => [j.slug, j]));
+/* Public slugs only: an archived journey's slug resolves to nothing, so its
+   route 404s through the tree's own not-found page (dynamicParams is false on
+   both [slug] routes). */
+const BY_SLUG = new Map<string, CanonicalJourney>(PUBLIC_JOURNEYS.map((j) => [j.slug, j]));
 
 /** Where a journey's trigger evidence comes from - the one property that
     changes what a journey is allowed to conclude. Canonical metadata, read
@@ -134,7 +149,10 @@ export type MergedRedirect = {
 const mergedEntry = (from: string): MergedRedirect | null => {
   const to = resolveJourneyId(from);
   const target = byId(to);
-  return target ? { from, to: target.id, toSlug: target.slug, toName: target.name } : null;
+  // A retired id whose survivor is archived (CTL-239, CTL-240, RET-25) has
+  // nowhere public to land, so it is not a public redirect either.
+  if (!target || !isPublicJourneyId(target.id)) return null;
+  return { from, to: target.id, toSlug: target.slug, toName: target.name };
 };
 
 export const MERGED_REDIRECTS: readonly MergedRedirect[] = Object.keys(MERGED_INTO)
@@ -149,10 +167,11 @@ const MERGED_BY_SLUG = new Map<string, MergedRedirect>(
 
 /** Every slug the detail route builds: 256 journeys plus 4 merged redirects. */
 export const ALL_DETAIL_SLUGS: readonly string[] = [
-  ...JOURNEYS.map((j) => j.slug),
+  ...PUBLIC_JOURNEYS.map((j) => j.slug),
   ...MERGED_REDIRECTS.map((m) => m.from.toLowerCase()),
   // Presets are real URLs: each opens its parent with the preset applied.
-  ...JOURNEYS.flatMap((j) => (j.discovery?.presets ?? []).map((p) => p.id)),
+  // (All ten belong to customer journeys; none is on the archived surface.)
+  ...PUBLIC_JOURNEYS.flatMap((j) => (j.discovery?.presets ?? []).map((p) => p.id)),
 ];
 
 /** Resolves a search term to a merged redirect, so typing an old id in the
@@ -236,7 +255,10 @@ const edge = (
   }
   const target = byId(to);
   if (target && target.id === to) {
-    return { label, detail, to, href: target.slug, kind: "journey", back: false };
+    // An archived target keeps its kind - it IS a journey, and the node
+    // panel still names it - but carries no href, so it renders as text
+    // rather than as a link to a route that no longer exists.
+    return { label, detail, to, href: isPublicJourneyId(to) ? target.slug : null, kind: "journey", back: false };
   }
   return { label, detail, to, href: null, kind: "node", back: false };
 };
@@ -403,7 +425,7 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
    row's topology thumbnail needs `flowNodesOf` above - and `nodeView`, which
    it calls, is a const rather than a hoisted declaration, so evaluating this
    any earlier in the module would hit its temporal dead zone. */
-export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
+export const JOURNEY_ROWS: readonly JourneyRow[] = PUBLIC_JOURNEYS.map((j) => ({
   id: j.id,
   ...(() => { const sf = surfaceOf(j); return { surface: sf.surface as SurfaceName, communicating: sf.sends, routesToHuman: sf.routesToHuman }; })(),
   aliases: j.discovery?.aliases ?? [],
@@ -437,21 +459,28 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = JOURNEYS.map((j) => ({
    listing-classification choice read from src/canonical/surface.ts's own
    `sends`/`routesToHuman` fields, not a new canonical rule - see
    research/journey-library-user-taxonomy-audit.md §12. */
-export type SurfaceKey = "customer-journeys" | "lifecycle-states" | "runtime-mechanisms" | "operational-workflows";
+/* THREE public surfaces since 2026-09-05. The fourth, "operational-workflows"
+   (/lab/operational-workflows, 124 journeys), was removed from the public
+   site and archived - archive/operational-workflows/README.md. It is not a
+   SurfaceKey any more because nothing public can render it: JOURNEY_ROWS
+   above is already filtered to the public corpus, so no row here ever
+   carries surface "operational". `surfaceKeyOf` states that as an invariant
+   rather than silently mapping such a row somewhere. */
+export type SurfaceKey = "customer-journeys" | "lifecycle-states" | "runtime-mechanisms";
 
-export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "lifecycle-states", "runtime-mechanisms", "operational-workflows"];
+export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "lifecycle-states", "runtime-mechanisms"];
 
 export const SURFACE_PATH: Readonly<Record<SurfaceKey, string>> = {
   "customer-journeys": "/lab/customer-journeys",
   "lifecycle-states": "/lab/lifecycle-states",
   "runtime-mechanisms": "/lab/runtime-mechanisms",
-  "operational-workflows": "/lab/operational-workflows",
 };
 
-export const surfaceKeyOf = (row: Pick<JourneyRow, "surface" | "communicating" | "routesToHuman">): SurfaceKey =>
-  row.surface === "customer"
-    ? (row.communicating || row.routesToHuman) ? "customer-journeys" : "lifecycle-states"
-    : row.surface === "mechanism" ? "runtime-mechanisms" : "operational-workflows";
+export const surfaceKeyOf = (row: Pick<JourneyRow, "id" | "surface" | "communicating" | "routesToHuman">): SurfaceKey => {
+  if (row.surface === "customer") return row.communicating || row.routesToHuman ? "customer-journeys" : "lifecycle-states";
+  if (row.surface === "mechanism") return "runtime-mechanisms";
+  throw new Error(`${row.id} is on the archived "${row.surface}" surface and must not reach a public listing - see src/lib/public-corpus.ts`);
+};
 
 /** Within Customer Journeys only: the practitioner-facing distinction
     between a journey that reaches a customer by message and the 3 that
@@ -466,7 +495,6 @@ export const SURFACE_ROWS: Readonly<Record<SurfaceKey, readonly JourneyRow[]>> =
   "customer-journeys": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "customer-journeys"),
   "lifecycle-states": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "lifecycle-states"),
   "runtime-mechanisms": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "runtime-mechanisms"),
-  "operational-workflows": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "operational-workflows"),
 };
 
 /** A preset is a named specialisation of a communicating customer journey
@@ -488,7 +516,7 @@ export type PresetRow = {
   preset: Preset;
 };
 
-export const PRESET_ROWS: readonly PresetRow[] = JOURNEYS.flatMap((j) =>
+export const PRESET_ROWS: readonly PresetRow[] = PUBLIC_JOURNEYS.flatMap((j) =>
   (j.discovery?.presets ?? []).map((p) => ({
     id: p.id,
     slug: p.id,
@@ -528,7 +556,9 @@ function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): Journey
       const target = byId(d.journey);
       return {
         journey: d.journey,
-        slug: target?.slug ?? null,
+        // Name always (it is a real, stated distinction); a link only when
+        // the other journey is itself public.
+        slug: target && isPublicJourneyId(target.id) ? target.slug : null,
         name: target?.name ?? null,
         because: d.because,
       };

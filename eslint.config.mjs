@@ -7,6 +7,11 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
+    // archive/: preserved-but-retired repository content (the Operational
+    // Workflows corpus, 2026-09-05). Verbatim snapshots of retired route shells
+    // live there and must stay byte-for-byte, so they are neither linted nor
+    // typechecked - same treatment tsconfig.json gives reference/.
+    "archive/**",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
