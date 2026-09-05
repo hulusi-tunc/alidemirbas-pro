@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import JourneyLibraryPage from "@/components/JourneyLibraryPage";
-import { withCanonicalCount } from "@/lib/canonical-view";
+import { withLibraryCount } from "@/lib/canonical-view";
 import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
      the same number the page does. It used to be a hand-typed "283" and a
      description of a two-way split that no longer exists (the Operations
      surface was archived 2026-09-05 - archive/operational-workflows/). */
-  description: withCanonicalCount(
-    "{count} domain-neutral lifecycle state machines across {categories} categories - the journeys that reach a person, and the silent states and runtime mechanisms they depend on.",
+  description: withLibraryCount(
+    "{count} domain-neutral customer journeys across {categories} categories - each a graph that makes explicit what starts it, where it branches, how long it waits, what stops it, and which lifecycle owns the person next.",
   ),
   alternates: pageAlternates("/lab/journeys", "en"),
 };

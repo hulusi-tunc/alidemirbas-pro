@@ -26822,13 +26822,13 @@
     "urlTr": "/tr/lab/journeys",
     "external": false,
     "title": "Canonical Journey Library",
-    "summary": "160 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
-    "searchText": "Canonical Journey Library. 160 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 160 journeys, 26 categories",
+    "summary": "71 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
+    "searchText": "Canonical Journey Library. 71 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 71 journeys, 21 categories",
     "keywords": [
       "CRM",
       "Lifecycle Marketing",
-      "160 journeys",
-      "26 categories"
+      "71 journeys",
+      "21 categories"
     ],
     "category": [],
     "normalizedCategory": [],
@@ -26843,8 +26843,8 @@
     "tags": [
       "CRM",
       "Lifecycle Marketing",
-      "160 journeys",
-      "26 categories"
+      "71 journeys",
+      "21 categories"
     ],
     "language": "en+tr",
     "indexable": true,

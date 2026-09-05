@@ -5,6 +5,7 @@ import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
+import { withLibraryCount } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, softwareApplication } from "@/lib/schema";
@@ -441,7 +442,10 @@ function Faq({ t }: { t: (typeof copy)[Lang] }) {
       <PortraitContainer>
         <ProductHeading eyebrow={c.eyebrow} title={c.title} align="center" />
         <Reveal delay={100} className="mx-auto mt-12 max-w-2xl">
-          <FaqAccordion items={c.items.map((item, i) => ({ id: `journey-faq-${i}`, ...item }))} />
+          {/* The answers carry the library's {count}/{categories} tokens; until
+              2026-09-05 they rendered raw ("contains {count} lifecycle
+              journeys…") because nothing filled them here. */}
+          <FaqAccordion items={c.items.map((item, i) => ({ id: `journey-faq-${i}`, q: withLibraryCount(item.q), a: withLibraryCount(item.a) }))} />
         </Reveal>
       </PortraitContainer>
     </ProductSection>

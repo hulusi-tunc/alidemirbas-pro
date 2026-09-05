@@ -71,7 +71,7 @@ export const copy = {
       // templates, 75+ from numerspace.com's real tool count - none of
       // that changed, only which of it surfaces on this page did. The
       // Journey Library's proof still uses the {count}/{categories}
-      // template tokens (withCanonicalCount fills them at render), not a
+      // template tokens (withLibraryCount fills them at render), not a
       // hardcoded "255" - same live-derivation discipline as its desc.
       // Link labels are standardized site-wide per the new CTA system:
       // "Explore project" for the one internal route each project has (a
@@ -159,7 +159,7 @@ export const copy = {
       page: {
         title: "Canonical Journey Library",
         intro:
-          "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Search, or filter by goal - each entry is a graph, not a sequence.",
+          "{count} domain-neutral lifecycle state machines across {categories} categories. Search, or filter by goal - each entry is a graph, not a sequence.",
         searchPlaceholder: "Search journeys...",
         goalLabel: "Goal",
         allGoals: "All goals",
@@ -263,13 +263,14 @@ export const copy = {
       /* The /lab/journeys HUB, rebuilt (2026-09) in the shape of the
          /lab/claude-lifecycle product page: a claim, one real artifact as
          its witness, the two halves, three schema stories, the library
-         spread, one dark plate. Every {count}/{categories}/{rules} is
-         filled by withCanonicalCount from the live library - nothing here
-         is a typed number. */
+         spread, one dark plate. Every {count}/{categories} is filled by
+         withLibraryCount from the live library (the Customer Journeys
+         surface - src/lib/public-corpus.ts) - nothing here is a typed
+         number, and no public copy states a rule count (2026-09-05). */
       journeysHub: {
         eyebrow: "Lab / Canonical Journey Library",
         title: "{count} lifecycle state machines. Every one a graph you can read.",
-        sub: "Domain-neutral journeys across {categories} categories, held together by {rules} orchestration rules. Each one names what starts it, where it forks, how long it waits and which lifecycle owns the person next - and none of them carries message copy.",
+        sub: "Domain-neutral journeys across {categories} categories. Each one makes explicit what starts it, where it branches, how long it waits, what stops it, and which lifecycle owns the person next.",
         ctaCommunication: "Customer journeys",
         proof: ["Domain-neutral", "Graphs, not sequences", "No message copy"],
         split: {
@@ -333,7 +334,7 @@ export const copy = {
         mechanismBadge: "Mechanism",
         communicationLabel: "Communication journeys",
         internalLabel: "Internal journeys",
-        hubIntro: "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Split by whether a journey's own work ever reaches a person - each half is searchable and filterable on its own page, and each entry is a graph, not a sequence.",
+        hubIntro: "{count} domain-neutral lifecycle state machines across {categories} categories. Split by whether a journey's own work ever reaches a person - each half is searchable and filterable on its own page, and each entry is a graph, not a sequence.",
         browseAll: "Browse all {count} journeys",
         communicationBlurb: "Journeys that reach a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task).",
         internalBlurb: "Journeys that resolve entirely inside the system. No message, no human route - state machines with no communication of their own.",
@@ -995,7 +996,7 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
         searchPlaceholder: "Journey ara...",
         goalLabel: "Goal",
         allGoals: "Tüm hedefler",
@@ -1085,7 +1086,7 @@ export const copy = {
       journeysHub: {
         eyebrow: "Lab / Canonical Journey Kütüphanesi",
         title: "{count} lifecycle state machine. Her biri okunabilir bir graf.",
-        sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler ve bunları bir arada tutan {rules} orkestrasyon kuralı. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
+        sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini, neyin durdurduğunu ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
         ctaCommunication: "Müşteri journey'leri",
         proof: ["Sektörden bağımsız", "Dizi değil, graf", "Mesaj metni yok"],
         split: {
@@ -1137,7 +1138,7 @@ export const copy = {
         mechanismBadge: "Mekanizma",
         communicationLabel: "İletişim journey'leri",
         internalLabel: "Internal journey'ler",
-        hubIntro: "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı - her iki taraf da kendi sayfasında aranabilir ve filtrelenebilir, ve her kayıt bir dizi değil bir graf.",
+        hubIntro: "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı - her iki taraf da kendi sayfasında aranabilir ve filtrelenebilir, ve her kayıt bir dizi değil bir graf.",
         browseAll: "{count} journey'in tamamına bak",
         communicationBlurb: "Bir kişiye ulaşan journey'ler - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task).",
         internalBlurb: "Tamamen sistemin içinde çözülen journey'ler. Mesaj yok, insana yönlendirme yok - kendi başına iletişimi olmayan state machine'ler.",

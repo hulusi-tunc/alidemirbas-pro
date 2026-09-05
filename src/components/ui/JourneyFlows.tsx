@@ -376,7 +376,7 @@ export function JourneyLibrarySpread({ lang }: { lang: Lang }) {
   const t = copy[lang].journeyBuilder.library;
   return (
     <div>
-      {/* real categories, real counts — a curated top slice, not all 26 */}
+      {/* real library categories, real counts — a curated top slice, not all of them */}
       <div className="flex flex-wrap justify-center gap-2">
         {JOURNEY_CATEGORY_COUNTS.slice(0, 6).map((c) => (
           <span

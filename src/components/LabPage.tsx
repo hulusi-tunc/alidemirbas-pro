@@ -13,7 +13,7 @@ import {
   PRESET_ROWS,
   SURFACE_KEYS,
   SURFACE_PATH,
-  withCanonicalCount,
+  withLibraryCount,
   type JourneyRow,
   type SurfaceKey,
 } from "@/lib/canonical-view";
@@ -195,7 +195,7 @@ export default function LabPage({
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   const pageTitle = title ?? t.lab.page.title;
   const pageIntro =
-    intro ?? withCanonicalCount(t.lab.page.intro);
+    intro ?? withLibraryCount(t.lab.page.intro);
   const crumbs: BreadcrumbItem[] = [
     { name: t.footer.home, url: lang === "en" ? "/" : "/tr" },
     { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },

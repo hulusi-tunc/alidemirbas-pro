@@ -143,9 +143,19 @@ anything surface-related. The canonical graph is UNCHANGED (284 journeys; `valid
 still reports `operational 124`) because 67 public journeys hand off into operational ones and
 the validator requires every handoff target to exist. The archive is enforced at the publishing
 boundary by one predicate, `src/lib/public-corpus.ts` (`isPublicJourney` = surface is not
-`operational`): `JOURNEY_ROWS`, `CANONICAL_COUNT` (now the PUBLIC count, 160), `CATEGORY_COUNT`
-(23), `ALL_DETAIL_SLUGS`, `MERGED_REDIRECTS` (5 of 8 — the 3 whose survivor is archived are not
-public routes), the sitemap, and every cross-journey `href` the detail pages build all read it.
+`operational`): `JOURNEY_ROWS`, `ALL_DETAIL_SLUGS`, `MERGED_REDIRECTS` (5 of 8 — the 3 whose
+survivor is archived are not public routes), the sitemap, and every cross-journey `href` the
+detail pages build all read it.
+
+**The library's stated size is the Customer Journeys surface: 71 journeys / 21 categories.**
+`LIBRARY_JOURNEYS` (`public-corpus.ts`, `isLibraryJourney` = public AND customer AND sends-or-routes-
+to-a-person) feeds `LIBRARY_COUNT`/`LIBRARY_CATEGORY_COUNT`/`LIBRARY_ROWS` in `canonical-view.ts`,
+`withLibraryCount()` (the only `{count}`/`{categories}` filler — it THROWS on a `{rules}` token; no
+public page states a rule count), and `journey-marketing.ts`'s `JOURNEY_SCALE`/category counts. The
+160 public journeys are still routed, and the two supporting surfaces state their own counts on their
+own pages (64 lifecycle states, 25 runtime mechanisms) — but a headline, project card, metadata
+description or stat strip that says "the library" means 71/21. Never type a corpus number into copy;
+`lab.page.intro` is a template shipped as a client prop and is not rendered by the gallery.
 A handoff into an archived journey renders as the target's name in text, never a link.
 `search/build-search-index.mjs` applies the same rule through `production/surface-assignment.json`.
 `surfaceKeyOf` throws if an operational row ever reaches a public listing. `archive/` is excluded
@@ -207,8 +217,10 @@ with a README explaining structure and restoration. Nothing in the build imports
 counts** (`211` ab-tests, `284` journeys, `3674` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
 adding a record fails them until those constants are updated in lockstep. Those `284`/`8` are the
 CANONICAL corpus and stay correct after the Operational Workflows archive; the PUBLIC corpus is
-160 journeys / 5 public merged redirects / 23 categories and is never hardcoded — it is derived in
-`src/lib/public-corpus.ts` and `src/lib/canonical-view.ts`. `build-search-index.mjs`
+160 routed journeys / 5 public merged redirects, the stated LIBRARY is 71 journeys / 21 categories,
+and none of those is hardcoded — all derived in `src/lib/public-corpus.ts` and
+`src/lib/canonical-view.ts`. `search/build-search-index.mjs` derives the same 71/21 for the library's
+lab-product card from `production/surface-assignment.json`. `build-search-index.mjs`
 also duplicates the goal taxonomy from `src/lib/journey-taxonomy.ts` by hand — plain Node cannot
 resolve the `@/` alias, and the copy must be kept in sync manually.
 

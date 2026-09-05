@@ -1,4 +1,4 @@
-import { CANONICAL_COUNT, withCanonicalCount } from "@/lib/canonical-view";
+import { LIBRARY_COUNT, withLibraryCount } from "@/lib/canonical-view";
 
 /* The library's size is a fact about the data, not a fact about the copy.
    It used to be typed into six separate strings across two languages, which
@@ -10,7 +10,7 @@ import { CANONICAL_COUNT, withCanonicalCount } from "@/lib/canonical-view";
    Both callers are server components, so this never reaches the client
    bundle - the counts are baked into the static HTML at build time. */
 
-export const JOURNEY_COUNT = CANONICAL_COUNT;
+export const JOURNEY_COUNT = LIBRARY_COUNT;
 
 /** Fills the count tokens in a copy string with the real library size. */
-export const withJourneyCount = withCanonicalCount;
+export const withJourneyCount = withLibraryCount;
