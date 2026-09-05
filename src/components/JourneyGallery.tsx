@@ -136,9 +136,9 @@ export default function JourneyGallery({
   basePath: string;
   categories: readonly CategoryMeta[];
   /** Which surface this page is. The surface "filter" is the page itself
-      rather than a dropdown - the four surfaces are separate routes with
+      rather than a dropdown - the public surfaces are separate routes with
       their own titles and metadata, so switching is a navigation, not a
-      state change. `surfaceLinks` are the four, this one marked. */
+      state change. `surfaceLinks` are those surfaces, this one marked. */
   surface: SurfaceKey;
   surfaceLinks: readonly { key: SurfaceKey; href: string; label: string }[];
   /** Practitioner presets, shown first on the customer surface: the
@@ -216,7 +216,7 @@ export default function JourneyGallery({
 
   return (
     <div>
-      {/* Surface: the four surfaces are routes, so this is a link row rather
+      {/* Surface: the public surfaces are routes, so this is a link row rather
           than a select - it changes the page, its title and its metadata,
           not just the rows. */}
       <div className="flex flex-wrap gap-2">

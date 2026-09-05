@@ -295,7 +295,7 @@ const T = {
 
     insightEyebrow: "Insight candidate engine",
     insightTitle: "An 8-question gate decides what's worth showing.",
-    insightSub: "A rule-based gate, not a numeric score. Failing any of the first three suppresses a finding outright.",
+    insightSub: "A rule-based gate, not a numeric score.",
     questionLabel: "Question",
     ifNoLabel: "If no",
     labelsHeading: "How a surviving finding is labelled",
@@ -371,7 +371,7 @@ const T = {
 
     insightEyebrow: "İçgörü aday motoru",
     insightTitle: "8 soruluk bir kapı neyin gösterilmeye değer olduğuna karar verir.",
-    insightSub: "Sayısal bir skor değil, kural tabanlı bir kapı. İlk üç sorudan birini geçemeyen bulgu doğrudan bastırılır.",
+    insightSub: "Sayısal bir skor değil, kural tabanlı bir kapı.",
     questionLabel: "Soru",
     ifNoLabel: "Hayırsa",
     labelsHeading: "Geçen bir bulgu nasıl etiketlenir",

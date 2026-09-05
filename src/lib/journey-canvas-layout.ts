@@ -4,8 +4,8 @@ import type { FlowEdge, FlowNode } from "@/lib/canonical-view";
 
    This is a small, deliberately general graph-drawing engine, not a set of
    coordinates hand-placed for ACQ-01. It reads the same FlowNode[]/FlowEdge[]
-   shape canonical-view.ts already projects for every one of the 255
-   journeys - the same shape CanonicalFlow.tsx used to render as a vertical
+   shape canonical-view.ts already projects for every canonical
+   journey - the same shape CanonicalFlow.tsx used to render as a vertical
    list, before this renderer replaced it as the single journey-detail
    experience.
 

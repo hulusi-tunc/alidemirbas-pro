@@ -1,27 +1,37 @@
 # Ali Demirbaş
 
-> Growth marketer for mobile products. Mobile App Growth Lead at Aksigorta in Istanbul, building acquisition, CRM and lifecycle programs on data - not guesswork. Previously Vodafone, Getir and Wingie Enuygun Group. Published in English (default) and Turkish (/tr).
+> Growth marketer for mobile products. Mobile App Growth Lead at Aksigorta in Istanbul, building acquisition, CRM and lifecycle programs on data, not guesswork. Previously Vodafone, Getir and Wingie Enuygun Group. Published in English (default) and Turkish (/tr). The whole site is marked noindex.
 
 ## Pages
 
-- [Home](https://alidemirbas.com.tr/): Overview - expertise, experience timeline, and featured Lab projects.
-- [About](https://alidemirbas.com.tr/about): Biography and full career timeline (Aksigorta, Vodafone, Getir, Wingie Enuygun Group, Albayrak Grubu, Doğuş Oto).
-- [Lab](https://alidemirbas.com.tr/lab): CRM Journey Archive - 70 lifecycle journey teardowns across 10 sectors and 5 channels, filterable by sector and channel.
-- [Stack](https://alidemirbas.com.tr/stack): The tools used day to day, grouped by category - design, web/product analytics, mobile attribution, BI, CRM & engagement, SEO, CRO, work management.
+- [Home](https://alidemirbas.com.tr/): What the work is, the career in brief, and the Lab projects.
+- [About](https://alidemirbas.com.tr/about): Career timeline (Aksigorta, Vodafone, Getir, Wingie Enuygun Group, Albayrak Grubu, Doğuş Oto).
+- [Lab](https://alidemirbas.com.tr/lab): Open-source tools and libraries for lifecycle marketing and marketing analytics.
+- [Blog](https://alidemirbas.com.tr/blog): Short pieces on LTV:CAC, retention curves, ROAS attribution, lifecycle journeys versus campaigns, and guardrail metrics. English only.
+- [Calculators](https://alidemirbas.com.tr/calculators): Free marketing calculators for ROAS, CAC, CPC, CPM, retention, conversion rates, A/B testing and unit economics. No signup.
+- [Stack](https://alidemirbas.com.tr/stack): The tools used day to day, grouped by category.
 - [Contact](https://alidemirbas.com.tr/contact): Email and LinkedIn.
+
+## Lab projects
+
+- [Lifecycle Marketing Journey Builder](https://alidemirbas.com.tr/lab/claude-lifecycle): An open-source Claude Code plugin that turns the customer signals you already track into lifecycle journeys you can trigger, measure and improve. Repository: https://github.com/ali-demirbas/claude-lifecycle
+- [Canonical Journey Library](https://alidemirbas.com.tr/lab/journeys): Domain-neutral lifecycle journeys written as state machines: triggers, branches, waits, handoffs and exits, not campaign templates. Three public surfaces: customer journeys (/lab/customer-journeys), lifecycle states (/lab/lifecycle-states) and runtime mechanisms (/lab/runtime-mechanisms). Each journey has its own page under /lab/journeys/.
+- [A/B Test Playbook](https://alidemirbas.com.tr/lab/ab-testing): Real-world A/B test scenarios with the hypothesis, primary metric, guardrails and statistical checks needed to run them properly. Each scenario has its own page under /lab/ab-testing/.
+- [Marketing Dashboard Builder](https://alidemirbas.com.tr/lab/dashboard-builder): Turns marketing exports into validated, comparable metrics and the dashboards built on them.
+- [Google Ads Change History Explorer](https://alidemirbas.com.tr/lab/google-ads-change-history-dashboard): Turns a Google Ads change-history export into a searchable single-file dashboard.
+- [Numerspace](https://alidemirbas.com.tr/lab/numerspace): Free calculators for marketing, finance, health, career and everyday decisions. No account, no paywall.
 
 ## Turkish
 
-- [Ana Sayfa](https://alidemirbas.com.tr/tr/)
+- [Ana Sayfa](https://alidemirbas.com.tr/tr)
 - [Hakkımda](https://alidemirbas.com.tr/tr/about)
 - [Lab](https://alidemirbas.com.tr/tr/lab)
-- [Yığın](https://alidemirbas.com.tr/tr/stack)
+- [Hesaplayıcılar](https://alidemirbas.com.tr/tr/calculators)
+- [Stack](https://alidemirbas.com.tr/tr/stack)
 - [İletişim](https://alidemirbas.com.tr/tr/contact)
 
 ## Key facts
 
-- 7+ years building growth, CRM and lifecycle programs, across 6 brands from telco to insurance to q-commerce.
-- Currently Mobile App Growth Lead at Aksigorta (2026-present).
-- Builds [claude-lifecycle](https://github.com/ali-demirbas/claude-lifecycle), an open-source Claude plugin that drafts CRM journeys from proven patterns - 26 journey blueprints across 9 industries. Live demo: https://ali-demirbas.github.io/claude-lifecycle/demo/journey-canvas.html
-- Maintains a CRM Journey Archive of 70 lifecycle journey teardowns - how each flow is built, what to test, which KPI to track, which classic mistake to avoid.
-- Contact: mehmetalidemirbas@gmail.com - https://www.linkedin.com/in/ali-demirbas/
+- 7+ years in growth, CRM and lifecycle marketing, from telco and insurance to rapid commerce and travel.
+- Currently Mobile App Growth Lead at Aksigorta (2026 to present).
+- Contact: mehmetalidemirbas@gmail.com · https://www.linkedin.com/in/ali-demirbas/

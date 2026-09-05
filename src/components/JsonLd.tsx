@@ -1,3 +1,4 @@
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { EMAIL, LINKEDIN } from "@/lib/content";
 import { SITE_URL } from "@/lib/seo";
 
@@ -5,11 +6,11 @@ import { SITE_URL } from "@/lib/seo";
    layout - JSON-LD doesn't need to live in <head>, Google reads it anywhere
    in the document. Kept deliberately small: just the two types every page
    already substantiates (About's bio, the mailto/LinkedIn links repeated
-   across Contact, the hero, and the footer), not speculative fields. */
+   across Contact, the hero, and the footer), not speculative fields.
+   Serialised through the same JsonLdScript every page-level schema uses, so
+   the @context/@graph envelope is written once. */
 export function JsonLd() {
-  const data = {
-    "@context": "https://schema.org",
-    "@graph": [
+  const nodes = [
       {
         "@type": "Person",
         "@id": `${SITE_URL}/#person`,
@@ -32,8 +33,7 @@ export function JsonLd() {
         inLanguage: ["en", "tr"],
         publisher: { "@id": `${SITE_URL}/#person` },
       },
-    ],
-  };
+  ];
 
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <JsonLdScript data={nodes} />;
 }

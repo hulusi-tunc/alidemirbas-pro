@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     // live there and must stay byte-for-byte, so they are neither linted nor
     // typechecked - same treatment tsconfig.json gives reference/.
     "archive/**",
+    // content/archive/: retired UI components and copy kept for reuse; same
+    // treatment as archive/.
+    "content/**",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",

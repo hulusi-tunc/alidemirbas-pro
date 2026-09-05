@@ -15,7 +15,7 @@ import type { FlowNode } from "@/lib/canonical-view";
    Action level distinguishes customer-facing execution from internal work,
    and for a long time nothing in canonical could express that - `ActionNode`
    carried `{ does; writes?; next }` and no execution field, so every Action
-   on all 255 journeys then in the library rendered as INTERNAL by default.
+   on every journey then in the library rendered as INTERNAL by default.
 
    `ActionNode.execution` now carries it explicitly: `communication` on the
    150 actions whose effect is a message reaching a recipient, `human` on the

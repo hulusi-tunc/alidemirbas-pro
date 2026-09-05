@@ -10,7 +10,6 @@ export const copy = {
       sub: "Currently leading mobile app growth at Aksigorta in Istanbul, after growth roles at Vodafone, Getir and Wingie Enuygun Group.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
-      reassurance: ["Mobile App Growth Lead, Aksigorta", "7+ years in growth", "Istanbul"],
     },
     /* Home page only: the spec plate beside the hero, the ranked "what I do"
        block, and the calculators band. The hero's own headline and lead stay
@@ -19,7 +18,7 @@ export const copy = {
       spec: [
         { label: "Now", value: "Mobile App Growth Lead, Aksigorta" },
         { label: "Before", value: "Vodafone, Getir, Wingie Enuygun Group" },
-        { label: "Years", value: "8+ in digital marketing and growth" },
+        { label: "Years", value: "7+ in digital marketing and growth" },
         { label: "Works on", value: "Acquisition, CRM, lifecycle, measurement, CRO" },
         { label: "Based in", value: "Istanbul, works in English and Turkish" },
       ],
@@ -82,7 +81,6 @@ export const copy = {
       // LabNavDropdown, which only read name/desc/links), so this
       // reshape doesn't touch either of those.
       intro: "Open-source tools and experiments built around problems I kept running into. Mostly growth, lifecycle and analytics. Occasionally something else.",
-      viewAll: "Explore the archive",
       projects: [
         {
           name: "Lifecycle Marketing Journey Builder",
@@ -332,12 +330,7 @@ export const copy = {
         referenceStrip: "Also part of the library - opened from a journey, not usually browsed on their own",
         silentBadge: "Silent state",
         mechanismBadge: "Mechanism",
-        communicationLabel: "Communication journeys",
-        internalLabel: "Internal journeys",
-        hubIntro: "{count} domain-neutral lifecycle state machines across {categories} categories. Split by whether a journey's own work ever reaches a person - each half is searchable and filterable on its own page, and each entry is a graph, not a sequence.",
         browseAll: "Browse all {count} journeys",
-        communicationBlurb: "Journeys that reach a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task).",
-        internalBlurb: "Journeys that resolve entirely inside the system. No message, no human route - state machines with no communication of their own.",
         showMore: "Show more ({count})",
         showLess: "Show less",
         /* Singular/plural pair, same convention (and same reason) as
@@ -359,102 +352,19 @@ export const copy = {
         allCategories: "All categories",
         channelFilterLabel: "Channel",
         allChannels: "All channels",
-        communication: {
-          title: "Communication journeys",
-          intro:
-            "{count} of the library's journeys carry at least one action that reaches a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task). Grouped by category - search, or filter by category, channel or goal.",
-        },
-        internal: {
-          title: "Internal journeys",
-          intro:
-            "{count} of the library's journeys resolve entirely inside the system - no message, no human route, nothing that reaches a person. State machines with no communication of their own, grouped by category - search, or filter by category or goal.",
-        },
       },
     },
     about: {
       metaTitle: "About - Ali Demirbaş",
-      metaDesc: "Digital Marketing · Analytics · Growth Strategy",
+      metaDesc: "Ali Demirbaş, Mobile App Growth Lead at Aksigorta; before that Vodafone, Getir and Wingie Enuygun Group. Acquisition, CRM, lifecycle and measurement for mobile products.",
       eyebrow: "About",
-      title: "Professional Profile",
-      sub: "Digital Marketing · Analytics · Growth Strategy",
       moreLink: "More about me",
       // Home page teaser only - kept separate from `lead` below (the
       // /about page's own opening line) so editing one doesn't change
       // the other; the two pages make different first impressions on
       // purpose.
       teaserLead:
-        "I build measurement that digital products can grow on: GA4 and GTM tracking, Adjust MMP configuration, and CRO programs run as proper experiments. I treat marketing as iterative work on accurate data, one test at a time.",
-      lead:
-        "Over eight years in digital marketing and growth, working on acquisition, CRM and measurement for products with very different business models.",
-      body:
-        "The work spans analytics, user acquisition, product and growth strategy: reading campaign performance and user behavior from the data, finding where growth is available, and keeping campaigns, measurement and optimization tied to a business goal that can be checked.",
-      experience: "Experience",
-      timeline: [
-        {
-          kind: "single",
-          year: "2026",
-          co: "Aksigorta",
-          logo: "/logos/aksigorta.svg",
-          role: "Mobile App Growth Lead",
-          period: "Apr 2026 – Present",
-          desc: "Leading mobile app growth strategy, driving user acquisition and engagement for one of Turkey's largest insurers.",
-        },
-        {
-          kind: "single",
-          year: "2024",
-          co: "Vodafone",
-          logo: "/logos/vodafone.svg",
-          role: "Growth Marketing Lead",
-          period: "Aug 2024 – Apr 2026",
-          desc: "Led growth marketing across digital channels: paid acquisition alongside lifecycle programs.",
-        },
-        {
-          kind: "single",
-          year: "2023",
-          co: "Getir",
-          logo: "/logos/getir.svg",
-          role: "Growth – CRM Analytics Executive",
-          period: "Sep 2023 – Aug 2024",
-          desc: "Managed CRM analytics and growth initiatives for rapid commerce, optimizing retention and LTV.",
-        },
-        {
-          kind: "group",
-          year: "2021",
-          co: "Wingie Enuygun Group",
-          logo: "/logos/enuygun.png",
-          span: "Full-time · 2 yrs",
-          roles: [
-            {
-              role: "Experienced Lifecycle Marketing Specialist (Growth)",
-              period: "Jan 2023 – Aug 2023",
-              desc: "Owned lifecycle and CRM programs end-to-end across the group's travel brands.",
-            },
-            {
-              role: "Lifecycle Marketing Specialist (Growth)",
-              period: "Sep 2021 – Jan 2023",
-              desc: "Built and ran lifecycle marketing programs for the group's online travel platform.",
-            },
-          ],
-        },
-        {
-          kind: "single",
-          year: "2020",
-          co: "Albayrak Grubu",
-          logo: "/logos/albayrak.svg",
-          role: "Digital Marketing Specialist",
-          period: "Oct 2020 – Aug 2021",
-          desc: "Managed digital marketing campaigns across group companies.",
-        },
-        {
-          kind: "single",
-          year: "2019",
-          co: "Doğuş Oto",
-          logo: "/logos/dogus-oto.svg",
-          role: "Jr. Digital Marketing Specialist",
-          period: "Sep 2019 – Aug 2020",
-          desc: "Digital marketing execution for an automotive dealer group.",
-        },
-      ],
+        "I have worked on acquisition, CRM and measurement for an insurer, a telco, a rapid-commerce app and a travel group: products with very different business models and the same need for numbers that hold up. I treat marketing as iterative work on accurate data, one test at a time.",
     },
     stack: {
       metaTitle: "Stack - Ali Demirbaş",
@@ -474,9 +384,6 @@ export const copy = {
       title: "Let's get in touch.",
       sub: "Happy to talk about growth, products, or anything on this site.",
       linkedinLabel: "Connect on LinkedIn",
-      linkedinGo: "View profile",
-      emailLabel: "Send an email",
-      emailGo: "Email me",
       emailPill: "E-Mail",
       reasonsTitle: "What brings you here",
       reasons: [
@@ -508,7 +415,6 @@ export const copy = {
       eyebrow: "Lab / Journey Builder",
       title: "Lifecycle journeys as state machines, not campaign templates.",
       sub: "Every journey here is a graph: what starts it and what deliberately doesn't, where it forks and what each arm means, how long it waits and what happens when that runs out, and which lifecycle owns the person next.",
-      ctaJourney: "Open this journey",
       proof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
       canvas: {
         nodes: "nodes",
@@ -547,21 +453,6 @@ export const copy = {
         onTimeout: "On timeout",
         note: "A bounded window that any engagement extends is not bounded.",
       },
-      anatomy: {
-        eyebrow: "Anatomy",
-        title: "One journey, every part labelled.",
-        body: "This is a real canonical journey, unmodified. Read it once and the model behind all of them is clear: a trigger, forks with named arms, a bounded wait, an action that appends rather than overwrites, a handoff, and exits that say when a new instance may start.",
-        legendTitle: "Node types across the library",
-      },
-      inspector: {
-        eyebrow: "Zoom in",
-        title: "What a handoff carries across.",
-        body: "When ownership moves to another lifecycle, something has to survive the boundary. A handoff names its destination, the condition it fires on, and exactly what it carries across, so the receiving journey starts informed rather than blank.",
-        to: "to",
-        on: "on",
-        carries: "carries",
-        handoffsLabel: "handoffs across the library",
-      },
       library: {
         eyebrow: "The library",
         title: "{count} journeys. Built to be read.",
@@ -569,21 +460,6 @@ export const copy = {
         cta: "Browse the journey library",
         nodes: "nodes",
         moreCategories: "more",
-      },
-      how: {
-        eyebrow: "How it works",
-        title: "Find it, read it, adapt it.",
-        body: "The library is the product. Three things you do with it.",
-        steps: [
-          { title: "Find the journey", body: "Filter by category, lifecycle stage, goal or the kind of evidence a trigger runs on." },
-          { title: "Read the logic", body: "Follow the graph node by node: every branch, wait and handoff is written out, with the rule behind it." },
-          { title: "Adapt it", body: "Take the state machine into your own stack. The logic is the deliverable; message copy was never in scope." },
-        ],
-      },
-      related: {
-        title: "Related",
-        abTest: "A/B Test Playbook",
-        abTestDesc: "The experimentation side of the same practice.",
       },
       whyDifferent: {
         eyebrow: "Why claude-lifecycle",
@@ -650,11 +526,10 @@ export const copy = {
         primary: "View on GitHub",
         secondary: "Open the live demo",
       },
-      watchDemo: "Watch demo",
     },
     abTesting: {
       metaTitle: "A/B Test Playbook - Ali Demirbaş",
-      metaDesc: "211 real growth-test scenarios for Claude Code: what to test, which KPI to track, what not to do.",
+      metaDesc: "{count} real growth-test scenarios for Claude Code: what to test, which KPI to track, what not to do.",
       eyebrow: "Lab / A/B Testing",
       title: "An A/B test engine that won't let you skip the guardrail.",
       sub: "ab-test-playbook is an open-source Claude Code plugin built from 211 real e-commerce, mobile app and SaaS growth-test scenarios. It helps you pick a scenario that fits where a user is in their journey, keeps new ones disciplined to one variable at a time, and runs the real statistics instead of eyeballing significance.",
@@ -691,7 +566,6 @@ export const copy = {
         { title: "Protection isn't a growth lever", desc: "CAPTCHA, identity or age verification, two-factor login, legal consent steps - never proposed as friction to remove, even if asked. Those exist for protection, not conversion; the plugin says so and generates nothing." },
         { title: "Confidence is stated, not implied", desc: "Every suggestion says how strong the evidence behind it is - the user's own data, an archive precedent, an industry pattern, or a hunch. A weak-evidence idea can still be offered, but never dressed up as certain." },
       ],
-      exampleTitle: "One real scenario from the archive",
       example: {
         idx: "ECOM-CART",
         title: "Does a visible coupon-code field increase cart abandonment?",
@@ -767,7 +641,6 @@ export const copy = {
          typed in here. */
       product: {
         heroCtaLibrary: "Browse the library",
-        heroProof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
         brief: {
           label: "Scenario brief",
           control: "Control",
@@ -875,13 +748,12 @@ export const copy = {
       sub: "Şu an İstanbul'da Aksigorta'da mobil uygulama büyümesini yönetiyorum; öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta growth rollerindeydim.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
-      reassurance: ["Mobile App Growth Lead, Aksigorta", "Growth'ta 7+ yıl", "İstanbul"],
     },
     home: {
       spec: [
         { label: "Şu an", value: "Mobile App Growth Lead, Aksigorta" },
         { label: "Öncesinde", value: "Vodafone, Getir, Wingie Enuygun Group" },
-        { label: "Deneyim", value: "Dijital pazarlama ve growth'ta 8+ yıl" },
+        { label: "Deneyim", value: "Dijital pazarlama ve growth'ta 7+ yıl" },
         { label: "Çalışma alanı", value: "Edinim, CRM, lifecycle, ölçümleme, CRO" },
         { label: "Konum", value: "İstanbul, İngilizce ve Türkçe çalışır" },
       ],
@@ -897,11 +769,11 @@ export const copy = {
         rest: [
           {
             title: "Lifecycle ve CRM programları",
-            body: "Onboarding, aktivasyon, yenileme ve geri kazanım journey'leri; şablondan değil, ürünün zaten ürettiği event'lerden kurulur.",
+            body: "E-posta, SMS, push ve in-app kanallarında onboarding, elde tutma ve geri kazanım programları; state machine olarak yazılır: journey'i ne başlatır, nerede dallanır, ne kadar bekler, kişi sonra hangi lifecycle'a geçer.",
           },
           {
             title: "Ücretli edinim",
-            body: "Google, Meta ve uygulama kurulumu kanalları; kurulum sayısına göre değil, kurulum sonrası davranışa göre yönetilir.",
+            body: "Mobil kullanıcı edinimi, her şeyle aynı ölçümleme kurulumundan okunur: Adjust MMP attribution, GA4 ve GTM. Böylece kanalın raporladığı sayı ile mutabakatını yapabildiğin sayı aynı sayıdır.",
           },
           {
             title: "Deney ve CRO",
@@ -923,7 +795,6 @@ export const copy = {
       label: "Lab",
       title: "Yaptığım şeyler",
       intro: "Sürekli karşılaştığım problemler etrafında kurulmuş açık kaynak araçlar ve deneyler. Çoğunlukla growth, lifecycle ve analitik. Bazen başka bir şey.",
-      viewAll: "Tüm projeleri gör",
       projects: [
         {
           name: "Lifecycle Pazarlama Journey Üretici",
@@ -996,7 +867,7 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Ara ya da goal'e göre filtrele; her kayıt bir sıra değil, bir graf. Kütüphane içeriği İngilizce.",
         searchPlaceholder: "Journey ara...",
         goalLabel: "Goal",
         allGoals: "Tüm goal'ler",
@@ -1136,12 +1007,7 @@ export const copy = {
         referenceStrip: "Kütüphanenin bir parçası. Bir journey'den açılır, genelde kendi başına gezilmez",
         silentBadge: "Sessiz durum",
         mechanismBadge: "Mekanizma",
-        communicationLabel: "İletişim journey'leri",
-        internalLabel: "Internal journey'ler",
-        hubIntro: "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı. İki taraf da kendi sayfasında aranıp filtrelenebilir; her kayıt dizi değil, graf.",
         browseAll: "{count} journey'in tamamına bak",
-        communicationBlurb: "Bir kişiye ulaşan journey'ler: mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task).",
-        internalBlurb: "Tamamen sistemin içinde çözülen journey'ler. Mesaj yok, insana yönlendirme yok. Kendi başına iletişimi olmayan state machine'ler.",
         showMore: "Daha fazla göster ({count})",
         showLess: "Daha az göster",
         // Turkish takes no plural after a numeral, so both entries are
@@ -1153,98 +1019,15 @@ export const copy = {
         allCategories: "Tüm kategoriler",
         channelFilterLabel: "Kanal",
         allChannels: "Tüm kanallar",
-        communication: {
-          title: "İletişim journey'leri",
-          intro:
-            "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor: mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce.",
-        },
-        internal: {
-          title: "Internal journey'ler",
-          intro:
-            "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor. Mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce.",
-        },
       },
     },
     about: {
       metaTitle: "Hakkımda - Ali Demirbaş",
-      metaDesc: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
+      metaDesc: "Ali Demirbaş, Aksigorta'da Mobile App Growth Lead; öncesinde Vodafone, Getir ve Wingie Enuygun Group. Mobil ürünler için edinim, CRM, lifecycle ve ölçümleme.",
       eyebrow: "Hakkımda",
-      title: "Profesyonel Profil",
-      sub: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
       moreLink: "Hakkımda daha fazlası",
       teaserLead:
-        "Dijital ürünler için güvenilir ölçümleme sistemleri kuruyorum. GA4 ve GTM izleme kurulumu, Adjust MMP yapılandırması ve kanıta dayalı CRO programları işimin ana gövdesi. Pazarlamayı doğru veri, yapılandırılmış deney ve düzenli optimizasyon üzerine kurulu yinelemeli bir süreç olarak görüyorum.",
-      lead:
-        "Sekiz yılı aşkın süredir dijital pazarlama ve growth alanında, farklı ürün ve iş modelleri için büyüme stratejileri üzerinde çalışıyorum.",
-      body:
-        "Analitik, kullanıcı kazanımı, ürün ve büyüme stratejisi üzerinde çalıştım. Kampanya performansını değerlendirmek, kullanıcı davranışını okumak ve büyüme fırsatlarını bulmak için veriye bakıyorum. Kampanya yönetiminden ölçümleme ve optimizasyona kadar, pazarlama işini iş hedeflerine bağlı tutmaya odaklanıyorum.",
-      experience: "Deneyim",
-      timeline: [
-        {
-          kind: "single",
-          year: "2026",
-          co: "Aksigorta",
-          logo: "/logos/aksigorta.svg",
-          role: "Mobil Uygulama Büyüme Lideri",
-          period: "Nis 2026 – Günümüz",
-          desc: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyüme stratejisini, kullanıcı kazanımını ve etkileşimini yönetiyorum.",
-        },
-        {
-          kind: "single",
-          year: "2024",
-          co: "Vodafone",
-          logo: "/logos/vodafone.svg",
-          role: "Büyüme Pazarlaması Lideri",
-          period: "Ağu 2024 – Nis 2026",
-          desc: "Dijital kanallarda büyüme pazarlamasını yönettim; veriye dayalı kullanıcı kazanımını lifecycle programlarıyla birleştirdim.",
-        },
-        {
-          kind: "single",
-          year: "2023",
-          co: "Getir",
-          logo: "/logos/getir.svg",
-          role: "Büyüme – CRM Analitiği Uzmanı",
-          period: "Eyl 2023 – Ağu 2024",
-          desc: "Hızlı ticaret için CRM analitiği ve growth çalışmalarını yönettim; odak elde tutma ve LTV'ydi.",
-        },
-        {
-          kind: "group",
-          year: "2021",
-          co: "Wingie Enuygun Group",
-          logo: "/logos/enuygun.png",
-          span: "Tam zamanlı · 2 yıl",
-          roles: [
-            {
-              role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
-              period: "Oca 2023 – Ağu 2023",
-              desc: "Grubun seyahat markalarının tamamında lifecycle ve CRM programlarını yürüttüm.",
-            },
-            {
-              role: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
-              period: "Eyl 2021 – Oca 2023",
-              desc: "Önde gelen bir çevrimiçi seyahat platformu için lifecycle pazarlama programları kurdum ve yürüttüm.",
-            },
-          ],
-        },
-        {
-          kind: "single",
-          year: "2020",
-          co: "Albayrak Grubu",
-          logo: "/logos/albayrak.svg",
-          role: "Dijital Pazarlama Uzmanı",
-          period: "Eki 2020 – Ağu 2021",
-          desc: "Grup şirketleri genelinde dijital pazarlama kampanyalarını yönettim.",
-        },
-        {
-          kind: "single",
-          year: "2019",
-          co: "Doğuş Oto",
-          logo: "/logos/dogus-oto.svg",
-          role: "Jr. Dijital Pazarlama Uzmanı",
-          period: "Eyl 2019 – Ağu 2020",
-          desc: "Türkiye'nin önde gelen otomotiv bayi gruplarından biri için dijital pazarlama uygulamaları yürüttüm.",
-        },
-      ],
+        "Bir sigorta şirketi, bir telekom operatörü, bir hızlı ticaret uygulaması ve bir seyahat grubu için edinim, CRM ve ölçümleme üzerinde çalıştım: iş modelleri çok farklı, sağlam sayıya ihtiyacı aynı ürünler. Pazarlamayı doğru veri üzerinde, her seferinde tek test ile ilerleyen bir iş olarak görüyorum.",
     },
     stack: {
       metaTitle: "Stack - Ali Demirbaş",
@@ -1263,9 +1046,6 @@ export const copy = {
       title: "Tanışalım.",
       sub: "Growth, ürün ya da buradaki çalışmalar üzerine konuşmak istersen yaz. Yeni insanlarla tanışmaktan keyif alıyorum.",
       linkedinLabel: "LinkedIn'de bağlantı kur",
-      linkedinGo: "Profili görüntüle",
-      emailLabel: "E-posta gönder",
-      emailGo: "Bana e-posta at",
       emailPill: "E-posta",
       reasonsTitle: "Buraya gelme sebebin",
       reasons: [
@@ -1291,7 +1071,6 @@ export const copy = {
       eyebrow: "Lab / Journey Builder",
       title: "Kampanya şablonu değil, state machine olarak lifecycle journey'ler.",
       sub: "Buradaki her journey bir graf: onu ne başlatır ve bilinçli olarak ne başlatmaz, nerede çatallanır ve her kolun anlamı nedir, ne kadar bekler ve o süre dolduğunda ne olur, kişinin sahipliği sonra hangi lifecycle'a geçer.",
-      ctaJourney: "Bu journey'i aç",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
       canvas: {
         nodes: "düğüm",
@@ -1330,21 +1109,6 @@ export const copy = {
         onTimeout: "Süre dolarsa",
         note: "Her etkileşimin uzattığı sınırlı bir pencere, sınırlı değildir.",
       },
-      anatomy: {
-        eyebrow: "Anatomi",
-        title: "Tek bir journey, her parçası etiketli.",
-        body: "Bu, değiştirilmemiş gerçek bir kanonik journey. Bir kez okuyunca hepsinin arkasındaki model netleşiyor: bir tetikleyici, adlandırılmış kollu çatallar, sınırlı bir bekleme, üzerine yazmak yerine ekleyen bir aksiyon, bir devir ve yeni bir örneğin ne zaman başlayabileceğini söyleyen çıkışlar.",
-        legendTitle: "Kütüphane genelinde düğüm tipleri",
-      },
-      inspector: {
-        eyebrow: "Yakınlaş",
-        title: "Devir, durumu da taşır.",
-        body: "Sahiplik başka bir lifecycle'a geçtiğinde, bir şeyin bu sınırdan sağ çıkması gerekir. Bir devir hedefini, hangi koşulda ateşlendiğini ve tam olarak neyi taşıdığını adlandırır. Böylece devralan journey boş değil, bilgili başlar.",
-        to: "hedef",
-        on: "koşul",
-        carries: "taşıdığı",
-        handoffsLabel: "devir kütüphanede",
-      },
       library: {
         eyebrow: "Kütüphane",
         title: "{count} journey. Okunmak için kurulmuş.",
@@ -1352,21 +1116,6 @@ export const copy = {
         cta: "Journey kütüphanesini aç",
         nodes: "düğüm",
         moreCategories: "kategori daha",
-      },
-      how: {
-        eyebrow: "Nasıl çalışır",
-        title: "Bul, oku, uyarla.",
-        body: "Ürün kütüphanenin kendisi. Onunla yaptığın üç şey bunlar.",
-        steps: [
-          { title: "Journey'i bul", body: "Kategoriye, lifecycle aşamasına, hedefe veya tetikleyicinin dayandığı kanıt türüne göre filtrele." },
-          { title: "Mantığı oku", body: "Grafı düğüm düğüm takip et. Her dal, bekleme ve devir, arkasındaki kuralla birlikte yazılmış." },
-          { title: "Uyarla", body: "State machine'i kendi sistemine taşı. Teslim edilen şey mantık; mesaj metni hiçbir zaman kapsamda değildi." },
-        ],
-      },
-      related: {
-        title: "İlgili",
-        abTest: "A/B Test Playbook",
-        abTestDesc: "Aynı pratiğin deney tarafı.",
       },
       whyDifferent: {
         eyebrow: "Neden claude-lifecycle",
@@ -1433,11 +1182,10 @@ export const copy = {
         primary: "GitHub'da görüntüle",
         secondary: "Canlı demoyu aç",
       },
-      watchDemo: "Demoyu izle",
     },
     abTesting: {
       metaTitle: "A/B Test Playbook - Ali Demirbaş",
-      metaDesc: "Claude Code için 211 gerçek büyüme testi senaryosu: ne test edilir, hangi KPI izlenir, ne yapılmamalı.",
+      metaDesc: "Claude Code için {count} gerçek büyüme testi senaryosu: ne test edilir, hangi KPI izlenir, ne yapılmamalı.",
       eyebrow: "Lab / A/B Test",
       title: "Guardrail'i atlamana izin vermeyen bir A/B test motoru.",
       sub: "ab-test-playbook, 211 gerçek e-ticaret, mobil uygulama ve SaaS büyüme testi senaryosundan kurulu, açık kaynak bir Claude Code eklentisi. Kullanıcının journey'deki yerine göre kanıtlanmış bir test seçmene yardım eder, yenilerini tek değişken disipliniyle tasarlar ve göz kararı yerine gerçek istatistiği çalıştırır.",
@@ -1474,7 +1222,6 @@ export const copy = {
         { title: "Koruma bir büyüme kolu değildir", desc: "CAPTCHA, kimlik veya yaş doğrulama, iki adımlı giriş, yasal onay adımları: istense bile hiçbir zaman kaldırılacak sürtünme olarak önerilmez. Bunlar koruma içindir, dönüşüm için değil; eklenti bunu söyler ve senaryo üretmez." },
         { title: "Güven söylenir, ima edilmez", desc: "Her öneri, arkasındaki kanıtın ne kadar güçlü olduğunu söyler: kullanıcının kendi verisi, arşiv emsali, sektör örüntüsü ya da sezgi. Zayıf kanıtlı bir fikir yine sunulabilir ama asla kesinmiş gibi giydirilmez." },
       ],
-      exampleTitle: "Arşivden gerçek bir senaryo",
       example: {
         idx: "ECOM-CART",
         title: "Açık kupon kodu alanı sepet terkini artırır mı?",
@@ -1545,7 +1292,6 @@ export const copy = {
          sayı gerçek veri setinden derleme anında türetiliyor. */
       product: {
         heroCtaLibrary: "Senaryo kütüphanesini aç",
-        heroProof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
         brief: {
           label: "Senaryo brifi",
           control: "Kontrol",

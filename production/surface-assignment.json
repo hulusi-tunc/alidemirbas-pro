@@ -882,7 +882,7 @@
     },
     {
       "id": "ACC-261",
-      "shortName": "Access Recovery",
+      "shortName": "Access Restriction Notice",
       "category": "access",
       "surface": "customer",
       "sends": true,

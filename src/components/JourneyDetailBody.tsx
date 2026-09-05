@@ -19,15 +19,15 @@ import type { copy, Lang } from "@/lib/content";
    are reference material and are laid out as such: hairline-separated
    columns, not cards. */
 
-/* Journey Canvas is now the single journey-detail renderer for all 255
-   canonical journeys - CanonicalFlow's old vertical-list rendering is gone
+/* Journey Canvas is now the single journey-detail renderer for every
+   canonical journey - CanonicalFlow's old vertical-list rendering is gone
    (see git history if it's ever needed again), and there is no more
    per-journey gate deciding which renderer a given id gets.
 
    JOURNEY_CANVAS_REGRESSION_FIXTURE below is NOT a rendering gate - nothing
    reads it to decide how a journey renders. It is a curated list the QA
    harness targets on every change (a fast, high-signal subset instead of
-   the full 255 on every edit), kept here because this is where the ids were
+   the full corpus on every edit), kept here because this is where the ids were
    chosen and the reasoning for each one lives. It has two tiers, kept
    deliberately separate because they answer two different questions:
 
@@ -49,7 +49,7 @@ import type { copy, Lang } from "@/lib/content";
    generalize.
 
    TIER 2 - POPULATION/DISTRIBUTION COVERAGE (25 journeys). A stratified
-   sample of the other 241 journeys, selected by bucketing the full
+   sample of the other public journeys, selected by bucketing the full
    library across node count, depth, branch fan-out, condition/merge/wait
    density, cycles, handoff density and terminal structure, then greedily
    picking journeys that closed the biggest gaps against Tier 1's own

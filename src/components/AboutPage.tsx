@@ -34,7 +34,8 @@ import { copy, type Lang } from "@/lib/content";
 
    - "10M+ Push & In-App Users" in the hero stat strip. No number like it
      exists anywhere in this repository. The strip ships with two stats
-     instead of three: "8+ years", which is `about`'s own copy, and the
+     instead of three: "7+ years" (Sep 2019 -> Sep 2026, from the timeline below;
+     matches `about`'s own copy), and the
      Lab tool count, which is COMPUTED from `copy[lang].lab.projects`.
    - "Available for strategic advisory" / "Open to Advisory & Speaking" /
      "Response latency: < 24h" - three claims about availability and
@@ -164,8 +165,8 @@ const T = {
     exploreLabel: "Browse the Lab",
     exploreHref: "/lab",
     linkedinLabel: "Connect on LinkedIn",
-    h2: "Over eight years bridging data and marketing into measurable growth.",
-    subLines: ["8+ years building.", "Growth, lifecycle, and analytics.", "Startups and large enterprises."],
+    h2: "Seven years bridging data and marketing into measurable growth.",
+    subLines: ["7+ years building.", "Growth, lifecycle, and analytics.", "Startups and large enterprises."],
     toggle: { simple: "Simple", detailed: "Detailed", at: "at", bottomLine: "Bottom Line", active: "Active" },
     footerEmailLabel: "Email",
     langLabel: "TR",
@@ -175,7 +176,7 @@ const T = {
        this page still comes from `JOBS`, `copy[lang].lab.projects` or the
        lines above. --- */
     heroEyebrow: "Profile",
-    statYears: "8+",
+    statYears: "7+",
     statYearsLabel: "Years in the field",
     statToolsLabel: "Open-source tools built",
     portraitRoleFallback: "Mobile App Growth Lead",
@@ -204,15 +205,15 @@ const T = {
     exploreLabel: "Lab'e göz at",
     exploreHref: "/tr/lab",
     linkedinLabel: "LinkedIn'de bağlantı kur",
-    h2: "Sekiz yılı aşkın süredir veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
-    subLines: ["8+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lar ve büyük kurumlar."],
+    h2: "Yedi yıldır veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
+    subLines: ["7+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lar ve büyük kurumlar."],
     toggle: { simple: "Basit", detailed: "Detaylı", at: "@", bottomLine: "Özet", active: "Aktif" },
     footerEmailLabel: "E-posta",
     langLabel: "EN",
     langHref: "/about",
 
     heroEyebrow: "Profil",
-    statYears: "8+",
+    statYears: "7+",
     statYearsLabel: "Yıl deneyim",
     statToolsLabel: "Açık kaynak araç",
     portraitRoleFallback: "Mobil Uygulama Büyüme Lideri",

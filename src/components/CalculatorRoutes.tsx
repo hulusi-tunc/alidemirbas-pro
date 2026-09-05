@@ -42,7 +42,7 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/t
 // `heroTitle` override vs. its own `seoTitle`).
 const T = {
   en: { title: "Free Marketing & Growth Calculators", intro: "Free marketing calculators for ROAS, CAC, CPC, CPM, retention, conversion rates, A/B testing and unit economics. No signup required." },
-  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları." },
+  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları. Üyelik gerekmez." },
 };
 
 const HERO = {
@@ -88,7 +88,7 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
 
 /* PORTRAIT PILOT (this round). Reuses the exact server-computes-data /
    client-filters architecture already approved for Blog
-   (BlogPage.tsx -> BlogLibrary.tsx): the full 43-calculator catalog is
+   (BlogPage.tsx -> BlogLibrary.tsx): the full live calculator catalog is
    still rendered into the initial server HTML via `CalculatorLibrary`
    (real hrefs, real text, present before any client hydration — nothing
    about server-rendered discoverability changes), and category counts

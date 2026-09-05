@@ -22888,10 +22888,11 @@
     "external": false,
     "title": "RET-32 Paid relationship lapsed → outreach permitted → won back, declined or left alone",
     "summary": "Invite a person whose paid relationship ended or went dormant to come back - once, honestly, with whatever has actually changed since they left - after the cancellation's own window has passed and only where the recorded reason and history do not rule it out.",
-    "searchText": "Paid relationship lapsed → outreach permitted → won back, declined or left alone. Invite a person whose paid relationship ended or went dormant to come back - once, honestly, with whatever has actually changed since they left - after the cancellation's own window has passed and only where the recorded reason and history do not rule it out.. Also known as win-back, winback campaign, lapsed customer reactivation, churned customer recovery, come-back offer, former customer outreach, lapsed subscriber win-back. a subscription that ended months ago with a reason that does not rule out outreach. a customer who stopped buying past the company's lapse rule and has nothing open. Lapsed customer detected. Engagement, health, retention & churn prevention. won back; the relationship is repaid. no invitation sent; the excluding reason or gate is recorded. invited, not returned; left alone for the cooldown",
+    "searchText": "Paid relationship lapsed → outreach permitted → won back, declined or left alone. Invite a person whose paid relationship ended or went dormant to come back - once, honestly, with whatever has actually changed since they left - after the cancellation's own window has passed and only where the recorded reason and history do not rule it out.. Also known as win-back, win back, winback campaign, lapsed customer reactivation, churned customer recovery, come-back offer, former customer outreach, lapsed subscriber win-back. a subscription that ended months ago with a reason that does not rule out outreach. a customer who stopped buying past the company's lapse rule and has nothing open. Lapsed customer detected. Engagement, health, retention & churn prevention. won back; the relationship is repaid. no invitation sent; the excluding reason or gate is recorded. invited, not returned; left alone for the cooldown",
     "keywords": [
       "RET-32",
       "win-back",
+      "win back",
       "winback campaign",
       "lapsed customer reactivation",
       "churned customer recovery",

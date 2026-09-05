@@ -60,7 +60,7 @@ const T = {
       "Free with no registration - no subscription, no credit card, no email. Every tool works as a guest.",
       "Calculations run client-side. Salary, weight, birth date, loan amount - none of it is sent to a server, and it is gone when the tab closes.",
       "Fully bilingual: 97 calculators in Turkish and the same 97 in English, interface and results included.",
-      "Formulas are the recognised ones - Mifflin-St Jeor, Devine, Hamwi for health - alongside regional tax and labour regulation for the tools that depend on it.",
+      "Formulas are the recognised ones - Mifflin-St Jeor, Devine, Hamwi for health - alongside Turkish tax and labour regulation (SGK, GİB) for the tools that depend on it.",
       "Responsive rather than an app: same experience on phone, tablet and desktop, nothing to download.",
       "Tools whose inputs move - tax rates, financial figures, unit values - are revised as those standards change.",
     ],
@@ -114,7 +114,7 @@ const T = {
       "Kayıt gerektirmeyen ücretsiz kullanım: abonelik yok, kredi kartı yok, e-posta yok. Her araç misafir kullanıcıyla çalışıyor.",
       "Hesaplamalar tarayıcıda çalışıyor. Maaş, kilo, doğum tarihi, kredi tutarı - hiçbiri sunucuya gitmiyor ve sekmeyi kapattığında siliniyor.",
       "Tam iki dilli: Türkçe 97 hesaplayıcı, İngilizce aynı 97'si - arayüz ve sonuçlar dahil.",
-      "Formüller kabul görmüş olanlar - sağlık tarafında Mifflin-St Jeor, Devine, Hamwi - ve mevzuata bağlı araçlarda Türkiye mevzuatı (SGK, GİB, TÜFE).",
+      "Formüller kabul görmüş olanlar - sağlık tarafında Mifflin-St Jeor, Devine, Hamwi - ve mevzuata bağlı araçlarda Türkiye mevzuatı (SGK, GİB).",
       "Uygulama değil, duyarlı tasarım: telefonda, tablette ve masaüstünde aynı deneyim, indirilecek bir şey yok.",
       "Girdileri değişen araçlar - vergi oranları, finansal veriler, birim değerleri - standartlar değiştikçe güncelleniyor.",
     ],
@@ -131,7 +131,7 @@ const T = {
       {
         id: "free",
         q: "Numerspace ücretsiz mi?",
-        a: "Evet. 97 hesaplayıcının tamamı ücretsiz - abonelik yok, kredi kartı yok, hesap gerekmiyor. Her araç misafir kullanıcıyla çalışıyor.",
+        a: "97 hesaplayıcının tamamı ücretsiz: abonelik yok, kredi kartı yok, hesap gerekmiyor; hepsi misafir olarak kullanılabiliyor.",
       },
       {
         id: "privacy",

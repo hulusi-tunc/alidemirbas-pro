@@ -104,7 +104,7 @@
     {
       "id": "gross-margin-vs-contribution-margin-faq",
       "q": "How is gross margin different from contribution margin?",
-      "a": "Gross margin subtracts only COGS, the direct cost of producing or sourcing what was sold. Contribution margin subtracts COGS plus other variable costs that scale with each sale, like shipping, payment processing fees, or per-order fulfillment costs. Because contribution margin counts a wider slice of cost, it's always equal to or lower than gross margin for the same order or product. Neither number accounts for fixed costs like rent or salaries; that's what profit margin is for. Mixing these up in one direction (folding shipping into what's labeled gross margin) understates true gross margin; mixing them up the other way overstates how much room there actually is in the unit economics."
+      "a": "Gross margin stops at COGS, what it cost to make or buy the thing that was sold, and nothing else. Contribution margin subtracts COGS plus other variable costs that scale with each sale, like shipping, payment processing fees, or per-order fulfillment costs. Because contribution margin counts a wider slice of cost, it's always equal to or lower than gross margin for the same order or product. Neither number accounts for fixed costs like rent or salaries; that's what profit margin is for. Mixing these up in one direction (folding shipping into what's labeled gross margin) understates true gross margin; mixing them up the other way overstates how much room there actually is in the unit economics."
     },
     {
       "id": "good-gross-margin",

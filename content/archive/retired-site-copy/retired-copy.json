@@ -1,0 +1,286 @@
+{
+  "en": {
+    "hero.reassurance": [
+      "Mobile App Growth Lead, Aksigorta",
+      "7+ years in growth",
+      "Istanbul"
+    ],
+    "lab.viewAll": "Explore the archive",
+    "lab.journeysSplit.communicationLabel": "Communication journeys",
+    "lab.journeysSplit.internalLabel": "Internal journeys",
+    "lab.journeysSplit.hubIntro": "{count} domain-neutral lifecycle state machines across {categories} categories. Split by whether a journey's own work ever reaches a person - each half is searchable and filterable on its own page, and each entry is a graph, not a sequence.",
+    "lab.journeysSplit.communicationBlurb": "Journeys that reach a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task).",
+    "lab.journeysSplit.internalBlurb": "Journeys that resolve entirely inside the system. No message, no human route - state machines with no communication of their own.",
+    "lab.journeysSplit.communication": {
+      "title": "Communication journeys",
+      "intro": "{count} of the library's journeys carry at least one action that reaches a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task). Grouped by category - search, or filter by category, channel or goal."
+    },
+    "lab.journeysSplit.internal": {
+      "title": "Internal journeys",
+      "intro": "{count} of the library's journeys resolve entirely inside the system - no message, no human route, nothing that reaches a person. State machines with no communication of their own, grouped by category - search, or filter by category or goal."
+    },
+    "about.title": "Professional Profile",
+    "about.sub": "Digital Marketing · Analytics · Growth Strategy",
+    "about.lead": "Seven years in digital marketing and growth, working on acquisition, CRM and measurement for products with very different business models.",
+    "about.body": "The work spans analytics, user acquisition, product and growth strategy: reading campaign performance and user behavior from the data, finding where growth is available, and keeping campaigns, measurement and optimization tied to a business goal that can be checked.",
+    "about.experience": "Experience",
+    "about.timeline": [
+      {
+        "kind": "single",
+        "year": "2026",
+        "co": "Aksigorta",
+        "logo": "/logos/aksigorta.svg",
+        "role": "Mobile App Growth Lead",
+        "period": "Apr 2026 – Present",
+        "desc": "Leading mobile app growth strategy, driving user acquisition and engagement for one of Turkey's largest insurers."
+      },
+      {
+        "kind": "single",
+        "year": "2024",
+        "co": "Vodafone",
+        "logo": "/logos/vodafone.svg",
+        "role": "Growth Marketing Lead",
+        "period": "Aug 2024 – Apr 2026",
+        "desc": "Led growth marketing across digital channels: paid acquisition alongside lifecycle programs."
+      },
+      {
+        "kind": "single",
+        "year": "2023",
+        "co": "Getir",
+        "logo": "/logos/getir.svg",
+        "role": "Growth – CRM Analytics Executive",
+        "period": "Sep 2023 – Aug 2024",
+        "desc": "Managed CRM analytics and growth initiatives for rapid commerce, optimizing retention and LTV."
+      },
+      {
+        "kind": "group",
+        "year": "2021",
+        "co": "Wingie Enuygun Group",
+        "logo": "/logos/enuygun.png",
+        "span": "Full-time · 2 yrs",
+        "roles": [
+          {
+            "role": "Experienced Lifecycle Marketing Specialist (Growth)",
+            "period": "Jan 2023 – Aug 2023",
+            "desc": "Owned lifecycle and CRM programs end-to-end across the group's travel brands."
+          },
+          {
+            "role": "Lifecycle Marketing Specialist (Growth)",
+            "period": "Sep 2021 – Jan 2023",
+            "desc": "Built and ran lifecycle marketing programs for the group's online travel platform."
+          }
+        ]
+      },
+      {
+        "kind": "single",
+        "year": "2020",
+        "co": "Albayrak Grubu",
+        "logo": "/logos/albayrak.svg",
+        "role": "Digital Marketing Specialist",
+        "period": "Oct 2020 – Aug 2021",
+        "desc": "Managed digital marketing campaigns across group companies."
+      },
+      {
+        "kind": "single",
+        "year": "2019",
+        "co": "Doğuş Oto",
+        "logo": "/logos/dogus-oto.svg",
+        "role": "Jr. Digital Marketing Specialist",
+        "period": "Sep 2019 – Aug 2020",
+        "desc": "Digital marketing execution for an automotive dealer group."
+      }
+    ],
+    "contact.linkedinGo": "View profile",
+    "contact.emailLabel": "Send an email",
+    "contact.emailGo": "Email me",
+    "journeyBuilder.ctaJourney": "Open this journey",
+    "journeyBuilder.anatomy": {
+      "eyebrow": "Anatomy",
+      "title": "One journey, every part labelled.",
+      "body": "This is a real canonical journey, unmodified. Read it once and the model behind all of them is clear: a trigger, forks with named arms, a bounded wait, an action that appends rather than overwrites, a handoff, and exits that say when a new instance may start.",
+      "legendTitle": "Node types across the library"
+    },
+    "journeyBuilder.inspector": {
+      "eyebrow": "Zoom in",
+      "title": "What a handoff carries across.",
+      "body": "When ownership moves to another lifecycle, something has to survive the boundary. A handoff names its destination, the condition it fires on, and exactly what it carries across, so the receiving journey starts informed rather than blank.",
+      "to": "to",
+      "on": "on",
+      "carries": "carries",
+      "handoffsLabel": "handoffs across the library"
+    },
+    "journeyBuilder.how": {
+      "eyebrow": "How it works",
+      "title": "Find it, read it, adapt it.",
+      "body": "The library is the product. Three things you do with it.",
+      "steps": [
+        {
+          "title": "Find the journey",
+          "body": "Filter by category, lifecycle stage, goal or the kind of evidence a trigger runs on."
+        },
+        {
+          "title": "Read the logic",
+          "body": "Follow the graph node by node: every branch, wait and handoff is written out, with the rule behind it."
+        },
+        {
+          "title": "Adapt it",
+          "body": "Take the state machine into your own stack. The logic is the deliverable; message copy was never in scope."
+        }
+      ]
+    },
+    "journeyBuilder.related": {
+      "title": "Related",
+      "abTest": "A/B Test Playbook",
+      "abTestDesc": "The experimentation side of the same practice."
+    },
+    "journeyBuilder.watchDemo": "Watch demo",
+    "abTesting.exampleTitle": "One real scenario from the archive",
+    "abTesting.product.heroProof": [
+      "Open source",
+      "Claude Code plugin",
+      "Nothing to sign up for"
+    ]
+  },
+  "tr": {
+    "hero.reassurance": [
+      "Mobile App Growth Lead, Aksigorta",
+      "Growth'ta 7+ yıl",
+      "İstanbul"
+    ],
+    "lab.viewAll": "Tüm projeleri gör",
+    "lab.journeysSplit.communicationLabel": "İletişim journey'leri",
+    "lab.journeysSplit.internalLabel": "Internal journey'ler",
+    "lab.journeysSplit.hubIntro": "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı. İki taraf da kendi sayfasında aranıp filtrelenebilir; her kayıt dizi değil, graf.",
+    "lab.journeysSplit.communicationBlurb": "Bir kişiye ulaşan journey'ler: mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task).",
+    "lab.journeysSplit.internalBlurb": "Tamamen sistemin içinde çözülen journey'ler. Mesaj yok, insana yönlendirme yok. Kendi başına iletişimi olmayan state machine'ler.",
+    "lab.journeysSplit.communication": {
+      "title": "İletişim journey'leri",
+      "intro": "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor: mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce."
+    },
+    "lab.journeysSplit.internal": {
+      "title": "Internal journey'ler",
+      "intro": "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor. Mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Kategoriye göre gruplandı. Ara ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce."
+    },
+    "about.title": "Profesyonel Profil",
+    "about.sub": "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
+    "about.lead": "Yedi yıldır dijital pazarlama ve growth alanında, farklı ürün ve iş modelleri için büyüme stratejileri üzerinde çalışıyorum.",
+    "about.body": "Analitik, kullanıcı kazanımı, ürün ve büyüme stratejisi üzerinde çalıştım. Kampanya performansını değerlendirmek, kullanıcı davranışını okumak ve büyüme fırsatlarını bulmak için veriye bakıyorum. Kampanya yönetiminden ölçümleme ve optimizasyona kadar, pazarlama işini iş hedeflerine bağlı tutmaya odaklanıyorum.",
+    "about.experience": "Deneyim",
+    "about.timeline": [
+      {
+        "kind": "single",
+        "year": "2026",
+        "co": "Aksigorta",
+        "logo": "/logos/aksigorta.svg",
+        "role": "Mobil Uygulama Büyüme Lideri",
+        "period": "Nis 2026 – Günümüz",
+        "desc": "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyüme stratejisini, kullanıcı kazanımını ve etkileşimini yönetiyorum."
+      },
+      {
+        "kind": "single",
+        "year": "2024",
+        "co": "Vodafone",
+        "logo": "/logos/vodafone.svg",
+        "role": "Büyüme Pazarlaması Lideri",
+        "period": "Ağu 2024 – Nis 2026",
+        "desc": "Dijital kanallarda büyüme pazarlamasını yönettim; veriye dayalı kullanıcı kazanımını lifecycle programlarıyla birleştirdim."
+      },
+      {
+        "kind": "single",
+        "year": "2023",
+        "co": "Getir",
+        "logo": "/logos/getir.svg",
+        "role": "Büyüme – CRM Analitiği Uzmanı",
+        "period": "Eyl 2023 – Ağu 2024",
+        "desc": "Hızlı ticaret için CRM analitiği ve growth çalışmalarını yönettim; odak elde tutma ve LTV'ydi."
+      },
+      {
+        "kind": "group",
+        "year": "2021",
+        "co": "Wingie Enuygun Group",
+        "logo": "/logos/enuygun.png",
+        "span": "Tam zamanlı · 2 yıl",
+        "roles": [
+          {
+            "role": "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
+            "period": "Oca 2023 – Ağu 2023",
+            "desc": "Grubun seyahat markalarının tamamında lifecycle ve CRM programlarını yürüttüm."
+          },
+          {
+            "role": "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
+            "period": "Eyl 2021 – Oca 2023",
+            "desc": "Önde gelen bir çevrimiçi seyahat platformu için lifecycle pazarlama programları kurdum ve yürüttüm."
+          }
+        ]
+      },
+      {
+        "kind": "single",
+        "year": "2020",
+        "co": "Albayrak Grubu",
+        "logo": "/logos/albayrak.svg",
+        "role": "Dijital Pazarlama Uzmanı",
+        "period": "Eki 2020 – Ağu 2021",
+        "desc": "Grup şirketleri genelinde dijital pazarlama kampanyalarını yönettim."
+      },
+      {
+        "kind": "single",
+        "year": "2019",
+        "co": "Doğuş Oto",
+        "logo": "/logos/dogus-oto.svg",
+        "role": "Jr. Dijital Pazarlama Uzmanı",
+        "period": "Eyl 2019 – Ağu 2020",
+        "desc": "Türkiye'nin önde gelen otomotiv bayi gruplarından biri için dijital pazarlama uygulamaları yürüttüm."
+      }
+    ],
+    "contact.linkedinGo": "Profili görüntüle",
+    "contact.emailLabel": "E-posta gönder",
+    "contact.emailGo": "Bana e-posta at",
+    "journeyBuilder.ctaJourney": "Bu journey'i aç",
+    "journeyBuilder.anatomy": {
+      "eyebrow": "Anatomi",
+      "title": "Tek bir journey, her parçası etiketli.",
+      "body": "Bu, değiştirilmemiş gerçek bir kanonik journey. Bir kez okuyunca hepsinin arkasındaki model netleşiyor: bir tetikleyici, adlandırılmış kollu çatallar, sınırlı bir bekleme, üzerine yazmak yerine ekleyen bir aksiyon, bir devir ve yeni bir örneğin ne zaman başlayabileceğini söyleyen çıkışlar.",
+      "legendTitle": "Kütüphane genelinde düğüm tipleri"
+    },
+    "journeyBuilder.inspector": {
+      "eyebrow": "Yakınlaş",
+      "title": "Devir, durumu da taşır.",
+      "body": "Sahiplik başka bir lifecycle'a geçtiğinde, bir şeyin bu sınırdan sağ çıkması gerekir. Bir devir hedefini, hangi koşulda ateşlendiğini ve tam olarak neyi taşıdığını adlandırır. Böylece devralan journey boş değil, bilgili başlar.",
+      "to": "hedef",
+      "on": "koşul",
+      "carries": "taşıdığı",
+      "handoffsLabel": "devir kütüphanede"
+    },
+    "journeyBuilder.how": {
+      "eyebrow": "Nasıl çalışır",
+      "title": "Bul, oku, uyarla.",
+      "body": "Ürün kütüphanenin kendisi. Onunla yaptığın üç şey bunlar.",
+      "steps": [
+        {
+          "title": "Journey'i bul",
+          "body": "Kategoriye, lifecycle aşamasına, hedefe veya tetikleyicinin dayandığı kanıt türüne göre filtrele."
+        },
+        {
+          "title": "Mantığı oku",
+          "body": "Grafı düğüm düğüm takip et. Her dal, bekleme ve devir, arkasındaki kuralla birlikte yazılmış."
+        },
+        {
+          "title": "Uyarla",
+          "body": "State machine'i kendi sistemine taşı. Teslim edilen şey mantık; mesaj metni hiçbir zaman kapsamda değildi."
+        }
+      ]
+    },
+    "journeyBuilder.related": {
+      "title": "İlgili",
+      "abTest": "A/B Test Playbook",
+      "abTestDesc": "Aynı pratiğin deney tarafı."
+    },
+    "journeyBuilder.watchDemo": "Demoyu izle",
+    "abTesting.exampleTitle": "Arşivden gerçek bir senaryo",
+    "abTesting.product.heroProof": [
+      "Açık kaynak",
+      "Claude Code eklentisi",
+      "Kayıt gerekmiyor"
+    ]
+  }
+}

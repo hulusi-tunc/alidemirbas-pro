@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 
+import { getCompute } from "@/lib/calc-registry";
 import {
   AB_SCALE,
   CATEGORY_COUNTS,
@@ -409,23 +410,42 @@ export function HowStepDesign({ lang }: { lang: Lang }) {
 }
 
 /* Step 3 — deciding. The only visual on the page carrying computed
-   numbers, and they are the LIVE ab-test calculator's own verified
-   example (5,000/250 vs 5,000/290 -> p 0.0847, not significant). The
-   rates and uplifts below are that example's exact arithmetic:
-     250/5000 = 5.00%   290/5000 = 5.80%
-     absolute +0.80pp   relative +16.0%
+   numbers, and they are the LIVE ab-test calculator's own worked
+   example (5,000/250 vs 5,000/290 -> p 0.0768, not significant - the
+   same example production/calculators/content/ab-test.json prints).
+   The rates, uplift and p-value are no longer typed here: they are read
+   from the calculator's own compute function (calc-registry.ts) at
+   module load, so this panel and the /calculators/ab-test page can
+   never disagree. (A hand-typed "0.0847" used to sit here; the
+   calculator has always said 0.0768.)
    Deliberately a NON-significant result: a double-digit lift that
    doesn't clear the bar is the single most useful thing this product
    teaches, and inventing a flattering "winner" would be inventing data. */
-const AB_EXAMPLE = {
+const AB_EXAMPLE_INPUTS = {
   controlVisitors: 5000,
   controlConversions: 250,
   variantVisitors: 5000,
   variantConversions: 290,
-  controlRate: "5.00%",
-  variantRate: "5.80%",
-  relativeUplift: "+16.0%",
-  pValue: "0.0847",
+} as const;
+const abTestCompute = getCompute("ab-test");
+if (!abTestCompute) throw new Error("AbTestVisuals: the ab-test calculator left calc-registry");
+const abTestResult = abTestCompute({
+  visitorsA: AB_EXAMPLE_INPUTS.controlVisitors,
+  conversionsA: AB_EXAMPLE_INPUTS.controlConversions,
+  visitorsB: AB_EXAMPLE_INPUTS.variantVisitors,
+  conversionsB: AB_EXAMPLE_INPUTS.variantConversions,
+});
+const pct = (v: unknown, digits: number) => `${((v as number) * 100).toFixed(digits)}%`;
+const AB_EXAMPLE = {
+  ...AB_EXAMPLE_INPUTS,
+  /** 5.00% */
+  controlRate: pct(abTestResult.controlRate, 2),
+  /** 5.80% */
+  variantRate: pct(abTestResult.variantRate, 2),
+  /** +16.0% */
+  relativeUplift: `+${pct(abTestResult.relativeUplift, 1)}`,
+  /** 0.0768 */
+  pValue: (abTestResult.pValue as number).toFixed(4),
 } as const;
 
 export function HowStepRead({ lang }: { lang: Lang }) {
@@ -533,7 +553,8 @@ function CanvasChip({ children }: { children: React.ReactNode }) {
 export function HeroProductCanvas({ lang }: { lang: Lang }) {
   const rows = canvasRows(lang);
   const t = copy[lang].abTesting.product;
-  const searchPlaceholder = lang === "en" ? "Search 211 scenarios…" : "211 senaryoda ara…";
+  const searchPlaceholder =
+    lang === "en" ? `Search ${nf(lang, AB_SCALE.scenarios)} scenarios…` : `${nf(lang, AB_SCALE.scenarios)} senaryoda ara…`;
 
   return (
     <div className="relative">

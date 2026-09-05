@@ -24,7 +24,7 @@ import { breadcrumbList, softwareApplication } from "@/lib/schema";
    floating around the hero and the final CTA, the three old feature
    images, the five old carousel slides) was either a Gemini/Veo-generated
    fake or a real screenshot of the wrong product (the Canonical Journey
-   Library at /lab/journeys - a different, generic 281-journey subsystem,
+   Library at /lab/journeys - a different, generic journey subsystem,
    NOT this product's own output; ACQ-01/CON-38 are that library's ids,
    not claude-lifecycle's). The AI-generated ones were confirmed, not
    assumed: every one of those files carries an identical Google C2PA

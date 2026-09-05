@@ -199,7 +199,7 @@ export const LIBRARY_GROUP_ORDER: readonly LibraryGroup[] = [
 const bySlug = new Map(CATALOG.map((c) => [c.slug, c]));
 
 /* Every slug that should resolve as a real route under /calculators/[slug]
-   - the 34 live calculators plus the 2 text tools. generateStaticParams
+   - the 19 live calculators plus the 2 text tools. generateStaticParams
    uses this so an unknown slug 404s instead of falling through. */
 export const ALL_TOOL_SLUGS: readonly string[] = [...LIVE_CALCULATOR_SLUGS, ...TEXT_TOOL_SLUGS];
 

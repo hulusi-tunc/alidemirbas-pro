@@ -25,7 +25,7 @@ export type Project = (typeof copy)[Lang]["lab"]["projects"][number];
     label list and the render. Two rows now instead of one broken chain,
     so the canvas reads as a fuller graph rather than a single path -
     still every label is one of the library's own seven, nothing invented. */
-export function JourneyCanvasPreview({ lang, size = "md" }: { lang: Lang; size?: "md" | "lg" }) {
+export function JourneyCanvasPreview({ lang }: { lang: Lang }) {
   const T2 = {
     en: {
       label: "Journey canvas",
@@ -46,7 +46,7 @@ export function JourneyCanvasPreview({ lang, size = "md" }: { lang: Lang; size?:
   return (
     <div
       aria-hidden
-      className={`rounded-t-[12px] bg-gradient-to-br from-primary-50 via-paper to-primary-100 p-5 pb-6 shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_8px_24px_-12px_rgb(10_16_32/0.12)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01] ${size === "lg" ? "min-h-[240px]" : "min-h-[190px]"}`}
+      className={`rounded-t-[12px] bg-gradient-to-br from-primary-50 via-paper to-primary-100 p-5 pb-6 shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_8px_24px_-12px_rgb(10_16_32/0.12)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01] min-h-[190px]`}
     >
       <p className="text-[13px] font-semibold text-ink-950">{T2.label}</p>
       <div className="mt-4 flex flex-wrap items-center gap-2.5">
@@ -245,7 +245,7 @@ export function ToolGridPreview({ lang, size = "md" }: { lang: Lang; size?: "md"
   const T2 = {
     en: {
       label: "numerspace.com",
-      sub: "75+ tools · EN/TR",
+      sub: "97 tools · EN/TR",
       items: [
         ["Finance", "Compound interest"],
         ["Health", "BMI"],
@@ -255,7 +255,7 @@ export function ToolGridPreview({ lang, size = "md" }: { lang: Lang; size?: "md"
     },
     tr: {
       label: "numerspace.com",
-      sub: "75+ araç · EN/TR",
+      sub: "97 araç · EN/TR",
       items: [
         ["Finans", "Bileşik faiz"],
         ["Sağlık", "VKİ"],

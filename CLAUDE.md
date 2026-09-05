@@ -66,7 +66,7 @@ and fully prerenderable. Shipping a page in one locale only is the default failu
 
 Both page files are thin wrappers — a `metadata` export plus a shared component from
 `src/components/` taking a `lang: Lang` prop. All copy lives in one dictionary,
-`src/lib/content.ts` (1200 lines, `copy.en` / `copy.tr`); there is no i18n library and no
+`src/lib/content.ts` (~1650 lines, `copy.en` / `copy.tr`); there is no i18n library and no
 `dictionaries/` folder.
 
 Dynamic routes keep the two locales in lockstep through a shared `*Routes.tsx` module that
@@ -117,7 +117,7 @@ See `JOURNEY_VNEXT_ARCHITECTURE.md`, `ARCHITECTURE_PATCH_0_5.md` and `VNEXT_MIGR
 Data flows **`src/canonical/index.ts` → `src/lib/canonical-view.ts` → pages**. That adapter is the
 only bridge and it is **server-only**: `JOURNEY_ROWS` and the preview thumbnails are computed
 once at module load. Importing `@/canonical` or `@/lib/canonical-view` from a `"use client"`
-file ships 281 node graphs to the browser — client components take shaped props and import
+file ships all 284 journey graphs (3690 nodes) to the browser — client components take shaped props and import
 only *types*. `journey-preview.ts` deliberately reuses `layoutJourneyCanvas` from
 `journey-canvas-layout.ts` so a card thumbnail and its detail canvas can never disagree; do not
 add a second layout engine.
@@ -133,14 +133,16 @@ exit with `reEntry`, and `channels` that must be *backed* by an action carrying
 
 Merged ids are addressable but are not journeys: they get a slug, render the survivor's detail,
 are forced `noindex` with a canonical pointing at the survivor, and are excluded from the
-sitemap. `src/lib/journey-marketing.ts` hard-references 6 journey ids and **throws at module
-load** if any is removed.
+sitemap. `src/lib/journey-marketing.ts` hard-references 5 journey ids (the featured `ACQ-01` plus 4 showcase
+cards) and **throws at module load** if any is removed. Three of the five (`ACQ-01`, `CON-38`, `TIM-65`)
+are public but are silent lifecycle states, not library journeys.
 
 **The public site projects THREE of the four surfaces (since 2026-09-05).** The Operational
 Workflows surface (`/lab/operational-workflows`, 124 journeys) was removed from the public
 website and archived under `archive/operational-workflows/` — read its README before touching
 anything surface-related. The canonical graph is UNCHANGED (284 journeys; `validate:canonical`
-still reports `operational 124`) because 67 public journeys hand off into operational ones and
+still reports `operational 124`) because 54 public journeys hand off into operational ones (78 handoff
+edges to 23 targets; 67 public journeys reference 41 of them once `distinctFrom` rows are counted) and
 the validator requires every handoff target to exist. The archive is enforced at the publishing
 boundary by one predicate, `src/lib/public-corpus.ts` (`isPublicJourney` = surface is not
 `operational`): `JOURNEY_ROWS`, `ALL_DETAIL_SLUGS`, `MERGED_REDIRECTS` (5 of 8 — the 3 whose
@@ -190,7 +192,7 @@ server-only view models. Lab/skill projects are authored **only** in `copy[lang]
 
 ### Design tokens
 
-`src/app/globals.css` is a ~1380-line design constitution — a Tailwind v4 `@theme` block holding
+`src/app/globals.css` is a ~1650-line design constitution — a Tailwind v4 `@theme` block holding
 the neutral/ink/primary ramps, the type ramp, the radius scale, and motion durations, each with
 the reasoning written inline. Read the comment before changing a token; several are guardrails
 (`--font-serif` is aliased to the sans so the `font-serif` utility cannot produce a serif).
@@ -214,7 +216,7 @@ Hand-authored: everything in `src/`, every contract JSON in `seo/` and `search/`
 validators themselves. `archive/` is preserved-but-retired repository content (currently the
 Operational Workflows corpus): a verbatim export plus the removed route shells, taxonomy and copy,
 with a README explaining structure and restoration. Nothing in the build imports from it. Several validators and the search index generator **hardcode corpus
-counts** (`211` ab-tests, `284` journeys, `3674` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
+counts** (`211` ab-tests, `284` journeys, `3690` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
 adding a record fails them until those constants are updated in lockstep. Those `284`/`8` are the
 CANONICAL corpus and stay correct after the Operational Workflows archive; the PUBLIC corpus is
 160 routed journeys / 5 public merged redirects, the stated LIBRARY is 71 journeys / 21 categories,

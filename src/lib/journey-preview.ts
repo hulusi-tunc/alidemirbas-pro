@@ -36,7 +36,7 @@ import { layoutJourneyCanvas, type CanvasNodeKind } from "@/lib/journey-canvas-l
    Everything here is computed once per journey on the server (canonical-view
    builds it into JOURNEY_ROWS at build time) and shipped as small integers.
    The card component maps those integers straight onto SVG elements - no
-   layout runs in the browser for any of the 281 cards. */
+   layout runs in the browser for any card. */
 
 /** Kinds, in a fixed order - the wire format stores an index into this, so
     the order is part of the format and must not be reshuffled. */
@@ -53,7 +53,7 @@ export const PREVIEW_KINDS: readonly CanvasNodeKind[] = [
 const KIND_INDEX = new Map<CanvasNodeKind, number>(PREVIEW_KINDS.map((k, i) => [k, i]));
 
 /** The thumbnail's coordinate space. Integers throughout, so the serialized
-    payload for 281 cards stays small; the SVG scales to whatever the card
+    payload for a full surface of cards stays small; the SVG scales to whatever the card
     band actually is. Aspect matches the band the design specifies. */
 export const PREVIEW_VIEWBOX = { width: 1000, height: 440 } as const;
 const PAD = 40;
@@ -89,7 +89,7 @@ export type JourneyPreview = {
   n: readonly (readonly [number, number, number])[];
   /** Every edge as one combined SVG path (subpaths joined) - one DOM node
       for the whole connection layer instead of one per edge, which is what
-      keeps 281 thumbnails cheap. */
+      keeps a full surface of thumbnails cheap. */
   e: string;
   /** The glyph unit for this journey - glyph dimensions are PREVIEW_GLYPH
       multiples of it. Scales with how much room each node actually has. */

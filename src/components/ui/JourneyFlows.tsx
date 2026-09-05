@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Check, Minus } from "lucide-react";
 
 import {
-  Connector, FlowStrip, Fork, ForkArm, JourneyNode, NODE_KIND_META, kindLabel, nodeById,
+  Connector, FlowStrip, Fork, ForkArm, JourneyNode, nodeById,
 } from "@/components/ui/JourneyVisuals";
 import {
   FEATURED_JOURNEY, JOURNEY_CATEGORY_COUNTS, JOURNEY_SCALE, showcaseCards,
@@ -269,59 +269,6 @@ export function WaitTimeline({ lang }: { lang: Lang }) {
         </span>
       </p>
       <p className="mt-1.5 text-[12px] leading-snug text-ink-500">{t.note}</p>
-    </div>
-  );
-}
-
-/* ====================================================================
-   VISUAL-J06 — Node inspector: ONE node, zoomed.
-   The page's deliberate scale change, per the brief's "shift between the
-   whole product and a small product detail".
-   ==================================================================== */
-
-export function HandoffInspector({ lang }: { lang: Lang }) {
-  const t = copy[lang].journeyBuilder.inspector;
-  const h = J.handoff;
-  if (!h) return null;
-  const meta = NODE_KIND_META.handoff;
-  const Icon = meta.icon;
-  return (
-    <div className="overflow-hidden rounded-card border border-line-soft bg-paper">
-      <div className="flex items-center gap-2 border-b border-line-soft bg-paper-soft/70 px-4 py-2.5">
-        <span aria-hidden className={`h-4 w-[3px] rounded-full ${meta.rule}`} />
-        <Icon aria-hidden className="size-3.5 text-ink-400" />
-        <span className="font-mono text-[10px] tracking-wider text-ink-500 uppercase">
-          {kindLabel("handoff", lang)}
-        </span>
-        <span className="ml-auto font-mono text-[11px] text-ink-400">{J.id}</span>
-      </div>
-
-      <dl className="divide-y divide-line-soft">
-        <div className="grid grid-cols-[5.5rem_1fr] gap-3 px-4 py-3">
-          <dt className="font-mono text-[11px] text-ink-400">{t.to}</dt>
-          <dd className="min-w-0">
-            <span className="font-mono text-[12px] text-primary-700">{h.to}</span>
-            {h.toName && <span className="mt-0.5 block text-[12px] leading-snug text-ink-600">{h.toName}</span>}
-          </dd>
-        </div>
-        <div className="grid grid-cols-[5.5rem_1fr] gap-3 px-4 py-3">
-          <dt className="font-mono text-[11px] text-ink-400">{t.on}</dt>
-          <dd className="text-[12px] leading-snug text-ink-700">{h.on}</dd>
-        </div>
-        <div className="grid grid-cols-[5.5rem_1fr] gap-3 px-4 py-3">
-          <dt className="font-mono text-[11px] text-ink-400">{t.carries}</dt>
-          <dd>
-            <ul className="flex flex-col gap-1.5">
-              {h.carries.map((c) => (
-                <li key={c} className="flex gap-2 text-[12px] leading-snug text-ink-700">
-                  <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-primary-600" />
-                  {c}
-                </li>
-              ))}
-            </ul>
-          </dd>
-        </div>
-      </dl>
     </div>
   );
 }
