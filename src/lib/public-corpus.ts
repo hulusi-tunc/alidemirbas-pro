@@ -57,6 +57,22 @@ export function isPublicJourneyId(id: string): boolean {
   return target !== undefined && PUBLIC_IDS.has(target.id);
 }
 
+/** THE LIBRARY, as the public site states it (2026-09-05, product decision):
+    the Customer Journeys surface - a public journey whose own work reaches a
+    person, by message or by routing the work to someone. This is the exact
+    listing rule canonical-view.ts's `surfaceKeyOf` applies for the
+    "customer-journeys" key; canonical-view asserts the two agree at module
+    load. The 64 silent lifecycle states and 25 runtime mechanisms are still
+    public, still routed and still counted on their OWN surface pages - they
+    are just not what "the library" means in a headline, a project card or a
+    metadata description. Every public count derives from this list. */
+export function isLibraryJourney(j: Pick<CanonicalJourney, "id" | "category" | "channels" | "entity">): boolean {
+  const sf = surfaceOf(j);
+  return sf.surface === "customer" && (sf.sends || sf.routesToHuman);
+}
+
+export const LIBRARY_JOURNEYS: readonly CanonicalJourney[] = PUBLIC_JOURNEYS.filter(isLibraryJourney);
+
 /** The size of the archived remainder - kept as a real number the archive
     README and the validators can be checked against, never rendered on a
     public page. */

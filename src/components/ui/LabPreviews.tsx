@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Search } from "lucide-react";
 
 import { JOURNEY_COUNT } from "@/lib/archive";
-import { CATEGORY_COUNT } from "@/lib/canonical-view";
+import { LIBRARY_CATEGORY_COUNT } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
 
 /* Per-project decorative previews, extracted from LabIndexPage.tsx so the
@@ -78,15 +78,17 @@ export function JourneyCanvasPreview({ lang, size = "md" }: { lang: Lang; size?:
 /** Real, live counts + a curated real-category highlight. */
 export function CategoryLibraryPreview({ lang }: { lang: Lang }) {
   const T2 = { en: { journeys: "journeys", categories: "categories", more: "more" }, tr: { journeys: "journey", categories: "kategori", more: "daha" } }[lang];
-  // A curated highlight, not the full 26 — every id below is a real
-  // category id in the canonical registry.
-  const HIGHLIGHT = ["Activation", "Communication", "Consent", "Decision", "Feedback", "Financial", "Incident", "Retention", "Risk", "Scheduling", "Subscription"];
-  const more = Math.max(CATEGORY_COUNT - HIGHLIGHT.length, 0);
+  // A curated highlight, not the full list — every name below is a real
+  // category with at least one LIBRARY (Customer Journeys) journey in it.
+  // "Communication" was dropped 2026-09-05: it is a runtime-mechanism-only
+  // category, so it has no library journey and would inflate the count.
+  const HIGHLIGHT = ["Activation", "Consent", "Decision", "Feedback", "Financial", "Incident", "Retention", "Risk", "Scheduling", "Subscription"];
+  const more = Math.max(LIBRARY_CATEGORY_COUNT - HIGHLIGHT.length, 0);
   return (
     <div aria-hidden className="min-h-[190px] rounded-t-[12px] bg-paper p-5 pb-6 shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_8px_24px_-12px_rgb(10_16_32/0.12)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01]">
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[13px] font-semibold text-ink-950 tabular-nums">{JOURNEY_COUNT} {T2.journeys}</p>
-        <p className="text-xs text-ink-400 tabular-nums">{CATEGORY_COUNT} {T2.categories}</p>
+        <p className="text-xs text-ink-400 tabular-nums">{LIBRARY_CATEGORY_COUNT} {T2.categories}</p>
       </div>
       <div className="mt-3.5 flex flex-wrap gap-2">
         {HIGHLIGHT.map((c, i) => (

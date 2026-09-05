@@ -15,7 +15,7 @@ import {
   SURFACE_ROWS,
   isHumanRoutingRow,
   type SurfaceKey,
-  withCanonicalCount,
+  withLibraryCount,
   type JourneyRow,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
@@ -92,10 +92,10 @@ function Hero({ lang }: { lang: Lang }) {
       <PortraitContainer className="text-center">
         <Reveal>
           <p className="altor-eyebrow mb-5 text-ink-400">{c.eyebrow}</p>
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{withCanonicalCount(c.title)}</h1>
+          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{withLibraryCount(c.title)}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{withCanonicalCount(c.sub)}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{withLibraryCount(c.sub)}</p>
         </Reveal>
         <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
           <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="dark">{c.ctaCommunication}</Pill>
@@ -351,7 +351,7 @@ function Library({ lang }: { lang: Lang }) {
   return (
     <ProductSection tone="paper" space="xl" className="overflow-hidden">
       <PortraitContainer>
-        <ProductHeading eyebrow={c.eyebrow} title={withCanonicalCount(c.title)} body={c.body} align="center" />
+        <ProductHeading eyebrow={c.eyebrow} title={withLibraryCount(c.title)} body={c.body} align="center" />
         <Reveal delay={100} className="mt-14">
           <JourneyLibrarySpread lang={lang} />
         </Reveal>

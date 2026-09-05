@@ -1,8 +1,6 @@
 import {
   CATEGORIES,
-  GLOBAL_RULES,
   MERGED_INTO,
-  RULES,
   byId,
   resolveJourneyId,
 } from "@/canonical";
@@ -10,7 +8,7 @@ import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
 import { practitionerView, type PractitionerView } from "@/lib/practitioner-view";
 import { surfaceOf } from "@/canonical/surface";
-import { PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
+import { LIBRARY_JOURNEYS, PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
 import type { Preset } from "@/canonical/types";
 import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId, SignalSource } from "@/canonical/types";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
@@ -31,29 +29,35 @@ import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview"
    take what they need as props and import nothing from here but types, which
    is what keeps 256 journeys and 3197 nodes out of the browser bundle. */
 
-/* PUBLIC, NOT CANONICAL (2026-09-05). Every count and list below that a page
-   renders reads PUBLIC_JOURNEYS - the canonical library minus the archived
-   Operational surface (see src/lib/public-corpus.ts). The whole graph is
-   still reached, deliberately, through `byId`/`resolveJourneyId` alone: a
-   customer journey's handoff node still names the archived journey it hands
-   to (as text, not a link), and a retired id still resolves to its survivor
-   before the public check is applied. A public page advertising the full
-   graph's size would be stating a number the site no longer shows, which is
-   exactly the kind of number this site does not put on a page. */
-export const CANONICAL_COUNT = PUBLIC_JOURNEYS.length;
-/** Categories with at least one PUBLIC journey. Three categories (control,
-    data, ownership) are wholly operational and therefore absent here. */
-const PUBLIC_CATEGORIES = CATEGORIES.filter((c) => c.journeys.some((j) => PUBLIC_JOURNEYS.includes(j)));
-export const CATEGORY_COUNT = PUBLIC_CATEGORIES.length;
-export const RULE_COUNT = RULES.length;
-export const GLOBAL_RULE_COUNT = GLOBAL_RULES.length;
+/* THE TWO NUMBERS THE PUBLIC SITE STATES ABOUT THE LIBRARY (2026-09-05).
 
-/** Fills `{count}` in a copy string with the real library size. */
-export function withCanonicalCount(text: string): string {
-  return text
-    .replaceAll("{count}", String(CANONICAL_COUNT))
-    .replaceAll("{categories}", String(CATEGORY_COUNT))
-    .replaceAll("{rules}", String(RULE_COUNT + GLOBAL_RULE_COUNT));
+   Rows and routes read PUBLIC_JOURNEYS - the canonical library minus the
+   archived Operational surface (src/lib/public-corpus.ts). Headlines,
+   project cards, metadata descriptions and UI counters read LIBRARY_JOURNEYS
+   - the Customer Journeys surface, which is what "the library" means when a
+   page states its size. Both are verified, derived counts; neither is typed
+   anywhere. The whole graph is still reached, deliberately, through
+   `byId`/`resolveJourneyId` alone: a customer journey's handoff node still
+   names an archived journey it hands to (as text, not a link), and a
+   retired id still resolves to its survivor before the public check runs.
+
+   Orchestration-rule counts are NOT exported from here any more: no public
+   page states a rule count. `withLibraryCount` refuses a string that still
+   carries `{rules}`, so stale copy fails the build instead of rendering a
+   number nothing on the site can stand behind. */
+export const LIBRARY_COUNT = LIBRARY_JOURNEYS.length;
+/** Categories with at least one library (Customer Journeys) journey. */
+export const LIBRARY_CATEGORY_COUNT = new Set(LIBRARY_JOURNEYS.map((j) => j.category)).size;
+
+/** Categories with at least one PUBLIC journey, for gallery section
+    headers and filters (which are per-surface anyway). */
+const PUBLIC_CATEGORIES = CATEGORIES.filter((c) => c.journeys.some((j) => PUBLIC_JOURNEYS.includes(j)));
+
+/** Fills `{count}`/`{categories}` in a copy string with the library's real,
+    derived size. Throws on `{rules}`: see the note above. */
+export function withLibraryCount(text: string): string {
+  if (text.includes("{rules}")) throw new Error(`withLibraryCount: copy still carries a {rules} token - no public page states a rule count: "${text.slice(0, 60)}…"`);
+  return text.replaceAll("{count}", String(LIBRARY_COUNT)).replaceAll("{categories}", String(LIBRARY_CATEGORY_COUNT));
 }
 
 const CATEGORY_TITLE = new Map<CategoryId, string>(CATEGORIES.map((c) => [c.id, c.title]));
@@ -496,6 +500,15 @@ export const SURFACE_ROWS: Readonly<Record<SurfaceKey, readonly JourneyRow[]>> =
   "lifecycle-states": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "lifecycle-states"),
   "runtime-mechanisms": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "runtime-mechanisms"),
 };
+
+/** The library's rows - the Customer Journeys surface, by the same rule
+    `LIBRARY_COUNT` is derived from. The two derivations (surfaceOf-based in
+    public-corpus.ts, row-based here) must agree, and this is where a drift
+    would fail the build rather than ship two different numbers. */
+export const LIBRARY_ROWS: readonly JourneyRow[] = SURFACE_ROWS["customer-journeys"];
+if (LIBRARY_ROWS.length !== LIBRARY_COUNT) {
+  throw new Error(`library count drift: surfaceOf says ${LIBRARY_COUNT} library journeys, surfaceKeyOf lists ${LIBRARY_ROWS.length}`);
+}
 
 /** A preset is a named specialisation of a communicating customer journey
     whose only differences are config values, a destination and vocabulary.

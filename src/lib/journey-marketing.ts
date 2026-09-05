@@ -1,4 +1,5 @@
-import { CATEGORIES, JOURNEYS, byId } from "@/canonical";
+import { CATEGORIES, byId } from "@/canonical";
+import { LIBRARY_JOURNEYS } from "@/lib/public-corpus";
 import type { CanonicalJourney, CanonicalNode } from "@/canonical/types";
 import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
@@ -17,8 +18,16 @@ import { eventText } from "@/canonical/events";
    SIX journeys, not 255 - the marketing page has no reason to ship the
    whole graph to draw a preview.
 
-   NOTHING IS INVENTED. Every count is computed from the canonical library
-   at module load; every label is a real field. */
+   NOTHING IS INVENTED. Every count is computed at module load; every label
+   is a real field.
+
+   COUNTS ARE OVER THE LIBRARY (2026-09-05): LIBRARY_JOURNEYS from
+   src/lib/public-corpus.ts - the Customer Journeys surface, which is what
+   every public page means by "the library" - not the whole canonical graph.
+   This module used to read `JOURNEYS` directly, which after the Operational
+   Workflows archive put "284 journeys / 26 categories" on the hub's stat
+   strip directly under a hero that said something else. The featured and
+   showcase journeys are looked up by id through `byId` and are all public. */
 
 export type Lang = "en" | "tr";
 
@@ -26,7 +35,7 @@ export type NodeKind = CanonicalNode["kind"];
 
 /* ---- Corpus-wide scale, all derived ---------------------------------- */
 
-const ALL_NODES = JOURNEYS.flatMap((j) => j.nodes);
+const ALL_NODES = LIBRARY_JOURNEYS.flatMap((j) => j.nodes);
 
 const kindCounts = (() => {
   const m = new Map<NodeKind, number>();
@@ -35,27 +44,26 @@ const kindCounts = (() => {
 })();
 
 export const JOURNEY_SCALE = {
-  /** 284 */
-  journeys: JOURNEYS.length,
-  /** 26 */
-  categories: CATEGORIES.length,
-  /** 3,674 */
+  /** The library: Customer Journeys surface. */
+  journeys: LIBRARY_JOURNEYS.length,
+  /** Categories with at least one library journey. */
+  categories: new Set(LIBRARY_JOURNEYS.map((j) => j.category)).size,
   nodes: ALL_NODES.length,
-  /** 7 - trigger, action, condition, wait, outcome, exit, handoff */
+  /** trigger, action, condition, wait, outcome, exit, handoff - whichever occur */
   nodeKinds: kindCounts.size,
-  /** 702 - every one carries at least two named branches, by schema */
+  /** every one carries at least two named branches, by schema */
   conditions: kindCounts.get("condition") ?? 0,
-  /** 164 - every one carries a timeout and both arms, by schema */
+  /** every one carries a timeout and both arms, by schema */
   waits: kindCounts.get("wait") ?? 0,
-  /** 500 - ownership moving to another lifecycle */
+  /** ownership moving to another lifecycle */
   handoffs: kindCounts.get("handoff") ?? 0,
 } as const;
 
 export type KindCount = { kind: NodeKind; count: number };
 
 /** Node kinds, heaviest first. `outcome` is genuinely in the schema and
-    genuinely rare (1 of 3,186) - it is reported at its real weight rather
-    than promoted to look like a peer of the other six. */
+    genuinely rare - it is reported at its real weight rather than promoted
+    to look like a peer of the others. */
 export const NODE_KIND_COUNTS: readonly KindCount[] = [...kindCounts.entries()]
   .map(([kind, count]) => ({ kind, count }))
   .sort((a, b) => b.count - a.count);
@@ -66,8 +74,11 @@ export type CategoryCount = { id: string; title: string; count: number };
 
 export const JOURNEY_CATEGORY_COUNTS: readonly CategoryCount[] = (() => {
   const m = new Map<string, number>();
-  for (const j of JOURNEYS) m.set(j.category, (m.get(j.category) ?? 0) + 1);
-  return CATEGORIES.map((c) => ({ id: c.id, title: c.title, count: m.get(c.id) ?? 0 }))
+  for (const j of LIBRARY_JOURNEYS) m.set(j.category, (m.get(j.category) ?? 0) + 1);
+  // Only categories the library actually has a journey in - a zero row would
+  // be a category of some other surface wearing the library's label.
+  return CATEGORIES.filter((c) => m.has(c.id))
+    .map((c) => ({ id: c.id, title: c.title, count: m.get(c.id) ?? 0 }))
     .sort((a, b) => b.count - a.count || a.title.localeCompare(b.title));
 })();
 

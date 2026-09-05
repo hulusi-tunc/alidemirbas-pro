@@ -384,9 +384,15 @@ for (const slug of liveCalcSlugs) {
    this file's own header comment for the full quoted source). Not a
    generated-from-JSON step because the source is a `const ... as const`
    inside a .ts file, not JSON - transcribed verbatim, not paraphrased. */
+/* The library's public size is the Customer Journeys surface (2026-09-05, same
+   definition as src/lib/public-corpus.ts's LIBRARY_JOURNEYS): a public journey
+   that sends or routes to a person. surface-assignment.json carries exactly
+   those two booleans, so the count and its categories are derived, not typed. */
+const libraryRows = surfaceAssignment.journeys.filter((r) => r.surface === "customer" && (r.sends || r.routesToHuman));
+const libraryCategoryCount = new Set(libraryRows.map((r) => r.category)).size;
 const LAB_PROJECTS = [
   { slug: "claude-lifecycle", name: "Lifecycle Marketing Journey Builder", desc: "Looks at the customer data you already track and builds lifecycle journeys around what you can actually measure, segment and act on.", tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"], url: "https://github.com/ali-demirbas/claude-lifecycle", external: true, poweredCorpus: null },
-  { slug: "lifecycle-card-archive", name: "Canonical Journey Library", desc: `${journeys.length} domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.`, tags: ["CRM", "Lifecycle Marketing", `${journeys.length} journeys`, "26 categories"], url: "/lab/journeys", external: false, poweredCorpus: "journey" },
+  { slug: "lifecycle-card-archive", name: "Canonical Journey Library", desc: `${libraryRows.length} domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.`, tags: ["CRM", "Lifecycle Marketing", `${libraryRows.length} journeys`, `${libraryCategoryCount} categories`], url: "/lab/journeys", external: false, poweredCorpus: "journey" },
   { slug: "ab-test-playbook", name: "A/B Test Playbook", desc: "211 A/B test scenarios across real product journeys, with guidance on what to test, what to measure and what can invalidate the result.", tags: ["Claude Code Plugin", "A/B Testing", "CRO", "211 scenarios"], url: "/lab/ab-testing", external: false, poweredCorpus: "ab-test" },
   { slug: "dashboard-builder", name: "Marketing Dashboard Builder", desc: "Takes messy exports from different marketing platforms, checks what can actually be compared, and turns the data into a decision-ready dashboard.", tags: ["Claude Code Plugin", "Marketing Analytics", "11 dashboard templates", "17 tests"], url: "/lab/dashboard-builder", external: false, poweredCorpus: null },
   { slug: "google-ads-change-history-dashboard", name: "Google Ads Change History Explorer", desc: "Turns a Google Ads change-history export into a searchable dashboard - what changed, who changed it, when, and how significant it was.", tags: ["Python", "Google Ads", "Offline Dashboard", "57 self-tests"], url: "https://github.com/ali-demirbas/google-ads-change-history-dashboard", external: true, poweredCorpus: null },

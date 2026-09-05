@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
 import {
-  CANONICAL_COUNT,
-  CATEGORY_COUNT,
-  GLOBAL_RULE_COUNT,
+  LIBRARY_COUNT,
+  LIBRARY_CATEGORY_COUNT,
   JOURNEY_ROWS,
-  RULE_COUNT,
-  withCanonicalCount,
+  withLibraryCount,
 } from "@/lib/canonical-view";
 import {
   JOURNEY_CATEGORY_COUNTS,
@@ -21,8 +19,8 @@ import { GOALS, GOAL_LABEL } from "@/lib/journey-taxonomy";
    statically rendered, no site chrome — <main> only. Every figure on the
    page is imported from the live library exports; nothing is typed in. */
 
-const DEK = withCanonicalCount(
-  "A library of {count} reusable lifecycle journeys across {categories} categories, held together by {rules} orchestration rules — each entry is a graph, not a sequence.",
+const DEK = withLibraryCount(
+  "A library of {count} reusable lifecycle journeys across {categories} categories — each entry is a graph, not a sequence.",
 );
 
 export const metadata: Metadata = {
@@ -89,11 +87,10 @@ export default function ExperimentAPage() {
         </h1>
         <p className="mt-6 max-w-[52ch] text-xl text-ink-500">{DEK}</p>
 
-        <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 md:mt-16">
-          <Stat value={String(CANONICAL_COUNT)} label="Journeys" />
-          <Stat value={String(CATEGORY_COUNT)} label="Categories" />
+        <div className="mt-12 grid grid-cols-3 gap-x-6 gap-y-8 md:mt-16">
+          <Stat value={String(LIBRARY_COUNT)} label="Journeys" />
+          <Stat value={String(LIBRARY_CATEGORY_COUNT)} label="Categories" />
           <Stat value={nf.format(JOURNEY_SCALE.nodes)} label="Nodes" />
-          <Stat value={String(RULE_COUNT + GLOBAL_RULE_COUNT)} label="Rules" />
         </div>
 
         {/* One real figure from the corpus: the library's largest graph,
@@ -138,7 +135,7 @@ export default function ExperimentAPage() {
             signal. A condition branches it. A wait holds it — and every wait resolves both ways,
             on event and on timeout. An action does the work. A handoff transfers the entity to
             another journey. An outcome ends it with a result; an exit ends it without one.
-            Nothing else exists, which is what keeps {CANONICAL_COUNT} graphs readable.
+            Nothing else exists, which is what keeps {LIBRARY_COUNT} graphs readable.
           </p>
         </div>
 
@@ -174,7 +171,7 @@ export default function ExperimentAPage() {
               clusters where entities change state most often.
             </p>
             <p className="mt-6 font-mono text-xs uppercase tracking-[0.14em] text-ink-400">
-              Journeys per category · all {CATEGORY_COUNT}
+              Journeys per category · all {LIBRARY_CATEGORY_COUNT}
             </p>
           </div>
 
@@ -197,41 +194,9 @@ export default function ExperimentAPage() {
         </div>
       </section>
 
-      {/* ------------------------------------------------------ rules */}
-      <section className="altor-container py-16 md:py-24">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
-          <div className="max-w-[760px]">
-            <SectionHeading index="04" title="What holds it together" />
-            <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-ink-600">
-              Journeys do not run in isolation. Orchestration rules describe how they hand off,
-              suppress and wake each other; global rules apply to every journey at once. Retired
-              journey ids do not 404 — each one resolves into the journey that absorbed it.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-6 self-end">
-            <div className="border-t border-line-strong pt-4">
-              <p className="font-mono text-4xl font-medium tracking-tight text-ink-900">
-                {RULE_COUNT}
-              </p>
-              <p className="mt-1.5 text-xs uppercase tracking-[0.14em] text-ink-500">
-                Orchestration rules
-              </p>
-            </div>
-            <div className="border-t border-line-strong pt-4">
-              <p className="font-mono text-4xl font-medium tracking-tight text-ink-900">
-                {GLOBAL_RULE_COUNT}
-              </p>
-              <p className="mt-1.5 text-xs uppercase tracking-[0.14em] text-ink-500">
-                Global rules
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ------------------------------------------------- principles */}
       <section className="altor-container py-16 md:py-24">
-        <SectionHeading index="05" title="Three positions the corpus takes" />
+        <SectionHeading index="04" title="Three positions the corpus takes" />
         <ol className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
           <li>
             <p className="font-mono text-5xl font-medium text-ink-200">1</p>
@@ -247,7 +212,7 @@ export default function ExperimentAPage() {
               <strong className="font-semibold text-ink-900">
                 Entity state machines, not one customer timeline.
               </strong>{" "}
-              {CANONICAL_COUNT} independent lifecycles beat one mythical funnel.
+              {LIBRARY_COUNT} independent lifecycles beat one mythical funnel.
             </p>
           </li>
           <li>
