@@ -29,7 +29,7 @@ export type TimelineJob = {
    - Both `[font-family:var(--font-mono-plex)]` call sites pointed at a
      variable THAT NO LONGER EXISTS - a leftover from the pre-brand-
      guideline font set, silently falling back to the inherited sans.
-     They now use the real `font-mono` token (JetBrains Mono).
+     They now use the real `font-mono` token.
    - Rows are hairline-ruled instead of hanging off a centre rail, on the
      3/9 asymmetric split the redesign uses everywhere: date rail left,
      narrative right. No shadows - depth here is tonal and linear only. */

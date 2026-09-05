@@ -29,8 +29,11 @@ import { clsx } from "@/lib/clsx";
    the other two reskins: they carry this site's own ink/primary/blue
    tokens. SiteHeader/SiteFooter untouched.
 
-   FONTS: no substitution needed - this reference already specifies Manrope
-   + JetBrains Mono, this site's own two families.
+   FONTS: the reference specified Manrope + JetBrains Mono, which were this
+   site's two families when this page was built, so no substitution was
+   needed then. The site moved to a single Inter family on 2026-09-05 and
+   this page came with it - `font-sans`/`font-mono` are still the right
+   classes, they just resolve somewhere new.
 
    DATA: `REAL` is carried over from the prior pass completely unchanged.
    Every value in it was verified against the cloned repository then (the
@@ -837,7 +840,11 @@ function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; 
           />
         </Reveal>
         <Reveal delay={140} className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#e2e4e8] bg-[#f9f9f9] p-4">
-          <span className="font-mono text-[11.5px] text-[#0d0f12]">{TEST_CMD}</span>
+          {/* `code`, not `span`: a shell command belongs on the character grid,
+              and since the 2026-09-05 single-family move that grid is carried by
+              the element, not by `font-mono` (which is now proportional Inter).
+              Semantically right anyway. */}
+          <code className="text-[11.5px] text-[#0d0f12]">{TEST_CMD}</code>
           <span className="flex items-center gap-1.5 font-mono text-[11.5px] font-semibold text-emerald-700">
             <Check aria-hidden className="size-3.5" />
             {t.testNote}

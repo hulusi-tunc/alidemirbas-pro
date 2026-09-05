@@ -27,12 +27,14 @@ import { clsx } from "@/lib/clsx";
    the standing rule.
 
    FONTS: the one substitution the request asked for. The reference specifies
-   Hanken Grotesk (headings) + Inter (body) + JetBrains Mono (data/labels).
-   This page uses `font-sans` (Manrope, this site's one sans - see
-   globals.css) for BOTH headings and body, matching this project's own
-   established typographic principle of one sans doing the work through
-   weight and size rather than a second family - and `font-mono` (JetBrains
-   Mono), which already matches the reference exactly, so nothing new loads.
+   three families - Hanken Grotesk (headings) + Inter (body) + JetBrains Mono
+   (data/labels). This page instead uses this site's own two role tokens:
+   `font-sans` for BOTH headings and body, matching the project's settled
+   principle of one sans doing the work through weight and size rather than a
+   second family, and `font-mono` for the data/label rail. What those tokens
+   resolve to is not this page's business and has changed since - the site
+   went to a single Inter family on 2026-09-05 - which is exactly why the
+   page names roles and not families.
 
    DATA: the `REAL` object is UNCHANGED from the prior pass - every number
    (97 calculators, 13 categories, each category's real count, the Daily
@@ -231,7 +233,7 @@ function fv(value: string | { en: string; tr: string }, lang: Lang): string {
 /* ---- Shared editorial primitives, scoped to this page ------------------ */
 
 /** The page's own section label: small, mono, wide-tracked - the reference's
-    `label-editorial` role, in this site's own mono (JetBrains Mono). */
+    `label-editorial` role, in this site's own `font-mono` token. */
 function Kicker({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <span className={clsx("font-mono text-[11px] font-semibold tracking-[0.08em] text-stone-500 uppercase", className)}>

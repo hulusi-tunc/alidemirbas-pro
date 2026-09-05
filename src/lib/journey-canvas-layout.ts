@@ -145,18 +145,38 @@ export const EDGE_LABEL_OFFSET = 34;
     under-shooting by roughly that same ratio on every journey rendered at
     a different zoom).
 
-    Character count is still only an approximation - real width also
-    depends on which letters those characters are (REL-97's 22-char
-    "Ambiguous or high-risk" measured 144px in layout space; ACQ-01's own
-    22-char "Deterministic identity" measured 136px, same length,
-    different letters) - so the fit is deliberately biased to sit at or
-    above every real (zoom-corrected) measurement across both journeys (8
-    to 37 characters) rather than through their middle: overestimating
-    wastes a little canvas width, underestimating is exactly what
-    produces the collision this exists to prevent. */
+    RE-FIT 2026-09-05 for the single-Inter-family move, and WIDENED FROM
+    CHARACTER COUNT TO A WEIGHTED COUNT in the same pass, because plain
+    length was the thing actually failing. The previous `5.3 * length + 30`
+    was fit against Manrope over two journeys' labels (8-37 characters);
+    re-measured against 260 distinct labels from 48 journeys (4-57
+    characters, zoom-corrected as above) it UNDER-SHOOTS 71 of them - i.e.
+    the collision this function exists to prevent was already reachable
+    before the font changed, on a class of label the original fit never
+    saw: short all-caps ones. "UNKNOWN" is 7 characters and measures
+    82.4px; the old formula returns 70. Uppercase carries far more width
+    per character than lowercase, and a fit linear in raw length cannot
+    cover both without wasting a third of the canvas on ordinary labels.
+
+    So the count is weighted before the fit is applied: uppercase letters
+    1.2, spaces and narrow punctuation 0.55, everything else 1.0. Over the
+    same 260 labels `6.0 * weighted + 33` clears every real measurement
+    with zero under-shoots; the +36 shipped here adds ~3px of headroom on
+    top, because the tightest margins at +33 were inside measurement noise
+    (0.6px on "An amendment"). The bias direction is unchanged and
+    deliberate: overestimating wastes a little canvas width, underestimating
+    produces a collision. */
+const LABEL_CHAR_WEIGHT = (char: string): number => {
+  if (/[A-Z]/.test(char)) return 1.2;
+  if (/[ ,.'\-/]/.test(char)) return 0.55;
+  return 1;
+};
+
 function estimatedLabelWidth(label: string | null): number {
   if (!label) return 70;
-  return Math.min(360, Math.max(70, 5.3 * label.length + 30));
+  let weighted = 0;
+  for (const char of label) weighted += LABEL_CHAR_WEIGHT(char);
+  return Math.min(360, Math.max(70, 6 * weighted + 36));
 }
 
 /** How far apart two sibling branches need to sit so their labels never
