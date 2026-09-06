@@ -332,7 +332,7 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
                       <Image src={r.logo} alt="" fill sizes="40px" className="object-contain p-2" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-base font-semibold text-ink-950">{r.role}</span>
+                      <span className="block text-base leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
                       <span className="block text-sm text-ink-600">{r.co}</span>
                     </span>
                     <span className="col-start-2 text-sm text-ink-500 tabular-nums sm:col-start-auto">{r.period}</span>
