@@ -103,7 +103,7 @@ function WhatItDoes({ c }: { c: SkillProductContent }) {
     <section className="bg-paper py-24 md:py-32">
       <div className="altor-container">
         <Reveal>
-          <h2 className="max-w-2xl text-[clamp(1.5rem,1.1rem+1.6vw,2.25rem)] leading-[1.1] text-ink-900">{w.title}</h2>
+          <h2 className="max-w-2xl text-h2 text-ink-900">{w.title}</h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-600">{w.body}</p>
         </Reveal>
         {w.bullets && w.bullets.length > 0 && (
@@ -127,7 +127,7 @@ function HowItWorks({ c }: { c: SkillProductContent }) {
     <section className="bg-paper-soft py-24 md:py-32">
       <div className="altor-container">
         <Reveal>
-          <h2 className="max-w-2xl text-[clamp(1.5rem,1.1rem+1.6vw,2.25rem)] leading-[1.1] text-ink-900">{h.title}</h2>
+          <h2 className="max-w-2xl text-h2 text-ink-900">{h.title}</h2>
           {h.body && <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-600">{h.body}</p>}
         </Reveal>
         {h.bullets && h.bullets.length > 0 && (
@@ -150,7 +150,7 @@ function Install({ c }: { c: SkillProductContent }) {
     <section className="bg-paper py-24 md:py-32">
       <div className="altor-container max-w-2xl">
         <Reveal>
-          <h2 className="text-[clamp(1.5rem,1.1rem+1.6vw,2.25rem)] leading-[1.1] text-ink-900">{c.installTitle}</h2>
+          <h2 className="text-h2 text-ink-900">{c.installTitle}</h2>
         </Reveal>
         <Reveal delay={80} className="mt-10">
           <InstallationStepper steps={c.installSteps} />

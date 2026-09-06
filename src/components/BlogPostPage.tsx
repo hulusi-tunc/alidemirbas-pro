@@ -124,7 +124,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
                 {formatDate(post.date)}
                 {post.category && <> · {post.category}</>}
               </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ink-950 sm:text-4xl">{post.title}</h1>
+              <h1 className="mt-2 text-h1 text-ink-950">{post.title}</h1>
               <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-ink-600">{post.excerpt}</p>
             </div>
           </div>

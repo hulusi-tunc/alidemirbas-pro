@@ -279,7 +279,7 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
                 <ArrowLeft aria-hidden className="size-3.5" />
                 {T[lang].title}
               </Link>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink-950 sm:text-4xl">{textTool.title[lang]}</h1>
+              <h1 className="mt-3 text-h1 text-ink-950">{textTool.title[lang]}</h1>
               <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-500">{textTool.desc[lang]}</p>
             </div>
           </section>

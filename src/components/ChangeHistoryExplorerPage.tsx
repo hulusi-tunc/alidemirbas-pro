@@ -409,7 +409,7 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
       <PortraitContainer className="text-center">
         <Reveal>
           <ProductMark slug="google-ads-change-history-dashboard" lang={lang} className="mb-5" />
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.title}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.sub}</p>

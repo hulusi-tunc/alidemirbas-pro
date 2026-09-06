@@ -93,7 +93,7 @@ function Hero({ lang }: { lang: Lang }) {
       <PortraitContainer className="text-center">
         <Reveal>
           <ProductMark slug="lifecycle-card-archive" lang={lang} className="mb-5" />
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{withCanonicalCount(c.title)}</h1>
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{withCanonicalCount(c.title)}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{withCanonicalCount(c.sub)}</p>
@@ -183,7 +183,7 @@ function Half({
       className="flex h-full flex-col rounded-card border border-line bg-paper p-6 shadow-[0_0_0_1px_rgb(0_0_0/0.04),0_8px_24px_-16px_rgb(10_16_32/0.15)] sm:p-7"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h3 className="text-xl font-medium tracking-tight text-ink-950">{label}</h3>
+        <h3 className="text-h3 text-ink-950">{label}</h3>
         <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
           {rows.length} {t.lab.page.results}
         </span>

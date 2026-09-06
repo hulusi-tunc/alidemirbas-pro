@@ -56,7 +56,7 @@ const REAL = DASHBOARD_REAL;
 const T = {
   en: {
     eyebrow: "Lab / Data Analysis",
-    heroTitle: "The hardest part of a dashboard isn't the arithmetic. It's knowing which numbers you're allowed to compare.",
+    heroTitle: "Know which numbers you're allowed to compare.",
     heroSub:
       "A Claude Code skill for marketing and growth data. Most of its work happens before any chart is drawn - classifying which numbers are safe to place side by side, and refusing the ones that aren't.",
     proof: ["17 tests passing", "11 dashboard templates", "No real account data in the repo"],
@@ -111,7 +111,7 @@ const T = {
   },
   tr: {
     eyebrow: "Lab / Veri Analizi",
-    heroTitle: "Bir dashboard'un en zor kısmı aritmetik değil. Hangi sayıları karşılaştırmaya hakkınız olduğunu bilmek.",
+    heroTitle: "Hangi sayıları karşılaştırabileceğinizi bilin.",
     heroSub:
       "Pazarlama ve büyüme verisi için bir Claude Code skill'i. İşinin çoğu herhangi bir grafik çizilmeden önce olur - hangi sayıların yan yana konulmasının güvenli olduğunu sınıflandırmak, olmayanları reddetmek.",
     proof: ["17 test geçiyor", "11 dashboard şablonu", "Repoda gerçek hesap verisi yok"],
@@ -368,7 +368,7 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
       <PortraitContainer className="text-center">
         <Reveal>
           <ProductMark slug="dashboard-builder" lang={lang} className="mb-5" />
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.heroTitle}</h1>
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.heroTitle}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.heroSub}</p>

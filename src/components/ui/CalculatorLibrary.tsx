@@ -259,7 +259,7 @@ export function CalculatorLibrary({
   return (
     <>
       <div className="mx-auto max-w-2xl text-center">
-        <h1 className="text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+        <h1 className="text-h1 text-balance text-ink-950">
           {heroTitle}
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-pretty text-ink-500">{heroSub}</p>

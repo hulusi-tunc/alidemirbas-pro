@@ -25,7 +25,7 @@ export const copy = {
       ],
       work: {
         eyebrow: "What I do",
-        title: "Most growth problems are measurement problems wearing a costume.",
+        title: "Most growth problems are measurement problems in disguise.",
         primaryLabel: "Primary",
         primary: {
           title: "Measurement that survives an audit",
@@ -1349,7 +1349,7 @@ export const copy = {
       metaTitle: "Lifecycle Marketing Journey Builder - Ali Demirbaş",
       metaDesc: "Lifecycle journey'lerin durum makinesi olarak kanonik kütüphanesi: tetikleyiciler, dallanmalar, beklemeler, devirler ve çıkışlar - kampanya şablonu değil.",
       eyebrow: "Lab / Journey Builder",
-      title: "Kampanya şablonu değil, durum makinesi olarak lifecycle journey'ler.",
+      title: "Lifecycle journey'ler: kampanya şablonu değil, durum makinesi.",
       sub: "Buradaki her journey bir graf: onu ne başlatır ve bilinçli olarak ne başlatmaz, nerede çatallanır ve her kolun anlamı nedir, ne kadar bekler ve o süre dolduğunda ne olur, kişinin sahipliği sonra hangi lifecycle'a geçer.",
       ctaJourney: "Bu journey'i aç",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],

@@ -74,7 +74,7 @@ export function AboutTimeline({
               />
             </div>
             <div className="max-w-[640px]">
-              <h3 className="text-[22px] leading-tight tracking-tight sm:text-[30px]">
+              <h3 className="text-h3">
                 <span className="font-bold">{job.title}</span>
                 {job.company && (
                   <>

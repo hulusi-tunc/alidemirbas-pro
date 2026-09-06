@@ -60,7 +60,7 @@ export function ProductCta({
           <div data-tone="dark" className="relative isolate overflow-hidden rounded-[28px] bg-primary-600 px-6 py-16 text-center sm:px-12 md:py-24">
             <CtaBurst />
             {eyebrow && <p className="text-[13px] font-medium text-white/70">{eyebrow}</p>}
-            <h2 className="mx-auto mt-4 max-w-2xl text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-white">
+            <h2 className="mx-auto mt-4 max-w-2xl text-h2 text-balance text-white">
               {title}
             </h2>
             {body && <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-pretty text-white/75">{body}</p>}

@@ -163,7 +163,7 @@ function Hero({ c, t, lang, siteHref }: { c: SkillProductContent; t: (typeof T)[
       <PortraitContainer className="text-center">
         <Reveal>
           <ProductMark slug="numerspace" lang={lang} className="mb-5" />
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.heroTitle}</h1>
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.heroTitle}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.heroSub}</p>
@@ -307,7 +307,7 @@ function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
             return (
               <section key={c.slug} id={`ns-${c.slug}`} className="scroll-mt-24">
                 <Reveal className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-                  <h3 className="flex items-center gap-3 text-[20px] font-semibold tracking-tight text-ink-950">
+                  <h3 className="flex items-center gap-3 text-h3 text-ink-950">
                     <span aria-hidden className={clsx("grid size-9 shrink-0 place-items-center rounded-full", look.tint)}>
                       <Icon className="size-4.5" />
                     </span>

@@ -138,12 +138,12 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
 
       <div className="relative flex flex-1 flex-col justify-center">
         <div className="altor-container">
-          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.35fr_0.65fr] lg:gap-20">
             <div>
               <Reveal>
-                <h1 className="max-w-3xl text-display-xl text-ink-950">
+                <h1 className="max-w-3xl text-h1 text-ink-950">
                   {t.hero.line1}
-                  <br />
+                  <br className="hidden sm:block" />{" "}
                   {t.hero.line2}
                 </h1>
               </Reveal>
@@ -237,11 +237,11 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
         {/* Two columns, so the statement has something to sit against. The
             heading alone left the right half of this band empty; the About
             prose that used to occupy its own dead band now answers it. */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
           <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} />
           <Reveal delay={60} className="lg:pt-10">
             <p className="text-[13px] font-medium text-ink-400">{t.about.eyebrow}</p>
-            <p className="mt-4 max-w-[46ch] text-[1.0625rem] leading-relaxed text-ink-600">
+            <p className="mt-4 max-w-[46ch] text-lg leading-relaxed text-ink-600">
               {t.about.teaserLead}
             </p>
             <Link
@@ -262,7 +262,7 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
               {t.home.work.primaryLabel}
             </p>
             <div>
-              <h3 className="text-2xl font-semibold text-ink-950">{t.home.work.primary.title}</h3>
+              <h3 className="text-h3 text-ink-950">{t.home.work.primary.title}</h3>
               <p className="mt-3 max-w-[62ch] leading-relaxed text-ink-600">{t.home.work.primary.body}</p>
             </div>
           </div>
@@ -328,7 +328,7 @@ function LabPlate({ project }: { project: (typeof copy)[Lang]["lab"]["projects"]
         )}
       </div>
       <div className="flex flex-1 flex-col px-1 pt-5">
-        <h3 className="text-[19px] leading-snug font-semibold tracking-tight text-ink-950">{project.name}</h3>
+        <h3 className="text-h3 text-ink-950">{project.name}</h3>
         <p className="mt-1.5 flex-1 text-[15px] leading-relaxed text-ink-600">{withJourneyCount(project.tagline)}</p>
         <div className="mt-5 flex flex-wrap gap-2">
           <ButtonLink href={primary.href} variant="primary" size="sm">
@@ -447,7 +447,7 @@ export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
             className="relative isolate overflow-hidden rounded-[28px] bg-primary-600 px-6 py-16 text-center sm:px-12 md:py-24"
           >
             <CtaBurst />
-            <h2 className="mx-auto max-w-2xl text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-white">
+            <h2 className="mx-auto max-w-2xl text-h2 text-balance text-white">
               {t.finalCta.title}
             </h2>
             <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-pretty text-white/75">{t.finalCta.body}</p>

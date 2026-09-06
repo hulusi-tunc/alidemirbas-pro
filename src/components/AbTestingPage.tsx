@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
@@ -7,6 +6,7 @@ import { CodeTabs } from "@/components/ui/CodeTabs";
 import { InstallationStepper } from "@/components/ui/InstallationStepper";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { PlaybookScene } from "@/components/ui/LabPanels";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
@@ -94,7 +94,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
         <div className="relative mx-auto max-w-3xl text-center">
           <Reveal>
             <ProductMark slug="ab-test-playbook" lang={lang} className="mb-5" />
-            <h1 className="text-h1-fluid font-medium text-ink-950">{c.title}</h1>
+            <h1 className="text-h1 text-ink-950">{c.title}</h1>
           </Reveal>
           <Reveal delay={90} className="mt-6">
             <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
@@ -125,23 +125,16 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           now (Hulusi, 2026-09-06). */}
       <Reveal delay={220} className="relative mt-14 md:mt-16">
         <div className="px-5 pb-20 sm:px-8 md:pb-28 lg:px-12">
-          {/* THE PLUGIN'S OWN OUTPUT, photographed: the scenario card that
-              scripts/build_card.py renders for the coupon-field test, on the
-              project's GitHub Pages site (ali-demirbas.github.io/ab-test-
-              playbook), captured on 2026-09-06 - variant A with the field,
-              variant B with the link, the tested element boxed in red. */}
-          <ProductFrame slug="ab-test-playbook">
-            <a href={DEMO} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-xl bg-ink-950 ring-1 ring-white/10 shadow-[0_28px_70px_-28px_rgb(10_16_32/0.6)]">
-              <Image
-                src="/lab/ab-test-playbook/demo.jpg"
-                alt={lang === "en" ? "A rendered scenario card: two phone carts, variant A with a coupon-code field and variant B with a coupon link, the tested element boxed in red." : "Render edilmiş bir senaryo kartı: iki telefon sepeti, kupon kodu alanlı varyant A ve kupon bağlantılı varyant B, test edilen öğe kırmızı kutuda."}
-                width={2880}
-                height={1800}
-                sizes="(min-width: 1280px) 1024px, 100vw"
-                className="block h-auto w-full"
-                priority
-              />
-            </a>
+          {/* THE RECORD, DRAWN (Hulusi, 2026-09-06: the photographed demo page
+              - a dark GitHub Pages sheet with two half-empty phone mockups -
+              was "super ugly nonsense"). The same picture the Lab index tells
+              for this project: AB-004 as it is in the data - the question,
+              its category, "1 of 211", the control cart with the coupon
+              field and the treatment cart with the link, the traffic split
+              between them, the KPI the record is decided by. Nothing here is
+              invented; only the drawing is the site's. */}
+          <ProductFrame slug="ab-test-playbook" inset="none">
+            <PlaybookScene lang={lang} />
           </ProductFrame>
         </div>
       </Reveal>

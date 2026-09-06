@@ -72,11 +72,9 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
               2026-08-30 pass ("uppercase + small" reads as a lock-up, not
               as a label) and this page follows the same rule. */}
           <p className="mb-4 text-[13px] font-medium text-ink-400">{t.stack.eyebrow}</p>
-          {/* text-h1-fluid + font-medium: the exact LOCKED heading token
-              from the approved Contact pilot (PORTRAIT-DESIGN-SOURCE-
-              AUDIT.md §4/§7) — same real Portrait clamp/letter-spacing
-              pair, reused rather than a page-specific variant. */}
-          <h1 className="text-h1-fluid font-medium text-ink-950">{t.stack.title}</h1>
+          {/* text-h1: the site's one page-title step (THE HEADING RAMP in globals.css)
+              - not a page-specific variant. */}
+          <h1 className="text-h1 text-ink-950">{t.stack.title}</h1>
           {/* ink-950/65: the same heading-color-at-opacity technique
               locked in Contact round 3, reused verbatim for the same
               reason — it ties heading and supporting copy into one
@@ -165,7 +163,7 @@ function Groups({ lang }: { lang: Lang }) {
                   the tint at `-50` is quiet by design, and this is what
                   makes it legible as a system rather than as eight
                   slightly different whites. */}
-              <h2 className="flex items-center gap-2.5 text-[15px] font-semibold text-ink-950">
+              <h2 className="flex items-center gap-2.5 text-lg font-semibold text-ink-950">
                 <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${tint.dot}`} />
                 {group.title[lang]}
               </h2>

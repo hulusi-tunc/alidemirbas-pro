@@ -10,7 +10,7 @@ import { clsx } from "@/lib/clsx";
    sequencing, scale changes, alternating text/visual rhythm, and
    sections where the product visual (not a text column) dominates the
    screen. The design LANGUAGE stays this project's own Portrait-derived
-   system: PortraitContainer's 1280 measure, the h1/h2-fluid type ramp,
+   system: PortraitContainer's 1280 measure, the h1/h2 heading ramp,
    ink/primary tokens, `Reveal`'s easing. Peerbie's palette and card
    styling are deliberately not copied.
 
@@ -66,7 +66,7 @@ export function ProductSection({
 }
 
 /* --- Section heading -------------------------------------------------
-   Uses the Portrait h2-fluid token, so product-page headings and the
+   Uses the site's h2 step, so product-page headings and the
    rest of the site share one type ramp. */
 export function ProductHeading({
   eyebrow,
@@ -92,7 +92,7 @@ export function ProductHeading({
       )}
       <h2
         className={clsx(
-          "text-h2-fluid font-medium",
+          "text-h2",
           align === "center" ? "mx-auto max-w-3xl" : "max-w-2xl",
           tone === "light" ? "text-white" : "text-ink-950",
         )}

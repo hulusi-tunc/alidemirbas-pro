@@ -83,7 +83,7 @@ export function SectionHeading({
         <h2
           id={id}
           className={clsx(
-            "text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08]",
+            "text-h2",
             tone === "light" ? "text-white" : "text-ink-900",
           )}
         >
@@ -92,7 +92,7 @@ export function SectionHeading({
         {intro && (
           <p
             className={clsx(
-              "mt-5 max-w-2xl text-[1.0625rem] leading-relaxed",
+              "mt-5 max-w-2xl text-lg leading-relaxed",
               tone === "light" ? "text-white/65" : "text-ink-500",
             )}
           >

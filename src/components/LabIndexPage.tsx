@@ -258,7 +258,7 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
       <div className="altor-container relative">
         <Reveal>
           <p className="text-[13px] font-medium text-ink-500">{t.lab.label}</p>
-          <h1 className="mx-auto mt-4 max-w-4xl text-[clamp(2.5rem,1.6rem+3.6vw,4.5rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance text-ink-950">
+          <h1 className="mx-auto mt-4 max-w-4xl text-display-xl text-balance text-ink-950">
             {tt.heroPrefix}{" "}
             <span className="bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
               {tt.heroHighlight}
@@ -301,7 +301,7 @@ function Title({ project, dark }: { project: Project; dark: boolean }) {
   return (
     <h2
       className={clsx(
-        "mt-5 text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance",
+        "mt-5 text-h2 text-balance",
         dark ? "text-white" : "text-ink-950",
       )}
     >
