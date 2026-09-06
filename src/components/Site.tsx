@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Briefcase } from "lucide-react";
+import { ArrowRight, ArrowUpRight, MapPin } from "lucide-react";
 
 import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
@@ -13,9 +13,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
-import { AB_TEST_COUNT } from "@/lib/ab-test-view";
 import { withJourneyCount } from "@/lib/archive";
-import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
   getFeaturedCalcEntries,
   LIVE_CALCULATOR_SLUGS,
@@ -120,108 +118,103 @@ export function SiteHeader({
   );
 }
 
-function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const lab = t.nav.labHref;
-  const numerspaceCount = NUMERSPACE_CATALOG[lang].reduce((n, c) => n + c.items.length, 0);
-  /* THE PROOF ROW (Hulusi, 2026-09-06, "focused work on the hero"): the
-     hero used to end on a five-row spec table that repeated the lead
-     (Now / Before / Years / Works on / Based in) - a résumé where the
-     front door should say what he builds. Three real counts from the
-     data, each under its project's own icon and tint (the identity
-     vocabulary the header menu, the Lab index and its teaser use), each a
-     link into that work. Nothing typed by hand: the journey count comes
-     from the canonical library, the scenario count from the A/B records,
-     the calculator count from the scraped Numerspace catalogue. */
-  const proof = [
-    { slug: "lifecycle-card-archive", href: `${lab}/journeys`, text: withJourneyCount(t.hero.proof.journeys) },
-    { slug: "ab-test-playbook", href: `${lab}/ab-testing`, text: `${AB_TEST_COUNT} ${t.hero.proof.tests}` },
-    { slug: "numerspace", href: `${lab}/numerspace`, text: `${numerspaceCount} ${t.hero.proof.calculators}` },
-  ];
-  return (
-    <section
-      id="top"
-      // Tinted stage, no rule under it (see the calculator pages: one step
-      // of ground does the seam without a stroke). The photograph lives in
-      // the frame on the right, not on the section, so the page opens
-      // clean and gets colourful further down.
-      className="relative isolate overflow-hidden bg-paper-soft pt-16 pb-16 lg:pt-20 lg:pb-20"
-    >
-      <div className="altor-container">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:gap-14">
-          <div>
-            <Reveal>
-              <h1 className="max-w-3xl text-h1 text-ink-950">
-                {t.hero.line1}
-                <br className="hidden sm:block" />{" "}
-                {t.hero.line2}
-              </h1>
-            </Reveal>
-            {/* One voice under the title: the lead folds the old sub
-                paragraph into a single sentence. The About page keeps the
-                full record. */}
-            <Reveal delay={90} className="mt-6">
-              <p className="max-w-2xl text-xl leading-relaxed text-pretty text-ink-700">{t.hero.lead}</p>
-            </Reveal>
-            <Reveal delay={170} className="mt-8">
-              <div className="flex flex-wrap gap-3">
-                <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
-                  {t.hero.ctaPrimary}
-                  <ArrowRight aria-hidden className="size-4" />
-                </ButtonLink>
-                <ButtonLink href={LINKEDIN} variant="outline" size="md">
-                  {t.hero.ctaSecondary}
-                  <ArrowUpRight aria-hidden className="size-4" />
-                </ButtonLink>
-              </div>
-            </Reveal>
-            <Reveal delay={240} className="mt-10">
-              <ul className="flex flex-wrap gap-x-7 gap-y-3">
-                {proof.map((item) => {
-                  const accent = labAccent(item.slug);
-                  return (
-                    <li key={item.slug}>
-                      <Link
-                        href={item.href}
-                        className="flex items-center gap-2.5 text-sm font-medium text-ink-700 transition-colors duration-[var(--duration-fast)] hover:text-ink-950"
-                      >
-                        <span aria-hidden className={`grid size-8 shrink-0 place-items-center rounded-lg ${accent.tile}`}>
-                          <LabProjectIcon slug={item.slug} className="size-4" />
-                        </span>
-                        <span className="tabular-nums">{item.text}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Reveal>
-          </div>
+const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] as const;
 
-          {/* THE PORTRAIT IN A FRAME. The Lab's plate (the meadow photograph
-              on `.lab-frame`, the brand hue's gradient behind it) holding
-              the portrait in colour as a card, and the one fact that
-              matters most as a pill over the card's bottom edge - the same
-              overlap-and-arrive grammar as the section frames. It used to be
-              a greyscale photograph under a blue multiply, desktop only;
-              now the phone hero has a picture too. */}
-          <Reveal delay={120} className="mx-auto w-full max-w-sm lg:max-w-none">
-            <div data-hue="primary" className="lab-frame relative isolate aspect-[4/5] overflow-hidden rounded-[28px]">
-              <Image
-                src="/lab/hero-meadow.jpg"
-                alt=""
-                aria-hidden
-                fill
-                sizes="(min-width: 1024px) 24rem, 100vw"
-                className="-z-10 origin-bottom scale-[1.3] object-cover object-bottom"
-              />
-              <div className="lab-scene-card absolute inset-x-8 top-8 bottom-16 overflow-hidden rounded-2xl bg-paper shadow-[0_24px_60px_-24px_rgb(10_16_32/0.45)] ring-1 ring-ink-950/[0.06]">
-                <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 22rem, 90vw" priority className="object-cover" />
-              </div>
-              <div className="absolute inset-x-8 bottom-10 flex justify-center">
-                <p className="lab-scene-card flex items-center gap-2 rounded-full bg-paper/95 px-4 py-2.5 text-sm font-medium whitespace-nowrap text-ink-950 shadow-[0_12px_30px_-12px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06]">
-                  <Briefcase aria-hidden className="size-4 text-primary-600" />
-                  {t.hero.badge}
-                </p>
-              </div>
+/* THE HERO (Hulusi, 2026-09-06, "focused work on the hero", then "this is a
+   personal site, your examples are companies", then "a mix of both"): the
+   opening of a PERSON'S site, in two moves borrowed from personal-site
+   patterns rather than product landings. First the introduction the way
+   Contra opens a profile - a small round portrait, the name, one line of
+   who and where, a few chips, then the statement, a first-person lead and
+   the two actions, all centred. Then, still in the hero, the bento Portrait
+   opens a profile with: the portrait in colour as one tall tile, and tiles
+   for the things he built, each with its icon, its name, one plain sentence
+   saying what it is and the real count from the data - so a first-time
+   visitor reads "a library of journeys", never "what is 284". The dark tile
+   carries the career line that used to be a five-row spec table. The
+   greyscale portrait under a blue multiply, the spec table and the photo
+   frame that came before it are gone. */
+function Hero({ t }: { t: (typeof copy)[Lang] }) {
+  const projects = HERO_TILES.map((slug) => t.lab.projects.find((p) => p.slug === slug)).filter((p) => p !== undefined);
+  return (
+    <section id="top" className="relative isolate overflow-hidden bg-paper-soft pt-14 pb-16 lg:pt-18 lg:pb-20">
+      <div className="altor-container">
+        {/* The introduction. */}
+        <Reveal className="mx-auto flex max-w-3xl flex-col items-center text-center">
+          <span className="relative size-16 overflow-hidden rounded-full shadow-[0_8px_24px_-10px_rgb(10_16_32/0.35)] ring-2 ring-paper">
+            <Image src="/portrait.jpg" alt="" fill sizes="64px" priority className="object-cover" />
+          </span>
+          <p className="mt-4 text-base font-semibold text-ink-950">{t.hero.name}</p>
+          <p className="mt-1 text-sm text-ink-600">{t.hero.role}</p>
+          <ul className="mt-4 flex flex-wrap justify-center gap-1.5">
+            {t.hero.chips.map((chip) => (
+              <li key={chip} className="rounded-full border border-line bg-paper px-3 py-1 text-sm font-medium text-ink-700">
+                {chip}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+        <Reveal delay={60}>
+          <h1 className="mx-auto mt-8 max-w-4xl text-center text-h1 text-balance text-ink-950">
+            {t.hero.line1}
+            <br className="hidden sm:block" />{" "}
+            {t.hero.line2}
+          </h1>
+        </Reveal>
+        <Reveal delay={120}>
+          <p className="mx-auto mt-6 max-w-3xl text-center text-xl leading-relaxed text-pretty text-ink-700">{t.hero.lead}</p>
+        </Reveal>
+        <Reveal delay={180} className="mt-8 flex flex-wrap justify-center gap-3">
+          <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+            {t.hero.ctaPrimary}
+            <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
+          <ButtonLink href={LINKEDIN} variant="outline" size="md">
+            {t.hero.ctaSecondary}
+            <ArrowUpRight aria-hidden className="size-4" />
+          </ButtonLink>
+        </Reveal>
+
+        {/* The bento: the person and the things he built as equals. On lg the
+            portrait takes the left third across both rows; the four tiles
+            fill the rest two by two. */}
+        <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Reveal delay={240} className="relative aspect-[4/5] overflow-hidden rounded-[28px] bg-paper md:row-span-2 md:aspect-auto md:min-h-[26rem]">
+            <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 24rem, (min-width: 768px) 50vw, 100vw" priority className="object-cover" />
+            <p className="absolute bottom-5 left-5 flex items-center gap-1.5 rounded-full bg-paper/95 px-3.5 py-2 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06]">
+              <MapPin aria-hidden className="size-4 text-primary-600" />
+              {t.hero.portraitPill}
+            </p>
+          </Reveal>
+          {projects.map((project, i) => {
+            const accent = labAccent(project.slug);
+            const [primary] = project.links;
+            return (
+              <Reveal key={project.slug} delay={280 + i * 60} className="flex">
+                <Link
+                  href={primary.href}
+                  className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                >
+                  <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
+                    <LabProjectIcon slug={project.slug} className="size-5" />
+                  </span>
+                  <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{t.hero.tiles[project.slug as (typeof HERO_TILES)[number]]}</p>
+                  <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
+                    <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
+                    <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
+                  </p>
+                </Link>
+              </Reveal>
+            );
+          })}
+          <Reveal delay={460} className="flex">
+            <div className="flex w-full flex-col justify-between rounded-[28px] bg-ink-950 p-6 text-white">
+              <p className="text-lg leading-snug font-semibold text-balance">{t.hero.statement}</p>
+              <Link href={t.nav.aboutHref} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-white/80 transition-colors duration-[var(--duration-fast)] hover:text-white">
+                {t.hero.statementLink}
+                <ArrowRight aria-hidden className="size-4" />
+              </Link>
             </div>
           </Reveal>
         </div>
@@ -597,7 +590,7 @@ export default function Site({ lang }: { lang: Lang }) {
     <>
       <SiteHeader t={t} />
       <main>
-        <Hero t={t} lang={lang} />
+        <Hero t={t} />
         <Work t={t} />
         {/* Expertise, StatsBand and Experience pulled off the home page for
             now - components kept below, just not rendered. Re-add

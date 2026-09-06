@@ -6,11 +6,20 @@ export const copy = {
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
-      lead: "Growth marketer for mobile products. Mobile app growth at Aksigorta, before that Vodafone, Getir and Wingie Enuygun Group.",
+      lead: "I'm a growth marketer for mobile products. I build acquisition, CRM and lifecycle programs on data, not guesswork, and open-source the tools along the way.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
-      badge: "Mobile App Growth Lead · Aksigorta",
-      proof: { journeys: "{count} journeys", tests: "A/B scenarios", calculators: "calculators" },
+      name: "Ali Demirbaş",
+      role: "Mobile App Growth Lead at Aksigorta · Istanbul",
+      chips: ["Growth", "CRM", "Lifecycle", "Measurement"],
+      portraitPill: "Based in Istanbul",
+      tiles: {
+        "lifecycle-card-archive": "Ready-made lifecycle journeys, each drawn as a state machine you can read and adapt.",
+        "ab-test-playbook": "Real A/B test scenarios with the guardrail metric built in, as a Claude Code plugin.",
+        numerspace: "Free everyday calculators, from money and health to marketing. No signup.",
+      },
+      statement: "Eight years of growth work at Aksigorta, Vodafone, Getir and Wingie Enuygun Group.",
+      statementLink: "More about me",
     },
     /* Home page only: the ranked "what I do" block and the calculators band. The hero's own headline and lead stay
        in `hero` above; nothing here restates them. */
@@ -896,11 +905,20 @@ export const copy = {
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
-      lead: "Mobil ürünler için growth marketer. Aksigorta'da mobil uygulama büyümesi; öncesinde Vodafone, Getir ve Wingie Enuygun Group.",
+      lead: "Mobil ürünler için growth marketer'ım. Edinim, CRM ve lifecycle programlarını tahminle değil veriyle kuruyor, yol boyunca yaptığım araçları açık kaynak paylaşıyorum.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
-      badge: "Mobile App Growth Lead · Aksigorta",
-      proof: { journeys: "{count} journey", tests: "A/B senaryosu", calculators: "hesaplayıcı" },
+      name: "Ali Demirbaş",
+      role: "Aksigorta'da Mobile App Growth Lead · İstanbul",
+      chips: ["Growth", "CRM", "Lifecycle", "Ölçümleme"],
+      portraitPill: "İstanbul'da",
+      tiles: {
+        "lifecycle-card-archive": "Hazır lifecycle journey'ler; her biri okuyup uyarlayabileceğiniz bir durum makinesi olarak çizilmiş.",
+        "ab-test-playbook": "Koruma metriği baştan tanımlı gerçek A/B test senaryoları, Claude Code eklentisi olarak.",
+        numerspace: "Paradan sağlığa ve pazarlamaya, üyeliksiz ücretsiz hesaplayıcılar.",
+      },
+      statement: "Aksigorta, Vodafone, Getir ve Wingie Enuygun Group'ta sekiz yıl growth.",
+      statementLink: "Hakkımda daha fazlası",
     },
     home: {
       work: {
