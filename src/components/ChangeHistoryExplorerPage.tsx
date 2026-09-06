@@ -118,7 +118,7 @@ const T = {
     eyebrow: "Lab / Google Ads",
     statusPill: "Open Source",
     title: "See exactly what changed in Google Ads.",
-    sub: "Turn Google Ads Change History into a searchable dashboard with the campaign, category, previous value, new value, and timestamp behind every change.",
+    sub: "One HTML file built from the export you already have: who changed what, when, and what it was before. Python 3 only, no dependencies, works offline.",
     ctaGithub: "View on GitHub",
     ctaPreview: "See it below",
     proof: ["Zero dependencies", "Works fully offline", "57 self-test checks"],
@@ -135,7 +135,7 @@ const T = {
 
     explorerEyebrow: "Change Explorer",
     explorerTitle: "Every change, classified and searchable.",
-    explorerSub: "Search and filter across accounts, campaigns, dates and change categories - then open any record to inspect the exact change.",
+    explorerSub: "Search and filter by account, campaign, date and change category, then open any record to see the exact change.",
     explorerCols: ["Date", "Account", "Campaign", "Ad group", "Category", "Old value", "", "New value"],
     filterPlaceholder: "Filter by campaign, account or value...",
     showingRecords: (n: number) => `Showing ${n} records`,
@@ -145,7 +145,7 @@ const T = {
     baSub: "Open any change to see what existed before, what replaced it, and the campaign it happened in. No hunting through nested changelogs or calculating percentages by hand.",
 
     actEyebrow: "Activity",
-    actTitle: "See what changed - and what hasn't.",
+    actTitle: "What changed, and what hasn't.",
     actSub: "One view of how often each account changes; another of when each campaign was last touched.",
     actActivityLabel: "Change activity by account",
     actLastLabel: "Campaign last changes",
@@ -155,7 +155,7 @@ const T = {
 
     rulesEyebrow: "Rule Matches",
     rulesTitle: "Set your own change thresholds.",
-    rulesSub: "Off by default. Create a magnitude or structural rule, computed entirely in the browser - a match is only ever shown as a match, never scored or ranked.",
+    rulesSub: "Off by default. Add a magnitude or structural rule; it is evaluated in the browser, and a match is shown as a match, never scored or ranked.",
     rulesMagnitudeLabel: "Magnitude (±% change)",
     rulesStructuralLabel: "Structural flags",
     rulesExampleLabel: "Live match simulation",
@@ -165,7 +165,7 @@ const T = {
 
     fileEyebrow: "Portable",
     fileTitle: "One dashboard. One HTML file.",
-    fileSub: "Generate a standalone dashboard that works locally, with no server, CDN or external dependency to install.",
+    fileSub: "The output is a standalone HTML file: no server, no CDN, nothing to install.",
     fileStep1: "Google Ads export",
     fileStep1Sub: "CSV · TSV · JSON",
     fileStep2: "run script",
@@ -179,16 +179,16 @@ const T = {
     pythonTab: "Python",
     selfTestCommand: "python3 ads_change_history.py self-test",
     selfTestNote: "57 checks passing",
-    reliabilityTitle: "Built to fail explicitly.",
+    reliabilityTitle: "Stops instead of guessing.",
     reliabilityBody: "Ambiguous dates or unknown columns stop the run instead of being silently interpreted.",
     viewRepo: "Read the repository",
 
     faqEyebrow: "FAQ",
     faqTitle: "Frequently asked questions",
 
-    relatedEyebrow: "Engineering portfolio",
+    relatedEyebrow: "Also in the Lab",
     relatedTitle: "Other Lab projects",
-    relatedCta: "Inspect",
+    relatedCta: "Open",
 
     ctaEyebrow: "Open source",
     ctaTitle: "Read the change history your account already logged.",
@@ -196,8 +196,8 @@ const T = {
   tr: {
     eyebrow: "Lab / Google Ads",
     statusPill: "Açık Kaynak",
-    title: "Google Ads'te tam olarak ne değişti görün.",
-    sub: "Google Ads Değişiklik Geçmişi'ni aranabilir bir dashboard'a çevirin - her değişikliğin arkasındaki kampanya, kategori, önceki değer, yeni değer ve zaman damgasıyla.",
+    title: "Google Ads'te tam olarak neyin değiştiğini gör.",
+    sub: "Elindeki dışa aktarımdan üretilen tek bir HTML dosyası: kim neyi ne zaman değiştirdi, öncesinde neydi. Sadece Python 3, bağımlılık yok, çevrimdışı çalışır.",
     ctaGithub: "GitHub'da görüntüle",
     ctaPreview: "Aşağıda gör",
     proof: ["Sıfır bağımlılık", "Tamamen çevrimdışı çalışır", "57 self-test kontrolü"],
@@ -206,7 +206,7 @@ const T = {
 
     workedEyebrow: "Gerçek bir değişiklik",
     workedLine1: "Bir değişiklik günlüğü bir şeyin olduğunu söyler.",
-    workedLine2: "Pano tam olarak neyin değiştiğini gösterir.",
+    workedLine2: "Dashboard tam olarak neyin değiştiğini gösterir.",
     previousLabel: "Önceki",
     updatedLabel: "Güncel",
     netIncrease: (n: string) => `+${n} net artış`,
@@ -214,17 +214,17 @@ const T = {
 
     explorerEyebrow: "Change Explorer",
     explorerTitle: "Her değişiklik sınıflandırılmış ve aranabilir.",
-    explorerSub: "Hesaba, kampanyaya, tarihe ve değişiklik kategorisine göre arayın ve filtreleyin - sonra herhangi bir kaydı açıp tam değişikliği inceleyin.",
+    explorerSub: "Hesap, kampanya, tarih ve değişiklik kategorisine göre arayıp filtrele; sonra herhangi bir kaydı aç, değişikliğin tamamını gör.",
     explorerCols: ["Tarih", "Hesap", "Kampanya", "Reklam grubu", "Kategori", "Eski değer", "", "Yeni değer"],
     filterPlaceholder: "Kampanya, hesap ya da değere göre filtrele...",
     showingRecords: (n: number) => `${n} kayıt gösteriliyor`,
 
     baEyebrow: "Öncesi / Sonrası",
     baTitle: "Öncesi ve sonrası birlikte gösterilir.",
-    baSub: "Herhangi bir değişikliği açın; öncesinde ne vardı, yerine ne geldi ve hangi kampanyada olduğunu görün. İç içe geçmiş değişiklik günlüklerinde aramaya ya da yüzdeleri elle hesaplamaya gerek yok.",
+    baSub: "Bir değişikliği aç: öncesinde ne vardı, yerine ne geldi, hangi kampanyada oldu. İç içe değişiklik günlüklerinde aramak ya da yüzdeyi elle hesaplamak gerekmez.",
 
     actEyebrow: "Aktivite",
-    actTitle: "Ne değişti - ne değişmedi görün.",
+    actTitle: "Ne değişti, ne değişmedi.",
     actSub: "Bir tarafta her hesabın ne sıklıkla değiştiği; diğer tarafta her kampanyaya en son ne zaman dokunulduğu.",
     actActivityLabel: "Hesaba göre değişiklik aktivitesi",
     actLastLabel: "Kampanya son değişiklikleri",
@@ -233,24 +233,24 @@ const T = {
     daysSince: (n: number) => (n === 0 ? "Bugün değişti" : n === 1 ? "Son değişiklikten bu yana 1 gün" : `Son değişiklikten bu yana ${n} gün`),
 
     rulesEyebrow: "Rule Matches",
-    rulesTitle: "Kendi değişiklik eşiklerinizi belirleyin.",
-    rulesSub: "Varsayılan olarak kapalı. Bir büyüklük ya da yapısal kural belirleyin - tamamen tarayıcıda hesaplanır, bir eşleşme yalnızca eşleşme olarak gösterilir, asla puanlanmaz ya da sıralanmaz.",
+    rulesTitle: "Kendi değişiklik eşiklerini belirle.",
+    rulesSub: "Varsayılan olarak kapalı. Bir büyüklük ya da yapısal kural ekle; kural tarayıcıda hesaplanır, eşleşme yalnızca eşleşme olarak gösterilir, puanlanmaz ve sıralanmaz.",
     rulesMagnitudeLabel: "Büyüklük (±% değişim)",
     rulesStructuralLabel: "Yapısal bayraklar",
     rulesExampleLabel: "Canlı eşleşme simülasyonu",
-    rulesExampleNote: "Ayarladığınız ±%20 kuralıyla eşleşti",
+    rulesExampleNote: "Ayarladığın ±%20 kuralıyla eşleşti",
     principleTitle: "Tasarım gereği tarafsız.",
-    principleBody: "Pano ne olduğunu raporlar. Bir değişikliği iyi, kötü ya da riskli olarak etiketlemez. Neyin dikkat gerektirdiğine siz karar verirsiniz.",
+    principleBody: "Dashboard ne olduğunu raporlar. Bir değişikliği iyi, kötü ya da riskli diye etiketlemez. Neyin dikkat gerektirdiğine sen karar verirsin.",
 
     fileEyebrow: "Taşınabilir",
-    fileTitle: "Tek pano. Tek HTML dosyası.",
-    fileSub: "Sunucu, CDN ya da kurulacak bir dış bağımlılık olmadan yerelde çalışan bağımsız bir pano üretin.",
+    fileTitle: "Tek dashboard. Tek HTML dosyası.",
+    fileSub: "Çıktı bağımsız bir HTML dosyası: sunucu yok, CDN yok, kurulacak bir şey yok.",
     fileStep1: "Google Ads dışa aktarımı",
     fileStep1Sub: "CSV · TSV · JSON",
     fileStep2: "betiği çalıştır",
     fileStep3: "dashboard.html",
     fileStep3Sub: "%100 bağımsız",
-    fileNote: "Yerelde açın, arşivleyin ya da sade bir ek olarak gönderin.",
+    fileNote: "Yerelde aç, arşivle ya da sade bir ek olarak gönder.",
 
     installEyebrow: "Kurulum",
     installTitle: "Hesap yok, API anahtarı yok, kurulacak bağımlılık yok.",
@@ -258,19 +258,19 @@ const T = {
     pythonTab: "Python",
     selfTestCommand: "python3 ads_change_history.py self-test",
     selfTestNote: "57 kontrol geçiyor",
-    reliabilityTitle: "Açıkça başarısız olacak şekilde kuruldu.",
-    reliabilityBody: "Belirsiz tarihler ya da tanınmayan sütunlar, sessizce yorumlanmak yerine çalıştırmayı durdurur.",
-    viewRepo: "Repoyu okuyun",
+    reliabilityTitle: "Tahmin etmez, durur.",
+    reliabilityBody: "Belirsiz bir tarih ya da tanınmayan bir sütun sessizce yorumlanmaz; çalıştırma durur.",
+    viewRepo: "Repoyu oku",
 
     faqEyebrow: "SSS",
     faqTitle: "Sıkça sorulan sorular",
 
-    relatedEyebrow: "Mühendislik portföyü",
-    relatedTitle: "Lab'de ayrıca",
-    relatedCta: "İncele",
+    relatedEyebrow: "Diğer projeler",
+    relatedTitle: "Lab'da ayrıca",
+    relatedCta: "Aç",
 
     ctaEyebrow: "Açık kaynak",
-    ctaTitle: "Hesabınızın zaten kaydettiği değişiklik geçmişini okuyun.",
+    ctaTitle: "Hesabının zaten kaydettiği değişiklik geçmişini oku.",
   },
 } as const;
 
@@ -459,7 +459,7 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
         <div id="demo" className="mx-auto mt-12 max-w-3xl scroll-mt-24 text-left">
           <Reveal delay={220}>
             <WindowChrome
-              title="dashboard.html — Google Ads Change History"
+              title="dashboard.html · Google Ads Change History"
               badge={
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-emerald-700">{t.offlineReady}</span>

@@ -16,7 +16,6 @@ import {
   isHumanRoutingRow,
   type SurfaceKey,
   withLibraryCount,
-  type JourneyRow,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";

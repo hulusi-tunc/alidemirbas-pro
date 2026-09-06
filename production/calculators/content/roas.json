@@ -12,7 +12,7 @@
     ],
     "takeaway": "ROAS is revenue over spend. It can be high on a campaign that loses money.",
     "whenToUse": "When comparing campaigns, channels or time periods on media efficiency alone, with the attribution window and the definition of spend held constant across everything being compared. Pair it with your own break-even ROAS before treating any figure as good or bad.",
-    "misleads": "Attribution settings move ROAS as much as performance does — a 7-day and a 28-day click window credit different revenue to identical spend. Platform-reported figures compound this: each platform can credit itself for the same purchase, so summing ROAS across dashboards overstates the total.",
+    "misleads": "Attribution settings move ROAS as much as performance does: a 7-day and a 28-day click window credit different revenue to identical spend. Platform-reported figures compound this: each platform can credit itself for the same purchase, so summing ROAS across dashboards overstates the total.",
     "workedExample": "revenue ÷ ad spend → $5,000 ÷ $1,000 = 5.00x"
   },
   "sections": [
@@ -20,7 +20,7 @@
       "id": "formula",
       "type": "formula",
       "heading": "How to calculate ROAS",
-      "body": "ROAS is attributed revenue divided by ad spend, expressed as a multiplier rather than a percentage. A campaign that generated $5,000 in revenue from $1,000 in spend has a ROAS of 5.00x, five times the spend came back as revenue. Revenue here means revenue your tracking attributes to that specific ad, not total business revenue for the period. Spend means what you actually paid the platform for those impressions or clicks. Mixing either of those definitions up produces a number that looks like ROAS but isn't measuring the same thing from one campaign to the next."
+      "body": "ROAS is attributed revenue divided by ad spend, expressed as a multiplier rather than a percentage. A campaign that generated $5,000 in revenue from $1,000 in spend has a ROAS of 5.00x: five times the spend came back as revenue. Revenue here means revenue your tracking attributes to that specific ad, not total business revenue for the period. Spend means what you actually paid the platform for those impressions or clicks. Mixing either of those definitions up produces a number that looks like ROAS but isn't measuring the same thing from one campaign to the next."
     },
     {
       "id": "worked-example",
@@ -40,7 +40,7 @@
         "label": "ROAS",
         "value": "5.00x"
       },
-      "body": "For every $1 spent on this campaign, it generated $5 in attributed revenue. That's efficiency relative to spend, not profit — whether the $5,000 in revenue was actually worth having depends on margin, refunds, and everything else the ad spend itself doesn't touch."
+      "body": "For every $1 spent on this campaign, it generated $5 in attributed revenue. That's efficiency relative to spend, not profit. Whether the $5,000 in revenue was worth having depends on margin, refunds, and everything else the ad spend itself doesn't touch."
     },
     {
       "id": "interpretation",
@@ -60,7 +60,7 @@
         },
         {
           "title": "Consistent attribution scope",
-          "body": "Check what conversion window generated the revenue number — a 7-day click window and a 28-day click window produce different revenue totals for identical spend. Per [Google Ads' own conversion window documentation](https://support.google.com/google-ads/answer/3123169), this setting alone changes what counts as attributed, so a ROAS number is only comparable to another one measured with the same window."
+          "body": "Check what conversion window generated the revenue number: a 7-day click window and a 28-day click window produce different revenue totals for identical spend. Per [Google Ads' own conversion window documentation](https://support.google.com/google-ads/answer/3123169), this setting alone changes what counts as attributed, so a ROAS number is only comparable to another one measured with the same window."
         },
         {
           "title": "Consistent ad spend definition",
@@ -72,7 +72,7 @@
       "id": "good-roas",
       "type": "interpretation",
       "heading": "What is a good ROAS?",
-      "body": "There's no universal 'good' ROAS. It depends entirely on margin structure, product cost, and everything else in the business beyond ad spend — a 3x ROAS can be highly profitable for a software product with 90% gross margin and mostly unprofitable for a retailer with 20% margin and real fulfillment costs. The number that actually matters is the ROAS needed just to break even, which depends on your own margin and fixed costs, not on what any other business reports. The [Break-Even Point Calculator](/calculators/break-even-point) computes the break-even units, CAC ceiling and ROAS floor your own price, variable cost and fixed costs require, a more useful reference point than an industry-wide number that doesn't know your margins."
+      "body": "There's no universal 'good' ROAS. It depends on margin structure, product cost, and everything else in the business beyond ad spend. A 3x ROAS can be highly profitable for a software product with 90% gross margin and mostly unprofitable for a retailer with 20% margin and real fulfillment costs. The number that actually matters is the ROAS needed just to break even, which depends on your own margin and fixed costs, not on what any other business reports. The [Break-Even Point Calculator](/calculators/break-even-point) computes the break-even units, CAC ceiling and ROAS floor your own price, variable cost and fixed costs require. That is a more useful reference point than an industry average that knows nothing about your margins."
     },
     {
       "id": "roas-vs-roi",
@@ -101,7 +101,7 @@
     {
       "slug": "cac",
       "name": "CAC Calculator",
-      "desc": "Cost to acquire one customer — a per-customer view of spend efficiency that complements ROAS's per-dollar-of-revenue view."
+      "desc": "Cost to acquire one customer: a per-customer view of spend efficiency next to ROAS's per-dollar view."
     },
     {
       "slug": "ltv-cac-ratio",
@@ -113,27 +113,27 @@
     {
       "id": "what-is-roas",
       "q": "What is ROAS?",
-      "a": "ROAS (return on ad spend) is a ratio that shows how much revenue a specific ad campaign or channel generated for every unit of currency spent on it. It's usually written as a multiplier — a 5x ROAS means five dollars in attributed revenue came back for every dollar spent on that campaign. It's a revenue-efficiency metric, not a profitability metric. ROAS only compares two numbers: revenue attributed to the ad, and what was spent on the ad itself. It has no visibility into product cost, fulfillment, refunds, or any other expense in the business, which is why a healthy ROAS and a healthy business aren't automatically the same thing. Marketers use it mainly to compare campaigns, channels, or time periods against each other, since it isolates ad performance from the rest of the P&L."
+      "a": "ROAS (return on ad spend) is the revenue a campaign or channel generated for every unit of currency spent on it, usually written as a multiplier: a 5x ROAS means five dollars of attributed revenue came back for every dollar spent. It compares two numbers only, attributed revenue and ad spend. Product cost, fulfillment and refunds are invisible to it, which is why a healthy ROAS and a healthy business are not the same thing. Its main use is comparing campaigns, channels or periods against each other."
     },
     {
       "id": "how-to-calculate-roas",
       "q": "How do you calculate ROAS?",
-      "a": "Divide attributed revenue by ad spend: ROAS = Revenue ÷ Ad Spend. If a campaign generated $5,000 in revenue from $1,000 in spend, ROAS is 5,000 ÷ 1,000 = 5.00x. Both numbers need to cover the same campaign, the same date range, and the same attribution scope, or the ratio stops meaning anything useful. Revenue should be what your tracking attributes specifically to that ad, not total store revenue for the period, and spend should use the same definition every time you calculate it — mixing media cost alone in one calculation with media plus agency and creative costs in another produces numbers that aren't actually comparable. The result is a multiplier, not a percentage: some platforms display the same ratio as '500%' instead of '5.00x', which is the identical number written differently, not a different metric entirely."
+      "a": "Divide attributed revenue by ad spend: ROAS = Revenue ÷ Ad Spend. If a campaign generated $5,000 in revenue from $1,000 in spend, ROAS is 5,000 ÷ 1,000 = 5.00x. Both numbers need to cover the same campaign, the same date range, and the same attribution scope, or the ratio stops meaning anything useful. Revenue should be what your tracking attributes specifically to that ad, not total store revenue for the period, and spend should use the same definition every time you calculate it. Mixing media cost alone in one calculation with media plus agency and creative costs in another produces numbers that aren't comparable. The result is a multiplier, not a percentage: some platforms display the same ratio as '500%' instead of '5.00x', the same number written differently."
     },
     {
       "id": "roas-vs-roi-faq",
       "q": "Is ROAS the same as ROI?",
-      "a": "No. ROAS is revenue relative to ad spend; Marketing ROI is profit relative to cost, because it subtracts cost before dividing. ROAS answers how much revenue came back, while ROI answers whether that was actually worth it. The difference matters most when margins are thin. A campaign can show a strong ROAS, say 5x, and still represent a weak or negative ROI once the cost of what was sold is factored in, because ROAS never sees that cost at all, only the ad spend. Use ROAS to compare campaigns or channels against each other on revenue efficiency; use Marketing ROI when the real question is whether the spend paid for itself after real costs. Neither number replaces the other — they answer two different questions about the same campaign."
+      "a": "ROAS is revenue relative to ad spend; Marketing ROI is profit relative to cost, because it subtracts cost before dividing. ROAS answers how much revenue came back, ROI whether that was worth it. The difference matters most when margins are thin. A campaign can show a strong ROAS, say 5x, and still represent a weak or negative ROI once the cost of what was sold is factored in, because ROAS never sees that cost at all, only the ad spend. Use ROAS to compare campaigns or channels against each other on revenue efficiency; use Marketing ROI when the real question is whether the spend paid for itself after real costs. Neither replaces the other; they answer two different questions about the same campaign."
     },
     {
       "id": "good-roas-faq",
       "q": "What is a good ROAS?",
-      "a": "There's no universal number, despite how often one gets quoted. A 'good' ROAS depends on gross margin, fulfillment cost, and every other expense the ad spend itself doesn't cover. A 3x ROAS can be very profitable for a high-margin software product and barely break even for a low-margin retailer selling physical goods. The more useful question is what ROAS your specific business needs to break even, which is a function of your own costs, not an industry average. A break-even point calculator can compute that ROAS floor from your actual price, variable cost and fixed costs, which makes it a far more reliable reference point than a benchmark that has no idea what your margins look like. Treat any flat 'X is good' number you see elsewhere with real skepticism unless it states the margin assumptions behind it."
+      "a": "There's no universal number, despite how often one gets quoted. A 'good' ROAS depends on gross margin, fulfillment cost, and every other expense the ad spend itself doesn't cover. A 3x ROAS can be very profitable for a high-margin software product and barely break even for a low-margin retailer selling physical goods. The more useful question is what ROAS your specific business needs to break even, which is a function of your own costs, not an industry average. The Break-Even Point Calculator computes that ROAS floor from your own price, variable cost and fixed costs. Treat any flat 'X is good' number with skepticism unless it states the margin assumptions behind it."
     },
     {
       "id": "roas-below-1",
       "q": "Can ROAS be below 1x?",
-      "a": "Yes. A ROAS below 1x means the campaign generated less revenue than it cost to run — for example, $800 in revenue from $1,000 in spend is a 0.8x ROAS. It's a real, valid result, not an error in the calculation. Below 1x always means a loss on revenue alone, before any other costs are even considered, so it's an unambiguous signal something needs to change. Above 1x is more ambiguous: a 1.5x or 2x ROAS can still be unprofitable once product cost and fulfillment are counted, depending on margin. ROAS can't go negative, since neither revenue nor spend is ever a negative number in this formula. The lowest it can read is 0x, when a campaign spent money and generated no attributed revenue at all."
+      "a": "A ROAS below 1x means the campaign generated less revenue than it cost to run: $800 in revenue from $1,000 in spend is a 0.8x ROAS. It's a valid result, not an error. Below 1x always means a loss on revenue alone, before any other costs are even considered, so it's an unambiguous signal something needs to change. Above 1x is more ambiguous: a 1.5x or 2x ROAS can still be unprofitable once product cost and fulfillment are counted, depending on margin. ROAS can't go negative, since neither revenue nor spend is ever a negative number in this formula. The lowest it can read is 0x, when a campaign spent money and generated no attributed revenue at all."
     }
   ],
   "seo": {

@@ -27,7 +27,7 @@ import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview"
 
    This module is imported by server components only. The client components
    take what they need as props and import nothing from here but types, which
-   is what keeps 256 journeys and 3197 nodes out of the browser bundle. */
+   is what keeps 284 journeys and 3690 nodes out of the browser bundle. */
 
 /* THE TWO NUMBERS THE PUBLIC SITE STATES ABOUT THE LIBRARY (2026-09-05).
 
@@ -108,7 +108,7 @@ export type JourneyRow = {
      where they live - on the journey's own trigger node and `competition`
      field, still read by the detail view - but neither is rendered on a
      library card or searched from one, and every field here is serialized
-     255 times into the page. Re-add either the day something on this screen
+     160 times into the page. Re-add either the day something on this screen
      actually reads it. */
   /** The single primary discovery filter - explicit canonical metadata, not
       derived here. See src/canonical/types.ts and lib/journey-taxonomy.ts. */
@@ -169,7 +169,8 @@ const MERGED_BY_SLUG = new Map<string, MergedRedirect>(
   MERGED_REDIRECTS.map((m) => [m.from.toLowerCase(), m]),
 );
 
-/** Every slug the detail route builds: 256 journeys plus 4 merged redirects. */
+/** Every slug the detail route builds: 160 public journeys, 5 public merged
+    redirects and 10 preset URLs. */
 export const ALL_DETAIL_SLUGS: readonly string[] = [
   ...PUBLIC_JOURNEYS.map((j) => j.slug),
   ...MERGED_REDIRECTS.map((m) => m.from.toLowerCase()),
@@ -446,7 +447,8 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = PUBLIC_JOURNEYS.map((j) => ({
   preview: buildJourneyPreview(flowNodesOf(j)),
 }));
 
-/* The four product surfaces. The rule is src/canonical/surface.ts's, read
+/* The product surfaces (three public since 2026-09-05; the operational
+   surface is archived, see public-corpus.ts). The rule is src/canonical/surface.ts's, read
    per journey - the site never keeps its own notion of what is a customer
    journey, and the old "has channels / has none" split is gone: a silent
    customer lifecycle state and an internal operational workflow both have

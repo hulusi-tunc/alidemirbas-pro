@@ -11,7 +11,7 @@
       "Churn is retention's complement only when both describe the same starting population over the same period under a consistent definition of lost."
     ],
     "takeaway": "Losing few customers and losing little revenue are not the same thing.",
-    "whenToUse": "When the question is about the customer base as a population — support load, community size, account count — or when comparing churn across segments whose revenue per customer differs.",
+    "whenToUse": "When the question is about the customer base as a population (support load, community size, account count), or when comparing churn across segments whose revenue per customer differs.",
     "misleads": "Multiplying a monthly rate by 12 overstates the annual figure, because churn compounds on a shrinking base. Comparing a monthly rate against someone else's annual one does the same thing in reverse.",
     "workedExample": "customers lost ÷ customers at start → 12 ÷ 240 = 5.00%"
   },
@@ -20,7 +20,7 @@
       "id": "formula",
       "type": "formula",
       "heading": "How Logo Churn is calculated",
-      "body": "Logo Churn = Customers Lost ÷ Customers at Period Start. Lose 12 customers out of 240 you started the period with and logo churn is 12 ÷ 240 = 5.00%. This counts accounts, not dollars — a customer paying $50 a month and one paying $5,000 a month count exactly the same in this formula, which is what separates it from a revenue-weighted churn figure. [Corporate Finance Institute's own treatment of the distinction](https://corporatefinanceinstitute.com/resources/valuation/customer-churn-vs-revenue-churn) uses this same customers-lost-over-starting-customers formula for customer churn."
+      "body": "Logo Churn = Customers Lost ÷ Customers at Period Start. Lose 12 customers out of 240 you started the period with and logo churn is 12 ÷ 240 = 5.00%. This counts accounts, not dollars: a customer paying $50 a month and one paying $5,000 a month count exactly the same in this formula, which is what separates it from a revenue-weighted churn figure. [Corporate Finance Institute's own treatment of the distinction](https://corporatefinanceinstitute.com/resources/valuation/customer-churn-vs-revenue-churn) uses this same customers-lost-over-starting-customers formula for customer churn."
     },
     {
       "id": "worked-example",
@@ -40,35 +40,35 @@
         "label": "Logo Churn",
         "value": "5.00%"
       },
-      "body": "5.00% of the customers this business had at the start of the period were gone by the end. It's silent on how much revenue those 12 accounts represented — that's a separate question this number was never built to answer."
+      "body": "5.00% of the customers this business had at the start of the period were gone by the end. It's silent on how much revenue those 12 accounts represented; that's a separate question this number was never built to answer."
     },
     {
       "id": "what-counts-as-churn",
       "type": "definition",
       "heading": "What counts as a lost customer here",
-      "body": "This calculator takes \"customers lost\" as a count you supply, not a definition it enforces — it doesn't distinguish a formal cancellation from a lapsed non-renewal or an account gone inactive without ever calling to cancel. That definition is a business decision made before the number goes in, and it needs to stay the same from one period to the next. A business that counts only explicit cancellations in one quarter and adds silently-inactive accounts the next will see its logo churn jump for reasons that have nothing to do with actual customer behavior changing."
+      "body": "This calculator takes \"customers lost\" as a count you supply, not a definition it enforces; it doesn't distinguish a formal cancellation from a lapsed non-renewal or an account gone inactive without ever calling to cancel. That definition is a business decision made before the number goes in, and it needs to stay the same from one period to the next. A business that counts only explicit cancellations in one quarter and adds silently-inactive accounts the next will see its logo churn jump for reasons that have nothing to do with actual customer behavior changing."
     },
     {
       "id": "logo-vs-revenue-churn",
       "type": "comparison-note",
       "heading": "Logo churn is not revenue churn",
-      "body": "Logo churn counts customers; revenue churn counts dollars. Losing your smallest account and losing your largest account move logo churn by the exact same amount, while they move revenue churn — the churned-MRR side of [GRR](/calculators/nrr) — by very different amounts, since revenue churn is dollar-weighted and logo churn isn't. A SaaS business can lose several small accounts (high logo churn) while revenue churn stays low simply because those accounts carried little revenue weight, or lose one large account (low logo churn) that still spikes revenue churn on its own. High logo churn can separately coexist with relatively strong [NRR](/calculators/nrr) if expansion among the accounts that stayed offsets some of what was lost — but that's an NRR effect, not something that lowers revenue churn itself, since revenue churn (GRR's complement) never counts expansion. Neither logo churn nor revenue churn is the \"real\" churn — they answer different questions."
+      "body": "Logo churn counts customers; revenue churn counts dollars. Losing your smallest account and losing your largest account move logo churn by the exact same amount, while they move revenue churn (the churned-MRR side of [GRR](/calculators/nrr)) by very different amounts, since revenue churn is dollar-weighted and logo churn isn't. A SaaS business can lose several small accounts (high logo churn) while revenue churn stays low simply because those accounts carried little revenue weight, or lose one large account (low logo churn) that still spikes revenue churn on its own. High logo churn can separately coexist with relatively strong [NRR](/calculators/nrr) if expansion among the accounts that stayed offsets some of what was lost. But that's an NRR effect, not something that lowers revenue churn itself, since revenue churn (GRR's complement) never counts expansion. Neither logo churn nor revenue churn is the \"real\" churn; they answer different questions."
     },
     {
       "id": "churn-retention-relationship",
       "type": "interpretation",
       "heading": "How this relates to Retention Rate",
-      "body": "Logo Churn and [Retention Rate](/calculators/retention-rate) are complementary — churn = 1 − retention — only when both numbers describe the same starting population over the same period, using a consistent definition of what counts as \"lost.\" That holds when \"customers lost\" means customers who were part of the starting cohort and didn't remain by period end. It breaks if a customer who signed up and canceled within the same period gets counted as \"lost\" without ever being part of \"customers at period start,\" or if the two numbers come from different date ranges. Treat the 100% identity as something to verify for your own data, not something to assume automatically holds."
+      "body": "Logo Churn and [Retention Rate](/calculators/retention-rate) are complementary (churn = 1 − retention) only when both numbers describe the same starting population over the same period, using a consistent definition of what counts as \"lost.\" That holds when \"customers lost\" means customers who were part of the starting cohort and didn't remain by period end. It breaks if a customer who signed up and canceled within the same period gets counted as \"lost\" without ever being part of \"customers at period start,\" or if the two numbers come from different date ranges. Treat the 100% identity as something to verify for your own data, not something to assume automatically holds."
     },
     {
       "id": "common-mistakes",
       "type": "common-mistakes",
       "heading": "Common mistakes",
       "items": [
-        "Multiplying monthly churn by 12 to get an annual figure. Churn compounds on a shrinking base, so under a constant-monthly-rate assumption, a 5% monthly churn works out to a compounded annual equivalent of 1 − (0.95)^12 ≈ 46%, not 60% — and even that 46% is a derived estimate under that assumption, not an observed annual rate.",
+        "Multiplying monthly churn by 12 to get an annual figure. Churn compounds on a shrinking base, so under a constant-monthly-rate assumption, a 5% monthly churn works out to a compounded annual equivalent of 1 − (0.95)^12 ≈ 46%, not 60%; and even that 46% is a derived estimate under that assumption, not an observed annual rate.",
         "Comparing a monthly logo churn rate directly against another company's or another period's annual figure. The two aren't the same unit until one is converted to match the other's period length.",
         "Treating logo churn and revenue churn as interchangeable, or reporting one while implying it reflects the other. A low logo churn can sit next to a high revenue churn number if the accounts that left were disproportionately large.",
-        "Counting a customer who signed up and canceled inside the same period as part of \"customers lost\" without them ever having been in \"customers at period start\" — this breaks the churn-equals-one-minus-retention relationship and quietly changes what the rate is actually measuring."
+        "Counting a customer who signed up and canceled inside the same period as part of \"customers lost\" without them ever having been in \"customers at period start\"; this breaks the churn-equals-one-minus-retention relationship and quietly changes what the rate is actually measuring."
       ]
     }
   ],
@@ -76,39 +76,39 @@
     {
       "slug": "retention-rate",
       "name": "Retention Rate Calculator",
-      "desc": "Logo Churn's complement under a matching population and period — the two should be checked against each other, not assumed to always add to 100%."
+      "desc": "Logo Churn's complement under a matching population and period; the two should be checked against each other, not assumed to always add to 100%."
     },
     {
       "slug": "nrr",
       "name": "Net Revenue Retention (NRR) Calculator",
-      "desc": "The dollar-weighted view of the same losses — where revenue churn can tell a different story than logo churn on the same customer base."
+      "desc": "The dollar-weighted view of the same losses, where revenue churn can tell a different story than logo churn on the same customer base."
     }
   ],
   "faq": [
     {
       "id": "what-is-logo-churn",
       "q": "What is logo churn?",
-      "a": "Logo churn is the percentage of customers a business had at the start of a period who were no longer customers by the end of it, counted by account rather than by revenue. It's a common SaaS definition of customer/logo churn — \"logo\" refers to counting company or account logos, not dollar amounts. A logo churn of 5% means 5 out of every 100 starting customers left during the period, regardless of what any of them were paying. It's a headcount metric, which makes it useful for understanding how many relationships a business is failing to keep, separate from how much revenue those departures represented. A business can have low logo churn and still lose significant revenue if the few accounts that left were unusually large ones."
+      "a": "Logo churn is the percentage of customers a business had at the start of a period who were no longer customers by the end of it, counted by account rather than by revenue. It's a common SaaS definition of customer/logo churn; \"logo\" refers to counting company or account logos, not dollar amounts. A logo churn of 5% means 5 out of every 100 starting customers left during the period, regardless of what any of them were paying. It's a headcount metric, which makes it useful for understanding how many relationships a business is failing to keep, separate from how much revenue those departures represented. A business can have low logo churn and still lose significant revenue if the few accounts that left were unusually large ones."
     },
     {
       "id": "how-to-calculate-logo-churn",
       "q": "How do you calculate logo churn?",
-      "a": "Divide customers lost during the period by customers you had at the start of it: Logo Churn = Customers Lost ÷ Customers at Period Start. Losing 12 customers out of a starting base of 240 gives 12 ÷ 240 = 5.00%. Both numbers need to describe the same population and period — customers lost from a broader definition (say, including free-trial drop-offs) divided against a starting count of paying customers only will produce a rate that doesn't cleanly describe either group. What counts as \"lost\" (a formal cancellation, a lapsed non-renewal, sustained inactivity) is a definition your business sets and needs to apply consistently period over period, since the formula itself doesn't encode that policy."
+      "a": "Divide customers lost during the period by customers you had at the start of it: Logo Churn = Customers Lost ÷ Customers at Period Start. Losing 12 customers out of a starting base of 240 gives 12 ÷ 240 = 5.00%. Both numbers need to describe the same population and period: customers lost from a broader definition (say, including free-trial drop-offs) divided against a starting count of paying customers only will produce a rate that doesn't cleanly describe either group. What counts as \"lost\" (a formal cancellation, a lapsed non-renewal, sustained inactivity) is a definition your business sets and needs to apply consistently period over period, since the formula itself doesn't encode that policy."
     },
     {
       "id": "logo-vs-revenue-churn-faq",
       "q": "Is logo churn the same as revenue churn?",
-      "a": "No. Logo churn counts customers lost as a share of starting customers; revenue churn counts the dollar value lost as a share of starting recurring revenue, which is what feeds Gross Revenue Retention's complement. They can move in opposite directions in the same period — losing several small accounts pushes logo churn up while barely moving revenue churn, since revenue churn is dollar-weighted and small accounts carry little weight in it, and losing one very large account can spike revenue churn while logo churn barely moves. Neither number substitutes for the other: logo churn tells you about relationship count, revenue churn tells you about dollar impact, and a business tracking only one can be blindsided by what the other would have shown about the same period."
+      "a": "Logo churn counts customers lost as a share of starting customers; revenue churn counts the dollar value lost as a share of starting recurring revenue, which is what feeds Gross Revenue Retention's complement. They can move in opposite directions in the same period: losing several small accounts pushes logo churn up while barely moving revenue churn, since revenue churn is dollar-weighted and small accounts carry little weight in it, and losing one very large account can spike revenue churn while logo churn barely moves. Neither number substitutes for the other: logo churn tells you about relationship count, revenue churn tells you about dollar impact, and a business tracking only one can be blindsided by what the other would have shown about the same period."
     },
     {
       "id": "annualize-logo-churn",
       "q": "Can I just multiply monthly logo churn by 12 to get an annual rate?",
-      "a": "No, and doing so overstates the compounded annual equivalent. Churn compounds against a shrinking base each period, so under a constant-5%-monthly-churn assumption, the compounded annual equivalent works out to roughly 1 − (1 − 0.05)^12 ≈ 46% over a year, not the 60% a flat multiplication implies. That 46% figure is a derived equivalent under the constant-rate assumption, not an observed annual churn rate — real monthly rates rarely stay exactly constant all year, so treat it as an approximation rather than a forecast. The gap between the naive and compounded figures grows as the monthly rate increases. The safer approach is measuring monthly and annual churn separately from actual data rather than deriving one from the other by arithmetic."
+      "a": "Doing so overstates the compounded annual equivalent. Churn compounds against a shrinking base each period, so under a constant-5%-monthly-churn assumption, the compounded annual equivalent works out to roughly 1 − (1 − 0.05)^12 ≈ 46% over a year, not the 60% a flat multiplication implies. That 46% figure is a derived equivalent under the constant-rate assumption, not an observed annual churn rate; real monthly rates rarely stay constant all year, so treat it as an approximation rather than a forecast. The gap between the naive and compounded figures grows as the monthly rate increases. The safer approach is measuring monthly and annual churn separately from actual data rather than deriving one from the other by arithmetic."
     },
     {
       "id": "good-logo-churn",
       "q": "What is a good logo churn rate?",
-      "a": "There's no universal good logo churn rate — it depends heavily on customer segment, contract length, price point, and how the business defines a lost customer, all of which vary enough that a single benchmark number rarely applies across companies. A consumer subscription with a low price point typically tolerates a much higher churn rate than an enterprise contract business, without either one being unhealthy for its own segment. Rather than chasing a published figure, logo churn is most meaningfully read against your own trend over time and alongside revenue churn from the same period — a rising logo churn with flat revenue churn tells a very different story than both rising together, and neither is visible from logo churn alone."
+      "a": "There's no universal good logo churn rate. It depends on customer segment, contract length, price point, and how the business defines a lost customer, all of which vary enough that a single benchmark number rarely applies across companies. A consumer subscription with a low price point typically tolerates a much higher churn rate than an enterprise contract business, without either one being unhealthy for its own segment. Read logo churn against your own trend over time and alongside revenue churn from the same period, not against a published figure. A rising logo churn with flat revenue churn tells a very different story than both rising together, and neither is visible from logo churn alone."
     }
   ],
   "seo": {

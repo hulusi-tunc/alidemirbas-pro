@@ -26,7 +26,7 @@ import { JsonLdScript } from "@/components/ui/JsonLdScript";
 /* JourneyBrowser reads filter state via useSearchParams, which forces its
    subtree to client-render during prerendering (Next's own documented
    behavior for that hook - see next/dist/docs/.../use-search-params.md).
-   Without a fallback, that would mean the 255-journey list is absent from
+   Without a fallback, that would mean the journey list is absent from
    the initial HTML until hydration. This fallback is the same list,
    unfiltered, rendered as a plain server component with an inert copy of the
    toolbar above it, so search engines and no-JS clients still see the full

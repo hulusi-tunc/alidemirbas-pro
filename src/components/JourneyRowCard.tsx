@@ -11,7 +11,7 @@ import type { JourneyPreview } from "@/lib/journey-preview";
 
    A ROW, not a card. The A/B library settled the list grammar for this
    site - id in a mono gutter, title as the loudest text, hairline rules
-   between entries - and 281 journeys are scanned faster down one column
+   between entries - and a long list of journeys is scanned faster down one column
    than across a three-column grid, where the eye has to serpentine and
    every title competes with two neighbours. The topology thumbnail, the
    one thing the old card design got right, survives the conversion: it
@@ -55,7 +55,7 @@ export default function JourneyRowCard({
     <Link
       href={href}
       /* content-visibility lets the browser skip layout and paint for the
-         rows that are off screen, which is what keeps 281 topology SVGs on
+         rows that are off screen, which is what keeps a full surface of topology SVGs on
          one page cheap; contain-intrinsic-size gives it a height to reserve
          for them meanwhile, so the scrollbar stays honest. */
       className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-line py-4 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_116px] last:border-b hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:grid-cols-[5rem_minmax(0,1fr)_10.5rem] sm:gap-6"

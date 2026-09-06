@@ -4,7 +4,7 @@ import { PRESET_ROWS, SURFACE_ROWS } from "@/lib/canonical-view";
 import { copy } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
 
-/* One of the four journey surfaces - see canonical-view.ts's SURFACE_ROWS.
+/* One of the three public journey surfaces - see canonical-view.ts's SURFACE_ROWS.
    The list is read from the journeys themselves; nothing here decides what
    belongs on this surface. */
 const KEY = "runtime-mechanisms" as const;

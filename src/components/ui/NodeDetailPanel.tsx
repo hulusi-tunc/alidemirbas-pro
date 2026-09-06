@@ -149,7 +149,7 @@ export function NodeDetailPanel({
                 {node.edges.map((e) => (
                   <li key={`${e.label ?? ""}-${e.to}`} className="text-[13px] leading-snug">
                     {e.label ? <span className="font-medium text-ink-800">{e.label}</span> : null}
-                    {e.label && e.detail ? " — " : null}
+                    {e.label && e.detail ? ": " : null}
                     {e.detail ? <span className="text-ink-600">{e.detail}</span> : null}
                     <span className="mt-0.5 block font-mono text-[11px] text-ink-400">
                       {e.kind === "journey" && e.href ? (

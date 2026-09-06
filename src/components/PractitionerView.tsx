@@ -110,7 +110,7 @@ export default function PractitionerView({ view, lang, t, basePath }: { view: Vi
               ) : (
                 <span className="font-mono text-[12px] text-ink-800">{c.short}</span>
               )}{" "}
-              — {c.rule}
+              · {c.rule}
             </li>
           ))}
         </ul>
@@ -119,7 +119,7 @@ export default function PractitionerView({ view, lang, t, basePath }: { view: Vi
         <p className="text-[12px] text-ink-500">{t.events}</p>
         <ul className="mt-1 flex flex-col gap-0.5 text-[12.5px] text-ink-700">
           {view.requiredData.events.map((e) => (
-            <li key={e.id}><span className="font-mono text-[12px] text-ink-900">{e.id}</span> <span className="font-mono text-[10px] text-ink-400">{e.source}</span> — {e.meaning}</li>
+            <li key={e.id}><span className="font-mono text-[12px] text-ink-900">{e.id}</span> <span className="font-mono text-[10px] text-ink-400">{e.source}</span>: {e.meaning}</li>
           ))}
         </ul>
         <p className="mt-3 text-[12px] text-ink-500">{t.attributes}</p>
@@ -177,7 +177,7 @@ export default function PractitionerView({ view, lang, t, basePath }: { view: Vi
                 <div className="mt-5 border-t border-line-soft pt-3">
                   <p className="text-[12px] text-ink-500"><span className="font-medium text-ink-700">{t.channelRoles}</span> <Pill label={view.channelStrategy.label} t={t} /></p>
                   <ul className="mt-1.5 flex flex-col gap-1 text-[12px] text-ink-600">
-                    {view.channelStrategy.roles.map((r) => <li key={r.role}><span className="font-medium text-ink-800">{t.roles[r.role]}</span> ({r.channels.map((c) => CHANNEL_LABEL[c][lang]).join(", ")}) — {r.when}</li>)}
+                    {view.channelStrategy.roles.map((r) => <li key={r.role}><span className="font-medium text-ink-800">{t.roles[r.role]}</span> ({r.channels.map((c) => CHANNEL_LABEL[c][lang]).join(", ")}): {r.when}</li>)}
                   </ul>
                   <p className="mt-1.5 text-[12px] text-ink-500">{t.fallback}: {view.channelStrategy.fallback}</p>
                 </div>
@@ -190,7 +190,7 @@ export default function PractitionerView({ view, lang, t, basePath }: { view: Vi
               {view.stopsWhen.handoffs.map((h) => (
                 <li key={h.id} className="flex gap-2">
                   <span className="w-24 shrink-0 font-mono text-[11px] text-ink-400">{t.handoff}</span>
-                  <span>{h.href ? <Link href={`${basePath}/${h.href}`} className="text-blue-600 hover:text-blue-700">{h.toName ?? h.to}</Link> : <span className="font-mono">{h.to}</span>} — {h.on}</span>
+                  <span>{h.href ? <Link href={`${basePath}/${h.href}`} className="text-blue-600 hover:text-blue-700">{h.toName ?? h.to}</Link> : <span className="font-mono">{h.to}</span>}: {h.on}</span>
                 </li>
               ))}
             </ul>
@@ -205,7 +205,7 @@ export default function PractitionerView({ view, lang, t, basePath }: { view: Vi
                 <dt className="text-ink-500">{t.cooldown}</dt><dd>{view.collision.cooldown}</dd>
                 <dt className="text-ink-500">{t.competition}</dt><dd>{view.collision.competition}</dd>
               </dl>
-              <p className="mt-3 text-[12px] text-ink-500">{t.noAction} <span className="font-mono text-ink-700">{view.collision.noAction.map((s) => s.id).join(" · ")}</span> — {t.noActionNote}</p>
+              <p className="mt-3 text-[12px] text-ink-500">{t.noAction} <span className="font-mono text-ink-700">{view.collision.noAction.map((s) => s.id).join(" · ")}</span>. {t.noActionNote}</p>
             </Block>
           ) : null}
           <Block label={t.measurement}>
@@ -213,7 +213,7 @@ export default function PractitionerView({ view, lang, t, basePath }: { view: Vi
               <dt className="text-ink-500">{t.journeyOutcome}</dt><dd className="font-mono text-[12px]">{view.measurement.journeyOutcome.type}: {view.measurement.journeyLabel}</dd>
               {bo ? (
                 <>
-                  <dt className="text-ink-500">{t.businessOutcome}</dt><dd><span className="font-mono text-[12px]">{bo.event}</span> — {view.measurement.businessMeaning}</dd>
+                  <dt className="text-ink-500">{t.businessOutcome}</dt><dd><span className="font-mono text-[12px]">{bo.event}</span>: {view.measurement.businessMeaning}</dd>
                   <dt className="text-ink-500">{t.scope}</dt><dd>{bo.observationScope.type === "self" ? t.self : `${t.through} ${bo.observationScope.journeys.join(" → ")}`}{typeof bo.window === "object" && "until" in bo.window ? ` · ${t.until} ${bo.window.until}` : ""}</dd>
                   <dt className="text-ink-500">{t.attribution}</dt><dd>{bo.attribution} · {bo.comparison}{bo.holdout ? ` (${t.holdout} ${configValueText(bo.holdout.default?.value as never)})` : ""}</dd>
                 </>
@@ -226,7 +226,7 @@ export default function PractitionerView({ view, lang, t, basePath }: { view: Vi
               <ul className="flex flex-col gap-2 text-[12.5px] text-ink-700">
                 {view.presets.map((p) => (
                   <li key={p.id}>
-                    <Link href={`${basePath}/${p.id}`} className="font-medium text-blue-600 hover:text-blue-700">{p.name}</Link> <Pill label={p.applicableWhen.label} t={t} /> — {p.applicableWhen.text}
+                    <Link href={`${basePath}/${p.id}`} className="font-medium text-blue-600 hover:text-blue-700">{p.name}</Link> <Pill label={p.applicableWhen.label} t={t} /> {p.applicableWhen.text}
                     {Object.keys(p.overrides).length ? <span className="block font-mono text-[11px] text-ink-500">{Object.entries(p.overrides).map(([k, v]) => `${k} = ${configValueText(v as never)}`).join(" · ")}</span> : null}
                   </li>
                 ))}

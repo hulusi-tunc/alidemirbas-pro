@@ -326,7 +326,7 @@ export default function JourneyCanvas({
           out-stack the detail panel, and read as apparatus rather than as
           part of the drawing. Deliberately not a legend: node kinds are named
           on the cards themselves, and a permanent key would be four more
-          things competing with the graph on every one of 281 pages. */}
+          things competing with the graph on every journey page. */}
       <figcaption className="flex items-center justify-between gap-4 border-t border-line-soft px-3 py-1.5">
         {caption ? (
           <p className="min-w-0 truncate font-mono text-[11px] text-ink-400 tabular-nums">{caption}</p>

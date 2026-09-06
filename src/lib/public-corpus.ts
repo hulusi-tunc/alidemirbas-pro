@@ -13,8 +13,9 @@ import type { CanonicalJourney } from "@/canonical/types";
    cross-journey link the detail pages render.
 
    WHY A GATE AND NOT A MOVE. The 124 operational journeys are not a
-   detachable corpus: 67 customer and mechanism journeys hand off INTO them
-   (78 handoff edges), 3 orchestration rules name them, and 3 retired ids
+   detachable corpus: 54 customer and mechanism journeys hand off INTO them
+   (78 handoff edges to 23 targets; 67 reference them once `distinctFrom` rows
+   are counted), 3 orchestration rules name them, and 3 retired ids
    redirect into them. `validate:canonical` requires every handoff target to
    exist, and the records are interleaved across 18 of the 26 hand-authored
    domain files. Moving them out of src/canonical/ would corrupt the customer

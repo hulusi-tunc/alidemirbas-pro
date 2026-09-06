@@ -7,11 +7,11 @@
     "tagline": "See how your existing customers' recurring revenue moved, after expansion, contraction and churn.",
     "meaning": [
       "Four inputs, two answers. NRR counts expansion; GRR does not. Reported together they show how much of the base's revenue survived, and how much growth came from customers you already had.",
-      "NRR goes above 100% when expansion outweighs contraction and churn combined — the base grew its own revenue without a single new customer. Isolating that from new-customer revenue is the whole reason to track it separately."
+      "NRR goes above 100% when expansion outweighs contraction and churn combined: the base grew its own revenue without a single new customer. Isolating that from new-customer revenue is the whole reason to track it separately."
     ],
-    "takeaway": "NRR above 100% is growth you did not have to buy — but only for the period it actually covers.",
+    "takeaway": "NRR above 100% is growth you did not have to buy, but only for the period it actually covers.",
     "whenToUse": "When assessing the health of a subscription base, when expansion revenue is a real part of the model, and when a headcount-based retention number is hiding what is happening to revenue.",
-    "misleads": "Reporting NRR without stating its period makes it uncomparable — a monthly and an annual figure from the same business are different numbers. Leaving contraction out and counting only full churn overstates retention.",
+    "misleads": "An NRR reported without its period cannot be compared with anything: a monthly and an annual figure from the same business are different numbers. Leaving contraction out and counting only full churn overstates retention.",
     "workedExample": "(start + expansion − contraction − churn) ÷ start"
   },
   "sections": [
@@ -19,25 +19,25 @@
       "id": "definition",
       "type": "definition",
       "heading": "What goes into the number",
-      "body": "Four inputs: starting MRR (recurring revenue from the existing base at the start of the period), expansion (revenue gained from upsells and upgrades within that same base), contraction (revenue lost from downgrades), and churned MRR (revenue lost from customers who left entirely). NRR and GRR are two different ways of combining the same four numbers — NRR counts expansion, GRR doesn't."
+      "body": "Four inputs: starting MRR (recurring revenue from the existing base at the start of the period), expansion (revenue gained from upsells and upgrades within that same base), contraction (revenue lost from downgrades), and churned MRR (revenue lost from customers who left entirely). NRR and GRR are two different ways of combining the same four numbers: NRR counts expansion, GRR doesn't."
     },
     {
       "id": "formula",
       "type": "formula",
       "heading": "NRR and GRR from the same inputs",
-      "body": "NRR = (starting MRR + expansion − contraction − churned MRR) ÷ starting MRR. GRR uses the same formula without the expansion term, so it never counts revenue you gained back. On $100,000 starting MRR with $8,000 expansion, $2,000 contraction and $5,000 churned MRR: NRR is 101%, GRR is 93%. Note that GRR is capped at 100% by definition — you can't retain more than you started with once expansion is excluded — while NRR has no such ceiling."
+      "body": "NRR = (starting MRR + expansion − contraction − churned MRR) ÷ starting MRR. GRR uses the same formula without the expansion term, so it never counts revenue you gained back. On $100,000 starting MRR with $8,000 expansion, $2,000 contraction and $5,000 churned MRR: NRR is 101%, GRR is 93%. Note that GRR is capped at 100% by definition (you can't retain more than you started with once expansion is excluded), while NRR has no such ceiling."
     },
     {
       "id": "why-over-100",
       "type": "interpretation",
       "heading": "Why NRR can go above 100%",
-      "body": "NRR exceeds 100% when expansion revenue from existing customers outweighs everything lost to contraction and churn combined — the business grew its existing base's revenue without adding a single new customer. That's the whole point of tracking it separately from new-customer revenue: NRR isolates how well a company keeps and grows the customers it already has, independent of how good it is at acquiring new ones."
+      "body": "NRR exceeds 100% when expansion revenue from existing customers outweighs everything lost to contraction and churn combined: the business grew its existing base's revenue without adding a single new customer. That's the whole point of tracking it separately from new-customer revenue: NRR isolates how well a company keeps and grows the customers it already has, independent of how good it is at acquiring new ones."
     },
     {
       "id": "nrr-vs-grr-use",
       "type": "comparison-note",
       "heading": "When each number matters",
-      "body": "GRR is the more conservative read — it shows how much revenue would survive with zero expansion, which is useful for stress-testing the base. NRR shows the fuller picture including upsell performance, which is why it's the number more commonly reported externally. Neither one replaces the other; they're deliberately shown together here rather than on separate pages, since they come from the same four inputs and reading only one hides half the story."
+      "body": "GRR is the more conservative read: it shows how much revenue would survive with zero expansion, which is useful for stress-testing the base. NRR shows the fuller picture including upsell performance, which is why it's the number more commonly reported externally. Neither one replaces the other; they're deliberately shown together here rather than on separate pages, since they come from the same four inputs and reading only one hides half the story."
     },
     {
       "id": "common-mistakes",
@@ -53,12 +53,12 @@
     {
       "id": "nrr-aliases",
       "q": "Is Net Dollar Retention the same as NRR?",
-      "a": "Yes — Net Dollar Retention (NDR) is the same calculation as NRR, just a different name used by some companies and analysts."
+      "a": "Net Dollar Retention (NDR) is the same calculation as NRR under a different name, used by some companies and analysts."
     },
     {
       "id": "revenue-churn-definition",
       "q": "What is 'Revenue Churn' here?",
-      "a": "Revenue churn is GRR's complement (1 − GRR) — the share of starting MRR lost to contraction and churn, before counting any expansion."
+      "a": "Revenue churn is GRR's complement (1 − GRR): the share of starting MRR lost to contraction and churn, before counting any expansion."
     }
   ],
   "seo": {

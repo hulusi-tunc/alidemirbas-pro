@@ -19,7 +19,7 @@ risk cases. The internal work a business does to keep a promise once it's made.
 | Nodes | 1,605 (of 3,690) |
 | Categories touched | 18 of 26 — three are *wholly* operational: `control`, `data`, `ownership` |
 | Retired ids resolving into it | 3 — `CTL-239 → OWN-57`, `CTL-240 → OWN-54`, `RET-25 → RSK-192` |
-| Inbound references from public journeys | 113 (78 handoff edges from 67 customer/mechanism journeys, plus `distinctFrom` cross-references) |
+| Inbound references from public journeys | 113 from 67 customer/mechanism journeys to 41 targets: 78 handoff edges (from 54 journeys to 23 targets) plus 35 `distinctFrom` cross-references |
 | Orchestration rules naming an operational id | 3 |
 | Public label | "Operations" (EN) / "Operasyon" (TR) |
 
@@ -53,8 +53,9 @@ journeys that remain public — see the next section.
 The 124 journeys cannot be physically detached from `src/canonical/` without corrupting
 the journeys that stayed public:
 
-- 67 customer and mechanism journeys **hand off into** operational journeys (78 handoff
-  edges, 41 distinct targets — e.g. `ACQ-10 → DEC-181`, `FBK-46 → OWN-51`). The canonical
+- 54 customer and mechanism journeys **hand off into** operational journeys (78 handoff
+  edges, 23 distinct targets — e.g. `ACQ-10 → DEC-181`, `FBK-46 → OWN-51`); counting the 35
+  `distinctFrom` cross-references as well, 67 public journeys reference 41 operational ones. The canonical
   validator (`npm run validate:canonical`) requires every handoff target to exist.
 - 3 orchestration rules and 3 merged-id redirects name operational ids.
 - The records are interleaved across 18 of the 26 domain files; only 3 files are wholly

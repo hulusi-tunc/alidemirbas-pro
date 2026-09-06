@@ -13,9 +13,9 @@ import { eventText } from "@/canonical/events";
 
    Same discipline as canonical-view.ts: SERVER-ONLY. The client never
    imports this. Everything is resolved here and passed down as small,
-   already-shaped props, which is what keeps 255 journeys and 3,186 nodes
+   already-shaped props, which is what keeps 284 journeys and 3,690 nodes
    out of the browser bundle. The library showcase deliberately projects
-   SIX journeys, not 255 - the marketing page has no reason to ship the
+   FOUR journeys, not 71 - the marketing page has no reason to ship the
    whole graph to draw a preview.
 
    NOTHING IS INVENTED. Every count is computed at module load; every label
@@ -221,8 +221,8 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
 })();
 
 /* ---- Library showcase cards ------------------------------------------
-   SIX real journeys, one per category, each projected to a short node-kind
-   strip so a card reads as a FLOW rather than as an article. Six, not 255:
+   FOUR real journeys, one per category, each projected to a short node-kind
+   strip so a card reads as a FLOW rather than as an article. Four, not 71:
    the marketing page has no reason to render the whole library. */
 
 /* FOUR (2026-09; was five with a highlighted centre card). Five 320px cards

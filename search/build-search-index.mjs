@@ -15,9 +15,19 @@ const rj = (p) => JSON.parse(rd(p));
 const SITE_URL = "https://alidemirbas.com.tr";
 
 /* ============================================================ Goal taxonomy
-   Ported VERBATIM from src/lib/journey-taxonomy.ts (same order, same
-   patterns) - see that file's own comment on why it can't be imported
-   here and must be kept in sync by hand. */
+   This is the RETIRED first-match regex table that src/lib/journey-taxonomy.ts
+   used to derive Goal from name+purpose text. That module no longer derives
+   anything: Goal is explicit canonical metadata (`goal` on every journey, 26
+   values, see src/canonical/types.ts) and journey-taxonomy.ts only declares
+   the vocabulary. The table survives here because search-taxonomy.json's
+   `businessObjectives` vocabulary (validated by search-validator checks 9 and
+   17) freezes THIS 21-value list - including `revocation-access-change` and the
+   `review-required` fallback, neither of which is a canonical goal - and
+   because the same rule is applied to ab-tests, calculators and blog posts,
+   which carry no canonical goal. Measured 2026-09-05: 97 of the 160 public
+   journey documents get a businessObjective different from their canonical
+   `goal`. Switching journeys to the canonical goal means re-deciding the
+   search-taxonomy.json vocabulary first; not done here. */
 const GOAL_RULES = [
   ["eligibility-qualification", /eligib|qualif/i],
   ["consent-permission", /consent|permission|preference|contactability|opt.?(in|out)/i],

@@ -16,10 +16,3 @@ export const springSnap: Transition = {
   damping: 32,
   mass: 0.6,
 };
-
-export const springSoft: Transition = {
-  type: "spring",
-  stiffness: 260,
-  damping: 28,
-  mass: 0.8,
-};

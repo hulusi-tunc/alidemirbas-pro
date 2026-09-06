@@ -49,8 +49,6 @@ export function sortChannels(channels: readonly ChannelId[]): ChannelId[] {
    node name only the part that applies to it. */
 const HUMAN_ROUTES: ReadonlySet<ChannelId> = new Set(["sales", "task"]);
 
-export const isHumanRoute = (c: ChannelId): boolean => HUMAN_ROUTES.has(c);
-
 /** Message-delivery surfaces only - what a communication action can run on. */
 export function messageChannels(channels: readonly ChannelId[]): ChannelId[] {
   return sortChannels(channels.filter((c) => !HUMAN_ROUTES.has(c)));
