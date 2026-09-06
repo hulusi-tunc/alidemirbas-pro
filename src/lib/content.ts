@@ -419,7 +419,7 @@ export const copy = {
       // the other; the two pages make different first impressions on
       // purpose.
       teaserLead:
-        "I build reliable measurement frameworks that help digital products grow sustainably. My work includes implementing GA4 and GTM tracking systems, optimizing Adjust MMP setups, and designing evidence-based CRO programs that turn user insights into measurable business growth. I approach marketing as an iterative process built on accurate data, structured experimentation, and continuous optimization.",
+        "I work across growth, from measurement infrastructure and user behavior to paid acquisition, testing, and optimization. Across GA4, GTM, Adjust, ad platforms, CRO, and lifecycle, the common thread is understanding what works through data and feeding those insights back into product and marketing.",
       lead:
         "With over eight years of experience in digital marketing and growth, I have worked on strategies designed to support the growth objectives of different products and business models.",
       body:
@@ -1240,7 +1240,7 @@ export const copy = {
       sub: "Dijital Pazarlama · Analitik · Büyüme Stratejisi",
       moreLink: "Hakkımda daha fazlası",
       teaserLead:
-        "Dijital ürünlerin sürdürülebilir şekilde büyümesine yardımcı olan güvenilir ölçümleme sistemleri kuruyorum. Çalışmalarım; GA4 ve GTM izleme sistemleri kurmayı, Adjust MMP kurulumlarını optimize etmeyi ve kullanıcı içgörülerini ölçülebilir iş büyümesine dönüştüren kanıta dayalı CRO programları tasarlamayı kapsıyor. Pazarlamaya; doğru veriye, yapılandırılmış deneylere ve sürekli optimizasyona dayanan yinelemeli bir süreç olarak yaklaşıyorum.",
+        "Büyüme üzerine çalışıyorum. Ölçüm altyapısından kullanıcı davranışına, paid acquisition'dan test ve optimizasyona kadar farklı alanlarla ilgileniyorum. GA4, GTM, Adjust, reklam platformları, CRO ve lifecycle tarafındaki çalışmalarımın ortak noktası, neyin işe yaradığını veriden okuyup bunu ürüne ve pazarlamaya geri taşımak.",
       lead:
         "Dijital pazarlama ve büyüme alanında sekiz yılı aşkın deneyimimle, farklı ürünlerin ve iş modellerinin büyüme hedeflerini destekleyecek stratejiler üzerinde çalıştım.",
       body:
