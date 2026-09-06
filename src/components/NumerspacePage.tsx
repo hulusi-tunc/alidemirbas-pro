@@ -1,15 +1,40 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Briefcase,
+  Calculator,
+  CalendarClock,
+  Car,
+  GraduationCap,
+  HeartPulse,
+  House,
+  Landmark,
+  Megaphone,
+  Moon,
+  PawPrint,
+  Shirt,
+  Sigma,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
+import { buttonStyles } from "@/components/ui/Button";
+import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { ProductCta } from "@/components/ui/ProductCta";
+import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
+import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, webApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
 import { clsx } from "@/lib/clsx";
+import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 
 /* Numerspace's product page - revised (2026-09) for length and repetition,
    not for a new visual language. The prior pass ran seven sections through
@@ -37,43 +62,6 @@ import { clsx } from "@/lib/clsx";
    exactly 97, the same sitemap-counted total this page already used,
    which is what makes them trustworthy enough to print). */
 
-const REAL = {
-  calorie: {
-    title: { en: "Daily Calorie Calculator", tr: "Günlük Kalori İhtiyacı Hesaplayıcı" },
-    formula: {
-      en: "BMR = 10 × weight + 6.25 × height − 5 × age + 5 (male) or −161 (female)",
-      tr: "BMR = 10 × kilo + 6,25 × boy − 5 × yaş + 5 (erkek) ya da −161 (kadın)",
-    },
-    inputs: [
-      { label: { en: "Gender", tr: "Cinsiyet" }, value: { en: "Male", tr: "Erkek" } },
-      { label: { en: "Age", tr: "Yaş" }, value: "30" },
-      { label: { en: "Height (cm)", tr: "Boy (cm)" }, value: "180" },
-      { label: { en: "Weight (kg)", tr: "Kilo (kg)" }, value: "80" },
-      { label: { en: "Activity", tr: "Aktivite" }, value: { en: "Sedentary", tr: "Hareketsiz" } },
-    ] as { label: { en: string; tr: string }; value: string | { en: string; tr: string } }[],
-    bmr: { en: "1,780", tr: "1.780" },
-    resultLabel: { en: "Daily calorie need (×1.20)", tr: "Günlük kalori ihtiyacı (×1,20)" },
-    result: { en: "2,136 kcal/day", tr: "2.136 kcal/gün" },
-  },
-  /** All 13, with the real per-category tool count. `featured` marks the
-      8 shown on this page - the rest are one click away at the real site,
-      not reproduced here (this is a project page, not the catalogue). */
-  categories: [
-    { en: "Finance & Investment", tr: "Finans & Yatırım", count: 8, featured: true, ex: { en: ["Loan Calculator", "Deposit Interest Calculator", "Rent Increase Calculator"], tr: ["Kredi Hesaplama", "Mevduat Getirisi Hesaplama", "Kira Artış Hesaplama"] } },
-    { en: "Health & Fitness", tr: "Sağlık & Fitness", count: 15, featured: true, ex: { en: ["BMI Calculator", "Daily Calorie Calculator", "Ideal Weight Calculator"], tr: ["Vücut Kitle İndeksi Hesaplama", "Günlük Kalori İhtiyacı Hesaplama", "İdeal Kilo Hesaplama"] } },
-    { en: "Work & Career", tr: "İş & Kariyer", count: 7, featured: true, ex: { en: ["Salary Calculator", "Annual Leave Calculator", "Overtime Calculator"], tr: ["Maaş Hesaplama", "Yıllık İzin Hesaplama", "Fazla Mesai Hesaplama"] } },
-    { en: "Time & Date", tr: "Zaman & Tarih", count: 8, featured: true, ex: { en: ["Age Calculator", "Date Difference Calculator", "Time Difference Calculator"], tr: ["Yaş Hesaplama", "Tarih Farkı Hesaplama", "Saat Farkı Hesaplama"] } },
-    { en: "Marketing & Analytics", tr: "Pazarlama & Analitik", count: 17, featured: true, ex: { en: ["ROAS Calculator", "Conversion Rate Calculator", "CAC Calculator"], tr: ["ROAS Hesaplama", "CR Hesaplama", "CAC Hesaplama"] } },
-    { en: "Math & Converters", tr: "Matematik & Çeviri", count: 13, featured: true, ex: { en: ["Percentage Calculator", "Standard Deviation", "Basic Calculator"], tr: ["Yüzde Hesaplama", "Standart Sapma Hesaplama", "Hesap Makinesi"] } },
-    { en: "Education & Productivity", tr: "Eğitim & Üretkenlik", count: 4, featured: false, ex: { en: ["GPA Calculator", "Reading Time Calculator", "Writing Speed Test"], tr: ["Not Ortalaması Hesaplama", "Okuma Süresi Hesaplama", "Yazma Hızı Testi"] } },
-    { en: "Home & Living", tr: "Ev & Yaşam", count: 6, featured: true, ex: { en: ["Paint Calculator", "Electricity Bill Calculator", "TV Size Calculator"], tr: ["Boya Hesaplama", "Elektrik Faturası Hesaplama", "TV Boyut Hesaplama"] } },
-    { en: "Clothing & Sizing", tr: "Giyim & Beden", count: 4, featured: false, ex: { en: ["Bra Size Calculator", "Belt Size Calculator", "Jacket Size Calculator"], tr: ["Sütyen Bedeni Hesaplama", "Kemer Ölçüsü Hesaplama", "Ceket Bedeni Hesaplama"] } },
-    { en: "Pets", tr: "Evcil Hayvan", count: 4, featured: false, ex: { en: ["Dog Age Calculator", "Cat Age Calculator", "Cat Pregnancy Calculator"], tr: ["Köpek Yaşı Hesaplama", "Kedi Yaşı Hesaplama", "Kedi Gebelik Hesaplama"] } },
-    { en: "Vehicle & Travel", tr: "Araç & Seyahat", count: 2, featured: false, ex: { en: ["Fuel Consumption Calculator", "Distance Calculator"], tr: ["Yakıt Tüketimi Hesaplama", "Mesafe Hesaplama"] } },
-    { en: "Faith", tr: "İnanç", count: 4, featured: false, ex: { en: ["Prayer Times", "Zakat Calculator", "Ramadan Schedule"], tr: ["Namaz Vakitleri", "Zekat Hesaplama", "İmsakiye"] } },
-    { en: "Astrology", tr: "Astroloji", count: 5, featured: false, ex: { en: ["Zodiac Compatibility", "Rising Sign Calculator", "Chinese Zodiac Calculator"], tr: ["Burç Uyumu Hesaplama", "Yükselen Burç Hesaplama", "Çin Burcu Hesaplama"] } },
-  ],
-};
 
 const T = {
   en: {
@@ -94,6 +82,10 @@ const T = {
     catSub: "From finance and health to work, travel and everyday calculations.",
     catCount: (n: number) => `${n} calculator${n === 1 ? "" : "s"}`,
     catExploreAll: "Explore all 13 categories",
+    catBrowse: "Browse by category",
+    catOpen: "Open on numerspace.com",
+    catTotal: (n: number, k: number) => `${n} calculators in ${k} categories, all on numerspace.com`,
+    heroShotAlt: "numerspace.com's homepage: a search field over category sections of calculator cards.",
 
     privacyEyebrow: "Privacy by design",
     privacyTitle: "Your numbers stay in your browser.",
@@ -130,6 +122,10 @@ const T = {
     catSub: "Finans ve sağlıktan işe, seyahate ve gündelik hesaplamalara.",
     catCount: (n: number) => `${n} hesaplayıcı`,
     catExploreAll: "13 kategorinin tamamını keşfet",
+    catBrowse: "Kategoriye göre göz at",
+    catOpen: "numerspace.com'da aç",
+    catTotal: (n: number, k: number) => `${k} kategoride ${n} hesaplayıcı, hepsi numerspace.com'da`,
+    heroShotAlt: "numerspace.com'un ana sayfası: hesaplayıcı kartlarından oluşan kategori bölümlerinin üstünde bir arama alanı.",
 
     privacyEyebrow: "Tasarımdan gelen gizlilik",
     privacyTitle: "Sayılarınız tarayıcınızda kalır.",
@@ -150,68 +146,23 @@ const T = {
   },
 } as const;
 
-function fv(value: string | { en: string; tr: string }, lang: Lang): string {
-  return typeof value === "string" ? value : value[lang];
-}
-
-/* ---- Shared bits -------------------------------------------------- */
-
-function BrowserChrome({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_0_0_1px_rgb(0_0_0/0.06),0_24px_48px_-16px_rgb(10_16_32/0.18)]">
-      <div className="flex items-center gap-3 border-b border-line bg-paper-soft px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span aria-hidden className="size-2.5 rounded-full bg-[#ff5f57]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#febc2e]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#28c840]" />
-        </div>
-        <div className="flex-1 truncate rounded-md bg-paper px-3 py-1 text-center font-mono text-[11px] text-ink-400">
-          {title}
-        </div>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-/** A compact, code-rendered rebuild of the real Daily Calorie Calculator's
-    input fields, its Mifflin-St Jeor formula, and its result - never a
-    screenshot, but every field, the formula text and the arithmetic are
-    real (see the file header comment for what was read off the live
-    tool and what was computed here on illustrative inputs). Rendered once
-    now, in the hero - the prior pass's second, full-section repeat of this
-    same mock is gone; see `verifyCaption`/`verifyNote` for where its point
-    (the formula is visible, not hidden) survives. */
-function CalorieCalculatorMock({ lang }: { lang: Lang }) {
-  const c = REAL.calorie;
-  return (
-    <div className="p-5">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {c.inputs.map((f, i) => (
-          <div key={i} className="rounded-md border border-line-strong bg-paper-soft px-2.5 py-1.5">
-            <p className="text-[10px] font-medium tracking-wide text-ink-400 uppercase">{f.label[lang]}</p>
-            <p className="mt-0.5 font-mono text-[12.5px] text-ink-900">{fv(f.value, lang)}</p>
-          </div>
-        ))}
-      </div>
-      <p className="mt-3.5 font-mono text-[11.5px] leading-relaxed text-ink-500">{c.formula[lang]}</p>
-      <p className="mt-1 text-[11.5px] text-ink-400">BMR = {c.bmr[lang]}</p>
-      <div className="mt-3 flex items-center justify-between gap-3 rounded-md bg-emerald-50 px-3.5 py-2.5">
-        <span className="text-[12.5px] font-medium text-emerald-700">{c.resultLabel[lang]}</span>
-        <span className="font-mono text-base font-semibold text-emerald-700">{c.result[lang]}</span>
-      </div>
-    </div>
-  );
-}
+/* ---- The product, drawn ------------------------------------------------
+   Hulusi (2026-09-06): the Lab's product visuals must "feel like real
+   product screenshots, not Claude design". The hero used to frame a
+   compact grid of the calorie calculator's fields; it now shows the
+   calculator PAGE as numerspace.com lays it out - nav, breadcrumb,
+   category, title, formula, the segmented gender and goal controls, the
+   four inputs with the worked example in them, BMR and the result
+   (ui/LabProductWindows.tsx). Same real fields, same real arithmetic. */
 
 /* ---- 01 · Hero - centred / visual -------------------------------------- */
-function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
+function Hero({ c, t, lang, siteHref }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang; siteHref: string }) {
   const link = c.primaryLinks[0];
   return (
     <section className="relative isolate overflow-hidden bg-paper pt-16 pb-20 md:pt-20 md:pb-24">
       <PortraitContainer className="text-center">
         <Reveal>
-          <p className="altor-eyebrow mb-5 text-ink-400">{t.eyebrow}</p>
+          <ProductMark slug="numerspace" lang={lang} className="mb-5" />
           <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.heroTitle}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
@@ -219,12 +170,8 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
         </Reveal>
         {link && (
           <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
-            <a
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors hover:bg-primary-600"
-            >
+            <a href={link.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "primary", size: "md" })}>
+              <PixelFill />
               {t.ctaVisit}
               <ArrowUpRight aria-hidden className="size-4" />
             </a>
@@ -238,16 +185,26 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
           </ul>
         </Reveal>
 
-        <Reveal delay={220} className="mx-auto mt-14 max-w-md text-left">
-          <BrowserChrome title={`numerspace.com — ${REAL.calorie.title[lang]}`}>
-            <CalorieCalculatorMock lang={lang} />
-          </BrowserChrome>
-          {/* Secondary product detail, not a section of its own - the point
-              the old "One real calculator" section existed to make. */}
-          <div className="mt-3 flex flex-col gap-0.5 px-1 sm:flex-row sm:items-baseline sm:gap-2">
-            <span className="text-[13px] font-medium text-ink-800">{t.verifyCaption}</span>
-            <span className="text-[12px] text-ink-500">{t.verifyNote}</span>
-          </div>
+        <Reveal delay={220} className="mx-auto mt-14 max-w-5xl text-left">
+          {/* THE REAL SITE. Numerspace exists and is Ali's, so its hero is a
+              photograph of it - numerspace.com's homepage in this language,
+              captured on 2026-09-06 (public/lab/numerspace/home-<lang>.jpg,
+              1440×900 at 2x) - not a drawing of it (Hulusi: "this is not the
+              website he built; go there, take a screenshot"). On the
+              project's plate, in its hue (ui/ProductFrame.tsx). */}
+          <ProductFrame slug="numerspace">
+            <a href={siteHref} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-xl bg-paper ring-1 ring-ink-950/10 shadow-[0_28px_70px_-28px_rgb(10_16_32/0.55)]">
+              <Image
+                src={`/lab/numerspace/home-${lang}.jpg`}
+                alt={t.heroShotAlt}
+                width={2880}
+                height={1800}
+                sizes="(min-width: 1280px) 1024px, 100vw"
+                className="block h-auto w-full"
+                priority
+              />
+            </a>
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </section>
@@ -273,41 +230,131 @@ function WhySection({ t }: { t: (typeof T)[Lang] }) {
   );
 }
 
-/* ---- 03 · Categories - structured browsing list ------------------------
-   One bordered module, one hairline list inside it - not 13 (or even 8)
-   separate cards. Only the 8 largest/most recognisable categories are
-   rows here; the real site's own category nav is one click away for the
-   rest ("Explore all 13 categories"), because this page's job is to
-   represent the catalogue, not to reproduce it. */
-function CategoriesSection({ t, lang, siteHref }: { t: (typeof T)[Lang]; lang: Lang; siteHref: string }) {
-  const featured = REAL.categories.filter((c) => c.featured);
+/* ---- 03 · The catalogue - every calculator, as cards --------------------
+   Hulusi (2026-09-06): "show all of the available calculators for that
+   specific project - look at the calculator page and do something like
+   that". So this is the site's own calculator-library grammar (ui/
+   CalculatorLibrary.tsx: soft cards, a Lucide icon on a round tile tinted
+   per category, chips to jump by category) over numerspace.com's real
+   catalogue: src/lib/numerspace-catalog.ts, generated from the site's
+   sitemap and category pages by scripts/fetch-numerspace-catalog.mjs -
+   97 calculators in 13 categories, each with the site's own name, one-line
+   description and link. Nothing here is typed in by hand. */
+
+const CATEGORY_LOOK: Record<string, { icon: LucideIcon; tint: string }> = {
+  "finance-investment": { icon: Landmark, tint: "bg-emerald-100 text-emerald-700" },
+  "health-fitness": { icon: HeartPulse, tint: "bg-rose-100 text-rose-700" },
+  "business-career": { icon: Briefcase, tint: "bg-sky-100 text-sky-700" },
+  "time-date": { icon: CalendarClock, tint: "bg-amber-100 text-amber-700" },
+  "math-converter": { icon: Sigma, tint: "bg-violet-100 text-violet-700" },
+  "education-productivity": { icon: GraduationCap, tint: "bg-indigo-100 text-indigo-700" },
+  "home-living": { icon: House, tint: "bg-orange-100 text-orange-700" },
+  "clothing-size": { icon: Shirt, tint: "bg-fuchsia-100 text-fuchsia-700" },
+  "marketing-analytics": { icon: Megaphone, tint: "bg-blue-100 text-blue-700" },
+  pet: { icon: PawPrint, tint: "bg-lime-100 text-lime-700" },
+  "cars-travel": { icon: Car, tint: "bg-cyan-100 text-cyan-700" },
+  faith: { icon: Moon, tint: "bg-teal-100 text-teal-700" },
+  astrology: { icon: Sparkles, tint: "bg-purple-100 text-purple-700" },
+};
+const FALLBACK_LOOK = { icon: Calculator, tint: "bg-teal-100 text-teal-700" };
+
+/* The two languages list the same 13 categories in the same order, so a
+   Turkish category takes its look from its English twin by position. */
+const LOOK_BY_INDEX = NUMERSPACE_CATALOG.en.map((c) => CATEGORY_LOOK[c.slug] ?? FALLBACK_LOOK);
+
+/** The category's short name: the site's own page title without its
+    trailing "Calculators" / "Hesaplayıcıları". */
+function shortName(name: string) {
+  return name.replace(/\s+(Calculators?|Hesaplay[ıi]c[ıi]lar[ıi]?|Hesaplama Araçlar[ıi])$/iu, "");
+}
+
+function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const cats = NUMERSPACE_CATALOG[lang];
+  const total = cats.reduce((n, c) => n + c.count, 0);
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.catEyebrow} title={t.catTitle} body={t.catSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 max-w-2xl overflow-hidden rounded-card border border-line bg-paper">
-          <div className="divide-y divide-line">
-            {featured.map((cat) => (
-              <div key={cat.en} className="px-5 py-4">
-                <div className="flex items-baseline justify-between gap-3">
-                  <p className="text-[14.5px] font-medium text-ink-950">{cat[lang]}</p>
-                  <span className="shrink-0 font-mono text-[11px] text-ink-400 tabular-nums">{t.catCount(cat.count)}</span>
-                </div>
-                <p className="mt-1 text-[12.5px] text-ink-500">{cat.ex[lang].join(" · ")}</p>
-              </div>
-            ))}
-          </div>
+
+        {/* The chip row: one per category, with its count - in-page jumps. */}
+        <Reveal delay={80} className="mt-10">
+          <p className="text-center text-[13px] text-ink-500">{t.catBrowse}</p>
+          <ul className="mt-3 flex list-none flex-wrap justify-center gap-2 p-0">
+            {cats.map((c, i) => {
+              const Icon = LOOK_BY_INDEX[i].icon;
+              return (
+                <li key={c.slug}>
+                  <a
+                    href={`#ns-${c.slug}`}
+                    className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-[13px] font-medium text-ink-700 shadow-hairline transition-colors hover:bg-blue-50 hover:text-primary-700"
+                  >
+                    <Icon aria-hidden className="size-4 text-ink-400" />
+                    {shortName(c.name)}
+                    <span className="text-ink-400 tabular-nums">{c.count}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         </Reveal>
-        <Reveal delay={160} className="mt-6 text-center">
-          <a
-            href={siteHref}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            {t.catExploreAll}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </a>
+
+        {/* The groups: a heading with the category's mark and count, then
+            its calculators as cards, three across. */}
+        <div className="mt-14 flex flex-col gap-14">
+          {cats.map((c, i) => {
+            const look = LOOK_BY_INDEX[i];
+            const Icon = look.icon;
+            return (
+              <section key={c.slug} id={`ns-${c.slug}`} className="scroll-mt-24">
+                <Reveal className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                  <h3 className="flex items-center gap-3 text-[20px] font-semibold tracking-tight text-ink-950">
+                    <span aria-hidden className={clsx("grid size-9 shrink-0 place-items-center rounded-full", look.tint)}>
+                      <Icon className="size-4.5" />
+                    </span>
+                    {shortName(c.name)}
+                    <span className="text-[14px] font-normal text-ink-500 tabular-nums">{t.catCount(c.count)}</span>
+                  </h3>
+                  <a
+                    href={c.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary-600 transition-colors hover:text-primary-700"
+                  >
+                    {t.catOpen}
+                    <ArrowUpRight aria-hidden className="size-3.5" />
+                  </a>
+                </Reveal>
+                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {c.items.map((item, j) => (
+                    <Reveal key={item.slug} delay={Math.min(j, 5) * 50}>
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group flex h-full gap-4 rounded-card bg-paper p-4 transition-colors hover:bg-blue-50 sm:flex-col sm:gap-2.5 sm:p-5"
+                      >
+                        <span aria-hidden className={clsx("grid size-10 shrink-0 place-items-center rounded-full sm:mb-1", look.tint)}>
+                          <Icon className="size-5" />
+                        </span>
+                        <span className="flex min-w-0 flex-1 flex-col sm:contents">
+                          <span className="text-[15px] font-semibold tracking-tight text-ink-950">{item.name}</span>
+                          <span className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-ink-600 sm:mt-0">{item.description}</span>
+                          <span className="mt-2 flex items-center justify-between gap-2 sm:mt-auto sm:pt-1.5">
+                            <span className="text-[12px] text-ink-400">numerspace.com</span>
+                            <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-ink-300 transition-colors group-hover:text-primary-600" />
+                          </span>
+                        </span>
+                      </a>
+                    </Reveal>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+
+        <Reveal delay={60} className="mt-12 text-center text-[13px] text-ink-500 tabular-nums">
+          {t.catTotal(total, cats.length)}
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -390,92 +437,17 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
    restrained visual keyed to what that project actually is - not a fifth
    repeat of "bordered rectangle, name, one line of grey text". All four
    get the same size and treatment; nothing here is a featured card. */
-function JourneyArtifact() {
+/** The other project's own mark - the glyph and tint it carries on
+    every Lab surface (ui/LabProjectIdentity.tsx) - instead of the four
+    abstract "artifact" drawings this card used to invent for them. */
+function ProjectMark({ slug }: { slug: string }) {
+  const accent = labAccent(slug);
   return (
-    <div aria-hidden className="flex flex-col items-center gap-1.5 py-1">
-      <span className="rounded-md bg-ink-950 px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wide text-white uppercase">
-        Trigger
-      </span>
-      <span className="h-3 w-px bg-line-strong" />
-      <span className="rounded-md border border-primary-300 bg-primary-50/60 px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wide text-primary-700 uppercase">
-        Condition
-      </span>
-      <span className="h-3 w-px bg-line-strong" />
-      <span className="rounded-md border border-line-strong bg-paper px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wide text-ink-600 uppercase">
-        Handoff
-      </span>
-    </div>
+    <span className={clsx("grid size-10 place-items-center rounded-lg", accent.tile)}>
+      <LabProjectIcon slug={slug} className="size-5" />
+    </span>
   );
 }
-
-function LibraryArtifact() {
-  // A fanned stack, not a single card with a shadow - the back two layers
-  // use a visibly duller fill so "one of many" reads even at this size,
-  // and each is offset far enough (rotation + x/y) to actually show an
-  // edge past the front card rather than hide fully behind it.
-  const layers = [
-    { rotate: -9, x: -10, y: 3, bg: "bg-paper-soft", border: "border-line" },
-    { rotate: 6, x: 8, y: 5, bg: "bg-paper-soft", border: "border-line" },
-    { rotate: 0, x: 0, y: 0, bg: "bg-paper", border: "border-line-strong" },
-  ];
-  return (
-    <div aria-hidden className="relative flex h-[92px] w-full items-center justify-center">
-      {layers.map((l, i) => (
-        <div
-          key={i}
-          className={clsx("absolute h-14 w-24 rounded-md border shadow-[0_6px_14px_-8px_rgb(10_16_32/0.25)]", l.bg, l.border)}
-          style={{ transform: `translate(${l.x}px, ${l.y}px) rotate(${l.rotate}deg)`, zIndex: i }}
-        >
-          <div className="mx-2 mt-2 h-1.5 w-10 rounded-full bg-primary-200" />
-          <div className="mx-2 mt-1.5 h-1 w-14 rounded-full bg-line-strong" />
-          <div className="mx-2 mt-1 h-1 w-8 rounded-full bg-line-strong" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ExperimentArtifact() {
-  return (
-    <div aria-hidden className="flex flex-col items-center gap-2 py-1">
-      <span className="font-mono text-[9px] font-medium tracking-wide text-ink-400 uppercase">Hypothesis</span>
-      <div className="flex items-center gap-2">
-        <span className="grid size-8 place-items-center rounded-md border border-line-strong bg-paper font-mono text-[11px] font-semibold text-ink-700">
-          A
-        </span>
-        <span className="text-[10px] text-ink-300">vs</span>
-        <span className="grid size-8 place-items-center rounded-md border border-primary-300 bg-primary-50/60 font-mono text-[11px] font-semibold text-primary-700">
-          B
-        </span>
-      </div>
-      <span className="rounded-full bg-paper-soft px-2 py-0.5 font-mono text-[9px] text-ink-500">guardrail set</span>
-    </div>
-  );
-}
-
-function DashboardArtifact() {
-  return (
-    <div aria-hidden className="flex flex-col items-center gap-2 py-1">
-      <div className="flex h-10 items-end gap-1.5">
-        <span className="h-4 w-2.5 rounded-sm bg-line-strong" />
-        <span className="h-7 w-2.5 rounded-sm bg-primary-300" />
-        <span className="h-5 w-2.5 rounded-sm bg-line-strong" />
-        <span className="h-10 w-2.5 rounded-sm bg-primary-500" />
-        <span className="h-6 w-2.5 rounded-sm bg-line-strong" />
-      </div>
-      <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-mono text-[9px] font-medium text-emerald-700 uppercase">
-        Validated
-      </span>
-    </div>
-  );
-}
-
-const ARTIFACT_BY_SLUG: Record<string, () => React.ReactElement> = {
-  "claude-lifecycle": JourneyArtifact,
-  "lifecycle-card-archive": LibraryArtifact,
-  "ab-test-playbook": ExperimentArtifact,
-  "dashboard-builder": DashboardArtifact,
-};
 
 function OtherProjects({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   const items = c.related;
@@ -486,18 +458,13 @@ function OtherProjects({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }
         <ProductHeading eyebrow={t.relatedEyebrow} title={c.relatedTitle} align="center" />
         <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
           {items.map((item, i) => {
-            const Artifact = (item.slug && ARTIFACT_BY_SLUG[item.slug]) || null;
             return (
               <Reveal key={item.href} delay={i * 70}>
                 <a
                   href={item.href}
                   className="group flex h-full flex-col rounded-card border border-line bg-paper p-5 transition-colors hover:border-neutral-400 hover:bg-paper-soft"
                 >
-                  {Artifact ? (
-                    <div className="flex items-center justify-center rounded-lg bg-paper-soft py-3">
-                      <Artifact />
-                    </div>
-                  ) : null}
+                  {item.slug ? <ProjectMark slug={item.slug} /> : null}
                   <p className="mt-4 text-[15px] font-medium tracking-tight text-ink-950">{item.name}</p>
                   {item.desc ? <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-ink-500">{item.desc}</p> : null}
                   <div className="mt-4 flex items-center justify-between gap-3">
@@ -523,29 +490,8 @@ function OtherProjects({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }
 
 function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   const link = c.primaryLinks[0];
-  return (
-    <section className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <PortraitContainer className="text-center">
-        <Reveal>
-          <p className="altor-eyebrow mb-5 text-white/45">{t.ctaEyebrow}</p>
-          <h2 className="mx-auto max-w-2xl text-h2-fluid font-medium text-white">{t.ctaTitle}</h2>
-        </Reveal>
-        {link && (
-          <Reveal delay={90} className="mt-9 flex flex-wrap justify-center gap-3">
-            <a
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-medium text-ink-950 transition-colors hover:bg-primary-50"
-            >
-              {t.ctaVisit}
-              <ArrowRight aria-hidden className="size-4" />
-            </a>
-          </Reveal>
-        )}
-      </PortraitContainer>
-    </section>
-  );
+  if (!link) return null;
+  return <ProductCta eyebrow={t.ctaEyebrow} title={t.ctaTitle} primary={{ label: t.ctaVisit, href: link.href }} />;
 }
 
 export default function NumerspacePage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
@@ -583,9 +529,9 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
       <JsonLdScript data={jsonLd} />
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
       <main>
-        <Hero c={content} t={t} lang={lang} />
+        <Hero c={content} t={t} lang={lang} siteHref={siteHref} />
         <WhySection t={t} />
-        <CategoriesSection t={t} lang={lang} siteHref={siteHref} />
+        <CatalogueSection t={t} lang={lang} />
         <PrivacySection t={t} />
         <Faq c={content} t={t} />
         <OtherProjects c={content} t={t} />

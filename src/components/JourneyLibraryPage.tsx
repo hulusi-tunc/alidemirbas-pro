@@ -4,6 +4,8 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { ProductCta } from "@/components/ui/ProductCta";
+import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductMetricStrip, ProductSection } from "@/components/ui/ProductPage";
 import { BranchFork, JourneyCanvas, JourneyLibrarySpread, TriggerEvidence, WaitTimeline } from "@/components/ui/JourneyFlows";
@@ -16,7 +18,6 @@ import {
   isHumanRoutingRow,
   type SurfaceKey,
   withCanonicalCount,
-  type JourneyRow,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -91,7 +92,7 @@ function Hero({ lang }: { lang: Lang }) {
     <section className="relative isolate overflow-hidden bg-paper pt-16 pb-24 md:pt-20 md:pb-32">
       <PortraitContainer className="text-center">
         <Reveal>
-          <p className="altor-eyebrow mb-5 text-ink-400">{c.eyebrow}</p>
+          <ProductMark slug="lifecycle-card-archive" lang={lang} className="mb-5" />
           <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{withCanonicalCount(c.title)}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
@@ -116,8 +117,14 @@ function Hero({ lang }: { lang: Lang }) {
             exercises six of the seven node kinds in eight nodes. Real
             graph, real branch labels - journey-marketing.ts throws at
             build if it ever leaves the library. */}
-        <Reveal delay={220} className="mx-auto mt-16 max-w-2xl">
-          <JourneyCanvas lang={lang} />
+        <Reveal delay={220} className="mx-auto mt-16 max-w-4xl">
+          {/* On the project's plate, in its hue - the frame language of the
+              Lab index (ui/ProductFrame.tsx). */}
+          <ProductFrame slug="lifecycle-card-archive">
+            <div className="mx-auto max-w-2xl">
+              <JourneyCanvas lang={lang} />
+            </div>
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </section>
@@ -308,7 +315,11 @@ function Stories({ lang }: { lang: Lang }) {
             title={s.story1.title}
             body={s.story1.body}
             side="right"
-            visual={<TriggerEvidence lang={lang} />}
+            visual={
+              <ProductFrame slug="lifecycle-card-archive" inset="sm">
+                <TriggerEvidence lang={lang} />
+              </ProductFrame>
+            }
           />
         </PortraitContainer>
       </ProductSection>
@@ -320,7 +331,11 @@ function Stories({ lang }: { lang: Lang }) {
             title={s.story2.title}
             body={s.story2.body}
             side="left"
-            visual={<BranchFork lang={lang} />}
+            visual={
+              <ProductFrame slug="lifecycle-card-archive" inset="sm">
+                <BranchFork lang={lang} />
+              </ProductFrame>
+            }
           />
         </PortraitContainer>
       </ProductSection>
@@ -332,7 +347,11 @@ function Stories({ lang }: { lang: Lang }) {
             title={s.story3.title}
             body={s.story3.body}
             side="right"
-            visual={<WaitTimeline lang={lang} />}
+            visual={
+              <ProductFrame slug="lifecycle-card-archive" inset="sm">
+                <WaitTimeline lang={lang} />
+              </ProductFrame>
+            }
           />
         </PortraitContainer>
       </ProductSection>
@@ -364,20 +383,15 @@ function Library({ lang }: { lang: Lang }) {
 /* ---- 06 · Final plate - the page's one dark block ---------------------- */
 function Final({ lang }: { lang: Lang }) {
   const c = copy[lang].lab.journeysHub.final;
+  const hub = copy[lang].lab.journeysHub;
   return (
-    <section className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <PortraitContainer className="relative text-center">
-        <Reveal>
-          <p className="altor-eyebrow mb-5 text-white/45">{c.eyebrow}</p>
-          <h2 className="mx-auto max-w-2xl text-h2-fluid font-medium text-white">{c.title}</h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/70">{c.body}</p>
-        </Reveal>
-        <Reveal delay={90} className="mt-9 flex flex-wrap justify-center gap-3">
-          <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="light">{copy[lang].lab.journeysHub.ctaCommunication}</Pill>
-          <Pill href={P(lang, SURFACE_PATH["operational-workflows"])} tone="ghost">{copy[lang].lab.journeysHub.ctaInternal}</Pill>
-        </Reveal>
-      </PortraitContainer>
-    </section>
+    <ProductCta
+      eyebrow={c.eyebrow}
+      title={c.title}
+      body={c.body}
+      primary={{ label: hub.ctaCommunication, href: P(lang, SURFACE_PATH["customer-journeys"]) }}
+      secondary={{ label: hub.ctaInternal, href: P(lang, SURFACE_PATH["operational-workflows"]) }}
+    />
   );
 }
 

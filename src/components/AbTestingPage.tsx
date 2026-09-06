@@ -1,8 +1,13 @@
-import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
+import { CodeTabs } from "@/components/ui/CodeTabs";
+import { InstallationStepper } from "@/components/ui/InstallationStepper";
+import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import {
@@ -17,7 +22,6 @@ import {
   GuardrailLedger,
   HowStepDesign,
   HowStepFind,
-  HeroProductCanvas,
   HowStepRead,
   LibrarySpread,
   StatCalculatorLinks,
@@ -89,20 +93,17 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
       <PortraitContainer>
         <div className="relative mx-auto max-w-3xl text-center">
           <Reveal>
-            <p className="altor-eyebrow mb-5 text-ink-400">{c.eyebrow}</p>
+            <ProductMark slug="ab-test-playbook" lang={lang} className="mb-5" />
             <h1 className="text-h1-fluid font-medium text-ink-950">{c.title}</h1>
           </Reveal>
           <Reveal delay={90} className="mt-6">
             <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
           </Reveal>
           <Reveal delay={140} className="mt-9 flex justify-center">
-            <Link
-              href={libraryHref(lang)}
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors duration-[var(--duration-fast)] hover:bg-primary-600"
-            >
+            <ButtonLink href={libraryHref(lang)} variant="primary" size="md">
               {p.heroCtaLibrary}
               <ArrowRight aria-hidden className="size-4" />
-            </Link>
+            </ButtonLink>
           </Reveal>
           {/* the three real steps, doubling as the reference's checkmark row */}
           <Reveal delay={180} className="mt-7">
@@ -118,10 +119,30 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
         </div>
       </PortraitContainer>
 
-      {/* VISUAL-10 — the product, full width, cropped by the section */}
+      {/* The product on the project's plate, in its hue - the frame
+          language of the Lab index (ui/ProductFrame.tsx). It used to hang
+          over the section's lower edge; frames stay inside their section
+          now (Hulusi, 2026-09-06). */}
       <Reveal delay={220} className="relative mt-14 md:mt-16">
-        <div className="-mb-24 px-5 sm:px-8 md:-mb-32 lg:px-12">
-          <HeroProductCanvas lang={lang} />
+        <div className="px-5 pb-20 sm:px-8 md:pb-28 lg:px-12">
+          {/* THE PLUGIN'S OWN OUTPUT, photographed: the scenario card that
+              scripts/build_card.py renders for the coupon-field test, on the
+              project's GitHub Pages site (ali-demirbas.github.io/ab-test-
+              playbook), captured on 2026-09-06 - variant A with the field,
+              variant B with the link, the tested element boxed in red. */}
+          <ProductFrame slug="ab-test-playbook">
+            <a href={DEMO} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-xl bg-ink-950 ring-1 ring-white/10 shadow-[0_28px_70px_-28px_rgb(10_16_32/0.6)]">
+              <Image
+                src="/lab/ab-test-playbook/demo.jpg"
+                alt={lang === "en" ? "A rendered scenario card: two phone carts, variant A with a coupon-code field and variant B with a coupon link, the tested element boxed in red." : "Render edilmiş bir senaryo kartı: iki telefon sepeti, kupon kodu alanlı varyant A ve kupon bağlantılı varyant B, test edilen öğe kırmızı kutuda."}
+                width={2880}
+                height={1800}
+                sizes="(min-width: 1280px) 1024px, 100vw"
+                className="block h-auto w-full"
+                priority
+              />
+            </a>
+          </ProductFrame>
         </div>
       </Reveal>
     </section>
@@ -158,7 +179,11 @@ function Stories({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             title={p.story1.title}
             body={p.story1.body}
             side="right"
-            visual={<CoverageMap lang={lang} />}
+            visual={
+              <ProductFrame slug="ab-test-playbook" inset="sm">
+                <CoverageMap lang={lang} />
+              </ProductFrame>
+            }
           />
         </PortraitContainer>
       </ProductSection>
@@ -170,7 +195,11 @@ function Stories({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             title={p.story2.title}
             body={p.story2.body}
             side="left"
-            visual={<VariantDiff lang={lang} />}
+            visual={
+              <ProductFrame slug="ab-test-playbook" inset="sm">
+                <VariantDiff lang={lang} />
+              </ProductFrame>
+            }
           />
         </PortraitContainer>
       </ProductSection>
@@ -182,7 +211,11 @@ function Stories({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             title={p.story3.title}
             body={p.story3.body}
             side="right"
-            visual={<GuardrailLedger lang={lang} />}
+            visual={
+              <ProductFrame slug="ab-test-playbook" inset="sm">
+                <GuardrailLedger lang={lang} />
+              </ProductFrame>
+            }
           />
         </PortraitContainer>
       </ProductSection>
@@ -206,13 +239,10 @@ function Library({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           <LibrarySpread lang={lang} />
         </Reveal>
         <Reveal delay={140} className="mt-12 flex justify-center">
-          <Link
-            href={libraryHref(lang)}
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors duration-[var(--duration-fast)] hover:bg-primary-600"
-          >
+          <ButtonLink href={libraryHref(lang)} variant="primary" size="md">
             {p.cta}
             <ArrowRight aria-hidden className="size-4" />
-          </Link>
+          </ButtonLink>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -274,53 +304,51 @@ function Rules({ t }: { t: (typeof copy)[Lang] }) {
 }
 
 /* ---- 09 · Install ---------------------------------------------------- */
-function Install({ t }: { t: (typeof copy)[Lang] }) {
+function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.abTesting;
+  const en = lang === "en";
+  /* One numbered rail, two steps (Hulusi, 2026-09-06: install blocks
+     "more minimal and nice", a vertical stepper). The three install
+     options are the repository's own, as tabs on one code block. */
   return (
     <ProductSection tone="paper" space="md">
-      <PortraitContainer>
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-16">
-          <div>
-            <ProductHeading eyebrow={c.product.installEyebrow} title={c.install.title} />
-            {/* The repo and demo links. They used to sit in the hero; the
-                hero is now a single-CTA composition, so they live here -
-                the section that is actually about getting the plugin. */}
-            <Reveal delay={80} className="mt-6 flex flex-col gap-3">
-              <a
-                href={REPO}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700"
-              >
-                {c.repoLink}
-                <ArrowUpRight aria-hidden className="size-3.5" />
-              </a>
-              <a
-                href={DEMO}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700"
-              >
-                {c.demoLink}
-                <ArrowUpRight aria-hidden className="size-3.5" />
-              </a>
-            </Reveal>
-          </div>
-          <div className="flex flex-col gap-3">
-            {c.install.options.map((opt, i) => (
-              <Reveal key={opt.label} delay={i * 70}>
-                <div className="overflow-hidden rounded-card border border-line-soft">
-                  <p className="border-b border-line-soft bg-paper-soft px-4 py-2.5 text-sm font-medium text-ink-700">
-                    {opt.label}
-                  </p>
-                  <pre className="overflow-x-auto bg-ink-950 p-4 font-mono text-xs leading-relaxed text-white/85">
-                    {opt.code}
-                  </pre>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+      <PortraitContainer className="max-w-2xl">
+        <ProductHeading title={c.install.title} />
+        <Reveal delay={100} className="mt-10">
+          <InstallationStepper
+            steps={[
+              {
+                n: 1,
+                title: en ? "Add the plugin to Claude Code" : "Eklentiyi Claude Code'a ekleyin",
+                content: (
+                  <CodeTabs
+                    tabs={c.install.options.map((opt, i) => ({ id: `opt-${i}`, label: opt.label, code: opt.code }))}
+                    copyLabel={en ? "Copy" : "Kopyala"}
+                    copiedLabel={en ? "Copied" : "Kopyalandı"}
+                  />
+                ),
+              },
+              {
+                n: 2,
+                title: en ? "Read the repository, or try the demo" : "Repoyu okuyun ya da demoyu deneyin",
+                content: (
+                  <div className="flex flex-wrap gap-2">
+                    <a href={REPO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
+                      <PixelFill />
+                      {c.repoLink}
+                      <ArrowUpRight aria-hidden className="size-4" />
+                    </a>
+                    <a href={DEMO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
+                      <PixelFill />
+                      {c.demoLink}
+                      <ArrowUpRight aria-hidden className="size-4" />
+                    </a>
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </Reveal>
       </PortraitContainer>
     </ProductSection>
   );
@@ -361,7 +389,7 @@ export default function AbTestingPage({ lang }: { lang: Lang }) {
         <Library t={t} lang={lang} />
         <HowItWorks t={t} lang={lang} />
         <Rules t={t} />
-        <Install t={t} />
+        <Install t={t} lang={lang} />
         <Faq t={t} />
         <FinalCta t={t} />
       </main>
