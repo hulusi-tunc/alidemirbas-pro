@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleSlash, MapPin } from "lucide-react";
 
 import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
@@ -14,6 +14,10 @@ import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { withJourneyCount } from "@/lib/archive";
+import { JOURNEY_ROWS } from "@/lib/canonical-view";
+import { DASHBOARD_REAL } from "@/lib/lab-material";
+import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
+import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
 import {
   getFeaturedCalcEntries,
   LIVE_CALCULATOR_SLUGS,
@@ -135,10 +139,69 @@ const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] 
    carries the career line that used to be a five-row spec table. The
    greyscale portrait under a blue multiply, the spec table and the photo
    frame that came before it are gone. */
-function Hero({ t }: { t: (typeof copy)[Lang] }) {
+/* The miniature inside each product tile - one real thing from the tool,
+   not an illustration: a journey's actual graph (the third-largest in the
+   library, so the Lab index's largest is not repeated), the A/B pair drawn
+   as two carts with the tested element ringed, and the calculator
+   categories on the same endless marquee the Lab index uses. Hulusi,
+   2026-09-06: "the hero feels a little dead, needs more liveliness". */
+const HERO_JOURNEY = [...JOURNEY_ROWS].sort((a, b) => b.nodeCount - a.nodeCount || a.id.localeCompare(b.id))[2];
+
+function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
+  if (slug === "lifecycle-card-archive") {
+    return (
+      <div aria-hidden className="mt-5 -mx-2 h-28 overflow-hidden rounded-xl bg-paper-soft">
+        <div className="mx-auto -mt-2 w-[150%] -translate-x-[16%]">
+          <JourneyTopologyPreview preview={HERO_JOURNEY.preview} />
+        </div>
+      </div>
+    );
+  }
+  if (slug === "ab-test-playbook") {
+    return (
+      <div aria-hidden className="mt-5 -mx-2 grid grid-cols-2 gap-2">
+        {(["A", "B"] as const).map((mark) => (
+          <div key={mark} className="rounded-xl bg-paper-soft p-3">
+            <div className="flex items-center gap-1.5">
+              <span className={`grid size-5 place-items-center rounded-full text-xs font-semibold ${mark === "A" ? "bg-ink-950 text-white" : "bg-rose-600 text-white"}`}>{mark}</span>
+              <span className="h-1.5 w-10 rounded-full bg-ink-950/10" />
+            </div>
+            <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+            <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
+            {mark === "A" ? (
+              <span className="mt-3 block h-6 rounded-md bg-paper ring-2 ring-rose-300" />
+            ) : (
+              <span className="mt-3 flex h-6 items-center"><span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper-soft" /></span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (slug === "numerspace") {
+    const names = NUMERSPACE_CATALOG[lang].map((c) => c.name.replace(/ (Calculators|Hesaplayıcıları|Hesaplayıcılar)$/u, ""));
+    return (
+      <div aria-hidden className="mt-5 -mx-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+        <div className="lab-marquee" style={{ "--marquee-duration": "48s" } as React.CSSProperties}>
+          {[...names, ...names].map((name, i) => (
+            <span key={`${name}-${i}`} className="mr-2 shrink-0 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-medium whitespace-nowrap text-teal-800">
+              {name}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
+function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const projects = HERO_TILES.map((slug) => t.lab.projects.find((p) => p.slug === slug)).filter((p) => p !== undefined);
   return (
     <section id="top" className="relative isolate overflow-hidden bg-paper-soft pt-14 pb-16 lg:pt-18 lg:pb-20">
+      {/* A brand-blue bloom behind the statement, fading out before the
+          tiles - the page opens light and warms, it does not open flat. */}
+      <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[34rem] bg-[radial-gradient(55%_60%_at_50%_0%,var(--color-primary-100),transparent_70%)]" />
       <div className="altor-container">
         <Reveal delay={60}>
           <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">
@@ -179,13 +242,14 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
               <Reveal key={project.slug} delay={280 + i * 60} className="flex">
                 <Link
                   href={primary.href}
-                  className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
                 >
                   <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
                     <LabProjectIcon slug={project.slug} className="size-5" />
                   </span>
                   <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
                   <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{t.hero.tiles[project.slug as (typeof HERO_TILES)[number]]}</p>
+                  <TileMini slug={project.slug} lang={lang} />
                   <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
                     <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
                     <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
@@ -195,8 +259,9 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
             );
           })}
           <Reveal delay={460} className="flex">
-            <div className="flex w-full flex-col justify-between rounded-[28px] bg-ink-950 p-6 text-white">
-              <p className="text-lg leading-snug font-semibold text-balance">{t.hero.statement}</p>
+            <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
+              <span aria-hidden className="absolute -top-16 -right-16 size-56 rounded-full bg-primary-600/40 blur-3xl" />
+              <p className="relative text-lg leading-snug font-semibold text-balance">{t.hero.statement}</p>
               <Link href={t.nav.aboutHref} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-white/80 transition-colors duration-[var(--duration-fast)] hover:text-white">
                 {t.hero.statementLink}
                 <ArrowRight aria-hidden className="size-4" />
@@ -224,67 +289,102 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
    moved verbatim - t.about.eyebrow / teaserLead / moreLink - not rewritten,
    and one dead band leaves the page. */
 
-/** What I do: one ranked item with room, then the rest as a numbered list.
-    A row of equal cards would claim the four are equally important; they are
-    not, and the first is what the other three are built on. */
-function Work({ t }: { t: (typeof copy)[Lang] }) {
+/* THE CHECK, drawn small: the Dashboard Builder's comparability rule on
+   the README's own example - four revenue figures that must not be added
+   up, the naive total struck through, the platform of record standing.
+   It is the one object under "Measurement that survives an audit", and
+   it is what "measurement problems in disguise" looks like. */
+function ComparabilityMini({ lang }: { lang: Lang }) {
+  const ex = DASHBOARD_REAL.revenueExample;
+  const max = Math.max(...ex.parts.map((x) => x.value));
+  return (
+    <div aria-hidden className="rounded-2xl bg-paper p-4 ring-1 ring-ink-950/[0.06]">
+      <ul className="flex flex-col gap-2">
+        {ex.parts.map((x) => (
+          <li key={x.source} className="grid grid-cols-[5.5rem_minmax(0,1fr)_3.5rem] items-center gap-3 text-xs">
+            <span className="truncate text-ink-600">{x.source}</span>
+            <span className="h-2 rounded-full bg-primary-100">
+              <span className="block h-2 rounded-full bg-primary-500" style={{ width: `${(x.value / max) * 100}%` }} />
+            </span>
+            <span className="text-right font-mono text-ink-950 tabular-nums">${x.value.toFixed(1)}M</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-xs">
+        <span className="flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 font-medium text-rose-700">
+          <CircleSlash aria-hidden className="size-3.5" />
+          {lang === "en" ? "Not comparable" : "Karşılaştırılamaz"}
+        </span>
+        <span className="text-ink-500">
+          {lang === "en" ? "Added up" : "Toplanınca"}{" "}
+          <span className="font-mono text-ink-400 line-through tabular-nums">${ex.naiveSum.toFixed(1)}M</span>
+          {" · "}
+          {lang === "en" ? "Platform of record" : "Kayıt platformu"}{" "}
+          <span className="font-mono font-semibold text-ink-950 tabular-nums">${ex.trueTotal.toFixed(1)}M</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** What I do: four services as rows, the first opened with its object. The
+    ranking the old "Primary + 02 03 04" list only labelled is now visible:
+    measurement gets the room and the evidence, the other three get one
+    line each, and every row links to the tool that came out of it -
+    services with proof, the way Phantom Studios lists its practice areas
+    beside a real piece of work. The About paragraph that used to sit in
+    this band is gone; the hero's dark tile already points to About. */
+function Work({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   return (
     <section id="work" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
-        {/* Two columns, so the statement has something to sit against. The
-            heading alone left the right half of this band empty; the About
-            prose that used to occupy its own dead band now answers it. */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
-          <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} />
-          <Reveal delay={60} className="lg:pt-10">
-            <p className="text-[13px] font-medium text-ink-400">{t.about.eyebrow}</p>
-            <p className="mt-4 max-w-[46ch] text-lg leading-relaxed text-ink-600">
-              {t.about.teaserLead}
-            </p>
-            <Link
-              href={t.nav.aboutHref}
-              className="mt-5 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-            >
-              {t.about.moreLink}
-              <ArrowRight aria-hidden className="size-3.5" />
-            </Link>
-          </Reveal>
-        </div>
+        <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} intro={t.home.work.lede} />
 
-        <Reveal delay={90}>
-          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-8">
-            {/* Plain case, like every other label since the mono rail was
-                retired. */}
-            <p className="text-[13px] font-medium text-ink-400">
-              {t.home.work.primaryLabel}
-            </p>
-            <div>
-              <h3 className="text-h3 text-ink-950">{t.home.work.primary.title}</h3>
-              <p className="mt-3 max-w-[62ch] leading-relaxed text-ink-600">{t.home.work.primary.body}</p>
-            </div>
-          </div>
-        </Reveal>
-
-        <Reveal delay={140}>
-          {/* Soft filled rows rather than a ruled table: three hairlines
-              stacked under three lines of prose was the stroke-heavy habit
-              the site has left, and the rows read as a list either way. */}
-          <ul className="mt-12 flex list-none flex-col gap-2.5 p-0 md:ml-[11rem]">
-            {t.home.work.rest.map((item, i) => (
-              <li
-                key={item.title}
-                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 rounded-xl bg-paper-soft px-5 py-4"
-              >
-                <span className="tnum pt-0.5 font-mono text-xs text-ink-400">
-                  {String(i + 2).padStart(2, "0")}
-                </span>
-                <span className="text-[0.9375rem] leading-relaxed text-ink-600">
-                  <b className="font-semibold text-ink-950">{item.title}.</b> {item.body}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
+        <ul className="mt-14 flex list-none flex-col gap-3 p-0">
+          {t.home.work.services.map((service, i) => {
+            const project = t.lab.projects.find((p) => p.slug === service.tool);
+            const accent = labAccent(service.tool);
+            const opened = i === 0;
+            return (
+              <Reveal key={service.title} delay={60 + i * 60} as="li">
+                <div
+                  className={`grid gap-6 rounded-[28px] bg-paper-soft p-6 md:p-8 ${
+                    opened ? "lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-12" : "md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:gap-10"
+                  }`}
+                >
+                  <div className={opened ? "flex flex-col" : "flex items-start gap-4"}>
+                    <span aria-hidden className={`grid size-10 shrink-0 place-items-center rounded-xl ${accent.tile}`}>
+                      <LabProjectIcon slug={service.tool} className="size-5" />
+                    </span>
+                    <div className={opened ? "mt-5" : ""}>
+                      <h3 className="text-h3 text-ink-950">{service.title}</h3>
+                      {opened && <p className="mt-3 max-w-[52ch] leading-relaxed text-pretty text-ink-600">{service.body}</p>}
+                      {opened && project && (
+                        <Link href={project.links[0].href} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-ink-950 transition-colors duration-[var(--duration-fast)] hover:text-primary-600">
+                          {t.home.work.builtFor}: {project.short}
+                          <ArrowRight aria-hidden className="size-4" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                  {opened ? (
+                    <ComparabilityMini lang={lang} />
+                  ) : (
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-8">
+                      <p className="max-w-[52ch] leading-relaxed text-pretty text-ink-600">{service.body}</p>
+                      {project && (
+                        <Link href={project.links[0].href} className="flex w-fit shrink-0 items-center gap-1.5 text-sm font-medium whitespace-nowrap text-ink-950 transition-colors duration-[var(--duration-fast)] hover:text-primary-600">
+                          {t.home.work.builtFor}: {project.short}
+                          <ArrowRight aria-hidden className="size-4" />
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );
@@ -349,10 +449,13 @@ function Lab({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="lab" className="bg-paper-soft py-24 md:py-28">
       <div className="altor-container">
-        <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
+        {/* The three projects the hero's bento does not show (Hulusi,
+            2026-09-06: the teaser repeated the bento's three); the hero
+            covers the library, the playbook and Numerspace. */}
+        <SectionHeading eyebrow={t.lab.label} title={t.home.labTeaser.title} intro={t.home.labTeaser.intro} />
 
         <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {t.lab.projects.map((project, i) => (
+          {t.lab.projects.filter((p) => !(HERO_TILES as readonly string[]).includes(p.slug)).map((project, i) => (
             <Reveal key={project.slug} delay={i * 60}>
               <LabPlate project={project} />
             </Reveal>
@@ -403,13 +506,12 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
         </div>
 
         <Reveal delay={entries.length * 50 + 40}>
-          <Link
-            href={t.nav.calculatorsHref}
-            className="mt-10 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            {t.home.calc.more}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
+          <div className="mt-12">
+            <ButtonLink href={t.nav.calculatorsHref} variant="outline" size="md">
+              {t.home.calc.more}
+              <ArrowRight aria-hidden className="size-4" />
+            </ButtonLink>
+          </div>
         </Reveal>
       </div>
     </section>
@@ -576,8 +678,8 @@ export default function Site({ lang }: { lang: Lang }) {
     <>
       <SiteHeader t={t} />
       <main>
-        <Hero t={t} />
-        <Work t={t} />
+        <Hero t={t} lang={lang} />
+        <Work t={t} lang={lang} />
         {/* Expertise, StatsBand and Experience pulled off the home page for
             now - components kept below, just not rendered. Re-add
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience

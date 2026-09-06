@@ -24,22 +24,26 @@ export const copy = {
       work: {
         eyebrow: "What I do",
         title: "Most growth problems are measurement problems in disguise.",
-        primaryLabel: "Primary",
-        primary: {
-          title: "Measurement that survives an audit",
-          body:
-            "GA4 and GTM event design, Adjust MMP configuration, and the reconciliation work that starts when two platforms report two different numbers for the same week. What you get is a taxonomy your team can query, definitions everyone agrees on, and dashboards that answer the question that was asked.",
-        },
-        rest: [
+        lede: "Measurement first, because the other three depend on it.",
+        builtFor: "Built for this",
+        services: [
           {
+            tool: "dashboard-builder",
+            title: "Measurement that survives an audit",
+            body: "GA4 and GTM event design, Adjust MMP configuration, and the reconciliation work that starts when two platforms report two different numbers for the same week. What you get is a taxonomy your team can query.",
+          },
+          {
+            tool: "lifecycle-card-archive",
             title: "Lifecycle and CRM programs",
-            body: "Customer journeys open on their practitioner view; the other three surfaces open on the graph. Every surface searches and filters by category and goal.",
+            body: "Onboarding, activation, retention and win-back journeys designed as state machines: a trigger, the waits, the exits, and which lifecycle owns the person next.",
           },
           {
+            tool: "google-ads-change-history-dashboard",
             title: "Paid acquisition",
-            body: "Müşteri journey'leri uygulayıcı görünümüyle, diğer üç yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
+            body: "Google Ads campaigns run with the structure, budget pacing and change log that let a result be traced back to what was changed and when.",
           },
           {
+            tool: "ab-test-playbook",
             title: "Experimentation and CRO",
             body: "One variable per test, a stated stopping rule, and a written note on what would invalidate the result.",
           },
@@ -54,6 +58,10 @@ export const copy = {
         more: "Open all calculators",
       },
       labMore: "Open the full archive",
+      labTeaser: {
+        title: "More from the Lab",
+        intro: "Three more tools built for the same problems: a journey builder, a dashboard builder and a change history explorer for Google Ads.",
+      },
     },
     lab: {
       label: "Lab",
@@ -918,24 +926,28 @@ export const copy = {
       work: {
         eyebrow: "Ne yapıyorum",
         title: "Büyüme problemlerinin çoğu, kılık değiştirmiş ölçüm problemidir.",
-        primaryLabel: "Ana iş",
-        primary: {
-          title: "Denetimden geçen ölçümleme",
-          body:
-            "GA4 ve GTM event tasarımı, Adjust MMP yapılandırması, ve iki platform aynı hafta için iki farklı sayı söylediğinde başlayan mutabakat işi. Çıktı: ekibin sorgulayabildiği bir taksonomi, herkesin üzerinde anlaştığı tanımlar, ve sorulan soruya cevap veren dashboard'lar.",
-        },
-        rest: [
+        lede: "Önce ölçüm; diğer üçü ona dayanıyor.",
+        builtFor: "Bunun için yaptım",
+        services: [
           {
+            tool: "dashboard-builder",
+            title: "Denetimden geçen ölçüm",
+            body: "GA4 ve GTM event tasarımı, Adjust MMP kurulumu ve iki platform aynı hafta için iki farklı sayı verdiğinde başlayan mutabakat işi. Elinize ekibinizin sorgulayabildiği bir taksonomi geçer.",
+          },
+          {
+            tool: "lifecycle-card-archive",
             title: "Lifecycle ve CRM programları",
-            body: "Onboarding, aktivasyon, yenileme ve geri kazanım journey'leri; şablondan değil, ürünün zaten ürettiği event'lerden kurulur.",
+            body: "Onboarding, aktivasyon, tutundurma ve geri kazanım journey'leri durum makinesi olarak: bir tetikleyici, beklemeler, çıkışlar ve kişiyi sonra hangi lifecycle'ın devraldığı.",
           },
           {
+            tool: "google-ads-change-history-dashboard",
             title: "Ücretli edinim",
-            body: "Google, Meta ve uygulama kurulumu kanalları; kurulum sayısına göre değil, kurulum sonrası davranışa göre yönetilir.",
+            body: "Google Ads kampanyaları; bir sonucun neyin ne zaman değiştiğine kadar izlenebilmesini sağlayan yapı, bütçe temposu ve değişiklik kaydıyla.",
           },
           {
+            tool: "ab-test-playbook",
             title: "Deney ve CRO",
-            body: "Test başına tek değişken, önceden yazılmış durma kuralı, ve sonucu geçersiz kılacak şeyin not edilmesi.",
+            body: "Test başına tek değişken, baştan yazılmış bir durdurma kuralı ve sonucu neyin geçersiz kılacağına dair yazılı bir not.",
           },
         ],
       },
@@ -948,6 +960,10 @@ export const copy = {
         more: "Tüm hesaplayıcıları aç",
       },
       labMore: "Arşivin tamamını aç",
+      labTeaser: {
+        title: "Lab'den üç araç daha",
+        intro: "Aynı problemler için üç araç daha: bir journey üretici, bir dashboard üretici ve Google Ads için bir değişiklik geçmişi gezgini.",
+      },
     },
     lab: {
       label: "Lab",
