@@ -6,8 +6,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 
+import { ButtonLink } from "@/components/ui/Button";
+import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
+import { clsx } from "@/lib/clsx";
+
 type NavItem = { label: string; href: string };
-type LabProject = { name: string; href: string };
+type LabProject = { name: string; href: string; slug?: string };
 
 /* Below md, SiteHeader's own <nav> and CTA are both display:none with no
    replacement - this is that replacement.
@@ -26,7 +30,20 @@ type LabProject = { name: string; href: string };
    projects render here as a nested list under Lab.
 
    The current page is marked (`aria-current`) and tinted, because a menu
-   that cannot say where you are makes you open it twice. */
+   that cannot say where you are makes you open it twice.
+
+   TYPE AND CONTROLS ARE THE SYSTEM'S (2026-09-06). Rows were `text-[17px]`
+   and project rows `text-[15px]` - two sizes the type ramp does not have -
+   and the CTA / language pair at the bottom were hand-rolled pills that
+   never went through Button.tsx, so they kept a `rounded-full` corner and a
+   plain colour swap after the real button moved to the squared 8px corner
+   and the pixel-fill hover. Rows now sit on `text-base` (the button's own
+   16px label tier) with `py-4` so the row is still the 56px target the note
+   above promises - the same 56px the `md` button is - project rows on
+   `text-label` (the ramp's 14px Medium UI-label tier, see globals.css),
+   colours on the semantic `ink` / `ink-muted` / `ink-brand`
+   names, and the two controls are `ButtonLink` (`ink` beside `outline`, the
+   component's documented solid-plus-deferring pair). */
 export function MobileNav({
   items, langHref, langLabel, ctaHref, ctaLabel, labHref, labProjects = [],
 }: {
@@ -89,7 +106,7 @@ export function MobileNav({
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="relative z-50 -mr-2 grid size-10 place-items-center text-ink-950"
+        className="relative z-50 -mr-2 grid size-10 place-items-center text-ink"
       >
         {open ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
       </button>
@@ -115,8 +132,8 @@ export function MobileNav({
                     href={item.href}
                     onClick={close}
                     aria-current={current ? "page" : undefined}
-                    className={`flex items-center rounded-xl px-4 py-3.5 text-[17px] font-medium transition-colors ${
-                      current ? "bg-blue-50 text-primary-700" : "text-ink-900 hover:bg-paper-soft"
+                    className={`flex items-center rounded-xl px-4 py-4 text-base font-medium transition-colors duration-[var(--duration-fast)] ${
+                      current ? "bg-surface-brand-subtle text-ink-brand" : "text-ink hover:bg-paper-soft"
                     }`}
                   >
                     {item.label}
@@ -129,10 +146,17 @@ export function MobileNav({
                             href={p.href}
                             onClick={close}
                             aria-current={isCurrent(p.href) ? "page" : undefined}
-                            className={`flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-[15px] transition-colors ${
-                              isCurrent(p.href) ? "text-primary-700" : "text-ink-500 hover:text-ink-900"
+                            className={`flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-label transition-colors duration-[var(--duration-fast)] ${
+                              isCurrent(p.href) ? "text-ink-brand" : "text-ink-muted hover:text-ink"
                             }`}
                           >
+                            {/* The project's own glyph on its tint - the same
+                                mark the desktop dropdown and /lab carry. */}
+                            {p.slug && (
+                              <span className={clsx("grid size-6 shrink-0 place-items-center rounded-md", labAccent(p.slug).tile)}>
+                                <LabProjectIcon slug={p.slug} className="size-3.5" />
+                              </span>
+                            )}
                             {p.name}
                             {p.href.startsWith("http") && (
                               <ArrowUpRight aria-hidden className="size-3.5 shrink-0" />
@@ -150,20 +174,12 @@ export function MobileNav({
           {/* Pushed to the bottom of the panel, so the CTA sits in thumb
               reach rather than under six menu rows. */}
           <div className="mt-auto flex items-center gap-3 pt-8">
-            <a
-              href={ctaHref}
-              onClick={close}
-              className="inline-flex h-12 flex-1 items-center justify-center rounded-full bg-ink-950 px-5 text-[15px] font-medium text-white transition-colors hover:bg-primary-600"
-            >
+            <ButtonLink href={ctaHref} onClick={close} variant="ink" size="md" className="flex-1">
               {ctaLabel}
-            </a>
-            <Link
-              href={langHref}
-              onClick={close}
-              className="inline-flex h-12 items-center justify-center rounded-full bg-paper-soft px-5 text-[15px] font-medium text-ink-700 transition-colors hover:bg-blue-50 hover:text-primary-700"
-            >
+            </ButtonLink>
+            <ButtonLink href={langHref} onClick={close} variant="outline" size="md">
               {langLabel}
-            </Link>
+            </ButtonLink>
           </div>
         </div>,
         document.body,

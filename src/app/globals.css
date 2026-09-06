@@ -112,7 +112,7 @@
   --color-ink-800: #35312f;
   --color-ink-700: #45403e;
   --color-ink-600: #5c5755;
-  --color-ink-500: #77716f; /* ≈ stone-500, secondary/muted text, ~4.8:1 — the AA pin */
+  --color-ink-500: #77716f; /* ≈ stone-500, caption text (`ink-subtle`), ~4.8:1 — the AA pin */
   --color-ink-400: #98918f; /* ~3.1:1 — below AA for text; ink-muted/-subtle deliberately skip this step, same as before */
   --color-ink-300: #bfb8b5;
   --color-ink-200: #e2dad6;
@@ -238,13 +238,27 @@
      against `ink`/`ink-muted`/`ink-subtle` don't need to know which literal
      ramp backs them.
        ink        = ink-900   primary text, = stone-800, ~15.2:1 on white
-       ink-muted  = ink-500   secondary text, ≈ stone-500, ~4.8:1 on white
-       ink-subtle = ink-500   micro-labels and captions
-     ink-subtle and ink-muted deliberately COINCIDE, same reasoning as
-     before: ink-400 measures ~3.1:1 and fails AA at caption sizes, and AA
-     is the harder constraint than a fourth grey step. */
+       ink-muted  = ink-600   secondary text and resting UI labels, ~7:1
+       ink-subtle = ink-500   micro-labels and captions, = stone-500, ~4.8:1
+
+     THE TWO NO LONGER COINCIDE (2026-09-06). They both sat on ink-500 with
+     the note that ink-400 (~3.1:1) fails AA at caption sizes, so there was
+     no room to split them DOWNWARD - true, and still true. The split is
+     upward instead: the owner's review of the nav bar, once its links were
+     put on this alias, was "the text looks thin" - 14px Manrope at 400 on
+     stone-500 is faint against a stone-800 wordmark and an ink button.
+     Five variants were rendered side by side (weight 400/500, ink-500/600/
+     900, 14/15px); 500 on ink-600 was the one that kept the links present
+     without competing with the wordmark, and 500 on ink-900 flattened the
+     bar into one dark row. The weight half of that answer is the `label`
+     type step (see § Hero port: type steps); the colour half is this alias.
+     It is a deliberate departure from the guideline's literal "ikincil
+     stone-500" for SECONDARY text - stone-500 stays exactly where the
+     guideline put it, as `ink-subtle`, for captions and micro-labels.
+     Consumers moved with it: the shell's links (SiteHeader, SiteFooter,
+     LabNavDropdown, MobileNav) and Button's `ghost` / icon-only tiers. */
   --color-ink: var(--color-ink-900);
-  --color-ink-muted: var(--color-ink-500);
+  --color-ink-muted: var(--color-ink-600);
   --color-ink-subtle: var(--color-ink-500);
   --color-ink-disabled: var(--color-ink-300);
   --color-ink-inverse: #ffffff;
@@ -406,6 +420,25 @@
   --text-5xl: 3rem; /* 48 */
   --text-5xl--line-height: 1.0833;
   --text-5xl--letter-spacing: -0.03em;
+
+  /* --- The UI label tier (2026-09-06) ------------------------------------
+     `text-label`: 14 / 20, Medium, -0.01em. This is the cut the system's
+     small controls already used one by one - the Button label (`sm`:
+     `font-medium tracking-[-0.01em]` at 0.875rem), the badge (14px / 500),
+     the eyebrow (13px / 500) - and the one piece of small UI text that was
+     still at Regular was the navigation link, which is why the nav bar was
+     the thing that read "thin" next to its own button. Named as a step so a
+     nav link, a dropdown row and a menu row are one declaration rather than
+     three agreeing class strings, and so the weight is a fact of the ramp
+     rather than a `font-medium` each call site remembers to add. Its
+     colour is not part of the step: rest on `ink-muted`, hover to `ink`,
+     current-page on `ink-brand`. Body copy is untouched - `text-sm` /
+     `text-base` stay Regular and stay at the framework's values, as the
+     note above says. */
+  --text-label: 0.875rem; /* 14 */
+  --text-label--line-height: 1.25rem; /* 20 */
+  --text-label--letter-spacing: -0.01em;
+  --text-label--font-weight: 500;
 
   /* --- CONTACT PILOT ROUND 2: Portrait-derived fluid heading scale -------
      (PORTRAIT-DESIGN-SOURCE-AUDIT.md §4/§7) — real, exact values read from
@@ -867,11 +900,15 @@
     50% { translate: 0 -6px; }
   }
 
-  /* The mobile menu panel arriving: a short rise and fade, no blur - it is
-     a surface sliding in, not a value resolving. Neutralised with every
+  /* A navigation surface arriving - the phone menu panel and the desktop
+     Lab dropdown share it: a short rise and fade, no blur - it is a
+     surface sliding in, not a value resolving. Timed on the system's own
+     tokens since 2026-09-06 (it carried a literal 200ms and, byte for
+     byte, the curve behind `--ease-out-soft`): `--duration-base` is the
+     step the duration block names for dropdowns. Neutralised with every
      other animation by the reduced-motion block above. */
   .nav-panel-in {
-    animation: nav-panel-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: nav-panel-in var(--duration-base) var(--ease-out-soft) both;
   }
 
   @keyframes nav-panel-in {

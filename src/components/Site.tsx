@@ -25,6 +25,28 @@ const HEADER_T = {
 
 const GITHUB = "https://github.com/ali-demirbas";
 
+/* THE SHELL'S TWO TEXT STYLES, shared by SiteHeader and SiteFooter so the
+   wordmark and a link cannot drift between the top and the bottom of a
+   page. Both are read straight off the design system: the wordmark is
+   `text-base` (the 16px step the ramp leaves at the framework's value) in
+   Semibold; a link is `text-label`, the ramp's UI-label tier (14 / 20,
+   Medium, -0.01em - the same cut as the Button's own `sm` label, see
+   globals.css § The UI label tier). Colours are the semantic text pair -
+   `ink` (stone-800, primary text) and `ink-muted` (secondary text and
+   resting labels) - never raw ramp steps picked by eye. Hover is a colour
+   change, so it runs on `--duration-fast`, the token the duration block
+   reserves for exactly that.
+
+   Until 2026-09-06 the wordmark was `text-[15px]` and the links `text-sm`
+   Regular on `ink-600` / `ink-950`: a size the ramp does not have, a weight
+   no other small control in the system uses, and two steps the semantic
+   layer does not name. The Medium weight and the alias' current value were
+   chosen from a rendered five-way comparison after the owner's "text looks
+   thin" - the reasoning sits with the tokens, in globals.css. */
+const WORDMARK = "text-base font-semibold tracking-tight text-ink";
+const NAV_LINK =
+  "text-label text-ink-muted transition-colors duration-[var(--duration-fast)] hover:text-ink";
+
 /* Corporate one-pager for Ali Demirbaş in the Altor design language:
    white-first editorial, Altor Blue, dark hero. */
 
@@ -53,10 +75,13 @@ export function SiteHeader({
   // Real Lab projects (same data LabIndexPage/SiteFooter already use),
   // resolved server-side - `withJourneyCount` is server-only, so the
   // Canonical Journey Library's real {count} token is already filled in
-  // before this reaches the client-only LabNavDropdown below.
+  // before this reaches the client-only LabNavDropdown below. The slug is
+  // what the dropdown and the phone menu look the project's glyph up by
+  // (LabProjectIdentity.tsx); the tagline replaces the two-line desc.
   const labProjects = t.lab.projects.map((p) => ({
+    slug: p.slug,
     name: p.name,
-    desc: withJourneyCount(p.desc),
+    tagline: withJourneyCount(p.tagline),
     href: p.links[0].href,
   }));
 
@@ -75,27 +100,48 @@ export function SiteHeader({
     // manually offset its first section under it.
     <header className="sticky top-0 z-40 border-b border-line-soft bg-paper/95 backdrop-blur-sm">
       <div className="altor-container flex h-16 items-center justify-between">
-        <a href={anchorBase || "#top"} className="text-[15px] font-semibold tracking-tight text-ink-950">
+        <a href={anchorBase || "#top"} className={WORDMARK}>
           Ali Demirbaş
         </a>
-        <nav className="hidden items-center gap-8 text-sm text-ink-600 md:flex">
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.aboutHref}>{t.nav.about}</Link>
-          <LabNavDropdown label={t.nav.lab} href={t.nav.labHref} viewAllLabel={ht.viewAllLab} projects={labProjects} />
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.calculatorsHref}>{t.nav.calculators}</Link>
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.blogHref}>{t.nav.blog}</Link>
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.stackHref}>{t.nav.stack}</Link>
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.contactHref}>{t.nav.contact}</Link>
+        {/* One list drives both the desktop bar and MobileNav below, so the
+            two cannot disagree on what the site's navigation is. Lab is the
+            one item with real sub-content and takes the dropdown; the
+            dropdown's trigger inherits NAV_LINK's colour from the <nav>. */}
+        <nav className={`hidden items-center gap-8 md:flex ${NAV_LINK}`}>
+          {navItems.map((item) =>
+            item.href === t.nav.labHref ? (
+              <LabNavDropdown
+                key={item.href}
+                label={item.label}
+                href={item.href}
+                viewAllLabel={ht.viewAllLab}
+                projects={labProjects}
+              />
+            ) : (
+              <Link key={item.href} className={NAV_LINK} href={item.href}>
+                {item.label}
+              </Link>
+            ),
+          )}
         </nav>
         <div className="flex items-center gap-6">
-          <Link href={langHref ?? t.nav.langHref} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+          <Link href={langHref ?? t.nav.langHref} className={NAV_LINK}>
             {t.nav.lang}
           </Link>
-          <a
-            href={`mailto:${EMAIL}`}
-            className="hidden h-10 items-center rounded-full bg-ink-950 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-600 sm:inline-flex"
-          >
+          {/* THE SYSTEM'S BUTTON, not a hand-rolled one. Until 2026-09-06 this
+              was a bare <a> carrying its own pill (`rounded-full bg-ink-950
+              hover:bg-primary-600`) - written before Button.tsx existed and
+              never migrated, so it silently missed the 2026-09-04 squared
+              corner, the pixel-fill hover and the `--duration-*` timing every
+              other CTA on the site got. `ink` is the variant the component
+              documents for "a second solid CTA" beside a page's own primary
+              one - which is exactly what a header CTA is on every page whose
+              hero already carries a `primary` button. `sm` is the 40px tier
+              that fits a 64px bar; `max-sm:hidden` yields to MobileNav's
+              own copy of the same control below the `sm` breakpoint. */}
+          <ButtonLink href={`mailto:${EMAIL}`} variant="ink" size="sm" className="max-sm:hidden">
             {t.nav.cta}
-          </a>
+          </ButtonLink>
           <MobileNav
             items={navItems}
             langHref={langHref ?? t.nav.langHref}
@@ -476,7 +522,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
     <footer className="bg-paper-soft pt-16 pb-8">
       <div className="altor-container">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-16">
-          <Link href={home} className="shrink-0 text-[15px] font-semibold tracking-tight text-ink-950">
+          <Link href={home} className={`shrink-0 ${WORDMARK}`}>
             Ali Demirbaş
           </Link>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:gap-16">
@@ -485,7 +531,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
               <ul className="mt-4 flex flex-col gap-3">
                 {quickLinks.map((item) => (
                   <li key={item.href}>
-                    <Link href={item.href} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                    <Link href={item.href} className={NAV_LINK}>
                       {item.label}
                     </Link>
                   </li>
@@ -500,7 +546,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
                     <a
                       href={project.links[0].href}
                       {...(project.links[0].href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
-                      className="text-sm text-ink-600 transition-colors hover:text-ink-950"
+                      className={NAV_LINK}
                     >
                       {project.name}
                     </a>
@@ -512,17 +558,17 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
               <p className="altor-eyebrow font-semibold tracking-wide text-ink-950 uppercase">{t.footer.connect}</p>
               <ul className="mt-4 flex flex-col gap-3">
                 <li>
-                  <a href={`mailto:${EMAIL}`} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                  <a href={`mailto:${EMAIL}`} className={NAV_LINK}>
                     {EMAIL}
                   </a>
                 </li>
                 <li>
-                  <a href={LINKEDIN} target="_blank" rel="noreferrer" className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                  <a href={LINKEDIN} target="_blank" rel="noreferrer" className={NAV_LINK}>
                     LinkedIn
                   </a>
                 </li>
                 <li>
-                  <a href={GITHUB} target="_blank" rel="noreferrer" className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                  <a href={GITHUB} target="_blank" rel="noreferrer" className={NAV_LINK}>
                     GitHub
                   </a>
                 </li>
