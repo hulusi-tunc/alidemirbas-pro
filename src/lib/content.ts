@@ -6,23 +6,15 @@ export const copy = {
     hero: {
       line1: "Growth you can measure.",
       line2: "Products that keep users.",
-      lead: "I'm Ali Demirbaş, a growth marketer for mobile products. I build acquisition, CRM and lifecycle programs on data - not guesswork.",
-      sub: "Currently leading mobile app growth at Aksigorta in Istanbul, after growth roles at Vodafone, Getir and Wingie Enuygun Group.",
+      lead: "Growth marketer for mobile products. Mobile app growth at Aksigorta, before that Vodafone, Getir and Wingie Enuygun Group.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
-      reassurance: ["Mobile App Growth Lead, Aksigorta", "7+ years in growth", "Istanbul"],
+      badge: "Mobile App Growth Lead · Aksigorta",
+      proof: { journeys: "{count} journeys", tests: "A/B scenarios", calculators: "calculators" },
     },
-    /* Home page only: the spec plate beside the hero, the ranked "what I do"
-       block, and the calculators band. The hero's own headline and lead stay
+    /* Home page only: the ranked "what I do" block and the calculators band. The hero's own headline and lead stay
        in `hero` above; nothing here restates them. */
     home: {
-      spec: [
-        { label: "Now", value: "Mobile App Growth Lead, Aksigorta" },
-        { label: "Before", value: "Vodafone, Getir, Wingie Enuygun Group" },
-        { label: "Years", value: "8+ in digital marketing and growth" },
-        { label: "Works on", value: "Acquisition, CRM, lifecycle, measurement, CRO" },
-        { label: "Based in", value: "Istanbul, works in English and Turkish" },
-      ],
       work: {
         eyebrow: "What I do",
         title: "Most growth problems are measurement problems in disguise.",
@@ -904,20 +896,13 @@ export const copy = {
     hero: {
       line1: "Ölçülebilir büyüme.",
       line2: "Kullanıcıyı tutan ürünler.",
-      lead: "Ben Ali Demirbaş, mobil ürünler için growth marketer. Edinim, CRM ve lifecycle programlarını tahminle değil veriyle kuruyorum.",
-      sub: "Şu an İstanbul'da Aksigorta'da mobil uygulama büyümesini yönetiyorum; öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta growth rollerindeydim.",
+      lead: "Mobil ürünler için growth marketer. Aksigorta'da mobil uygulama büyümesi; öncesinde Vodafone, Getir ve Wingie Enuygun Group.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
-      reassurance: ["Mobile App Growth Lead, Aksigorta", "Growth'ta 7+ yıl", "İstanbul"],
+      badge: "Mobile App Growth Lead · Aksigorta",
+      proof: { journeys: "{count} journey", tests: "A/B senaryosu", calculators: "hesaplayıcı" },
     },
     home: {
-      spec: [
-        { label: "Şu an", value: "Mobile App Growth Lead, Aksigorta" },
-        { label: "Öncesinde", value: "Vodafone, Getir, Wingie Enuygun Group" },
-        { label: "Deneyim", value: "Dijital pazarlama ve growth'ta 8+ yıl" },
-        { label: "Çalışma alanı", value: "Edinim, CRM, lifecycle, ölçümleme, CRO" },
-        { label: "Konum", value: "İstanbul, İngilizce ve Türkçe çalışır" },
-      ],
       work: {
         eyebrow: "Ne yapıyorum",
         title: "Büyüme problemlerinin çoğu, kılık değiştirmiş ölçüm problemidir.",

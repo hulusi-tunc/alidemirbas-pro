@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Briefcase } from "lucide-react";
 
 import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
@@ -13,7 +13,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
+import { AB_TEST_COUNT } from "@/lib/ab-test-view";
 import { withJourneyCount } from "@/lib/archive";
+import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
   getFeaturedCalcEntries,
   LIVE_CALCULATOR_SLUGS,
@@ -118,94 +120,110 @@ export function SiteHeader({
   );
 }
 
-function Hero({ t }: { t: (typeof copy)[Lang] }) {
+function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const lab = t.nav.labHref;
+  const numerspaceCount = NUMERSPACE_CATALOG[lang].reduce((n, c) => n + c.items.length, 0);
+  /* THE PROOF ROW (Hulusi, 2026-09-06, "focused work on the hero"): the
+     hero used to end on a five-row spec table that repeated the lead
+     (Now / Before / Years / Works on / Based in) - a résumé where the
+     front door should say what he builds. Three real counts from the
+     data, each under its project's own icon and tint (the identity
+     vocabulary the header menu, the Lab index and its teaser use), each a
+     link into that work. Nothing typed by hand: the journey count comes
+     from the canonical library, the scenario count from the A/B records,
+     the calculator count from the scraped Numerspace catalogue. */
+  const proof = [
+    { slug: "lifecycle-card-archive", href: `${lab}/journeys`, text: withJourneyCount(t.hero.proof.journeys) },
+    { slug: "ab-test-playbook", href: `${lab}/ab-testing`, text: `${AB_TEST_COUNT} ${t.hero.proof.tests}` },
+    { slug: "numerspace", href: `${lab}/numerspace`, text: `${numerspaceCount} ${t.hero.proof.calculators}` },
+  ];
   return (
     <section
       id="top"
-      // The last dark band on the site comes off. Every other page had
-      // already moved to a light composition (see SiteHeader's own note on
-      // why the transparent white-text bar had to go); the home page was
-      // the only thing still asking the reader to cross a tone boundary at
-      // the top of the site. Ink on paper, hairline rules, and the portrait
-      // plate left as the one place colour does any work.
-      // Tinted stage, no rule under it. The hero and the Work band below
-      // were both white, so a hairline was doing all the seam work; one
-      // step of ground does it without a stroke, and matches the stage on
-      // every calculator page. Deleting the line without the tint would
-      // leave a padding-only seam - this project's own known defect.
-      className="relative isolate flex flex-col overflow-hidden bg-paper-soft pt-16 pb-16 lg:pt-20 lg:pb-20"
+      // Tinted stage, no rule under it (see the calculator pages: one step
+      // of ground does the seam without a stroke). The photograph lives in
+      // the frame on the right, not on the section, so the page opens
+      // clean and gets colourful further down.
+      className="relative isolate overflow-hidden bg-paper-soft pt-16 pb-16 lg:pt-20 lg:pb-20"
     >
-
-      <div className="relative flex flex-1 flex-col justify-center">
-        <div className="altor-container">
-          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.35fr_0.65fr] lg:gap-20">
-            <div>
-              <Reveal>
-                <h1 className="max-w-3xl text-h1 text-ink-950">
-                  {t.hero.line1}
-                  <br className="hidden sm:block" />{" "}
-                  {t.hero.line2}
-                </h1>
-              </Reveal>
-              <Reveal delay={90} className="mt-6">
-                <p className="max-w-lg text-xl leading-relaxed text-ink-900">{t.hero.lead}</p>
-                <p className="mt-4 max-w-lg text-base leading-relaxed text-ink-600">{t.hero.sub}</p>
-              </Reveal>
-              <Reveal delay={170} className="mt-8">
-                <div className="flex flex-wrap gap-3">
-                  <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
-                    {t.hero.ctaPrimary}
-                    <ArrowRight aria-hidden className="size-4" />
-                  </ButtonLink>
-                  <ButtonLink href={LINKEDIN} variant="outline" size="md">
-                    {t.hero.ctaSecondary}
-                    <ArrowUpRight aria-hidden className="size-4" />
-                  </ButtonLink>
-                </div>
-              </Reveal>
-              <Reveal delay={240} className="mt-10">
-                {/* The three chips that used to sit here carried the same
-                    facts, but a chip row reads as decoration and could hold
-                    only three. Set as a data sheet on the mono rail the
-                    detail pages already speak in, they read as a record, and
-                    the two facts that had nowhere to go (what I work on, and
-                    that the work happens in two languages) fit. */}
-                <dl className="max-w-xl border-t border-line">
-                  {t.home.spec.map((row) => (
-                    <div
-                      key={row.label}
-                      className="grid grid-cols-[7rem_minmax(0,1fr)] gap-4 border-b border-line py-3"
-                    >
-                      <dt className="text-[13px] font-medium text-ink-400">
-                        {row.label}
-                      </dt>
-                      <dd className="text-[0.9375rem] text-ink-900">{row.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </Reveal>
-            </div>
-
-            {/* portrait plate: the photograph on a blue field, framed by rules */}
-            <Reveal delay={120} className="hidden lg:block">
-              <div className="relative mx-auto w-full max-w-sm">
-                {/* The square double-frame this plate used to carry came off
-                    with the hard-technical direction: one soft rounded plate,
-                    no drawn frame around it. */}
-                <div className="relative aspect-4/5 overflow-hidden rounded-3xl bg-blue-600">
-                  <Image
-                    src="/portrait.jpg"
-                    alt="Ali Demirbaş"
-                    fill
-                    sizes="(min-width: 1024px) 24rem, 0px"
-                    priority
-                    className="object-cover opacity-95 grayscale"
-                  />
-                  <div aria-hidden className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
-                </div>
+      <div className="altor-container">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:gap-14">
+          <div>
+            <Reveal>
+              <h1 className="max-w-3xl text-h1 text-ink-950">
+                {t.hero.line1}
+                <br className="hidden sm:block" />{" "}
+                {t.hero.line2}
+              </h1>
+            </Reveal>
+            {/* One voice under the title: the lead folds the old sub
+                paragraph into a single sentence. The About page keeps the
+                full record. */}
+            <Reveal delay={90} className="mt-6">
+              <p className="max-w-2xl text-xl leading-relaxed text-pretty text-ink-700">{t.hero.lead}</p>
+            </Reveal>
+            <Reveal delay={170} className="mt-8">
+              <div className="flex flex-wrap gap-3">
+                <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+                  {t.hero.ctaPrimary}
+                  <ArrowRight aria-hidden className="size-4" />
+                </ButtonLink>
+                <ButtonLink href={LINKEDIN} variant="outline" size="md">
+                  {t.hero.ctaSecondary}
+                  <ArrowUpRight aria-hidden className="size-4" />
+                </ButtonLink>
               </div>
             </Reveal>
+            <Reveal delay={240} className="mt-10">
+              <ul className="flex flex-wrap gap-x-7 gap-y-3">
+                {proof.map((item) => {
+                  const accent = labAccent(item.slug);
+                  return (
+                    <li key={item.slug}>
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-2.5 text-sm font-medium text-ink-700 transition-colors duration-[var(--duration-fast)] hover:text-ink-950"
+                      >
+                        <span aria-hidden className={`grid size-8 shrink-0 place-items-center rounded-lg ${accent.tile}`}>
+                          <LabProjectIcon slug={item.slug} className="size-4" />
+                        </span>
+                        <span className="tabular-nums">{item.text}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Reveal>
           </div>
+
+          {/* THE PORTRAIT IN A FRAME. The Lab's plate (the meadow photograph
+              on `.lab-frame`, the brand hue's gradient behind it) holding
+              the portrait in colour as a card, and the one fact that
+              matters most as a pill over the card's bottom edge - the same
+              overlap-and-arrive grammar as the section frames. It used to be
+              a greyscale photograph under a blue multiply, desktop only;
+              now the phone hero has a picture too. */}
+          <Reveal delay={120} className="mx-auto w-full max-w-sm lg:max-w-none">
+            <div data-hue="primary" className="lab-frame relative isolate aspect-[4/5] overflow-hidden rounded-[28px]">
+              <Image
+                src="/lab/hero-meadow.jpg"
+                alt=""
+                aria-hidden
+                fill
+                sizes="(min-width: 1024px) 24rem, 100vw"
+                className="-z-10 origin-bottom scale-[1.3] object-cover object-bottom"
+              />
+              <div className="lab-scene-card absolute inset-x-8 top-8 bottom-16 overflow-hidden rounded-2xl bg-paper shadow-[0_24px_60px_-24px_rgb(10_16_32/0.45)] ring-1 ring-ink-950/[0.06]">
+                <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 22rem, 90vw" priority className="object-cover" />
+              </div>
+              <div className="absolute inset-x-8 bottom-10 flex justify-center">
+                <p className="lab-scene-card flex items-center gap-2 rounded-full bg-paper/95 px-4 py-2.5 text-sm font-medium whitespace-nowrap text-ink-950 shadow-[0_12px_30px_-12px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06]">
+                  <Briefcase aria-hidden className="size-4 text-primary-600" />
+                  {t.hero.badge}
+                </p>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -579,7 +597,7 @@ export default function Site({ lang }: { lang: Lang }) {
     <>
       <SiteHeader t={t} />
       <main>
-        <Hero t={t} />
+        <Hero t={t} lang={lang} />
         <Work t={t} />
         {/* Expertise, StatsBand and Experience pulled off the home page for
             now - components kept below, just not rendered. Re-add
