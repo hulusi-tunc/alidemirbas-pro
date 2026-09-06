@@ -209,57 +209,75 @@ function LibraryGraphPanel({ journey, lang }: { journey: HeroJourney; lang: Lang
   );
 }
 
-/** The playbook as a browser: the real categories with their real counts
-    down the side, one real record (AB-004) open. Category ids are the
-    corpus's own English labels in both locales - they are the dataset's
-    proper nouns, the same way the playbook page shows them. */
+/** The playbook as its library browser, in the hero window (Hulusi,
+    2026-09-06 evening: "improve the A/B mock-up in the banner, you know
+    the UI we made for A/B"): the search field with the featured record's
+    category applied, the twelve real categories with their counts down
+    the rail, real result rows with AB-004 selected, and that record open
+    in a detail pane - the same anatomy as PlaybookWindow on the deck,
+    without a second window frame, since the showcase already draws one.
+    The frame is fixed-height and cuts the list, which reads as the
+    library continuing. Category ids are the corpus's own English labels
+    in both locales - they are the dataset's proper nouns. */
 function PlaybookPanel({ lang }: { lang: Lang }) {
   const t = T[lang];
+  const w = WT[lang];
   const rec = AB004_TEXT[lang];
   const categories = [...AB_CATEGORIES].sort((a, b) => b.count - a.count);
-  const fields: [string, string][] = [
-    [rec.whatToTestLabel, rec.whatToTest],
-    [rec.kpiLabel, rec.kpi],
-    [rec.avoidLabel, rec.avoid],
-  ];
+  const rows = canvasRows(lang);
   return (
-    <div className="grid h-full grid-cols-1 md:grid-cols-[200px_minmax(0,1fr)]">
-      <aside className="hidden border-r border-line bg-paper-soft/60 px-3 py-4 md:block">
-        <p className="px-2 text-[12px] font-medium text-ink-500">{t.categories}</p>
-        <ul className="mt-2 flex list-none flex-col gap-0.5 p-0">
-          {categories.map((c) => {
-            const open = c.id === AB004_TEXT.en.category;
-            return (
-              <li
-                key={c.id}
-                className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-[12px] ${
-                  open ? "bg-paper font-medium text-ink-950 shadow-hairline" : "text-ink-600"
-                }`}
-              >
-                <span className="truncate">{c.id}</span>
-                <span className="text-ink-400 tabular-nums">{c.count}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
-      <div className="px-4 py-4 sm:px-6 sm:py-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[12px] text-ink-400">AB-004</span>
-          <span className="rounded bg-primary-50 px-2 py-0.5 text-[12px] font-medium text-primary-700">
-            {rec.category}
-          </span>
-        </div>
-        <p className="mt-2 text-[15px] leading-snug font-semibold text-ink-950">{rec.question}</p>
-        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {fields.map(([label, value]) => (
-            <div key={label} className="rounded-lg bg-paper-soft p-3">
-              <p className="text-[12px] font-semibold text-ink-500">{label}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-ink-700">{value}</p>
+    /* text-left: the hero section centres its type, and a browser is not centred. */
+    <div className="flex h-full flex-col text-left">
+      <AppBar>
+        <SearchField placeholder={w.searchScenarios} className="flex-1" />
+        <Chip active>{rec.category}</Chip>
+        <span className="hidden shrink-0 text-[12px] text-ink-500 tabular-nums sm:block">{t.ofTests(AB_TEST_COUNT)}</span>
+      </AppBar>
+      <div className="flex min-h-0 flex-1">
+        <Rail
+          title={t.categories}
+          items={categories.map((c) => ({ label: c.id, count: c.count, active: c.id === AB004_TEXT.en.category }))}
+          className="hidden w-48 md:block"
+        />
+        <div className="min-w-0 flex-1">
+          {rows.map((r) => (
+            <div
+              key={r.id}
+              className={clsx(
+                "flex items-center gap-3 border-b border-line-soft px-3.5 py-2.5",
+                r.id === FEATURED.id && "bg-primary-50/60",
+              )}
+            >
+              <span className="w-14 shrink-0 text-[12px] text-ink-500 tabular-nums">{r.id}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[13px] font-medium text-ink-950">{r.title}</span>
+                <span className="block truncate text-[12px] text-ink-500">{r.category}</span>
+              </span>
+              <Badge>{surfaceLabel(r.surface)}</Badge>
             </div>
           ))}
         </div>
-        <p className="mt-4 text-[12px] text-ink-400 tabular-nums">{t.ofTests(AB_TEST_COUNT)}</p>
+        <aside className="hidden w-64 shrink-0 border-l border-line-soft xl:block">
+          <div className="px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] text-ink-500 tabular-nums">{FEATURED.id}</span>
+              <Badge hue="rose">{rec.category}</Badge>
+            </div>
+            <p className="mt-2 text-[13px] leading-snug font-semibold text-ink-950">{rec.question}</p>
+            <KeyValues
+              className="mt-3"
+              rows={[
+                [rec.whatToTestLabel, rec.whatToTest],
+                [rec.kpiLabel, rec.kpi],
+                [rec.avoidLabel, rec.avoid],
+              ]}
+            />
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              <Badge>{codeLabel(FEATURED.setupType)}</Badge>
+              <Badge>{codeLabel(FEATURED.comparisonMode)}</Badge>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );
