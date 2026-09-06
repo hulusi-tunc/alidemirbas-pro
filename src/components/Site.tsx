@@ -123,10 +123,11 @@ const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] 
 /* THE HERO (Hulusi, 2026-09-06, "focused work on the hero", then "this is a
    personal site, your examples are companies", then "a mix of both"): the
    opening of a PERSON'S site, in two moves borrowed from personal-site
-   patterns rather than product landings. First the introduction the way
-   Contra opens a profile - a small round portrait, the name, one line of
-   who and where, a few chips, then the statement, a first-person lead and
-   the two actions, all centred. Then, still in the hero, the bento Portrait
+   patterns rather than product landings. First the statement, a
+   first-person lead and the two actions, centred (the Contra-style
+   introduction above them - avatar, name, role line, chips - was cut by
+   Hulusi the same evening: "remove this part from the hero"). Then, still
+   in the hero, the bento Portrait
    opens a profile with: the portrait in colour as one tall tile, and tiles
    for the things he built, each with its icon, its name, one plain sentence
    saying what it is and the real count from the data - so a first-time
@@ -139,23 +140,8 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="top" className="relative isolate overflow-hidden bg-paper-soft pt-14 pb-16 lg:pt-18 lg:pb-20">
       <div className="altor-container">
-        {/* The introduction. */}
-        <Reveal className="mx-auto flex max-w-3xl flex-col items-center text-center">
-          <span className="relative size-16 overflow-hidden rounded-full shadow-[0_8px_24px_-10px_rgb(10_16_32/0.35)] ring-2 ring-paper">
-            <Image src="/portrait.jpg" alt="" fill sizes="64px" priority className="object-cover" />
-          </span>
-          <p className="mt-4 text-base font-semibold text-ink-950">{t.hero.name}</p>
-          <p className="mt-1 text-sm text-ink-600">{t.hero.role}</p>
-          <ul className="mt-4 flex flex-wrap justify-center gap-1.5">
-            {t.hero.chips.map((chip) => (
-              <li key={chip} className="rounded-full border border-line bg-paper px-3 py-1 text-sm font-medium text-ink-700">
-                {chip}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
         <Reveal delay={60}>
-          <h1 className="mx-auto mt-8 max-w-4xl text-center text-h1 text-balance text-ink-950">
+          <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">
             {t.hero.line1}
             <br className="hidden sm:block" />{" "}
             {t.hero.line2}

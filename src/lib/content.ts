@@ -9,9 +9,6 @@ export const copy = {
       lead: "I'm a growth marketer for mobile products. I build acquisition, CRM and lifecycle programs on data, not guesswork, and open-source the tools along the way.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
-      name: "Ali Demirbaş",
-      role: "Mobile App Growth Lead at Aksigorta · Istanbul",
-      chips: ["Growth", "CRM", "Lifecycle", "Measurement"],
       portraitPill: "Based in Istanbul",
       tiles: {
         "lifecycle-card-archive": "Ready-made lifecycle journeys, each drawn as a state machine you can read and adapt.",
@@ -908,9 +905,6 @@ export const copy = {
       lead: "Mobil ürünler için growth marketer'ım. Edinim, CRM ve lifecycle programlarını tahminle değil veriyle kuruyor, yol boyunca yaptığım araçları açık kaynak paylaşıyorum.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
-      name: "Ali Demirbaş",
-      role: "Aksigorta'da Mobile App Growth Lead · İstanbul",
-      chips: ["Growth", "CRM", "Lifecycle", "Ölçümleme"],
       portraitPill: "İstanbul'da",
       tiles: {
         "lifecycle-card-archive": "Hazır lifecycle journey'ler; her biri okuyup uyarlayabileceğiniz bir durum makinesi olarak çizilmiş.",
