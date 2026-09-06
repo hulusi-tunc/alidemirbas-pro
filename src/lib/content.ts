@@ -18,7 +18,7 @@ export const copy = {
       spec: [
         { label: "Now", value: "Mobile App Growth Lead, Aksigorta" },
         { label: "Before", value: "Vodafone, Getir, Wingie Enuygun Group" },
-        { label: "Years", value: "7+ in digital marketing and growth" },
+        { label: "Years", value: "8+ in digital marketing and growth" },
         { label: "Works on", value: "Acquisition, CRM, lifecycle, measurement, CRO" },
         { label: "Based in", value: "Istanbul, works in English and Turkish" },
       ],
@@ -753,7 +753,7 @@ export const copy = {
       spec: [
         { label: "Şu an", value: "Mobile App Growth Lead, Aksigorta" },
         { label: "Öncesinde", value: "Vodafone, Getir, Wingie Enuygun Group" },
-        { label: "Deneyim", value: "Dijital pazarlama ve growth'ta 7+ yıl" },
+        { label: "Deneyim", value: "Dijital pazarlama ve growth'ta 8+ yıl" },
         { label: "Çalışma alanı", value: "Edinim, CRM, lifecycle, ölçümleme, CRO" },
         { label: "Konum", value: "İstanbul, İngilizce ve Türkçe çalışır" },
       ],
