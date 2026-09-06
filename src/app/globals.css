@@ -970,6 +970,90 @@
      the scroll"). The track holds its items twice and travels exactly half
      its width, so the loop never jumps; items carry their own right margin
      instead of a track gap for the same reason. Off under reduced motion. */
+  /* THE BIO TIMELINE (homepage Bio band, 2026-09-06). Keyed off the
+     Reveal wrapper like the scene cards above: the rail's blue overlay
+     draws top to bottom once the band is in view, each row rises in behind
+     it on its own index, and the node of the current role pulses. Nothing
+     moves under reduced motion. */
+  .bio-rail {
+    background: var(--color-line);
+  }
+
+  .bio-rail::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-primary-500);
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  .altor-reveal[data-revealed="true"] .bio-rail::after {
+    animation: bio-rail-draw 1.6s var(--ease-out-soft) 240ms forwards;
+  }
+
+  @keyframes bio-rail-draw {
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .bio-row {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .altor-reveal[data-revealed="true"] .bio-row {
+    animation: bio-row-in 620ms var(--ease-out-soft) forwards;
+    animation-delay: calc(260ms + var(--i, 0) * 150ms);
+  }
+
+  @keyframes bio-row-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .bio-node-live::before {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 9999px;
+    border: 2px solid var(--color-primary-400);
+    animation: bio-live 2.4s ease-out infinite;
+  }
+
+  @keyframes bio-live {
+    0% {
+      transform: scale(0.55);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.7);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bio-row,
+    .altor-reveal[data-revealed="true"] .bio-row {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+    .bio-rail::after,
+    .altor-reveal[data-revealed="true"] .bio-rail::after {
+      transform: none;
+      animation: none;
+    }
+
+    .bio-node-live::before {
+      animation: none;
+    }
+  }
+
   .lab-marquee {
     display: flex;
     width: max-content;

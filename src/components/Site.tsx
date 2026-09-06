@@ -319,27 +319,37 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
               </ButtonLink>
             </div>
           </Reveal>
+          {/* THE TIMELINE (Hulusi, 2026-09-06: "logos are so small, don't
+              put them in a box, some fancy animation here, maybe a
+              timeline"). The wordmarks bare at 28px, one rail that draws
+              itself in brand blue when the band scrolls into view, the rows
+              arriving one after another behind it, and a pulse on the node
+              of the role he holds today. All CSS (globals.css, THE BIO
+              TIMELINE), keyed off the Reveal wrapper; off under reduced
+              motion. */}
           <Reveal delay={80}>
-            <div className="rounded-[28px] bg-paper-soft p-2 sm:p-3">
-              <p className="px-4 pt-3 pb-3 text-sm font-medium text-ink-500">{t.about.experience}</p>
-              <ul className="flex list-none flex-col gap-1.5 p-0">
-                {rows.map((r) => (
-                  <li
-                    key={r.key}
-                    className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl bg-paper px-4 py-3.5 ring-1 ring-ink-950/[0.04] sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]"
-                  >
-                    <span className="relative size-10 overflow-hidden rounded-xl bg-paper-soft ring-1 ring-ink-950/[0.06]">
-                      <Image src={r.logo} alt="" fill sizes="40px" className="object-contain p-2" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-base leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
-                      <span className="block text-sm text-ink-600">{r.co}</span>
-                    </span>
-                    <span className="col-start-2 text-sm text-ink-500 tabular-nums sm:col-start-auto">{r.period}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
+            <ol className="relative mt-4 flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
+              <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
+              {rows.map((r, i) => (
+                <li
+                  key={r.key}
+                  className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-5 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
+                  style={{ "--i": i } as React.CSSProperties}
+                >
+                  <span
+                    aria-hidden
+                    className={`absolute top-[1.65rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
+                  />
+                  <span className="text-sm whitespace-nowrap text-ink-500 tabular-nums md:pt-1 md:text-right">{r.period}</span>
+                  <div className="min-w-0">
+                    <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
+                    <span className="mt-2.5 block text-lg leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
+                    <span className="mt-0.5 block text-sm text-ink-600">{r.co}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </Reveal>
         </div>
       </div>
