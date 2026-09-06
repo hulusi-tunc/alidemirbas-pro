@@ -12,7 +12,7 @@ export const copy = {
       portraitPill: "Based in Istanbul",
       tiles: {
         "lifecycle-card-archive": "Ready-made lifecycle journeys, each drawn as a state machine you can read and adapt.",
-        "ab-test-playbook": "Real A/B test scenarios with the guardrail metric built in, as a Claude Code plugin.",
+        "ab-test-playbook": "Always Testing, Always Learning.",
         numerspace: "Free everyday calculators, from money and health to marketing. No signup.",
       },
       statement: "Eight years of growth work at Aksigorta, Vodafone, Getir and Wingie Enuygun Group.",
@@ -40,12 +40,12 @@ export const copy = {
           {
             tool: "google-ads-change-history-dashboard",
             title: "Paid acquisition",
-            body: "Google Ads campaigns run with the structure, budget pacing and change log that let a result be traced back to what was changed and when.",
+            body: "I track changes made across Google Ads accounts alongside date, campaign, and performance data. The goal is to quickly see what changed before a result moved.",
           },
           {
             tool: "ab-test-playbook",
             title: "Experimentation and CRO",
-            body: "One variable per test, a stated stopping rule, and a written note on what would invalidate the result.",
+            body: "I bring together hundreds of A/B test scenarios across the funnel, from acquisition to retention, with a clear view of what each test changes and how success should be measured.",
           },
         ],
       },
@@ -147,7 +147,7 @@ export const copy = {
         {
           name: "Google Ads Change History",
           slug: "google-ads-change-history-dashboard",
-          short: "Change History Explorer",
+          short: "Change History",
           tagline: "Every Google Ads change, searchable",
           desc: "I track changes made across Google Ads accounts alongside date, campaign, and performance data. The goal is to quickly see what changed before a result moved.",
           tags: ["Google Ads", "Analytics", "Python"],
@@ -913,7 +913,7 @@ export const copy = {
       portraitPill: "İstanbul'da",
       tiles: {
         "lifecycle-card-archive": "Hazır lifecycle journey'ler; her biri okuyup uyarlayabileceğiniz bir durum makinesi olarak çizilmiş.",
-        "ab-test-playbook": "Koruma metriği baştan tanımlı gerçek A/B test senaryoları, Claude Code eklentisi olarak.",
+        "ab-test-playbook": "Test et, öğren, geliştir.",
         numerspace: "Paradan sağlığa ve pazarlamaya, üyeliksiz ücretsiz hesaplayıcılar.",
       },
       statement: "Aksigorta, Vodafone, Getir ve Wingie Enuygun Group'ta sekiz yıl growth.",
@@ -939,12 +939,12 @@ export const copy = {
           {
             tool: "google-ads-change-history-dashboard",
             title: "Ücretli edinim",
-            body: "Google Ads kampanyaları; bir sonucun neyin ne zaman değiştiğine kadar izlenebilmesini sağlayan yapı, bütçe temposu ve değişiklik kaydıyla.",
+            body: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum. Amaç, sonuç değiştiğinde önce neyin değiştiğini hızlıca görebilmek.",
           },
           {
             tool: "ab-test-playbook",
             title: "Deney ve CRO",
-            body: "Test başına tek değişken, baştan yazılmış bir durdurma kuralı ve sonucu neyin geçersiz kılacağına dair yazılı bir not.",
+            body: "Acquisition'dan retention'a kadar farklı aşamalar için yüzlerce A/B test senaryosunu, neyi test ettiğini ve nasıl ölçüleceğini netleştirerek bir araya getiriyorum.",
           },
         ],
       },
@@ -1018,7 +1018,7 @@ export const copy = {
         {
           name: "Google Ads Değişiklik Geçmişi",
           slug: "google-ads-change-history-dashboard",
-          short: "Değişiklik Geçmişi Gezgini",
+          short: "Değişiklik Geçmişi",
           tagline: "Her Google Ads değişikliği, aranabilir",
           desc: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum. Amaç, sonuç değiştiğinde önce neyin değiştiğini hızlıca görebilmek.",
           tags: ["Google Ads", "Analitik", "Python"],
