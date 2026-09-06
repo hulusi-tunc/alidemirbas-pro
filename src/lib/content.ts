@@ -58,10 +58,7 @@ export const copy = {
         more: "Open all calculators",
       },
       labMore: "Open the full archive",
-      labTeaser: {
-        title: "More from the Lab",
-        intro: "Three more tools built for the same problems: a journey builder, a dashboard builder and a change history explorer for Google Ads.",
-      },
+      bio: { title: "Over eight years bridging data and marketing into measurable growth." },
     },
     lab: {
       label: "Lab",
@@ -960,10 +957,7 @@ export const copy = {
         more: "Tüm hesaplayıcıları aç",
       },
       labMore: "Arşivin tamamını aç",
-      labTeaser: {
-        title: "Lab'den üç araç daha",
-        intro: "Aynı problemler için üç araç daha: bir journey üretici, bir dashboard üretici ve Google Ads için bir değişiklik geçmişi gezgini.",
-      },
+      bio: { title: "Sekiz yıldır veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum." },
     },
     lab: {
       label: "Lab",

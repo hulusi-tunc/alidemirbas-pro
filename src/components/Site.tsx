@@ -2,8 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, CircleSlash, MapPin } from "lucide-react";
 
-import { ButtonLink, buttonStyles } from "@/components/ui/Button";
-import { PixelFill } from "@/components/ui/PixelFill";
+import { ButtonLink } from "@/components/ui/Button";
 import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
@@ -289,6 +288,65 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
    moved verbatim - t.about.eyebrow / teaserLead / moreLink - not rewritten,
    and one dead band leaves the page. */
 
+/* THE BIO (Hulusi, 2026-09-06: "the second section should be a bio - do
+   not forget this is a personal website"). Right after the hero, the person:
+   the About page's own statement and its own lead paragraph on the left,
+   with the way to the full page; on the right the career as it is in
+   content.ts's `about.timeline` - the site's source of truth for those
+   facts - one row per role, the company's real logo, the period. Nothing
+   written for this band alone. It replaces the "More from the Lab" plates
+   that sat here for an hour and repeated the hero's tools. */
+type BioRow = { key: string; co: string; logo: string; role: string; period: string };
+
+function Bio({ t }: { t: (typeof copy)[Lang] }) {
+  const rows = t.about.timeline.flatMap((e): BioRow[] =>
+    "roles" in e
+      ? e.roles.map((r) => ({ key: `${e.co}-${r.role}`, co: e.co, logo: e.logo, role: r.role, period: r.period }))
+      : [{ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period }],
+  );
+  return (
+    <section id="bio" className="bg-paper py-20 md:py-28">
+      <div className="altor-container">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          <Reveal>
+            <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
+            <h2 className="mt-5 max-w-[30ch] text-h2 text-balance text-ink-950">{t.home.bio.title}</h2>
+            <p className="mt-6 max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-600">{t.about.teaserLead}</p>
+            <div className="mt-8">
+              <ButtonLink href={t.nav.aboutHref} variant="outline" size="md">
+                {t.about.moreLink}
+                <ArrowRight aria-hidden className="size-4" />
+              </ButtonLink>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="rounded-[28px] bg-paper-soft p-2 sm:p-3">
+              <p className="px-4 pt-3 pb-3 text-sm font-medium text-ink-500">{t.about.experience}</p>
+              <ul className="flex list-none flex-col gap-1.5 p-0">
+                {rows.map((r) => (
+                  <li
+                    key={r.key}
+                    className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl bg-paper px-4 py-3.5 ring-1 ring-ink-950/[0.04] sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]"
+                  >
+                    <span className="relative size-10 overflow-hidden rounded-xl bg-paper-soft ring-1 ring-ink-950/[0.06]">
+                      <Image src={r.logo} alt="" fill sizes="40px" className="object-contain p-2" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-base font-semibold text-ink-950">{r.role}</span>
+                      <span className="block text-sm text-ink-600">{r.co}</span>
+                    </span>
+                    <span className="col-start-2 text-sm text-ink-500 tabular-nums sm:col-start-auto">{r.period}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* THE CHECK, drawn small: the Dashboard Builder's comparability rule on
    the README's own example - four revenue figures that must not be added
    up, the naive total struck through, the platform of record standing.
@@ -385,84 +443,7 @@ function Work({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             );
           })}
         </ul>
-      </div>
-    </section>
-  );
-}
-
-/* LAB TEASER (2026-09-06). Six plates in the language the Lab index now
-   speaks (LabIndexPage.tsx / ui/ProductFrame.tsx): the project's own
-   photograph - clean, no colour overlay here, like the index - with the
-   project's mark and its real proof line on it; under the plate the name,
-   the tagline and real buttons. The scenes that tell each project's story
-   stay on the index, where they have room; the homepage's job is to route
-   there. What it replaced: six bordered cards with deep editorial-dark
-   panels around illustrative previews and a green outline link in a
-   colour the button system does not have. */
-
-function LabPlate({ project }: { project: (typeof copy)[Lang]["lab"]["projects"][number] }) {
-  const accent = labAccent(project.slug);
-  const [primary, ...secondary] = project.links;
-  const github = secondary.find((l) => l.href.includes("github.com"));
-  return (
-    <article className="flex h-full flex-col">
-      <div data-hue={accent.hue} className="lab-frame relative isolate aspect-[4/3] overflow-hidden rounded-[28px]">
-        <Image
-          src={`/lab/frames/${project.slug}.jpg`}
-          alt=""
-          aria-hidden
-          fill
-          sizes="(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"
-          className="-z-10 origin-bottom scale-[1.3] object-cover object-bottom"
-        />
-        <span className={`absolute top-5 left-5 grid size-11 place-items-center rounded-xl ${accent.tile} shadow-[0_12px_30px_-14px_rgb(10_16_32/0.5)]`}>
-          <LabProjectIcon slug={project.slug} className="size-5" />
-        </span>
-        {project.proof && (
-          <span className="absolute bottom-5 left-5 rounded-full bg-paper/90 px-3.5 py-2 text-[13px] font-medium text-ink-950 tabular-nums shadow-[0_12px_30px_-14px_rgb(10_16_32/0.4)] backdrop-blur">
-            {withJourneyCount(project.proof)}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col px-1 pt-5">
-        <h3 className="text-h3 text-ink-950">{project.name}</h3>
-        <p className="mt-1.5 flex-1 text-[15px] leading-relaxed text-ink-600">{withJourneyCount(project.tagline)}</p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <ButtonLink href={primary.href} variant="primary" size="sm">
-            {primary.label}
-            <ArrowRight aria-hidden className="size-4" />
-          </ButtonLink>
-          {github && (
-            <a href={github.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-              <PixelFill />
-              {github.label}
-              <ArrowUpRight aria-hidden className="size-4" />
-            </a>
-          )}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function Lab({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    <section id="lab" className="bg-paper-soft py-24 md:py-28">
-      <div className="altor-container">
-        {/* The three projects the hero's bento does not show (Hulusi,
-            2026-09-06: the teaser repeated the bento's three); the hero
-            covers the library, the playbook and Numerspace. */}
-        <SectionHeading eyebrow={t.lab.label} title={t.home.labTeaser.title} intro={t.home.labTeaser.intro} />
-
-        <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {t.lab.projects.filter((p) => !(HERO_TILES as readonly string[]).includes(p.slug)).map((project, i) => (
-            <Reveal key={project.slug} delay={i * 60}>
-              <LabPlate project={project} />
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal delay={t.lab.projects.length * 60 + 40} className="mt-14">
+        <Reveal delay={360} className="mt-12">
           <ButtonLink href={t.nav.labHref} variant="outline" size="md">
             {t.home.labMore}
             <ArrowRight aria-hidden className="size-4" />
@@ -679,12 +660,12 @@ export default function Site({ lang }: { lang: Lang }) {
       <SiteHeader t={t} />
       <main>
         <Hero t={t} lang={lang} />
+        <Bio t={t} />
         <Work t={t} lang={lang} />
         {/* Expertise, StatsBand and Experience pulled off the home page for
             now - components kept below, just not rendered. Re-add
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
-        <Lab t={t} />
         <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
         <FinalCta t={t} />
